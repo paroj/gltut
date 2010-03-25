@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <title>What is OpenGL</title>
+    <para>Before we can begin looking into writing an OpenGL application, we must first know what it
+        is that we are writing. What exactly is OpenGL?</para>
+    <section>
+        <title>The OpenGL API</title>
+        <para>OpenGL is usually used as an Application Programming Interface
+            (<acronym>API</acronym>). The OpenGL API has been exposed to a number of languages. But
+            the one that they all ultimately use is the C API.</para>
+        <para>The API, in C, is defined by a number of typedefs, #defined enumerators, and
+            functions. The typedefs define basic GL types like <type>GLint</type>,
+                <type>GLfloat</type> and so forth.</para>
+        <para>Complex aggregates like structs are never directly exposed in OpenGL. Any such
+            constructs are hidden behind the API. This makes it easier to expose the OpenGL API to
+            non-C languages without having a complex conversion layer.</para>
+        <para>In C++, if you wanted an aggregate that contained an integer, a float, and a string,
+            you would create it and access it like this:</para>
+        <programlisting>struct Object
+{
+    int anInteger;
+    float aFloat;
+    char *aString;
+};
+
+//Create the storage for the object.
+Object newObject;
+
+//Put data into the object.
+newObject.anInteger = 5;
+newObject.aFloat = 0.4f;
+newObject.aString = "Some String";
+</programlisting>
+        <para>In OpenGL, you would use an API that looks more like this:</para>
+        <programlisting>//Create the storage for the object
+GLuint objectName;
+glGenObject(1, &amp;objectName);
+
+//Put data into the object.
+glBindObject(GL_MODIFY, objectName);
+glObjectParameteri(GL_MODIFY, GL_OBJECT_AN_INTEGER, 5);
+glObjectParameterf(GL_MODIFY, GL_OBJECT_A_FLOAT, 0.4f);
+glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlisting>
+        <para>OpenGL owns the storage for all OpenGL objects. Because of this, the user can only
+            access an object by reference. Almost all OpenGL objects are referred to by an unsigned
+            integer (the <type>GLuint</type>). Objects are created by a function of the form
+                <function>glGen*</function>, where * is the type of the object. The first parameter
+            is the number of objects to create, and the second is a <type>GLuint*</type> array that
+            receives the newly created object names.</para>
+        <para>To modify most objects, they must first be bound to the context. Many objects can be
+            bound to different locations in the context; this allows objects to be used in different
+            ways. These different locations are called <glossterm>targets</glossterm>; all objects
+            have a list of valid targets, and some have only one. In the above example, the
+            fictitious target <quote>GL_MODIFY</quote> is the location where
+                <varname>objectName</varname> is bound.</para>
+        <para>The functions that actually change values within the object are given a target
+            parameter, so that they could modify objects bound to different targets.</para>
+        <para>Note that all OpenGL objects are not as simple as this example, and the functions that
+            change object state do not all follow these naming conventions. Also, exactly what it
+            means to bind an object to the context is explained below.</para>
+    </section>
+    <section>
+        <title>The Structure of OpenGL</title>
+        <para>The OpenGL API is defined as a state machine. Almost all of the OpenGL functions set
+            or retrieve some state in OpenGL. The only functions that do not change state are
+            functions that use the currently set state to cause rendering to happen.</para>
+        <para>You can think of the state machine as a gigantic struct with innumerable different
+            fields. This struct is called the OpenGL <glossterm>context</glossterm>.</para>
+        <para>Objects in OpenGL are thus defined as a list of fields in this struct that can be
+            saved and restored. <glossterm>Binding</glossterm> an object to a target within the
+            context causes the data in this object to replace some of the context's state. Thus
+            after the binding, future function calls that read from or modify this context state
+            will read or modify the state within the object.</para>
+        <para>Objects are usually <type>GLuint</type> integers. The integer value 0 is special; it
+            acts as the object equivalent of a NULL pointer. Binding object 0 means to unbind the
+            currently bound object. This means that the original context state, the state that was
+            in place before the binding took place, now becomes the context state.</para>
+        <para>Due note that this is simply a model of OpenGL's <emphasis>behavior.</emphasis> This
+            is most certainly <emphasis>not</emphasis> how it is actually implemented.</para>
+    </section>
+    <section>
+        <title>The OpenGL Specification</title>
+        <para>To be technical about it, OpenGL is not an API; it is a specification. A simple
+            document. The C API is merely one way to implement the spec. The specification defines
+            the initial OpenGL state, what each function does, and what is supposed to happen when
+            you call a rendering function.</para>
+        <para>The specification is written by the OpenGL Architectural Review Board
+                (<acronym>ARB</acronym>), a group of representatives from companies like Apple,
+            NVIDIA, and AMD (the ATi part), among others. The ARB is part of the <link
+                xlink:href="http://www.khronos.org/">Khronos Group</link>.</para>
+    </section>
+</chapter>

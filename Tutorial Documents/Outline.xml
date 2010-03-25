@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<article xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    version="5.0">
+    <title>Outline</title>
+    <para>This tutorial outline will describe the relationship between the various tutorials, as
+        well as the expected order in which they appear.</para>
+    <section>
+        <title>Hello, Triangle!</title>
+        <para>The most basic of GL programs, this will draw a single solid triangle over a blank
+            background.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>That 3D graphics is made of triangles.</para>
+            </listitem>
+            <listitem>
+                <para>The process of scan conversion.</para>
+            </listitem>
+            <listitem>
+                <para>The data pathway of OpenGL, from input vertex attributes to output fragment
+                    data.</para>
+            </listitem>
+            <listitem>
+                <para>The absolute bare-minimum vertex buffer code.</para>
+            </listitem>
+            <listitem>
+                <para>The absolute bare-minimum vertex shader code.</para>
+            </listitem>
+            <listitem>
+                <para>The absolute bare-minimum fragment shader code.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>OpenGL's Moving Triangle</title>
+        <para>This tutorial has a triangle moving around on the screen.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>OpenGL Objects. They hold state, and you bind them to change state and to
+                    render.</para>
+            </listitem>
+            <listitem>
+                <para>Uniform variables in the OpenGL Shading Language. How to set them in the API
+                    and how to retrieve them in GLSL code.</para>
+            </listitem>
+            <listitem>
+                <para>Basic arithmetic in GLSL. Vector-on-vector arithmetic.</para>
+            </listitem>
+            <listitem>
+                <para>The extent of the space output by a vertex shader (clip space).</para>
+            </listitem>
+            <listitem>
+                <para>Clipping and the Viewport.</para>
+            </listitem>
+            <listitem>
+                <para>Multi-buffering (SwapBuffers).</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Playing with Colors</title>
+        <para>This tutorial puts colors on our triangle.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Vertex arrays/streams. A discussion of how vertex data gets passed
+                    around.</para>
+            </listitem>
+            <listitem>
+                <para>Buffer objects. The containers for vertex data.</para>
+            </listitem>
+            <listitem>
+                <para>Multiple vertex attributes. Matching vertex attributes between the vertex
+                    shader and the vertex array. Passing colors to OpenGL.</para>
+            </listitem>
+            <listitem>
+                <para>Interleaving vertex arrays. The colors should be interleaved with the
+                    positions.</para>
+            </listitem>
+            <listitem>
+                <para>Inputs and outputs between GLSL stages.</para>
+            </listitem>
+            <listitem>
+                <para>Interpolation of the stage inputs/outputs.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Objects at Rest</title>
+        <para>This tutorial shows a scene of objects, along with a recognizable ground plane. This
+            should all be rendered with a perspective projection.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Matrices and matrix math. A basic overview of matrix mathematics.</para>
+            </listitem>
+            <listitem>
+                <para>Perspective projection. The math for making objects look like they're in a 3D
+                    world.</para>
+            </listitem>
+            <listitem>
+                <para>Matrices in GLSL, and vector/matrix operations thereupon.</para>
+            </listitem>
+            <listitem>
+                <para>World to clip transform. How to convert from objects in world-space to
+                    clip-space.</para>
+            </listitem>
+            <listitem>
+                <para>VAOs, multiple. Use these as an example of OpenGL objects storing
+                    state.</para>
+            </listitem>
+            <listitem>
+                <para>Depth buffers. How depth buffers work to hide surfaces.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Objects in Motion</title>
+        <para>This tutorial shows a scene with objects moving in their own coordinate system. This
+            will include using the same mesh in different locations.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Object-local coordinates. Each object can have its own natural coordinate
+                    space. Multiple instances of objects rendered using the same mesh.</para>
+            </listitem>
+            <listitem>
+                <para>Object-to-world transform. How to compute the transformation from object-space
+                    to world-space.</para>
+            </listitem>
+            <listitem>
+                <para>Uniform Buffer Objects. How to have per-instance data and change the instance
+                    data with a single setting, rather than multiple settings. Use std140
+                    layout.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>World in Motion</title>
+        <para>This tutorial has an animated camera moving through a scene containing moving objects
+            and a recognizable floor plane.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Camera-space, as distinct from world and object-local. How to compute
+                    camera-space, and build a sequence of transformations from object to clip
+                    space.</para>
+            </listitem>
+            <listitem>
+                <para>UBOs for shared uniform data (common matrices).</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Lights on</title>
+        <para>This tutorial has a scene with several animated objects and a floor, all lit by a
+            directional and point light, with different colors.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Normals for vertices, and how these interact with faceted models.</para>
+            </listitem>
+            <listitem>
+                <para>Vertex attribute compression: normalized attributes, and doing decompression
+                    in the shader.</para>
+            </listitem>
+            <listitem>
+                <para>Lighting models. How to compute diffuse reflectance based on a light direction
+                    and normal. The importance of an ambient lighting term to model incidental
+                    reflectance.</para>
+            </listitem>
+            <listitem>
+                <para>Directional lights vs. point lights.</para>
+            </listitem>
+            <listitem>
+                <para>Implementing lighting in a vertex shader for both directional and point
+                    lights. Combining results from </para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Plane Lights</title>
+        <para>This tutorial has a scene with a ground plane and an animated light moving over
+            it.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Limitations of per-vertex lighting.</para>
+            </listitem>
+            <listitem>
+                <para>Implementing per-fragment lighting.</para>
+            </listitem>
+            <listitem>
+                <para>Different transforms for lighting. Use different transforms to optimize
+                    fragment lighting by doing some of the computations in the vertex shader.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Texturing the World</title>
+        <para>This tutorial involves putting a texture on a simple, lit object.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Texture objects. An OpenGL object that holds images.</para>
+            </listitem>
+            <listitem>
+                <para>Normalized texture coordinates. Vertex attributes that are used to apply a
+                    texture to a surface.</para>
+            </listitem>
+            <listitem>
+                <para>Texture filtering. How OpenGL computes inbetween values for fragments when you
+                    sample a texture.</para>
+            </listitem>
+            <listitem>
+                <para>The GLSL side of texturing. Samplers and texture functions in fragment
+                    shaders.</para>
+            </listitem>
+            <listitem>
+                <para>Associating textures with programs. Sampler uniforms and texture image
+                    units.</para>
+            </listitem>
+            <listitem>
+                <para>Combining texture colors with the results of lighting.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>More Images is Better</title>
+        <para>This tutorial shows a ground plane with a highly aliased texture. An animated camera
+            shows off the aliasing. Then we apply mipmapping and anisotropic filtering to the
+            surface to improve it.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Texture wrapping. How normalized texture coordinates outside of the [0, 1]
+                    range are interpreted.</para>
+            </listitem>
+            <listitem>
+                <para>Texture aliasing. Where it comes from, and how to solve it.</para>
+            </listitem>
+            <listitem>
+                <para>Mipmap generation.</para>
+            </listitem>
+            <listitem>
+                <para>Mipmap filtering. How it works, and how to set it in OpenGL.</para>
+            </listitem>
+            <listitem>
+                <para>Anisotropic filtering. How it works and how to set it in OpenGL.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Climbing the Mountain</title>
+        <para>This tutorial uses a height map and adjust vertex positions and normals to match it.
+            The height map is a texture. No lighting yet.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Internal image formats, particularly 1-channel textures.</para>
+            </listitem>
+            <listitem>
+                <para>Vertex texture accessing. How it differs from fragment textures (mipmapping
+                    and such).</para>
+            </listitem>
+            <listitem>
+                <para>Using textures for non-color information. Also, scaling of the data that comes
+                    out of the image.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>The Bumpy Mountain</title>
+        <para>Build a height field, but with more fine details. This requires multiple textures: a
+            height texture and a more detailed bump map on top of it. Fill in the details with a
+            bump map. Obviously, this will need to have a light in the scene.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Constructing normals from the height field in the vertex shader.</para>
+            </listitem>
+            <listitem>
+                <para>Offset textures. Constructing normals from the texture map, using offsets into
+                    the detailed bump map.</para>
+            </listitem>
+            <listitem>
+                <para>Texture space-based lighting. Transforming the light into the space of the
+                    texture to do lighting. This requires binormal and tangent vectors.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Ghostly Visage</title>
+        <para>This tutorial involves a scene with some opaque and some transparent objects.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>What the alpha value of a color means. Specifically, that it means whatever
+                    you want.</para>
+            </listitem>
+            <listitem>
+                <para>Framebuffer blending. The blend function, how it works, and how to change it
+                    in OpenGL.</para>
+            </listitem>
+            <listitem>
+                <para>Backface culling. Making sure that the back faces of blended objects don't get
+                    rendered.</para>
+            </listitem>
+            <listitem>
+                <para>How blending interacts with depth writing and testing. Namely, that you have
+                    to manually sort objects now: turn depth writes off and depth tests on.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Video Camera</title>
+        <para>This tutorial involves rendering a view of one scene to a texture used in a different
+            location.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Framebuffer objects and renderbuffers. How to render to different
+                    targets.</para>
+            </listitem>
+            <listitem>
+                <para>Viewport settings.</para>
+            </listitem>
+            <listitem>
+                <para>Rendering the same scene from multiple camera angles. Managing the data for
+                    doing so.</para>
+            </listitem>
+            <listitem>
+                <para>Render to texture. Rendering to a texture and then using that texture as a
+                    source for rendering elsewhere.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Selecting the Masses</title>
+        <para>This tutorial creates a number of entities that all move around, on pre-defined paths,
+            over a surface of bumpy terrain. They don't interact with the terrain. We then render
+            projected selection circles onto the ground beneath them.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Projective texturing. How projecting a texture over a surface works
+                    mathematically, and what support there is in the language.</para>
+            </listitem>
+            <listitem>
+                <para>Multi-pass rendering. Rendering geometry multiple times with a different
+                    program/texture set. Not strictly necessary in this example, but it shows how to
+                    do it if you need to.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>The Coming of Shadows</title>
+        <para>This tutorial creates mountainous terrain, and then applies shadow mapping against a
+            directional light. The light should animate to accentuate the effect.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Depth textures. Single-channel textures that take depth data from an OpenGL
+                    rendering. Can be used as direct render targets.</para>
+            </listitem>
+            <listitem>
+                <para>Texture comparison modes. Changing how the filtering algorithm works so that
+                    texture access compare to a given value, rather than simply sample from a point.
+                    This includes shadow sampler usage.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Of Metal and Plastic</title>
+        <para>This tutorial involves creating a single mesh that has multiple lighting models: one
+            reflective and one very diffuse. There should be an animated light or two that shows
+            this off.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>BDRFs: Lighting models that are a function of surface normal, angle to the
+                    light, and angle to the camera.</para>
+            </listitem>
+            <listitem>
+                <para>The Phong specular lighting model.</para>
+            </listitem>
+            <listitem>
+                <para>Using a texture's value to control the strength of the Phong curve. Introduce
+                    floating-point textures here.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Dynamic Lighting</title>
+        <para>This tutorial takes a scene with directional lighting and shadows, with specular
+            lighting on some of the objects (and an identifiable ground), and applies basic HDR to
+            it.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Non-clamped color spaces. Noting that the [0, 1] range is an approximation,
+                    and that light darkening is completely wrong.</para>
+            </listitem>
+            <listitem>
+                <para>16-bit floating-point values. Useful for blending and not taking up nearly as
+                    much room/performance.</para>
+            </listitem>
+            <listitem>
+                <para>Floating-point render targets. Don't forget the hardware limitations.</para>
+            </listitem>
+            <listitem>
+                <para>HDR techniques. How to reduce a floating-point texture to a [0, 1] range
+                    color.</para>
+            </listitem>
+            <listitem>
+                <para>Why one should use HDR.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Blooming</title>
+        <para>This tutorial takes the previous scene and adds blooming of high powered
+            lights.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Blooming. A multi-pass algorithm of operations over the same texture. All done
+                    before reduction to the integer colorspace.</para>
+            </listitem>
+            <listitem>
+                <para>Introduce R11_G11_B10 as an optimization.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Mirror Mirror</title>
+        <para>This tutorial has a skybox world with a shiny object and light source in it. The shiny
+            object should reflect the world and have proper specular with the light source. It
+            should still use HDR, but blooming is not required.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Skybox: Displays a static world around the object.</para>
+            </listitem>
+            <listitem>
+                <para>Cubemaps. Used to get the reflected color, as well as render the
+                    skybox.</para>
+            </listitem>
+            <listitem>
+                <para>RGB9_E5 Texture format. The skybox should use this format. Compact
+                    floating-point format with good precision and large range of values.</para>
+            </listitem>
+            <listitem>
+                <para>Properly combining lighting models. Adding lights from different sources to
+                    achieve result.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Dark Shadows</title>
+        <para>This tutorial has an animated point-light source and a world of objects, some
+            animated. The point light should cast a shadow via cube-based shadow mapping.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Depth-formatted cube maps. Using cubemaps as depth comparison textures.</para>
+            </listitem>
+            <listitem>
+                <para>Render to Cubemap, using 6 render targets (but one depth renderbuffer).</para>
+            </listitem>
+            <listitem>
+                <para>Geometry shaders and layered rendering. These act as optimizations
+                    (theoretically, at least).</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Twisty Objects, All Alike</title>
+        <para>This tutorial involves rendering a lot of fairly simple animating objects. They all
+            share the same texture. There should be a basic light in the scene.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Instanced rendering. An optimization for rendering multiple objects of the
+                    same kind.</para>
+            </listitem>
+            <listitem>
+                <para>Buffer textures. Used for getting data up to the card.</para>
+            </listitem>
+            <listitem>
+                <para>Buffer object streaming. Used for transferring the data efficiently.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Twisty Objects, All Different</title>
+        <para>As above, only the objects have more per-instance data. Different textures and
+            material parameters per-instance.</para>
+        <para>Concepts:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Conditional logic in fragment shaders.</para>
+            </listitem>
+            <listitem>
+                <para>Non-uniform control flow and Grad textures. Used to select between multiple
+                    texture instances.</para>
+            </listitem>
+            <listitem>
+                <para>Array textures. Used as a better means for selecting which texture to
+                    use.</para>
+            </listitem>
+        </itemizedlist>
+    </section>
+    <section>
+        <title>Functionality that needs tutorials</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>Hierarchical spaces.</glossterm>
+                <glossdef>
+                    <para>Matrix stacks and such.</para>
+                    <para>Might be shown off with a robot or something that moves.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>More vertex attributes</glossterm>
+                <glossdef>
+                    <para>Might be shown off with skinning.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Non-Triangle Primitives</glossterm>
+                <glossdef>
+                    <para>This might also be a good place to show off primitive restart.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Conditional discard</glossterm>
+                <glossdef>
+                    <para>AKA: Alpha test. Also use pre-multiplied alpha.</para>
+                    <para>This might be shown via rendering a tree or a chain-linked fence.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Pixel transfer</glossterm>
+                <glossdef>
+                    <para>Includes PBO for asynchronous delivery</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Compressed image formats</glossterm>
+                <glossdef>
+                    <para>Show these off.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Transform feedback</glossterm>
+                <glossdef>
+                    <para>This should be justified by having a large vertex shader with a good
+                        quantity of vertices, as well as RTT. The feedback is an optimization: you
+                        feedback to simplify things, then use the feedback data with special
+                        shaders.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>2D in 3D</glossterm>
+                <glossdef>
+                    <para>Ortho projections and depth ranges.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Near/far clipping</glossterm>
+                <glossdef>
+                    <para>Some kind of example that shows this stuff off and how to fix it.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Z-fighting</glossterm>
+                <glossdef>
+                    <para>An example to show how it can happen.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Stencil buffer</glossterm>
+                <glossdef>
+                    <para>Something to show their utility.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>3D Textures</glossterm>
+                <glossdef>
+                    <para>Something to show their utility.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Multisampling</glossterm>
+                <glossdef>
+                    <para>Something to show the need for this.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Exact window pixel alignment</glossterm>
+                <glossdef>
+                    <para>Show how to do this in OpenGL.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Scissor box</glossterm>
+                <glossdef>
+                    <para>Something to show this feature off.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Flat Shading</glossterm>
+                <glossdef>
+                    <para>Show this off.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Early Depth Test</glossterm>
+                <glossdef>
+                    <para>Optimization.</para>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
+</article>

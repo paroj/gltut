@@ -1,0 +1,2 @@
+2009-05-04 Alex Tutubalin <lexa@lexa.ru>
+           * Initial release of LibRaw-Lite based on LibRaw-0.7.2

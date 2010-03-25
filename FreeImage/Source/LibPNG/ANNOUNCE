@@ -1,0 +1,96 @@
+
+Libpng 1.2.41 - December 3, 2009
+
+This is a public release of libpng, intended for use in production codes.
+
+Files available for download:
+
+Source files with LF line endings (for Unix/Linux) and with a
+"configure" script
+
+   libpng-1.2.41.tar.xz (LZMA-compressed, recommended)
+   libpng-1.2.41.tar.gz
+   libpng-1.2.41.tar.bz2
+
+Source files with LF line endings (for Unix/Linux) without the
+"configure" script
+
+   libpng-1.2.41-no-config.tar.xz (LZMA-compressed, recommended)
+   libpng-1.2.41-no-config.tar.gz
+   libpng-1.2.41-no-config.tar.bz2
+
+Source files with CRLF line endings (for Windows), without the
+"configure" script
+
+   lpng1241.zip
+   lpng1241.7z
+   lpng1241.tar.bz2
+
+Project files
+
+   libpng-1.2.41-project-netware.zip
+   libpng-1.2.41-project-wince.zip
+
+Other information:
+
+   libpng-1.2.41-README.txt
+   libpng-1.2.41-KNOWNBUGS.txt
+   libpng-1.2.41-LICENSE.txt
+   libpng-1.2.41-Y2K-compliance.txt
+   libpng-1.2.41-[previous version]-diff.txt
+
+Changes since the last public release (1.2.40):
+
+version 1.2.41 [December 3, 2009]
+
+  Moved redundant IHDR checking into new png_check_IHDR() in png.c
+    and report all errors found in the IHDR data.
+  Eliminated useless call to png_check_cHRM() from pngset.c
+  Expanded TAB characters in pngrtran.c
+  Added "xcode" project similar one already in libpng-1.4.0beta (Alam Arias).
+  Eliminated a shadowed declaration of "pp" in png_handle_sPLT().
+  Revised pngconf.h to make it easier to enable iTXt support.  From libpng
+    version 1.2.9 through 1.2.40, defining PNG_iTXt_SUPPORTED did not work
+    as expected.
+  Converted all PNG_NO_* tests to PNG_*_SUPPORTED everywhere except pngconf.h
+  Changed many "#if defined(x)" to "#ifdef x" and fixed some indentation.
+  Added png_calloc() as a non-exported function.
+  Relocated png_do_chop() ahead of building gamma tables in pngrtran.c
+    This avoids building 16-bit gamma tables unnecessarily.
+  Removed a harmless extra png_set_invert_alpha() from pngwrite.c
+  Bugfixes and improvements to CMakeLists.txt (Philip Lowman)
+  Moved CMakeLists.txt from scripts into the main libpng directory.
+  Patched ltmain.sh for wince support.
+  Added PNG_CONVERT_tIME_SUPPORTED macro.
+  Make inclusion of time.h in pngconf.h depend on PNG_CONVERT_tIME_SUPPORTED
+  Updated scripts/pngw32.def and projects/wince/png32ce.def
+  Copied projects/wince/png32ce.def to the scripts directory.
+  Added scripts/makefile.cegcc
+  Added PNG_DEPSTRUCT, PNG_DEPRECATED, PNG_USE_RESULT, PNG_NORETURN, and
+    PNG_ALLOCATED macros to detect deprecated direct access to the
+    png_struct or info_struct members and other deprecated usage in
+    applications (John Bowler).
+  Removed three direct references to read_info_ptr members in pngtest.c
+    that were detected by the new PNG_DEPSTRUCT macro.
+  Marked deprecated function prototypes with PNG_DEPRECATED.
+  Marked memory allocation function prototypes with PNG_ALLOCATED.
+  Changed png_check_sig() to !png_sig_cmp() in contrib programs.
+  Corrected the png_get_IHDR() call in contrib/gregbook/readpng2.c
+  Marked nonexported functions with PNG_PRIVATE macro.
+  Revised scripts/*.def to reflect functions actually exported by libpng.
+  Updated the copyright year in scripts/pngw32.rc from 2004 to 2009.
+  Moved descriptions of makefiles and other scripts out of INSTALL into
+    scripts/README.txt
+  Rebuilt the configure scripts with autoconf-2.65
+  Disabled the new pedantic warnings about deprecated function use and
+    deprecated structure access unless the user defines PNG_PEDANTIC_WARNINGS.
+  Added "#define PNG_NO_PEDANTIC_WARNINGS" in the libpng source files.
+  Updated the list of files and made some cosmetic changes in README.
+
+Send comments/corrections/commendations to png-mng-implement at lists.sf.net
+
+(subscription required; visit
+https://lists.sourceforge.net/lists/listinfo/png-mng-implement
+to subscribe) or to glennrp at users.sourceforge.net
+
+Glenn R-P

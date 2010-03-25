@@ -1,0 +1,1502 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="11.1">
+    <meta>
+        <filters directoryPatterns="" filePatterns=""
+            positiveFilePatterns="" showHiddenFiles="false"/>
+        <options>
+            <serialized version="11.1">
+                <map>
+                    <entry>
+                        <String xml:space="preserve">scenario.associations</String>
+                        <scenarioAssociation-array>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">internal/My DocBook 5/Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">Tutorials.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF Printable</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">Outline.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/G:/Program%20Files/XMLmind_XML_Editor/demo/docbook-modular-book/chapter.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook XHTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/H:/SM/KotoRII/FirstBook.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/H:/SM/KotoRII/Episode%20I/Chapter2.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/H:/SM/KotoRII/Episode%20I/Episode%20I.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/H:/SM/KotoRII/Episode%20I/Chapter3.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook XHTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/H:/SM/KotoRII/Episode%20I/Chapter1.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">file:/H:/SM/KotoRII/BasicOutline.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../WritingDesign/TacticalD20/Anime_d20_SRD_v1.0_-_Chap01-12/DocBook/CharacterCreation.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Critiques/Past%20Mistakes%201%20Trouble.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Critiques/Past%20Mistakes%20Prologue.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Projects/DuelingCircle/DC21.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Programming/ExternalExes/doxygen%20development/Design/DoxyFormat.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Programming/ExternalExes/doxygen%20development/Design/OldData/DoxyFormat.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Writing/KotoRII/Novelization/Episode%20II/Chapter1.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Programming/ExternalExes/doxygen%20development/Design/ProgDocSchema.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Programming/InternalExes/FoMaker/design/FoLoadCodeGen.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF Printable</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Design/RenderToDo.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF Printable</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Writing/KotoRII/Adventures%20of%20Bastila%20and%20Mira/Chapter%202.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF Printable</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">../../../../../Writing/KotoRII/Adventures%20of%20Bastila%20and%20Mira/Chapter%201.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                        </scenarioAssociation-array>
+                    </entry>
+                    <entry>
+                        <String xml:space="preserve">scenarios</String>
+                        <scenario-array>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Execute DDXQuery</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <null/>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <null/>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">DD_XQUERY</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <null/>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list/>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">DataDirect</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Execute SQL</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <null/>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <null/>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">SQL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <null/>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list/>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">JDBC</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Execute XQuery</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <null/>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <null/>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XQUERY</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <null/>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list/>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon-PE XQuery</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Execute XQuery v11.1</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <null/>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <null/>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XQUERY</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <null/>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list/>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon-PE XQuery</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook Chunked HTML</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <String xml:space="preserve">pdf</String>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <String xml:space="preserve">Apache FOP</String>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${frameworks}/docbook/xsl/html/chunkfast.xsl</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <File xml:space="preserve">${cfd}/${cfn}.html</File>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <null/>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">chunk.quietly</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">1</String>
+                                    </field>
+                                    </transformationParameter>
+                                    </list>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon6.5.5</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook HTML</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <String xml:space="preserve">pdf</String>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <String xml:space="preserve">Apache FOP</String>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${frameworks}/docbook/xsl/html/docbook.xsl</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <File xml:space="preserve">${cfd}/${cfn}.html</File>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">draft.mode</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">no</String>
+                                    </field>
+                                    </transformationParameter>
+                                    </list>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon6.5.5</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <String xml:space="preserve">pdf</String>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <String xml:space="preserve">Apache FOP</String>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${frameworks}/docbook/xsl/fo/docbook.xsl</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <File xml:space="preserve">${cfd}/${cfn}.pdf</File>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">draft.mode</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">no</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">paper.type</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">USLetter</String>
+                                    </field>
+                                    </transformationParameter>
+                                    </list>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon6.5.5</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF Kindle</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <String xml:space="preserve">pdf</String>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <String xml:space="preserve">Apache FOP</String>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${frameworks}/docbook/xsl/fo/docbook.xsl</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <File xml:space="preserve">${cfd}/${cfn}.pdf</File>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <null/>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">body.font.master</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">10</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">body.start.indent</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0pt</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">draft.mode</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">no</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.height</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">4.79in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.height.portrait</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">4.79in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.margin.bottom</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.margin.inner</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.margin.outer</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.margin.top</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.width</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">3.59in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">page.width.portrait</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">3.59in</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">title.margin.left</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0pt</String>
+                                    </field>
+                                    </transformationParameter>
+                                    </list>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon6.5.5</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook PDF Printable</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <String xml:space="preserve">pdf</String>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <String xml:space="preserve">Apache FOP</String>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">${frameworks}/docbook/xsl/fo/docbook.xsl</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <File xml:space="preserve">${cfd}/${cfn}.pdf</File>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">body.font.master</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">12</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">body.start.indent</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0pt</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">draft.mode</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">no</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">paper.type</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">USLetter</String>
+                                    </field>
+                                    </transformationParameter>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">title.margin.left</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">0pt</String>
+                                    </field>
+                                    </transformationParameter>
+                                    </list>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon6.5.5</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                            <scenario>
+                                <field name="advancedOptionsMap">
+                                    <null/>
+                                </field>
+                                <field name="name">
+                                    <String xml:space="preserve">Docbook XHTML</String>
+                                </field>
+                                <field name="baseURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="footerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="fOPMethod">
+                                    <String xml:space="preserve">pdf</String>
+                                </field>
+                                <field name="fOProcessorName">
+                                    <String xml:space="preserve">Apache FOP</String>
+                                </field>
+                                <field name="headerURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="inputXSLURL">
+                                    <String xml:space="preserve">file:/G:/Program%20Files/Oxygen%206.2/frameworks/docbook/xsl/xhtml/docbook.xsl</String>
+                                </field>
+                                <field name="inputXMLURL">
+                                    <String xml:space="preserve">${currentFileURL}</String>
+                                </field>
+                                <field name="defaultScenario">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="isFOPPerforming">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="saveAs">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="openInBrowser">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="outputFile">
+                                    <File xml:space="preserve">${cfd}/${cfn}.xhtml</File>
+                                </field>
+                                <field name="openOtherLocationInBrowser">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="locationToOpenInBrowserURL">
+                                    <String xml:space="preserve"></String>
+                                </field>
+                                <field name="openInEditor">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInHTMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInXMLPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInSVGPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="showInResultSetPane">
+                                    <Boolean xml:space="preserve">false</Boolean>
+                                </field>
+                                <field name="useXSLTInput">
+                                    <Boolean xml:space="preserve">true</Boolean>
+                                </field>
+                                <field name="xsltParams">
+                                    <list>
+                                    <transformationParameter>
+                                    <field name="paramDescription">
+                                    <paramDescriptor>
+                                    <field name="localName">
+                                    <String xml:space="preserve">draft.mode</String>
+                                    </field>
+                                    <field name="prefix">
+                                    <null/>
+                                    </field>
+                                    <field name="namespace">
+                                    <null/>
+                                    </field>
+                                    </paramDescriptor>
+                                    </field>
+                                    <field name="value">
+                                    <String xml:space="preserve">no</String>
+                                    </field>
+                                    </transformationParameter>
+                                    </list>
+                                </field>
+                                <field name="cascadingStylesheets">
+                                    <String-array/>
+                                </field>
+                                <field name="xslTransformer">
+                                    <String xml:space="preserve">Saxon6.5.5</String>
+                                </field>
+                                <field name="extensionURLs">
+                                    <String-array/>
+                                </field>
+                            </scenario>
+                        </scenario-array>
+                    </entry>
+                    <entry>
+                        <String xml:space="preserve">scenarios.load.from.project</String>
+                        <Boolean xml:space="preserve">true</Boolean>
+                    </entry>
+                </map>
+            </serialized>
+        </options>
+    </meta>
+    <projectTree name="Tutorial%20Documents.xpr">
+        <folder name="Tutorial 0">
+            <file name="Tutorial%200/Core%20Graphics.xml"/>
+            <file name="Tutorial%200/Tutorial%200.xml"/>
+        </folder>
+        <folder name="Tutorial 1">
+            <file name="Tutorial1/Tutorial%201.xml"/>
+        </folder>
+        <file name="Building%20the%20Tutorials.xml"/>
+        <file name="Outline.xml"/>
+        <file name="Tutorials.xml"/>
+    </projectTree>
+</project>
