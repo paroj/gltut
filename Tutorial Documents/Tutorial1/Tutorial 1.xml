@@ -296,6 +296,10 @@ void main()
                 case, we change it to match the full available area; without this function, resizing
                 the window would have no effect on the rendering. Also, make note of the fact that
                 we make no effort to keep the aspect ratio constant.</para>
+            <para>Recall that window coordinates are in a lower-left coordinate system. So the point
+                (0, 0) is the bottom left of the window. This function takes the bottom left
+                position as the first two coordinates, and the width and height of the viewport
+                rectangle as the other two coordinates.</para>
             <para>Once in window coordinates, OpenGL can now take these 3 vertices and scan-convert
                 it into a series of fragments. In order to do this however, OpenGL must decide what
                 the list of vertices represents.</para>
@@ -528,6 +532,9 @@ void main()
             cleanup function. But part of it is also due to the nature of OpenGL itself. In a simple
             example such as this, there is no need to delete anything. OpenGL will clean up its own
             assets when OpenGL is shut down as part of window deactivation.</para>
+        <para>It is generally good form to delete objects that you create before shutting down
+            OpenGL. And you certainly should do it if you encapsulate objects in C++ objects, such
+            that destructors will delete the OpenGL objects. But it isn't strictly necessary.</para>
     </section>
     <section>
         <title>In Review</title>
@@ -535,8 +542,9 @@ void main()
             how to compile and link shaders, how to pass some basic vertex data to OpenGL, and how
             to render a triangle.</para>
         <section>
-            <title>Things to Try</title>
-            <para>Feel free to modify the tutorial and try any of the following:</para>
+            <title>Further Study</title>
+            <para>Even with a simple tutorial like this, there are many things to play around with
+                and investigate.</para>
             <itemizedlist>
                 <listitem>
                     <para>Change the color value set by the fragment shader to different values. Use
@@ -545,7 +553,9 @@ void main()
                 </listitem>
                 <listitem>
                     <para>Change the positions of the vertex data. Keep position values in the [-1,
-                        1] range, then see what happens when triangles go outside this range.</para>
+                        1] range, then see what happens when triangles go outside this range. Notice
+                        what happens when you change the Z value of the positions (note: nothing
+                        should happen). Keep W at 1.0 for now.</para>
                 </listitem>
                 <listitem>
                     <para>Change the values that <function>reshape</function> gives to
@@ -562,6 +572,11 @@ void main()
                 <listitem>
                     <para>Change the clear color, using values in the range [0, 1]. Notice how this
                         interacts with changes to the viewport.</para>
+                </listitem>
+                <listitem>
+                    <para>Add another 3 vertices to the list, and change the number of vertices sent
+                        in the <function>glDrawArrays</function> call from 3 to 6. Add more and play
+                        with them.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -592,43 +607,70 @@ void main()
                     <glossterm>glEnableVertexAttribArray, glDisableVertexAttribArray,
                         glVertexAttribPointer</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>These functions control vertex attribute arrays.
+                                <function>glEnableVertexAttribArray</function> activates the given
+                            attribute index, <function>glDisableVertexAttribArray</function>
+                            deactivates the given attribute index, and
+                                <function>glVertexAttribPointer</function> defines the format and
+                            source location (buffer object) of the vertex data.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glDrawArrays</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>This function initiates rendering, using the currently active vertex
+                            attributes and the current program object (among other state). It causes
+                            a number of vertices to be pulled from the attribute arrays in
+                            order.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glViewport</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>This function defines the current viewport transform. It defines as a
+                            region of the window, specified by the bottom-left position and a
+                            width/height.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glCreateShader, glShaderSource, glCompileShader</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>These functions create a working shader object.
+                                <function>glCreateShader</function> simply creates an empty shader
+                            object of a particular shader stage. <function>glShaderSource</function>
+                            sets strings into that object; multiple calls to this function simply
+                            overwrite the previously set strings.
+                                <function>glCompileShader</function> causes the shader object to be
+                            compiled with the previously set strings.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glCreateProgram, glAttachShader, glLinkProgram</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>These functions create a working program object.
+                                <function>glCreateProgram</function> creates an empty program
+                            object. <function>glAttachShader</function> attaches a shader object to
+                            that program. Multiple calls attach multiple shader objects.
+                                <function>glLinkProgram</function> links all of the previously
+                            attached shaders into a complete program.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glUseProgram</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>This function causes the given program to become the current program.
+                            All rendering taking place after this call will use this program for the
+                            various shader stages. If the program 0 is given, then no program is
+                            current.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glGetAttribLocation</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>This function retrieves the attribute index of a named attribute. It
+                            takes the program to find the attribute in, and the name of the input
+                            variable of the vertex shader that the user is looking for the attribute
+                            index to.</para>
                     </glossdef>
                 </glossentry>
             </glosslist>

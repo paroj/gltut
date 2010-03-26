@@ -63,6 +63,24 @@
                 <para>Multi-buffering (SwapBuffers).</para>
             </listitem>
         </itemizedlist>
+        <para>Tutorial sub-files:</para>
+        <orderedlist>
+            <listitem>
+                <para>Use BufferSubData to update the triangle's position manually.</para>
+            </listitem>
+            <listitem>
+                <para>Use uniforms and a vertex shader to move the triangle's position. The position
+                    offset comes directly from the user.</para>
+            </listitem>
+            <listitem>
+                <para>Use a vertex shader that generates the position offset based solely on a time
+                    from start.</para>
+            </listitem>
+            <listitem>
+                <para>Use the time value from the last example in the fragment shader to do some
+                    color interpolation.</para>
+            </listitem>
+        </orderedlist>
     </section>
     <section>
         <title>Playing with Colors</title>
