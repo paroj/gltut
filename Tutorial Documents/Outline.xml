@@ -47,6 +47,10 @@
                     and how to retrieve them in GLSL code.</para>
             </listitem>
             <listitem>
+                <para>Granularity in GLSL: input vs. uniform vs. constant. How often each
+                    changes.</para>
+            </listitem>
+            <listitem>
                 <para>Basic arithmetic in GLSL. Vector-on-vector arithmetic.</para>
             </listitem>
             <listitem>

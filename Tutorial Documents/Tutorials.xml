@@ -33,7 +33,7 @@
                 support is in all major browsers except any version of Internet Explorer. And while
                 IE has the dominant marketshare, I'm afraid that these images will remain SVG
                 images. If you are content with Internet Explorer, consider installing the Google
-                Chrome Frame add-on to IE8. This will allow you to see the images correctly.</para>
+                Chrome Frame add-on for IE8. This will allow you to see the images correctly.</para>
         </note>
         <section>
             <title>Yet Another OpenGL Tutorial?</title>
@@ -75,7 +75,7 @@
                 features of the API. This makes it impossible to gloss over seemingly minor yet
                 critical information about how various features of the language and graphics
                 hardware actually work.</para>
-            <para>This does not mean that you should have read other tutorials first. As previously
+            <para>This does not mean that you need to have read other tutorials first. As previously
                 stated, these tutorials are intended primarily for the beginning graphics
                 programmer. These tutorials are in-depth, but they are also designed to break
                 complex subjects down into easily understood sections.</para>

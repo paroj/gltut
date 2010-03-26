@@ -42,7 +42,7 @@
             However, the functioning of it is fairly complicated and intertwined with the
             initialization done in the <function>init</function> function.</para>
         <example>
-            <title>The <function>display</function> function</title>
+            <title>The <function>display</function> Function</title>
             <programlisting>glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 glClear(GL_COLOR_BUFFER_BIT);
 
@@ -87,16 +87,16 @@ glutSwapBuffers();</programlisting>
             rendering to be displayed to the user.</para>
     </section>
     <section>
-        <title>Following the Pipeline</title>
+        <title>Following the Data</title>
         <para>In the <link linkend="core_graphics">basic background section</link>, we described the
             functioning of the OpenGL pipeline. We will now revisit this pipeline in the context of
             the code in tutorial 1. This will give us an understanding about the specifics of how
-            OpenGL goes about things.</para>
+            OpenGL goes about rendering data.</para>
         <section>
             <title>Vertex Transfer</title>
-            <para>The first stage in the pipeline is transforming vertices to clip space. Before
-                OpenGL can do this however, it must receive a list of vertices. So the very first
-                stage of the pipeline is sending triangle data to OpenGL.</para>
+            <para>The first stage in the rasterization pipeline is transforming vertices to clip
+                space. Before OpenGL can do this however, it must receive a list of vertices. So the
+                very first stage of the pipeline is sending triangle data to OpenGL.</para>
             <para>This is the data that we wish to transfer:</para>
             <programlisting>const float vertexPositions[] = {
     0.75f, 0.75f, 0.0f, 1.0f,
@@ -279,10 +279,26 @@ void main()
                 vertex positions are transformed into normalized-device coordinates by dividing the
                 3 XYZ components of the position by the W component. In our case, W is always 1.0,
                 so the positions are already effectively in normalized-device coordinates.</para>
-            <para>After this, the vertex positions are transformed into window coordinates. Once in
-                window coordinates, OpenGL can now take these 3 vertices and scan-convert it into a
-                series of fragments. In order to do this however, OpenGL must decide what the list
-                of vertices represents.</para>
+            <para>After this, the vertex positions are transformed into window coordinates. This is
+                done with something called the <glossterm>viewport transform</glossterm>. This is so
+                named because of the function used to set it up, <function>glViewport</function>.
+                The tutorial calls this function every time the window's size changes. Remember that
+                the framework calls <function>reshape</function> whenever the window's size changes.
+                So the tutorial's implementation of reshape is this:</para>
+            <example>
+                <title>Reshaping Window</title>
+                <programlisting>void reshape (int w, int h)
+{
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+}</programlisting>
+            </example>
+            <para>This tells OpenGL what area of the available area we are rendering to. In this
+                case, we change it to match the full available area; without this function, resizing
+                the window would have no effect on the rendering. Also, make note of the fact that
+                we make no effort to keep the aspect ratio constant.</para>
+            <para>Once in window coordinates, OpenGL can now take these 3 vertices and scan-convert
+                it into a series of fragments. In order to do this however, OpenGL must decide what
+                the list of vertices represents.</para>
             <para>OpenGL can interpret a list of vertices in a variety of different ways. The way
                 OpenGL interprets vertex lists is given by the draw command:</para>
             <programlisting>glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
@@ -323,10 +339,198 @@ void main()
         <title>Making Shaders</title>
         <para>We glossed over exactly how these text strings called shaders actually get used. We
             will go into some detail on that now.</para>
-        <para/>
+        <note>
+            <para>If you are familiar with how shaders work in other APIs, that will not help you
+                here. OpenGL shaders work very differently from the way they work in other
+                APIs.</para>
+        </note>
+        <para>Shaders are written in a C-like language. So OpenGL uses a very C-like compilation
+            model. In C, each individual .c file is compiled into an object file. Then, one or more
+            object files are linked together into a single program (or static/shared library).
+            OpenGL does something very similar.</para>
+        <para>A shader string is compiled into a <glossterm>shader object</glossterm>; this is
+            analogous to an object file. One or more shader objects is linked into a
+                <glossterm>program object</glossterm>.</para>
+        <para>A program object in OpenGL contains code for <emphasis>all</emphasis> of the shaders
+            to be used for rendering. In the tutorial, we have a vertex and a fragment shader; both
+            of these are linked together into a single program object. Building that program object
+            is the responsibility of this code:</para>
+        <example>
+            <title>Program Initialization</title>
+            <programlisting>void InitializeProgram()
+{
+    std::vector&lt;GLuint> shaderList;
+    
+    shaderList.push_back(CreateShader(GL_VERTEX_SHADER, strVertexShader));
+    shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
+    
+    theProgram = CreateProgram(shaderList);
+    
+    positionAttrib = glGetAttribLocation(theProgram, "position");
+}</programlisting>
+        </example>
+        <para>The first statement simply creates a list of the shader objects we intend to link
+            together. The next two statements compile our two shader strings. The
+                <function>CreateShader</function> function is a utility function defined by the
+            tutorial that compiles a shader.</para>
+        <para>Compiling a shader into a shader object is a lot like compiling source code. Most
+            important of all, it involves error checking. This is the implementation of
+                <function>CreateShader</function>:</para>
+        <example>
+            <title>Shader Creation</title>
+            <programlisting>GLuint CreateShader(GLenum eShaderType, const std::string &amp;strShaderFile)
+{
+    GLuint shader = glCreateShader(eShaderType);
+    const char *strFileData = strShaderFile.c_str();
+    glShaderSource(shader, 1, &amp;strFileData, NULL);
+    
+    glCompileShader(shader);
+    
+    GLint status;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &amp;status);
+    if (status == GL_FALSE)
+    {
+        GLint infoLogLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &amp;infoLogLength);
+        
+        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+        glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+        
+        const char *strShaderType = NULL;
+        switch(eShaderType)
+        {
+        case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+        case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+        case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+        }
+        
+        fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+        delete[] strInfoLog;
+    }
+
+	return shader;
+}</programlisting>
+        </example>
+        <para>An OpenGL shader object is, as the name suggests, an object. So the first step is to
+            create the object with <function>glCreateShader</function>. This function creates a
+            shader of a particular type (vertex or fragment), so it takes a parameter that tells
+            what kind of object it creates. Since each state has certain syntax rules and
+            pre-defined variables and constants, the </para>
+        <note>
+            <para>Shader and program objects are objects in OpenGL. But they were rather differently
+                from other kinds of OpenGL objects. For example, creating buffer objects, as shown
+                above, uses a function of the form <quote>glGen*</quote> where * is
+                    <quote>Buffer</quote>. It takes a number of objects to create and a list to put
+                those object handles in.</para>
+            <para>There are many other differences between shader/program objects and other kinds of
+                OpenGL objects.</para>
+        </note>
+        <para>The next step is to actually compile the text shader into the object. The C-style
+            string is retrieved from the C++ <classname>std::string</classname> object, and it is
+            fed into the shader object with the <function>glShaderSource</function> function. The
+            first parameter is the shader object to put the string into. The next parameter is the
+            number of strings to put into the shader. Compiling multiple strings into a single
+            shader object works analogously to compiling header files in C files. Except of course
+            that the .c file explicitly lists the files it includes, while you must manually add
+            them with <function>glShaderSource</function>.</para>
+        <para>The next parameter is an array of const char* strings. The last parameter is normally
+            an array of lengths of the strings. We pass in <literal>NULL</literal>, which tells
+            OpenGL to assume that the string is null-terminated. In general, unless you need to use
+            the null character in a string, there is no need to use the last parameter.</para>
+        <para>Once the strings are in the object, they are compiled with
+                <function>glCompileShader</function>, which simply takes the shader object to
+            compile.</para>
+        <para>After compiling, we need to see if the compilation was successful. We do this by
+            calling <function>glGetShaderiv</function> to retrieve the
+                <literal>GL_COMPILE_STATUS</literal>. If this is GL_FALSE, then the shader failed to
+            compile; otherwise compiling was successful.</para>
+        <para>If compilation fails, we do some error reporting. It prints a message to stderr that
+            explains what failed to compile. It also prints an info log from OpenGL that describes
+            the error; this of this log as the compiler output from a regular C compilation.</para>
+        <para>After creating both shader objects, we then pass them on to the
+                <function>CreateProgram</function> function:</para>
+        <example>
+            <title>Program Creation</title>
+            <programlisting>GLuint CreateProgram(const std::vector&lt;GLuint> &amp;shaderList)
+{
+    GLuint program = glCreateProgram();
+    
+    for(size_t iLoop = 0; iLoop &lt; shaderList.size(); iLoop++)
+    	glAttachShader(program, shaderList[iLoop]);
+    
+    glLinkProgram(program);
+    
+    GLint status;
+    glGetProgramiv (program, GL_LINK_STATUS, &amp;status);
+    if (status == GL_FALSE)
+    {
+        GLint infoLogLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &amp;infoLogLength);
+        
+        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+        glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
+        fprintf(stderr, "Linker failure: %s\n", strInfoLog);
+        delete[] strInfoLog;
+    }
+    
+    return program;
+}</programlisting>
+        </example>
+        <para>This function is fairly simple. It first creates an empty program object with
+                <function>glCreateProgram</function>. This function takes no parameters; remember
+            that program objects are a combination of <emphasis>all</emphasis> shader stages.</para>
+        <para>Next, it attaches each of the previously created shader objects to the programs, by
+            calling the function <function>glAttachShader</function> in a loop over the
+                <classname>std::vector</classname> of shader objects. The program does not need to
+            be told what stage each shader object is for; the shader object itself remembers
+            this.</para>
+        <para>Once all of the shader objects are attached, the code links the program with
+                <function>glLinkProgram</function>. Similar to before, we must then fetch the
+            linking status by calling <function>glGetProgramiv</function> with
+                <literal>GL_LINK_STATUS</literal>. If it is GL_FALSE, then the linking failed and we
+            print the linking log. Otherwise, we return the created program.</para>
+        <formalpara>
+            <title>Vertex Attribute Indexes</title>
+            <para>The last line of <function>InitializeProgram</function> is the key to how
+                attributes are linked between the vertex array data and the vertex program's
+                input.</para>
+        </formalpara>
+        <programlisting>positionAttrib = glGetAttribLocation(theProgram, "position");</programlisting>
+        <para>The function <function>glGetAttribLocation</function> takes a successfully linked
+            program and a string naming one of the inputs of the vertex shader in that program. It
+            returns the attribute index of that input. Therefore, when we use this program, if we
+            want to send some vertex data to the <varname>position</varname> input variable, we
+            simply use the <varname>positionAttrib</varname> value we retrieved from
+                <function>glGetAttribLocation</function> in our call to
+                <function>glVertexAttribPointer</function>.</para>
+        <formalpara>
+            <title>Using Programs</title>
+            <para>To tell OpenGL that rendering commands should use a particular program object, the
+                    <function>glUseProgram</function> function is called. In the tutorial this is
+                called twice in the <function>display</function> function. It is called with the
+                global <varname>theProgram</varname>, which tells OpenGL that we want to use that
+                program for rendering until further notice. It is later called with 0, which tells
+                OpenGL that no programs will be used for rendering.</para>
+        </formalpara>
+        <note>
+            <para>For the purposes of these tutorials, using program objects when rendering is
+                    <emphasis>not</emphasis> optional. OpenGL does have, in its compatibility
+                profile, default rendering state that takes over when a program is not being used.
+                We will not be using this, and you are encouraged to avoid its use as well.</para>
+        </note>
     </section>
     <section>
-        <title>Conclusion</title>
+        <title>Cleanup</title>
+        <para>The tutorial allocates a lot of system resources. It allocates a buffer object, which
+            represents memory on the GPU. It creates two shader objects and a program object. But it
+            never explicitly deletes any of this.</para>
+        <para>Part of this is due to the nature of FreeGLUT, which does not provide hooks for a
+            cleanup function. But part of it is also due to the nature of OpenGL itself. In a simple
+            example such as this, there is no need to delete anything. OpenGL will clean up its own
+            assets when OpenGL is shut down as part of window deactivation.</para>
+    </section>
+    <section>
+        <title>In Review</title>
         <para>At this point, you have a good general overview of how things work in OpenGL. You know
             how to compile and link shaders, how to pass some basic vertex data to OpenGL, and how
             to render a triangle.</para>
@@ -344,9 +548,139 @@ void main()
                         1] range, then see what happens when triangles go outside this range.</para>
                 </listitem>
                 <listitem>
-                    <para/>
+                    <para>Change the values that <function>reshape</function> gives to
+                            <function>glViewport</function>. Make them bigger or smaller than the
+                        window and see what happens. Shift them around to different quadrants within
+                        the window.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the <function>reshape</function> function so that it respects
+                        aspect ratio. This means that the area rendered to may be smaller than the
+                        window area. Also, try to make it so that it always centers it within the
+                        window.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the clear color, using values in the range [0, 1]. Notice how this
+                        interacts with changes to the viewport.</para>
                 </listitem>
             </itemizedlist>
         </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glClearColor, glClear</glossterm>
+                    <glossdef>
+                        <para>These functions clear the current viewable area of the screen.
+                                <function>glClearColor</function> sets the color to clear, while
+                                <function>glClear</function> with the
+                                <literal>GL_COLOR_BUFFER_BIT</literal> value causes the image to be
+                            cleared with that color.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glGenBuffers, glBindBuffer, glBufferData</glossterm>
+                    <glossdef>
+                        <para>These functions are used to create and manipulate buffer objects.
+                                <function>glGenBuffers</function> creates one or more buffers,
+                                <function>glBindBuffer</function> attaches it to a location in the
+                            context, and <function>glBufferData</function> allocates memory and
+                            fills this memory with data from the user into the buffer object.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glEnableVertexAttribArray, glDisableVertexAttribArray,
+                        glVertexAttribPointer</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glDrawArrays</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glViewport</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glCreateShader, glShaderSource, glCompileShader</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glCreateProgram, glAttachShader, glLinkProgram</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glUseProgram</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glGetAttribLocation</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+        </section>
     </section>
+    <glossary>
+        <title>Glossary</title>
+        <glossentry>
+            <glossterm>Buffer Object</glossterm>
+            <glossdef>
+                <para>An OpenGL object that represents a linear array of memory, containing
+                    arbitrary data. The contents of the buffer are defined by the user, but the
+                    memory is allocated by OpenGL. Data in buffer objects can be used for many
+                    purposes, including storing vertex data to be used when rendering.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Vertex Attribute</glossterm>
+            <glossdef>
+                <para>A single input to a vertex shader. Each vertex attribute is a vector of up to
+                    4 elements in length. Vertex attributes are drawn from buffer objects; the
+                    connection between buffer object data and vertex inputs is made with the
+                        <function>glVertexAttribPointer</function> and
+                        <function>glEnableVertexAttribArray</function> functions. Each vertex
+                    attribute in a particular program object has an index; this index can be queried
+                    with <function>glGetAttribLocation</function>. The index is used by the various
+                    other vertex attribute functions to refer to that specific attribute.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Viewport Transform</glossterm>
+            <glossdef>
+                <para>The process of transforming vertex data from normalized device coordinate
+                    space to window space. It specifies the viewable region of a window.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Shader Object</glossterm>
+            <glossdef>
+                <para>An object in the OpenGL API that is used to compile shaders and represent the
+                    compiled shader's information. Each shader object is typed based on the shader
+                    stage that it contains data for.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Program Object</glossterm>
+            <glossdef>
+                <para>An object in the OpenGL API that represents the full sequence of all shader
+                    processing to be used when rendering. Program objects can be queried for
+                    attribute locations and various other information about the program. They also
+                    contain some state that will be seen in later tutorials.</para>
+            </glossdef>
+        </glossentry>
+    </glossary>
 </chapter>

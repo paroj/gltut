@@ -83,13 +83,21 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
     </section>
     <section>
         <title>The OpenGL Specification</title>
-        <para>To be technical about it, OpenGL is not an API; it is a specification. A simple
-            document. The C API is merely one way to implement the spec. The specification defines
-            the initial OpenGL state, what each function does, and what is supposed to happen when
-            you call a rendering function.</para>
+        <para>To be technical about it, OpenGL is not an API; it is a specification. A document. The
+            C API is merely one way to implement the spec. The specification defines the initial
+            OpenGL state, what each function does, and what is supposed to happen when you call a
+            rendering function.</para>
         <para>The specification is written by the OpenGL Architectural Review Board
                 (<acronym>ARB</acronym>), a group of representatives from companies like Apple,
             NVIDIA, and AMD (the ATi part), among others. The ARB is part of the <link
                 xlink:href="http://www.khronos.org/">Khronos Group</link>.</para>
+        <para>The specification is a very complicated and technical document. I do not suggest that
+            the novice graphics programmer read it. However, if you do, the most important thing to
+            understand about it is this: it describes <emphasis>results</emphasis>, not
+            implementation. For example, the spec says that clipping of triangles happens before
+            transforming them from clip-space to normalized device coordinate space. Hardware almost
+            certainly does clipping in normalized device coordinate space, simply because all the
+            vertices are in the same space. It doesn't matter to the results, so it is still a valid
+            OpenGL implementation.</para>
     </section>
 </chapter>
