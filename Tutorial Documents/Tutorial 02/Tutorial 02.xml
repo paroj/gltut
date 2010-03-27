@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <title>OpenGL's Moving Triangle</title>
+    <para>This tutorial will be building off of the previous tutorial. In that tutorial, we had a
+        single, static triangle. Here, we will move it around.</para>
+    <section>
+        <title>Moving the Vertices</title>
+        <para>The simplest way one might think to move a triangle or other object around is to
+            simply modify the vertex position data directly. From the previous tutorial, we learned
+            that the vertex data is stored in a buffer object. This is what
+                <filename>tut2a.cpp</filename> does.</para>
+        <para>The modifications are done in two steps. The first step is to generate the X, Y offset
+            that will be applied to each position. The second is to apply that offset to each vertex
+            position. The generation of the offset is done with the
+                <function>ComputePositionOffset</function> function:</para>
+        <programlisting>void ComputePositionOffsets(float &amp;fXOffset, float &amp;fYOffset)
+{
+    const float fLoopDuration = 5.0f;
+    const float fScale = 3.14159f * 2.0f / fLoopDuration;
+    
+    float fElapsedTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+    
+    float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
+    
+    fXOffset = cosf(fCurrTimeThroughLoop * fScale) * 0.5f;
+    fYOffset = sinf(fCurrTimeThroughLoop * fScale) * 0.5f;
+}</programlisting>
+        <para>This function computes offsets in a loop. The offsets produce circular motion, and the
+            offsets will reach the beginning of the circle every 5 seconds (controlled by
+                <varname>fLoopDuration</varname>). The function
+                <function>glutGet(GLUT_ELAPSED_TIME)</function> retrieves the integer time in
+            milliseconds since the application started. The <function>fmodf</function> function
+            computes the floating-point modulus of the time. In lay terms, it takes the first
+            parameter and returns the remainder of the division between that and the second
+            parameter. Thus, it returns a value on the range [0, <varname>fLoopDuration</varname>),
+            which is what we need to create a periodically repeating pattern.</para>
+        <para>The <function>cosf</function> and <function>sinf</function> functions compute the
+            cosine and sine respectively. It isn't important to know exactly how these functions
+            work, but they effectively compute a circle of radius 2. By multiplying by 0.5f, it
+            shrinks the circle down to a radius of 1.</para>
+        <para>Once the offsets are computed, the offsets have to be added to the vertex data. This
+            is done with the <function>AdjustVertexData</function> function:</para>
+        <programlisting>void AdjustVertexData(float fXOffset, float fYOffset)
+{
+    std::vector&lt;float> fNewData(ARRAY_COUNT(vertexPositions));
+    memcpy(&amp;fNewData[0], vertexPositions, sizeof(vertexPositions));
+    
+    for(int iVertex = 0; iVertex &lt; ARRAY_COUNT(vertexPositions); iVertex += 4)
+    {
+        fNewData[iVertex] += fXOffset;
+        fNewData[iVertex + 1] += fYOffset;
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertexPositions), &amp;fNewData[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}</programlisting>
+        <para>This function works by copying the vertex data into a std::vector, then applying the
+            offset to the X and Y coordinates of each vertex. The last three lines are the
+            OpenGL-relevant parts.</para>
+        <para>First, the buffer objects containing the positions is bound to the context. Then the
+            new function <function>glBufferSubData</function> is called to transfer this data to the
+            buffer object.</para>
+        <para>The difference between <function>glBufferData</function> and
+                <function>glBufferSubData</function> is that the SubData function does not
+                <emphasis>allocate</emphasis> memory. <function>glBufferData</function> specifically
+            allocates memory of a certain size; <function>glBufferSubData</function> only transfers
+            data to the already existing memory. Calling <function>glBufferData</function> on a
+            buffer object that has already been allocated tells OpenGL to
+                <emphasis>reallocate</emphasis> this memory, throwing away the previous data and
+            allocating a fresh block of memory. Whereas calling <function>glBufferSubData</function>
+            on a buffer object that has not yet had memory allocated by
+                <function>glBufferData</function> is an error.</para>
+        <para>Think of <function>glBufferData</function> as a combination of
+                <function>malloc</function> and <function>memcpy</function>, while glBufferSubData
+            is purely <function>memcpy</function>.</para>
+        <para>The <function>glBufferSubData</function> function can update only a portion of the
+            buffer object's memory. The second parameter to the function is the byte offset into the
+            buffer object to begin copying to, and the third parameter is the number of bytes to
+            copy. The fourth parameter is our array of bytes to be copied into that location of the
+            buffer object.</para>
+        <para>The last line of the function is simply unbinding the buffer object. It is not
+            strictly necessary, but it is good form to clean up binds after making them.</para>
+        <formalpara>
+            <title>Buffer Object Usage Hints</title>
+            <para>Every time we draw something, we are changing the buffer object's data. OpenGL has
+                a way to tell it that you will be doing something like this, and it is the purpose
+                of the last parameter of <function>glBufferData</function>. This tutorial changed
+                the allocation of the buffer object slightly, replacing:</para>
+        </formalpara>
+        <programlisting>glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);</programlisting>
+        <para>with this:</para>
+        <programlisting>glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STREAM_DRAW);</programlisting>
+        <para>GL_STATIC_DRAW tells OpenGL that you intend to only set the data in this buffer object
+            once. GL_STREAM_DRAW tells OpenGL that you intend to set this data constantly, generally
+            once per frame. These parameters don't mean <emphasis>anything</emphasis> with regard to
+            the API; they are simply hints to the OpenGL implementation. Proper use of these hints
+            can be crucial for getting good buffer object performance. We will see more of these
+            hints later.</para>
+        <para>The rendering function now has become this:</para>
+        <programlisting>void display()
+{
+    float fXOffset = 0.0f, fYOffset = 0.0f;
+    ComputePositionOffsets(fXOffset, fYOffset);
+    AdjustVertexData(fXOffset, fYOffset);
+    
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glEnableVertexAttribArray(positionAttrib);
+    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(positionAttrib);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</programlisting>
+        <para>The first three lines get the offset and set the vertex data. Everything but the last
+            line is unchanged from the first tutorial. The last line of the function is there to
+            tell FreeGLUT to constantly call <function>display</function>. Ordinarily,
+                <function>display</function> would only be called when the window's size changes or
+            when the window is uncovered. <function>glutPostRedisplay</function> causes FreeGLUT to
+            call <function>display</function> again. Not immediately, but reasonably fast.</para>
+        <para>If you run the tutorial, you will see a smaller triangle (the size was reduced in this
+            tutorial) that slides around in a circle.</para>
+    </section>
+    <section>
+        <title>A Better Way</title>
+        <para>This is fine for a 3-vertex example. But imagine a scene involving millions of
+            vertices. Moving objects this way means having to copy millions of vertices from the
+            original vertex data, add an offset to each of them, and then upload that data to an
+            OpenGL buffer object. And all of that is <emphasis>before</emphasis> rendering. Clearly
+            there must be a better way; games can't possibly do this every frame and still hold
+            decent framerates.</para>
+        <para>Actually for quite some time, they did. In the pre-GeForce 256 days, that was how all
+            games worked. Graphics hardware just took a list of vertices in normalized device
+            coordinate space and rasterized them into fragments and pixels. Granted, in those days,
+            we were talking about maybe 10,000 triangles per frame. And while CPUs have come a long
+            way since then, they haven't scaled with the complexity of graphics scenes.</para>
+        <para>The GeForce 256 (note: not a GT 2xx card, but the very first GeForce card) was the
+            first graphics card that actually did some from of vertex processing. It could store
+            vertices in GPU memory, read them, do some kind of transformation on them, and then send
+            them through the rest of the pipeline. The kinds of transformations that the old GeForce
+            256 could do were quite useful, but fairly simple.</para>
+        <para>Having the benefit of modern hardware and OpenGL 3.x, we have something far more
+            flexible: vertex shaders.</para>
+        <para>Remember what it is that we are doing. We compute an offset. Then we apply that offset
+            to each vertex position. Vertex shaders are given each vertex position. So it makes
+            sense to simply give the vertex shader the offset and let it compute the final vertex
+            position. This is what <filename>tut2b.cpp</filename> does.</para>
+        <para>The vertex shader used here is as follows:</para>
+        <programlisting>#version 150
+
+in vec4 position;
+uniform vec2 offset;
+
+void main()
+{
+    vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
+    gl_Position = position + totalOffset;
+}</programlisting>
+        <para>After defining the input <varname>position</varname>, the shader defines a
+            2-dimensional vector <varname>offset</varname>. But it defines it with the term
+                <literal>uniform</literal>, rather than <literal>in</literal> or
+                <literal>out</literal>. This has a particular meaning.</para>
+        <formalpara>
+            <title>Shaders and Granularity</title>
+            <para>Recall that with each execution of a shader, the shader gets new values for
+                variables defined as <literal>in</literal>. Each time a vertex shader is called, it
+                gets a different set of inputs from the vertex attribute arrays and buffers. That is
+                useful for vertex position data, but it is not what we want for the offset. We want
+                each vertex to use the <emphasis>same</emphasis> offset; a <quote>uniform</quote>
+                offset, if you will.</para>
+        </formalpara>
+        <para>Variables defined as <literal>uniform</literal> do not change at the same frequency as
+            variables defined as <literal>in</literal>. Input variables change with every execution
+            of the shader. Uniform variables (called <glossterm>uniforms</glossterm>) change only
+            between executions of rendering calls. And even then, they only change when the user
+            sets them explicitly. </para>
+        <para>Vertex shader inputs come from vertex attribute array definitions and buffer objects.
+            By contrast, uniforms are set directly on program objects.</para>
+        <para>In order to set a uniform in a program, we need two things. The first is a uniform
+            location. Much like with attributes, you must get an index that refers to the uniform
+            name. In this tutorial, this is done in the <function>InitializeProgram</function>
+            function, with this line:</para>
+        <programlisting>offsetLocation = glGetUniformLocation(theProgram, "offset");</programlisting>
+        <para>The function <function>glGetUniformLocation</function> retrieves the uniform location
+            for the uniform named by the second parameter. Note that, just because a uniform is
+            defined in a shader, GLSL does not <emphasis>have</emphasis> to provide a location for
+            it. It will only if the uniform is actually used in the program, as we see in the vertex
+            shader.</para>
+        <para>Once we have the uniform location, we can set the uniform's value. However, unlike
+            retrieving the uniform location, setting a uniform's value requires that the program be
+            currently in use with <function>glUseProgram</function>. Thus, the rendering code looks
+            like this:</para>
+        <programlisting>void display()
+{
+    float fXOffset = 0.0f, fYOffset = 0.0f;
+    ComputePositionOffsets(fXOffset, fYOffset);
+    
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glUniform2f(offsetLocation, fXOffset, fYOffset);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glEnableVertexAttribArray(positionAttrib);
+    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(positionAttrib);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</programlisting>
+        <para>We use <function>ComputePositionOffsets</function> to get the offsets, and then use
+                <function>glUniform2f</function> to set the uniform's value. The buffer object's
+            data is never changed; the shader simply does the hard work. Which is why those shader
+            stages exist in the first place.</para>
+    </section>
+    <section>
+        <title>More Power to the Shaders</title>
+        <para>It's all well and good that we are no longer having to transform vertices manually.
+            But perhaps we can move more things to the vertex shader. Could it be possible to move
+            all of <function>ComputePositionOffsets</function> to the vertex shader?</para>
+        <para>Well, no. The call to <function>glutGet(GL_ELAPSED_TIME)</function> can't be moved
+            there, since GLSL code cannot directly call C/C++ functions. But everything else can be
+            moved. This is what <filename>tut2c.cpp</filename> does.</para>
+        <para>This is the first tutorial that loads its shaders from files rather than using
+            hard-coded data in the .cpp file. The vertex program is found in
+                <filename>data\tut2c.vert</filename>.</para>
+        <programlisting>#version 150
+
+in vec4 position;
+uniform float loopDuration;
+uniform float time;
+
+void main()
+{
+    float timeScale = 3.14159f * 2.0f / loopDuration;
+    
+    float currTime = mod(time, loopDuration);
+    vec4 totalOffset = vec4(
+        cos(currTime * timeScale) * 0.5f,
+        sin(currTime * timeScale) * 0.5f,
+        0.0f,
+        0.0f);
+    
+    gl_Position = position + totalOffset;
+}</programlisting>
+        <para>This shader takes two uniforms: the duration of the loop and the elapsed time.</para>
+        <para>In this shader, we use a number of built-in functions. Think of these as standard
+            library functions. <function>mod</function>, <function>cos</function>, and
+                <function>sin</function> are all standard GLSL functions that you can use as needed.
+            There are a <emphasis>lot</emphasis> of standard GLSL functions available.</para>
+        <para>The rendering code looks quite similar to the previous rendering code:</para>
+        <programlisting>void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glUniform1f(elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000.0f);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glEnableVertexAttribArray(positionAttrib);
+    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(positionAttrib);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</programlisting>
+        <para>This time, we don't need any code to use the elapsed time; we simply pass it
+            unmodified to the shader.</para>
+        <para>You may be wondering exactly how it is that the <varname>loopDuration</varname>
+            uniform gets set. This is done in our shader initialization routine, and it is done only
+            once:</para>
+        <programlisting>void InitializeProgram()
+{
+    std::vector&lt;GLuint> shaderList;
+    
+    shaderList.push_back(LoadShader(GL_VERTEX_SHADER, "tut2c.vert"));
+    shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
+    
+    theProgram = CreateProgram(shaderList);
+    
+    positionAttrib = glGetAttribLocation(theProgram, "position");
+    elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
+    
+    GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+    glUseProgram(theProgram);
+    glUniform1f(loopDurationUnf, 5.0f);
+    glUseProgram(0);
+}</programlisting>
+        <para>Notice the call to <function>LoadShader</function> for the vertex shader, rather than
+                <function>CreateShader</function>. This is a simple routine that loads the file and
+            passes it in its entirety to the <function>CreateShader</function> function.</para>
+        <para>We get the time uniform as normal with <function>glGetUniformLocation</function>. For
+            the loop duration, we get that in a local variable. Then we immediately set the current
+            program object, set the uniform to a value, and then unset the current program
+            object.</para>
+        <para>Program objects, like all objects that contain internal state, will retain their state
+            unless you explicitly change it. So the value of <varname>loopDuration</varname> will be
+            5.0f in perpetuity; we do not need to set it every frame.</para>
+    </section>
+    <section>
+        <title>Multiple Shaders</title>
+        <para>Well, moving the triangle around is nice and all, but it would also be good if we
+            could do something time-based in the fragment shader. Fragment shaders cannot affect the
+            position of the object, but they can control its color. And this is what
+                <filename>tut2d.cpp</filename> does.</para>
+        <para>The fragment shader in this tutorial is also loaded from the file
+                <filename>data\tut2d.frag</filename>:</para>
+        <programlisting>#version 150
+
+out vec4 outputColor;
+
+uniform float fragLoopDuration;
+uniform float time;
+
+const vec4 firstColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+const vec4 secondColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+void main()
+{
+    float currTime = mod(time, fragLoopDuration);
+    float currLerp = currTime / fragLoopDuration;
+    
+    outputColor = mix(firstColor, secondColor, currLerp);
+}</programlisting>
+        <para>This function is similar to the periodic loop in the vertex shader (which did not
+            change from the last time we saw it). Instead of using sin/cos functions to compute the
+            coordinates of a circle, interpolates between two colors based on how far it is through
+            the loop. When it is at the start of the loop, the triangle will be
+                <varname>firstColor</varname>, and when it is at the end of the loop, it will be
+                <varname>secondColor</varname>.</para>
+        <para>The standard library function <function>mix</function> performs linear interpolation
+            between two values. Like many GLSL standard functions, it can take vector parameters; it
+            will perform component-wise operations on them. So each of the four components of the
+            two parameters will be linearly interpolated by the 3rd parameter. The third parameter,
+                <varname>currLerp</varname> in this case, is a value between 0 and 1. When it is 0,
+            the return value from <function>mix</function> will be the first parameter; when it is
+            1, the return value will be the second parameter.</para>
+        <para>Here is the program initialization code:</para>
+        <programlisting>void InitializeProgram()
+{
+    std::vector&lt;GLuint> shaderList;
+    
+    shaderList.push_back(LoadShader(GL_VERTEX_SHADER, "tut2d.vert"));
+    shaderList.push_back(LoadShader(GL_FRAGMENT_SHADER, "tut2d.frag"));
+    
+    theProgram = CreateProgram(shaderList);
+    
+    positionAttrib = glGetAttribLocation(theProgram, "position");
+    elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
+    
+    GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+    GLuint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
+    
+    
+    glUseProgram(theProgram);
+    glUniform1f(loopDurationUnf, 5.0f);
+    glUniform1f(fragLoopDurUnf, 10.0f);
+    glUseProgram(0);
+}</programlisting>
+        <para>As before, we get the uniform locations for <varname>time</varname> and
+                <varname>loopDuration</varname>, as well as the new
+                <varname>fragLoopDuration</varname>. We then set the two loop durations for the
+            program.</para>
+        <para>You may be wondering how the <varname>time</varname> uniform for the vertex shader and
+            fragment shader get set? One of the advantages of the GLSL compilation model, which
+            links vertex and fragment shaders together into a single object, is that uniforms of the
+            same name and type are concatenated. So there is only one uniform location for
+                <varname>time</varname>, and it refers to the uniform in both shaders.</para>
+        <para>The downside of this is that, if you create one uniform in one shader that has the
+            same name as a uniform in a different shader, but a different <emphasis>type</emphasis>,
+            OpenGL will give you a linker error and fail to generate a program. Also, it is possible
+            to accidentally link two uniforms into one. In the tutorial, the fragment shader's loop
+            duration had to be given a different name, or else the two shaders would have shared the
+            same loop duration.</para>
+        <para>In any case, because of this, the rendering code is unchanged. The time uniform is
+            updated each frame with FreeGLUT's elapsed time.</para>
+    </section>
+    <section>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned about uniform variables in shaders. Uniforms are
+            shader variables that change, not with every shader envocation, but between rendering
+            calls. Uniform values are parameters set by the user to control the behavior of the
+            shader. Setting them requires querying a uniform location as well as setting the program
+            to be in use. Uniform state is stored within a program object and preserved until
+            explicitly changed. A uniform that has the same name and type in two different shader
+            stages within the same linked program is the same uniform; setting it will change it for
+            both stages.</para>
+        <para>You have also learned a little about how to update the contents of a buffer object,
+            though we are <emphasis>far</emphasis> from finished with that subject.</para>
+        <section>
+            <title>Further Study</title>
+            <para>There are several things you can test to see what happens with these
+                tutorials.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>With <filename>tut2c.cpp</filename>, change it so that it draws two
+                        triangles moving in a circle, with one a half
+                            <varname>loopDuration</varname> ahead of the other. Simply change the
+                        uniforms after the <function>glDrawArrays</function> call and then make the
+                            <function>glDrawArrays</function> call again. Add half of the loop
+                        duration to the time before setting it the second time.</para>
+                </listitem>
+                <listitem>
+                    <para>In <filename>tut2d.cpp</filename>, change it so that the fragment program
+                        bounces between <varname>firstColor</varname> and
+                            <varname>secondColor</varname>, rather than popping from
+                            <varname>secondColor</varname> back to first at the end of a loop. The
+                        first-to-second-to-first transition should all happen within a single
+                            <function>fragLoopDuration</function> time interval. In case you are
+                        wondering, GLSL supports the <literal>if</literal> statement, as well as the
+                        ?: operator. For bonus points however, do it without an explicit conditional
+                        statement; feel free to use a sin or cos function to do this.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Functions of Note</title>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glBufferSubData</glossterm>
+                    <glossdef>
+                        <para>This function copies memory from the user's memory address into a
+                            buffer object. This function takes a byte offset into the buffer object
+                            to begin copying, as well as a number of bytes to copy.</para>
+                        <para>When this function returns control to the user, you are free to
+                            immediately deallocate the memory you owned. So you can allocate and
+                            fill a piece of memory, call this function, and immediately free that
+                            memory with no hazardous side effects. OpenGL will not store the pointer
+                            or make use of it later.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glGetUniformLocation</glossterm>
+                    <glossdef>
+                        <para>This function retrieves the location of a uniform of the given name
+                            from the given program object. If that uniform does not exist or wasn't
+                            considered in use by GLSL, then this function returns -1, which is not a
+                            valid uniform location.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glUniform*</glossterm>
+                    <glossdef>
+                        <para>Sets the given uniform in the program currently in use (set by
+                                <function>glUseProgram)</function> to the given value. This is not
+                            merely one function, but an entire suite of functions that take
+                            different types.</para>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+        </section>
+    </section>
+    <glossary>
+        <title>Glossary</title>
+        <glossentry>
+            <glossterm>Uniforms</glossterm>
+            <glossdef>
+                <para>These are a class of global variable that can be defined in GLSL shaders. They
+                    represent values that are uniform (unchanging) over the course of a single
+                    rendering operation.</para>
+            </glossdef>
+        </glossentry>
+    </glossary>
+</chapter>

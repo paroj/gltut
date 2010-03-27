@@ -1488,12 +1488,15 @@
         </options>
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
-        <folder name="Tutorial 0">
-            <file name="Tutorial%200/Core%20Graphics.xml"/>
-            <file name="Tutorial%200/Tutorial%200.xml"/>
+        <folder name="Tutorial 00">
+            <file name="Tutorial%2000/Core%20Graphics.xml"/>
+            <file name="Tutorial%2000/Tutorial%200.xml"/>
         </folder>
-        <folder name="Tutorial 1">
-            <file name="Tutorial1/Tutorial%201.xml"/>
+        <folder name="Tutorial 01">
+            <file name="Tutorial%2001/Tutorial%201.xml"/>
+        </folder>
+        <folder name="Tutorial 02">
+            <file name="Tutorial%2002/Tutorial%2002.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="Outline.xml"/>

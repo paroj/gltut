@@ -137,8 +137,8 @@ void ComputePositionOffsets(float &fXOffset, float &fYOffset)
 
 	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
 
-	fYOffset = cosf(fCurrTimeThroughLoop * fScale) * 0.5f;
-	fXOffset = sinf(fCurrTimeThroughLoop * fScale) * 0.5f;
+	fXOffset = cosf(fCurrTimeThroughLoop * fScale) * 0.5f;
+	fYOffset = sinf(fCurrTimeThroughLoop * fScale) * 0.5f;
 }
 
 void AdjustVertexData(float fXOffset, float fYOffset)

@@ -88,6 +88,9 @@
         <para>Concepts:</para>
         <itemizedlist>
             <listitem>
+                <para>gl_FragCoord and its values.</para>
+            </listitem>
+            <listitem>
                 <para>Vertex arrays/streams. A discussion of how vertex data gets passed
                     around.</para>
             </listitem>
@@ -109,6 +112,18 @@
                 <para>Interpolation of the stage inputs/outputs.</para>
             </listitem>
         </itemizedlist>
+        <para>Tutorial sub-files:</para>
+        <orderedlist>
+            <listitem>
+                <para>Use gl_FragCoord to calculate fragment colors based on the position of the
+                    fragments.</para>
+            </listitem>
+            <listitem>
+                <para>Use multiple vertex arrays to send position and color data. Use a vertex
+                    shader output/fragment shader input to pass the per-vertex colors
+                    through.</para>
+            </listitem>
+        </orderedlist>
     </section>
     <section>
         <title>Objects at Rest</title>
