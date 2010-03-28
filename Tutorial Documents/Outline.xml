@@ -116,7 +116,7 @@
         <orderedlist>
             <listitem>
                 <para>Use gl_FragCoord to calculate fragment colors based on the position of the
-                    fragments.</para>
+                    fragments. Use the moving triangle as a base.</para>
             </listitem>
             <listitem>
                 <para>Use multiple vertex arrays to send position and color data. Use a vertex

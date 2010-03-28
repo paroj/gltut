@@ -1498,6 +1498,9 @@
         <folder name="Tutorial 02">
             <file name="Tutorial%2002/Tutorial%2002.xml"/>
         </folder>
+        <folder name="Tutorial 03">
+            <file name="Tutorial%2003/Tutorial%2003.xml"/>
+        </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="Outline.xml"/>
         <file name="Tutorials.xml"/>

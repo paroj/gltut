@@ -1,51 +1,85 @@
-/*
-* smooth_opengl3.c, based on smooth.c, which is (c) by SGI, see below.
-* This program demonstrates smooth shading in a way which is fully
-* OpenGL-3.1-compliant.
-* A smooth shaded polygon is drawn in a 2-D projection.
-*/
 
-/*
-* Original copyright notice from smooth.c:
-*
-* License Applicability. Except to the extent portions of this file are
-* made subject to an alternative license as permitted in the SGI Free
-* Software License B, Version 1.1 (the "License"), the contents of this
-* file are subject only to the provisions of the License. You may not use
-* this file except in compliance with the License. You may obtain a copy
-* of the License at Silicon Graphics, Inc., attn: Legal Services, 1600
-* Amphitheatre Parkway, Mountain View, CA 94043-1351, or at:
-* 
-* http://oss.sgi.com/projects/FreeB
-* 
-* Note that, as provided in the License, the Software is distributed on an
-* "AS IS" basis, with ALL EXPRESS AND IMPLIED WARRANTIES AND CONDITIONS
-* DISCLAIMED, INCLUDING, WITHOUT LIMITATION, ANY IMPLIED WARRANTIES AND
-* CONDITIONS OF MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A
-* PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
-* 
-* Original Code. The Original Code is: OpenGL Sample Implementation,
-* Version 1.2.1, released January 26, 2000, developed by Silicon Graphics,
-* Inc. The Original Code is Copyright (c) 1991-2000 Silicon Graphics, Inc.
-* Copyright in any portions created by third parties is as indicated
-* elsewhere herein. All Rights Reserved.
-* 
-* Additional Notice Provisions: The application programming interfaces
-* established by SGI in conjunction with the Original Code are The
-* OpenGL(R) Graphics System: A Specification (Version 1.2.1), released
-* April 1, 1999; The OpenGL(R) Graphics System Utility Library (Version
-* 1.3), released November 4, 1998; and OpenGL(R) Graphics with the X
-* Window System(R) (Version 1.3), released October 19, 1998. This software
-* was created using the OpenGL(R) version 1.2.1 Sample Implementation
-* published by SGI, but has not been independently verified as being
-* compliant with the OpenGL(R) version 1.2.1 Specification.
-*
-*/
-
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
 #include <glloader/gl_3_2_comp.h>
 #include <glloader/wgl_exts.h>
 #include <glloader/gle.h>
 #include <GL/freeglut.h>
+
+
+namespace Framework
+{
+	GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
+	{
+		GLuint shader = glCreateShader(eShaderType);
+		const char *strFileData = strShaderFile.c_str();
+		glShaderSource(shader, 1, &strFileData, NULL);
+
+		glCompileShader(shader);
+
+		GLint status;
+		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+		if (status == GL_FALSE)
+		{
+			GLint infoLogLength;
+			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+			GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+			glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+
+			const char *strShaderType = NULL;
+			switch(eShaderType)
+			{
+			case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+			case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+			case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+			}
+
+			fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+			delete[] strInfoLog;
+		}
+
+		return shader;
+	}
+
+	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename)
+	{
+		std::string strFilename = "data\\" + strShaderFilename;
+		std::ifstream shaderFile(strFilename.c_str());
+		std::stringstream shaderData;
+		shaderData << shaderFile.rdbuf();
+		shaderFile.close();
+
+		return CreateShader(eShaderType, shaderData.str());
+	}
+
+	GLuint CreateProgram(const std::vector<GLuint> &shaderList)
+	{
+		GLuint program = glCreateProgram();
+
+		for(size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
+			glAttachShader(program, shaderList[iLoop]);
+
+		glLinkProgram(program);
+
+		GLint status;
+		glGetProgramiv (program, GL_LINK_STATUS, &status);
+		if (status == GL_FALSE)
+		{
+			GLint infoLogLength;
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+			GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+			glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
+			fprintf(stderr, "Linker failure: %s\n", strInfoLog);
+			delete[] strInfoLog;
+		}
+
+		return program;
+	}
+}
 
 
 void init();

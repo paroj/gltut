@@ -13,6 +13,7 @@ function SetupProject(projName, ...)
 		language "c++"
 		
 		files { "../framework/framework.cpp" }
+		files { "../framework/framework.h" }
 		files {...}
 		targetdir "bin"
 
