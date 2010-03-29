@@ -16,7 +16,9 @@
             that will be applied to each position. The second is to apply that offset to each vertex
             position. The generation of the offset is done with the
                 <function>ComputePositionOffset</function> function:</para>
-        <programlisting>void ComputePositionOffsets(float &amp;fXOffset, float &amp;fYOffset)
+        <example>
+            <title>Computation of Position Offsets</title>
+            <programlisting>void ComputePositionOffsets(float &amp;fXOffset, float &amp;fYOffset)
 {
     const float fLoopDuration = 5.0f;
     const float fScale = 3.14159f * 2.0f / fLoopDuration;
@@ -28,6 +30,7 @@
     fXOffset = cosf(fCurrTimeThroughLoop * fScale) * 0.5f;
     fYOffset = sinf(fCurrTimeThroughLoop * fScale) * 0.5f;
 }</programlisting>
+        </example>
         <para>This function computes offsets in a loop. The offsets produce circular motion, and the
             offsets will reach the beginning of the circle every 5 seconds (controlled by
                 <varname>fLoopDuration</varname>). The function
@@ -43,7 +46,9 @@
             shrinks the circle down to a radius of 1.</para>
         <para>Once the offsets are computed, the offsets have to be added to the vertex data. This
             is done with the <function>AdjustVertexData</function> function:</para>
-        <programlisting>void AdjustVertexData(float fXOffset, float fYOffset)
+        <example>
+            <title>Adjusting the Vertex Data</title>
+            <programlisting>void AdjustVertexData(float fXOffset, float fYOffset)
 {
     std::vector&lt;float> fNewData(ARRAY_COUNT(vertexPositions));
     memcpy(&amp;fNewData[0], vertexPositions, sizeof(vertexPositions));
@@ -58,6 +63,7 @@
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertexPositions), &amp;fNewData[0]);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }</programlisting>
+        </example>
         <para>This function works by copying the vertex data into a std::vector, then applying the
             offset to the X and Y coordinates of each vertex. The last three lines are the
             OpenGL-relevant parts.</para>
@@ -101,7 +107,9 @@
             can be crucial for getting good buffer object performance. We will see more of these
             hints later.</para>
         <para>The rendering function now has become this:</para>
-        <programlisting>void display()
+        <example>
+            <title>Updating and Drawing the Vertex Data</title>
+            <programlisting>void display()
 {
     float fXOffset = 0.0f, fYOffset = 0.0f;
     ComputePositionOffsets(fXOffset, fYOffset);
@@ -124,6 +132,7 @@
     glutSwapBuffers();
     glutPostRedisplay();
 }</programlisting>
+        </example>
         <para>The first three lines get the offset and set the vertex data. Everything but the last
             line is unchanged from the first tutorial. The last line of the function is there to
             tell FreeGLUT to constantly call <function>display</function>. Ordinarily,
@@ -158,7 +167,9 @@
             sense to simply give the vertex shader the offset and let it compute the final vertex
             position. This is what <filename>tut2b.cpp</filename> does.</para>
         <para>The vertex shader used here is as follows:</para>
-        <programlisting>#version 150
+        <example>
+            <title>Offsetting Vertex Shader</title>
+            <programlisting>#version 150
 
 in vec4 position;
 uniform vec2 offset;
@@ -168,6 +179,7 @@ void main()
     vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
     gl_Position = position + totalOffset;
 }</programlisting>
+        </example>
         <para>After defining the input <varname>position</varname>, the shader defines a
             2-dimensional vector <varname>offset</varname>. But it defines it with the term
                 <literal>uniform</literal>, rather than <literal>in</literal> or
@@ -202,7 +214,9 @@ void main()
             retrieving the uniform location, setting a uniform's value requires that the program be
             currently in use with <function>glUseProgram</function>. Thus, the rendering code looks
             like this:</para>
-        <programlisting>void display()
+        <example>
+            <title>Draw with Calculated Offsets</title>
+            <programlisting>void display()
 {
     float fXOffset = 0.0f, fYOffset = 0.0f;
     ComputePositionOffsets(fXOffset, fYOffset);
@@ -226,6 +240,7 @@ void main()
     glutSwapBuffers();
     glutPostRedisplay();
 }</programlisting>
+        </example>
         <para>We use <function>ComputePositionOffsets</function> to get the offsets, and then use
                 <function>glUniform2f</function> to set the uniform's value. The buffer object's
             data is never changed; the shader simply does the hard work. Which is why those shader
@@ -242,7 +257,9 @@ void main()
         <para>This is the first tutorial that loads its shaders from files rather than using
             hard-coded data in the .cpp file. The vertex program is found in
                 <filename>data\tut2c.vert</filename>.</para>
-        <programlisting>#version 150
+        <example>
+            <title>Offset Computing Vertex Shader</title>
+            <programlisting>#version 150
 
 in vec4 position;
 uniform float loopDuration;
@@ -261,13 +278,16 @@ void main()
     
     gl_Position = position + totalOffset;
 }</programlisting>
+        </example>
         <para>This shader takes two uniforms: the duration of the loop and the elapsed time.</para>
         <para>In this shader, we use a number of built-in functions. Think of these as standard
             library functions. <function>mod</function>, <function>cos</function>, and
                 <function>sin</function> are all standard GLSL functions that you can use as needed.
             There are a <emphasis>lot</emphasis> of standard GLSL functions available.</para>
         <para>The rendering code looks quite similar to the previous rendering code:</para>
-        <programlisting>void display()
+        <example>
+            <title>Rendering with Time</title>
+            <programlisting>void display()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -288,12 +308,15 @@ void main()
     glutSwapBuffers();
     glutPostRedisplay();
 }</programlisting>
+        </example>
         <para>This time, we don't need any code to use the elapsed time; we simply pass it
             unmodified to the shader.</para>
         <para>You may be wondering exactly how it is that the <varname>loopDuration</varname>
             uniform gets set. This is done in our shader initialization routine, and it is done only
             once:</para>
-        <programlisting>void InitializeProgram()
+        <example>
+            <title>Loading Shaders from Files</title>
+            <programlisting>void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
     
@@ -310,6 +333,7 @@ void main()
     glUniform1f(loopDurationUnf, 5.0f);
     glUseProgram(0);
 }</programlisting>
+        </example>
         <para>Notice the call to <function>LoadShader</function> for the vertex shader, rather than
                 <function>CreateShader</function>. This is a simple routine that loads the file and
             passes it in its entirety to the <function>CreateShader</function> function.</para>
@@ -329,7 +353,9 @@ void main()
                 <filename>tut2d.cpp</filename> does.</para>
         <para>The fragment shader in this tutorial is also loaded from the file
                 <filename>data\tut2d.frag</filename>:</para>
-        <programlisting>#version 150
+        <example>
+            <title>Time-based Fragment Shader</title>
+            <programlisting>#version 150
 
 out vec4 outputColor;
 
@@ -346,6 +372,7 @@ void main()
     
     outputColor = mix(firstColor, secondColor, currLerp);
 }</programlisting>
+        </example>
         <para>This function is similar to the periodic loop in the vertex shader (which did not
             change from the last time we saw it). Instead of using sin/cos functions to compute the
             coordinates of a circle, interpolates between two colors based on how far it is through
@@ -360,7 +387,9 @@ void main()
             the return value from <function>mix</function> will be the first parameter; when it is
             1, the return value will be the second parameter.</para>
         <para>Here is the program initialization code:</para>
-        <programlisting>void InitializeProgram()
+        <example>
+            <title>More Shader Creation</title>
+            <programlisting>void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
     
@@ -381,6 +410,7 @@ void main()
     glUniform1f(fragLoopDurUnf, 10.0f);
     glUseProgram(0);
 }</programlisting>
+        </example>
         <para>As before, we get the uniform locations for <varname>time</varname> and
                 <varname>loopDuration</varname>, as well as the new
                 <varname>fragLoopDuration</varname>. We then set the two loop durations for the
@@ -398,6 +428,56 @@ void main()
             same loop duration.</para>
         <para>In any case, because of this, the rendering code is unchanged. The time uniform is
             updated each frame with FreeGLUT's elapsed time.</para>
+        <formalpara>
+            <title>Globals in shaders</title>
+            <para>Variables at global scope in GLSL can be defined with certain storage qualifiers:
+                    <literal>const</literal>, <literal>uniform</literal>, <literal>in</literal>, and
+                    <literal>out</literal>. A <literal>const</literal> value works like it does in
+                C99 and C++: the value doesn't change, period. It must have an initializer. An
+                unqualified variable works like one would expect in C/C++; it is a global value that
+                can be changed. GLSL shaders can call functions, and globals can be shared between
+                functions.</para>
+        </formalpara>
+    </section>
+    <section>
+        <title>Vertex Shader Performance</title>
+        <para>These tutorials are simple, but it is still important to look at the performance
+            implications of various operations. In this tutorial, we present 3 ways of moving vertex
+            data: transform it yourself on the CPU and upload it to buffer objects, generate
+            transform parameters on the CPU and have the vertex shader use them to do the transform,
+            and put as much as possible in the vertex shader and only have the CPU provide the most
+            basic parameters. Which is the best to use?</para>
+        <para>This is not an easy question to answer. However, it is almost always the case that CPU
+            transformations will be slower than doing it on the GPU. The only time it won't be is if
+            you need to do the exact same transformations many times within the same frame. And even
+            then, it is better to do the transformations once on the GPU and save the result of that
+            in a buffer object that you will pull from later. This is called transform feedback, and
+            it will be covered in a later tutorial.</para>
+        <para>Between the other two methods, which is better really depends on the specific case.
+            Take our example. In one case, we compute the offset on the CPU and pass it to the GPU.
+            The GPU applies the offset to each vertex position. In the other case, we simply provide
+            a time parameter, and for every vertex, the GPU must compute the <emphasis>exact
+                same</emphasis> offset. This means that the vertex shader is doing a lot of work
+            that all comes out to the same number.</para>
+        <para>Even so, that doesn't mean it's always slower. What matters is the overhead of
+            changing data. Changing a uniform takes time; changing a vector uniform typically takes
+            no more time than changing a single float, due to the way that many cards handle
+            floating-point math. The question is this: what is the cost of doing more complex
+            operations in a vertex shader vs. how often those operations need to be done.</para>
+        <para>The second vertex shader we use, the one that computes the offset itself, does a lot
+            of complex map. Sine and cosine values are <emphasis>not</emphasis> fast to compute.
+            They require quite a few computations to calculate. And since the offset itself doesn't
+            change for each vertex, it would be best to compute the offset on the CPU and pass the
+            offset as a uniform value.</para>
+        <para>And typically, that is how rendering is done much of the time. Vertex shaders are
+            given transformation values that are pre-computed on the CPU. But this does not mean
+            that this is the only or best way to do this. In some cases, it is often useful to
+            compute the offsets via parameterized functions in a vertex shader.</para>
+        <para>This is best done when vertex shader inputs are abstracted away. That is, rather than
+            passing a position, the user passes more general information, and the shader generates
+            the position at a particular time or some other parameter. This can be done for particle
+            systems based on forces; the vertex shader executes the force functions based on time,
+            and is able to thus compute the location of the particle at an arbitrary time.</para>
     </section>
     <section>
         <title>In Review</title>

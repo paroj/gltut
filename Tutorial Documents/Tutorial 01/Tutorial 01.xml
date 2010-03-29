@@ -88,7 +88,7 @@ glutSwapBuffers();</programlisting>
     </section>
     <section>
         <title>Following the Data</title>
-        <para>In the <link linkend="core_graphics">basic background section</link>, we described the
+        <para>In the <link linkend="tut_00">basic background section</link>, we described the
             functioning of the OpenGL pipeline. We will now revisit this pipeline in the context of
             the code in tutorial 1. This will give us an understanding about the specifics of how
             OpenGL goes about rendering data.</para>

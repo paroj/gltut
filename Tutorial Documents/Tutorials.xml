@@ -86,7 +86,7 @@
                 sections of code will be described.</para>
         </section>
     </preface>
-    <xi:include href="Building Tutorials.xml"/>
+    <xi:include href="Building the Tutorials.xml"/>
     <part>
         <info>
             <title>The Basics</title>
@@ -96,8 +96,8 @@
                 core of the OpenGL pipeline. These provide core information about how OpenGL works,
                 how its pipeline works, what the basic flow of information is within OpenGL.</para>
         </partintro>
-        <xi:include href="tutorial 0/Core Graphics.xml"/>
-        <xi:include href="tutorial 0/tutorial 0.xml"/>
+        <xi:include href="tutorial 00/tutorial 0.xml"/>
+        <xi:include href="tutorial 01/tutorial 01.xml"/>
     </part>
     <part>
         <info>
@@ -109,6 +109,8 @@
                 as doing what is necessary to make those objects appear as though they are in a
                 3-dimensional space.</para>
         </partintro>
+        <xi:include href="tutorial 02/tutorial 02.xml"/>
+        <xi:include href="tutorial 03/tutorial 03.xml"/>
     </part>
     <part>
         <info>

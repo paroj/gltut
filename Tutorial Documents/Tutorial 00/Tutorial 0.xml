@@ -1,25 +1,266 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
-<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+<chapter xml:id="tut_00" xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
-    <title>What is OpenGL</title>
-    <para>Before we can begin looking into writing an OpenGL application, we must first know what it
-        is that we are writing. What exactly is OpenGL?</para>
+    <title>Introduction</title>
+    <para>Unlike most of the tutorials, this introduction is purely text. There is no source code or
+        project associated with this tutorial.</para>
+    <para>Here, we will be discussing graphical rendering theory and OpenGL. This serves as a primer
+        to the rest of the tutorials.</para>
     <section>
-        <title>The OpenGL API</title>
-        <para>OpenGL is usually used as an Application Programming Interface
-            (<acronym>API</acronym>). The OpenGL API has been exposed to a number of languages. But
-            the one that they all ultimately use is the C API.</para>
-        <para>The API, in C, is defined by a number of typedefs, #defined enumerators, and
-            functions. The typedefs define basic GL types like <type>GLint</type>,
-                <type>GLfloat</type> and so forth.</para>
-        <para>Complex aggregates like structs are never directly exposed in OpenGL. Any such
-            constructs are hidden behind the API. This makes it easier to expose the OpenGL API to
-            non-C languages without having a complex conversion layer.</para>
-        <para>In C++, if you wanted an aggregate that contained an integer, a float, and a string,
-            you would create it and access it like this:</para>
-        <programlisting>struct Object
+        <title>Graphics and Rendering</title>
+        <para>These tutorials are for users with any knowledge of graphics or none. As such, there
+            is some basic background information you need to know before we can start looking at
+            actual OpenGL code.</para>
+        <para>Everything you see on your screen, even the text you are reading right now (assuming
+            you are reading this on an electronic display device, rather than a printout) is simply
+            a two-dimensional array of pixels. If you take a screenshot of something on your screen,
+            and blow it up, it will look very blocky.</para>
+        <!--TODO: Add an image of blocky pixels here.-->
+        <para>Each of these blocks is a <glossterm>pixel</glossterm>. The word <quote>pixel</quote>
+            is derived from the term <quote><acronym>Pic</acronym>ture
+                <acronym>El</acronym>ement</quote>. Every pixel on your screen has a particular
+            color. A two-dimensional array of pixels is called an
+            <glossterm>image</glossterm>.</para>
+        <para>The purpose of graphics of any kind is therefore to determine what color to put in
+            what pixels. This determination is what makes text look like text, windows look like
+            windows, and so forth.</para>
+        <para>Since all graphics are just a two-dimensional array of pixels, how does 3D work? 3D
+            graphics is thus a system of producing colors for pixels that convince you that the
+            scene you are looking at is a 3D world rather than a 2D image. The process of converting
+            a 3D world into a 2D image of that world is called
+            <glossterm>rendering.</glossterm></para>
+        <para>There are several methods of rendering a 3D world. The process used by real-time
+            graphics hardware, such as that found in your computer, involves a very great deal of
+            fakery. This process is called <glossterm>rasterization,</glossterm> and a rendering
+            system that uses rasterization is called a <glossterm>rasterizer.</glossterm></para>
+        <para>In rasterizers, all objects that you see are empty shells. There are techniques that
+            are used to allow you to cut open these empty shells, but this simply replaces part of
+            the shell with another shell that shows what the inside looks like. Everything is a
+            shell.</para>
+        <para>All of these shells are made of triangles. Even surfaces that appear to be round are
+            merely triangles if you look closely enough. There are techniques that generate more
+            triangles for objects that appear closer or larger, so that the viewer can almost never
+            see the faceted silhouette of the object. But they are always made of triangles.</para>
+        <note>
+            <para>Some rasterizers use planar quadrilaterals: four-sided objects, where all of the
+                lines lie in the same plane. One of the reasons that graphics hardware always uses
+                triangles is that all of the lines of triangles are guaranteed to be in the same
+                plane.</para>
+        </note>
+        <para>Objects made from triangles are often called <glossterm>geometry</glossterm>, a
+                <glossterm>model</glossterm> or a <glossterm>mesh</glossterm>; these terms are used
+            interchangeably.</para>
+        <para>The process of rasterization has several phases. These phases are ordered into a
+            pipeline, where triangles enter from the top and a 2D image is filled in at the bottom.
+            This is one of the reasons why rasterization is so amenable to hardware acceleration: it
+            operates on each triangle one at a time, in a specific order.</para>
+        <para>This also means that the order in which meshes are submitted to the rasterizer can
+            affect its output.</para>
+        <para>OpenGL is an API for accessing a hardware-based rasterizer. As such, it conforms to
+            the model for rasterizers. A rasterizer receives a sequence of triangles from the user,
+            performs operations on them, and writes pixels based on this triangle data. This is a
+            simplification of how rasterization works in OpenGL, but it is useful for our
+            purposes.</para>
+        <formalpara>
+            <title>Triangles and Vertices</title>
+            <para>Triangles consist of 3 vertices. A vertex consists of a collection of data. For
+                the sake of simplicity (we will expand upon this later), let us say that this data
+                must contain a point in three dimensional space. Any 3 points that are not on the
+                same line create a triangle, so the smallest information for a triangle consists of
+                3 three-dimensional points.</para>
+        </formalpara>
+        <para>A point in 3D space is defined by 3 numbers or coordinates. An X coordinate, a Y
+            coordinate, and a Z coordinate. These are commonly written with parenthesis, as in (X,
+            Y, Z).</para>
+        <section>
+            <title>Rasterization Overview</title>
+            <para>The rasterization pipeline, particularly for modern hardware, is very complex.
+                This is a very simplified overview of this pipeline. It is necessary to have a
+                simple understanding of the pipeline before we look at the details of rendering
+                things with OpenGL. Those details can be overwhelming without a high level
+                overview.</para>
+            <formalpara>
+                <title>Clip Space Transformation</title>
+                <para>The first phase of rasterization is to transform the vertices of each triangle
+                    into a certain volume of space. Everything within this volume will be rendered
+                    to the output image, and everything that falls outside of this region will not
+                    be. This region corresponds to the view of the world that the user wants to
+                    render, to some degree.</para>
+            </formalpara>
+            <para>The volume that the triangle is transformed into is called, in OpenGL parlance,
+                    <glossterm>clip space</glossterm>. The positions of a vertex of a triangle in
+                clip space are called <glossterm>clip coordinates.</glossterm></para>
+            <para>Clip coordinates are a little different from regular positions. A position in 3D
+                space has 3 coordinates. A position in clip space has <emphasis>four</emphasis>
+                coordinates. The first three are the usual X, Y, Z positions; the fourth is called
+                W. This last coordinate actually defines the extents of clip space is for this
+                vertex.</para>
+            <para>Clip space can actually be different for different vertices. It is a region of 3D
+                space on the range [-W, W] in each of the X, Y, and Z directions. So vertices with a
+                different W coordinate are in a different clip space cube from other vertices. Since
+                each vertex can have an independent W component, each vertex of a triangle exists in
+                its own clip space.</para>
+            <para>In clip space, the positive X direction is to the right, the positive Y direction
+                is up, and the positive Z direction is away from the viewer.</para>
+            <!--TODO: Add an image of clip space here.-->
+            <para>The process of transforming vertices into clip space is quite arbitrary. OpenGL
+                provides a lot of flexibility in this step. We will cover this step in detail
+                throughout the tutorials.</para>
+            <para>Because clip space is the visible transformed version of the world, any triangles
+                that fall outside of this region are discarded. Any triangles that are partially
+                outside of this region undergo a process called <glossterm>clipping.</glossterm>
+                This breaks the triangle apart into a number of smaller triangles, such that the
+                smaller triangles cover the area within clip space. Hence the name <quote>clip
+                    space.</quote></para>
+            <formalpara>
+                <title>Normalized Coordinates</title>
+                <para>Clip space is interesting, but inconvenient. The extent of this space is
+                    different for each vertex, which makes visualizing a triangle rather difficult.
+                    Therefore, clip space is transformed into a more reasonable coordinate space:
+                        <glossterm>normalized device coordinates</glossterm>.</para>
+            </formalpara>
+            <para>This process is very simple. The X, Y, and Z of each vertex's position is divided
+                by W to get normalized device coordinates. That is all.</para>
+            <para>Therefore, the space of normalized device coordinates is essentially just clip
+                space, except that the range of X, Y and Z are [-1, 1]. The directions are all the
+                same. The division by W is an important part of projecting 3D triangles onto 2D
+                images, but we will cover that in a future tutorial.</para>
+            <formalpara>
+                <title>Window Transformation</title>
+                <para>The next phase of rasterization is to transform the vertices of each triangle
+                    again. This time, they are converted from normalized device coordinates to
+                        <glossterm>window coordinates</glossterm>. As the name suggests, window
+                    coordinates are relative to the window that OpenGL is running within.</para>
+            </formalpara>
+            <para>Even though they refer to the window, they are still three dimensional
+                coordinates. The X goes to the right, Y goes up, and Z goes away, just as for clip
+                space. The only difference is that the bounds for these coordinates depends on the
+                viewable window. It should also be noted that while these are in window coordinates,
+                none of the precision is lost. These are not integer coordinates; they are still
+                floating-point values, and thus they have precision beyond that of a single
+                pixel.</para>
+            <para>The bounds for Z are [0, 1], with 0 being the closest and 1 being the farthest.
+                Vertex positions outside of this range are not visible.</para>
+            <para>Note that window coordinates have the bottom-left position as the (0, 0) origin
+                point. This is counter to what users are used to in window coordinates, which is
+                having the top-left position be the origin. There are transform tricks you can play
+                to allow you to work in a top-left coordinate space.</para>
+            <para>The full details of this process will be discussed at length as the tutorials
+                progress.</para>
+            <formalpara>
+                <title>Scan Conversion</title>
+                <para>After converting the coordinates of a triangle to window coordinates, the
+                    triangle undergoes a process called <glossterm>scan conversion.</glossterm> This
+                    process takes the triangle and breaks it up based on the arrangement of window
+                    pixels over the output image that the triangle covers.</para>
+            </formalpara>
+            <!--TODO: Show a series of images, starting with a triangle, then overlying it with a pixel grid, followed by one showing
+which pixels get filled in.-->
+            <para>The specifics of which pixels get used and which do not for a triangle is not
+                important. What matters more than that is the fact that if two triangles are
+                perfectly adjacent, such that they share the same input vertex positions, the output
+                rasterization will never have holes or double coverage. Along the shared line, there
+                will be no overlap or holes between the two triangles.</para>
+            <para>The result of scan converting a triangle is a sequence of boxes along the area of
+                the triangle. These boxes are called <glossterm>fragments.</glossterm></para>
+            <para>Each fragment has certain data associated with it. This data contains the 2D
+                location of the fragment in window coordinates, and the Z value of the fragment.
+                This Z value is known as the depth of the fragment. There may be other information
+                that is part of a fragment, and we will expand on that in later tutorials.</para>
+            <formalpara>
+                <title>Fragment Processing</title>
+                <para>This phase takes a fragment from a scan converted triangle and transforms it
+                    into one or more color values and a single depth value. The order that fragments
+                    from a single triangle are processed in is irrelevant; since a single triangle
+                    lies in a single plane, fragments generated from it cannot possible overlap.
+                    However, the fragments from another triangle can possibly overlap. Since order
+                    is important in a rasterizer, the fragments from one triangle must be processed
+                    before the fragments from another triangle.</para>
+            </formalpara>
+            <para>This phase is quite arbitrary. The user of OpenGL has a lot of options of how to
+                decide what color to assign a fragment. We will cover this step in detail throughout
+                the tutorials.</para>
+            <note>
+                <title>Direct3D Note</title>
+                <para>Direct3D prefers to call this stage <quote>pixel processing</quote> or
+                        <quote>pixel shading</quote>. This is a misnomer, because as we will see in
+                    tutorials on antialiasing, multiple fragments from a single triangle can be
+                    combined together to form an output pixel. Also, the fragment has not been
+                    written to the image as of yet. Indeed, this step can conditionally prevent
+                    rendering of a fragment based on arbitrary computations. Thus a
+                        <quote>pixel</quote> in D3D parlance may never actually become a pixel at
+                    all.</para>
+            </note>
+            <formalpara>
+                <title>Fragment Writing</title>
+                <para>After generating one or more colors and a depth value, the fragment is written
+                    to the destination image. This step involves more than simply writing to the
+                    destination image. Combining the color and depth with the colors that are
+                    currently in the image can involve a number of computations. These will be
+                    covered in detail in various tutorials.</para>
+            </formalpara>
+        </section>
+        <section>
+            <title>Colors</title>
+            <para>Previously, a pixel was stated to be an element in a 2D image that has a
+                particular color. A color can be described in many ways.</para>
+            <para>In computer graphics, the usual description of a color is as a series of numbers
+                on the range [0, 1]. Each of the numbers corresponds to the intensity of a
+                particular reference color; thus the final color represented by the series of
+                numbers is a mix of these reference colors.</para>
+            <para>The set of reference colors is called a <glossterm>colorspace</glossterm>. The
+                most common color space a screen is RGB, where the reference colors are Red, Green
+                and Blue. Printed works tend to use CMYK (Cyan, Magenta, Yellow, Black). Since we're
+                dealing with rendering to a screen, and because OpenGL requires it, we will use the
+                RGB colorspace.</para>
+            <para>So a pixel in OpenGL is defined as 3 values on the range [0, 1] that represent a
+                color in the RGB colorspace. This will get extended slightly, as we deal with
+                transparency later.</para>
+        </section>
+        <section>
+            <title>Shader</title>
+            <para>A <glossterm>shader</glossterm> is a program designed to be run on a renderer as
+                part of the rendering operation. Regardless of the kind of rendering system in use,
+                shaders can only be executed at certain points in that rendering process. These
+                    <glossterm>shader stages</glossterm> represent hooks where a user can add
+                arbitrary algorithms to create a specific visual effect.</para>
+            <para>In term of rasterization as outlined above, there are several shader stages where
+                arbitrary processing is both economical for performance and offers high utility to
+                the user. For example, the transformation of an incoming vertex to clip space is a
+                useful hook for user-defined code, as is the processing of a fragment into final
+                colors and depth.</para>
+            <para>Shaders for OpenGL are run on the actual rendering hardware. This can often free
+                up valuable CPU time for other tasks, or simply perform operations that would be
+                difficult if not impossible without the flexibility of executing arbitrary code. A
+                downside of this is that they must live within certain limits, some of them quite
+                il-defined, that CPU code does not have to.</para>
+            <para>There are a number of shading languages available to various APIs. The one used in
+                this tutorial is the primary shading language of OpenGL. It is called,
+                unimaginatively, the OpenGL Shading Language, or <acronym>GLSL</acronym>. for short.
+                It looks deceptively like C, but it is very much <emphasis>not</emphasis> C.</para>
+        </section>
+    </section>
+    <section>
+        <title>What is OpenGL</title>
+        <para>Before we can begin looking into writing an OpenGL application, we must first know
+            what it is that we are writing. What exactly is OpenGL?</para>
+        <section>
+            <title>OpenGL as an API</title>
+            <para>OpenGL is usually looked at as an Application Programming Interface
+                    (<acronym>API</acronym>). The OpenGL API has been exposed to a number of
+                languages. But the one that they all ultimately use at their lowest level is the C
+                API.</para>
+            <para>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
+                functions. The typedefs define basic GL types like <type>GLint</type>,
+                    <type>GLfloat</type> and so forth.</para>
+            <para>Complex aggregates like structs are never directly exposed in OpenGL. Any such
+                constructs are hidden behind the API. This makes it easier to expose the OpenGL API
+                to non-C languages without having a complex conversion layer.</para>
+            <para>In C++, if you wanted an object that contained an integer, a float, and a string,
+                you would create it and access it like this:</para>
+            <programlisting>struct Object
 {
     int anInteger;
     float aFloat;
@@ -34,8 +275,8 @@ newObject.anInteger = 5;
 newObject.aFloat = 0.4f;
 newObject.aString = "Some String";
 </programlisting>
-        <para>In OpenGL, you would use an API that looks more like this:</para>
-        <programlisting>//Create the storage for the object
+            <para>In OpenGL, you would use an API that looks more like this:</para>
+            <programlisting>//Create the storage for the object
 GLuint objectName;
 glGenObject(1, &amp;objectName);
 
@@ -44,60 +285,184 @@ glBindObject(GL_MODIFY, objectName);
 glObjectParameteri(GL_MODIFY, GL_OBJECT_AN_INTEGER, 5);
 glObjectParameterf(GL_MODIFY, GL_OBJECT_A_FLOAT, 0.4f);
 glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlisting>
-        <para>OpenGL owns the storage for all OpenGL objects. Because of this, the user can only
-            access an object by reference. Almost all OpenGL objects are referred to by an unsigned
-            integer (the <type>GLuint</type>). Objects are created by a function of the form
-                <function>glGen*</function>, where * is the type of the object. The first parameter
-            is the number of objects to create, and the second is a <type>GLuint*</type> array that
-            receives the newly created object names.</para>
-        <para>To modify most objects, they must first be bound to the context. Many objects can be
-            bound to different locations in the context; this allows objects to be used in different
-            ways. These different locations are called <glossterm>targets</glossterm>; all objects
-            have a list of valid targets, and some have only one. In the above example, the
-            fictitious target <quote>GL_MODIFY</quote> is the location where
-                <varname>objectName</varname> is bound.</para>
-        <para>The functions that actually change values within the object are given a target
-            parameter, so that they could modify objects bound to different targets.</para>
-        <para>Note that all OpenGL objects are not as simple as this example, and the functions that
-            change object state do not all follow these naming conventions. Also, exactly what it
-            means to bind an object to the context is explained below.</para>
+            <para>None of these are actual OpenGL commands, of course. This is simply an example of
+                what the interface to such an object would look like.</para>
+            <para>OpenGL owns the storage for all OpenGL objects. Because of this, the user can only
+                access an object by reference. Almost all OpenGL objects are referred to by an
+                unsigned integer (the <type>GLuint</type>). Objects are created by a function of the
+                form <function>glGen*</function>, where * is the type of the object. The first
+                parameter is the number of objects to create, and the second is a
+                    <type>GLuint*</type> array that receives the newly created object names.</para>
+            <para>To modify most objects, they must first be bound to the context. Many objects can
+                be bound to different locations in the context; this allows the same object to be
+                used in different ways. These different locations are called
+                    <glossterm>targets</glossterm>; all objects have a list of valid targets, and
+                some have only one. In the above example, the fictitious target
+                    <quote>GL_MODIFY</quote> is the location where <varname>objectName</varname> is
+                bound.</para>
+            <para>The functions that actually change values within the object are given a target
+                parameter, so that they could modify objects bound to different targets.</para>
+            <para>Note that all OpenGL objects are not as simple as this example, and the functions
+                that change object state do not all follow these naming conventions. Also, exactly
+                what it means to bind an object to the context is explained below.</para>
+        </section>
+        <section>
+            <title>The Structure of OpenGL</title>
+            <para>The OpenGL API is defined as a state machine. Almost all of the OpenGL functions
+                set or retrieve some state in OpenGL. The only functions that do not change state
+                are functions that use the currently set state to cause rendering to happen.</para>
+            <para>You can think of the state machine as a very large struct with a great many
+                different fields. This struct is called the OpenGL <glossterm>context</glossterm>,
+                and each field in the context represents some information necessary for
+                rendering.</para>
+            <para>Objects in OpenGL are thus defined as a list of fields in this struct that can be
+                saved and restored. <glossterm>Binding</glossterm> an object to a target within the
+                context causes the data in this object to replace some of the context's state. Thus
+                after the binding, future function calls that read from or modify this context state
+                will read or modify the state within the object.</para>
+            <para>Objects are usually represented as <type>GLuint</type> integers; these are handles
+                to the actual OpenGL objects. The integer value 0 is special; it acts as the object
+                equivalent of a NULL pointer. Binding object 0 means to unbind the currently bound
+                object. This means that the original context state, the state that was in place
+                before the binding took place, now becomes the context state.</para>
+            <para>Due note that this is simply a model of OpenGL's <emphasis>behavior.</emphasis>
+                This is most certainly <emphasis>not</emphasis> how it is actually
+                implemented.</para>
+        </section>
+        <section>
+            <title>The OpenGL Specification</title>
+            <para>To be technical about it, OpenGL is not an API; it is a specification. A document.
+                The C API is merely one way to implement the spec. The specification defines the
+                initial OpenGL state, what each function does, and what is supposed to happen when
+                you call a rendering function.</para>
+            <para>The specification is written by the OpenGL <glossterm>Architectural Review
+                    Board</glossterm> (<acronym>ARB</acronym>), a group of representatives from
+                companies like Apple, NVIDIA, and AMD (the ATi part), among others. The ARB is part
+                of the <link xlink:href="http://www.khronos.org/">Khronos Group</link>.</para>
+            <para>The specification is a very complicated and technical document. I do not suggest
+                that the novice graphics programmer read it. If you do however, the most important
+                thing to understand about it is this: it describes <emphasis>results</emphasis>, not
+                implementation. For example, the spec says that clipping of triangles happens before
+                transforming them from clip-space to normalized device coordinate space. Hardware
+                almost certainly does clipping in normalized device coordinate space, simply because
+                all the vertices are in the same space. It doesn't matter to the results, so it is
+                still a valid OpenGL implementation.</para>
+        </section>
     </section>
-    <section>
-        <title>The Structure of OpenGL</title>
-        <para>The OpenGL API is defined as a state machine. Almost all of the OpenGL functions set
-            or retrieve some state in OpenGL. The only functions that do not change state are
-            functions that use the currently set state to cause rendering to happen.</para>
-        <para>You can think of the state machine as a gigantic struct with innumerable different
-            fields. This struct is called the OpenGL <glossterm>context</glossterm>.</para>
-        <para>Objects in OpenGL are thus defined as a list of fields in this struct that can be
-            saved and restored. <glossterm>Binding</glossterm> an object to a target within the
-            context causes the data in this object to replace some of the context's state. Thus
-            after the binding, future function calls that read from or modify this context state
-            will read or modify the state within the object.</para>
-        <para>Objects are usually <type>GLuint</type> integers. The integer value 0 is special; it
-            acts as the object equivalent of a NULL pointer. Binding object 0 means to unbind the
-            currently bound object. This means that the original context state, the state that was
-            in place before the binding took place, now becomes the context state.</para>
-        <para>Due note that this is simply a model of OpenGL's <emphasis>behavior.</emphasis> This
-            is most certainly <emphasis>not</emphasis> how it is actually implemented.</para>
-    </section>
-    <section>
-        <title>The OpenGL Specification</title>
-        <para>To be technical about it, OpenGL is not an API; it is a specification. A document. The
-            C API is merely one way to implement the spec. The specification defines the initial
-            OpenGL state, what each function does, and what is supposed to happen when you call a
-            rendering function.</para>
-        <para>The specification is written by the OpenGL Architectural Review Board
-                (<acronym>ARB</acronym>), a group of representatives from companies like Apple,
-            NVIDIA, and AMD (the ATi part), among others. The ARB is part of the <link
-                xlink:href="http://www.khronos.org/">Khronos Group</link>.</para>
-        <para>The specification is a very complicated and technical document. I do not suggest that
-            the novice graphics programmer read it. However, if you do, the most important thing to
-            understand about it is this: it describes <emphasis>results</emphasis>, not
-            implementation. For example, the spec says that clipping of triangles happens before
-            transforming them from clip-space to normalized device coordinate space. Hardware almost
-            certainly does clipping in normalized device coordinate space, simply because all the
-            vertices are in the same space. It doesn't matter to the results, so it is still a valid
-            OpenGL implementation.</para>
-    </section>
+    <glossary>
+        <title>Glossary</title>
+        <glossentry>
+            <glossterm>pixel</glossterm>
+            <glossdef>
+                <para>The smallest division of a digital image. A pixel has a particular color in a
+                    particular colorspace.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>image</glossterm>
+            <glossdef>
+                <para>A two-dimensional array of pixels.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>colorspace</glossterm>
+            <glossdef>
+                <para>The set of reference colors that define a way of representing a color in
+                    computer graphics. All colors are defined relative to a particular
+                    colorspace.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>rendering</glossterm>
+            <glossdef>
+                <para>The process of taking the source 3D world and converting it into a 2D image
+                    that represents a view of that world from a particular angle.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>rasterization</glossterm>
+            <glossdef>
+                <para>A particular rendering method, used to convert a series of 3D triangles into a
+                    2D image.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>geometry, model, mesh</glossterm>
+            <glossdef>
+                <para>A single object in 3D space made of triangles.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>vertex</glossterm>
+            <glossdef>
+                <para>One of the 3 elements that make up a triangle. Vertices can contain arbitrary
+                    of data, but among that data is a 3-dimensional position representing the
+                    location of the vertex in 3D space.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>clip space, clip coordinates</glossterm>
+            <glossdef>
+                <para>A region of three-dimensional space into which vertex positions are
+                    transformed. These vertex positions are 4 dimensional quantities. The fourth
+                    component (W) of clip coordinates represents the visible range of clip space for
+                    that vertex. So the X, Y, and Z component of clip coordinates must be between
+                    [-W, W] to be a visible part of the world.</para>
+                <para>In clip space, positive X goes right, positive Y up, and positive Z
+                    away.</para>
+                <para>Clip-space vertices are output by the vertex processing stage of the rendering
+                    pipeline.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>normalized device coordinates</glossterm>
+            <glossdef>
+                <para>These are clip coordinates that have been divided by their fourth component.
+                    This makes this range of space the same for all components. Vertices with
+                    positions on the range [-1, 1] are visible, and other vertices are not.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>window space, window coordinates</glossterm>
+            <glossdef>
+                <para>A region of three-dimensional space that normalized device coordinates are
+                    mapped to. The X and Y positions of vertices in this space are relative to the
+                    destination image. The origin is in the bottom-left, with positive X going right
+                    and positive Y going up. The Z value is a number on the range [0, 1], where 0 is
+                    the closest value and 1 is the farthest. Vertex positions outside of this range
+                    are not visible.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>scan conversion</glossterm>
+            <glossdef>
+                <para>The process of taking a triangle in window space and converting it into a
+                    number of fragments based on projecting it onto the pixels of the output
+                    image.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>fragment</glossterm>
+            <glossdef>
+                <para>A single element of a scan converted triangle. A fragment can contain
+                    arbitrary data, but among that data is a 3-dimensional position, identifying the
+                    location on the triangle in window space where this fragment originates
+                    from.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>shader</glossterm>
+            <glossdef>
+                <para>A program designed to be executed by a renderer, in order to perform some
+                    user-defined operations.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>shader stage</glossterm>
+            <glossdef>
+                <para>A particular place in a rendering pipeline where a shader can be executed to
+                    perform a computation.</para>
+            </glossdef>
+        </glossentry>
+    </glossary>
 </chapter>
