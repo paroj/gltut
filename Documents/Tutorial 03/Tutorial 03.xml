@@ -280,10 +280,11 @@ void main()
 }</programlisting>
         </example>
         <para>This shader takes two uniforms: the duration of the loop and the elapsed time.</para>
-        <para>In this shader, we use a number of built-in functions. Think of these as standard
-            library functions. <function>mod</function>, <function>cos</function>, and
-                <function>sin</function> are all standard GLSL functions that you can use as needed.
-            There are a <emphasis>lot</emphasis> of standard GLSL functions available.</para>
+        <para>In this shader, we use a number of standard GLSL functions, like
+                <function>mod</function>, <function>cos</function>, and <function>sin</function>. We
+            saw <function>mix</function> in the last tutorial. And these are just the tip of the
+            iceberg; there are a <emphasis>lot</emphasis> of standard GLSL functions
+            available.</para>
         <para>The rendering code looks quite similar to the previous rendering code:</para>
         <example>
             <title>Rendering with Time</title>
@@ -334,9 +335,6 @@ void main()
     glUseProgram(0);
 }</programlisting>
         </example>
-        <para>Notice the call to <function>LoadShader</function> for the vertex shader, rather than
-                <function>CreateShader</function>. This is a simple routine that loads the file and
-            passes it in its entirety to the <function>CreateShader</function> function.</para>
         <para>We get the time uniform as normal with <function>glGetUniformLocation</function>. For
             the loop duration, we get that in a local variable. Then we immediately set the current
             program object, set the uniform to a value, and then unset the current program
