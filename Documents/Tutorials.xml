@@ -98,6 +98,7 @@
         </partintro>
         <xi:include href="tutorial 00/tutorial 0.xml"/>
         <xi:include href="tutorial 01/tutorial 01.xml"/>
+        <xi:include href="tutorial 02/tutorial 02.xml"/>
     </part>
     <part>
         <info>
@@ -109,7 +110,6 @@
                 as doing what is necessary to make those objects appear as though they are in a
                 3-dimensional space.</para>
         </partintro>
-        <xi:include href="tutorial 02/tutorial 02.xml"/>
         <xi:include href="tutorial 03/tutorial 03.xml"/>
     </part>
     <part>
@@ -127,9 +127,9 @@
             <title>Texturing</title>
         </info>
         <partintro>
-            <para>Lookup tables in textures are usually called textures. This is due to the fact
-                that the main use for them is applying the appearance of a particular texture over
-                the surface of a primitive. </para>
+            <para>Lookup tables in rendering are usually called textures. This is due to the fact
+                that the main use for them is to modify the appearance of a surface. Even so,
+                textures have many uses.</para>
         </partintro>
     </part>
     <part>
