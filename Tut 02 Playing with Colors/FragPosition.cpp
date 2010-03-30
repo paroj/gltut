@@ -24,20 +24,12 @@ void InitializeProgram()
 	theProgram = Framework::CreateProgram(shaderList);
 
 	positionAttrib = glGetAttribLocation(theProgram, "position");
-	elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
-	wndDimensions = glGetUniformLocation(theProgram, "wndDimensions");
-
-	GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
-
-	glUseProgram(theProgram);
-	glUniform1f(loopDurationUnf, 5.0f);
-	glUseProgram(0);
 }
 
 const float vertexData[] = {
-	0.25f, 0.25f, 0.0f, 1.0f,
-	0.25f, -0.25f, 0.0f, 1.0f,
-	-0.25f, -0.25f, 0.0f, 1.0f,
+	0.75f, 0.75f, 0.0f, 1.0f,
+	0.75f, -0.75f, 0.0f, 1.0f,
+	-0.75f, -0.75f, 0.0f, 1.0f,
 };
 
 GLuint vertexBufferObject;
@@ -73,8 +65,6 @@ void display()
 
 	glUseProgram(theProgram);
 
-	glUniform1f(elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000.0f);
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 	glEnableVertexAttribArray(positionAttrib);
 	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
@@ -85,7 +75,6 @@ void display()
 	glUseProgram(0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.
