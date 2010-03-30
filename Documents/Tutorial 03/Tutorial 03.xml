@@ -11,7 +11,7 @@
         <para>The simplest way one might think to move a triangle or other object around is to
             simply modify the vertex position data directly. From the previous tutorial, we learned
             that the vertex data is stored in a buffer object. This is what
-                <filename>tut2a.cpp</filename> does.</para>
+                <filename>cpuPositionOffset.cpp</filename> does.</para>
         <para>The modifications are done in two steps. The first step is to generate the X, Y offset
             that will be applied to each position. The second is to apply that offset to each vertex
             position. The generation of the offset is done with the
@@ -165,7 +165,7 @@
         <para>Remember what it is that we are doing. We compute an offset. Then we apply that offset
             to each vertex position. Vertex shaders are given each vertex position. So it makes
             sense to simply give the vertex shader the offset and let it compute the final vertex
-            position. This is what <filename>tut2b.cpp</filename> does.</para>
+            position. This is what <filename>vertPositionOffset.cpp</filename> does.</para>
         <para>The vertex shader used here is as follows:</para>
         <example>
             <title>Offsetting Vertex Shader</title>
@@ -253,7 +253,7 @@ void main()
             all of <function>ComputePositionOffsets</function> to the vertex shader?</para>
         <para>Well, no. The call to <function>glutGet(GL_ELAPSED_TIME)</function> can't be moved
             there, since GLSL code cannot directly call C/C++ functions. But everything else can be
-            moved. This is what <filename>tut2c.cpp</filename> does.</para>
+            moved. This is what <filename>vertCalcOffset.cpp</filename> does.</para>
         <para>This is the first tutorial that loads its shaders from files rather than using
             hard-coded data in the .cpp file. The vertex program is found in
                 <filename>data\tut2c.vert</filename>.</para>
@@ -321,10 +321,10 @@ void main()
 {
     std::vector&lt;GLuint> shaderList;
     
-    shaderList.push_back(LoadShader(GL_VERTEX_SHADER, "tut2c.vert"));
-    shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "calcOffset.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "standard.frag"));
     
-    theProgram = CreateProgram(shaderList);
+    theProgram = Framework::CreateProgram(shaderList);
     
     positionAttrib = glGetAttribLocation(theProgram, "position");
     elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
@@ -348,7 +348,7 @@ void main()
         <para>Well, moving the triangle around is nice and all, but it would also be good if we
             could do something time-based in the fragment shader. Fragment shaders cannot affect the
             position of the object, but they can control its color. And this is what
-                <filename>tut2d.cpp</filename> does.</para>
+                <filename>fragChangeColor.cpp</filename> does.</para>
         <para>The fragment shader in this tutorial is also loaded from the file
                 <filename>data\tut2d.frag</filename>:</para>
         <example>
@@ -391,11 +391,11 @@ void main()
 {
     std::vector&lt;GLuint> shaderList;
     
-    shaderList.push_back(LoadShader(GL_VERTEX_SHADER, "tut2d.vert"));
-    shaderList.push_back(LoadShader(GL_FRAGMENT_SHADER, "tut2d.frag"));
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "calcOffset.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "calcColor.frag"));
     
-    theProgram = CreateProgram(shaderList);
-    
+    theProgram = Framework::CreateProgram(shaderList);
+
     positionAttrib = glGetAttribLocation(theProgram, "position");
     elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
     
@@ -439,12 +439,12 @@ void main()
     </section>
     <section>
         <title>Vertex Shader Performance</title>
-        <para>These tutorials are simple, but it is still important to look at the performance
-            implications of various operations. In this tutorial, we present 3 ways of moving vertex
-            data: transform it yourself on the CPU and upload it to buffer objects, generate
-            transform parameters on the CPU and have the vertex shader use them to do the transform,
-            and put as much as possible in the vertex shader and only have the CPU provide the most
-            basic parameters. Which is the best to use?</para>
+        <para>These tutorials are simple and should run fast enough, but it is still important to
+            look at the performance implications of various operations. In this tutorial, we present
+            3 ways of moving vertex data: transform it yourself on the CPU and upload it to buffer
+            objects, generate transform parameters on the CPU and have the vertex shader use them to
+            do the transform, and put as much as possible in the vertex shader and only have the CPU
+            provide the most basic parameters. Which is the best to use?</para>
         <para>This is not an easy question to answer. However, it is almost always the case that CPU
             transformations will be slower than doing it on the GPU. The only time it won't be is if
             you need to do the exact same transformations many times within the same frame. And even

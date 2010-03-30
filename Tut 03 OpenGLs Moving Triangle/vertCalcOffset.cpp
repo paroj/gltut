@@ -14,8 +14,8 @@ void InitializeProgram()
 {
 	std::vector<GLuint> shaderList;
 
-	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "tut2d.vert"));
-	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "tut2d.frag"));
+	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "calcOffset.vert"));
+	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "standard.frag"));
 
 	theProgram = Framework::CreateProgram(shaderList);
 
@@ -23,12 +23,8 @@ void InitializeProgram()
 	elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
 
 	GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
-	GLuint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
-
-
 	glUseProgram(theProgram);
 	glUniform1f(loopDurationUnf, 5.0f);
-	glUniform1f(fragLoopDurUnf, 10.0f);
 	glUseProgram(0);
 }
 

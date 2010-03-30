@@ -1,6 +1,6 @@
 
 dofile("../framework/framework.lua")
 
-SetupSolution("Tutorial3")
+SetupSolution("Tutorial2")
 SetupProject("Fragment Position", "FragPosition.cpp")
 SetupProject("Vertex Colors", "VertexColors.cpp")
