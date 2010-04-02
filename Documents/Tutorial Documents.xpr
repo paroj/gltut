@@ -1524,17 +1524,13 @@
         </options>
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
-        <folder name="Tutorial 00">
-            <file name="Tutorial%2000/Tutorial%200.xml"/>
+        <folder name="Basics">
+            <file name="Basics/Tutorial%200.xml"/>
+            <file name="Basics/Tutorial%2001.xml"/>
+            <file name="Basics/Tutorial%2002.xml"/>
         </folder>
-        <folder name="Tutorial 01">
-            <file name="Tutorial%2001/Tutorial%2001.xml"/>
-        </folder>
-        <folder name="Tutorial 02">
-            <file name="Tutorial%2002/Tutorial%2002.xml"/>
-        </folder>
-        <folder name="Tutorial 03">
-            <file name="Tutorial%2003/Tutorial%2003.xml"/>
+        <folder name="Positioning">
+            <file name="Positioning/Tutorial%2003.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="Outline.xml"/>
