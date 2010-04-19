@@ -69,13 +69,14 @@ void display()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
 	glEnableVertexAttribArray(positionAttrib);
-	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(colorAttrib);
+	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	glDisableVertexAttribArray(positionAttrib);
+	glDisableVertexAttribArray(colorAttrib);
 	glUseProgram(0);
 
 	glutSwapBuffers();

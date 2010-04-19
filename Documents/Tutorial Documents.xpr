@@ -1525,7 +1525,7 @@
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
         <folder name="Basics">
-            <file name="Basics/Tutorial%200.xml"/>
+            <file name="Basics/Tutorial%2000.xml"/>
             <file name="Basics/Tutorial%2001.xml"/>
             <file name="Basics/Tutorial%2002.xml"/>
         </folder>

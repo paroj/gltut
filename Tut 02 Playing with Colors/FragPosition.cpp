@@ -12,7 +12,6 @@
 GLuint theProgram;
 GLuint positionAttrib;
 GLuint elapsedTimeUniform;
-GLuint wndDimensions;
 
 void InitializeProgram()
 {
@@ -82,10 +81,6 @@ void display()
 void reshape (int w, int h)
 {
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
-
-	glUseProgram(theProgram);
-	glUniform2f(wndDimensions, float(w), float(h));
-	glUseProgram(0);
 }
 
 //Called whenever a key on the keyboard was pressed.
