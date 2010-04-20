@@ -37,7 +37,8 @@ void main()
 {
     float lerpValue = gl_FragCoord.y / 500.0f;
     
-    outputColor = mix(vec4(1.0f, 1.0f, 1.0f, 1.0f), vec4(0.2f, 0.2f, 0.2f, 1.0f), lerpValue);
+    outputColor = mix(vec4(1.0f, 1.0f, 1.0f, 1.0f),
+        vec4(0.2f, 0.2f, 0.2f, 1.0f), lerpValue);
 }]]></programlisting>
         </example>
         <para><varname>gl_FragCoord</varname> is a built-in variable that is only available in a
@@ -184,48 +185,233 @@ void main()
             <note>
                 <para>If you're wondering why it is <literal>(void*)48</literal> and not just 48,
                     that is because of some legacy API cruft. The reason why the function name is
-                            <function>glVertexAttrib<emphasis>Pointer</emphasis></function> is
+                            glVertexAttrib<quote>Pointer</quote> is
                     because the last parameter is technically a pointer to client memory. Or at
                     least, it could be in the past.</para>
             </note>
             <para>After this, we use <function>glDrawArrays</function> to render, then disable the
                 arrays with <function>glDisableVertexAttribArray.</function></para>
             <section>
-                <title>A Look at Drawing</title>
-                <para>In the last tutorial, we skimmed past the details of what exactly
+                <title>Drawing in Detail</title>
+                <para>In the last tutorial, we skimmed over the details of what exactly
                         <function>glDrawArrays</function> does. Let us take a closer look
                     now.</para>
                 <para>The various attribute array functions set up arrays for OpenGL to read from
                     when rendering. In our case here, we have two arrays. Each array has a buffer
                     object and an offset into that buffer where the array begins, but the arrays do
-                    not have an explicit size.</para>
+                    not have an explicit size. If we look at everything as C++ pseudo-code, what we
+                    have is this:</para>
+                <example>
+                    <title>Vertex Arrays</title>
+                    <programlisting><![CDATA[GLbyte *bufferObject = (void*){0.0f, 0.5f, 0.0f, 1.0f, 0.5f, -0.366f, ...};
+float *positionAttribArray[4] = (float *[4])(&(bufferObject + 0));
+float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlisting>
+                </example>
+                <para>Each element of the <varname>positionAttribArray</varname> contains 4
+                    components. This is the case because the second parameter of
+                        <function>glVertexAttribPointer</function> is 4. Each component is a
+                    floating-point number; similarly because the third parameter is
+                        <literal>GL_FLOAT</literal>. The array takes its data from
+                        <varname>bufferObject</varname> because this was the buffer object that was
+                    bound at the time that <function>glVertexAttribPointer</function> was called.
+                    And the offset fro the beginning of the buffer object is 0 because that is the
+                    last parameter of <function>glVertexAttribPointer</function>.</para>
+                <para>The same goes for <varname>colorAttribArray</varname>.</para>
+                <para>Using the above pseudo-code, <function>glDrawArrays</function> is implemented
+                    as follows:</para>
+                <example>
+                    <title>Draw Arrays Implementation</title>
+                    <programlisting><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
+{
+    for(int element = start; element < start + count; element++)
+    {
+        VertexShader(positionAttribArray[element], colorAttribArray[element]);
+    }
+}
+]]></programlisting>
+                </example>
+                <para>This means that the vertex shader will be executed <varname>count</varname>
+                    times, and it will be given data beginning with the <varname>start</varname>-th
+                    element and continuing for <varname>count</varname> elements. So the first time
+                    the vertex shader gets run, it takes the position attribute from
+                        <literal>bufferObject[0 + (0 * 4 * sizeof(float))]</literal> and the color
+                    attribute from <literal>bufferObject[48 + (0 * 4 * sizeof(float))]</literal>.
+                    The second time pulls the position from <literal>bufferObject[0 + (1 * 4 *
+                        sizeof(float))]</literal> and color from <literal>bufferObject[48 + (1 * 4 *
+                        sizeof(float))]</literal>. And so on.</para>
             </section>
         </section>
         <section>
             <title>Vertex Shader</title>
-            <para/>
+            <para>Our new vertex shader looks like this:</para>
+            <example>
+                <title>Multi-input Vertex Shader</title>
+                <programlisting><![CDATA[#version 150
+
+in vec4 position;
+in vec4 color;
+
+smooth out vec4 theColor;
+
+void main()
+{
+    gl_Position = position;
+    theColor = color;
+}]]></programlisting>
+            </example>
+            <para>There are three new lines here. Let us take them one at a time.</para>
+            <para>The declaration of the global <varname>color</varname> defines a new input for the
+                vertex shader. So this shader, in addition to taking an input named
+                    <varname>position</varname> also takes a second input named
+                    <varname>color</varname>. As with the <varname>position</varname> input, the
+                tutorial queries the attribute location after the program is linked with the
+                    <function>glGetAttribLocation</function>:</para>
+            <example>
+                <title>Querying the Attributes</title>
+                <programlisting><![CDATA[   positionAttrib = glGetAttribLocation(theProgram, "position");
+    colorAttrib = glGetAttribLocation(theProgram, "color");]]></programlisting>
+            </example>
+            <para>The <varname>colorAttrib</varname> variable is used later when defining the
+                attribute arrays for rendering.</para>
+            <para>That much only gets the data into the vertex shader. We want to pass this data out
+                of the vertex shader. To do this, we must define an <glossterm>output
+                    variable</glossterm>. This is done using the <literal>out</literal> keyword. In
+                this case, the output variable is called <varname>theColor</varname> and is of type
+                    <type>vec4</type>.</para>
+            <para>The <literal>smooth</literal> keyword is an <glossterm>interpolation
+                    qualifier</glossterm>. We will see what this means in a bit later.</para>
+            <para>Of course, this simply defines the output variable. In <function>main</function>,
+                we actually write to it, assigning to it the value of <varname>color</varname> that
+                was given as a vertex attribute. This being shader code, we could have used some
+                other heuristic or arbitrary algorithm to compute the color. But for the purpose of
+                this tutorial, it is simply passing the value of an attribute passed to the vertex
+                shader.</para>
+            <para>Technically, the built-in variable <varname>gl_Position</varname> is defined as
+                    <literal>out vec4 gl_Position</literal>. So it is an output variable as well. It
+                is a special output because this value is directly used by the system, rather than
+                used only by shaders. User-defined outputs, like <varname>theColor</varname> above,
+                have no intrinsic meaning to the system. They only have an effect in so far as other
+                shader stages use them, as we will see next.</para>
+        </section>
+        <section>
+            <title>Fragment Program</title>
+            <para>The new fragment shader looks like this:</para>
+            <example>
+                <title>Fragment Shader with Input</title>
+                <programlisting><![CDATA[#version 150
+
+smooth in vec4 theColor;
+
+out vec4 outputColor;
+
+void main()
+{
+    outputColor = theColor;
+}]]></programlisting>
+            </example>
+            <para>This fragment shader defines an input variable. It is no coincidence that this
+                input variable is named and typed the same as the output variable from the vertex
+                shader. We are trying to feed information from the vertex shader to the fragment
+                shader. To do this, OpenGL requires that the output from the previous stage have the
+                same name and type as the input to the next stage. It also must use the same
+                interpolation qualifier; if the vertex shader used <literal>smooth</literal>, the
+                fragment shader must do the same.</para>
+            <para>This is a good part of the reason why OpenGL requires vertex and fragment shaders
+                to be linked together; if the names, types, or interpolation qualifiers do not
+                match, then OpenGL can raise an error at link time.</para>
+            <para>So the fragment shader receives the value output from the vertex shader. The
+                shader simply takes this value and copies it to the output. Thus, the color of each
+                fragment will simply be whatever the vertex shader passed along.</para>
         </section>
         <section>
             <title>Fragment Interpolation</title>
-            <para/>
+            <para>Now we come to the elephant in the room, so to speak. There is a communication
+                problem.</para>
+            <para>See, our vertex shader is run 3 times. This execution produces 3 output positions
+                    (<varname>gl_Position</varname>) and 3 output colors
+                    (<varname>theColor</varname>). The 3 positions are used to construct and
+                rasterize a triangle, producing a number of fragments.</para>
+            <para>The fragment shader is not run 3 times. It is run once for every fragment produced
+                by the rasterizer for this triangle. The number of fragments produced by a triangle
+                depends on the viewing resolution and how much area of the screen the triangle
+                covers. At a resolution of 500x500, an equilateral triangle the length of who's
+                sides is 1 has an area of ~0.433. The total screen area (on the range [-1, 1] in X
+                and Y) is 4, so our triangle covers approximately one-tenth of the screen. 500*500
+                is 250,000 pixels; one-tenth of this is 25,000. So our fragment shader gets executed
+                about 25,000 times.</para>
+            <para>There's a slight disparity here. If the vertex shader is directly communicating
+                with the fragment shader, and the vertex shader is outputting only 3 total color
+                values, where do the other 24,997 values come from?</para>
+            <para>The answer is <glossterm>fragment interpolation</glossterm>.</para>
+            <para>By using the interpolation qualifier <literal>smooth</literal> when defining the
+                vertex output and fragment input, we are telling OpenGL to do something special with
+                this value. Instead of each fragment receiving one of the values, what each fragment
+                gets is a <emphasis>blend</emphasis> between the three output values. The closer the
+                fragment is to one vertex, the more that vertex's output contributes to the value
+                that the fragment program receives.</para>
+            <para>Because such interpolation is by far the most common ode for communicating between
+                the vertex shader and the fragment shader, if you do not provide an interpolation
+                keyword, <literal>smooth</literal> will be used by default. There are two other
+                alternatives: <literal>noperspective</literal> and <literal>flat</literal>.</para>
+            <para>If you were to modify the tutorial and change <literal>smooth</literal> to
+                    <literal>noperspective</literal>, you would see no change. That does not mean a
+                change did not happen; our example is too simple for there to actually be a change.
+                The difference between <literal>smooth</literal> and
+                    <literal>noperspective</literal> is subtle, and only matters once we start using
+                more concrete and real tutorials. We will discuss this different much later.</para>
+            <para>The <literal>flat</literal> interpolation actually turns interpolation off. It
+                essentially says that, rather than interpolating between three values, each fragment
+                of the triangle will simply get the first of the three vertex shader output
+                variables. The fragment shader gets a flat value across the surface of the triangle,
+                hence the term <quote>flat.</quote></para>
+            <para>Each triangle has its own </para>
+        </section>
+        <section>
+            <title>The Final Image</title>
+            <para>When you run the tutorial, you will get the following image.</para>
+            <!--TODO: Insert image of interpolated colors here.-->
+            <para>The colors at each tip of the triangle are the pure red, green, and blue colors.
+                They blend together towards the center of the triangle.</para>
         </section>
     </section>
     <section>
         <title>In Review</title>
-        <para/>
+        <para>In this tutorial, you learned how to use much of the <varname>gl_FragCoord</varname>
+            built-in variable in a fragment shader. You learned that this data is in screen-space,
+            and how to convert screen space into more useful forms. You also learned how to pass
+            data directly from vertex shaders to fragment shaders. You learned about the
+            interpolation that happens to vertex shader outputs across the surface of a
+            triangle.</para>
         <section>
             <title>Further Study</title>
             <para>Here are some ideas to play around with.</para>
             <itemizedlist>
                 <listitem>
-                    <para/>
-                </listitem>
-                <listitem>
                     <para>Change the viewport in the FragPosition tutorial. Put the viewport in the
                         top half of the display, and then put it in the bottom half. See how this
                         affects the shading on the triangle.</para>
                 </listitem>
+                <listitem>
+                    <para>Combine the FragPosition tutorial with the Vertex Color tutorial. Use
+                        interpolated color from the vertex shader and combine that with a constant
+                        color, based on the screen-space position of the fragment.</para>
+                </listitem>
             </itemizedlist>
         </section>
     </section>
+    <glossary>
+        <title>Glossary</title>
+        <glossentry>
+            <glossterm>Fragment Interpolation</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Interpolation Qualifier</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+    </glossary>
 </chapter>

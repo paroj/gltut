@@ -688,12 +688,27 @@ void main()
             </glossdef>
         </glossentry>
         <glossentry>
+            <glossterm>Input Variable</glossterm>
+            <glossdef>
+                <para>A shader variable, declared at global scope. Input variables receive their
+                    values from earlier stages in the OpenGL rendering pipeline.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Output Variable</glossterm>
+            <glossdef>
+                <para>A shader variable, declared at global scope, using the <literal>out</literal>
+                    keyword. Output variables written to by a shader are passed to later stages in
+                    the OpenGL rendering pipeline for processing.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
             <glossterm>Vertex Attribute</glossterm>
             <glossdef>
-                <para>A single input to a vertex shader. Each vertex attribute is a vector of up to
-                    4 elements in length. Vertex attributes are drawn from buffer objects; the
-                    connection between buffer object data and vertex inputs is made with the
-                        <function>glVertexAttribPointer</function> and
+                <para>Input variables to vertex shaders are called vertex attributes. Each vertex
+                    attribute is a vector of up to 4 elements in length. Vertex attributes are drawn
+                    from buffer objects; the connection between buffer object data and vertex inputs
+                    is made with the <function>glVertexAttribPointer</function> and
                         <function>glEnableVertexAttribArray</function> functions. Each vertex
                     attribute in a particular program object has an index; this index can be queried
                     with <function>glGetAttribLocation</function>. The index is used by the various
