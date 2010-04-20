@@ -10,8 +10,9 @@
         <title>Moving the Vertices</title>
         <para>The simplest way one might think to move a triangle or other object around is to
             simply modify the vertex position data directly. From the previous tutorial, we learned
-            that the vertex data is stored in a buffer object. This is what
-                <filename>cpuPositionOffset.cpp</filename> does.</para>
+            that the vertex data is stored in a buffer object. So the task is to modify the vertex
+            data in the buffer object. This is what <filename>cpuPositionOffset.cpp</filename>
+            does.</para>
         <para>The modifications are done in two steps. The first step is to generate the X, Y offset
             that will be applied to each position. The second is to apply that offset to each vertex
             position. The generation of the offset is done with the
@@ -82,7 +83,7 @@
                 <function>glBufferData</function> is an error.</para>
         <para>Think of <function>glBufferData</function> as a combination of
                 <function>malloc</function> and <function>memcpy</function>, while glBufferSubData
-            is purely <function>memcpy</function>.</para>
+            is just <function>memcpy</function>.</para>
         <para>The <function>glBufferSubData</function> function can update only a portion of the
             buffer object's memory. The second parameter to the function is the byte offset into the
             buffer object to begin copying to, and the third parameter is the number of bytes to
@@ -104,8 +105,8 @@
             once. GL_STREAM_DRAW tells OpenGL that you intend to set this data constantly, generally
             once per frame. These parameters don't mean <emphasis>anything</emphasis> with regard to
             the API; they are simply hints to the OpenGL implementation. Proper use of these hints
-            can be crucial for getting good buffer object performance. We will see more of these
-            hints later.</para>
+            can be crucial for getting good buffer object performance when making frequent changes.
+            We will see more of these hints later.</para>
         <para>The rendering function now has become this:</para>
         <example>
             <title>Updating and Drawing the Vertex Data</title>
@@ -145,11 +146,11 @@
     <section>
         <title>A Better Way</title>
         <para>This is fine for a 3-vertex example. But imagine a scene involving millions of
-            vertices. Moving objects this way means having to copy millions of vertices from the
-            original vertex data, add an offset to each of them, and then upload that data to an
-            OpenGL buffer object. And all of that is <emphasis>before</emphasis> rendering. Clearly
-            there must be a better way; games can't possibly do this every frame and still hold
-            decent framerates.</para>
+            vertices (and no, that's not an exaggeration for high-end games). Moving objects this
+            way means having to copy millions of vertices from the original vertex data, add an
+            offset to each of them, and then upload that data to an OpenGL buffer object. And all of
+            that is <emphasis>before</emphasis> rendering. Clearly there must be a better way; games
+            can't possibly do this every frame and still hold decent framerates.</para>
         <para>Actually for quite some time, they did. In the pre-GeForce 256 days, that was how all
             games worked. Graphics hardware just took a list of vertices in normalized device
             coordinate space and rasterized them into fragments and pixels. Granted, in those days,
@@ -165,8 +166,10 @@
         <para>Remember what it is that we are doing. We compute an offset. Then we apply that offset
             to each vertex position. Vertex shaders are given each vertex position. So it makes
             sense to simply give the vertex shader the offset and let it compute the final vertex
-            position. This is what <filename>vertPositionOffset.cpp</filename> does.</para>
-        <para>The vertex shader used here is as follows:</para>
+            position, since it operates on each vertex. This is what
+                <filename>vertPositionOffset.cpp</filename> does.</para>
+        <para>The vertex shader is found in <filename>data\positionOffset.vert</filename>. The
+            vertex shader used here is as follows:</para>
         <example>
             <title>Offsetting Vertex Shader</title>
             <programlisting>#version 150
@@ -186,7 +189,7 @@ void main()
                 <literal>out</literal>. This has a particular meaning.</para>
         <formalpara>
             <title>Shaders and Granularity</title>
-            <para>Recall that with each execution of a shader, the shader gets new values for
+            <para>Recall that, with each execution of a shader, the shader gets new values for
                 variables defined as <literal>in</literal>. Each time a vertex shader is called, it
                 gets a different set of inputs from the vertex attribute arrays and buffers. That is
                 useful for vertex position data, but it is not what we want for the offset. We want
@@ -197,7 +200,7 @@ void main()
             variables defined as <literal>in</literal>. Input variables change with every execution
             of the shader. Uniform variables (called <glossterm>uniforms</glossterm>) change only
             between executions of rendering calls. And even then, they only change when the user
-            sets them explicitly. </para>
+            sets them explicitly to a value. </para>
         <para>Vertex shader inputs come from vertex attribute array definitions and buffer objects.
             By contrast, uniforms are set directly on program objects.</para>
         <para>In order to set a uniform in a program, we need two things. The first is a uniform
@@ -245,6 +248,25 @@ void main()
                 <function>glUniform2f</function> to set the uniform's value. The buffer object's
             data is never changed; the shader simply does the hard work. Which is why those shader
             stages exist in the first place.</para>
+        <formalpara>
+            <title>Vector Math</title>
+            <para>You may be curious about how these lines work:</para>
+        </formalpara>
+        <programlisting>vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
+gl_Position = position + totalOffset;</programlisting>
+        <para>The <type>vec4</type> that looks like a function here is a constructor; it creates a
+                <type>vec4</type> from 4 floats. This is done to make the addition easier.</para>
+        <para>The addition of <varname>position</varname> to <varname>totalOffset</varname> is a
+            component-wise addition. It is a shorthand way of doing this:</para>
+        <programlisting>gl_Position.x = position.x + totalOffset.x;
+gl_Position.y = position.y + totalOffset.y;
+gl_Position.z = position.z + totalOffset.z;
+gl_Position.w = position.w + totalOffset.w;</programlisting>
+        <para>GLSL has a lot of vector math built in. The math operations are all component-wise
+            when applied to vectors. However, it is illegal to add vectors of different dimensions
+            to each other. So you cannot have a <type>vec2</type> + <type>vec4</type>. That is why
+            we had to convert <varname>offset</varname> to a vec4 before performing the
+            addition.</para>
     </section>
     <section>
         <title>More Power to the Shaders</title>
@@ -254,9 +276,7 @@ void main()
         <para>Well, no. The call to <function>glutGet(GL_ELAPSED_TIME)</function> can't be moved
             there, since GLSL code cannot directly call C/C++ functions. But everything else can be
             moved. This is what <filename>vertCalcOffset.cpp</filename> does.</para>
-        <para>This is the first tutorial that loads its shaders from files rather than using
-            hard-coded data in the .cpp file. The vertex program is found in
-                <filename>data\tut2c.vert</filename>.</para>
+        <para>The vertex program is found in <filename>data\calcOffset.vert</filename>.</para>
         <example>
             <title>Offset Computing Vertex Shader</title>
             <programlisting>#version 150
@@ -316,7 +336,7 @@ void main()
             uniform gets set. This is done in our shader initialization routine, and it is done only
             once:</para>
         <example>
-            <title>Loading Shaders from Files</title>
+            <title>Loop Duration Setting</title>
             <programlisting>void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
@@ -350,7 +370,7 @@ void main()
             position of the object, but they can control its color. And this is what
                 <filename>fragChangeColor.cpp</filename> does.</para>
         <para>The fragment shader in this tutorial is also loaded from the file
-                <filename>data\tut2d.frag</filename>:</para>
+                <filename>data\calcColor.frag</filename>:</para>
         <example>
             <title>Time-based Fragment Shader</title>
             <programlisting>#version 150
@@ -434,7 +454,9 @@ void main()
                 C99 and C++: the value doesn't change, period. It must have an initializer. An
                 unqualified variable works like one would expect in C/C++; it is a global value that
                 can be changed. GLSL shaders can call functions, and globals can be shared between
-                functions.</para>
+                functions. However, unlike <literal>in</literal>, <literal>out</literal>, and
+                    <literal>uniforms</literal>, non-const and <literal>const</literal> variables
+                are <emphasis>not</emphasis> shared between stages.</para>
         </formalpara>
     </section>
     <section>
@@ -495,16 +517,16 @@ void main()
                 tutorials.</para>
             <itemizedlist>
                 <listitem>
-                    <para>With <filename>tut2c.cpp</filename>, change it so that it draws two
-                        triangles moving in a circle, with one a half
+                    <para>With <filename>vertCalcOffset.cpp</filename>, change it so that it draws
+                        two triangles moving in a circle, with one a half
                             <varname>loopDuration</varname> ahead of the other. Simply change the
                         uniforms after the <function>glDrawArrays</function> call and then make the
                             <function>glDrawArrays</function> call again. Add half of the loop
                         duration to the time before setting it the second time.</para>
                 </listitem>
                 <listitem>
-                    <para>In <filename>tut2d.cpp</filename>, change it so that the fragment program
-                        bounces between <varname>firstColor</varname> and
+                    <para>In <filename>fragChangeColor.cpp</filename>, change it so that the
+                        fragment program bounces between <varname>firstColor</varname> and
                             <varname>secondColor</varname>, rather than popping from
                             <varname>secondColor</varname> back to first at the end of a loop. The
                         first-to-second-to-first transition should all happen within a single
@@ -512,6 +534,13 @@ void main()
                         wondering, GLSL supports the <literal>if</literal> statement, as well as the
                         ?: operator. For bonus points however, do it without an explicit conditional
                         statement; feel free to use a sin or cos function to do this.</para>
+                </listitem>
+                <listitem>
+                    <para>Using our knowledge of uniforms, go back to Tutorial 2's FragPosition
+                        tutorial. Modify the code so that it takes a uniform that describes the
+                        window's height, rather than using a hard-coded value. Change the
+                            <function>reshape</function> function to bind the program and modify the
+                        uniform with the new height.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -544,7 +573,7 @@ void main()
                     <glossterm>glUniform*</glossterm>
                     <glossdef>
                         <para>Sets the given uniform in the program currently in use (set by
-                                <function>glUseProgram)</function> to the given value. This is not
+                                <function>glUseProgram</function>) to the given value. This is not
                             merely one function, but an entire suite of functions that take
                             different types.</para>
                     </glossdef>
@@ -558,8 +587,8 @@ void main()
             <glossterm>Uniforms</glossterm>
             <glossdef>
                 <para>These are a class of global variable that can be defined in GLSL shaders. They
-                    represent values that are uniform (unchanging) over the course of a single
-                    rendering operation.</para>
+                    represent values that are uniform (unchanging) over the course of a rendering
+                    operation.</para>
             </glossdef>
         </glossentry>
     </glossary>
