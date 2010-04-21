@@ -1531,6 +1531,7 @@
         </folder>
         <folder name="Positioning">
             <file name="Positioning/Tutorial%2003.xml"/>
+            <file name="Positioning/Tutorial%2004.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="Outline.xml"/>

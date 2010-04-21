@@ -161,6 +161,35 @@
                     <para>Depth buffers. How depth buffers work to hide surfaces.</para>
                 </listitem>
             </itemizedlist>
+            <para>Tutorial sub-files:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Make a cube where each face has a different color. Place the cube to the
+                        side of the viewing area. This shows what things are like in an orthographic
+                        projection.</para>
+                </listitem>
+                <listitem>
+                    <para>Have the same cube, but in our new world coordinates and projection. Do
+                        the projection explicitly, by passing the projection variables to the shader
+                        and having it do the computations per-vertex.</para>
+                </listitem>
+                <listitem>
+                    <para>Same as above, except pass in a matrix uniform. Have the shader do a
+                        matrix-multiply on that uniform.</para>
+                </listitem>
+                <listitem>
+                    <para>Same as above, except generate a scaling value to represent the aspect
+                        ratio based on the width/height of the window.</para>
+                </listitem>
+                <listitem>
+                    <para>Add a floor object. Place the cube so that it overlaps the floor. Leave
+                        depth testing off, and make sure the floor is drawn last so that it overlaps
+                        it.</para>
+                </listitem>
+                <listitem>
+                    <para>Same as above, but with proper depth testing.</para>
+                </listitem>
+            </orderedlist>
         </section>
         <section>
             <title>Objects in Motion</title>

@@ -4,8 +4,8 @@
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <title>OpenGL's Moving Triangle</title>
-    <para>This tutorial will be building off of the previous tutorial. In that tutorial, we had a
-        single, static triangle. Here, we will move it around.</para>
+    <para>This tutorial is about how to move objects around. It will introduce new shader
+        techniques.</para>
     <section>
         <title>Moving the Vertices</title>
         <para>The simplest way one might think to move a triangle or other object around is to
