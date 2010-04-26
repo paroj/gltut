@@ -137,8 +137,9 @@ glutSwapBuffers();</programlisting>
                 with this object.</para>
             <para>The <function>glBindBuffer</function> function makes the buffer object the
                 currently bound buffer to the <literal>GL_ARRAY_BUFFER</literal> binding target. As
-                mentioned in Tutorial 0, objects in OpenGL usually have to be bound to the context
-                in order for them to do anything, and buffer objects are no exception.</para>
+                mentioned in <link endterm="OpenGLObjects">Tutorial 0</link>, objects in OpenGL
+                usually have to be bound to the context in order for them to do anything, and buffer
+                objects are no exception.</para>
             <para>The <function>glBufferData</function> function allocates memory for the buffer
                 currently bound to <literal>GL_ARRAY_BUFFER</literal>, which is the one we just
                 created. We already have some vertex data; the problem is that it is in our memory
@@ -172,8 +173,9 @@ glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlist
                 despite having the word <quote>Pointer</quote> in it, does not deal with pointers.
                 Instead, it deals with buffer objects.</para>
             <para>This function tells OpenGL where a particular piece of vertex data is coming from.
-                The buffer that is bound to GL_ARRAY_BUFFER at the time that this function is called
-                is the buffer object that will be associated with this piece of data.</para>
+                The buffer that is bound to <literal>GL_ARRAY_BUFFER</literal> at the time that this
+                function is called is the buffer object that will be associated with this piece of
+                data.</para>
             <para>What this particular function call is saying is this. <quote>The piece of vertex
                     data called <varname>positionAttrib</varname> comes from the buffer object
                         <varname>positionBufferObject</varname>. This piece of vertex data contains
@@ -446,8 +448,8 @@ void main()
             compile.</para>
         <para>After compiling, we need to see if the compilation was successful. We do this by
             calling <function>glGetShaderiv</function> to retrieve the
-                <literal>GL_COMPILE_STATUS</literal>. If this is GL_FALSE, then the shader failed to
-            compile; otherwise compiling was successful.</para>
+                <literal>GL_COMPILE_STATUS</literal>. If this is <literal>GL_FALSE</literal>, then
+            the shader failed to compile; otherwise compiling was successful.</para>
         <para>If compilation fails, we do some error reporting. It prints a message to stderr that
             explains what failed to compile. It also prints an info log from OpenGL that describes
             the error; this of this log as the compiler output from a regular C compilation.</para>
@@ -517,7 +519,7 @@ void main()
                 OpenGL that no programs will be used for rendering.</para>
         </formalpara>
         <note>
-            <para>For the purposes of these tutorials, using program objects when rendering is
+            <para>For the purposes of these tutorials, using program objects is
                     <emphasis>not</emphasis> optional. OpenGL does have, in its compatibility
                 profile, default rendering state that takes over when a program is not being used.
                 We will not be using this, and you are encouraged to avoid its use as well.</para>

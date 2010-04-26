@@ -256,7 +256,7 @@ which pixels get filled in.-->
             <para>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
                 functions. The typedefs define basic GL types like <type>GLint</type>,
                     <type>GLfloat</type> and so forth.</para>
-            <para>Complex aggregates like structs are never directly exposed in OpenGL. Any such
+            <para xml:id="OpenGLObjects">Complex aggregates like structs are never directly exposed in OpenGL. Any such
                 constructs are hidden behind the API. This makes it easier to expose the OpenGL API
                 to non-C languages without having a complex conversion layer.</para>
             <para>In C++, if you wanted an object that contained an integer, a float, and a string,

@@ -1,0 +1,44 @@
+
+Things that need to be styled:
+
+
+Top-level constructs:
+    body: Everything
+    div.book: The main book
+    div.preface: The preface of the set of tutorials.
+    div.part: Contains all of the chapters and stuff in a part.
+        div.partintro: Contains intro material and a table of contents.
+    div.article: An article.
+    div.chapter: A chapter of the book. In our case, a tutorial.
+    div.section
+    div.glossary
+    
+    div.titlepage: Contains the title, author, etc of the book/part/chapter/etc.
+    
+    div.toc: The table of contents.
+        dl: Definition list
+        dd: ??
+        dt: ??
+        dt/span.section: The title of a section.
+        dt/span.part: The title of a part.
+        dt/span.chapter: The title of a chapter.
+        dt/span.glossary: The title of a glossary.
+        
+    em.glossterm
+    acronym.acronym
+    span.emphasis
+    div.note
+        h3.title: The note's name
+    pre.programlisting
+    
+    code.function: Used for functions names.
+    code.varname: Used for variable names.
+    code.filename: Used for filenames.
+    code.literal: Used for various kinds of literals in code.
+    span.type: Used for the types of things.
+    
+    div.example: Stores the entire example.
+        p.title: The title of the example.
+    div.example-contents: Stores everything but the title of the example.
+    br.example-break
+    

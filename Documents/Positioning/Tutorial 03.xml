@@ -492,7 +492,7 @@ void main()
         <para>And typically, that is how rendering is done much of the time. Vertex shaders are
             given transformation values that are pre-computed on the CPU. But this does not mean
             that this is the only or best way to do this. In some cases, it is often useful to
-            compute the offsets via parameterized functions in a vertex shader.</para>
+            compute the offsets via parameterized values passed to the vertex shader.</para>
         <para>This is best done when vertex shader inputs are abstracted away. That is, rather than
             passing a position, the user passes more general information, and the shader generates
             the position at a particular time or some other parameter. This can be done for particle
@@ -536,11 +536,11 @@ void main()
                         statement; feel free to use a sin or cos function to do this.</para>
                 </listitem>
                 <listitem>
-                    <para>Using our knowledge of uniforms, go back to Tutorial 2's FragPosition
-                        tutorial. Modify the code so that it takes a uniform that describes the
-                        window's height, rather than using a hard-coded value. Change the
-                            <function>reshape</function> function to bind the program and modify the
-                        uniform with the new height.</para>
+                    <para>Using our knowledge of uniforms, go back to <link linkend="FragPosition"
+                            >Tutorial 2's FragPosition</link> tutorial. Modify the code so that it
+                        takes a uniform that describes the window's height, rather than using a
+                        hard-coded value. Change the <function>reshape</function> function to bind
+                        the program and modify the uniform with the new height.</para>
                 </listitem>
             </itemizedlist>
         </section>

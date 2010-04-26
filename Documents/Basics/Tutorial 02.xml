@@ -8,7 +8,7 @@
         tutorial. Instead of just giving the triangle a solid color, we will use two methods to
         provide it with varying color across its surface. The methods are to using the fragment's
         position to compute a color and to using per-vertex data to compute a color.</para>
-    <section>
+    <section xml:id="FragPosition">
         <title>Fragment Position Display</title>
         <para>As we stated in the overview, part of the fragment's data includes the position of the
             fragment on the screen. Thus, if we want to vary the color of a triangle across its
@@ -65,7 +65,9 @@ void main()
         <note>
             <para>The third parameter to <function>mix</function> must be on the range [0, 1].
                 However, GLSL will not check this or do the clamping for you. If it is not on this
-                range, the result of the <function>mix</function> function will be undefined.</para>
+                range, the result of the <function>mix</function> function will be undefined.
+                    <quote>Undefined</quote> is the OpenGL shorthand for, <quote>I don't know, but
+                    it's probably not what you want.</quote></para>
         </note>
         <para>In this case, the bottom of the triangle, the one closest to a Y of 0, will be the
             most white. While the top of the triangle, the parts closest to a Y of 500, will have
@@ -185,9 +187,9 @@ void main()
             <note>
                 <para>If you're wondering why it is <literal>(void*)48</literal> and not just 48,
                     that is because of some legacy API cruft. The reason why the function name is
-                            glVertexAttrib<quote>Pointer</quote> is
-                    because the last parameter is technically a pointer to client memory. Or at
-                    least, it could be in the past.</para>
+                        glVertexAttrib<quote>Pointer</quote> is because the last parameter is
+                    technically a pointer to client memory. Or at least, it could be in the
+                    past.</para>
             </note>
             <para>After this, we use <function>glDrawArrays</function> to render, then disable the
                 arrays with <function>glDisableVertexAttribArray.</function></para>
@@ -268,8 +270,8 @@ void main()
                     <function>glGetAttribLocation</function>:</para>
             <example>
                 <title>Querying the Attributes</title>
-                <programlisting><![CDATA[   positionAttrib = glGetAttribLocation(theProgram, "position");
-    colorAttrib = glGetAttribLocation(theProgram, "color");]]></programlisting>
+                <programlisting>positionAttrib = glGetAttribLocation(theProgram, "position");
+colorAttrib = glGetAttribLocation(theProgram, "color");</programlisting>
             </example>
             <para>The <varname>colorAttrib</varname> variable is used later when defining the
                 attribute arrays for rendering.</para>
@@ -325,8 +327,8 @@ void main()
         </section>
         <section>
             <title>Fragment Interpolation</title>
-            <para>Now we come to the elephant in the room, so to speak. There is a communication
-                problem.</para>
+            <para>Now we come to the elephant in the room, so to speak. There is a basic
+                communication problem.</para>
             <para>See, our vertex shader is run 3 times. This execution produces 3 output positions
                     (<varname>gl_Position</varname>) and 3 output colors
                     (<varname>theColor</varname>). The 3 positions are used to construct and
@@ -334,11 +336,11 @@ void main()
             <para>The fragment shader is not run 3 times. It is run once for every fragment produced
                 by the rasterizer for this triangle. The number of fragments produced by a triangle
                 depends on the viewing resolution and how much area of the screen the triangle
-                covers. At a resolution of 500x500, an equilateral triangle the length of who's
-                sides is 1 has an area of ~0.433. The total screen area (on the range [-1, 1] in X
-                and Y) is 4, so our triangle covers approximately one-tenth of the screen. 500*500
-                is 250,000 pixels; one-tenth of this is 25,000. So our fragment shader gets executed
-                about 25,000 times.</para>
+                covers. An equilateral triangle the length of who's sides is 1 has an area of
+                ~0.433. The total screen area (on the range [-1, 1] in X and Y) is 4, so our
+                triangle covers approximately one-tenth of the screen. The window's natural
+                resolution is 500x500 pixels. 500*500 is 250,000 pixels; one-tenth of this is
+                25,000. So our fragment shader gets executed about 25,000 times.</para>
             <para>There's a slight disparity here. If the vertex shader is directly communicating
                 with the fragment shader, and the vertex shader is outputting only 3 total color
                 values, where do the other 24,997 values come from?</para>
@@ -364,7 +366,14 @@ void main()
                 of the triangle will simply get the first of the three vertex shader output
                 variables. The fragment shader gets a flat value across the surface of the triangle,
                 hence the term <quote>flat.</quote></para>
-            <para>Each triangle has its own </para>
+            <para>Each rasterized triangle has its own set of 3 outputs that are interpolated to
+                compute the value for the fragments created by that triangle. So if you render 2
+                triangles, the interpolated values from one triangle do not directly affect the
+                interpolated values from another triangle. Thus, each triangle can be taken
+                independently from the rest.</para>
+            <para>It is possible, and highly desirable in many cases, to build multiple triangles
+                from shared vertices and vertex data. But we will discuss this at a later
+                time.</para>
         </section>
         <section>
             <title>The Final Image</title>
@@ -404,13 +413,25 @@ void main()
         <glossentry>
             <glossterm>Fragment Interpolation</glossterm>
             <glossdef>
-                <para/>
+                <para>This is the process of taking 3 corresponding vertex shader outputs and
+                    interpolating them across the surface of the triangle. For each fragment
+                    generated, there will also be an interpolated value generated for each of the
+                    vertex shader's outputs (except for certain built-in outputs, like
+                        <varname>gl_Position</varname>.) The way that the interpolation is handled
+                    depends on the <glossterm>interpolation qualifier</glossterm> on the vertex
+                    output and fragment input.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>Interpolation Qualifier</glossterm>
             <glossdef>
-                <para/>
+                <para>A GLSL keyword assigned to outputs of vertex shaders and the corresponding
+                    inputs of fragment shaders. It determines how the three values of the triangle
+                    are interpolated across that triangle's surface. The qualifier used on the
+                    vertex shader output must match with the one used on the fragment shader input
+                    of the same name.</para>
+                <para>Valid interpolation qualifiers are <literal>smooth</literal>,
+                        <literal>flat</literal>, and <literal>noperspective</literal>.</para>
             </glossdef>
         </glossentry>
     </glossary>
