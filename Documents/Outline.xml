@@ -166,7 +166,7 @@
                 <listitem>
                     <para>Make a cube where each face has a different color. Place the cube to the
                         side of the viewing area. This shows what things are like in an orthographic
-                        projection.</para>
+                        projection. Use backface culling to make it render correctly.</para>
                 </listitem>
                 <listitem>
                     <para>Have the same cube, but in our new world coordinates and projection. Do
