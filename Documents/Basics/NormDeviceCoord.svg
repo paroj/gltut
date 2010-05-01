@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="500px" width="500px" >
+	<style type="text/css" ><![CDATA[.fill_black
+{
+	fill: black;
+}
+
+.black
+{
+	stroke-width: 1px;
+	stroke: black;
+}
+
+.fill_transluscent
+{
+	fill-opacity: 0.1;
+	fill: blue;
+}
+
+.dashed
+{
+	stroke-dasharray: 3,3;
+}
+
+.arrowended
+{
+	marker-end: url(#arrowhead);
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="strokeWidth" orient="auto" id="arrowhead" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="black" />
+		</marker>
+	</defs>
+	<line x2="33.49364905389" y2="228.29397779163" y1="239.14698889582" x1="141.74682452695" class="black arrowended" />
+	<line x2="250" y2="3.798061746948" y1="126.89903087347" x1="250" class="black arrowended" />
+	<line x2="437.5" y2="193.60610005734" y1="231.20203335245" x1="312.5" class="black arrowended" />
+	<polygon points="204.24682452695,343.44999137479 204.24682452695,97.248053121736 79.246824526945,134.84398641685 79.246824526945,381.0459246699" class="black fill_transluscent" />
+	<polygon points="420.75317547305,365.15601358315 204.24682452695,343.44999137479 79.246824526945,381.0459246699 295.75317547305,402.75194687826" class="black fill_transluscent" />
+	<polygon points="420.75317547305,365.15601358315 204.24682452695,343.44999137479 204.24682452695,97.248053121736 420.75317547305,118.9540753301" class="black fill_transluscent" />
+	<line x2="141.74682452695" y2="239.14698889582" y1="260.85301110418" x1="358.25317547305" class="black dashed" />
+	<line x2="250" y2="126.89903087347" y1="373.10096912653" x1="250" class="black dashed" />
+	<line x2="187.5" y2="268.79796664755" y1="231.20203335245" x1="312.5" class="black dashed" />
+	<polygon points="420.75317547305,365.15601358315 420.75317547305,118.9540753301 295.75317547305,156.55000862521 295.75317547305,402.75194687826" class="black fill_transluscent" />
+	<polygon points="420.75317547305,118.9540753301 204.24682452695,97.248053121736 79.246824526945,134.84398641685 295.75317547305,156.55000862521" class="black fill_transluscent" />
+	<polygon points="295.75317547305,402.75194687826 79.246824526945,381.0459246699 79.246824526945,134.84398641685 295.75317547305,156.55000862521" class="black fill_transluscent" />
+	<line x2="466.50635094611" y2="271.70602220837" y1="260.85301110418" x1="358.25317547305" class="black arrowended" />
+	<line x2="250" y2="496.20193825305" y1="373.10096912653" x1="250" class="black arrowended" />
+	<line x2="62.5" y2="306.39389994266" y1="268.79796664755" x1="187.5" class="black arrowended" />
+</svg>

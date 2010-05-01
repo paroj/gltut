@@ -18,7 +18,14 @@
             you are reading this on an electronic display device, rather than a printout) is simply
             a two-dimensional array of pixels. If you take a screenshot of something on your screen,
             and blow it up, it will look very blocky.</para>
-        <!--TODO: Add an image of blocky pixels here.-->
+        <example>
+            <title>An Image</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="pixels.svg"/>
+                </imageobject>
+            </mediaobject>
+        </example>
         <para>Each of these blocks is a <glossterm>pixel</glossterm>. The word <quote>pixel</quote>
             is derived from the term <quote><acronym>Pic</acronym>ture
                 <acronym>El</acronym>ement</quote>. Every pixel on your screen has a particular
@@ -105,7 +112,6 @@
                 its own clip space.</para>
             <para>In clip space, the positive X direction is to the right, the positive Y direction
                 is up, and the positive Z direction is away from the viewer.</para>
-            <!--TODO: Add an image of clip space here.-->
             <para>The process of transforming vertices into clip space is quite arbitrary. OpenGL
                 provides a lot of flexibility in this step. We will cover this step in detail
                 throughout the tutorials.</para>
@@ -124,10 +130,14 @@
             </formalpara>
             <para>This process is very simple. The X, Y, and Z of each vertex's position is divided
                 by W to get normalized device coordinates. That is all.</para>
-            <para>Therefore, the space of normalized device coordinates is essentially just clip
-                space, except that the range of X, Y and Z are [-1, 1]. The directions are all the
-                same. The division by W is an important part of projecting 3D triangles onto 2D
-                images, but we will cover that in a future tutorial.</para>
+            <para>The space of normalized device coordinates is essentially just clip space, except
+                that the range of X, Y and Z are [-1, 1]. The directions are all the same. The
+                division by W is an important part of projecting 3D triangles onto 2D images, but we
+                will cover that in a future tutorial.</para>
+            <example>
+                <title>Normalized Device Coordinate Space</title>
+            </example>
+            <para>The cube indicates the boundaries of normalized device coordinate space.</para>
             <formalpara>
                 <title>Window Transformation</title>
                 <para>The next phase of rasterization is to transform the vertices of each triangle
@@ -256,9 +266,10 @@ which pixels get filled in.-->
             <para>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
                 functions. The typedefs define basic GL types like <type>GLint</type>,
                     <type>GLfloat</type> and so forth.</para>
-            <para xml:id="OpenGLObjects">Complex aggregates like structs are never directly exposed in OpenGL. Any such
-                constructs are hidden behind the API. This makes it easier to expose the OpenGL API
-                to non-C languages without having a complex conversion layer.</para>
+            <para xml:id="OpenGLObjects">Complex aggregates like structs are never directly exposed
+                in OpenGL. Any such constructs are hidden behind the API. This makes it easier to
+                expose the OpenGL API to non-C languages without having a complex conversion
+                layer.</para>
             <para>In C++, if you wanted an object that contained an integer, a float, and a string,
                 you would create it and access it like this:</para>
             <programlisting>struct Object
