@@ -190,7 +190,11 @@
                         state.</para>
                 </listitem>
                 <listitem>
-                    <para>Indexed vertex arrays.</para>
+                    <para>Indexed vertex arrays. Include mention of the fact that there is only one
+                        index for all of the attributes.</para>
+                </listitem>
+                <listitem>
+                    <para>glDrawElementsBaseVertex, as an optimization.</para>
                 </listitem>
                 <listitem>
                     <para>Depth buffers. How to use them to hide surfaces.</para>
