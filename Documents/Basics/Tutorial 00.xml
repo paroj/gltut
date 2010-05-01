@@ -175,10 +175,14 @@
             <!--TODO: Show a series of images, starting with a triangle, then overlying it with a pixel grid, followed by one showing
 which pixels get filled in.-->
             <para>The specifics of which pixels get used and which do not for a triangle is not
-                important. What matters more than that is the fact that if two triangles are
-                perfectly adjacent, such that they share the same input vertex positions, the output
-                rasterization will never have holes or double coverage. Along the shared line, there
-                will be no overlap or holes between the two triangles.</para>
+                important for the time being. What matters more than that is the fact that if two
+                triangles are perfectly adjacent, such that they share the same input vertex
+                positions, the output rasterization will never have holes or double coverage. Along
+                the shared line, there will be no overlap or holes between the two triangles.</para>
+            <!--TODO: Show an image of two adjacent triangles, then show their scan-converted pixels as above. The pixels of one
+triangle should be a different color from the pixels of the other.-->
+            <para>Scan conversion is an inherently 2D operation. This process only uses the X and Y
+                position of the triangle in window coordinates.</para>
             <para>The result of scan converting a triangle is a sequence of boxes along the area of
                 the triangle. These boxes are called <glossterm>fragments.</glossterm></para>
             <para>Each fragment has certain data associated with it. This data contains the 2D
@@ -203,9 +207,9 @@ which pixels get filled in.-->
                 <para>Direct3D prefers to call this stage <quote>pixel processing</quote> or
                         <quote>pixel shading</quote>. This is a misnomer, because as we will see in
                     tutorials on antialiasing, multiple fragments from a single triangle can be
-                    combined together to form an output pixel. Also, the fragment has not been
-                    written to the image as of yet. Indeed, this step can conditionally prevent
-                    rendering of a fragment based on arbitrary computations. Thus a
+                    combined together to form a single output pixel. Also, the fragment has not been
+                    written to the image, so it isn't a pixel. Indeed, this step can conditionally
+                    prevent rendering of a fragment based on arbitrary computations. Thus a
                         <quote>pixel</quote> in D3D parlance may never actually become a pixel at
                     all.</para>
             </note>
@@ -227,13 +231,19 @@ which pixels get filled in.-->
                 particular reference color; thus the final color represented by the series of
                 numbers is a mix of these reference colors.</para>
             <para>The set of reference colors is called a <glossterm>colorspace</glossterm>. The
-                most common color space a screen is RGB, where the reference colors are Red, Green
-                and Blue. Printed works tend to use CMYK (Cyan, Magenta, Yellow, Black). Since we're
-                dealing with rendering to a screen, and because OpenGL requires it, we will use the
-                RGB colorspace.</para>
+                most common color space a screen is linear RGB, where the reference colors are Red,
+                Green and Blue. Printed works tend to use CMYK (Cyan, Magenta, Yellow, Black). Since
+                we're dealing with rendering to a screen, and because OpenGL requires it, we will
+                use the linear RGB colorspace.</para>
+            <note>
+                <para>You can play some fancy games with programmatic shaders (see below) that allow
+                    you to work in different colorspaces. So technically, we only have to output to
+                    a linear RGB colorspace.</para>
+            </note>
             <para>So a pixel in OpenGL is defined as 3 values on the range [0, 1] that represent a
-                color in the RGB colorspace. This will get extended slightly, as we deal with
-                transparency later.</para>
+                color in the linear RGB colorspace. By combining different intensities of this 3
+                colors, we can generate millions of different color shades. This will get extended
+                slightly, as we deal with transparency later.</para>
         </section>
         <section>
             <title>Shader</title>

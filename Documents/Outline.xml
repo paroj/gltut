@@ -154,11 +154,7 @@
                     <para>Perspective-correct interpolation.</para>
                 </listitem>
                 <listitem>
-                    <para>VAOs, multiple. Use these as an example of OpenGL objects storing
-                        state.</para>
-                </listitem>
-                <listitem>
-                    <para>Depth buffers. How depth buffers work to hide surfaces.</para>
+                    <para>Viewport aspect ratio adjustment.</para>
                 </listitem>
             </itemizedlist>
             <para>Tutorial sub-files:</para>
@@ -181,15 +177,25 @@
                     <para>Same as above, except generate a scaling value to represent the aspect
                         ratio based on the width/height of the window.</para>
                 </listitem>
-                <listitem>
-                    <para>Add a floor object. Place the cube so that it overlaps the floor. Leave
-                        depth testing off, and make sure the floor is drawn last so that it overlaps
-                        it.</para>
-                </listitem>
-                <listitem>
-                    <para>Same as above, but with proper depth testing.</para>
-                </listitem>
             </orderedlist>
+        </section>
+        <section>
+            <title>Objects in Depth</title>
+            <para>This tutorial shows a sequence of objects. Some are referenced from different
+                objects. These are rendered in perspective, and some are overlapping.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>VAOs, multiple. These are a great example of OpenGL objects storing
+                        state.</para>
+                </listitem>
+                <listitem>
+                    <para>Indexed vertex arrays.</para>
+                </listitem>
+                <listitem>
+                    <para>Depth buffers. How to use them to hide surfaces.</para>
+                </listitem>
+            </itemizedlist>
         </section>
         <section>
             <title>Objects in Motion</title>

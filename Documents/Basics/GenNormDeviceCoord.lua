@@ -128,7 +128,7 @@ arrowheadPath:M{10, 4}:L{0, 0}:L{0, 8}:Z();
 
 
 	
-local writer = SvgWriter.SvgWriter("NormDeviceCoord.svg", {imageWidth .."px", imageHeight .. "px"});
+local writer = SvgWriter.SvgWriter("NormDeviceCoord sans text.svg", {imageWidth .."px", imageHeight .. "px"});
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginMarker({10, 8}, {10, 4}, "auto", nil, nil, "arrowhead");
