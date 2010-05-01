@@ -136,6 +136,11 @@
                 will cover that in a future tutorial.</para>
             <example>
                 <title>Normalized Device Coordinate Space</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="NormDeviceCoord.svg"/>
+                    </imageobject>
+                </mediaobject>
             </example>
             <para>The cube indicates the boundaries of normalized device coordinate space.</para>
             <formalpara>
