@@ -106,7 +106,14 @@
         <section>
             <title>Lack of Perspective</title>
             <para>So, the image looks like this:</para>
-            <!--TODO: Image of this tutorial's output.-->
+            <figure>
+                <title>Orthographic Prism</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="OrthoPrism.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>There's something wrong with this. Namely, that it looks like a square.</para>
             <para>Pick up a remote control again. Point it directly at your eye and position it so
                 that it is in the center of your vision. You should only be able to see the front
@@ -148,18 +155,18 @@
             orthographic.</para>
         <para>Human eyes do not see the world via orthographic projection. If they did, you would
             only be able to see an area of the world the size of your pupils. Because we do not use
-            orthographic projections, and for other reasons, orthographic projections do not look
+            orthographic projections (among other things) orthographic projections do not look
             particularly real to us.</para>
         <para>Instead, we use a pinhole camera model for our eyesight. This model performs a
                 <glossterm>perspective projection</glossterm>. A perspective projection is a
             projection of the world on a surface as though seen through a single point. A 2D to 1D
             perspective projection looks like this:</para>
         <!--TODO: Add 2D perspective projection-->
-        <para>As you can see, the projection is radial based on a particular point. That point is
-            the eye of the projection.</para>
+        <para>As you can see, the projection is radial, based on the location of a particular point.
+            That point is the eye of the projection.</para>
         <para>From this point forward, we are going to make a simplifying assumption. The position
             of the eye will be centered relative to the size of the surface of projection. This need
-            not always be the case, but it will be for most of our needs.</para>
+            not always be the case, but it function well enough for most of our needs.</para>
         <para>Just from the shape of the projection, we can see that the perspective projection
             causes a larger field of geometry to be projected onto the surface. An orthographic
             projection only captures the rectangular prism directly in front of the surface of
@@ -167,21 +174,20 @@
         <!--TODO: Add diagram of the region captured in an ortho projection and the region captured in a perspective one.-->
         <para>In 2D, the shape of the perspective projection is a regular trapezoid (a quadrilateral
             that has only one pair of parallel sides, and the other pair of sides have the same
-            slope). In 3D, the space is called a <glossterm>frustum</glossterm>; essentially, a
-            pyramid with a flat top.</para>
+            slope). In 3D, the shape is called a <glossterm>frustum</glossterm>; essentially, a
+            pyramid with the tip chopped off.</para>
         <!--TODO: Add a diagram of a viewing frustum.-->
-        <para/>
         <section>
             <title>Mathematical Perspective</title>
             <para>Now that we know what we want to do, we just need to know how to do it.</para>
             <para>We will be making a few simplifying assumptions. In addition to the assumption
                 that the eye point is centered relative to the projection surface, we will also
-                assume that the plane of projection is axis aligned and is facing down the +Z axis.
-                Thus, +Z is farther away from the plane. The projection plane also passes through
+                assume that the plane of projection is axis aligned and is facing down the -Z axis.
+                Thus, -Z is farther away from the plane. The projection plane also passes through
                 the origin. The size of the plane of projection will be [-1, 1]. Thus, the X and Y
                 coordinates of the eye point are (0, 0).</para>
-            <para>No, it is not a coincidence that this sounds suspiciously like normalized device
-                coordinate space. But let's not get ahead of ourselves.</para>
+            <para>Yes, this sounds suspiciously like normalized device coordinate space. No, that's
+                not a coincidence. But let's not get ahead of ourselves.</para>
             <para>We know a few things about how the projection results will work. A perspective
                 projection essentially shifts vertices towards the eye, based on the location of
                 that particular vertex. Vertices farther in Z from the front of the projection are
@@ -243,11 +249,10 @@
                 vertices are in <emphasis>before</emphasis> the transform. This definition will help
                 us to define how we do the perspective projection transformation.</para>
             <para>Thus, we define a new space called <glossterm>camera space.</glossterm> This is
-                not a space that OpenGL recognizes; it is purely a user construction.</para>
-            <para>The structure of camera space is entirely arbitrary. However, it can be useful to
-                define a particular camera space based on what we know of clip space. This minimizes
-                the differences between camera space and a perspective form of clip space, and it
-                can simplify our perspective projection logic.</para>
+                not a space that OpenGL recognizes; it is purely an arbitrary user construction.
+                However, it can be useful to define a particular camera space based on what we know
+                of clip space. This minimizes the differences between camera space and a perspective
+                form of clip space, and it can simplify our perspective projection logic.</para>
             <para>The volume of camera space will range from positive infinity to negative infinity
                 in all directions. Positive X extends right, positive Y extends up, and positive Z
                 is <emphasis>forward</emphasis>. The last one is a change from clip space, where
@@ -255,10 +260,13 @@
             <para>Our perspective projection transform will be specific to this space. As previously
                 stated, the projection plane shall be a region [-1, 1] in the X and Y axes, and at a
                 Z value of 0. The projection will be from vertices in the -Z direction onto this
-                plane; vertices that have a positive Z value are behind the camera.</para>
-            <para>The eye of our perspective projection is assumed to be at (0, 0, -1). Thus, the
-                distance from the eye to the projection plane is always 1, so the perspective term
-                (when phrased as division) is (-1/Pz).</para>
+                plane; vertices that have a positive Z value are behind the projection plane.</para>
+            <para>Now, we will make one more simplifying assumption: the eye of our perspective
+                projection is fixed at (0, 0, 1) in camera space. But, since the projection plane is
+                pointing down the -Z axis, this point relative to the projection plane is at (0, 0,
+                -1). Thus, the offset from the projection plane to the eye is always -1. This means
+                that our perspective term, when phrased as division rather than multiplication, is
+                simply -Pz, the negation of the camera-space Z coordinate.</para>
             <para>Having a fixed eye position makes it difficult to have zoom-in/zoom-out style
                 effects. This would normally be done by moving the eye position away or towards the
                 projection plane. There is a way to do this, however. All you need to do is, when
@@ -267,32 +275,33 @@
                 in the X and Y axes. It effectively makes the frustum wider or narrower.</para>
             <para>To compare, camera space and normalized device coordinate space (after the
                 perspective divide) look like this:</para>
-            <!--TODO: Show an image of camera space with a frustum, beside a picture of clip space with a square.-->
+            <!--TODO: Show an image of camera space with a frustum, beside a picture of NDC space with a cube.-->
         </section>
         <section>
             <title>Perspective in Depth</title>
             <para>So we know what to do with the X and Y coordinates. But what does the Z value mean
                 in a perspective projection?</para>
-            <para>Until the next tutorial, we are going to ignore this question. Even so, we still
-                need some kind of transform for it; if a vertex extends outside of the [-1, 1] box
-                in any axis in normalized device coordinate (NDC) space, then it is outside of the
-                viewing area. And because the Z coordinate undergoes the perspective divide just
-                like the X and Y coordinates, we need to take this into account if we actually want
-                to see anything in our projection.</para>
+            <para>Until the next tutorial, we are going to ignore the <emphasis>meaning</emphasis>
+                of Z. Even so, we still need some kind of transform for it; if a vertex extends
+                outside of the [-1, 1] box in any axis in normalized device coordinate (NDC) space,
+                then it is outside of the viewing area. And because the Z coordinate undergoes the
+                perspective divide just like the X and Y coordinates, we need to take this into
+                account if we actually want to see anything in our projection.</para>
             <para>Our W coordinate will be based on the camera-space Z coordinate. We need to map Z
                 values on the range [0, -∞) to values on the range [-1, 1]. Since camera space is an
                 infinite range and we're trying to map to a finite range, we need to do some range
                 bounding. The frustum is already finitely bound in the X and Y directions; we simply
                 need to add a Z boundary.</para>
             <para>The maximum distance that a vertex can be before it is considered no longer in
-                view is the <glossterm>camera zFar</glossterm>. We can also have a minimum distance
-                from the mapping plane at 0; this is called the <glossterm>camera zNear</glossterm>.
-                This creates a finite frustum for our camera space viewpoint:</para>
+                view is the <glossterm>camera zFar</glossterm>. We also have a minimum distance from
+                the mapping plane at 0; this is called the <glossterm>camera zNear</glossterm>. This
+                creates a finite frustum for our camera space viewpoint:</para>
             <!--TODO: Show the bound camera-space frustum, in 2D. Show the zNear and zFar explicitly, as well as the mapping plane.-->
             <note>
                 <para>It is very important to remember that these are the zNear and zFar for the
                         <emphasis>camera</emphasis> space. The next tutorial will also introduce a
-                    range of depth, which is a related but fundamentally different range.</para>
+                    range of depth, also using the names zNear and zFar, which is a related but
+                    fundamentally different range.</para>
             </note>
             <para>There are several ways to go about mapping one finite range to another. One
                 confounding problem is the perspective divide itself; it is easy to perform a linear
@@ -321,24 +330,24 @@
                 vertex from camera space to clip space. These steps are as follows:</para>
             <orderedlist>
                 <listitem>
-                    <para>Frustum adjustment: Multiply the X and Y value of the camera-space
+                    <para>Frustum adjustment: multiply the X and Y value of the camera-space
                         vertices by a constant.</para>
                 </listitem>
                 <listitem>
-                    <para>Depth adjustment: Modify the Z value from camera space to clip space, as
+                    <para>Depth adjustment: modify the Z value from camera space to clip space, as
                         above.</para>
                 </listitem>
                 <listitem>
-                    <para>Compute the W value, where Ez is -1.</para>
+                    <para>Perspective division term: compute the W value, where Ez is -1.</para>
                 </listitem>
             </orderedlist>
             <para>Now that we have all the theory down, we are ready to put things properly in
                 perspective. This is done in the <phrase role="propername"
                     >ShaderPerspective</phrase> tutorial.</para>
-            <para>Our new vertex shader, <filename>data\ManualPerspective</filename> looks like
+            <para>Our new vertex shader, <filename>data\ManualPerspective.vert</filename> looks like
                 this:</para>
             <example>
-                <title>Manual Perspective Transform Shader</title>
+                <title>ManualPerspective Vertex Shader</title>
                 <programlisting><![CDATA[#version 150
 
 in vec4 position;
@@ -367,7 +376,7 @@ void main()
     theColor = color;
 }]]></programlisting>
             </example>
-            <para>We have a few new uniforms, but the code itself is quite simple.</para>
+            <para>We have a few new uniforms, but the code itself is only modestly complex.</para>
             <para>The first statement simply applies the offset to get the camera space positions of
                 the vertices. This is here just to make it easier to position our object in camera
                 space.</para>
@@ -404,9 +413,16 @@ glUseProgram(0);]]></programlisting>
                 clip space, this had to change. Now, the Z location of the prims is between -1.25
                 and -2.75.</para>
             <para>All of this leaves us with this result:</para>
-            <!--TODO: Add an image of what this tutorial looks like.-->
-            <para>Now, it looks like a rectangular prism. Not a real one, of course, but we're
-                getting there.</para>
+            <figure>
+                <title>Perspective Prism</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="PerspectivePrism.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Now, it looks like a rectangular prism. A bright, colorful, unrealistic
+                one.</para>
         </section>
         <section>
             <title>Vector Math</title>
@@ -496,7 +512,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             what we are about to do is part of the reason why the W coordinate exists (the
             perspective divide is the other).</para>
         <para>Let us now re-express this again, using the coefficients of the equation above. You
-            may recognize this reformulation, depending on your math skills:</para>
+            may recognize this reformulation, depending on your knowledge of linear algebra:</para>
         <equation>
             <title>Camera to Clip Matrix Transformation</title>
             <mediaobject>
@@ -536,50 +552,244 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             Similarly, the addition operations are partially independent; each rows summation
             doesn't depend on the values from any other row.</para>
         <para>We can re-implement the above perspective projection using matrix math rather than
-            explicit math.</para>
-    </section>
-    <section>
-        <title>World in Perspective</title>
-        <para/>
+            explicit math. The <phrase role="propername">MatrixPerspective</phrase> tutorial does
+            this.</para>
+        <para>The vertex shader is much simpler in this case:</para>
+        <example>
+            <title>MatrixPerspective Vertex Shader</title>
+            <programlisting><![CDATA[#version 150
+
+in vec4 position;
+in vec4 color;
+
+smooth out vec4 theColor;
+
+uniform vec2 offset;
+uniform mat4 perspectiveMatrix;
+
+void main()
+{
+    vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);
+    
+    gl_Position = perspectiveMatrix * cameraPos;
+    theColor = color;
+}]]></programlisting>
+        </example>
+        <para>The OpenGL Shading Language (GLSL), being designed for graphics operations, naturally
+            has matrices as basic types. The <type>mat4</type> is a 4x4 matrix (columns x rows).
+            GLSL has types for all combinations of columns and rows between 2 and 4. Square matrices
+            (matrices where the number of columns and rows are equal) only use one number, as in
+                <type>mat4</type> above. So <type>mat3</type> is a 3x3 matrix. If the matrix is not
+            square, GLSL uses notation like <type>mat2x4</type>: a matrix with 2 columns and 4
+            rows.</para>
+        <para>Note that the shader no longer computes the values on its own; it is
+                <emphasis>given</emphasis> a matrix with all of the stored values as a uniform. This
+            is simply because there is no need for it. All of the objects in a particular scene will
+            be rendered with the same perspective matrix, so there is no need to waste potentially
+            precious vertex shader time doing redundant computations.</para>
+        <para>Vector-matrix multiplication is such a common operation in graphics that operator * is
+            used to perform it. So the second line of <function>main</function> multiplies the
+            perspective matrix by the camera position.</para>
+        <para>Please note the <emphasis>order</emphasis> of this operation. The matrix is on the
+            left and the vector is on the right. Matrix multiplication is <emphasis>not</emphasis>
+            commutative, so M*v is not the same thing as v*M. Normally vectors are considered 1xN
+            matrices (where N is the size of the vector). However, when you multiply vectors on the
+            right, GLSL considers it an Nx1 matrix; this is the only way to make the multiplication
+            make sense. This will multiply the single row of the vector with each column, summing
+            the results, creating a new vector. This is <emphasis>not</emphasis> what we want to do.
+            We want to multiply rows of the matrix by the vector, not columns of the matrix. Put the
+            vector on the right, not the left.</para>
+        <para>The program initialization routine has a few changes:</para>
+        <example>
+            <title>Program Initialization of Perspective Matrix</title>
+            <programlisting><![CDATA[offsetUniform = glGetUniformLocation(theProgram, "offset");
+
+perspectiveMatrixUnif = glGetUniformLocation(theProgram, "perspectiveMatrix");
+
+float fFrustumScale = 1.0f; float fzNear = 0.5f; float fzFar = 3.0f;
+
+float theMatrix[16];
+memset(theMatrix, 0, sizeof(float) * 16);
+
+theMatrix[0] = fFrustumScale;
+theMatrix[5] = fFrustumScale;
+theMatrix[10] = (fzFar + fzNear) / (fzNear - fzFar);
+theMatrix[14] = (2 * fzFar * fzNear) / (fzNear - fzFar);
+theMatrix[11] = -1.0f;
+
+glUseProgram(theProgram);
+glUniformMatrix4fv(perspectiveMatrixUnif, 1, GL_FALSE, theMatrix);
+glUseProgram(0);]]></programlisting>
+        </example>
+        <para>A 4x4 matrix contains 16 values. So we start by creating an array of 16 floating-point
+            numbers called <varname>theMatrix</varname>. Since most of the values are zero, we can
+            just set the whole thing to zero.</para>
+        <para>The next few functions set the particular values of interest into the matrix. Before
+            we can understand what's going on here, we need to talk a bit about ordering.</para>
+        <para>A 4x4 matrix is technically 16 values, so a 16-entry array can store a matrix. But
+            there are two ways to store a matrix as an array. One way is called
+                <glossterm>column-major</glossterm> order, the other naturally is
+                <glossterm>row-major</glossterm> order. column-major order means that, for an NxM
+            matrix (columns x rows), the first N values in the array are the first column
+            (top-to-bottom), the next N values are the second column, and so forth. In row-major
+            order, the first M values in the array are the first row (left-to-right), followed by
+            another M values for the second row, and so forth.</para>
+        <para>In this example, the matrix is stored in column-major order. So array index 14 is in
+            the third row of the fourth column.</para>
+        <para>The entire matrix is a single uniform. To transfer the matrix to OpenGL, we use the
+                <function>glUniformMatrix4fv</function> function. The first parameter is the uniform
+            location that we are uploading to. This function can be used to transfer an entire array
+            of matrices (yes, uniform arrays of any type are possible), so the second parameter is
+            the number of array entries.</para>
+        <para>The third parameter tells OpenGL what the ordering of the matrix data is. If it is
+                <literal>GL_TRUE</literal>, then the matrix data is in row-major order. Since our
+            data is column-major, we set it to <literal>GL_FALSE</literal>. The last parameter is
+            the matrix data itself.</para>
+        <para>Running this program will give us:</para>
+        <!--TODO: Create an image of this tutorial's execution-->
+        <para>The same thing we had before. Only now done with matrices.</para>
     </section>
     <section>
         <title>Aspect of the World</title>
-        <para/>
+        <para>If you run the last program, and resize the window, the viewport resizes with it.
+            Unfortunately, this also means that what was once a rectangular prism with a square
+            front becomes elongated.</para>
+        <!--TODO: Show a picture of the elongated prism.-->
+        <para>This is a problem of <glossterm>aspect ratio</glossterm>, the ratio of an image's
+            width to its height. Currently, when you change the window's dimensions, the code calls
+                <function>glViewport</function> to tell OpenGL the new size. This changes OpenGL's
+            viewport transform, which goes from normalized device coordinates to window coordinates.
+            NDC space is square; as long as window coordinates are also square, objects that appear
+            square in NDC space will still be square in window space. Once window space became
+            non-square, it caused the transformation to also become not a square.</para>
+        <para>What exactly can be done about this? Well, that depends on what you intend to
+            accomplish by making the window bigger.</para>
+        <para>One simple way to do this is to prevent the viewport from ever becoming non-square.
+            This can be done easily enough by changing the <function>reshape</function> function to
+            be this:</para>
+        <example>
+            <title>Square-only Viewport</title>
+            <programlisting><![CDATA[void reshape (int w, int h)
+{
+    if(w < h)
+        glViewport(0, 0, (GLsizei) w, (GLsizei) w);
+    else
+        glViewport(0, 0, (GLsizei) h, (GLsizei) h);
+}]]></programlisting>
+        </example>
+        <para>Now if you resize the window, the viewport will always remain a square. However, if
+            the window is non-square, there will be a lot of empty space either to the right or
+            below the viewport area. This space cannot be rendered into with triangle drawing
+            commands (for reasons that we will see in the next tutorial).</para>
+        <para>This solution has the virtue of keeping the viewable region of the world fixed,
+            regardless of the shape of the viewport. It has the disadvantage of wasting window
+            space.</para>
+        <para>What do we do if we want to use as much of the window as possible? There is a way to
+            do this.</para>
+        <para>Go back to the definition of the problem. NDC space is a [-1, 1] cube. If an object in
+            NDC space is a square, in order for it to be a square in window coordinates, the
+            viewport must also be a square. Conversely, if you want non-square window coordinates,
+            the object in NDC space <emphasis>must not be a square.</emphasis></para>
+        <para>So our problem is with the implicit assumption that squares in camera space need to
+            remain squares throughout. This is not the case. To do what we want, we need to
+            transform things into clip space such that they are the correct non-square shape that,
+            once the perspective divide and viewport transform converts them into window
+            coordinates, they are again square.</para>
+        <para>Currently, our perspective matrix defines a square-shaped frustum. That is, the top
+            and bottom of the frustum (if it were visualized in camera space) would be squares. What
+            we need to do instead is create a rectangular frustum.</para>
+        <!--TODO: Create an image of a square frustum and a rectangular frustum.-->
+        <para>We already have some control over the shape of the frustum. We said originally that we
+            did not need to move the eye position from (0, 0, -1), because we could simply scale the
+            X and Y positions of everything to achieve the same effect. We scale the X and Y by the
+            same value; this produces a uniform scale. It also produces a square frustum, as seen in
+            camera space. Since we want a rectangular frustum, we need to use a non-uniform scale,
+            where the X and Y positions are scaled by different values.</para>
+        <para>What this will do is show <emphasis>more</emphasis> of the world. But in what
+            direction do we want to show more? Human vision tends to be more horizontal than
+            vertical. This is why movies tend to use a minimum of 16:9 width:height aspect ratio
+            (most use more width than that). So it is usually the case that you design a view for a
+            particular height, then adjust the width based on the aspect ratio.</para>
+        <para>This is done in the <phrase role="propername">AspectRatio</phrase> tutorial. This code
+            uses the same shaders as before; it simply modifies the perspective matrix in the
+                <function>reshape</function> function.</para>
+        <example>
+            <title>Reshape with Aspect Ratio</title>
+            <programlisting><![CDATA[void reshape (int w, int h)
+{
+    perspectiveMatrix[0] = fFrustumScale * (h / (float)w);
+    perspectiveMatrix[5] = fFrustumScale;
+    
+    glUseProgram(theProgram);
+    glUniformMatrix4fv(perspectiveMatrixUnif, 1, GL_FALSE, perspectiveMatrix);
+    glUseProgram(0);
+    
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+}
+]]></programlisting>
+        </example>
+        <para>The matrix, now a global variable called <varname>perspectiveMatrix</varname>, gets
+            its other fields from the program initialization function just as before. The aspect
+            ratio code is only interested in the XY scale values.</para>
+        <para>Here, we change the X scaling based on the ratio of height to width. The Y scaling is
+            left alone.</para>
+        <para>Also, the offset used for positioning the prism was changed from (0.5, 0.5) to (1.5,
+            0.5). This means that part of the object is off the side of the viewport until you
+            resize the window. Changing the width shows more of the area; only by changing the
+            height do you actually make the objects bigger. The square always looks like a
+            square.</para>
     </section>
     <section>
         <title>In Review</title>
-        <para/>
+        <para>In this tutorial, you learned about face culling of triangles and the perspective
+            projection. You learned the math behind creating the illusion of perspective, and you
+            learned how to apply that in a shader. You also learned about how to transform this
+            system of equations into a 4x4 matrix, as well as how to use matrices to transform
+            vectors. Lastly, you learned about how to modify the matrix to maintain a particular
+            aspect ratio, so that objects appear the same relative shape regardless of the shape of
+            the window.</para>
         <section>
             <title>Further Study</title>
-            <para/>
+            <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
-                    <para/>
+                    <para>In all of the perspective tutorials, we only ever had a frustum scale of
+                        1.0. Adjust the frustum scale and see how it affects the scene.</para>
                 </listitem>
                 <listitem>
-                    <para/>
+                    <para>Adjust the zNear distance, so that it intersects with the prism. See how
+                        this affects the rendering. Adjust the zFar distance similarly and see what
+                        happens.</para>
+                </listitem>
+                <listitem>
+                    <para>In the section on aspect ratio, we saw a solution to the aspect ratio
+                        problem that modified the viewport. It adds extra space around the right or
+                        bottom of the viewport. Adjust this solution to position the viewport in the
+                        center of the window, either horizontally or vertically as
+                        appropriate.</para>
                 </listitem>
             </itemizedlist>
         </section>
         <section>
-            <title>Functions of Note</title>
+            <title>OpenGL Functions of Note</title>
             <glosslist>
                 <glossentry>
                     <glossterm>glEnable/glDisable</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>These functions activate or inactivate certain features of OpenGL.
+                            There is a large list of possible features that can be enabled or
+                            disabled.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glCullFace/glFrontFace</glossterm>
                     <glossdef>
-                        <para/>
-                    </glossdef>
-                </glossentry>
-                <glossentry>
-                    <glossterm/>
-                    <glossdef>
-                        <para/>
+                        <para>These two functions control how face culling works.
+                                <function>glFrontFace</function> defines which triangle winding
+                            order is considered the front. <function>glCullFace</function> defines
+                            what face gets culled.</para>
+                        <para>These functions only do something useful if
+                                <literal>GL_CULL_FACE</literal> is currently enabled.</para>
                     </glossdef>
                 </glossentry>
             </glosslist>
@@ -637,6 +847,12 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
         </glossentry>
         <glossentry>
             <glossterm>swizzle selection</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>column-major, row-major</glossterm>
             <glossdef>
                 <para/>
             </glossdef>

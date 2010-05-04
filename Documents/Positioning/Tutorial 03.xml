@@ -545,7 +545,7 @@ void main()
             </itemizedlist>
         </section>
         <section>
-            <title>Functions of Note</title>
+            <title>OpenGL Functions of Note</title>
             <glosslist>
                 <glossentry>
                     <glossterm>glBufferSubData</glossterm>

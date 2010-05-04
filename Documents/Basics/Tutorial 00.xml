@@ -18,14 +18,14 @@
             you are reading this on an electronic display device, rather than a printout) is simply
             a two-dimensional array of pixels. If you take a screenshot of something on your screen,
             and blow it up, it will look very blocky.</para>
-        <example>
+        <figure>
             <title>An Image</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="pixels.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
-        </example>
+        </figure>
         <para>Each of these blocks is a <glossterm>pixel</glossterm>. The word <quote>pixel</quote>
             is derived from the term <quote><acronym>Pic</acronym>ture
                 <acronym>El</acronym>ement</quote>. Every pixel on your screen has a particular
@@ -134,14 +134,14 @@
                 that the range of X, Y and Z are [-1, 1]. The directions are all the same. The
                 division by W is an important part of projecting 3D triangles onto 2D images, but we
                 will cover that in a future tutorial.</para>
-            <example>
+            <figure>
                 <title>Normalized Device Coordinate Space</title>
                 <mediaobject>
                     <imageobject>
                         <imagedata fileref="NormDeviceCoord.svg" format="SVG"/>
                     </imageobject>
                 </mediaobject>
-            </example>
+            </figure>
             <para>The cube indicates the boundaries of normalized device coordinate space.</para>
             <formalpara>
                 <title>Window Transformation</title>
@@ -172,14 +172,14 @@
                     process takes the triangle and breaks it up based on the arrangement of window
                     pixels over the output image that the triangle covers.</para>
             </formalpara>
-            <example>
+            <figure>
                 <title>Scan Converted Triangle</title>
                 <mediaobject>
                     <imageobject>
                         <imagedata fileref="TriangleScanConvert.svg" format="SVG"/>
                     </imageobject>
                 </mediaobject>
-            </example>
+            </figure>
             <para>The center image shows the digital grid of output pixels; the circles represent
                 the center of each pixel. The center of each pixel represents a
                     <glossterm>sample</glossterm>: a discrete location within the area of a pixel.
@@ -191,14 +191,14 @@
                 offers a guarantee that, so long as the shared edge vertex positions are
                     <emphasis>identical</emphasis>, there will be no sample gaps during scan
                 conversion.</para>
-            <example>
+            <figure>
                 <title>Shared Edge Scan Conversion</title>
                 <mediaobject>
                     <imageobject>
                         <imagedata fileref="SharedEdgeScanConvert.svg" format="SVG"/>
                     </imageobject>
                 </mediaobject>
-            </example>
+            </figure>
             <para>To make it easier to use this, OpenGL also offers the guarantee that if you pass
                 the same input vertex data through the vertex processing stage, you will get
                 identical output. So the onus is on the user to use the same input vertices if you

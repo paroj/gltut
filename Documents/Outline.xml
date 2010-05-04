@@ -344,6 +344,9 @@
                     <para>Mipmap filtering. How it works, and how to set it in OpenGL.</para>
                 </listitem>
                 <listitem>
+                    <para>Texture isotropy. Show the over-filtering with regular mipmapping.</para>
+                </listitem>
+                <listitem>
                     <para>Anisotropic filtering. How it works and how to set it in OpenGL.</para>
                 </listitem>
             </itemizedlist>

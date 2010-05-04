@@ -378,14 +378,14 @@ void main()
         <section>
             <title>The Final Image</title>
             <para>When you run the tutorial, you will get the following image.</para>
-            <example>
+            <figure>
                 <title>Interpolated Vertex Colors</title>
                 <mediaobject>
                     <imageobject>
                         <imagedata fileref="VertexColors.png"/>
                     </imageobject>
                 </mediaobject>
-            </example>
+            </figure>
             <para>The colors at each tip of the triangle are the pure red, green, and blue colors.
                 They blend together towards the center of the triangle.</para>
         </section>
