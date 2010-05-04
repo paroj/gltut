@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mover accent="true">
+          <mi>R</mi>
+      <mo>&#x21C0;</mo>
+  </mover>
+  <mo>=</mo>
+  <mover accent="true">
+          <mi>P</mi>
+        <mo>&#x21C0;</mo>
+  </mover>
+  <mfenced open="(" close=")" separators=",">
+    <mrow>
+      <mfrac>
+        <mrow>
+          <msub>
+                  <mi>E</mi>
+                <mi>z</mi>
+          </msub>
+        </mrow>
+        <mrow>
+          <msub>
+                  <mi>P</mi>
+                <mi>z</mi>
+          </msub>
+        </mrow>
+      </mfrac>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>

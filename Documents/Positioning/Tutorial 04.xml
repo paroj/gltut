@@ -19,24 +19,524 @@
             of code that you write once and then use forever without having to go change it or
             usually understand how it works.</para>
         <para>These facts will tempt you to simply skip this tutorial and move on to the next.
-            However, I strongly advise you to <emphasis>resist</emphasis> that temptation. I
-            understand that math isn't the most interesting thing to most people (though to be
-            honest, if math really bores or confuses you, you may want to re-think your desire to
-            write graphics code). But understanding the concepts introduced in this tutorial is very
-            important for understanding how the most fundamental part of triangle-based scan
-            conversion works.</para>
+            However, I strongly advise you to resist that temptation. I understand that math isn't
+            the most interesting thing to most people (though to be honest, if math really bores or
+            confuses you, you may want to re-think your desire to write graphics code). But
+            understanding the concepts introduced in this tutorial is very important for
+            understanding how the most fundamental part of triangle-based scan conversion
+            works.</para>
     </note>
     <section>
         <title>The Unreal World</title>
-        <para/>
+        <para>The <phrase role="propername">Orthographic Cube</phrase> tutorial renders a
+            rectangular prism (a 3D rectangle). The dimensions of the prism are 0.5x0.5x1.5, so it
+            is longer in the Z axis by 3x the X and Y.</para>
+        <para>The code in this tutorial should be familiar, for the most part. We simply draw 12
+            triangles rather than one. The rectangular faces of the prism are made of 2 triangles,
+            splitting the face along one of the diagonals.</para>
+        <para>The vertices also have a color. However, the color for the 6 vertices that make up a
+            face is always the same; this gives each face a single, uniform color.</para>
+        <para>The vertex shader is a combination of things we know. It passes a color through to the
+            fragment stage, but it also takes a <type>vec2</type> offset uniform that it adds an
+            offset to the X and Y components of the position. The fragment shader simply takes the
+            interpolated color and uses it as the output color.</para>
+        <section>
+            <title>Face Culling</title>
+            <para>There is one very noteworthy code change, however: the initialization routine. It
+                has a few new functions that need to be discussed.</para>
+            <example>
+                <title>Face Culling Initialization</title>
+                <programlisting><![CDATA[void init()
+{
+    InitializeProgram();
+    InitializeVertexBuffer();
+    
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
+}]]></programlisting>
+            </example>
+            <para>The last three lines are new.</para>
+            <para>The <function>glEnable</function> function is a multi-purpose tool. There are a
+                lot of binary on/off flags that are part of OpenGL's state.
+                    <function>glEnable</function> is used to set these flags to the
+                    <quote>on</quote> position. Similarly, there is a <function>glDisable</function>
+                function that sets the flag to <quote>off.</quote></para>
+            <para>The <literal>GL_CULL_FACE</literal> flag, when enabled, tells OpenGL to activate
+                    <glossterm>face culling</glossterm>. Up until now, we have been rendering with
+                face culling off.</para>
+            <para>Face culling is a useful feature for saving performance. Take our rectangular
+                prism, for example. Pick up a remote control; their general shape is that of a
+                rectangular prism. No matter how you look at it or orient it, you can never see more
+                than 3 sides of it at once. So why bother spending all that fragment processing time
+                drawing the other three sides?</para>
+            <para>Face culling is a way of telling OpenGL not to draw the sides of an object that
+                you cannot see. It is quite simple, really.</para>
+            <para>In window space, after the transform from normalized device coordinates, you have
+                a triangle. Each vertex of that triangle was presented to OpenGL in a specific
+                order. This gives you a way of numbering the vertices of the triangle.</para>
+            <para>No matter what size or shape the triangle is, you can classify the ordering of a
+                triangle in two ways: clockwise or counter-clockwise. That is, if the order of the
+                vertices from 1 to 2 to 3 moves clockwise in a circle, relative to the triangle's
+                center, then the triangle is facing clockwise relative to the viewer. Otherwise, the
+                triangle is counter-clockwise relative to the viewer. This ordering is called the
+                    <glossterm>winding order.</glossterm></para>
+            <!--TODO: Add an image showing the two winding orders for triangles.-->
+            <para>Face culling in OpenGL works based on this ordering. Setting this is a two-step
+                process, and is accomplished by the last two statements of the initialization
+                function.</para>
+            <para>The <function>glFrontFace</function> defines which winding order, clockwise or
+                counter-clockwise, is considered to be the <quote>front</quote> side of the
+                triangle. This function can be given either <literal>GL_CW</literal> or
+                    <literal>GL_CCW</literal>, for clockwise and counter-clockwise
+                respectively.</para>
+            <para>The <function>glCullFace</function> function defines which side, front or back,
+                gets culled. This can be given <literal>GL_BACK</literal>,
+                    <literal>GL_FRONT</literal>, or <literal>GL_FRONT_AND_BACK</literal>. The latter
+                culls <emphasis>everything,</emphasis> so no triangles are rendered. This can be
+                useful for measuring vertex shader performance but is less useful for actually
+                drawing anything.</para>
+            <para>The triangle data in the tutorial is specifically ordered so that the clockwise
+                facing of the triangles face out. This prevents the drawing of the rear-facing
+                faces.</para>
+        </section>
+        <section>
+            <title>Lack of Perspective</title>
+            <para>So, the image looks like this:</para>
+            <!--TODO: Image of this tutorial's output.-->
+            <para>There's something wrong with this. Namely, that it looks like a square.</para>
+            <para>Pick up a remote control again. Point it directly at your eye and position it so
+                that it is in the center of your vision. You should only be able to see the front
+                panel of the remote.</para>
+            <para>Now, move it to the right and up, similar to where the square is. You should be
+                able to see the bottom and left side of the remote.</para>
+            <para>So we should be able to see the bottom and left side of our rectangular prism. But
+                we can't. Why not?</para>
+            <para>Think back to how rendering happens. In clip-space, the vertices of the back end
+                of the rectangular prism are directly behind the front end. And when we transform
+                these into window coordinates, the back vertices are still directly behind the front
+                vertices. This is what the rasterizer sees, so this is what the rasterizer
+                renders.</para>
+            <para>There has to be something that reality is doing that we are not. That something is
+                called <quote>perspective.</quote></para>
+        </section>
     </section>
     <section>
         <title>Perspective Projection</title>
+        <para>A <glossterm>projection</glossterm>, for the purposes of rendering, is a way to
+            transform a world from one dimensionality to another. Our destination image is two
+            dimensional, and our initial world is three dimensional. Thus, we need a way to
+            transform this 3D world into a 2D one.</para>
+        <para>Finite projections, which are the ones we are interested in, only project objects onto
+            a finite space of the lower dimensionality. For a 3D to 2D projection, there is a finite
+            plane on which the world is projected. For 2D to 1D, there is a bounded line that is the
+            result of the projection.</para>
+        <para>This is a diagram of an orthographic projection from 2D to 1D. The 2D scene is
+            projected onto a 1D line.</para>
+        <!--TODO: Add 2D ortho projection-->
+        <para>An <glossterm>orthographic projection</glossterm> is a very simplistic projection.
+            When projecting onto an axis-aligned surface, as above, the projection simply involves
+            throwing away the coordinate perpendicular to the surface. In the above case, the Y
+            component of the 2D positions are discarded, leaving only X components.</para>
+        <para>When projecting onto an arbitrary line, the math is a bit more complicated. But what
+            makes it an orthographic projection is that the dimension perpendicular to the surface
+            is negated uniformly to create the projection. The fact that it is a projection in the
+            direction of the perpendicular and that it is uniform is what makes it
+            orthographic.</para>
+        <para>Human eyes do not see the world via orthographic projection. If they did, you would
+            only be able to see an area of the world the size of your pupils. Because we do not use
+            orthographic projections, and for other reasons, orthographic projections do not look
+            particularly real to us.</para>
+        <para>Instead, we use a pinhole camera model for our eyesight. This model performs a
+                <glossterm>perspective projection</glossterm>. A perspective projection is a
+            projection of the world on a surface as though seen through a single point. A 2D to 1D
+            perspective projection looks like this:</para>
+        <!--TODO: Add 2D perspective projection-->
+        <para>As you can see, the projection is radial based on a particular point. That point is
+            the eye of the projection.</para>
+        <para>From this point forward, we are going to make a simplifying assumption. The position
+            of the eye will be centered relative to the size of the surface of projection. This need
+            not always be the case, but it will be for most of our needs.</para>
+        <para>Just from the shape of the projection, we can see that the perspective projection
+            causes a larger field of geometry to be projected onto the surface. An orthographic
+            projection only captures the rectangular prism directly in front of the surface of
+            projection. A perspective projection captures a larger space of the world:</para>
+        <!--TODO: Add diagram of the region captured in an ortho projection and the region captured in a perspective one.-->
+        <para>In 2D, the shape of the perspective projection is a regular trapezoid (a quadrilateral
+            that has only one pair of parallel sides, and the other pair of sides have the same
+            slope). In 3D, the space is called a <glossterm>frustum</glossterm>; essentially, a
+            pyramid with a flat top.</para>
+        <!--TODO: Add a diagram of a viewing frustum.-->
         <para/>
+        <section>
+            <title>Mathematical Perspective</title>
+            <para>Now that we know what we want to do, we just need to know how to do it.</para>
+            <para>We will be making a few simplifying assumptions. In addition to the assumption
+                that the eye point is centered relative to the projection surface, we will also
+                assume that the plane of projection is axis aligned and is facing down the +Z axis.
+                Thus, +Z is farther away from the plane. The projection plane also passes through
+                the origin. The size of the plane of projection will be [-1, 1]. Thus, the X and Y
+                coordinates of the eye point are (0, 0).</para>
+            <para>No, it is not a coincidence that this sounds suspiciously like normalized device
+                coordinate space. But let's not get ahead of ourselves.</para>
+            <para>We know a few things about how the projection results will work. A perspective
+                projection essentially shifts vertices towards the eye, based on the location of
+                that particular vertex. Vertices farther in Z from the front of the projection are
+                shifted less than those closer to the eye. And the shift also depends on how far the
+                vertices are from the center of the plane of projection, in the X,Y
+                direction.</para>
+            <para>The problem is really just a simple geometry problem. Here is the equivalent form
+                in a 2D to 1D perspective projection.</para>
+            <!--TODO: Add a diagram of the geometry of projection.-->
+            <para>What we have are two similar right triangles. We have the eye position and the
+                position of the unprojected point. The solution in the 2D case is this:</para>
+            <equation>
+                <title>Perspective Computation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="PerspectiveFunc.svg" width="300" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>Since this is a vectorized function, this is also the solution in 3D. Thus,
+                perspective projection is simply the task of applying that simple formula to every
+                vertex that the vertex shader receives.</para>
+        </section>
+        <section>
+            <title>The Perspective Divide</title>
+            <para>The basic perspective projection function is simple. Really simple. Indeed, it is
+                so simple that it has been built into graphics hardware since the days of the
+                earliest 3Dfx card and even prior graphics hardware.</para>
+            <para>You might notice that the scaling can be expressed as a division operation
+                (dividing by the reciprocal). And you may recall that the difference between clip
+                space and normalized device coordinate space is a division by the W coordinate. So
+                instead of doing the divide in the shader, we can simply set the W coordinate of
+                each vertex correctly and let the hardware handle it.</para>
+            <para>This step, the conversion from clip-space to normalized device coordinate space,
+                has a particular name: the <glossterm>perspective divide</glossterm>. So named
+                because it is usually used for perspective projections; orthographic projections
+                tend to have the W coordinates be 1.0, thus making the perspective divide a
+                no-op.</para>
+            <note>
+                <para>You may be wondering why this arbitrary division-by-W step exists. You may
+                    also be wondering, in this modern days of vertex shaders that can do vector
+                    divisions very quickly, why we should bother to use the hardware division-by-W
+                    step at all. There are two reasons. One we will cover in just a bit when we deal
+                    with matrices, and the other will be covered many tutorials from now when we
+                    deal with textures. Suffice it to say that there are very good reasons to put
+                    the perspective term in the W coordinate of clip space vertices.</para>
+            </note>
+        </section>
+        <section>
+            <title>Camera Perspective</title>
+            <para>Before we can actually implement perspective projection, we need to deal with a
+                new issue. The orthographic projection transform was essentially a no-op. It is
+                automatic, by the nature of how OpenGL uses the clip space vertices output by the
+                vertex shader. The perspective projection transform is a bit more involved. Indeed,
+                it fundamentally changes the nature of the world.</para>
+            <para>Previously, we were dealing directly in clip space. If we are to use a perspective
+                projection to transform vertices <emphasis>into</emphasis> clip space, rather than
+                using clip-space vertices directly, we must first define what the space of our
+                vertices are in <emphasis>before</emphasis> the transform. This definition will help
+                us to define how we do the perspective projection transformation.</para>
+            <para>Thus, we define a new space called <glossterm>camera space.</glossterm> This is
+                not a space that OpenGL recognizes; it is purely a user construction.</para>
+            <para>The structure of camera space is entirely arbitrary. However, it can be useful to
+                define a particular camera space based on what we know of clip space. This minimizes
+                the differences between camera space and a perspective form of clip space, and it
+                can simplify our perspective projection logic.</para>
+            <para>The volume of camera space will range from positive infinity to negative infinity
+                in all directions. Positive X extends right, positive Y extends up, and positive Z
+                is <emphasis>forward</emphasis>. The last one is a change from clip space, where
+                positive Z is away.</para>
+            <para>Our perspective projection transform will be specific to this space. As previously
+                stated, the projection plane shall be a region [-1, 1] in the X and Y axes, and at a
+                Z value of 0. The projection will be from vertices in the -Z direction onto this
+                plane; vertices that have a positive Z value are behind the camera.</para>
+            <para>The eye of our perspective projection is assumed to be at (0, 0, -1). Thus, the
+                distance from the eye to the projection plane is always 1, so the perspective term
+                (when phrased as division) is (-1/Pz).</para>
+            <para>Having a fixed eye position makes it difficult to have zoom-in/zoom-out style
+                effects. This would normally be done by moving the eye position away or towards the
+                projection plane. There is a way to do this, however. All you need to do is, when
+                transforming from camera space to clip space, scale all of the X and Y values by a
+                constant. What this does is make the world, as the camera sees it, smaller or larger
+                in the X and Y axes. It effectively makes the frustum wider or narrower.</para>
+            <para>To compare, camera space and normalized device coordinate space (after the
+                perspective divide) look like this:</para>
+            <!--TODO: Show an image of camera space with a frustum, beside a picture of clip space with a square.-->
+        </section>
+        <section>
+            <title>Perspective in Depth</title>
+            <para>So we know what to do with the X and Y coordinates. But what does the Z value mean
+                in a perspective projection?</para>
+            <para>Until the next tutorial, we are going to ignore this question. Even so, we still
+                need some kind of transform for it; if a vertex extends outside of the [-1, 1] box
+                in any axis in normalized device coordinate (NDC) space, then it is outside of the
+                viewing area. And because the Z coordinate undergoes the perspective divide just
+                like the X and Y coordinates, we need to take this into account if we actually want
+                to see anything in our projection.</para>
+            <para>Our W coordinate will be based on the camera-space Z coordinate. We need to map Z
+                values on the range [0, -∞) to values on the range [-1, 1]. Since camera space is an
+                infinite range and we're trying to map to a finite range, we need to do some range
+                bounding. The frustum is already finitely bound in the X and Y directions; we simply
+                need to add a Z boundary.</para>
+            <para>The maximum distance that a vertex can be before it is considered no longer in
+                view is the <glossterm>camera zFar</glossterm>. We can also have a minimum distance
+                from the mapping plane at 0; this is called the <glossterm>camera zNear</glossterm>.
+                This creates a finite frustum for our camera space viewpoint:</para>
+            <!--TODO: Show the bound camera-space frustum, in 2D. Show the zNear and zFar explicitly, as well as the mapping plane.-->
+            <note>
+                <para>It is very important to remember that these are the zNear and zFar for the
+                        <emphasis>camera</emphasis> space. The next tutorial will also introduce a
+                    range of depth, which is a related but fundamentally different range.</para>
+            </note>
+            <para>There are several ways to go about mapping one finite range to another. One
+                confounding problem is the perspective divide itself; it is easy to perform a linear
+                mapping between two finite spaces. It is quite another to do a mapping that remains
+                linear after the perspective divide. Since we will be dividing by -Z itself (the
+                camera-space Z, not the clip-space Z), the math is much more complex than you might
+                expect.</para>
+            <para>For reasons that will be better explained in the next tutorial, we will use this
+                modestly complicated function to compute the clip-space Z:</para>
+            <equation>
+                <title>Depth Computation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="ZValueFunc.svg" width="500" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>Some important things about this equation and camera zNear/zFar. First, these
+                values are <emphasis>positive</emphasis>; the equation accounts for this when
+                performing the transformation. Also, zNear <emphasis>cannot</emphasis> be 0; it can
+                be very close to zero, but it must never be exactly zero.</para>
+        </section>
+        <section>
+            <title>Drawing in Perspective</title>
+            <para>Given all of the above, we now have a specific sequence of steps to transform a
+                vertex from camera space to clip space. These steps are as follows:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Frustum adjustment: Multiply the X and Y value of the camera-space
+                        vertices by a constant.</para>
+                </listitem>
+                <listitem>
+                    <para>Depth adjustment: Modify the Z value from camera space to clip space, as
+                        above.</para>
+                </listitem>
+                <listitem>
+                    <para>Compute the W value, where Ez is -1.</para>
+                </listitem>
+            </orderedlist>
+            <para>Now that we have all the theory down, we are ready to put things properly in
+                perspective. This is done in the <phrase role="propername"
+                    >ShaderPerspective</phrase> tutorial.</para>
+            <para>Our new vertex shader, <filename>data\ManualPerspective</filename> looks like
+                this:</para>
+            <example>
+                <title>Manual Perspective Transform Shader</title>
+                <programlisting><![CDATA[#version 150
+
+in vec4 position;
+in vec4 color;
+
+smooth out vec4 theColor;
+
+uniform vec2 offset;
+uniform float zNear;
+uniform float zFar;
+uniform float frustumScale;
+
+void main()
+{
+    vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);
+    vec4 clipPos;
+    
+    clipPos.xy = cameraPos.xy * frustumScale;
+    
+    clipPos.z = cameraPos.z * (zNear + zFar) / (zNear - zFar);
+    clipPos.z += 2 * zNear * zFar / (zNear - zFar);
+    
+    clipPos.w = -cameraPos.z;
+    
+    gl_Position = clipPos;
+    theColor = color;
+}]]></programlisting>
+            </example>
+            <para>We have a few new uniforms, but the code itself is quite simple.</para>
+            <para>The first statement simply applies the offset to get the camera space positions of
+                the vertices. This is here just to make it easier to position our object in camera
+                space.</para>
+            <para>The next statement performs a scalar multiply of the camera-space X and Y
+                positions, storing them in a temporary 4-dimensional vector. From there, we compute
+                the clip Z position based on the formula discussed earlier.</para>
+            <para>The W coordinate of the clip space position is the Z distance in camera space
+                divided by the Z distance from the plane (at the origin) to the eye. The eye is
+                fixed at (0, 0, -1), so this leaves us with the negation of the camera space Z
+                position. OpenGL will automatically perform the division for us.</para>
+            <para>After that, we simply store the clip space position where OpenGL needs it, store
+                the color, and we're done. The fragment shader is unchanged.</para>
+            <para>With all of the new uniforms, our program initialization routine has
+                changed:</para>
+            <example>
+                <title>Program Initialization</title>
+                <programlisting><![CDATA[offsetUniform = glGetUniformLocation(theProgram, "offset");
+
+frustumScaleUnif = glGetUniformLocation(theProgram, "frustumScale");
+zNearUnif = glGetUniformLocation(theProgram, "zNear");
+zFarUnif = glGetUniformLocation(theProgram, "zFar");
+
+glUseProgram(theProgram);
+glUniform1f(frustumScaleUnif, 1.0f);
+glUniform1f(zNearUnif, 1.0f);
+glUniform1f(zFarUnif, 3.0f);
+glUseProgram(0);]]></programlisting>
+            </example>
+            <para>We only set the new uniforms once. The scale of 1.0 means effectively no change.
+                We define the Z to go from -1 to -3 (remember that, in our Z equation, the zNear and
+                zFar are positive but refer to negative values).</para>
+            <para>The location of the prism has also changed. In the original tutorial, it was
+                located on the 0.75 range in Z. Because camera space has a very different Z from
+                clip space, this had to change. Now, the Z location of the prims is between -1.25
+                and -2.75.</para>
+            <para>All of this leaves us with this result:</para>
+            <!--TODO: Add an image of what this tutorial looks like.-->
+            <para>Now, it looks like a rectangular prism. Not a real one, of course, but we're
+                getting there.</para>
+        </section>
+        <section>
+            <title>Vector Math</title>
+            <para>We glossed over something in the vertex shader that bears more discussion. Namely,
+                this line:</para>
+            <programlisting>clipPos.xy = cameraPos.xy * frustumScale;</programlisting>
+            <para>Even if you are familiar with vector math libraries in other languages, this code
+                should be rather odd. Normal vector libraries allow you to write selectors like
+                    <literal>vec.x</literal> and <literal>vec.w</literal> in order to get a specific
+                field from a vector. So what does something like <literal>vec.xy</literal>
+                mean?</para>
+            <para>Well, it means the obvious; this expression returns a 2D vector
+                (<type>vec2</type>), since there are only two components mentioned (X and Y). This
+                vector will have its first component come from the X component of
+                    <varname>vec</varname> and the second component come from the Y component of
+                    <varname>vec</varname>. This kind of selection is called, in GLSL parlance,
+                    <glossterm>swizzle selection.</glossterm> The size of the returned vector will
+                be the number of components you mention, and the order of these components will
+                dictate the order of the components returned.</para>
+            <para>You can do any kind of swizzle operation on a vector, so long as you keep in mind
+                the following rules:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>You cannot select components that aren't in the source vector. So if you
+                        have:</para>
+                    <programlisting>vec2 theVec;</programlisting>
+                    <para>You cannot do <literal>theVec.zz</literal>.</para>
+                </listitem>
+                <listitem>
+                    <para>You cannot select more than 4 components. So you can't create a non</para>
+                </listitem>
+            </itemizedlist>
+            <para>These are the only rules. So you can have a <type>vec2</type> that you swizzle to
+                create a <type>vec4</type> (<literal>vec.yyyx</literal>), you can repeat components,
+                etc. Anything goes so long as you stick to those rules.</para>
+            <para>You should also assume that swizzling is fast. This is not true of most CPU-based
+                vector hardware, but since the earliest days of programmable GPUs, swizzle selection
+                has been a prominent feature. In the early programmable days, sizzles caused
+                    <emphasis>no</emphasis> performance loss; in all likelihood, this has not
+                changed.</para>
+            <para>Swizzle selection can also be used on the left side of the equals, as we have done
+                here. It allows you to set specific components of a vector without changing the
+                other components.</para>
+            <para>When you multiply a vector by a scalar (non-vector value), it does a
+                component-wise multiply, returning a vector containing the scalar multiplied by each
+                of the components of the vector. We could have written the above line as
+                follows:</para>
+            <programlisting>clipPos.x = cameraPos.x * frustumScale;
+clipPos.y = cameraPos.y * frustumScale;</programlisting>
+            <para>But it probably wouldn't be as fast as the swizzle and vector math version.</para>
+        </section>
     </section>
     <section>
         <title>The Matrix has You</title>
-        <para/>
+        <para>So, now that we can put the world into perspective, let's do it the right way. The
+                <quote>needlessly overcomplicated for the time being but will make sense in a few
+                tutorials</quote> way.</para>
+        <para>First, let us look at the system of equations used to compute clip coordinates from
+            camera space. Given that <literal>S</literal> is the frustum scale factor,
+                <literal>N</literal> is the zNear and <literal>F</literal> is the zFar, we get the
+            following four equations.</para>
+        <equation>
+            <title>Camera to Clip Equations</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CameraToClipPartial.svg" width="600" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>The odd spacing is intensional. For laughs, let's add a bunch of meaningless terms
+            that don't change the equation, but starts to develop an interesting pattern:</para>
+        <equation>
+            <title>Camera to Clip Expanded Equations</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CameraToClipNearMatrix.svg" width="800" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>This expresses each clip space position as the sum of factors of
+                <emphasis>all</emphasis> of the camera space position components. Most of the terms
+            are zero, of course, so they don't contribute to the output. But they do contribute to
+            being able to re-express the entire transformation as a single operation.</para>
+        <para>You may be wondering at the multiplication of half of Zclip's value by the camera
+            space W. Well, our input camera space position's W coordinate is always 1. So performing
+            the multiplication is valid, so long as this continues to be the case. Being able to do
+            what we are about to do is part of the reason why the W coordinate exists (the
+            perspective divide is the other).</para>
+        <para>Let us now re-express this again, using the coefficients of the equation above. You
+            may recognize this reformulation, depending on your math skills:</para>
+        <equation>
+            <title>Camera to Clip Matrix Transformation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="CameraToClipMatrix.svg" width="600"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>The two long vertical columns of XYZW labeled <quote>clip</quote> and
+                <quote>camera</quote> are 4-dimensional vectors; namely the clip and camera space
+            vectors. The larger block of numbers is a matrix. You probably are not familiar with
+            matrix math. If not, it will be explained presently.</para>
+        <para>Generically speaking, a matrix is a two dimensional block of numbers (matrices with
+            more than 2 dimensions are called <quote>tensors</quote>). Matrices are very common in
+            computer graphics. Thus far, we have been able to get along without them. As we get into
+            more detailed object transformations however, we will rely more and more on matrices to
+            simplify matters.</para>
+        <para>In graphics work, we typically use 4x4 matrices; that is, matrices with 4 columns and
+            4 rows respectively. This is due to the nature of graphics work: most of the things that
+            we want to use matrices for are either 3 dimensional or 3 dimensional with an extra
+            coordinate of data. Our 4D positions are just 3D positions with a 1 added to the
+            end.</para>
+        <para>The operation depicted above is a vector-matrix multiplication. A matrix of dimension
+                <literal>n</literal>x<literal>m</literal> can only be multiplied by a vector of
+            dimension <literal>n</literal>. The result of such a multiplication is a vector of
+            dimension <literal>m</literal>. Since our matrix in this case is 4x4, it can only be
+            multiplied with a 4D vector and this multiplication will produce a 4D vector.</para>
+        <para>Matrix multiplication does what the expanded equation example does. For every row in
+            the matrix, the values of each component of the column are multiplied by the
+            corresponding values in the rows of the vector. These values are then added together;
+            that becomes the single value for the row of the output vector.</para>
+        <para>This results ultimately in performing 16 floating-point multiplications and 12
+            floating-point additions. That's quite a lot, particularly compared with our current
+            version. Fortunately, graphics hardware is designed to make these operations very fast.
+            Because each of the multiplications are independent of each other, they can all be done
+            simultaneously, which is exactly the kind of thing graphics hardware does fast.
+            Similarly, the addition operations are partially independent; each rows summation
+            doesn't depend on the values from any other row.</para>
+        <para>We can re-implement the above perspective projection using matrix math rather than
+            explicit math.</para>
     </section>
     <section>
         <title>World in Perspective</title>
@@ -44,10 +544,6 @@
     </section>
     <section>
         <title>Aspect of the World</title>
-        <para/>
-    </section>
-    <section>
-        <title>World in Depth</title>
         <para/>
     </section>
     <section>
@@ -69,13 +565,13 @@
             <title>Functions of Note</title>
             <glosslist>
                 <glossentry>
-                    <glossterm/>
+                    <glossterm>glEnable/glDisable</glossterm>
                     <glossdef>
                         <para/>
                     </glossdef>
                 </glossentry>
                 <glossentry>
-                    <glossterm/>
+                    <glossterm>glCullFace/glFrontFace</glossterm>
                     <glossdef>
                         <para/>
                     </glossdef>
@@ -92,7 +588,55 @@
     <glossary>
         <title>Glossary</title>
         <glossentry>
-            <glossterm/>
+            <glossterm>face culling</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>winding order</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>projection</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>orthographic projection</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>perspective projection</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>perspective divide</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>camera space</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>camera zNear, camera zFar</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>swizzle selection</glossterm>
             <glossdef>
                 <para/>
             </glossdef>

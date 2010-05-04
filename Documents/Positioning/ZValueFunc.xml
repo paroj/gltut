@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mi>N</mi>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mi>zNear</mi>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mi>F</mi>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mi>zFar</mi>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>Z</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mfrac>
+          <mrow>
+            <msub>
+                    <mi>Z</mi>
+                  <mtext>camera</mtext>
+            </msub>
+            <mfenced open="(" close=")" separators=",">
+              <mrow>
+                <mi>F</mi>
+                <mo>+</mo>
+                <mi>N</mi>
+              </mrow>
+            </mfenced>
+          </mrow>
+          <mrow>
+            <mi>N</mi>
+            <mo>-</mo>
+            <mi>F</mi>
+          </mrow>
+        </mfrac>
+        <mo>+</mo>
+        <mfrac>
+          <mrow>
+            <mn>2</mn>
+            <mi>N</mi>
+            <mi>F</mi>
+          </mrow>
+          <mrow>
+            <mi>N</mi>
+            <mo>-</mo>
+            <mi>F</mi>
+          </mrow>
+        </mfrac>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>

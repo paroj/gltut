@@ -22,7 +22,7 @@
             <title>An Image</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="pixels.svg"/>
+                    <imagedata fileref="pixels.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
         </example>
@@ -138,7 +138,7 @@
                 <title>Normalized Device Coordinate Space</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="NormDeviceCoord.svg"/>
+                        <imagedata fileref="NormDeviceCoord.svg" format="SVG"/>
                     </imageobject>
                 </mediaobject>
             </example>
@@ -176,7 +176,7 @@
                 <title>Scan Converted Triangle</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="TriangleScanConvert.svg"/>
+                        <imagedata fileref="TriangleScanConvert.svg" format="SVG"/>
                     </imageobject>
                 </mediaobject>
             </example>
@@ -195,7 +195,7 @@
                 <title>Shared Edge Scan Conversion</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="SharedEdgeScanConvert.svg"/>
+                        <imagedata fileref="SharedEdgeScanConvert.svg" format="SVG"/>
                     </imageobject>
                 </mediaobject>
             </example>

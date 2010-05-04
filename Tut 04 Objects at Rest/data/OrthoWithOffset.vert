@@ -9,8 +9,6 @@ uniform vec2 offset;
 
 void main()
 {
-	vec4 tempOffset = vec4(offset.x, offset.y, 0.0, 0.0);
-
-	gl_Position = position + tempOffset;
+	gl_Position = position + vec4(offset.x, offset.y, 0.0, 0.0);
 	theColor = color;
 }

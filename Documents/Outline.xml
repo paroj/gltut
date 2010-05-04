@@ -197,7 +197,11 @@
                     <para>glDrawElementsBaseVertex, as an optimization.</para>
                 </listitem>
                 <listitem>
-                    <para>Depth buffers. How to use them to hide surfaces.</para>
+                    <para>Depth buffers. How to use them to hide surfaces. Don't forget about
+                        glDepthRange and the depth portion of the viewport transform.</para>
+                </listitem>
+                <listitem>
+                    <para>Clipping. Show how things are clipped against the view frustum.</para>
                 </listitem>
             </itemizedlist>
         </section>
