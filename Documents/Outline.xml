@@ -201,7 +201,9 @@
                         glDepthRange and the depth portion of the viewport transform.</para>
                 </listitem>
                 <listitem>
-                    <para>Clipping. Show how things are clipped against the view frustum.</para>
+                    <para>Clipping. Show how things are clipped against the view frustum. Note that
+                        clipping happens in <emphasis>clip-space</emphasis>, not NDC space. Thus,
+                        the clipped vertices will <emphasis>never</emphasis> have a W of 0.</para>
                 </listitem>
             </itemizedlist>
         </section>

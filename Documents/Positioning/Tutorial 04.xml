@@ -84,7 +84,18 @@
                 center, then the triangle is facing clockwise relative to the viewer. Otherwise, the
                 triangle is counter-clockwise relative to the viewer. This ordering is called the
                     <glossterm>winding order.</glossterm></para>
-            <!--TODO: Add an image showing the two winding orders for triangles.-->
+            <figure>
+                <title>Triangle Winding Order</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="WindingOrder.svg"/>
+                    </imageobject>
+                </mediaobject>
+                <caption>
+                    <para>The left triangle has a clockwise winding order; the triangle on the right
+                        has a counter-clockwise winding order.</para>
+                </caption>
+            </figure>
             <para>Face culling in OpenGL works based on this ordering. Setting this is a two-step
                 process, and is accomplished by the last two statements of the initialization
                 function.</para>
@@ -141,13 +152,22 @@
             a finite space of the lower dimensionality. For a 3D to 2D projection, there is a finite
             plane on which the world is projected. For 2D to 1D, there is a bounded line that is the
             result of the projection.</para>
-        <para>This is a diagram of an orthographic projection from 2D to 1D. The 2D scene is
-            projected onto a 1D line.</para>
-        <!--TODO: Add 2D ortho projection-->
         <para>An <glossterm>orthographic projection</glossterm> is a very simplistic projection.
             When projecting onto an axis-aligned surface, as above, the projection simply involves
-            throwing away the coordinate perpendicular to the surface. In the above case, the Y
-            component of the 2D positions are discarded, leaving only X components.</para>
+            throwing away the coordinate perpendicular to the surface.</para>
+        <figure>
+            <title>2D to 1D Orthographic Projection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Ortho2DProjection.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+            <caption>
+                <para>A scene orthographically projected onto the black line. The gray box
+                    represents the part of the world that is visible to the projection; parts of the
+                    scene outside of this region are not seen.</para>
+            </caption>
+        </figure>
         <para>When projecting onto an arbitrary line, the math is a bit more complicated. But what
             makes it an orthographic projection is that the dimension perpendicular to the surface
             is negated uniformly to create the projection. The fact that it is a projection in the
@@ -155,13 +175,20 @@
             orthographic.</para>
         <para>Human eyes do not see the world via orthographic projection. If they did, you would
             only be able to see an area of the world the size of your pupils. Because we do not use
-            orthographic projections (among other things) orthographic projections do not look
+            orthographic projections (among other reasons) orthographic projections do not look
             particularly real to us.</para>
         <para>Instead, we use a pinhole camera model for our eyesight. This model performs a
                 <glossterm>perspective projection</glossterm>. A perspective projection is a
             projection of the world on a surface as though seen through a single point. A 2D to 1D
             perspective projection looks like this:</para>
-        <!--TODO: Add 2D perspective projection-->
+        <figure>
+            <title>2D to 1D Perspective Projection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Persp2DProjection.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>As you can see, the projection is radial, based on the location of a particular point.
             That point is the eye of the projection.</para>
         <para>From this point forward, we are going to make a simplifying assumption. The position
@@ -170,24 +197,30 @@
         <para>Just from the shape of the projection, we can see that the perspective projection
             causes a larger field of geometry to be projected onto the surface. An orthographic
             projection only captures the rectangular prism directly in front of the surface of
-            projection. A perspective projection captures a larger space of the world:</para>
-        <!--TODO: Add diagram of the region captured in an ortho projection and the region captured in a perspective one.-->
+            projection. A perspective projection captures a larger space of the world.</para>
         <para>In 2D, the shape of the perspective projection is a regular trapezoid (a quadrilateral
             that has only one pair of parallel sides, and the other pair of sides have the same
             slope). In 3D, the shape is called a <glossterm>frustum</glossterm>; essentially, a
             pyramid with the tip chopped off.</para>
-        <!--TODO: Add a diagram of a viewing frustum.-->
+        <figure>
+            <title>Viewing Frustum</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ViewFrustum.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <section>
             <title>Mathematical Perspective</title>
             <para>Now that we know what we want to do, we just need to know how to do it.</para>
             <para>We will be making a few simplifying assumptions. In addition to the assumption
                 that the eye point is centered relative to the projection surface, we will also
                 assume that the plane of projection is axis aligned and is facing down the -Z axis.
-                Thus, -Z is farther away from the plane. The projection plane also passes through
-                the origin. The size of the plane of projection will be [-1, 1]. Thus, the X and Y
-                coordinates of the eye point are (0, 0).</para>
-            <para>Yes, this sounds suspiciously like normalized device coordinate space. No, that's
-                not a coincidence. But let's not get ahead of ourselves.</para>
+                Thus, -Z is farther away from the plane. The eye will be fixed at the origin, so the
+                eye position is always (0, 0, 0). The size of the plane of projection will be [-1,
+                1] in the X and Y.</para>
+            <para>Yes, this sounds somewhat like normalized device coordinate space. No, that's not
+                a coincidence. But let's not get ahead of ourselves.</para>
             <para>We know a few things about how the projection results will work. A perspective
                 projection essentially shifts vertices towards the eye, based on the location of
                 that particular vertex. Vertices farther in Z from the front of the projection are
@@ -196,9 +229,22 @@
                 direction.</para>
             <para>The problem is really just a simple geometry problem. Here is the equivalent form
                 in a 2D to 1D perspective projection.</para>
-            <!--TODO: Add a diagram of the geometry of projection.-->
-            <para>What we have are two similar right triangles. We have the eye position and the
-                position of the unprojected point. The solution in the 2D case is this:</para>
+            <figure>
+                <title>2D to 1D Perspective Projection Diagram</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="PerspDiagram.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+                <caption>
+                    <para>The projection of the point P onto the projection plane, located at the
+                        origin. R is the projection and E is the eye point.</para>
+                </caption>
+            </figure>
+            <para>What we have are two similar right triangles; the triangle formed by E, R and the
+                origin; and the triangle formed by E, P, and P<subscript>z</subscript>. We have the
+                eye position and the position of the unprojected point. To find the location of R,
+                we simply do this:</para>
             <equation>
                 <title>Perspective Computation</title>
                 <mediaobject>
@@ -207,9 +253,9 @@
                     </imageobject>
                 </mediaobject>
             </equation>
-            <para>Since this is a vectorized function, this is also the solution in 3D. Thus,
-                perspective projection is simply the task of applying that simple formula to every
-                vertex that the vertex shader receives.</para>
+            <para>Since this is a vectorized function, this solution applies equally to 2D as to 3D.
+                Thus, perspective projection is simply the task of applying that simple formula to
+                every vertex that the vertex shader receives.</para>
         </section>
         <section>
             <title>The Perspective Divide</title>
@@ -261,21 +307,41 @@
                 stated, the projection plane shall be a region [-1, 1] in the X and Y axes, and at a
                 Z value of 0. The projection will be from vertices in the -Z direction onto this
                 plane; vertices that have a positive Z value are behind the projection plane.</para>
-            <para>Now, we will make one more simplifying assumption: the eye of our perspective
-                projection is fixed at (0, 0, 1) in camera space. But, since the projection plane is
-                pointing down the -Z axis, this point relative to the projection plane is at (0, 0,
-                -1). Thus, the offset from the projection plane to the eye is always -1. This means
-                that our perspective term, when phrased as division rather than multiplication, is
-                simply -Pz, the negation of the camera-space Z coordinate.</para>
-            <para>Having a fixed eye position makes it difficult to have zoom-in/zoom-out style
-                effects. This would normally be done by moving the eye position away or towards the
-                projection plane. There is a way to do this, however. All you need to do is, when
-                transforming from camera space to clip space, scale all of the X and Y values by a
-                constant. What this does is make the world, as the camera sees it, smaller or larger
-                in the X and Y axes. It effectively makes the frustum wider or narrower.</para>
+            <para>Now, we will make one more simplifying assumption: the location of the center of
+                the perspective plane is fixed at (0, 0, -1) in camera space. Therefore, since the
+                projection plane is pointing down the -Z axis, eye's location relative to the plane
+                of projection is (0, 0, -1). Thus, the offset from the projection plane to the eye
+                is always -1 in the Z. This means that our perspective term, when phrased as
+                division rather than multiplication, is simply P<subscript>z</subscript>/-1: the
+                negation of the camera-space Z coordinate.</para>
+            <para>Having a fixed eye position and projection plane makes it difficult to have
+                zoom-in/zoom-out style effects. This would normally be done by moving the plane
+                relative to the fixed eye point. There is a way to do this, however. All you need to
+                do is, when transforming from camera space to clip space, scale all of the X and Y
+                values by a constant. What this does is make the world, as the camera sees it,
+                smaller or larger in the X and Y axes. It effectively makes the frustum wider or
+                narrower.</para>
             <para>To compare, camera space and normalized device coordinate space (after the
-                perspective divide) look like this:</para>
-            <!--TODO: Show an image of camera space with a frustum, beside a picture of NDC space with a cube.-->
+                perspective divide) look like this, using a 2D version of a perspective
+                projection:</para>
+            <figure>
+                <title>Camera to NDC Transformation in 2D</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="CameraToPerspective.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Do note that the direction of viewing is flipped from camera space and normalized
+                device coordinate (NDC) space. Camera space is looking <quote>up</quote> in the left
+                diagram, along the -Z axis. While NDC space is looking <quote>down</quote>, along
+                the +Z axis. Thus, the meaning of front and back is reversed; the points at the top
+                of the left image correspond to the points at the <emphasis>bottom</emphasis> of the
+                right image.</para>
+            <para>If you perform an orthographic projection from NDC space on the right (by dropping
+                the Z coordinate), then what you get is a perspective projection of the world on the
+                left. In effect, what we have done is transform objects into a three-dimensional
+                space from which an orthographic projection will look like a perspective one.</para>
         </section>
         <section>
             <title>Perspective in Depth</title>
@@ -288,27 +354,37 @@
                 perspective divide just like the X and Y coordinates, we need to take this into
                 account if we actually want to see anything in our projection.</para>
             <para>Our W coordinate will be based on the camera-space Z coordinate. We need to map Z
-                values on the range [0, -∞) to values on the range [-1, 1]. Since camera space is an
-                infinite range and we're trying to map to a finite range, we need to do some range
-                bounding. The frustum is already finitely bound in the X and Y directions; we simply
-                need to add a Z boundary.</para>
+                values from the camera-space range [0, -∞) to the NDC space range [-1, 1]. Since
+                camera space is an infinite range and we're trying to map to a finite range, we need
+                to do some range bounding. The frustum is already finitely bound in the X and Y
+                directions; we simply need to add a Z boundary.</para>
             <para>The maximum distance that a vertex can be before it is considered no longer in
                 view is the <glossterm>camera zFar</glossterm>. We also have a minimum distance from
-                the mapping plane at 0; this is called the <glossterm>camera zNear</glossterm>. This
-                creates a finite frustum for our camera space viewpoint:</para>
-            <!--TODO: Show the bound camera-space frustum, in 2D. Show the zNear and zFar explicitly, as well as the mapping plane.-->
+                the eye; this is called the <glossterm>camera zNear</glossterm>. This creates a
+                finite frustum for our camera space viewpoint.</para>
             <note>
                 <para>It is very important to remember that these are the zNear and zFar for the
                         <emphasis>camera</emphasis> space. The next tutorial will also introduce a
-                    range of depth, also using the names zNear and zFar, which is a related but
+                    range of depth, also using the names zNear and zFar. This is a related but
                     fundamentally different range.</para>
             </note>
+            <para>The camera zNear can appear to effectively determine the offset between the eye
+                and the projection plane. However, this is not the case. Even if zNear is less than
+                1, which would place the near Z plane <emphasis>behind</emphasis> the projection
+                plane, you still get an effectively valid projection. Objects behind the plane can
+                be projected onto the plane just as well as those in front of it; it is still a
+                perspective projection. Mathematically, this works.</para>
+            <para>What it does <emphasis>not</emphasis> do is what you would expect if you moved the
+                plane of projection. Since the plane of projection has a fixed size (the range [-1,
+                1]), moving the plane would alter where points appear in the projection. Changing
+                the camera zNear does not affect the X, Y position of points in the
+                projection.</para>
             <para>There are several ways to go about mapping one finite range to another. One
                 confounding problem is the perspective divide itself; it is easy to perform a linear
                 mapping between two finite spaces. It is quite another to do a mapping that remains
-                linear after the perspective divide. Since we will be dividing by -Z itself (the
-                camera-space Z, not the clip-space Z), the math is much more complex than you might
-                expect.</para>
+                linear <emphasis>after</emphasis> the perspective divide. Since we will be dividing
+                by -Z itself (the camera-space Z, not the clip-space Z), the math is much more
+                complex than you might expect.</para>
             <para>For reasons that will be better explained in the next tutorial, we will use this
                 modestly complicated function to compute the clip-space Z:</para>
             <equation>
@@ -323,6 +399,22 @@
                 values are <emphasis>positive</emphasis>; the equation accounts for this when
                 performing the transformation. Also, zNear <emphasis>cannot</emphasis> be 0; it can
                 be very close to zero, but it must never be exactly zero.</para>
+            <para>Let us review the previous diagram of camera-to-NDC transformation in 2D
+                space:</para>
+            <informalfigure>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="CameraToPerspective.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </informalfigure>
+            <para>The example of 2D camera-space vs. 2D NDC space uses this equation to compute the
+                Z values. Take a careful look at how the Z coordinates match. The Z distances are
+                evenly spaced in camera space, but in NDC space, they are non-linearly distributed.
+                And yet simultaneously, points that are colinear in camera-space remain colinear in
+                NDC space.</para>
+            <para>This fact has some interesting properties that we will investigate further in the
+                next tutorial.</para>
         </section>
         <section>
             <title>Drawing in Perspective</title>
@@ -525,11 +617,11 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
                 <quote>camera</quote> are 4-dimensional vectors; namely the clip and camera space
             vectors. The larger block of numbers is a matrix. You probably are not familiar with
             matrix math. If not, it will be explained presently.</para>
-        <para>Generically speaking, a matrix is a two dimensional block of numbers (matrices with
-            more than 2 dimensions are called <quote>tensors</quote>). Matrices are very common in
-            computer graphics. Thus far, we have been able to get along without them. As we get into
-            more detailed object transformations however, we will rely more and more on matrices to
-            simplify matters.</para>
+        <para>Generically speaking, a <glossterm>matrix</glossterm> is a two dimensional block of
+            numbers (matrices with more than 2 dimensions are called <quote>tensors</quote>).
+            Matrices are very common in computer graphics. Thus far, we have been able to get along
+            without them. As we get into more detailed object transformations however, we will rely
+            more and more on matrices to simplify matters.</para>
         <para>In graphics work, we typically use 4x4 matrices; that is, matrices with 4 columns and
             4 rows respectively. This is due to the nature of graphics work: most of the things that
             we want to use matrices for are either 3 dimensional or 3 dimensional with an extra
@@ -629,7 +721,7 @@ glUseProgram(0);]]></programlisting>
         <para>A 4x4 matrix is technically 16 values, so a 16-entry array can store a matrix. But
             there are two ways to store a matrix as an array. One way is called
                 <glossterm>column-major</glossterm> order, the other naturally is
-                <glossterm>row-major</glossterm> order. column-major order means that, for an NxM
+                <glossterm>row-major</glossterm> order. Column-major order means that, for an NxM
             matrix (columns x rows), the first N values in the array are the first column
             (top-to-bottom), the next N values are the second column, and so forth. In row-major
             order, the first M values in the array are the first row (left-to-right), followed by
@@ -768,6 +860,24 @@ glUseProgram(0);]]></programlisting>
                         center of the window, either horizontally or vertically as
                         appropriate.</para>
                 </listitem>
+                <listitem>
+                    <para>We made some simplifying assumptions in our perspective transformation
+                        algorithm. In particular, we fixed the eye point at (0, 0, 0). and the plane
+                        at (0, 0, -1). However, this was not strictly necessary; we could have
+                        altered our perspective transform algorithm to use a variable eye point.
+                        Adjust the <phrase role="propername">ShaderPerspective</phrase> to implement
+                        an arbitrary perspective plane location (the size remains fixed at [-1, 1].
+                        You will need to offset the X, Y camera-space positions of the vertices by
+                            E<subscript>x</subscript> and E<subscript>y</subscript> respectively,
+                        but only <emphasis>after</emphasis> the scaling (for aspect ratio). And you
+                        will need to divide the camera-space Z term by -E<subscript>z</subscript>
+                        instead of just -1.</para>
+                </listitem>
+                <listitem>
+                    <para>Do the above, but in matrix form. Remember that any terms placed in the
+                        fourth column will be added to that component, due to the multiplication by
+                            W<subscript>camera</subscript> (which is always 1.0).</para>
+                </listitem>
             </itemizedlist>
         </section>
         <section>
@@ -787,9 +897,13 @@ glUseProgram(0);]]></programlisting>
                         <para>These two functions control how face culling works.
                                 <function>glFrontFace</function> defines which triangle winding
                             order is considered the front. <function>glCullFace</function> defines
-                            what face gets culled.</para>
+                            what face gets culled. This function can also cull
+                                <emphasis>all</emphasis> faces, though this is not useful if you
+                            want to get rendering done.</para>
                         <para>These functions only do something useful if
-                                <literal>GL_CULL_FACE</literal> is currently enabled.</para>
+                                <literal>GL_CULL_FACE</literal> is currently enabled. They still set
+                            the values internally even if <literal>GL_CULL_FACE</literal> is not
+                            enabled, so enabling it later will use the up-to-date settings.</para>
                     </glossdef>
                 </glossentry>
             </glosslist>
@@ -800,53 +914,126 @@ glUseProgram(0);]]></programlisting>
         <glossentry>
             <glossterm>face culling</glossterm>
             <glossdef>
-                <para/>
+                <para>The ability to cull triangles based on the winding order of the triangle. This
+                    functionality is activated in OpenGL by using <function>glEnable</function> with
+                        <literal>GL_CULL_FACE</literal>. Which faces get culled is determined by the
+                        <function>glCullFace</function> and <function>glFrontFace</function>
+                    functions.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>winding order</glossterm>
             <glossdef>
-                <para/>
+                <para>The order, clockwise or counter-clockwise, that the 3 vertices that make up a
+                    triangle are received in. This is measured in window coordinates,
+                    two-dimensionally.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>projection</glossterm>
             <glossdef>
-                <para/>
+                <para>The act of taking a series of objects in a higher dimension and presenting
+                    those objects in a lower dimension. The act of rendering a 3D scene to a 2D
+                    image requires projecting that scene from three dimensions into two
+                    dimensions.</para>
+                <para>Projection always happens relative to a surface of projection. Projecting 2D
+                    space onto a 1D space requires a finite line to be projected on. Projecting 3D
+                    space onto 2D space requires a plane of projection. This surface is defined in
+                    the higher dimension's world.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>orthographic projection</glossterm>
             <glossdef>
-                <para/>
+                <para>A form of projection that simply negates all offsets in the direction
+                    perpendicular to the surface of projection. When doing a 3D to 2D orthographic
+                    projection, if the plane is axis aligned, then the projection can be done
+                    simply. The coordinate that is perpendicular to the plane of projection is
+                    simply discarded. If the plane is not axis aligned, then the math is more
+                    complex, but it has the same effect.</para>
+                <para>Orthographic projections are uniform in the direction of the projection.
+                    Because of the uniformity, lines that are parallel in the higher dimension space
+                    are guaranteed to remain parallel in the lower dimension space.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>perspective projection</glossterm>
             <glossdef>
-                <para/>
+                <para>A form of projection that projects onto the surface based on a position, the
+                    eye position. Perspective projections attempt to emulate a pin-hole camera
+                    model, which is similar to how human eyes see. The positions of objects in space
+                    are projected onto the surface of projection radially based on the eye
+                    position.</para>
+                <para>Parallel lines in the higher dimension are <emphasis>not</emphasis> guaranteed
+                    to remain parallel in the lower dimension. They might, but they might
+                    not.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>frustum</glossterm>
+            <glossdef>
+                <para>Geometrically, a frustum is 3D shape; a pyramid that has the top chopped off.
+                    The view of a 3D to 2D perspective projection, from the eye through the plane of
+                    projection has the shape of a frustum.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>perspective divide</glossterm>
             <glossdef>
-                <para/>
+                <para>A new name for the transformation from clip space to normalized device
+                    coordinate space. This is so called because the division by W is what allows
+                    perspective projection to work using only matrix math; a matrix alone would not
+                    otherwise be able to perform the full perspective projection operation.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>camera space</glossterm>
             <glossdef>
-                <para/>
+                <para>An arbitrarily defined, but highly useful, space from which the perspective
+                    projection can be performed relatively easily. Camera space is an infinitely
+                    large space, with positive X going right, positive Y going up, and positive Z
+                    coming towards the viewer.</para>
+                <para>In camera space, the eye position of the perspective projection is assumed to
+                    be at (0, 0, 1), and the plane of projection is a [-1, 1] plane in X and Y,
+                    which passes through the 3D origin. Thus, all points that have a positive Z are
+                    considered to be behind the camera and thus out of view.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>camera zNear, camera zFar</glossterm>
             <glossdef>
-                <para/>
+                <para>Normalized device coordinate (NDC) space is bounded in all dimensions on the
+                    range [-1, 1]. Camera space is unbounded, but the perspective transform
+                    implicitly bounds what is considered in view to [-1, 1] in the X and Y axis.
+                    This leaves the Z axis unbounded, which NDC space does not allow.</para>
+                <para>The camera zNear and zFar values are numbers that define the minimum and
+                    maximum extent of Z in the perspective projection transform. These values are
+                    positive value, though they represent negative values in camera space. Using the
+                    standard perspective transform, both values must be greater than 0, and zNear
+                    must be less than zFar.</para>
             </glossdef>
         </glossentry>
         <glossentry>
             <glossterm>swizzle selection</glossterm>
+            <glossdef>
+                <para>Swizzle selection is a vector technique, unique to shading languages, that
+                    allows you to take a vector and arbitrarily build other vectors from the
+                    components. This selection is completely arbitrary; you can build a vec4 from a
+                    vec2, or any other combination you wish, up to 4 elements.</para>
+                <para>Swizzle selections use combinations of <quote>x,</quote>
+                    <quote>y,</quote>
+                    <quote>z,</quote> and <quote>w</quote> to pick components out of the input
+                    vector. Swizzle operations look like this:</para>
+                <programlisting>vec2 firstVec;
+vec4 secondVec = firstVec.xyxx;
+vec3 thirdVec = secondVec.wzyx;</programlisting>
+                <para>Swizzle selection is, in graphics hardware, considered an operation so fast as
+                    to be instantaneous. That is, graphics hardware is built with swizzle selection
+                    in mind.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>matrix</glossterm>
             <glossdef>
                 <para/>
             </glossdef>
@@ -854,7 +1041,12 @@ glUseProgram(0);]]></programlisting>
         <glossentry>
             <glossterm>column-major, row-major</glossterm>
             <glossdef>
-                <para/>
+                <para>These terms define the two ways in which a matrix can be stored as an array of
+                    values. Column-major order means that, for an NxM matrix (columns x rows), the
+                    first N values in the array are the first column (top-to-bottom), the next N
+                    values are the second column, and so forth. In row-major order, the first M
+                    values in the array are the first row (left-to-right), followed by another M
+                    values for the second row, and so forth.</para>
             </glossdef>
         </glossentry>
     </glossary>

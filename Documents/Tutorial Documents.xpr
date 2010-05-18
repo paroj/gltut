@@ -22,6 +22,17 @@
                             </scenarioAssociation>
                             <scenarioAssociation>
                                 <field name="name">
+                                    <String xml:space="preserve">Tutorial to HTML</String>
+                                </field>
+                                <field name="type">
+                                    <String xml:space="preserve">XSL</String>
+                                </field>
+                                <field name="url">
+                                    <String xml:space="preserve">Basics/Tutorial%2000.xml</String>
+                                </field>
+                            </scenarioAssociation>
+                            <scenarioAssociation>
+                                <field name="name">
                                     <String xml:space="preserve">Docbook PDF Printable</String>
                                 </field>
                                 <field name="type">
@@ -40,17 +51,6 @@
                                 </field>
                                 <field name="url">
                                     <String xml:space="preserve">Tutorials.xml</String>
-                                </field>
-                            </scenarioAssociation>
-                            <scenarioAssociation>
-                                <field name="name">
-                                    <String xml:space="preserve">Tutorial to HTML</String>
-                                </field>
-                                <field name="type">
-                                    <String xml:space="preserve">XSL</String>
-                                </field>
-                                <field name="url">
-                                    <String xml:space="preserve">Basics/Tutorial%2000.xml</String>
                                 </field>
                             </scenarioAssociation>
                             <scenarioAssociation>

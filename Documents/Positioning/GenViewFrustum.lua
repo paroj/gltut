@@ -3,8 +3,8 @@ require "vmath"
 
 local imageWidth, imageHeight = 500, 500;
 
-local yAngle = math.rad(30);
-local zAngle = math.rad(10);
+local yAngle = math.rad(45);
+local zAngle = math.rad(20);
 
 local ySin, yCos = math.sin(yAngle), math.cos(yAngle);
 local zSin, zCos = math.sin(zAngle), math.cos(zAngle);
@@ -20,8 +20,16 @@ local zMat = vmath.mat4(
 	vmath.vec4(0, zCos, -zSin, 0),
 	vmath.vec4(0, zSin, zCos, 0),
 	vmath.vec4(0, 0, 0, 1))
+
+local worldScale = 0.1;
 	
-local fullMat = zMat * yMat
+local scalingMatrix = vmath.mat4(
+	vmath.vec4(worldScale, 0, 0, 0),
+	vmath.vec4(0, worldScale, 0, 0),
+	vmath.vec4(0, 0, worldScale, 0),
+	vmath.vec4(0, 0, 0, 1))
+	
+local fullMat = (scalingMatrix * zMat) * yMat
 
 local function LocalTransform(listOfPoints)
 	local ret = {};
@@ -48,35 +56,35 @@ local function ViewportTransform(listOfPoints)
 end
 
 local initialBoxPoints = {
-	vmath.vec3(0.5, 0.5, 0.5),
-	vmath.vec3(-0.5, 0.5, 0.5),
-	vmath.vec3(0.5, -0.5, 0.5),
-	vmath.vec3(-0.5, -0.5, 0.5),
-	vmath.vec3(0.5, 0.5, -0.5),
-	vmath.vec3(-0.5, 0.5, -0.5),
-	vmath.vec3(0.5, -0.5, -0.5),
-	vmath.vec3(-0.5, -0.5, -0.5),
+	vmath.vec3(		 4.0,	 4.0,	 5.0),
+	vmath.vec3(		-4.0,	 4.0,	 5.0),
+	vmath.vec3(		 4.0,	-4.0,	 5.0),
+	vmath.vec3(		-4.0,	-4.0,	 5.0),
+	vmath.vec3(		 1.0,	 1.0,	-5.0),
+	vmath.vec3(		-1.0,	 1.0,	-5.0),
+	vmath.vec3(		 1.0,	-1.0,	-5.0),
+	vmath.vec3(		-1.0,	-1.0,	-5.0),
 }
 
 local initialAxisPoints =
 {
-	vmath.vec3(0.5, 0.0, 0.0),
-	vmath.vec3(1.0, 0.0, 0.0),
+	vmath.vec3(2.5, 0.0, 0.0),
+	vmath.vec3(10.0, 0.0, 0.0),
 	
-	vmath.vec3(-0.5, 0.0, 0.0),
-	vmath.vec3(-1.0, 0.0, 0.0),
+	vmath.vec3(-2.5, 0.0, 0.0),
+	vmath.vec3(-10.0, 0.0, 0.0),
 	
-	vmath.vec3(0.0, 0.5, 0.0),
-	vmath.vec3(0.0, 1.0, 0.0),
+	vmath.vec3(0.0, 2.5, 0.0),
+	vmath.vec3(0.0, 10.0, 0.0),
 
-	vmath.vec3(0.0, -0.5, 0.0),
-	vmath.vec3(0.0, -1.0, 0.0),
+	vmath.vec3(0.0, -2.5, 0.0),
+	vmath.vec3(0.0, -10.0, 0.0),
 
-	vmath.vec3(0.0, 0.0, 0.5),
-	vmath.vec3(0.0, 0.0, 1.5),
+	vmath.vec3(0.0, 0.0, 5.0),
+	vmath.vec3(0.0, 0.0, 10.0),
 
-	vmath.vec3(0.0, 0.0, -0.5),
-	vmath.vec3(0.0, 0.0, -1.5),
+	vmath.vec3(0.0, 0.0, -5.0),
+	vmath.vec3(0.0, 0.0, -10.0),
 }
 
 local boxPoints = ViewportTransform(LocalTransform(initialBoxPoints));
@@ -127,7 +135,7 @@ arrowheadPath:M{10, 4}:L{0, 0}:L{0, 8}:Z();
 
 
 	
-local writer = SvgWriter.SvgWriter("NormDeviceCoord sans text.svg", {imageWidth .."px", imageHeight .. "px"});
+local writer = SvgWriter.SvgWriter("ViewFrustum.svg", {imageWidth .."px", imageHeight .. "px"});
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginMarker({10, 8}, {10, 4}, "auto", nil, nil, "arrowhead");
