@@ -790,13 +790,20 @@ glUseProgram(0);]]></programlisting>
         <para>Currently, our perspective matrix defines a square-shaped frustum. That is, the top
             and bottom of the frustum (if it were visualized in camera space) would be squares. What
             we need to do instead is create a rectangular frustum.</para>
-        <!--TODO: Create an image of a square frustum and a rectangular frustum.-->
+        <figure>
+            <title>Widescreen Aspect Ratio Frustum</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RectViewFrustum.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>We already have some control over the shape of the frustum. We said originally that we
-            did not need to move the eye position from (0, 0, -1), because we could simply scale the
-            X and Y positions of everything to achieve the same effect. We scale the X and Y by the
-            same value; this produces a uniform scale. It also produces a square frustum, as seen in
-            camera space. Since we want a rectangular frustum, we need to use a non-uniform scale,
-            where the X and Y positions are scaled by different values.</para>
+            did not need to move the eye position from the origin because we could simply scale the
+            X and Y positions of everything to achieve a similar effect. When we do this, we scale
+            the X and Y by the same value; this produces a uniform scale. It also produces a square
+            frustum, as seen in camera space. Since we want a rectangular frustum, we need to use a
+            non-uniform scale, where the X and Y positions are scaled by different values.</para>
         <para>What this will do is show <emphasis>more</emphasis> of the world. But in what
             direction do we want to show more? Human vision tends to be more horizontal than
             vertical. This is why movies tend to use a minimum of 16:9 width:height aspect ratio

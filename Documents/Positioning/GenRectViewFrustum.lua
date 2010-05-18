@@ -56,22 +56,22 @@ local function ViewportTransform(listOfPoints)
 end
 
 local initialBoxPoints = {
-	vmath.vec3(		 4.0,	 4.0,	 5.0),
-	vmath.vec3(		-4.0,	 4.0,	 5.0),
-	vmath.vec3(		 4.0,	-4.0,	 5.0),
-	vmath.vec3(		-4.0,	-4.0,	 5.0),
-	vmath.vec3(		 1.0,	 1.0,	-5.0),
-	vmath.vec3(		-1.0,	 1.0,	-5.0),
-	vmath.vec3(		 1.0,	-1.0,	-5.0),
-	vmath.vec3(		-1.0,	-1.0,	-5.0),
+	vmath.vec3(		 7.1,	 4.0,	 5.0),
+	vmath.vec3(		-7.1,	 4.0,	 5.0),
+	vmath.vec3(		 7.1,	-4.0,	 5.0),
+	vmath.vec3(		-7.1,	-4.0,	 5.0),
+	vmath.vec3(		 1.77,	 1.0,	-5.0),
+	vmath.vec3(		-1.77,	 1.0,	-5.0),
+	vmath.vec3(		 1.77,	-1.0,	-5.0),
+	vmath.vec3(		-1.77,	-1.0,	-5.0),
 }
 
 local initialAxisPoints =
 {
-	vmath.vec3(2.5, 0.0, 0.0),
+	vmath.vec3(4.435, 0.0, 0.0),
 	vmath.vec3(10.0, 0.0, 0.0),
 	
-	vmath.vec3(-2.5, 0.0, 0.0),
+	vmath.vec3(-4.435, 0.0, 0.0),
 	vmath.vec3(-10.0, 0.0, 0.0),
 	
 	vmath.vec3(0.0, 2.5, 0.0),
@@ -135,7 +135,7 @@ arrowheadPath:M{10, 4}:L{0, 0}:L{0, 8}:Z();
 
 
 	
-local writer = SvgWriter.SvgWriter("ViewFrustum.svg", {imageWidth .."px", imageHeight .. "px"}, true);
+local writer = SvgWriter.SvgWriter("RectViewFrustum.svg", {imageWidth .."px", imageHeight .. "px"}, true);
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginMarker({10, 8}, {10, 4}, "auto", nil, nil, "arrowhead");
