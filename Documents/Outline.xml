@@ -223,8 +223,8 @@
                 </listitem>
                 <listitem>
                     <para>Uniform Buffer Objects. How to have per-instance data and change the
-                        instance data with a single setting, rather than multiple settings. Use
-                        std140 layout.</para>
+                        instance data with a single setting, rather than setting multiple uniforms.
+                        Use std140 layout.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -604,6 +604,9 @@
             </listitem>
             <listitem>
                 <para>Buffer object streaming. Used for transferring the data efficiently.</para>
+            </listitem>
+            <listitem>
+                <para>Instance arrays. Alternative to buffer textures.</para>
             </listitem>
         </itemizedlist>
     </section>

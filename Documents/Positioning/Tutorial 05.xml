@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <title>Objects in Depth</title>
+    <para>In this tutorial, we will look at how to deal with multiple objects, as well as what
+        happens when multiple objects overlap.</para>
+    <section>
+        <title>Multiple Objects in OpenGL</title>
+        <para>The first step in looking at what happens when objects overlap is to draw more than
+            one object. This is an opportunity to talk about a concept that will be useful in the
+            future.</para>
+        <para>An object, in terms of what you draw, can be considered the results of a single
+            drawing call. Thus, an object is the smallest series of triangles that you draw with a
+            single set of program object state.</para>
+        <section>
+            <title>Vertex Array Objects</title>
+            <para>Up until now, every time we have attempted to draw anything, we needed to do
+                certain setup work before the draw call. We have to do the following, for
+                    <emphasis>each</emphasis> vertex attribute used by the vertex shader:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Use <function>glEnableVertexAttribArray</function> to enable this
+                        attribute.</para>
+                </listitem>
+                <listitem>
+                    <para>Use <function>glBindBuffer</function>(<literal>GL_ARRAY_BUFFER</literal>)
+                        to bind to the context the buffer object that contains the data for this
+                        attribute.</para>
+                </listitem>
+                <listitem>
+                    <para>Use <function>glVertexAttribPointer</function> to define the format of the
+                        data for the attribute within the buffer object previously bound to
+                            <literal>GL_ARRAY_BUFFER</literal>.</para>
+                </listitem>
+            </orderedlist>
+            <para>The more attributes you have, the more work you need to do for each object. To
+                alleviate this burden, OpenGL provides an object that stores all of the state needed
+                for rendering: the <glossterm>Vertex Array Object</glossterm>
+                    (<acronym>VAO</acronym>).</para>
+            <para>VAOs are created with the <function>glGenVertexArray</function>. This works like
+                    <function>glGenBuffers</function> (and like most other OpenGL) objects; you can
+                create multiple objects with one call.</para>
+            <para>VAOs are bound to the context with <function>glBindVertexArray</function>; this
+                function doesn't take a target the way that <function>glBindBuffer</function> does.
+                It only takes the VAO to bind to the context.</para>
+            <para>Once the VAO is bound, calls to certain functions change the data in the bound
+                VAO. Technically, they <emphasis>always</emphasis> have changed the VAO's state; all
+                of the prior tutorials have these line in the initialization function:</para>
+            <programlisting><![CDATA[glGenVertexArrays(1, &vao);
+glBindVertexArray(vao);]]></programlisting>
+            <para>The following functions change VAO state. Therefore, if no VAO is bound to the
+                context (if you call <function>glBindVertexArray(0)</function> or you do not bind a
+                VAO at all), all of these functions, except as noted, will fail.</para>
+            <itemizedlist>
+                <listitem>
+                    <para><function>glVertexAttribPointer</function>. Also
+                            <function>glVertexAttribIPointer</function>, but we haven't talked about
+                        that one yet.</para>
+                </listitem>
+                <listitem>
+                    <para><function>glEnableVertexAttribArray</function>/<function>glDisableVertexAttribArray</function></para>
+                </listitem>
+                <listitem>
+                    <para><function>glBindBuffer</function>(<literal>GL_ELEMENT_ARRAY_BUFFER</literal>):
+                        Calling this without a VAO bound will not fail.</para>
+                </listitem>
+            </itemizedlist>
+            <note>
+                <para>You may notice that
+                        <function>glBindBuffer</function>(<literal>GL_ARRAY_BUFFER</literal>) is not
+                    on that list, even though it is part of the attribute setup for rendering. The
+                    binding to <literal>GL_ARRAY_BUFFER</literal> is not part of a VAO because the
+                    association between a buffer object and a vertex attribute does
+                        <emphasis>not</emphasis> happen when you call
+                        <function>glBindBuffer</function>(<literal>GL_ARRAY_BUFFER</literal>). This
+                    association happens when you call
+                    <function>glVertexAttribPointer</function>.</para>
+                <para>When you call <function>glVertexAttribPointer</function>, OpenGL takes
+                    whatever buffer is <emphasis>at the moment of this call</emphasis> bound to
+                        <literal>GL_ARRAY_BUFFER</literal> and associates it with the given vertex
+                    attribute. So you are free to bind whatever you want or nothing at all to
+                        <literal>GL_ARRAY_BUFFER</literal>
+                    <emphasis>after</emphasis> making a <function>glVertexAttribPointer</function>
+                    call; it will affect <emphasis>nothing</emphasis> in the final rendering. So
+                    VAOs do store which buffer objects are associated with which attributes; but
+                    they do not store the <literal>GL_ARRAY_BUFFER</literal> binding itself.</para>
+                <para>If you want to know why <function>glVertexAttribPointer</function> doesn't
+                    simply take a buffer object rather than requiring this bind+call mechanism, it
+                    is again because of legacy API cruft. When buffer objects were first introduced,
+                    they were designed to impact the API as little as possible. So the old
+                        <function>glVertexAttribPointer</function> simply changed its behavior
+                    depending on whether something was bound to <literal>GL_ARRAY_BUFFER</literal>
+                    or not. Nowadays, since this function will fail if nothing is bound to
+                        <literal>GL_ARRAY_BUFFER</literal>, it is simply an annoyance.</para>
+            </note>
+            <para>This allows you to setup a VAO early on, during initialization, and then simply
+                bind it and call a rendering function to draw your object. Be advised when using a
+                VAO in this way: VAOs are <emphasis>not</emphasis> immutable. Calling any of the
+                above functions will change the data stored in the VAO.</para>
+        </section>
+        <section>
+            <title>Indexed Drawing</title>
+            <para>In the last tutorial, we drew a rectangular prism. If you looked carefully at the
+                vertex data, you may have noticed that a lot of vertex data was frequently repeated.
+                To draw one face of the cube, we were required to have 6 vertices; the two shared
+                vertices (along the shared line between the two triangles) had to be in the buffer
+                object twice.</para>
+            <para>For a simple case like ours, this is a minor increase in the size of the vertex
+                data. The compact form of the vertex data could be 4 vertices per face, or 24
+                vertices total, while the expanded version we used took 36 total vertices. However,
+                when looking at real meshes, like characters and so forth that have thousands of
+                vertices, sharing vertices becomes a major benefit in both performance and memory
+                size. Removing duplicate data can shrink the size of the vertex data by 2x or
+                greater in many cases.</para>
+            <para>In order to remove this extraneous data, we must perform <glossterm>indexed
+                    drawing</glossterm>, rather than the <glossterm>array drawing</glossterm> we
+                have been doing up until now. In an earlier tutorial, we defined glDrawArrays
+                conceptually as the following pseudo-code:</para>
+            <example>
+                <title>Draw Arrays Implementation</title>
+                <programlisting><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
+{
+    for(GLint element = start; element < start + count; element++)
+    {
+        VertexShader(positionAttribArray[element], colorAttribArray[element]);
+    }
+}]]></programlisting>
+            </example>
+            <para>This defines how <glossterm>array drawing</glossterm> works. You start with a
+                particular index into the buffers, defined by the <varname>start</varname>
+                parameter, and proceed forward by <varname>count</varname> vertices.</para>
+            <para>In order to share attribute data between multiple triangles, we need some way to
+                random-access the attribute arrays, rather than sequentially accessing them. This is
+                done with an <glossterm>element array</glossterm>, also known as an <glossterm>index
+                    array</glossterm>.</para>
+            <para>Let's assume you have the following attribute array data:</para>
+            <programlisting>  Position Array:  Pos0, Pos1, Pos2, Pos3
+  Color Array:     Clr0, Clr1, Clr2, Clr3</programlisting>
+            <para>You can use <function>glDrawArrays</function> to render either the first 3
+                vertices as a triangle, or the last 3 vertices as a triangle (using a
+                    <varname>start</varname> of 1 and <varname>count</varname> of 3). However, with
+                the right element array, you can render 4 triangles from just these 4
+                vertices:</para>
+            <programlisting>  Element Array: 0, 1, 2,  0, 2, 3,  0, 3, 1,  1, 2, 3</programlisting>
+            <para>This will cause OpenGL to generate the following sequence of vertices:</para>
+            <programlisting>  (Pos0, Clr0), (Pos1, Clr1), (Pos2, Clr2),
+  (Pos0, Clr0), (Pos2, Clr2), (Pos3, Clr3),
+  (Pos0, Clr0), (Pos3, Clr3), (Pos1, Clr1),
+  (Pos1, Clr1), (Pos2, Clr2), (Pos3, Clr3),</programlisting>
+            <para>12 vertices, which for 4 triangles.</para>
+            <note>
+                <para>Each attribute for a vertex uses the <emphasis>same</emphasis> index. That is,
+                    there is only <emphasis>one</emphasis> element array, and the indices fetched
+                    from the array are used for <emphasis>all</emphasis> attributes of the vertex
+                    arrays. So you cannot have an element array for positions and a separate one for
+                    colors; they all have to use the same element array.</para>
+                <para>This means that there can and often will be some duplication within a
+                    particular attribute array. For example, in order to have solid face colors, we
+                    will still have to replicate the color for every position of that triangle. And
+                    corner positions that are shared between two triangles that have different
+                    colors will still have to be duplicated in different vertices.</para>
+                <para>It turns out that, for most meshes, duplication of this sort is fairly rare.
+                    Most meshes are smooth across their surface, so different attributes don't
+                    generally pop from location to location. Shared edges typically use the same
+                    attributes for both triangles along the edges. The simple cubes and the like
+                    that we use are one of the few cases where a per-attribute index would have a
+                    significant benefit.</para>
+            </note>
+            <para>Now that we understand how indexed drawing works, we need to know how to set it up
+                in OpenGL. Indexed drawing requires two things: a properly-constructed element array
+                and using a new drawing command to do the indexed drawing.</para>
+            <para>Element arrays, as you might guess, are stored in buffer objects. They have a
+                special buffer object binding point, <literal>GL_ELEMENT_ARRAY_BUFFER</literal>. You
+                can use this buffer binding point for normal maintenance of a buffer object
+                (allocating memory with glBufferData, etc), just like
+                    <literal>GL_ARRAY_BUFFER</literal>. But it also has a special meaning to OpenGL:
+                indexed drawing is only possible when a buffer object is bound to this binding
+                point, and the element array comes from this buffer object.</para>
+            <para>All buffer objects in OpenGL are the same, regardless of what target they are
+                bound to; buffer objects can be bound to multiple targets. So it is perfectly legal
+                to use the same buffer object to store vertex attributes and element arrays (and,
+                FYI, any data for any other use of buffer objects that exists in OpenGL). Obviously,
+                the different data would be in separate parts of the buffer.</para>
+            <para>In order to do indexed drawing, we must bind the buffer to
+                    <literal>GL_ELEMENT_ARRAY_BUFFER</literal> and then call
+                    <function>glDrawElements</function>. </para>
+            <para/>
+            <para/>
+            <para>This is done with the function <function>glDrawElements</function>, which is
+                defined as the following pseudo-code:</para>
+            <example>
+                <title>Draw Elements Implementation</title>
+                <programlisting><![CDATA[GLvoid *elementArray;
+
+void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr elementArrayOffset)
+{
+    GLtype *ourElementArray = (type*)((GLbyte *)elementArray + elementArrayOffset);
+
+    for(GLint elementIndex = 0; elementIndex < count; elementIndex++)
+    {
+        GLint element = ourElementArray[elementIndex];
+        VertexShader(positionAttribArray[element], colorAttribArray[element]);
+    }
+}]]></programlisting>
+            </example>
+            <para>This function conceptually takes an array of indices and a number of indices to
+                render. It walks the array, pulling out integers, and then uses those integers as
+                indices into the attribute array. </para>
+            <para>Now that we understand how indexed drawing works, we need to know how to set it up
+                in OpenGL. The pseudo-code</para>
+        </section>
+        <section>
+            <title>Multiple Objects</title>
+            <para>The tutorial project <phrase role="propername">Overlap No Depth</phrase> uses VAOs
+                to draw two separate objects. The setup for this shows one way to have the attribute
+                data for multiple objects stored in a single buffer.</para>
+            <para>For this tutorial, we will be drawing two objects. They are both wedges, with the
+                sharp end facing the viewer. The difference between them is that one is horizontal
+                and the other is vertical on the screen.</para>
+            <para>The shaders are essentially unchanged from before. We are using the perspective
+                matrix shader from the last tutorial, with modifications to preserve the aspect
+                ratio of the scene. The only difference is the pre-camera offset value; in this
+                tutorial, it is a full 3D vector, which allows us to position each wedge in the
+                scene.</para>
+            <para>The initialization has changed, allowing us to </para>
+        </section>
+    </section>
+    <section>
+        <title>Optimization: Base Vertex</title>
+        <para/>
+    </section>
+    <section>
+        <title>Overlap and Depth Buffering</title>
+        <para/>
+    </section>
+    <section>
+        <title>Boundaries</title>
+        <para/>
+    </section>
+    <section>
+        <title>In Review</title>
+        <para/>
+        <section>
+            <title>Further Study</title>
+            <para/>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <para/>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glGenVertexArrays/glDeleteVertexArrays</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glBindVertexArray</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm/>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+        </section>
+    </section>
+    <glossary>
+        <title>Glossary</title>
+        <glossentry>
+            <glossterm>Vertex Array Object (VAO)</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Array Drawing</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Indexed Drawing</glossterm>
+            <glossdef>
+                <para/>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>Element Array</glossterm>
+            <glossdef>
+                <para>Also known as an <glossterm>index array</glossterm>, </para>
+            </glossdef>
+        </glossentry>
+    </glossary>
+</chapter>

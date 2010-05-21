@@ -862,15 +862,16 @@ glUseProgram(0);]]></programlisting>
                 </listitem>
                 <listitem>
                     <para>In the section on aspect ratio, we saw a solution to the aspect ratio
-                        problem that modified the viewport. It adds extra space around the right or
-                        bottom of the viewport. Adjust this solution to position the viewport in the
-                        center of the window, either horizontally or vertically as
-                        appropriate.</para>
+                        problem that modified the projection matrix's aspect ratio, so that it could
+                        render into a non-square viewport. Instead, change this code so that it
+                        modifies the <emphasis>viewport</emphasis> itself, always using the minimum
+                        sized square that will fit within the window's size. Also, add code to
+                        center the viewport within the window.</para>
                 </listitem>
                 <listitem>
                     <para>We made some simplifying assumptions in our perspective transformation
                         algorithm. In particular, we fixed the eye point at (0, 0, 0). and the plane
-                        at (0, 0, -1). However, this was not strictly necessary; we could have
+                        at (0, 0, 1). However, this was not strictly necessary; we could have
                         altered our perspective transform algorithm to use a variable eye point.
                         Adjust the <phrase role="propername">ShaderPerspective</phrase> to implement
                         an arbitrary perspective plane location (the size remains fixed at [-1, 1].

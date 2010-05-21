@@ -1823,6 +1823,7 @@
         <folder name="Positioning">
             <file name="Positioning/Tutorial%2003.xml"/>
             <file name="Positioning/Tutorial%2004.xml"/>
+            <file name="Positioning/Tutorial%2005.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>

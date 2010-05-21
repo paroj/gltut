@@ -225,12 +225,11 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                     <title>Draw Arrays Implementation</title>
                     <programlisting><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
 {
-    for(int element = start; element < start + count; element++)
+    for(GLint element = start; element < start + count; element++)
     {
         VertexShader(positionAttribArray[element], colorAttribArray[element]);
     }
-}
-]]></programlisting>
+}]]></programlisting>
                 </example>
                 <para>This means that the vertex shader will be executed <varname>count</varname>
                     times, and it will be given data beginning with the <varname>start</varname>-th
