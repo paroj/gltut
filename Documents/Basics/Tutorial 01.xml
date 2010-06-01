@@ -681,7 +681,7 @@ void main()
     <glossary>
         <title>Glossary</title>
         <glossentry>
-            <glossterm>Buffer Object</glossterm>
+            <glossterm>buffer object</glossterm>
             <glossdef>
                 <para>An OpenGL object that represents a linear array of memory, containing
                     arbitrary data. The contents of the buffer are defined by the user, but the
@@ -690,14 +690,14 @@ void main()
             </glossdef>
         </glossentry>
         <glossentry>
-            <glossterm>Input Variable</glossterm>
+            <glossterm>input variable</glossterm>
             <glossdef>
                 <para>A shader variable, declared at global scope. Input variables receive their
                     values from earlier stages in the OpenGL rendering pipeline.</para>
             </glossdef>
         </glossentry>
         <glossentry>
-            <glossterm>Output Variable</glossterm>
+            <glossterm>output variable</glossterm>
             <glossdef>
                 <para>A shader variable, declared at global scope, using the <literal>out</literal>
                     keyword. Output variables written to by a shader are passed to later stages in
@@ -705,7 +705,7 @@ void main()
             </glossdef>
         </glossentry>
         <glossentry>
-            <glossterm>Vertex Attribute</glossterm>
+            <glossterm>vertex attribute</glossterm>
             <glossdef>
                 <para>Input variables to vertex shaders are called vertex attributes. Each vertex
                     attribute is a vector of up to 4 elements in length. Vertex attributes are drawn
@@ -718,14 +718,14 @@ void main()
             </glossdef>
         </glossentry>
         <glossentry>
-            <glossterm>Viewport Transform</glossterm>
+            <glossterm>viewport transform</glossterm>
             <glossdef>
                 <para>The process of transforming vertex data from normalized device coordinate
                     space to window space. It specifies the viewable region of a window.</para>
             </glossdef>
         </glossentry>
         <glossentry>
-            <glossterm>Shader Object</glossterm>
+            <glossterm>shader object</glossterm>
             <glossdef>
                 <para>An object in the OpenGL API that is used to compile shaders and represent the
                     compiled shader's information. Each shader object is typed based on the shader
@@ -733,7 +733,7 @@ void main()
             </glossdef>
         </glossentry>
         <glossentry>
-            <glossterm>Program Object</glossterm>
+            <glossterm>program object</glossterm>
             <glossdef>
                 <para>An object in the OpenGL API that represents the full sequence of all shader
                     processing to be used when rendering. Program objects can be queried for

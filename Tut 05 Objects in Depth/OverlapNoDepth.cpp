@@ -90,9 +90,6 @@ const float vertexData[] = {
 	RIGHT_EXTENT,	TOP_EXTENT,		REAR_EXTENT,
 	RIGHT_EXTENT,	BOTTOM_EXTENT,	REAR_EXTENT,
 
-//	0, 2, 1,
-//	3, 2, 0,
-
 	//Object 2 positions
 	TOP_EXTENT,		RIGHT_EXTENT,	REAR_EXTENT,
 	MIDDLE_EXTENT,	RIGHT_EXTENT,	FRONT_EXTENT,
@@ -224,7 +221,7 @@ void InitializeVertexArrayObjects()
 	size_t posDataOffset = sizeof(float) * 3 * (numberOfVertices/2);
 	colorDataOffset += sizeof(float) * 4 * (numberOfVertices/2);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+	//Use the same buffer object previously bound to GL_ARRAY_BUFFER.
 	glEnableVertexAttribArray(positionAttrib);
 	glEnableVertexAttribArray(colorAttrib);
 	glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)posDataOffset);

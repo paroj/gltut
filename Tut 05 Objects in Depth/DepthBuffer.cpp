@@ -225,7 +225,7 @@ void init()
 	glFrontFace(GL_CW);
 
 	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
 }
 

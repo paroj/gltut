@@ -143,7 +143,7 @@
                 </mediaobject>
             </figure>
             <para>The cube indicates the boundaries of normalized device coordinate space.</para>
-            <formalpara>
+            <formalpara xml:id="tut00_window_space">
                 <title>Window Transformation</title>
                 <para>The next phase of rasterization is to transform the vertices of each triangle
                     again. This time, they are converted from normalized device coordinates to
@@ -201,8 +201,9 @@
             </figure>
             <para>To make it easier to use this, OpenGL also offers the guarantee that if you pass
                 the same input vertex data through the vertex processing stage, you will get
-                identical output. So the onus is on the user to use the same input vertices if you
-                want to ensure gap-less scan conversion.</para>
+                identical output; this is called the <glossterm>invariance guarantee</glossterm>. So
+                the onus is on the user to use the same input vertices if you want to ensure
+                gap-less scan conversion.</para>
             <para>Scan conversion is an inherently 2D operation. This process only uses the X and Y
                 position of the triangle in window coordinates to determine which fragments to
                 generate. The Z value is not forgotten, but it is directly part of the actual
@@ -508,6 +509,15 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                     arbitrary data, but among that data is a 3-dimensional position, identifying the
                     location on the triangle in window space where this fragment originates
                     from.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry>
+            <glossterm>invariance guarantee</glossterm>
+            <glossdef>
+                <para>A guarantee provided by OpenGL, such that if you provide binary-identical
+                    inputs to the vertex processing, while all other state remains exactly
+                    identical, then the exact same vertex in clip-space will produce the exact same
+                    output.</para>
             </glossdef>
         </glossentry>
         <glossentry>

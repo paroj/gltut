@@ -277,8 +277,7 @@
                     also be wondering, in this modern days of vertex shaders that can do vector
                     divisions very quickly, why we should bother to use the hardware division-by-W
                     step at all. There are two reasons. One we will cover in just a bit when we deal
-                    with matrices, and the other will be covered many tutorials from now when we
-                    deal with textures. Suffice it to say that there are very good reasons to put
+                    with matrices; the main one will be covered in the next tutorial. Suffice it to say that there are very good reasons to put
                     the perspective term in the W coordinate of clip space vertices.</para>
             </note>
         </section>
@@ -1043,7 +1042,7 @@ vec3 thirdVec = secondVec.wzyx;</programlisting>
         <glossentry>
             <glossterm>matrix</glossterm>
             <glossdef>
-                <para/>
+                <para>A two-dimensional arrangement of numbers. .</para>
             </glossdef>
         </glossentry>
         <glossentry>

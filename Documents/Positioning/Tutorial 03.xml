@@ -584,7 +584,7 @@ void main()
     <glossary>
         <title>Glossary</title>
         <glossentry>
-            <glossterm>Uniforms</glossterm>
+            <glossterm>uniforms</glossterm>
             <glossdef>
                 <para>These are a class of global variable that can be defined in GLSL shaders. They
                     represent values that are uniform (unchanging) over the course of a rendering
