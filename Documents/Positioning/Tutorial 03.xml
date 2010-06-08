@@ -9,7 +9,7 @@
     <section>
         <title>Moving the Vertices</title>
         <para>The simplest way one might think to move a triangle or other object around is to
-            simply modify the vertex position data directly. From the previous tutorial, we learned
+            simply modify the vertex position data directly. From previous tutorials, we learned
             that the vertex data is stored in a buffer object. So the task is to modify the vertex
             data in the buffer object. This is what <filename>cpuPositionOffset.cpp</filename>
             does.</para>
@@ -146,8 +146,8 @@
     <section>
         <title>A Better Way</title>
         <para>This is fine for a 3-vertex example. But imagine a scene involving millions of
-            vertices (and no, that's not an exaggeration for high-end games). Moving objects this
-            way means having to copy millions of vertices from the original vertex data, add an
+            vertices (and no, that's not an exaggeration for high-end applications). Moving objects
+            this way means having to copy millions of vertices from the original vertex data, add an
             offset to each of them, and then upload that data to an OpenGL buffer object. And all of
             that is <emphasis>before</emphasis> rendering. Clearly there must be a better way; games
             can't possibly do this every frame and still hold decent framerates.</para>
@@ -485,10 +485,10 @@ void main()
             floating-point math. The question is this: what is the cost of doing more complex
             operations in a vertex shader vs. how often those operations need to be done.</para>
         <para>The second vertex shader we use, the one that computes the offset itself, does a lot
-            of complex map. Sine and cosine values are <emphasis>not</emphasis> fast to compute.
-            They require quite a few computations to calculate. And since the offset itself doesn't
-            change for each vertex, it would be best to compute the offset on the CPU and pass the
-            offset as a uniform value.</para>
+            of complex map. Sine and cosine values are not particularly fast to compute. They
+            require quite a few computations to calculate. And since the offset itself doesn't
+            change for each vertex in a single rendering call, performance-wise it would be best to
+            compute the offset on the CPU and pass the offset as a uniform value.</para>
         <para>And typically, that is how rendering is done much of the time. Vertex shaders are
             given transformation values that are pre-computed on the CPU. But this does not mean
             that this is the only or best way to do this. In some cases, it is often useful to
@@ -498,17 +498,22 @@ void main()
             the position at a particular time or some other parameter. This can be done for particle
             systems based on forces; the vertex shader executes the force functions based on time,
             and is able to thus compute the location of the particle at an arbitrary time.</para>
+        <para>This also has an advantage that we have seen. By passing high-level information to the
+            shader and letting it do complex math, you can affect much more than just a simple
+            offset. The color animation in the fragment shader would not have been possible with
+            just an offset. High-level parameterization gives shaders a great deal of
+            freedom.</para>
     </section>
     <section>
         <title>In Review</title>
         <para>In this tutorial, you have learned about uniform variables in shaders. Uniforms are
             shader variables that change, not with every shader envocation, but between rendering
-            calls. Uniform values are parameters set by the user to control the behavior of the
-            shader. Setting them requires querying a uniform location as well as setting the program
-            to be in use. Uniform state is stored within a program object and preserved until
-            explicitly changed. A uniform that has the same name and type in two different shader
-            stages within the same linked program is the same uniform; setting it will change it for
-            both stages.</para>
+            calls whenever the user chooses to change them. Uniform values are parameters set by the
+            user to control the behavior of the shader. Setting them requires querying a uniform
+            location as well as setting the program to be in use. Uniform state is stored within a
+            program object and preserved until explicitly changed. A uniform that has the same name
+            and type in two different shader stages within the same linked program is the same
+            uniform; setting it will change it for both stages.</para>
         <para>You have also learned a little about how to update the contents of a buffer object,
             though we are <emphasis>far</emphasis> from finished with that subject.</para>
         <section>

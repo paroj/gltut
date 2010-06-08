@@ -1,0 +1,56 @@
+
+body
+{
+    background-color: #fff6e7;
+    padding: 0 5%;
+    font-family: calibri, helvetica, serif;
+    font-size: 12pt;
+}
+
+br.example-break
+{
+    display: none;
+}
+
+div.note
+{
+    margin-left: 50%;
+}
+
+div.example p.title
+{
+    text-align: center;
+}
+
+pre.programlisting
+{
+    font-family: consolas, monospace;
+    font-size: 12pt;
+    margin-left: 5%;
+    margin-right: 5%;
+    background-color: #dbeded;
+    background-image: -moz-linear-gradient(left, #dbeded, #fff6e7);
+    padding: 7px;
+    border: 2px dashed black;
+    -moz-border-radius: 7px;
+    -webkit-border-radius: 7px;
+}
+
+code
+{
+    font-family: consolas, monospace;
+}
+
+code.function { color: #a00010; }
+
+code.varname { color: #d300ff; }
+
+code.filename {  }
+
+code.literal { color: #0f0aae; }
+
+span.type {  }
+
+em.glossterm { text-decoration: underline; }
+
+acronym.acronym { font-weight: bold; }

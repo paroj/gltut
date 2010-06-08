@@ -2,6 +2,7 @@
 <?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
+    <?dbhtml dir="html" ?>
     <info>
         <title>OpenGL Tutorials</title>
     </info>
