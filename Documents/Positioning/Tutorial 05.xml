@@ -3,6 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 05.html" ?>
     <title>Objects in Depth</title>
     <para>In this tutorial, we will look at how to deal with rendering multiple objects, as well as
         what happens when multiple objects overlap.</para>
@@ -346,6 +347,7 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut05 Optimization Base Vertex.html" ?>
         <title>Optimization: Base Vertex</title>
         <para>Using VAOs can dramatically simplify code. However, VAOs are not always the best case
             for performance, particularly if you use a lot of separate buffer objects.</para>
@@ -517,6 +519,7 @@ glUseProgram(0);</programlisting>
         </note>
     </section>
     <section>
+        <?dbhtml filename="Tut05 Overlap and Depth Buffering.html" ?>
         <title>Overlap and Depth Buffering</title>
         <para>Regardless of how we render the objects, there is a strange visual problem with what
             we're rendering:</para>
@@ -547,7 +550,7 @@ glUseProgram(0);</programlisting>
             you draw something behind something else, the fragments that were written by the higher
             objects will prevent you from writing the farther away ones.</para>
         <para>The <quote>tag</quote> is the window-space Z value. You may recall from <link
-                endterm="tut00_window_space">the introduction,</link> the window-space Z position of
+                linkend="tut00_window_space">the introduction,</link> the window-space Z position of
             a fragment ranges from 0 to 1, where 0 is the closest and 1 is the farthest.</para>
         <para>Colors output from the fragment shader are output into the color buffer. Therefore it
             naturally follows that depth values would be stored in a <glossterm>depth
@@ -650,10 +653,12 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut05 Boundaries and Clipping.html" ?>
         <title>Boundaries and Clipping</title>
         <para/>
     </section>
     <section>
+        <?dbhtml filename="Tut05 In Review.html" ?>
         <title>In Review</title>
         <para/>
         <section>
@@ -715,55 +720,58 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </glosslist>
         </section>
     </section>
-    <glossary>
+    <section xml:id="Tut05_Glossary">
+        <?dbhtml filename="Tut05 Glossary.html" ?>
         <title>Glossary</title>
-        <glossentry>
-            <glossterm>vertex array object (VAO)</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>array drawing</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>indexed drawing</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>element array</glossterm>
-            <glossdef>
-                <para>Also known as an <glossterm>index array</glossterm>, </para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>depth sorting</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>depth buffer</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>depth test</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>range zNear, range zFar</glossterm>
-            <glossdef>
-                <para/>
-            </glossdef>
-        </glossentry>
-    </glossary>
+        <glosslist>
+            <glossentry>
+                <glossterm>vertex array object (VAO)</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>array drawing</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>indexed drawing</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>element array</glossterm>
+                <glossdef>
+                    <para>Also known as an <glossterm>index array</glossterm>, </para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>depth sorting</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>depth buffer</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>depth test</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>range zNear, range zFar</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
 </chapter>

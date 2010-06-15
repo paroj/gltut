@@ -3,6 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 04.html" ?>
     <title>Objects at Rest</title>
     <para>Thus far, we have seen very flat things. Namely, a single triangle. Maybe the triangle
         moved around or had some colors.</para>
@@ -143,6 +144,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut04 Perspective Projection.html" ?>
         <title>Perspective Projection</title>
         <para>A <glossterm>projection</glossterm>, for the purposes of rendering, is a way to
             transform a world from one dimensionality to another. Our destination image is two
@@ -277,8 +279,9 @@
                     also be wondering, in this modern days of vertex shaders that can do vector
                     divisions very quickly, why we should bother to use the hardware division-by-W
                     step at all. There are two reasons. One we will cover in just a bit when we deal
-                    with matrices; the main one will be covered in the next tutorial. Suffice it to say that there are very good reasons to put
-                    the perspective term in the W coordinate of clip space vertices.</para>
+                    with matrices; the main one will be covered in the next tutorial. Suffice it to
+                    say that there are very good reasons to put the perspective term in the W
+                    coordinate of clip space vertices.</para>
             </note>
         </section>
         <section>
@@ -567,6 +570,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut04 The Matrix Has You.html" ?>
         <title>The Matrix has You</title>
         <para>So, now that we can put the world into perspective, let's do it the right way. The
                 <quote>needlessly overcomplicated for the time being but will make sense in a few
@@ -741,6 +745,7 @@ glUseProgram(0);]]></programlisting>
         <para>The same thing we had before. Only now done with matrices.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut04 Aspect of the World.html" ?>
         <title>Aspect of the World</title>
         <para>If you run the last program, and resize the window, the viewport resizes with it.
             Unfortunately, this also means that what was once a rectangular prism with a square
@@ -838,6 +843,7 @@ glUseProgram(0);]]></programlisting>
             square.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut04 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you learned about face culling of triangles and the perspective
             projection. You learned the math behind creating the illusion of perspective, and you
@@ -916,145 +922,163 @@ glUseProgram(0);]]></programlisting>
             </glosslist>
         </section>
     </section>
-    <glossary>
+    <section xml:id="Tut04_Glossary">
+        <?dbhtml filename="Tut04 Glossary.html" ?>
         <title>Glossary</title>
-        <glossentry>
-            <glossterm>face culling</glossterm>
-            <glossdef>
-                <para>The ability to cull triangles based on the winding order of the triangle. This
-                    functionality is activated in OpenGL by using <function>glEnable</function> with
-                        <literal>GL_CULL_FACE</literal>. Which faces get culled is determined by the
-                        <function>glCullFace</function> and <function>glFrontFace</function>
-                    functions.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>winding order</glossterm>
-            <glossdef>
-                <para>The order, clockwise or counter-clockwise, that the 3 vertices that make up a
-                    triangle are received in. This is measured in window coordinates,
-                    two-dimensionally.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>projection</glossterm>
-            <glossdef>
-                <para>The act of taking a series of objects in a higher dimension and presenting
-                    those objects in a lower dimension. The act of rendering a 3D scene to a 2D
-                    image requires projecting that scene from three dimensions into two
-                    dimensions.</para>
-                <para>Projection always happens relative to a surface of projection. Projecting 2D
-                    space onto a 1D space requires a finite line to be projected on. Projecting 3D
-                    space onto 2D space requires a plane of projection. This surface is defined in
-                    the higher dimension's world.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>orthographic projection</glossterm>
-            <glossdef>
-                <para>A form of projection that simply negates all offsets in the direction
-                    perpendicular to the surface of projection. When doing a 3D to 2D orthographic
-                    projection, if the plane is axis aligned, then the projection can be done
-                    simply. The coordinate that is perpendicular to the plane of projection is
-                    simply discarded. If the plane is not axis aligned, then the math is more
-                    complex, but it has the same effect.</para>
-                <para>Orthographic projections are uniform in the direction of the projection.
-                    Because of the uniformity, lines that are parallel in the higher dimension space
-                    are guaranteed to remain parallel in the lower dimension space.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>perspective projection</glossterm>
-            <glossdef>
-                <para>A form of projection that projects onto the surface based on a position, the
-                    eye position. Perspective projections attempt to emulate a pin-hole camera
-                    model, which is similar to how human eyes see. The positions of objects in space
-                    are projected onto the surface of projection radially based on the eye
-                    position.</para>
-                <para>Parallel lines in the higher dimension are <emphasis>not</emphasis> guaranteed
-                    to remain parallel in the lower dimension. They might, but they might
-                    not.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>frustum</glossterm>
-            <glossdef>
-                <para>Geometrically, a frustum is 3D shape; a pyramid that has the top chopped off.
-                    The view of a 3D to 2D perspective projection, from the eye through the plane of
-                    projection has the shape of a frustum.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>perspective divide</glossterm>
-            <glossdef>
-                <para>A new name for the transformation from clip space to normalized device
-                    coordinate space. This is so called because the division by W is what allows
-                    perspective projection to work using only matrix math; a matrix alone would not
-                    otherwise be able to perform the full perspective projection operation.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>camera space</glossterm>
-            <glossdef>
-                <para>An arbitrarily defined, but highly useful, space from which the perspective
-                    projection can be performed relatively easily. Camera space is an infinitely
-                    large space, with positive X going right, positive Y going up, and positive Z
-                    coming towards the viewer.</para>
-                <para>In camera space, the eye position of the perspective projection is assumed to
-                    be at (0, 0, 1), and the plane of projection is a [-1, 1] plane in X and Y,
-                    which passes through the 3D origin. Thus, all points that have a positive Z are
-                    considered to be behind the camera and thus out of view.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>camera zNear, camera zFar</glossterm>
-            <glossdef>
-                <para>Normalized device coordinate (NDC) space is bounded in all dimensions on the
-                    range [-1, 1]. Camera space is unbounded, but the perspective transform
-                    implicitly bounds what is considered in view to [-1, 1] in the X and Y axis.
-                    This leaves the Z axis unbounded, which NDC space does not allow.</para>
-                <para>The camera zNear and zFar values are numbers that define the minimum and
-                    maximum extent of Z in the perspective projection transform. These values are
-                    positive value, though they represent negative values in camera space. Using the
-                    standard perspective transform, both values must be greater than 0, and zNear
-                    must be less than zFar.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>swizzle selection</glossterm>
-            <glossdef>
-                <para>Swizzle selection is a vector technique, unique to shading languages, that
-                    allows you to take a vector and arbitrarily build other vectors from the
-                    components. This selection is completely arbitrary; you can build a vec4 from a
-                    vec2, or any other combination you wish, up to 4 elements.</para>
-                <para>Swizzle selections use combinations of <quote>x,</quote>
-                    <quote>y,</quote>
-                    <quote>z,</quote> and <quote>w</quote> to pick components out of the input
-                    vector. Swizzle operations look like this:</para>
-                <programlisting>vec2 firstVec;
+        <glosslist>
+            <glossentry>
+                <glossterm>face culling</glossterm>
+                <glossdef>
+                    <para>The ability to cull triangles based on the winding order of the triangle.
+                        This functionality is activated in OpenGL by using
+                            <function>glEnable</function> with <literal>GL_CULL_FACE</literal>.
+                        Which faces get culled is determined by the <function>glCullFace</function>
+                        and <function>glFrontFace</function> functions.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>winding order</glossterm>
+                <glossdef>
+                    <para>The order, clockwise or counter-clockwise, that the 3 vertices that make
+                        up a triangle are received in. This is measured in window coordinates,
+                        two-dimensionally.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>projection</glossterm>
+                <glossdef>
+                    <para>The act of taking a series of objects in a higher dimension and presenting
+                        those objects in a lower dimension. The act of rendering a 3D scene to a 2D
+                        image requires projecting that scene from three dimensions into two
+                        dimensions.</para>
+                    <para>Projection always happens relative to a surface of projection. Projecting
+                        2D space onto a 1D space requires a finite line to be projected on.
+                        Projecting 3D space onto 2D space requires a plane of projection. This
+                        surface is defined in the higher dimension's world.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>orthographic projection</glossterm>
+                <glossdef>
+                    <para>A form of projection that simply negates all offsets in the direction
+                        perpendicular to the surface of projection. When doing a 3D to 2D
+                        orthographic projection, if the plane is axis aligned, then the projection
+                        can be done simply. The coordinate that is perpendicular to the plane of
+                        projection is simply discarded. If the plane is not axis aligned, then the
+                        math is more complex, but it has the same effect.</para>
+                    <para>Orthographic projections are uniform in the direction of the projection.
+                        Because of the uniformity, lines that are parallel in the higher dimension
+                        space are guaranteed to remain parallel in the lower dimension space.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>perspective projection</glossterm>
+                <glossdef>
+                    <para>A form of projection that projects onto the surface based on a position,
+                        the eye position. Perspective projections attempt to emulate a pin-hole
+                        camera model, which is similar to how human eyes see. The positions of
+                        objects in space are projected onto the surface of projection radially based
+                        on the eye position.</para>
+                    <para>Parallel lines in the higher dimension are <emphasis>not</emphasis>
+                        guaranteed to remain parallel in the lower dimension. They might, but they
+                        might not.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>frustum</glossterm>
+                <glossdef>
+                    <para>Geometrically, a frustum is 3D shape; a pyramid that has the top chopped
+                        off. The view of a 3D to 2D perspective projection, from the eye through the
+                        plane of projection has the shape of a frustum.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>perspective divide</glossterm>
+                <glossdef>
+                    <para>A new name for the transformation from clip space to normalized device
+                        coordinate space. This is so called because the division by W is what allows
+                        perspective projection to work using only matrix math; a matrix alone would
+                        not otherwise be able to perform the full perspective projection
+                        operation.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>camera space</glossterm>
+                <glossdef>
+                    <para>An arbitrarily defined, but highly useful, space from which the
+                        perspective projection can be performed relatively easily. Camera space is
+                        an infinitely large space, with positive X going right, positive Y going up,
+                        and positive Z coming towards the viewer.</para>
+                    <para>In camera space, the eye position of the perspective projection is assumed
+                        to be at (0, 0, 1), and the plane of projection is a [-1, 1] plane in X and
+                        Y, which passes through the 3D origin. Thus, all points that have a positive
+                        Z are considered to be behind the camera and thus out of view.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>camera zNear, camera zFar</glossterm>
+                <glossdef>
+                    <para>Normalized device coordinate (NDC) space is bounded in all dimensions on
+                        the range [-1, 1]. Camera space is unbounded, but the perspective transform
+                        implicitly bounds what is considered in view to [-1, 1] in the X and Y axis.
+                        This leaves the Z axis unbounded, which NDC space does not allow.</para>
+                    <para>The camera zNear and zFar values are numbers that define the minimum and
+                        maximum extent of Z in the perspective projection transform. These values
+                        are positive value, though they represent negative values in camera space.
+                        Using the standard perspective transform, both values must be greater than
+                        0, and zNear must be less than zFar.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>swizzle selection</glossterm>
+                <glossdef>
+                    <para>Swizzle selection is a vector technique, unique to shading languages, that
+                        allows you to take a vector and arbitrarily build other vectors from the
+                        components. This selection is completely arbitrary; you can build a vec4
+                        from a vec2, or any other combination you wish, up to 4 elements.</para>
+                    <para>Swizzle selections use combinations of <quote>x,</quote>
+                        <quote>y,</quote>
+                        <quote>z,</quote> and <quote>w</quote> to pick components out of the input
+                        vector. Swizzle operations look like this:</para>
+                    <programlisting>vec2 firstVec;
 vec4 secondVec = firstVec.xyxx;
 vec3 thirdVec = secondVec.wzyx;</programlisting>
-                <para>Swizzle selection is, in graphics hardware, considered an operation so fast as
-                    to be instantaneous. That is, graphics hardware is built with swizzle selection
-                    in mind.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>matrix</glossterm>
-            <glossdef>
-                <para>A two-dimensional arrangement of numbers. .</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>column-major, row-major</glossterm>
-            <glossdef>
-                <para>These terms define the two ways in which a matrix can be stored as an array of
-                    values. Column-major order means that, for an NxM matrix (columns x rows), the
-                    first N values in the array are the first column (top-to-bottom), the next N
-                    values are the second column, and so forth. In row-major order, the first M
-                    values in the array are the first row (left-to-right), followed by another M
-                    values for the second row, and so forth.</para>
-            </glossdef>
-        </glossentry>
-    </glossary>
+                    <para>Swizzle selection is, in graphics hardware, considered an operation so
+                        fast as to be instantaneous. That is, graphics hardware is built with
+                        swizzle selection in mind.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>matrix</glossterm>
+                <glossdef>
+                    <para>A two-dimensional arrangement of numbers. Like vectors, matrices can be
+                        considered a single element. Matrices are often used to represent the
+                        coefficients in a system of linear equations; because of this (among other
+                        things), matrix math is often called linear algebra.</para>
+                    <para>The size of a matrix, the number of columns and rows (denoted as NxM,
+                        where N is the number of columns and M is the number of rows) determines the
+                        kind of matrix. Matrix arithmetic has specific requirements on the two
+                        matrices involved, depending on the arithmetic operation. Multiplying two
+                        matrices together can only be performed if the number of rows in the matrix
+                        on the left is equal to the number of columns in the matrix on the right.
+                        Because of this, matrix multiplication is not commutative (A*B is not B*A;
+                        sometimes B*A isn't even possible).</para>
+                    <para>4x4 matrices are used in computer graphics to transform 3 or 4-dimensional
+                        vectors from one space to another. Most kinds of linear transforms can be
+                        represented with 4x4 matrices.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>column-major, row-major</glossterm>
+                <glossdef>
+                    <para>These terms define the two ways in which a matrix can be stored as an
+                        array of values. Column-major order means that, for an NxM matrix (columns x
+                        rows), the first N values in the array are the first column (top-to-bottom),
+                        the next N values are the second column, and so forth. In row-major order,
+                        the first M values in the array are the first row (left-to-right), followed
+                        by another M values for the second row, and so forth.</para>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
 </chapter>

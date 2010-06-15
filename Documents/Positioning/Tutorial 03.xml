@@ -3,6 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 03.html" ?>
     <title>OpenGL's Moving Triangle</title>
     <para>This tutorial is about how to move objects around. It will introduce new shader
         techniques.</para>
@@ -144,6 +145,7 @@
             tutorial) that slides around in a circle.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut03 A Better Way.html" ?>
         <title>A Better Way</title>
         <para>This is fine for a 3-vertex example. But imagine a scene involving millions of
             vertices (and no, that's not an exaggeration for high-end games). Moving objects this
@@ -269,6 +271,7 @@ gl_Position.w = position.w + totalOffset.w;</programlisting>
             addition.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut03 More Power To The Shaders.html" ?>
         <title>More Power to the Shaders</title>
         <para>It's all well and good that we are no longer having to transform vertices manually.
             But perhaps we can move more things to the vertex shader. Could it be possible to move
@@ -364,6 +367,7 @@ void main()
             5.0f in perpetuity; we do not need to set it every frame.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut03 Multiple Shaders.html" ?>
         <title>Multiple Shaders</title>
         <para>Well, moving the triangle around is nice and all, but it would also be good if we
             could do something time-based in the fragment shader. Fragment shaders cannot affect the
@@ -460,7 +464,8 @@ void main()
         </formalpara>
     </section>
     <section>
-        <title>Vertex Shader Performance</title>
+        <?dbhtml filename="Tut03 On Vertex Shader Performance.html" ?>
+        <title>On Vertex Shader Performance</title>
         <para>These tutorials are simple and should run fast enough, but it is still important to
             look at the performance implications of various operations. In this tutorial, we present
             3 ways of moving vertex data: transform it yourself on the CPU and upload it to buffer
@@ -500,6 +505,7 @@ void main()
             and is able to thus compute the location of the particle at an arbitrary time.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut03 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you have learned about uniform variables in shaders. Uniforms are
             shader variables that change, not with every shader envocation, but between rendering
@@ -581,15 +587,18 @@ void main()
             </glosslist>
         </section>
     </section>
-    <glossary>
+    <section xml:id="Tut03_Glossary">
+        <?dbhtml filename="Tut03 Glossary.html" ?>
         <title>Glossary</title>
-        <glossentry>
-            <glossterm>uniforms</glossterm>
-            <glossdef>
-                <para>These are a class of global variable that can be defined in GLSL shaders. They
-                    represent values that are uniform (unchanging) over the course of a rendering
-                    operation.</para>
-            </glossdef>
-        </glossentry>
-    </glossary>
+        <glosslist>
+            <glossentry>
+                <glossterm>uniforms</glossterm>
+                <glossdef>
+                    <para>These are a class of global variable that can be defined in GLSL shaders. They
+                        represent values that are uniform (unchanging) over the course of a rendering
+                        operation.</para>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
 </chapter>

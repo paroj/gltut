@@ -2,19 +2,21 @@
 <?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
+    <?dbhtml dir="html"?>
     <info>
         <title>OpenGL Tutorials</title>
     </info>
     <preface>
+        <?dbhtml filename="About these Tutorials.html" ?>
         <title>About these Tutorials</title>
         <para>These tutorials are designed for a beginning graphics programmer. To use these
             tutorials, you are expected to know the following</para>
         <itemizedlist>
             <listitem>
-                <para>C/C++ programming. You should be able to read C and mild C++. If <quote>Hellp,
+                <para>C/C++ programming. You should be able to read C and mild C++. If <quote>Hello,
                         world!</quote> is the extent of your C/C++ knowledge, then perhaps you
-                    should write some more substantial code before proceeding with these
-                    tutorials.</para>
+                    should write some more substantial code before proceeding with trying to render
+                    images.</para>
                 <para>These tutorials should be transferable to other languages as well. If you can
                     read C/C++, that is enough to understand what the code is doing. The text
                     descriptions that explain what the code does are also sufficient to get
@@ -88,6 +90,7 @@
     </preface>
     <xi:include href="Building the Tutorials.xml"/>
     <part>
+        <?dbhtml filename="Basics.html" ?>
         <info>
             <title>The Basics</title>
         </info>
@@ -101,6 +104,7 @@
         <xi:include href="Basics/tutorial 02.xml"/>
     </part>
     <part>
+        <?dbhtml filename="Positioning.html" ?>
         <info>
             <title>Positioning</title>
         </info>
@@ -115,6 +119,7 @@
         <xi:include href="Positioning/tutorial 05.xml"/>
     </part>
     <part>
+        <?dbhtml filename="Illumination.html" ?>
         <info>
             <title>Illumination</title>
         </info>
@@ -125,6 +130,7 @@
         </partintro>
     </part>
     <part>
+        <?dbhtml filename="Texturing.html" ?>
         <info>
             <title>Texturing</title>
         </info>
@@ -135,6 +141,7 @@
         </partintro>
     </part>
     <part>
+        <?dbhtml filename="Framebuffer.html" ?>
         <title>Framebuffer</title>
         <partintro>
             <para>Render targets and framebuffer blending are key components to many advanced
@@ -143,6 +150,7 @@
         </partintro>
     </part>
     <part>
+        <?dbhtml filename="Advanced Lighting.html" ?>
         <title>Advanced Lighting</title>
         <partintro>
             <para>Simple diffuse lighting and directional shadows are useful, but better, more

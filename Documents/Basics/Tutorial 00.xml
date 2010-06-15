@@ -4,6 +4,7 @@
 <chapter xml:id="tut_00" xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink"
     version="5.0">
+    <?dbhtml filename="Introduction.html" ?>
     <title>Introduction</title>
     <para>Unlike most of the tutorials, this tutorial is purely text. There is no source code or
         project associated with this tutorial.</para>
@@ -295,6 +296,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Intro What is OpenGL.html" ?>
         <title>What is OpenGL</title>
         <para>Before we can begin looking into writing an OpenGL application, we must first know
             what it is that we are writing. What exactly is OpenGL?</para>
@@ -402,137 +404,140 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 still a valid OpenGL implementation.</para>
         </section>
     </section>
-    <glossary>
+    <section xml:id="Intro_Glossary">
+        <?dbhtml filename="Intro Glossary.html" ?>
         <title>Glossary</title>
-        <glossentry>
-            <glossterm>pixel</glossterm>
-            <glossdef>
-                <para>The smallest division of a digital image. A pixel has a particular color in a
-                    particular colorspace.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>image</glossterm>
-            <glossdef>
-                <para>A two-dimensional array of pixels.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>colorspace</glossterm>
-            <glossdef>
-                <para>The set of reference colors that define a way of representing a color in
-                    computer graphics. All colors are defined relative to a particular
-                    colorspace.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>rendering</glossterm>
-            <glossdef>
-                <para>The process of taking the source 3D world and converting it into a 2D image
-                    that represents a view of that world from a particular angle.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>rasterization</glossterm>
-            <glossdef>
-                <para>A particular rendering method, used to convert a series of 3D triangles into a
-                    2D image.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>geometry, model, mesh</glossterm>
-            <glossdef>
-                <para>A single object in 3D space made of triangles.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>vertex</glossterm>
-            <glossdef>
-                <para>One of the 3 elements that make up a triangle. Vertices can contain arbitrary
-                    of data, but among that data is a 3-dimensional position representing the
-                    location of the vertex in 3D space.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>clip space, clip coordinates</glossterm>
-            <glossdef>
-                <para>A region of three-dimensional space into which vertex positions are
-                    transformed. These vertex positions are 4 dimensional quantities. The fourth
-                    component (W) of clip coordinates represents the visible range of clip space for
-                    that vertex. So the X, Y, and Z component of clip coordinates must be between
-                    [-W, W] to be a visible part of the world.</para>
-                <para>In clip space, positive X goes right, positive Y up, and positive Z
-                    away.</para>
-                <para>Clip-space vertices are output by the vertex processing stage of the rendering
-                    pipeline.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>normalized device coordinates</glossterm>
-            <glossdef>
-                <para>These are clip coordinates that have been divided by their fourth component.
-                    This makes this range of space the same for all components. Vertices with
-                    positions on the range [-1, 1] are visible, and other vertices are not.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>window space, window coordinates</glossterm>
-            <glossdef>
-                <para>A region of three-dimensional space that normalized device coordinates are
-                    mapped to. The X and Y positions of vertices in this space are relative to the
-                    destination image. The origin is in the bottom-left, with positive X going right
-                    and positive Y going up. The Z value is a number on the range [0, 1], where 0 is
-                    the closest value and 1 is the farthest. Vertex positions outside of this range
-                    are not visible.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>scan conversion</glossterm>
-            <glossdef>
-                <para>The process of taking a triangle in window space and converting it into a
-                    number of fragments based on projecting it onto the pixels of the output
-                    image.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>sample</glossterm>
-            <glossdef>
-                <para>A discrete location within the bounds of a pixel that determines whether to
-                    generate a fragment from scan converting the triangle. The area of a single
-                    pixel can have multiple samples, which can generate multiple fragments.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>fragment</glossterm>
-            <glossdef>
-                <para>A single element of a scan converted triangle. A fragment can contain
-                    arbitrary data, but among that data is a 3-dimensional position, identifying the
-                    location on the triangle in window space where this fragment originates
-                    from.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>invariance guarantee</glossterm>
-            <glossdef>
-                <para>A guarantee provided by OpenGL, such that if you provide binary-identical
-                    inputs to the vertex processing, while all other state remains exactly
-                    identical, then the exact same vertex in clip-space will produce the exact same
-                    output.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>shader</glossterm>
-            <glossdef>
-                <para>A program designed to be executed by a renderer, in order to perform some
-                    user-defined operations.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>shader stage</glossterm>
-            <glossdef>
-                <para>A particular place in a rendering pipeline where a shader can be executed to
-                    perform a computation.</para>
-            </glossdef>
-        </glossentry>
-    </glossary>
+        <glosslist>
+            <glossentry>
+                <glossterm>pixel</glossterm>
+                <glossdef>
+                    <para>The smallest division of a digital image. A pixel has a particular color in a
+                        particular colorspace.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>image</glossterm>
+                <glossdef>
+                    <para>A two-dimensional array of pixels.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>colorspace</glossterm>
+                <glossdef>
+                    <para>The set of reference colors that define a way of representing a color in
+                        computer graphics. All colors are defined relative to a particular
+                        colorspace.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>rendering</glossterm>
+                <glossdef>
+                    <para>The process of taking the source 3D world and converting it into a 2D image
+                        that represents a view of that world from a particular angle.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>rasterization</glossterm>
+                <glossdef>
+                    <para>A particular rendering method, used to convert a series of 3D triangles into a
+                        2D image.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>geometry, model, mesh</glossterm>
+                <glossdef>
+                    <para>A single object in 3D space made of triangles.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vertex</glossterm>
+                <glossdef>
+                    <para>One of the 3 elements that make up a triangle. Vertices can contain arbitrary
+                        of data, but among that data is a 3-dimensional position representing the
+                        location of the vertex in 3D space.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>clip space, clip coordinates</glossterm>
+                <glossdef>
+                    <para>A region of three-dimensional space into which vertex positions are
+                        transformed. These vertex positions are 4 dimensional quantities. The fourth
+                        component (W) of clip coordinates represents the visible range of clip space for
+                        that vertex. So the X, Y, and Z component of clip coordinates must be between
+                        [-W, W] to be a visible part of the world.</para>
+                    <para>In clip space, positive X goes right, positive Y up, and positive Z
+                        away.</para>
+                    <para>Clip-space vertices are output by the vertex processing stage of the rendering
+                        pipeline.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>normalized device coordinates</glossterm>
+                <glossdef>
+                    <para>These are clip coordinates that have been divided by their fourth component.
+                        This makes this range of space the same for all components. Vertices with
+                        positions on the range [-1, 1] are visible, and other vertices are not.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>window space, window coordinates</glossterm>
+                <glossdef>
+                    <para>A region of three-dimensional space that normalized device coordinates are
+                        mapped to. The X and Y positions of vertices in this space are relative to the
+                        destination image. The origin is in the bottom-left, with positive X going right
+                        and positive Y going up. The Z value is a number on the range [0, 1], where 0 is
+                        the closest value and 1 is the farthest. Vertex positions outside of this range
+                        are not visible.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>scan conversion</glossterm>
+                <glossdef>
+                    <para>The process of taking a triangle in window space and converting it into a
+                        number of fragments based on projecting it onto the pixels of the output
+                        image.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>sample</glossterm>
+                <glossdef>
+                    <para>A discrete location within the bounds of a pixel that determines whether to
+                        generate a fragment from scan converting the triangle. The area of a single
+                        pixel can have multiple samples, which can generate multiple fragments.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>fragment</glossterm>
+                <glossdef>
+                    <para>A single element of a scan converted triangle. A fragment can contain
+                        arbitrary data, but among that data is a 3-dimensional position, identifying the
+                        location on the triangle in window space where this fragment originates
+                        from.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>invariance guarantee</glossterm>
+                <glossdef>
+                    <para>A guarantee provided by OpenGL, such that if you provide binary-identical
+                        inputs to the vertex processing, while all other state remains exactly
+                        identical, then the exact same vertex in clip-space will produce the exact same
+                        output.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>shader</glossterm>
+                <glossdef>
+                    <para>A program designed to be executed by a renderer, in order to perform some
+                        user-defined operations.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>shader stage</glossterm>
+                <glossdef>
+                    <para>A particular place in a rendering pipeline where a shader can be executed to
+                        perform a computation.</para>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
 </chapter>

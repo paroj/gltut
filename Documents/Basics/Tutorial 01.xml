@@ -3,6 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 01.html" ?>
     <title>Hello, Triangle!</title>
     <para>It is traditional for tutorials and introductory books on programming languages start with
         a program called <quote>Hello, World!</quote> This program is the simplest code necessary to
@@ -37,6 +38,7 @@
             to.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut01 Dissecting Display.html" ?>
         <title>Dissecting Display</title>
         <para>The <function>display</function> function seems on the surface to be fairly simple.
             However, the functioning of it is fairly complicated and intertwined with the
@@ -87,6 +89,7 @@ glutSwapBuffers();</programlisting>
             rendering to be displayed to the user.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut01 Following the Data.html" ?>
         <title>Following the Data</title>
         <para>In the <link linkend="tut_00">basic background section</link>, we described the
             functioning of the OpenGL pipeline. We will now revisit this pipeline in the context of
@@ -137,7 +140,7 @@ glutSwapBuffers();</programlisting>
                 with this object.</para>
             <para>The <function>glBindBuffer</function> function makes the buffer object the
                 currently bound buffer to the <literal>GL_ARRAY_BUFFER</literal> binding target. As
-                mentioned in <link endterm="OpenGLObjects">Tutorial 0</link>, objects in OpenGL
+                mentioned in <link linkend="OpenGLObjects">Tutorial 0</link>, objects in OpenGL
                 usually have to be bound to the context in order for them to do anything, and buffer
                 objects are no exception.</para>
             <para>The <function>glBufferData</function> function allocates memory for the buffer
@@ -342,6 +345,7 @@ void main()
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut01 Making Shaders.html" ?>
         <title>Making Shaders</title>
         <para>We glossed over exactly how these text strings called shaders actually get used. We
             will go into some detail on that now.</para>
@@ -526,6 +530,7 @@ void main()
         </note>
     </section>
     <section>
+        <?dbhtml filename="Tut01 Cleanup.html" ?>
         <title>Cleanup</title>
         <para>The tutorial allocates a lot of system resources. It allocates a buffer object, which
             represents memory on the GPU. It creates two shader objects and a program object. But it
@@ -539,6 +544,7 @@ void main()
             that destructors will delete the OpenGL objects. But it isn't strictly necessary.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut01 In Review.html" ?>
         <title>In Review</title>
         <para>At this point, you have a good general overview of how things work in OpenGL. You know
             how to compile and link shaders, how to pass some basic vertex data to OpenGL, and how
@@ -678,68 +684,71 @@ void main()
             </glosslist>
         </section>
     </section>
-    <glossary>
+    <section xml:id="Tut01_Glossary">
+        <?dbhtml filename="Tut01 Glossary.html" ?>
         <title>Glossary</title>
-        <glossentry>
-            <glossterm>buffer object</glossterm>
-            <glossdef>
-                <para>An OpenGL object that represents a linear array of memory, containing
-                    arbitrary data. The contents of the buffer are defined by the user, but the
-                    memory is allocated by OpenGL. Data in buffer objects can be used for many
-                    purposes, including storing vertex data to be used when rendering.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>input variable</glossterm>
-            <glossdef>
-                <para>A shader variable, declared at global scope. Input variables receive their
-                    values from earlier stages in the OpenGL rendering pipeline.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>output variable</glossterm>
-            <glossdef>
-                <para>A shader variable, declared at global scope, using the <literal>out</literal>
-                    keyword. Output variables written to by a shader are passed to later stages in
-                    the OpenGL rendering pipeline for processing.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>vertex attribute</glossterm>
-            <glossdef>
-                <para>Input variables to vertex shaders are called vertex attributes. Each vertex
-                    attribute is a vector of up to 4 elements in length. Vertex attributes are drawn
-                    from buffer objects; the connection between buffer object data and vertex inputs
-                    is made with the <function>glVertexAttribPointer</function> and
+        <glosslist>
+            <glossentry>
+                <glossterm>buffer object</glossterm>
+                <glossdef>
+                    <para>An OpenGL object that represents a linear array of memory, containing
+                        arbitrary data. The contents of the buffer are defined by the user, but the
+                        memory is allocated by OpenGL. Data in buffer objects can be used for many
+                        purposes, including storing vertex data to be used when rendering.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>input variable</glossterm>
+                <glossdef>
+                    <para>A shader variable, declared at global scope. Input variables receive their
+                        values from earlier stages in the OpenGL rendering pipeline.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>output variable</glossterm>
+                <glossdef>
+                    <para>A shader variable, declared at global scope, using the <literal>out</literal>
+                        keyword. Output variables written to by a shader are passed to later stages in
+                        the OpenGL rendering pipeline for processing.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vertex attribute</glossterm>
+                <glossdef>
+                    <para>Input variables to vertex shaders are called vertex attributes. Each vertex
+                        attribute is a vector of up to 4 elements in length. Vertex attributes are drawn
+                        from buffer objects; the connection between buffer object data and vertex inputs
+                        is made with the <function>glVertexAttribPointer</function> and
                         <function>glEnableVertexAttribArray</function> functions. Each vertex
-                    attribute in a particular program object has an index; this index can be queried
-                    with <function>glGetAttribLocation</function>. The index is used by the various
-                    other vertex attribute functions to refer to that specific attribute.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>viewport transform</glossterm>
-            <glossdef>
-                <para>The process of transforming vertex data from normalized device coordinate
-                    space to window space. It specifies the viewable region of a window.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>shader object</glossterm>
-            <glossdef>
-                <para>An object in the OpenGL API that is used to compile shaders and represent the
-                    compiled shader's information. Each shader object is typed based on the shader
-                    stage that it contains data for.</para>
-            </glossdef>
-        </glossentry>
-        <glossentry>
-            <glossterm>program object</glossterm>
-            <glossdef>
-                <para>An object in the OpenGL API that represents the full sequence of all shader
-                    processing to be used when rendering. Program objects can be queried for
-                    attribute locations and various other information about the program. They also
-                    contain some state that will be seen in later tutorials.</para>
-            </glossdef>
-        </glossentry>
-    </glossary>
+                        attribute in a particular program object has an index; this index can be queried
+                        with <function>glGetAttribLocation</function>. The index is used by the various
+                        other vertex attribute functions to refer to that specific attribute.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>viewport transform</glossterm>
+                <glossdef>
+                    <para>The process of transforming vertex data from normalized device coordinate
+                        space to window space. It specifies the viewable region of a window.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>shader object</glossterm>
+                <glossdef>
+                    <para>An object in the OpenGL API that is used to compile shaders and represent the
+                        compiled shader's information. Each shader object is typed based on the shader
+                        stage that it contains data for.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>program object</glossterm>
+                <glossdef>
+                    <para>An object in the OpenGL API that represents the full sequence of all shader
+                        processing to be used when rendering. Program objects can be queried for
+                        attribute locations and various other information about the program. They also
+                        contain some state that will be seen in later tutorials.</para>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
 </chapter>
