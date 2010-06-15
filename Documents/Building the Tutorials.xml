@@ -3,6 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <article xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Building the Tutorials.html" ?>
     <title>Building the Tutorials</title>
     <para>These tutorials require a number of external libraries in order to function. The specific
         version of these libraries that the tutorials use are distributed with the tutorials. This
