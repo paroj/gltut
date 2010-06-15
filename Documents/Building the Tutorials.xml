@@ -4,19 +4,104 @@
 <article xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <title>Building the Tutorials</title>
-    <para>To build these tutorials, you will need to download the <link
-            xlink:href="http://industriousone.com/premake">Premake 4</link> utility for your
-        platform of choice. Currently, the tutorials only work on Windows. The tutorial distribution
-        comes with the external dependencies that they need (FreeGLUT and FreeImage).</para>
-    <para>Premake is a utility like <link xlink:href="http://www.cmake.org/">CMake</link>: it
-        generates build files for a specific platform. Unlike CMake, Premake is strictly a
-        command-line utility. Premake's build scripts are written in the <link
-            xlink:href="http://www.lua.org/home.html">Lua language</link>, unlike CMake's build
-        scripts that use their own language.</para>
-    <para>Note that Premake only generates build files; once the build files are created, you can
-        use them as normal. It can generate project files for Visual Studio, <link
-            xlink:href="http://www.codeblocks.org/">Code::Blocks</link>, and XCode, as well as GNU
-        Makefiles. And unless you want to modify one of the tutorials, you only need to run Premake
-        once for each tutorial.</para>
-    <para/>
+    <para>These tutorials require a number of external libraries in order to function. The specific
+        version of these libraries that the tutorials use are distributed with the tutorials. This
+        section will describe each of the libraries, how to build them, and how to build the
+        tutorials.</para>
+    <para>You will need some familiarity with using the command line in order to build these
+        tutorials. Also, any mention of directories is always relative to where you unzipped this
+        distribution.</para>
+    <warning>
+        <para>At present, the tutorials only build under Win32. In the future, this will be expanded
+            to other platforms.</para>
+    </warning>
+    <simplesect>
+        <title>File Structure</title>
+        <para>The layout of the files in the tutorial directory is quite simple. The
+                <filename>framework</filename> directory and all directories of the form
+                <filename>Tut*</filename> contain all of the source code for the tutorials
+            themselves. Each <filename>Tut*</filename> directory has the code for the various
+            tutorials. The <filename>framework</filename> directory simply contains utility code
+            that is commonly used by each tutorial.</para>
+        <para>The <filename>Documents</filename> directory contains the source for the text
+            documentation explaining how these tutorials work. This source is in xml files using the
+            DocBook 5.0 format.</para>
+        <para>Every other directory contains the code and build files for a library that the
+            tutorials require.</para>
+    </simplesect>
+    <simplesect>
+        <title>Necessary Utilities</title>
+        <para>In order to build everything, you will need to download the <link
+                xlink:href="http://industriousone.com/premake">Premake 4</link> utility for your
+            platform of choice.</para>
+        <para>Premake is a utility like <link xlink:href="http://www.cmake.org/">CMake</link>: it
+            generates build files for a specific platform. Unlike CMake, Premake is strictly a
+            command-line utility. Premake's build scripts are written in the <link
+                xlink:href="http://www.lua.org/home.html">Lua language</link>, unlike CMake's build
+            scripts that use their own language.</para>
+        <para>Note that Premake only generates build files; once the build files are created, you
+            can use them as normal. It can generate project files for Visual Studio, <link
+                xlink:href="http://www.codeblocks.org/">Code::Blocks</link>, and XCode, as well as
+            GNU Makefiles. And unless you want to modify one of the tutorials, you only need to run
+            Premake once for each tutorial.</para>
+        <para>The Premake download comes as a pre-built executable for all platforms of interest,
+            including Linux.</para>
+    </simplesect>
+    <simplesect>
+        <title>FreeGLUT</title>
+        <para><link xlink:href="http://freeglut.sourceforge.net/">FreeGLUT</link> is a
+            cross-platform library that handles a lot of the boilerplate initialization code
+            necessary for running a windowing application. It creates a window, attaches an OpenGL
+            context to the window, and handles window messages. This makes it much easier to focus
+            on OpenGL and less on how to initialize OpenGL properly.</para>
+        <para>To build FreeGLUT for Win32, go to the <filename>freeglut
+                2.6.0/VisualStudio2008Static</filename> directory and open the solution file there.
+            There will be several projects in the solution, but the only one of interest is the
+                <quote>FreeGLUT</quote> project. Build this, for both debug and release.</para>
+    </simplesect>
+    <simplesect>
+        <title>FreeImage</title>
+        <para><link xlink:href="http://freeimage.sourceforge.net/">FreeImage</link>, as you might
+            guess from the name, is an image library. OpenGL is a rendering API, not a file-handling
+            API. Therefore, other code must be put to that use if one intends to use images in files
+            with OpenGL. FreeImage is used, in tutorials that need it, for loading and saving
+            images.</para>
+        <para>To build FreeImage for Win32, go to the <filename>FreeImage</filename> directory and
+            open the <filename>FreeImage.2008.sln</filename> file. Unlike the last library, you want
+            to build <emphasis>all</emphasis> of the projects in this solution. Build them for both
+            debug and release.</para>
+    </simplesect>
+    <simplesect>
+        <title>GlLoader</title>
+        <para>The GlLoader library is a home-brewed library for loading OpenGL function entrypoints
+            from the .dll. For reasons that are too technical to repeat here, using OpenGL on most
+            platforms requires manually loading function pointers from a .dll. This library makes
+            this process painless.</para>
+        <para>Unlike the previous libraries, this library uses Premake to generate its build files.
+            So, with <command>premake4.exe</command> in your path, go to the
+                <filename>glloader</filename> directory. Type <literal>premake4
+                    <replaceable>plat</replaceable></literal>, where <replaceable>plat</replaceable>
+            is the name of the platform of choice. For Visual Studio 2008, this would be
+                <quote>vs2008;</quote> for VS2010, this would be <quote>vs2010.</quote> The Premake
+            documentation has a full list of output platforms.</para>
+        <para>This will create the appropriate build file. Use this build file as is appropriate for
+            the platform, compiling both debug and release.</para>
+    </simplesect>
+    <simplesect>
+        <title>Tutorial Building</title>
+        <para>Each tutorial directory has a <filename>premake4.lua</filename> file; this file is
+            used by Premake to generate the build files for that tutorial. Therefore, to build any
+            tutorial, you need only go to that directory and type <literal>premake4
+                    <replaceable>plat</replaceable></literal>, then use those build files to build
+            the tutorial.</para>
+        <para>Each tutorial will generally have more than one source file and generate multiple
+            executables. Each executable represents a different section of the tutorial, as
+            explained in that tutorial's documentation.</para>
+        <para>If you look at any of the tutorial source files, you will not find the
+                <function>main</function> function defined anywhere. This function is defined in
+                <filename>framwork/framework.cpp</filename>; it is shared by every tutorial. It does
+            the basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial
+            source files to contain OpenGL-specific code.</para>
+        <para/>
+    </simplesect>
 </article>
