@@ -432,7 +432,8 @@
                         above.</para>
                 </listitem>
                 <listitem>
-                    <para>Perspective division term: compute the W value, where Ez is -1.</para>
+                    <para>Perspective division term: compute the W value, where
+                            E<subscript>z</subscript> is -1.</para>
                 </listitem>
             </orderedlist>
             <para>Now that we have all the theory down, we are ready to put things properly in
@@ -524,7 +525,7 @@ glUseProgram(0);]]></programlisting>
                 this line:</para>
             <programlisting>clipPos.xy = cameraPos.xy * frustumScale;</programlisting>
             <para>Even if you are familiar with vector math libraries in other languages, this code
-                should be rather odd. Normal vector libraries allow you to write selectors like
+                should be rather odd. Traditional vector libraries allow you to write selectors like
                     <literal>vec.x</literal> and <literal>vec.w</literal> in order to get a specific
                 field from a vector. So what does something like <literal>vec.xy</literal>
                 mean?</para>
@@ -546,7 +547,7 @@ glUseProgram(0);]]></programlisting>
                     <para>You cannot do <literal>theVec.zz</literal>.</para>
                 </listitem>
                 <listitem>
-                    <para>You cannot select more than 4 components. So you can't create a non</para>
+                    <para>You cannot select more than 4 components.</para>
                 </listitem>
             </itemizedlist>
             <para>These are the only rules. So you can have a <type>vec2</type> that you swizzle to
@@ -554,7 +555,7 @@ glUseProgram(0);]]></programlisting>
                 etc. Anything goes so long as you stick to those rules.</para>
             <para>You should also assume that swizzling is fast. This is not true of most CPU-based
                 vector hardware, but since the earliest days of programmable GPUs, swizzle selection
-                has been a prominent feature. In the early programmable days, sizzles caused
+                has been a prominent feature. In the early programmable days, swizzles caused
                     <emphasis>no</emphasis> performance loss; in all likelihood, this has not
                 changed.</para>
             <para>Swizzle selection can also be used on the left side of the equals, as we have done
@@ -601,11 +602,11 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
                 <emphasis>all</emphasis> of the camera space position components. Most of the terms
             are zero, of course, so they don't contribute to the output. But they do contribute to
             being able to re-express the entire transformation as a single operation.</para>
-        <para>You may be wondering at the multiplication of half of Zclip's value by the camera
-            space W. Well, our input camera space position's W coordinate is always 1. So performing
-            the multiplication is valid, so long as this continues to be the case. Being able to do
-            what we are about to do is part of the reason why the W coordinate exists (the
-            perspective divide is the other).</para>
+        <para>You may be wondering at the multiplication of the additive term of
+                Z<subscript>clip</subscript>'s value by the camera space W. Well, our input camera
+            space position's W coordinate is always 1. So performing the multiplication is valid, so
+            long as this continues to be the case. Being able to do what we are about to do is part
+            of the reason why the W coordinate exists (the perspective divide is the other).</para>
         <para>Let us now re-express this again, using the coefficients of the equation above. You
             may recognize this reformulation, depending on your knowledge of linear algebra:</para>
         <equation>
@@ -644,7 +645,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             version. Fortunately, graphics hardware is designed to make these operations very fast.
             Because each of the multiplications are independent of each other, they can all be done
             simultaneously, which is exactly the kind of thing graphics hardware does fast.
-            Similarly, the addition operations are partially independent; each rows summation
+            Similarly, the addition operations are partially independent; each row's summation
             doesn't depend on the values from any other row.</para>
         <para>We can re-implement the above perspective projection using matrix math rather than
             explicit math. The <phrase role="propername">MatrixPerspective</phrase> tutorial does
@@ -688,12 +689,12 @@ void main()
         <para>Please note the <emphasis>order</emphasis> of this operation. The matrix is on the
             left and the vector is on the right. Matrix multiplication is <emphasis>not</emphasis>
             commutative, so M*v is not the same thing as v*M. Normally vectors are considered 1xN
-            matrices (where N is the size of the vector). However, when you multiply vectors on the
-            right, GLSL considers it an Nx1 matrix; this is the only way to make the multiplication
-            make sense. This will multiply the single row of the vector with each column, summing
-            the results, creating a new vector. This is <emphasis>not</emphasis> what we want to do.
-            We want to multiply rows of the matrix by the vector, not columns of the matrix. Put the
-            vector on the right, not the left.</para>
+            matrices (where N is the size of the vector). When you multiply vectors on the left of
+            the matrix, GLSL considers it an Nx1 matrix; this is the only way to make the
+            multiplication make sense. This will multiply the single row of the vector with each
+            column, summing the results, creating a new vector. This is <emphasis>not</emphasis>
+            what we want to do. We want to multiply rows of the matrix by the vector, not columns of
+            the matrix. Put the vector on the right, not the left.</para>
         <para>The program initialization routine has a few changes:</para>
         <example>
             <title>Program Initialization of Perspective Matrix</title>
@@ -735,7 +736,8 @@ glUseProgram(0);]]></programlisting>
                 <function>glUniformMatrix4fv</function> function. The first parameter is the uniform
             location that we are uploading to. This function can be used to transfer an entire array
             of matrices (yes, uniform arrays of any type are possible), so the second parameter is
-            the number of array entries.</para>
+            the number of array entries. Since we're only providing one matrix, this value is
+            1.</para>
         <para>The third parameter tells OpenGL what the ordering of the matrix data is. If it is
                 <literal>GL_TRUE</literal>, then the matrix data is in row-major order. Since our
             data is column-major, we set it to <literal>GL_FALSE</literal>. The last parameter is
@@ -755,9 +757,10 @@ glUseProgram(0);]]></programlisting>
             width to its height. Currently, when you change the window's dimensions, the code calls
                 <function>glViewport</function> to tell OpenGL the new size. This changes OpenGL's
             viewport transform, which goes from normalized device coordinates to window coordinates.
-            NDC space is square; as long as window coordinates are also square, objects that appear
-            square in NDC space will still be square in window space. Once window space became
-            non-square, it caused the transformation to also become not a square.</para>
+            NDC space has a 1:1 aspect ratio; the width and height of NDC space is 2x2. As long as
+            window coordinates also has a 1:1 width to height ratio, objects that appear square in
+            NDC space will still be square in window space. Once window space became non-1:1, it
+            caused the transformation to also become not a square.</para>
         <para>What exactly can be done about this? Well, that depends on what you intend to
             accomplish by making the window bigger.</para>
         <para>One simple way to do this is to prevent the viewport from ever becoming non-square.
@@ -864,14 +867,6 @@ glUseProgram(0);]]></programlisting>
                     <para>Adjust the zNear distance, so that it intersects with the prism. See how
                         this affects the rendering. Adjust the zFar distance similarly and see what
                         happens.</para>
-                </listitem>
-                <listitem>
-                    <para>In the section on aspect ratio, we saw a solution to the aspect ratio
-                        problem that modified the projection matrix's aspect ratio, so that it could
-                        render into a non-square viewport. Instead, change this code so that it
-                        modifies the <emphasis>viewport</emphasis> itself, always using the minimum
-                        sized square that will fit within the window's size. Also, add code to
-                        center the viewport within the window.</para>
                 </listitem>
                 <listitem>
                     <para>We made some simplifying assumptions in our perspective transformation

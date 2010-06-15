@@ -739,6 +739,13 @@
                     <para>Optimization.</para>
                 </glossdef>
             </glossentry>
+            <glossentry>
+                <glossterm>Invariance</glossterm>
+                <glossdef>
+                    <para>Using the <quote>invariant</quote> qualifier to ensure invariance across
+                        shader programs.</para>
+                </glossdef>
+            </glossentry>
         </glosslist>
     </section>
 </article>
