@@ -334,12 +334,12 @@
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>Do note that the direction of viewing is flipped from camera space and normalized
-                device coordinate (NDC) space. Camera space is looking <quote>up</quote> in the left
-                diagram, along the -Z axis. While NDC space is looking <quote>down</quote>, along
-                the +Z axis. Thus, the meaning of front and back is reversed; the points at the top
-                of the left image correspond to the points at the <emphasis>bottom</emphasis> of the
-                right image.</para>
+            <para>Do note that this diagram has the Z axis flipped from camera space and normalized
+                device coordinate (NDC) space. This is because camera space and NDC space have
+                different viewing directions. In camera space, the camera looks down the -Z axis;
+                more negative Z values are farther. In NDC space, the camera looks down the +Z axis;
+                more positive Z values are farther. The diagram flips the axis so that the viewing
+                direction can remain the same between the two images.</para>
             <para>If you perform an orthographic projection from NDC space on the right (by dropping
                 the Z coordinate), then what you get is a perspective projection of the world on the
                 left. In effect, what we have done is transform objects into a three-dimensional

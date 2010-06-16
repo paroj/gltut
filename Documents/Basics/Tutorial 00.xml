@@ -397,11 +397,10 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
             <para>The specification is a very complicated and technical document. I do not suggest
                 that the novice graphics programmer read it. If you do however, the most important
                 thing to understand about it is this: it describes <emphasis>results</emphasis>, not
-                implementation. For example, the spec says that clipping of triangles happens before
-                transforming them from clip-space to normalized device coordinate space. Hardware
-                almost certainly does clipping in normalized device coordinate space, simply because
-                all the vertices are in the same space. It doesn't matter to the results, so it is
-                still a valid OpenGL implementation.</para>
+                implementation. Just because the spec says that X will happen does not mean that it
+                actually does. What it means is that the user should not be able to tell the
+                difference. If a piece of hardware can provide the same behavior in a different way,
+                then the specification allows this, so long as the user can never tell.</para>
         </section>
     </section>
     <section xml:id="Intro_Glossary">

@@ -527,23 +527,23 @@ glUseProgram(0);</programlisting>
         <para>If the smaller object is truly behind the larger one, why is it being rendered on top
             of the larger one? Well, to answer that question, we need to remember what OpenGL
             is.</para>
-        <para>OpenGL defines a rasterization-based renderer. Rasterizers offer great opportunities
-            for optimizations and hardware implementation, and using them provides great power to
-            the programmer. However, they're very stupid. When you strip out all of the shaders and
-            other logic, a rasterizer is basically just a triangle drawer. That's all they know how
-            to do. And they're very good at it.</para>
+        <para>The OpenGL specification defines a rasterization-based renderer. Rasterizers offer
+            great opportunities for optimizations and hardware implementation, and using them
+            provides great power to the programmer. However, they're very stupid. When you strip out
+            all of the shaders and other logic, a rasterizer is basically just a triangle drawer.
+            That's all they know how to do. And they're very good at it.</para>
         <para>But rasterizers do exactly and only what the user says. They draw triangles in a given
             sequence. This means that, if there is overlap between multiple triangles in window
             space, the triangle that is rendered last will win.</para>
-        <para>Therefore, the easy way to solve this problem is to simply render the farther objects
-            first. This is called <glossterm>depth sorting.</glossterm> As you might imagine, this
-            solution scales incredibly poorly. Doing it for each triangle is prohibitive,
-            particularly with scenes with millions of triangles.</para>
-        <para>And the worst part is that, well, <emphasis>it doesn't work</emphasis>. Well, not
-            always. Many trivial cases can be solved via depth sorting, but non-trivial cases have
-            real problems. You can have an arrangement of 3 triangles where each overlaps the other,
-            such that there simply is no order you can render them in to achieve the right effect.
-            Clearly, we need something better.</para>
+        <para>The first thing you might think of when solving this problem is to simply render the
+            farther objects first. This is called <glossterm>depth sorting.</glossterm> As you might
+            imagine, this <quote>solution</quote> scales incredibly poorly. Doing it for each
+            triangle is prohibitive, particularly with scenes with millions of triangles.</para>
+        <para>And the worst part is that even if you put in all the effort, <emphasis>it doesn't
+                work</emphasis>. Well, not always. Many trivial cases can be solved via depth
+            sorting, but non-trivial cases have real problems. You can have an arrangement of 3
+            triangles where each overlaps the other, such that there simply is no order you can
+            render them in to achieve the right effect. Clearly, we need something better.</para>
         <para>One solution would be to tag fragments with the distance from the viewer. Then, if a
             fragment is about to be written is going to write a farther distance (ie: the fragment
             is behind what was already written), we simply do not write that fragment. That way, if
@@ -554,9 +554,10 @@ glUseProgram(0);</programlisting>
             a fragment ranges from 0 to 1, where 0 is the closest and 1 is the farthest.</para>
         <para>Colors output from the fragment shader are output into the color buffer. Therefore it
             naturally follows that depth values would be stored in a <glossterm>depth
-                buffer.</glossterm> The depth buffer is an image, the same size as the main color
-            buffer, that stores depth values as pixels rather than colors. Where a color is a
-            4-component vector, a depth is just a single floating-point value.</para>
+                buffer</glossterm> (also called a <glossterm>z buffer</glossterm>, because it stores
+            the Z value). The depth buffer is an image, the same size as the main color buffer, that
+            stores depth values as pixels rather than colors. Where a color is a 4-component vector,
+            a depth is just a single floating-point value.</para>
         <para>Like the color buffer, the depth buffer for the main window is created automatically
             by OpenGL when OpenGL is initialized. OpenGL can even be created without a depth buffer.
             Since FreeGLUT takes care of initializing OpenGL for us, we tell it in the standard
@@ -608,6 +609,12 @@ glUseProgram(0);</programlisting>
             <para>The range zNear can be greater than the range zFar; if it is, then the
                 window-space values will be reversed, in terms of what constitutes closest or
                 farthest from the viewer.</para>
+            <para>Earlier, it was said that the window-space Z value of 0 is closest and 1 is
+                farthest. However, if our clip-space Z values were negated, the depth of 1 would be
+                closest to the view and the depth of 0 would be farthest. Yet, if we flip the
+                direction of the depth test (GL_LESS to GL_GREATER, etc), we get the exact same
+                result. So it's really just a convention. Indeed, flipping the sign of Z and the
+                depth test was once a vital performance optimization for many games.</para>
         </section>
         <section>
             <title>Rendering with Depth</title>
@@ -624,6 +631,10 @@ glDepthRange(0.0f, 1.0f);</programlisting>
             <para>These are the most common depth testing parameters. It turns on depth testing,
                 sets the test function to less than or equal to, and sets the range mapping to the
                 full accepted range.</para>
+            <para>It is comment to use <literal>GL_LEQUAL</literal> instead of
+                    <literal>GL_LESS</literal>. This allows for the use of multipass algorithms,
+                where you render the same geometry with the same vertex shader, but linked with a
+                different fragment shader. We'll look at those much, much later.</para>
             <para>There is one more issue. We know what the depth value is in the depth buffer after
                 a fragment is written to it. But what is its value before any rendering is done at
                 all? Depth buffers and color buffers are very similar; color buffers get their
@@ -644,18 +655,163 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </example>
             <para>This will set all of the depth values in the depth buffer to 1.0, which is our
                 range zFar.</para>
+            <note>
+                <para>This is all that is necessary to do depth buffering, as far as OpenGL proper
+                    is concerned. However, in order to use depth buffering, the framebuffer must
+                    include a depth buffer in addition to an image buffer. This initialization code
+                    is platform-specific, but FreeGLUT takes care of it for us. If you do graduate
+                    from FreeGLUT, make sure that you use the appropriate initialization mechanism
+                    for your platform to create a depth buffer if you need to do depth
+                    buffering.</para>
+            </note>
         </section>
         <section>
             <title>Depth Precision</title>
             <para>There is one other thing that needs to be discussed with regard to depth buffers:
                 precision.</para>
-            <para>In the previous tutorial, </para>
+            <para>In the previous tutorial, we saw that the transform from camera space to
+                normalized device coordinate (<acronym>NDC</acronym>), in 2D, looked like
+                this:</para>
+            <figure>
+                <title>2D Camera to NDC Space</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="CameraToPerspective.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>This transformation used a special function to calculate the depth, one designed
+                to keep lines linear after performing the perspective divide. While it does do this,
+                it has a number of other effects. In particular, it changes the Z spacing between
+                points.</para>
+            <para>We can see that there is a lot of spacing between the points in NDC space at the
+                bottom (close to the view) and much less at the top (far from the view). The
+                third-nearest point to the viewer in camera space (Z = -1.75) maps to a point well
+                past halfway to the camera in NDC space.</para>
+            <para>Let us take just the front half of NDC space as an example. In NDC space, this is
+                the range [-1, 0]. In camera space, the exact range depends on the camera zNear and
+                zFar values. In the above example where the camera range is [-1, -3], the range that
+                maps to the front half of NDC space is [-1, -1.5], only a quarter of the range. The
+                equation to compute this for any camera range is pretty simple:</para>
+            <!--TODO: Add an image of the equation 2NF / F+N-->
+            <para>Where F and N are both positive values.</para>
+            <para>We can see from this equation that, the larger the difference between N and F, the
+                    <emphasis>smaller</emphasis> the half-space. If the camera range goes from
+                [-500, -1000], then half of NDC space represents the range from [-500, -666.67].
+                This is 33.3% of the camera space range mapping to 50% of the NDC range. However, if
+                the camera range goes from [-1, -1000], fully <emphasis>half</emphasis> of NDC space
+                will represent only [-1, -1.998]; less than 0.1% of the range.</para>
+            <para>This has real consequences for the precision of your depth buffer. Earlier, we
+                said that the depth buffer stores floating-point values. While this is conceptually
+                true, most depth buffers actually use fixed-point values and convert them into
+                floating-point values automatically. If you have a 16-bit depth buffer, you have
+                65536 possible depth values. Half of this is 32768 depth values, equivalent to a
+                15-bit depth buffer.</para>
+            <para>Even so, the difference between 16 bits and 15 bits is not that great. Instead of
+                looking at half of NDC space, let's look at half of the
+                    <emphasis>precision.</emphasis> So, what is the camera-space range at which you
+                lose half of your precision?</para>
+            <para>For a 16-bit depth buffer, half-precision is 8 bits. In fixed-point, if the near
+                value is 0 and the far is 65535 (representing 1.0), then half-precision happens when
+                the first 8 bits are all ones. This value is 65280 (65535 - 255). As a
+                floating-point value, this represents a value of ~0.996. In NDC space, this is a Z
+                value of ~0.992.</para>
+            <para>So what is the camera-space range at which you lose half precision? If the camera
+                depth range is [-500, -1000], then you get the half precision range of [-500, -996],
+                which is over 99% of the camera-space range. What about [-1, -1000]? This comes out
+                to [-1, -200], which is 20% of the range.</para>
+            <para>Before we can assess the consequences of this, we must first discuss what the
+                consequences are for low depth precision. Remember that the depth buffer exists to
+                allow each fragment to have a depth value, such that if an incoming fragment is
+                behind the already existing value, it is not written to the image.</para>
+            <para>If the available precision is too small, then what happens is that part of one
+                triangle will start showing through triangles that are supposed to be farther away.
+                If the camera or these objects are in motion, horrible flickering artifacts can be
+                seen. This is called <glossterm>z-fighting,</glossterm> as multiple objects appear
+                to be fighting each other.</para>
+            <!--TODO: Show an image of z-fighting.-->
+            <para>Most depth buffers are not 16-bit; these days, the default is 24-bit.
+                Half-precision of a 24-bit is 12-bit, which is not too far from a 16-bit depth
+                buffer in and of itself. If you use a 24-bit depth buffer, it turns out that you
+                lose half precision on a [-1, -1000] camera range at [-1, -891], which is 89% of the
+                range. At a 1:10,000 ratio, you have 45% of the camera range in most of the
+                precision. At 1:100,000 this drops to ~7%, and at 1:1,000,000 it is down to
+                0.8%.</para>
+            <para>The most important question to be asked is this: is this bad? Not really.</para>
+            <para>Let's take the 1:100,000 example. 7% may not sound like a lot, but this is still a
+                range of [-1, -7573]. If these units are conceptually in inches, then you've got
+                most of the precision sitting in the first 600+ feet.</para>
+            <para>And let's see what happens if we move the zNear plane forward just
+                    <emphasis>four</emphasis> inches, to 5:100,000. The percentage jumps to almost
+                30%, with half-precision happening at over 29,000 inches; that's a good half-mile.
+                Increase the zNear to a mere 10 inches, and you have the equivalent of 1:10,000
+                again: 45%. 10 inches may seem like a lot, but that's still less than a foot away
+                from the eye. Depending on what you are rendering, this may be a perfectly
+                legitimate trade-off.</para>
+            <para>What this teaches us is that the absolute numbers don't matter: it is the ratio of
+                zNear to zFar that dictates where you lose precision. 0.1:1000 is just as bad as
+                1:10,000. So push the zNear distance forward as far as you can. What happens if you
+                push it too far? That's the next section.</para>
+            <section>
+                <title>Large Camera Depth Ranges</title>
+                <para>You may ask what to do if you really need a wide camera depth range, like
+                    1:4,000,000 or something, where each unit represents an inch or something
+                    equally small.</para>
+                <para>First, it needs to be pointed out that a 24-bit depth buffer only goes from 0
+                    to 16,777,215. Even if the depth values were evenly distributed, you would only
+                    get a resolution of 4th of an inch.</para>
+                <para>Second, this range is starting to come perilously close to the issues with
+                        <emphasis>floating-point</emphasis> precision. Yes, this still provides a
+                    lot of precision, but remember: the depth range is for the current view. This
+                    means that your world is probably much larger than this. If you're getting
+                    numbers that large, you should be starting to worry about floating-point
+                    precision error in computing these positions. There are certainly ways around it
+                    (and we will discuss some later), but if you need a camera-space range
+                    that</para>
+                <para>Third, most applications render lower-quality models when objects are far
+                    away. This is mainly for the purpose of focusing performance where the user
+                    needs it: the things closest to him. By reducing detail in distant objects, you
+                    are also less likely to have z-fighting; so it helps here too.</para>
+                <para>Fourth, you usually really, <emphasis>really</emphasis> need that precision
+                    up-close. If you think z-fighting looks bad when it happens with a distant
+                    object, imagine how bad it will look if it's up in your face. Even if you could
+                    make the z-values linear, it could cause problems in near objects.</para>
+                <para>Fifth, if you really, <emphasis>really</emphasis> need a camera range this
+                    large, you can play some tricks with the depth range.</para>
+                <para>The camera range defines how the perspective matrix transforms the Z to
+                    clip-space and therefore NDC space. The <emphasis>depth</emphasis> range defines
+                    what part of the [0, 1] range of window coordinates that the NDC depth maps to.
+                    So you can draw the front half of your scene into the [0, 0.5] depth range with
+                    a camera range like [-1, -2,000,000]. Then, you can draw the back half of the
+                    scene in the [0.5, 1] depth range, with a camera range of [-2,000,000,
+                    -4,000,000]. Dividing it in half like this isn't very fair to your front
+                    objects, so it's more likely that you would want to use something like [-1,
+                    -10,000] for the front half and [-10,000, -4,000,000] for the second. Each of
+                    these would still map to half of the depth range.</para>
+                <para>Objects that lie on the border between the split would have to be rendered
+                    into both, just to make sure their depth values show up properly.</para>
+            </section>
         </section>
     </section>
     <section>
         <?dbhtml filename="Tut05 Boundaries and Clipping.html" ?>
         <title>Boundaries and Clipping</title>
         <para/>
+    </section>
+    <section>
+        <title>Depth Clamping</title>
+        <para>That's all well and good, but this:</para>
+        <!--TODO: Same image from clipped tutorial as before-->
+        <para>This is never a good thing. Sure, it keeps the hardware from dividing by zero, but it
+            looks really bad. It's showing the inside of an object that has no insides. Plus, you
+            can also see that it has no backside (since we're doing face culling); you can see right
+            through to the object behind it.</para>
+        <para>If computer graphics is an elaborate illusion, then clipping utterly
+                <emphasis>shatters</emphasis> this illusion. What can we do about this?</para>
+        <para>The most common technique is to simply not allow it. That is, know how close objects
+            are getting to the near clipping plane (ie: the camera) and don't let them get close
+            enough to clip.</para>
+        <para>A more reasonable mechanism is <glossterm>depth clamping</glossterm>.</para>
     </section>
     <section>
         <?dbhtml filename="Tut05 In Review.html" ?>
@@ -717,6 +873,12 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                         <para/>
                     </glossdef>
                 </glossentry>
+                <glossentry>
+                    <glossterm>glEnable/glDisable(GL_DEPTH_CLAMP)</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
             </glosslist>
         </section>
     </section>
@@ -755,7 +917,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>depth buffer</glossterm>
+                <glossterm>depth buffer, z-buffer</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>
@@ -768,6 +930,18 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </glossentry>
             <glossentry>
                 <glossterm>range zNear, range zFar</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>z-fighting</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>depth clamping</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>

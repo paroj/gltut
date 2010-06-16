@@ -54,7 +54,7 @@ local function TransformPointToRightWnd(tPoint)
 	end
 
 	local final = vmath.vec2(tPoint);
-	--final.y = -final.y
+	final.y = -final.y
 	final = final + (halfWorldWidth);
 	final = final * (subImageSize / worldWidth);
 	final = final + subImagePositions[2]
@@ -320,7 +320,7 @@ local leftOrigin = TransformPointToLeftWnd(vec2(0, 0));
 
 local leftAxisLocations = { vec2(halfWorldWidth, 0), vec2(0, leftWorldVertRange[1]) };
 leftAxisLocations = TransformPointToLeftWnd(leftAxisLocations);
-local rightAxisLocations = { vec2(halfWorldWidth, 0), vec2(0, -halfWorldWidth) }
+local rightAxisLocations = { vec2(halfWorldWidth, 0), vec2(0, halfWorldWidth) }
 rightAxisLocations = TransformPointToRightWnd(rightAxisLocations);
 
 local axisLabelPixelOffsets = { vec2(-45, -10), vec2(-50, 30) };
@@ -384,7 +384,7 @@ local writer = SvgWriter.SvgWriter("CameraToPerspective.svg", {imageWidth .."px"
 	writer:Text("+X", leftAxisLocations[1] + axisLabelPixelOffsets[1], {"axis_label"})
 	writer:Text("-Z", leftAxisLocations[2] + axisLabelPixelOffsets[2], {"axis_label"})
 	writer:Text("+X", rightAxisLocations[1] + axisLabelPixelOffsets[1], {"axis_label"})
-	writer:Text("-Z", rightAxisLocations[2] + axisLabelPixelOffsets[2], {"axis_label"})
+	writer:Text("+Z", rightAxisLocations[2] + axisLabelPixelOffsets[2], {"axis_label"})
 
 	--label the images
 	writer:Text("Camera Space", imageTitleLoc[1] + imageTitleOffset, {"image_label"});

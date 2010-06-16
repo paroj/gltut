@@ -2,7 +2,6 @@
 <?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
-    <?dbhtml dir="html"?>
     <info>
         <title>OpenGL Tutorials</title>
     </info>
@@ -77,6 +76,12 @@
                 features of the API. This makes it impossible to gloss over seemingly minor yet
                 critical information about how various features of the language and graphics
                 hardware actually work.</para>
+            <note>
+                <para>As a side-effect, these tutorials all require OpenGL 3.2-capable hardware and
+                    drivers. This means any GeForce 8xxx or better, or any Radeon HD-class card.
+                    These are also called <quote>Direct3D 10</quote> cards, but you do not need
+                    Windows Vista or 7 to use their advanced features through OpenGL.</para>
+            </note>
             <para>This does not mean that you need to have read other tutorials first. As previously
                 stated, these tutorials are intended primarily for the beginning graphics
                 programmer. These tutorials are in-depth, but they are also designed to break

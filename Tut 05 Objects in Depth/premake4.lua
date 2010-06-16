@@ -10,3 +10,5 @@ SetupProject("Depth Buffering", "DepthBuffer.cpp",
 	"data/Standard.frag", "data/Standard.vert")
 SetupProject("Vertex Clipping", "VertexClipping.cpp",
 	"data/Standard.frag", "data/Standard.vert")
+SetupProject("Depth Clamping", "DepthClamping.cpp",
+	"data/Standard.frag", "data/Standard.vert")
