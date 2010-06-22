@@ -143,7 +143,7 @@
                 called <quote>perspective.</quote></para>
         </section>
     </section>
-    <section>
+    <section xml:id="ShaderPerspective">
         <?dbhtml filename="Tut04 Perspective Projection.html" ?>
         <title>Perspective Projection</title>
         <para>A <glossterm>projection</glossterm>, for the purposes of rendering, is a way to
@@ -743,7 +743,14 @@ glUseProgram(0);]]></programlisting>
             data is column-major, we set it to <literal>GL_FALSE</literal>. The last parameter is
             the matrix data itself.</para>
         <para>Running this program will give us:</para>
-        <!--TODO: Create an image of this tutorial's execution-->
+        <figure>
+            <title>Perspective Matrix</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="MatrixPerspective.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The same thing we had before. Only now done with matrices.</para>
     </section>
     <section>
@@ -752,7 +759,14 @@ glUseProgram(0);]]></programlisting>
         <para>If you run the last program, and resize the window, the viewport resizes with it.
             Unfortunately, this also means that what was once a rectangular prism with a square
             front becomes elongated.</para>
-        <!--TODO: Show a picture of the elongated prism.-->
+        <figure>
+            <title>Bad Aspect Ratio</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="MatrixPerspectiveSkew.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This is a problem of <glossterm>aspect ratio</glossterm>, the ratio of an image's
             width to its height. Currently, when you change the window's dimensions, the code calls
                 <function>glViewport</function> to tell OpenGL the new size. This changes OpenGL's

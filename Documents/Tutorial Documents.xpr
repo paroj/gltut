@@ -2019,16 +2019,18 @@
             <file name="Basics/Tutorial%2001.xml"/>
             <file name="Basics/Tutorial%2002.xml"/>
         </folder>
+        <folder name="css">
+            <file name="chunked.css"/>
+            <file name="standard.css"/>
+        </folder>
         <folder name="Positioning">
             <file name="Positioning/Tutorial%2003.xml"/>
             <file name="Positioning/Tutorial%2004.xml"/>
             <file name="Positioning/Tutorial%2005.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
-        <file name="chunked.css"/>
         <file name="cssDoc.txt"/>
         <file name="Outline.xml"/>
-        <file name="standard.css"/>
         <file name="Tutorials.xml"/>
     </projectTree>
 </project>

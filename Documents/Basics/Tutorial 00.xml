@@ -222,8 +222,8 @@
                     from a single triangle are processed in is irrelevant; since a single triangle
                     lies in a single plane, fragments generated from it cannot possible overlap.
                     However, the fragments from another triangle can possibly overlap. Since order
-                    is important in a rasterizer, the fragments from one triangle must be processed
-                    before the fragments from another triangle.</para>
+                    is important in a rasterizer, the fragments from one triangle must all be
+                    processed before the fragments from another triangle.</para>
             </formalpara>
             <para>This phase is quite arbitrary. The user of OpenGL has a lot of options of how to
                 decide what color to assign a fragment. We will cover this step in detail throughout

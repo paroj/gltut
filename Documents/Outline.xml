@@ -242,6 +242,10 @@
                 <listitem>
                     <para>UBOs for shared uniform data (common matrices).</para>
                 </listitem>
+                <listitem>
+                    <para>The dangers of having an explicit world space (precision problems with
+                        large numbers).</para>
+                </listitem>
             </itemizedlist>
         </section>
     </section>
@@ -270,7 +274,8 @@
                 </listitem>
                 <listitem>
                     <para>Implementing lighting in a vertex shader for both directional and point
-                        lights. Combining results from </para>
+                        lights. Combining results from both kinds of lighting into a single
+                        value.</para>
                 </listitem>
             </itemizedlist>
         </section>

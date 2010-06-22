@@ -83,7 +83,7 @@
                 <filename>glloader</filename> directory. Type <literal>premake4
                     <replaceable>plat</replaceable></literal>, where <replaceable>plat</replaceable>
             is the name of the platform of choice. For Visual Studio 2008, this would be
-                <quote>vs2008;</quote> for VS2010, this would be <quote>vs2010.</quote> The Premake
+                <quote>vs2008</quote>; for VS2010, this would be <quote>vs2010.</quote> The Premake
             documentation has a full list of output platforms.</para>
         <para>This will create the appropriate build file. Use this build file as is appropriate for
             the platform, compiling both debug and release.</para>
@@ -103,6 +103,5 @@
                 <filename>framwork/framework.cpp</filename>; it is shared by every tutorial. It does
             the basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial
             source files to contain OpenGL-specific code.</para>
-        <para/>
     </simplesect>
 </article>
