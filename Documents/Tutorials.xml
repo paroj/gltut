@@ -95,7 +95,7 @@
     </preface>
     <xi:include href="Building the Tutorials.xml"/>
     <part>
-        <?dbhtml filename="Basics.html" ?>
+        <?dbhtml filename="Basics.html" dir="Basics"?>
         <info>
             <title>The Basics</title>
         </info>
@@ -109,7 +109,7 @@
         <xi:include href="Basics/tutorial 02.xml"/>
     </part>
     <part>
-        <?dbhtml filename="Positioning.html" ?>
+        <?dbhtml filename="Positioning.html" dir="Positioning" ?>
         <info>
             <title>Positioning</title>
         </info>
@@ -124,7 +124,7 @@
         <xi:include href="Positioning/tutorial 05.xml"/>
     </part>
     <part>
-        <?dbhtml filename="Illumination.html" ?>
+        <?dbhtml filename="Illumination.html" dir="Illumination" ?>
         <info>
             <title>Illumination</title>
         </info>
@@ -135,7 +135,7 @@
         </partintro>
     </part>
     <part>
-        <?dbhtml filename="Texturing.html" ?>
+        <?dbhtml filename="Texturing.html" dir="Texturing" ?>
         <info>
             <title>Texturing</title>
         </info>
@@ -146,7 +146,7 @@
         </partintro>
     </part>
     <part>
-        <?dbhtml filename="Framebuffer.html" ?>
+        <?dbhtml filename="Framebuffer.html" dir="Framebuffer" ?>
         <title>Framebuffer</title>
         <partintro>
             <para>Render targets and framebuffer blending are key components to many advanced
@@ -155,7 +155,7 @@
         </partintro>
     </part>
     <part>
-        <?dbhtml filename="Advanced Lighting.html" ?>
+        <?dbhtml filename="Advanced Lighting.html" dir="Adv Lighting" ?>
         <title>Advanced Lighting</title>
         <partintro>
             <para>Simple diffuse lighting and directional shadows are useful, but better, more

@@ -14,12 +14,13 @@ local mainDir = "Documents\\";
 
 --Copy the html files.
 local htmlDir = mainDir .. "web\\";
-local command = string.format([[copy "%s*.html" "%s"]], htmlDir, outputDir);
+local command = string.format([[xcopy "%s*" "%s" /s /c /q /r /y]], htmlDir, outputDir);
 print(command);
 os.execute(command);
 
 --Copy the .css file.
-command = string.format([[copy "%schunked.css" "%s" ]], mainDir, outputDir);
+local cssFilename = "chunked.css";
+command = string.format([[copy "%s%s" "%s" ]], mainDir, cssFilename, outputDir);
 print(command);
 os.execute(command);
 
@@ -52,4 +53,14 @@ for dir in lfs.dir(mainDir) do
 		end
 	end
 end
+
+--Copy the .css file to all directories in the destination.
+for dir in lfs.dir(outputDir) do
+	if(dir ~= "." and dir ~= "..") then
+		command = string.format([[copy %s%s %s]], outputDir, cssFilename, outputDir .. dir);
+		print(command);
+		os.execute(command);
+	end
+end
+
 

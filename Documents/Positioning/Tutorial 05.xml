@@ -999,6 +999,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut05 Depth Clamping.html" ?>
         <title>Depth Clamping</title>
         <para>That's all well and good, but this:</para>
         <informalfigure>

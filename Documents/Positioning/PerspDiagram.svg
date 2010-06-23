@@ -76,14 +76,14 @@
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
      inkscape:cx="374.89524"
-     inkscape:cy="184.95539"
+     inkscape:cy="114.24471"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1776"
-     inkscape:window-height="1050"
-     inkscape:window-x="134"
-     inkscape:window-y="-10"
+     inkscape:window-width="1920"
+     inkscape:window-height="1138"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -156,7 +156,7 @@
        sodipodi:cy="100.89285"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="m 335,100.89285 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       d="m 335,100.89285 c 0,2.76143 -2.23858,5 -5,5 -2.76142,0 -5,-2.23857 -5,-5 0,-2.761421 2.23858,-4.999997 5,-4.999997 2.76142,0 5,2.238576 5,4.999997 z"
        transform="translate(0.37880721,651.46933)" />
     <path
        transform="translate(-130,901.86173)"
@@ -166,7 +166,7 @@
        sodipodi:cy="100.89285"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="m 335,100.89285 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z" />
+       d="m 335,100.89285 c 0,2.76143 -2.23858,5 -5,5 -2.76142,0 -5,-2.23857 -5,-5 0,-2.761421 2.23858,-4.999997 5,-4.999997 2.76142,0 5,2.238576 5,4.999997 z" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0"
        d="m 200,100 130,0"
@@ -185,7 +185,7 @@
        sodipodi:cy="100.89285"
        sodipodi:rx="5"
        sodipodi:ry="5"
-       d="m 335,100.89285 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       d="m 335,100.89285 c 0,2.76143 -2.23858,5 -5,5 -2.76142,0 -5,-2.23857 -5,-5 0,-2.761421 2.23858,-4.999997 5,-4.999997 2.76142,0 5,2.238576 5,4.999997 z"
        style="fill:#00c000;fill-opacity:1" />
     <text
        xml:space="preserve"
@@ -245,14 +245,14 @@
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial"
-       x="203.54573"
-       y="890.23267"
+       x="204.60638"
+       y="1016.4512"
        id="text2861"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan2863"
-         x="203.54573"
-         y="890.23267">(0, 0, 0)</tspan></text>
+         x="204.60638"
+         y="1016.4512">(0, 0, 0)</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:115.85411072px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"

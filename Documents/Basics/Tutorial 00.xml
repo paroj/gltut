@@ -4,7 +4,7 @@
 <article xml:id="tut_00" xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xlink="http://www.w3.org/1999/xlink"
     version="5.0">
-    <?dbhtml filename="Introduction.html" ?>
+    <?dbhtml filename="Introduction.html"?>
     <title>Introduction</title>
     <para>Unlike most of the tutorials, this tutorial is purely text. There is no source code or
         project associated with this tutorial.</para>
