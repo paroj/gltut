@@ -383,7 +383,7 @@ void main()
                 <title>Interpolated Vertex Colors</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="VertexColors.png"/>
+                        <imagedata fileref="VertexColors.png" contentwidth="3in"/>
                     </imageobject>
                 </mediaobject>
             </figure>

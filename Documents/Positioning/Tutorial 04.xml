@@ -89,7 +89,7 @@
                 <title>Triangle Winding Order</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata format="SVG" fileref="WindingOrder.svg"/>
+                        <imagedata format="SVG" fileref="WindingOrder.svg" contentwidth="6in"/>
                     </imageobject>
                 </mediaobject>
                 <caption>
@@ -122,7 +122,7 @@
                 <title>Orthographic Prism</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="OrthoPrism.png"/>
+                        <imagedata fileref="OrthoPrism.png" contentwidth="3in"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -161,7 +161,7 @@
             <title>2D to 1D Orthographic Projection</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="Ortho2DProjection.svg" format="SVG"/>
+                    <imagedata fileref="Ortho2DProjection.svg" format="SVG" contentwidth="4in"/>
                 </imageobject>
             </mediaobject>
             <caption>
@@ -187,7 +187,7 @@
             <title>2D to 1D Perspective Projection</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="Persp2DProjection.svg" format="SVG"/>
+                    <imagedata fileref="Persp2DProjection.svg" format="SVG" contentwidth="4in"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -208,7 +208,7 @@
             <title>Viewing Frustum</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="ViewFrustum.svg" format="SVG"/>
+                    <imagedata fileref="ViewFrustum.svg" format="SVG" contentwidth="4in"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -235,7 +235,7 @@
                 <title>2D to 1D Perspective Projection Diagram</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="PerspDiagram.svg" format="SVG"/>
+                        <imagedata fileref="PerspDiagram.svg" format="SVG" contentwidth="4in"/>
                     </imageobject>
                 </mediaobject>
                 <caption>
@@ -251,7 +251,8 @@
                 <title>Perspective Computation</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="PerspectiveFunc.svg" width="300" format="SVG"/>
+                        <imagedata fileref="PerspectiveFunc.svg" width="300" format="SVG"
+                            contentwidth="3in"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -330,7 +331,7 @@
                 <title>Camera to NDC Transformation in 2D</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="CameraToPerspective.svg" format="SVG"/>
+                        <imagedata fileref="CameraToPerspective.svg" format="SVG" contentwidth="6in"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -393,7 +394,7 @@
                 <title>Depth Computation</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="ZValueFunc.svg" width="500" format="SVG"/>
+                        <imagedata fileref="ZValueFunc.svg" width="500" format="SVG" contentwidth="4in"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -406,7 +407,7 @@
             <informalfigure>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="CameraToPerspective.svg" format="SVG"/>
+                        <imagedata fileref="CameraToPerspective.svg" format="SVG" contentwidth="6in"/>
                     </imageobject>
                 </mediaobject>
             </informalfigure>
@@ -512,7 +513,7 @@ glUseProgram(0);]]></programlisting>
                 <title>Perspective Prism</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="PerspectivePrism.png"/>
+                        <imagedata fileref="PerspectivePrism.png" contentwidth="3in"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -584,7 +585,8 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             <title>Camera to Clip Equations</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CameraToClipPartial.svg" width="600" format="SVG"/>
+                    <imagedata fileref="CameraToClipPartial.svg" width="600" format="SVG"
+                        contentwidth="6in"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -594,7 +596,8 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             <title>Camera to Clip Expanded Equations</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CameraToClipNearMatrix.svg" width="800" format="SVG"/>
+                    <imagedata fileref="CameraToClipNearMatrix.svg" width="800" format="SVG"
+                        contentwidth="6in"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -613,7 +616,8 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             <title>Camera to Clip Matrix Transformation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="CameraToClipMatrix.svg" width="600"/>
+                    <imagedata format="SVG" fileref="CameraToClipMatrix.svg" width="600"
+                        contentwidth="6in"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -747,7 +751,7 @@ glUseProgram(0);]]></programlisting>
             <title>Perspective Matrix</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="MatrixPerspective.png"/>
+                    <imagedata fileref="MatrixPerspective.png" contentwidth="3in"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -763,7 +767,7 @@ glUseProgram(0);]]></programlisting>
             <title>Bad Aspect Ratio</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="MatrixPerspectiveSkew.png"/>
+                    <imagedata fileref="MatrixPerspectiveSkew.png" contentwidth="5in"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -815,7 +819,7 @@ glUseProgram(0);]]></programlisting>
             <title>Widescreen Aspect Ratio Frustum</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RectViewFrustum.svg" format="SVG"/>
+                    <imagedata fileref="RectViewFrustum.svg" format="SVG" contentwidth="5in"/>
                 </imageobject>
             </mediaobject>
         </figure>
