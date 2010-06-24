@@ -165,7 +165,7 @@ int gleLoadFunctions()
 		//Load the 2.1 core.
 		if(!gleIntLoad_Version_2_1()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
 	}
-	else if(iMajorVersion == 3)
+	else if(iMajorVersion == 3 && iMinorVersion < 2)
 	{
 		switch(iMinorVersion)
 		{
@@ -183,33 +183,34 @@ int gleLoadFunctions()
 				if(!gleIntLoad_Version_3_1()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
 			}
 			break;
-		default:
-			{
-				int iProfileMask = 0;
-				glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &iProfileMask);
-				if(iProfileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
-				{
-					if(!gleIntLoad_Version_3_2_Comp()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
-				}
-				else
-				{
-					if(!gleIntLoad_Version_3_2()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
-				}
-			}
-			break;
 		}
 	}
 	else
 	{
 		int iProfileMask = 0;
 		glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &iProfileMask);
-		if(iProfileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
+		if(iProfileMask)
 		{
-			if(!gleIntLoad_Version_3_2_Comp()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
+			if(iProfileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT)
+			{
+				if(!gleIntLoad_Version_3_2_Comp()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
+			}
+			else
+			{
+				if(!gleIntLoad_Version_3_2()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
+			}
 		}
 		else
 		{
-			if(!gleIntLoad_Version_3_2()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
+			//Hack to fix NVIDIA stupidity.
+			if(CheckCompatibilityExt())
+			{
+				if(!gleIntLoad_Version_3_2_Comp()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
+			}
+			else
+			{
+				if(!gleIntLoad_Version_3_2()) eCurrLoadStatus = GLE_LOAD_FUNCTIONS_SOME;
+			}
 		}
 	}
 
