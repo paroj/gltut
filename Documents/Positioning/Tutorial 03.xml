@@ -490,7 +490,7 @@ void main()
             floating-point math. The question is this: what is the cost of doing more complex
             operations in a vertex shader vs. how often those operations need to be done.</para>
         <para>The second vertex shader we use, the one that computes the offset itself, does a lot
-            of complex map. Sine and cosine values are not particularly fast to compute. They
+            of complex math. Sine and cosine values are not particularly fast to compute. They
             require quite a few computations to calculate. And since the offset itself doesn't
             change for each vertex in a single rendering call, performance-wise it would be best to
             compute the offset on the CPU and pass the offset as a uniform value.</para>
