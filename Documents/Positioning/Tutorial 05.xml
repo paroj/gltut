@@ -550,6 +550,7 @@ glUseProgram(0);</programlisting>
                 <emphasis>in the order given</emphasis>. This means that, if there is overlap
             between multiple triangles in window space, the triangle that is rendered last will
             win.</para>
+        <para>This problem is called <glossterm>hidden surface elimination.</glossterm></para>
         <para>The first thing you might think of when solving this problem is to simply render the
             farther objects first. This is called <glossterm>depth sorting.</glossterm> As you might
             imagine, this <quote>solution</quote> scales incredibly poorly. Doing it for each
@@ -1109,60 +1110,81 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         </section>
         <section>
             <title>OpenGL Functions of Note</title>
-            <para/>
             <glosslist>
                 <glossentry>
                     <glossterm>glGenVertexArrays/glDeleteVertexArrays</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Creates/destroys one or more vertex array objects.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glBindVertexArray</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Binds a vertex array object to the <literal>GL_VERTEX_ARRAY</literal>
+                            target.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glDrawElements</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Performs indexed rendering with the currently bound
+                                <literal>GL_ELEMENT_ARRAY_BUFFER</literal> (provided via the VAO)
+                            and the current attribute arrays.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glDrawElementsBaseVertex</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Performs indexed rendering as <function>glDrawElements</function>,
+                            except that each element index is offset by a constant value before
+                            performing the array lookup. This is useful for minimizing the number of
+                            buffer object binds performed in a program.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glEnable/glDisable(GL_DEPTH_TEST)</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Enables/disables the per-fragment depth test. If the depth test is
+                            enabled, then the result of applying the depth function, set by
+                                <function>glDepthFunc</function>, to the incoming fragment's depth
+                            and the destination pixel's depth will determine if the incoming
+                            fragment is written or not.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glDepthFunc</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Sets the depth comparison function for depth testing. Has no effect if
+                                <literal>GL_DEPTH_TEST</literal> is not enabled.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glDepthRange</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Sets the mapping between NDC space and window space for the Z
+                            coordinate of the position. The XY counterpart to this function is
+                                <function>glViewport</function>. The range for the window-space
+                            depth must be [0, 1], though the near does not have to be less than the
+                            far. The range zNear value, the first value, is the window-space value
+                            that will map to -1 in NDC space. The range zFar is the window-space
+                            value that maps to +1 in NDC space.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glClearDepth</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Sets the clear depth value. This is the value that the depth buffer
+                            will be cleared to when calling <function>glClear</function> with the
+                                <literal>GL_DEPTH_BUFFER_BIT</literal> bit set.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glEnable/glDisable(GL_DEPTH_CLAMP)</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Enables/disables depth clamping behavior. When enabled, clipping is
+                            deactivated, and any fragments that an object would render that are
+                            outside of the [-1, 1] range in NDC space are clamped to this
+                            range.</para>
                     </glossdef>
                 </glossentry>
             </glosslist>
@@ -1175,79 +1197,124 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             <glossentry>
                 <glossterm>vertex array object (VAO)</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Vertex array objects are OpenGL Objects that store all of the state needed
+                        to make one or more draw calls. This includes attribute array setup
+                        information (from <function>glVertexAttribArray</function>), buffer objects
+                        used for attribute arrays, and the
+                            <literal>GL_ELEMENT_ARRAY_BUFFER</literal> binding, which is a buffer
+                        object that stores the index arrays, if needed.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>array drawing</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Rendering a contiguous range of vertices pulled from the currently bound
+                        attribute arrays (within the vertex array object). The vertices are sent in
+                        order from first to last in the range.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>indexed drawing</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Rendering an arbitrary set of vertices pulled from the currently bound
+                        attribute arrays. The set of vertices is defined by the element array. The
+                        vertices are rendered in the order specified by the element array.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>element array</glossterm>
+                <glossterm>element array, index array</glossterm>
                 <glossdef>
-                    <para>Also known as an <glossterm>index array</glossterm>, </para>
+                    <para>A list of indices, stored within a buffer object, that refer to elements
+                        in the currently bound attribute arrays.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>hidden surface elimination</glossterm>
+                <glossdef>
+                    <para>The ability to render a scene such that objects that are behind other
+                        objects do not show through them. There are several methods available for
+                        achieving this.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>depth sorting</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Rendering objects or triangles in an order based on their Z-depth from the
+                        camera. An attempt at hidden surface elimination.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>depth buffer, z-buffer</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An image in the framebuffer that conceptually stores the distance of the
+                        pixel from the camera zNear plane. The depth buffer stores only
+                        one-dimensional values, instead of the 4-dimensional colors of the regular
+                        image buffer. Depth values are usually restricted to the range [0,
+                        1].</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>depth test</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The process of testing the incoming fragment's depth value against the
+                        depth value from the depth buffer for the pixel that the fragment would
+                        overwrite. If the test passes, then the fragment is written. If the test
+                        fails, the fragment is not written. This, combined with a depth buffer, can
+                        be used as a good method of hidden surface elimination.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>range zNear, range zFar</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The mapping from NDC-space Z coordinate [-1, 1] to window-space Z
+                        coordinates [0, 1]. This mapping is set with the
+                            <function>glDepthRange</function> function.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>early depth test, early-z</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An optimization in the depth test, where the incoming fragment's depth
+                        value is tested <emphasis>before</emphasis> the fragment shader executes. If
+                        the fragment shader is long, this can save a great deal of time. If the
+                        fragment shader exercises the option to modify or replace the fragment's
+                        depth, then the early depth test optimization will not be active.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>z-fighting</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Happens when the window-space Z values for two surfaces are sufficiently
+                        close together that part of one shows through a surface that it shouldn't.
+                        This is usually due to a lack of depth buffer precision. The common remedy
+                        is to try to move the camera zNear further from 0.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>homogeneous coordinate system</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A 4-dimensional coordinate system used to represent a 3-dimensional
+                        position. To compute the 3D position, the fourth coordinate is divided into
+                        the other 3. This kind of coordinate system allows mathematics to function
+                        in the presence of what would be undefined values otherwise. Namely division
+                        by zero.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>clipping</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The act of breaking a single triangle into one or more smaller ones so
+                        that they all fit within the visible region. Actual clipping, generating new
+                        vertices and such, is not often done by hardware; instead they usually try
+                        to cull fragments that are outside of the viewing area.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>depth clamping</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A rendering mode where clipping is turned off and the Z value of fragments
+                        is clamped to the depth range. This is used to prevent clipping from
+                        punching holes in objects, though it is not a foolproof solution.</para>
                 </glossdef>
             </glossentry>
         </glosslist>

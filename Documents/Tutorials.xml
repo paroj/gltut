@@ -28,11 +28,11 @@
                     helpful.</para>
             </listitem>
         </itemizedlist>
-        <note>
+        <note condition="web">
             <title>Browser Note</title>
             <para>This website and these tutorials make extensive use of SVG images. Basic SVG
-                support is in all major browsers except any version of Internet Explorer. And while
-                IE has the dominant marketshare, I'm afraid that these images will remain SVG
+                support is in all major browsers except any version of Internet Explorer. And even
+                though IE has the dominant marketshare, I'm afraid that these images will remain SVG
                 images. If you are content with Internet Explorer, consider installing the Google
                 Chrome Frame add-on for IE8. This will allow you to see the images correctly.</para>
         </note>
