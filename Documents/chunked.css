@@ -7,10 +7,9 @@ body
     font-size: 12pt;
 }
 
-br.example-break
-{
-    display: none;
-}
+br.example-break { display: none; }
+br.figure-break { display: none; }
+br.equation-break { display: none; }
 
 div.note
 {

@@ -860,12 +860,13 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     means that your world is probably much larger than this. If you're getting
                     numbers that large, you should be starting to worry about floating-point
                     precision error in computing these positions. There are certainly ways around it
-                    (and we will discuss some later), but if you need a camera-space range
-                    that</para>
+                    (and we will discuss some later), but if you need a camera-space range that
+                    large, you may run into other problems at the same time.</para>
                 <para>Third, most applications render lower-quality models when objects are far
                     away. This is mainly for the purpose of focusing performance where the user
-                    needs it: the things closest to him. By reducing detail in distant objects, you
-                    are also less likely to have z-fighting; so it helps here too.</para>
+                    needs it: the things closest to him. If some of the z-fighting comes from
+                    overlap within a model, a lower-detail model without those overlapping parts can
+                    help reduce z-fighting as well.</para>
                 <para>Fourth, you usually really, <emphasis>really</emphasis> need that precision
                     up-close. If you think z-fighting looks bad when it happens with a distant
                     object, imagine how bad it will look if it's up in your face. Even if you could
