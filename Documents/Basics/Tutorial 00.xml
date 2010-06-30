@@ -392,7 +392,7 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 you call a rendering function.</para>
             <para>The specification is written by the OpenGL <glossterm>Architectural Review
                     Board</glossterm> (<acronym>ARB</acronym>), a group of representatives from
-                companies like Apple, NVIDIA, and AMD (the ATi part), among others. The ARB is part
+                companies like Apple, NVIDIA, and AMD (the ATI part), among others. The ARB is part
                 of the <link xlink:href="http://www.khronos.org/">Khronos Group</link>.</para>
             <para>The specification is a very complicated and technical document. I do not suggest
                 that the novice graphics programmer read it. If you do however, the most important
@@ -401,6 +401,50 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 actually does. What it means is that the user should not be able to tell the
                 difference. If a piece of hardware can provide the same behavior in a different way,
                 then the specification allows this, so long as the user can never tell.</para>
+            <formalpara>
+                <title>OpenGL Implementations</title>
+                <para>While the OpenGL ARB does control the specification, it does not control
+                    OpenGL's code. OpenGL is not something you download from a centralized location.
+                    For any particular piece of hardware, it is up to the developers of that
+                    hardware to write an <glossterm>OpenGL Implementation</glossterm> for that
+                    hardware. Implementations, as the name suggests, implement the OpenGL
+                    specification, exposing the OpenGL API as defined in the spec.</para>
+            </formalpara>
+            <para>Who controls the OpenGL implementation is different for different operating
+                systems. On Windows, OpenGL implementations are controlled virtually entirely by the
+                hardware makers themselves. On Mac OSX, OpenGL implementations are controlled by
+                Apple; they decide what version of OpenGL is exposed and what additional
+                functionality can be provided to the user. Apple writes much of the OpenGL
+                implementation on Mac OSX, which the hardware developers writing to an Apple-created
+                internal driver API. On Linux, things are... complicated.</para>
+            <para>The long and short of this is that if you are writing a program and it seems to be
+                exhibiting off-spec behavior, that is the fault of the maker of your OpenGL
+                implementation. On Windows, the various graphics hardware makers put their OpenGL
+                implementations in their regular drivers. So if you suspect a bug in their
+                implementation, the first thing you should do is make sure your graphics drivers are
+                up-to-date; the bug may have been corrected since the last time you updated your
+                drivers.</para>
+            <formalpara>
+                <title>OpenGL Versions</title>
+                <para>There are many versions of the OpenGL Specification. OpenGL versions are not
+                    like most Direct3D versions, which typically change most of the API. Code that
+                    works on one version of OpenGL will almost always work on later versions of
+                    OpenGL.</para>
+            </formalpara>
+            <para>The only exception to this deals with OpenGL 3.0 and above, relative to previous
+                versions. v3.0 deprecated a number of older functions, and v3.1 removed those
+                functions from the API<footnote>
+                    <para>Deprecation only means marking those functions as to be removed in later
+                        functions. They are still available for use in 3.0.</para>
+                </footnote>. This also divided the specification into 2 variations (called
+                profiles): core and compatibility. The compatibility profile has all of the
+                functions removed in 3.1, while the core profile does not. Theoretically, OpenGL
+                implementations could implement just the core profile; this would leave software
+                that relies on the compatibility profile non-functional on that
+                implementation.</para>
+            <para>As a practical matter, none of this matters at all. No OpenGL driver developer is
+                going to ship drivers that only implement the core profile. So in effect, this means
+                nothing at all; all OpenGL versions are all effectively backwards compatible.</para>
         </section>
     </section>
     <section xml:id="Intro_Glossary">
@@ -535,6 +579,27 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 <glossdef>
                     <para>A particular place in a rendering pipeline where a shader can be executed to
                         perform a computation.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>OpenGL</glossterm>
+                <glossdef>
+                    <para>A specification that defines the effective behavior of a
+                        rasterization-based rendering system.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Architectural Review Board</glossterm>
+                <glossdef>
+                    <para>The body of the Khronos Group that governs the OpenGL
+                        specification.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>OpenGL Implementation</glossterm>
+                <glossdef>
+                    <para>The software that implements the OpenGL specification for a particular
+                        system.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
