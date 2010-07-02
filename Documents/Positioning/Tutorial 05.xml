@@ -1135,10 +1135,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </listitem>
         </itemizedlist>
         <section>
-            <title>Further Study</title>
-            <para/>
-        </section>
-        <section>
             <title>OpenGL Functions of Note</title>
             <glosslist>
                 <glossentry>
