@@ -218,15 +218,31 @@
                         space. Multiple instances of objects rendered using the same mesh.</para>
                 </listitem>
                 <listitem>
-                    <para>Object-to-world transform. How to compute the transformation from
-                        object-space to world-space.</para>
+                    <para>Object-to-camera transform. How to compute the transformation from
+                        object-space to camera-space.</para>
                 </listitem>
                 <listitem>
-                    <para>Uniform Buffer Objects. How to have per-instance data and change the
-                        instance data with a single setting, rather than setting multiple uniforms.
-                        Use std140 layout.</para>
+                    <para>Uniform Buffer Objects. Use multiple different programs, so have UBOs for
+                        the shared data. Use std140 layout.</para>
                 </listitem>
             </itemizedlist>
+            <para>Tutorial sub-files:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Replicate the same object with different translations and scales. Both
+                        uniform and non-uniform. Animate them.</para>
+                </listitem>
+                <listitem>
+                    <para>Replicate the same object with different orientations and translations.
+                        Animate them.</para>
+                </listitem>
+                <listitem>
+                    <para>Have multiple different object geometries, with their own individual
+                        transforms. Animate the transforms. Objects have different programs attached
+                        that have different fragment shaders (and possibly vertex shaders). Use
+                        Uniform Buffer Objects to store their shared uniform data.</para>
+                </listitem>
+            </orderedlist>
         </section>
         <section>
             <title>World in Motion</title>
@@ -238,9 +254,6 @@
                     <para>Camera-space, as distinct from world and object-local. How to compute
                         camera-space, and build a sequence of transformations from object to clip
                         space.</para>
-                </listitem>
-                <listitem>
-                    <para>UBOs for shared uniform data (common matrices).</para>
                 </listitem>
                 <listitem>
                     <para>The dangers of having an explicit world space (precision problems with
