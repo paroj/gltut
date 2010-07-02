@@ -546,9 +546,24 @@ void main()
     <section>
         <?dbhtml filename="Tut01 In Review.html" ?>
         <title>In Review</title>
-        <para>At this point, you have a good general overview of how things work in OpenGL. You know
-            how to compile and link shaders, how to pass some basic vertex data to OpenGL, and how
-            to render a triangle.</para>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Buffer objects are linear arrays of memory allocated by OpenGL. They can be
+                    used to store vertex data.</para>
+            </listitem>
+            <listitem>
+                <para>GLSL shaders are compiled into shader objects that represent the code to be
+                    executed for a single shader stage. These shader objects can be linked together
+                    to produce a program object, which represent all of the shader code to be
+                    executed during rendering.</para>
+            </listitem>
+            <listitem>
+                <para>The <function>glDrawArrays</function> function can be used to draw triangles,
+                    using particular buffer objects as sources for vertex data and the currently
+                    bound program object.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
             <para>Even with a simple tutorial like this, there are many things to play around with

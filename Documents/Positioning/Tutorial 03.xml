@@ -512,16 +512,28 @@ void main()
     <section>
         <?dbhtml filename="Tut03 In Review.html" ?>
         <title>In Review</title>
-        <para>In this tutorial, you have learned about uniform variables in shaders. Uniforms are
-            shader variables that change, not with every shader envocation, but between rendering
-            calls whenever the user chooses to change them. Uniform values are parameters set by the
-            user to control the behavior of the shader. Setting them requires querying a uniform
-            location as well as setting the program to be in use. Uniform state is stored within a
-            program object and preserved until explicitly changed. A uniform that has the same name
-            and type in two different shader stages within the same linked program is the same
-            uniform; setting it will change it for both stages.</para>
-        <para>You have also learned a little about how to update the contents of a buffer object,
-            though we are <emphasis>far</emphasis> from finished with that subject.</para>
+        <para>In this tutorial, you have learned about the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Buffer object contents can be updated partially with the
+                        <function>glBufferSubData</function> function. This function performs the
+                    equivalent of a <function>memcpy</function> operation.</para>
+            </listitem>
+            <listitem>
+                <para>Uniform variables in shaders are variables that are set by code outside of
+                    GLSL. They only change between rendering calls, so they are uniform over the
+                    surface of any particular triangle.</para>
+            </listitem>
+            <listitem>
+                <para>Uniform variable values are stored with the program object. This state is
+                    preserved until it is explicitly changed.</para>
+            </listitem>
+            <listitem>
+                <para>Uniform variables defined in two GLSL stages that have the same name and type
+                    are considered the same uniform. Setting this uniform in the program object will
+                    change its value for both stages.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
             <para>There are several things you can test to see what happens with these

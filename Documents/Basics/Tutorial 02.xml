@@ -394,12 +394,25 @@ void main()
     <section>
         <?dbhtml filename="Tut02 In Review.html" ?>
         <title>In Review</title>
-        <para>In this tutorial, you learned how to use much of the <varname>gl_FragCoord</varname>
-            built-in variable in a fragment shader. You learned that this data is in screen-space,
-            and how to convert screen space into more useful forms. You also learned how to pass
-            data directly from vertex shaders to fragment shaders. You learned about the
-            interpolation that happens to vertex shader outputs across the surface of a
-            triangle.</para>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>The <varname>gl_FragCoord</varname> built-in GLSL variable can be used in
+                    fragment shaders to get the window-space coordinates of the current
+                    fragment.</para>
+            </listitem>
+            <listitem>
+                <para>Data can be passed from a vertex shader to a fragment shader, using output
+                    variables in the vertex shader and corresponding input variables in the fragment
+                    shader.</para>
+            </listitem>
+            <listitem>
+                <para>Data passed from the vertex shader to the fragment shader is interpolated
+                    across the surface of the triangle, based on the interpolation qualifier used
+                    for the output and input variables in the vertex and fragment shaders
+                    respectively.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
             <para>Here are some ideas to play around with.</para>

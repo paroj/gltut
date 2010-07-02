@@ -972,13 +972,13 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 depending on the location of the triangle, you can get quite a few different pieces.
                 The simple act of turning one triangle into several is hard and time
                 consuming.</para>
-            <para>So, if OpenGL states that this must happen, and hardware doesn't do it, then
-                what's going on?</para>
-            <para>If we hadn't told you just now that the hardware doesn't do clipping most of the
-                time, could you tell? No. And that's the point: OpenGL specifies
-                    <emphasis>apparent</emphasis> behavior; the spec doesn't care if you actually do
-                clipping or not. All the spec cares about is that the user can't tell the difference
-                in terms of the output.</para>
+            <para>So, if OpenGL states that this must happen, but supposedly OpenGL-compliant
+                hardware doesn't do it, then what's going on?</para>
+            <para>Consider this: if we hadn't told you just now that the hardware doesn't do
+                clipping most of the time, could you tell? No. And that's the point: OpenGL
+                specifies <emphasis>apparent</emphasis> behavior; the spec doesn't care if you
+                actually do vertex clipping or not. All the spec cares about is that the user can't
+                tell the difference in terms of the output.</para>
             <para>That's how hardware can get away with the early-z optimization mentioned before;
                 the OpenGL spec says that the depth test must happen after the fragment program
                 executes. But if the fragment shader doesn't modify the depth, then would you be
@@ -1093,18 +1093,47 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             near the planes. Similar problems happen with the far plane, though backface culling can
             be a help in some cases.</para>
         <note>
-            <para>If you're wondering what happens when you have depth clamping and a clip-space W
-                &lt;= 0 and you don't do clipping, then... well, OpenGL doesn't say. At least, it
-                doesn't say specifically. All it says is that clipping against the near and far
-                planes stops and that fragment depth values generated outside of the expected depth
-                range are clamped to that range. No, really, that's <emphasis>all</emphasis> it
-                says.</para>
+            <para>We defined depth clamping as, in part, turning off clipping. If you're wondering
+                what happens when you have depth clamping, which turns off clipping, and a
+                clip-space W &lt;= 0, then... well, OpenGL doesn't say. At least, it doesn't say
+                specifically. All it says is that clipping against the near and far planes stops and
+                that fragment depth values generated outside of the expected depth range are clamped
+                to that range. No, really, that's <emphasis>all</emphasis> it says.</para>
         </note>
     </section>
     <section>
         <?dbhtml filename="Tut05 In Review.html" ?>
         <title>In Review</title>
-        <para/>
+        <para>In this tutorial, you have learned about the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Vertex array objects encapsulate all of the vertex transfer state necessary to
+                    render objects.</para>
+            </listitem>
+            <listitem>
+                <para>Indexed rendering pulls data from the current vertex arrays by using a
+                    separate sequence of indices. The sequence of indices defines the sequence that
+                    OpenGL sees the vertices in. Indexed rendering can be performed by storing index
+                    data in a buffer object, and using <function>glDrawElements</function>.</para>
+            </listitem>
+            <listitem>
+                <para>Indices in indexed rendering calls can be offset by a value using the
+                        <function>glDrawElementsBaseVertex</function> function.</para>
+            </listitem>
+            <listitem>
+                <para>Hidden surface elimination can be performed by using a depth buffer and
+                    properly setting up the depth test.</para>
+            </listitem>
+            <listitem>
+                <para>Triangles that are outside of the camera zNear and zFar range are clipped
+                    against this range. This can open up holes in models if they are too close to
+                    the camera.</para>
+            </listitem>
+            <listitem>
+                <para>Clipping holes can be repaired, so long as there is no overlap, by activating
+                    depth clamping.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
             <para/>
