@@ -239,14 +239,16 @@
                     </imageobject>
                 </mediaobject>
                 <caption>
-                    <para>The projection of the point P onto the projection plane, located at the
-                        origin. R is the projection and E is the eye point.</para>
+                    <para>The projection of the point P onto the projection plane. This plane is at
+                        an offset of E<subscript>z</subscript> compared to the eye point, which is
+                        fixed at the origin. R is the projected point.</para>
                 </caption>
             </figure>
-            <para>What we have are two similar right triangles; the triangle formed by E, R and the
-                origin; and the triangle formed by E, P, and P<subscript>z</subscript>. We have the
-                eye position and the position of the unprojected point. To find the location of R,
-                we simply do this:</para>
+            <para>What we have are two similar right triangles; the triangle formed by E, R and
+                    E<subscript>z</subscript>the origin; and the triangle formed by E, P, and
+                    P<subscript>z</subscript>+E<subscript>z</subscript>. We have the eye position
+                and the position of the unprojected point. To find the location of R, we simply do
+                this:</para>
             <equation>
                 <title>Perspective Computation</title>
                 <mediaobject>

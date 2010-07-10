@@ -219,7 +219,15 @@
                 </listitem>
                 <listitem>
                     <para>Object-to-camera transform. How to compute the transformation from
-                        object-space to camera-space.</para>
+                        object-space to camera-space. Handle scale, rotation, and
+                        translation.</para>
+                </listitem>
+                <listitem>
+                    <para>Composing multiple object-to-camera transformations. Deal with the
+                        differences with regard to the order of transformations.</para>
+                </listitem>
+                <listitem>
+                    <para>Handle object hierarchies with a matrix stack.</para>
                 </listitem>
                 <listitem>
                     <para>Uniform Buffer Objects. Use multiple different programs, so have UBOs for
@@ -229,12 +237,19 @@
             <para>Tutorial sub-files:</para>
             <orderedlist>
                 <listitem>
-                    <para>Replicate the same object with different translations and scales. Both
-                        uniform and non-uniform. Animate them.</para>
+                    <para>Replicate the same object with scales, both uniform and non-uniform. Also
+                        have translations. Animate them.</para>
                 </listitem>
                 <listitem>
                     <para>Replicate the same object with different orientations and translations.
                         Animate them.</para>
+                </listitem>
+                <listitem>
+                    <para>Transformation composition, via matrix multiplication.</para>
+                </listitem>
+                <listitem>
+                    <para>Have objects composed of hierarchies of transformations. Animate these
+                        transformations in motion.</para>
                 </listitem>
                 <listitem>
                     <para>Have multiple different object geometries, with their own individual
@@ -254,6 +269,10 @@
                     <para>Camera-space, as distinct from world and object-local. How to compute
                         camera-space, and build a sequence of transformations from object to clip
                         space.</para>
+                </listitem>
+                <listitem>
+                    <para>Transform composition. Taking multiple transformation matrices and
+                        converting them into one matrix.</para>
                 </listitem>
                 <listitem>
                     <para>The dangers of having an explicit world space (precision problems with
@@ -289,6 +308,9 @@
                     <para>Implementing lighting in a vertex shader for both directional and point
                         lights. Combining results from both kinds of lighting into a single
                         value.</para>
+                </listitem>
+                <listitem>
+                    <para>Perspective-correct interpolation of vertex attributes.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -329,6 +351,9 @@
                 <listitem>
                     <para>Texture filtering. How OpenGL computes inbetween values for fragments when
                         you sample a texture.</para>
+                </listitem>
+                <listitem>
+                    <para>Sampler objects.</para>
                 </listitem>
                 <listitem>
                     <para>The GLSL side of texturing. Samplers and texture functions in fragment
@@ -388,15 +413,6 @@
                     <para>Using textures for non-color information. Also, scaling of the data that
                         comes out of the image.</para>
                 </listitem>
-            </itemizedlist>
-        </section>
-        <section>
-            <title>The Bumpy Mountain</title>
-            <para>Build a height field, but with more fine details. This requires multiple textures:
-                a height texture and a more detailed bump map on top of it. Fill in the details with
-                a bump map. Obviously, this will need to have a light in the scene.</para>
-            <para>Concepts:</para>
-            <itemizedlist>
                 <listitem>
                     <para>Constructing normals from the height field in the vertex shader.</para>
                 </listitem>
@@ -426,10 +442,6 @@
                 <listitem>
                     <para>Framebuffer blending. The blend function, how it works, and how to change
                         it in OpenGL.</para>
-                </listitem>
-                <listitem>
-                    <para>Backface culling. Making sure that the back faces of blended objects don't
-                        get rendered.</para>
                 </listitem>
                 <listitem>
                     <para>How blending interacts with depth writing and testing. Namely, that you
@@ -514,8 +526,8 @@
                     <para>The Phong specular lighting model.</para>
                 </listitem>
                 <listitem>
-                    <para>Using a texture's value to control the strength of the Phong curve.
-                        Introduce floating-point textures here.</para>
+                    <para>Using a texture's value to control the strength of the Phong curve and
+                        other lighting parameters. Introduce floating-point textures here.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -651,10 +663,9 @@
         <title>Functionality that needs tutorials</title>
         <glosslist>
             <glossentry>
-                <glossterm>Hierarchical spaces.</glossterm>
+                <glossterm>Debugging</glossterm>
                 <glossdef>
-                    <para>Matrix stacks and such.</para>
-                    <para>Might be shown off with a robot or something that moves.</para>
+                    <para>How to debug problems in OpenGL.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

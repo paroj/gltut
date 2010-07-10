@@ -265,7 +265,6 @@ void display()
 	glUseProgram(0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.

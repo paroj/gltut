@@ -252,7 +252,6 @@ void display()
 	glUseProgram(0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.
@@ -288,6 +287,7 @@ void keyboard(unsigned char key, int x, int y)
 			glEnable(GL_DEPTH_CLAMP);
 
 		bDepthClampingActive = !bDepthClampingActive;
+		glutPostRedisplay();
 		break;
 	}
 }

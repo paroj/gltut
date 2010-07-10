@@ -184,7 +184,7 @@ glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlist
                         <varname>positionBufferObject</varname>. This piece of vertex data contains
                     32-bit float values, and each piece is a sequence of 4 of them. The data starts
                     at the 0th byte of the buffer object, and each set of 4 32-bit floats is tightly
-                    packed together.</quote> This means that our data of 24 floats represents enough
+                    packed together.</quote> This means that our data of 12 floats represents enough
                 information for the 3 vertices of a single triangle; this is exactly what we
                 want.</para>
             <para>The specifics of this function call will be discussed in later tutorials.</para>

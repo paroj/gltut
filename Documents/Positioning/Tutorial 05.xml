@@ -793,8 +793,8 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 half-space. If the camera range goes from [-500, -1000], then half of NDC space
                 represents the range from [-500, -666.67]. This is 33.3% of the camera space range
                 mapping to 50% of the NDC range. However, if the camera range goes from [-1, -1000],
-                fully <emphasis>half</emphasis> of NDC space will represent only [-1, -1.998]; less
-                than 0.1% of the range.</para>
+                fully <emphasis>half</emphasis> of NDC space will represent only [-1, -1.998] in
+                camera space; less than 0.1% of the range.</para>
             <para>This has real consequences for the precision of your depth buffer. Earlier, we
                 said that the depth buffer stores floating-point values. While this is conceptually
                 true, most depth buffers actually use fixed-point values and convert them into
@@ -853,12 +853,12 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     equally small.</para>
                 <para>First, it needs to be pointed out that a 24-bit depth buffer only goes from 0
                     to 16,777,215. Even if the depth values were evenly distributed, you would only
-                    get a resolution of 4th of an inch.</para>
+                    get a resolution of 1/4th of an inch.</para>
                 <para>Second, this range is starting to come perilously close to the issues with
                         <emphasis>floating-point</emphasis> precision. Yes, this still provides a
                     lot of precision, but remember: the depth range is for the current view. This
                     means that your world is probably much larger than this. If you're getting
-                    numbers that large, you should be starting to worry about floating-point
+                    numbers that large, you may need to start worrying about floating-point
                     precision error in computing these positions. There are certainly ways around it
                     (and we will discuss some later), but if you need a camera-space range that
                     large, you may run into other problems at the same time.</para>
@@ -871,8 +871,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     up-close. If you think z-fighting looks bad when it happens with a distant
                     object, imagine how bad it will look if it's up in your face. Even if you could
                     make the z-values linear, it could cause problems in near objects.</para>
-                <para>Fifth, if you really, <emphasis>really</emphasis> need a camera range this
-                    large, you can play some tricks with the depth range.</para>
+                <para>Fifth, if you really need a camera range this large, you can play some tricks
+                    with the depth range. But only do this if you actually do get z-fighting; don't
+                    simply do it because you have a large camera range.</para>
                 <para>The camera range defines how the perspective matrix transforms the Z to
                     clip-space and therefore NDC space. The <emphasis>depth</emphasis> range defines
                     what part of the [0, 1] range of window coordinates that the NDC depth maps to.
@@ -1025,9 +1026,8 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         <para>And while this can <quote>function</quote> as a solution, it isn't exactly good. It
             limits what you can do with objects and so forth.</para>
         <para>A more reasonable mechanism is <glossterm>depth clamping</glossterm>. What this does
-            is turn off near/far plane clipping altogether. Instead, simply causes the depth for
-            these fragments to be the minimum or maximum values, depending on which plane they clip
-            against.</para>
+            is turn off camera near/far plane clipping altogether. Instead, the depth for these
+            fragments are clamped to the [-1, 1] range in NDC space.</para>
         <para>We can see this in the <phrase role="propername">Depth Clamping</phrase> tutorial.
             This tutorial is identical to the vertex clipping one, except that the
                 <function>keyboard</function> function has changed as follows:</para>
@@ -1093,12 +1093,16 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             near the planes. Similar problems happen with the far plane, though backface culling can
             be a help in some cases.</para>
         <note>
-            <para>We defined depth clamping as, in part, turning off clipping. If you're wondering
-                what happens when you have depth clamping, which turns off clipping, and a
-                clip-space W &lt;= 0, then... well, OpenGL doesn't say. At least, it doesn't say
-                specifically. All it says is that clipping against the near and far planes stops and
-                that fragment depth values generated outside of the expected depth range are clamped
-                to that range. No, really, that's <emphasis>all</emphasis> it says.</para>
+            <para>We defined depth clamping as, in part, turning off clipping against the camera
+                near and far planes. If you're wondering what happens when you have depth clamping,
+                which turns off clipping, and a clip-space W &lt;= 0, it's simple. In camera space,
+                near and far clipping is represented as turning a pyramid into a frustum: cutting
+                off the top and bottom. If near/far clipping isn't active, then the frustum becomes
+                a pyramid. The other 4 clipping planes are still fully in effect. Clip-space
+                vertices with a W of less than 0 are all outside of the boundary of any of the other
+                four clipping planes. And the only clip-space point with a W of 0 that is within
+                this volume is the homogeneous origin point: (0, 0, 0, 0); everything else will be
+                clipped.</para>
         </note>
     </section>
     <section>
@@ -1107,8 +1111,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         <para>In this tutorial, you have learned about the following:</para>
         <itemizedlist>
             <listitem>
-                <para>Vertex array objects encapsulate all of the vertex transfer state necessary to
-                    render objects.</para>
+                <para>Vertex array objects encapsulate all of the state necessary to render objects.
+                    This includes vertex attribute arrays, buffer objects to feed those arrays, and
+                    the element buffer, if present.</para>
             </listitem>
             <listitem>
                 <para>Indexed rendering pulls data from the current vertex arrays by using a

@@ -17,9 +17,8 @@ function SetupProject(projName, ...)
 		files {...}
 		targetdir "bin"
 
-		includedirs "../freeglut-2.6.0/include"
-		includedirs "../glloader/include"
-		includedirs "../FreeImage/dist"
+		includedirs {"../freeglut-2.6.0/include", "../glloader/include",
+			"../FreeImage/dist", "../glm-0.9.0.0"}
 
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
