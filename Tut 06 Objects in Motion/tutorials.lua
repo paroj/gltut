@@ -1,7 +1,7 @@
 
-SetupProject("Translation", "Translation.cpp",
+SetupProject("Tut 06 Translation", "Translation.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")
-SetupProject("Scale", "Scale.cpp",
+SetupProject("Tut 06 Scale", "Scale.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")
-SetupProject("Rotations", "Rotations.cpp",
+SetupProject("Tut 06 Rotations", "Rotations.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")
