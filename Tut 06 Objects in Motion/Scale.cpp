@@ -42,7 +42,7 @@ void InitializeProgram()
 	modelToCameraMatrixUnif = glGetUniformLocation(theProgram, "modelToCameraMatrix");
 	cameraToClipMatrixUnif = glGetUniformLocation(theProgram, "cameraToClipMatrix");
 
-	float fzNear = 1.0f; float fzFar = 45.0f;
+	float fzNear = 1.0f; float fzFar = 61.0f;
 
 	cameraToClipMatrix[0].x = fFrustumScale;
 	cameraToClipMatrix[1].y = fFrustumScale;
@@ -119,50 +119,62 @@ void InitializeVertexBuffer()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-glm::vec3 StationaryOffset(float fElapsedTime)
+float CalcLerpFactor(float fElapsedTime, float fLoopDuration)
 {
-	return glm::vec3(0.0f, 0.0f, -20.0f);
+	float fValue = fmodf(fElapsedTime, fLoopDuration) / fLoopDuration;
+	if(fValue > 0.5f)
+		fValue = 1.0f - fValue;
+
+	return fValue * 2.0f;
 }
 
-glm::vec3 OvalOffset(float fElapsedTime)
+glm::vec3 NullScale(float fElapsedTime)
+{
+	return glm::vec3(1.0f, 1.0f, 1.0f);
+}
+
+glm::vec3 StaticUniformScale(float fElapsedTime)
+{
+	return glm::vec3(4.0f, 4.0f, 4.0f);
+}
+
+glm::vec3 StaticNonUniformScale(float fElapsedTime)
+{
+	return glm::vec3(0.5f, 1.0f, 10.0f);
+}
+
+glm::vec3 DynamicUniformScale(float fElapsedTime)
 {
 	const float fLoopDuration = 3.0f;
-	const float fScale = 3.14159f * 2.0f / fLoopDuration;
 
-	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
-
-	return glm::vec3(cosf(fCurrTimeThroughLoop * fScale) * 4.f,
-		sinf(fCurrTimeThroughLoop * fScale) * 6.f,
-		-20.0f);
+	return glm::vec3(glm::mix(1.0f, 4.0f, CalcLerpFactor(fElapsedTime, fLoopDuration)));
 }
 
-glm::vec3 BottomCircleOffset(float fElapsedTime)
+glm::vec3 DynamicNonUniformScale(float fElapsedTime)
 {
-	const float fLoopDuration = 12.0f;
-	const float fScale = 3.14159f * 2.0f / fLoopDuration;
+	const float fXLoopDuration = 3.0f;
+	const float fZLoopDuration = 5.0f;
 
-	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
-
-	return glm::vec3(cosf(fCurrTimeThroughLoop * fScale) * 5.f,
-		-3.5f,
-		sinf(fCurrTimeThroughLoop * fScale) * 5.f - 20.0f);
+	return glm::vec3(glm::mix(1.0f, 0.5f, CalcLerpFactor(fElapsedTime, fXLoopDuration)),
+		1.0f,
+		glm::mix(1.0f, 10.0f, CalcLerpFactor(fElapsedTime, fZLoopDuration)));
 }
 
 struct Instance
 {
-	typedef glm::vec3(*OffsetFunc)(float);
+	typedef glm::vec3(*ScaleFunc)(float);
 
-	glm::vec3 scale;
-	OffsetFunc CalcOffset;
+	ScaleFunc CalcScale;
+	glm::vec3 offset;
 
 	glm::mat4 ConstructMatrix(float fElapsedTime)
 	{
+		glm::vec3 theScale = CalcScale(fElapsedTime);
 		glm::mat4 theMat(1.0f);
-		theMat[0].x = scale.x;
-		theMat[1].y = scale.y;
-		theMat[2].z = scale.z;
-
-		theMat[3] = glm::vec4(CalcOffset(fElapsedTime), 1.0f);
+		theMat[0].x = theScale.x;
+		theMat[1].y = theScale.y;
+		theMat[2].z = theScale.z;
+		theMat[3] = glm::vec4(offset, 1.0f);
 
 		return theMat;
 	}
@@ -170,9 +182,11 @@ struct Instance
 
 Instance g_instanceList[] =
 {
-	{glm::vec3(1.0f, 1.0f, 1.0f), StationaryOffset},
-	{glm::vec3(0.5f, 1.5f, 0.5f), OvalOffset},
-	{glm::vec3(0.5f, 1.0f, 0.5f), BottomCircleOffset},
+	{NullScale,					glm::vec3(0.0f, 0.0f, -45.0f)},
+	{StaticUniformScale,		glm::vec3(-10.0f, -10.0f, -45.0f)},
+	{StaticNonUniformScale,		glm::vec3(-10.0f, 10.0f, -45.0f)},
+	{DynamicUniformScale,		glm::vec3(10.0f, 10.0f, -45.0f)},
+	{DynamicNonUniformScale,	glm::vec3(10.0f, -10.0f, -45.0f)},
 };
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.

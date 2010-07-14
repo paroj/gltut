@@ -152,15 +152,11 @@ struct Instance
 {
 	typedef glm::vec3(*OffsetFunc)(float);
 
-	glm::vec3 scale;
 	OffsetFunc CalcOffset;
 
 	glm::mat4 ConstructMatrix(float fElapsedTime)
 	{
 		glm::mat4 theMat(1.0f);
-		theMat[0].x = scale.x;
-		theMat[1].y = scale.y;
-		theMat[2].z = scale.z;
 
 		theMat[3] = glm::vec4(CalcOffset(fElapsedTime), 1.0f);
 
@@ -170,9 +166,9 @@ struct Instance
 
 Instance g_instanceList[] =
 {
-	{glm::vec3(1.0f, 1.0f, 1.0f), StationaryOffset},
-	{glm::vec3(0.5f, 1.5f, 0.5f), OvalOffset},
-	{glm::vec3(0.5f, 1.0f, 0.5f), BottomCircleOffset},
+	{StationaryOffset},
+	{OvalOffset},
+	{BottomCircleOffset},
 };
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
