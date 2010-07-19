@@ -42,3 +42,6 @@ Top-level constructs:
     div.example-contents: Stores everything but the title of the example.
     br.example-break
     
+    div.note: A short notation.
+    div.tip: A longer notation.
+    
