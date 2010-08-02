@@ -140,19 +140,25 @@ void init()
 	glDepthRange(0.0f, 1.0f);
 }
 
+volatile float fTemp = 2700.0f;
+float fDelta = 0.0f;
+
 float CalcZOFfset()
 {
-	const float fLoopDuration = 5.0f;
+	const float fLoopDuration = 50.0f;
 	const float fScale = 3.14159f * 2.0f / fLoopDuration;
 
 	float fElapsedTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 
 	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
 
-	float fRet = cosf(fCurrTimeThroughLoop * fScale) * 500.0f - 2700.0f;
+	float fRet = cosf(fCurrTimeThroughLoop * fScale) * 100.0f - 2700.0f;
+	fRet = fDelta - 2700.0f;
 
 	return fRet;
 }
+
+volatile bool bReadDepthBuffer = false;
 
 
 //Called to update the display.
@@ -168,11 +174,27 @@ void display()
 
 	glBindVertexArray(vao);
 
-	glUniform3f(offsetUniform, 0.0f, 0.0f, CalcZOFfset());
+	float fOffset = CalcZOFfset();
+
+	glUniform3f(offsetUniform, 0.0f, 0.0f, fOffset);
 	glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 
 	glBindVertexArray(0);
 	glUseProgram(0);
+
+	if(bReadDepthBuffer)
+	{
+		bReadDepthBuffer = false;
+
+		GLuint depthBuffer[500*500];
+		memset(depthBuffer, 0, sizeof(depthBuffer));
+
+		glReadPixels(0, 0, 500, 500, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, depthBuffer);
+
+		//Print the depth buffer to a file.
+		static int iFoo = 0;
+		iFoo++;
+	}
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -207,9 +229,61 @@ void keyboard(unsigned char key, int x, int y)
 		{
 			float fValue = CalcZOFfset();
 			printf("%f\n", fValue);
+			bReadDepthBuffer = true;
 		}
 		break;
+		//Hundreds
+	case 0x51:	//q
+	case 0x71:
+		fDelta += 100.0f;
+		break;
+	case 0x41:	//a
+	case 0x61:
+		fDelta -= 100.0f;
+		break;
+
+		//Tens
+	case 0x57:	//w
+	case 0x77:
+		fDelta += 10.0f;
+		break;
+	case 0x53:	//s
+	case 0x73:
+		fDelta -= 10.0f;
+		break;
+
+		//Ones
+	case 0x45:	//e
+	case 0x65:
+		fDelta += 1.0f;
+		break;
+	case 0x44:	//d	
+	case 0x64:
+		fDelta -= 1.0f;
+		break;
+
+		//Tenths
+	case 0x52:	//r
+	case 0x72:
+		fDelta += 0.1f;
+		break;
+	case 0x46:	//f
+	case 0x66:
+		fDelta -= 0.1f;
+		break;
+
+		//Hundreths
+	case 0x54:	//t
+	case 0x74:
+		fDelta += 0.01f;
+		break;
+	case 0x47:	//g
+	case 0x67:
+		fDelta -= 0.01f;
+		break;
 	}
+
+	printf("%f\n", fDelta);
 }
 
 

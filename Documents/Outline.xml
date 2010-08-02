@@ -237,12 +237,14 @@
             <para>Tutorial sub-files:</para>
             <orderedlist>
                 <listitem>
-                    <para>Replicate the same object with scales, both uniform and non-uniform. Also
-                        have translations. Animate them.</para>
+                    <para>Animated translations only.</para>
                 </listitem>
                 <listitem>
-                    <para>Replicate the same object with different orientations and translations.
-                        Animate them.</para>
+                    <para>Animated scale only. Also, have a model with negative scale, to show how
+                        to change the axis orientation of a model.</para>
+                </listitem>
+                <listitem>
+                    <para>Animated rotation only.</para>
                 </listitem>
                 <listitem>
                     <para>Transformation composition, via matrix multiplication.</para>
@@ -662,6 +664,12 @@
     <section>
         <title>Functionality that needs tutorials</title>
         <glosslist>
+            <glossentry>
+                <glossterm>Procedural Textures</glossterm>
+                <glossdef>
+                    <para>How to do procedural textures, with proper filtering and so forth.</para>
+                </glossdef>
+            </glossentry>
             <glossentry>
                 <glossterm>Debugging</glossterm>
                 <glossdef>
