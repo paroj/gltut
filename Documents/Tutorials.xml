@@ -72,12 +72,12 @@
                 of them go into any real depth in terms of programmability.</para>
             <para>These tutorials are designed first and foremost to <emphasis>teach</emphasis> the
                 reader valuable information about how graphics works. To this end, each and every
-                tutorials will use the OpenGL Shading Language and all modern (as of OpenGL 3.2)
+                tutorials will use the OpenGL Shading Language and all modern (as of OpenGL 3.3)
                 features of the API. This makes it impossible to gloss over seemingly minor yet
                 critical information about how various features of the language and graphics
                 hardware actually work.</para>
             <note>
-                <para>As a side-effect, these tutorials all require OpenGL 3.2-capable hardware and
+                <para>As a side-effect, these tutorials all require OpenGL 3.3-capable hardware and
                     drivers. This means any GeForce 8xxx or better, or any Radeon HD-class card.
                     These are also called <quote>Direct3D 10</quote> cards, but you do not need
                     Windows Vista or 7 to use their advanced features through OpenGL.</para>

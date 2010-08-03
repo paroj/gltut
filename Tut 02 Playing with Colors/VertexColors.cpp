@@ -9,8 +9,6 @@
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
 GLuint theProgram;
-GLuint positionAttrib;
-GLuint colorAttrib;
 
 void InitializeProgram()
 {
@@ -21,8 +19,6 @@ void InitializeProgram()
 
 	theProgram = Framework::CreateProgram(shaderList);
 
-	positionAttrib = glGetAttribLocation(theProgram, "position");
-	colorAttrib = glGetAttribLocation(theProgram, "color");
 }
 
 const float vertexData[] = {
@@ -68,15 +64,15 @@ void display()
 	glUseProgram(theProgram);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glEnableVertexAttribArray(positionAttrib);
-	glEnableVertexAttribArray(colorAttrib);
-	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(positionAttrib);
-	glDisableVertexAttribArray(colorAttrib);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 	glUseProgram(0);
 
 	glutSwapBuffers();

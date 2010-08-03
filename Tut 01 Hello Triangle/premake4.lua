@@ -2,4 +2,4 @@
 dofile("../framework/framework.lua")
 
 SetupSolution("Tutorial1")
-dofile("tutorials");
+dofile("tutorials.lua");

@@ -10,7 +10,6 @@
 
 
 GLuint theProgram;
-GLuint positionAttrib;
 GLuint elapsedTimeUniform;
 
 void InitializeProgram()
@@ -21,8 +20,6 @@ void InitializeProgram()
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "FragPosition.frag"));
 
 	theProgram = Framework::CreateProgram(shaderList);
-
-	positionAttrib = glGetAttribLocation(theProgram, "position");
 }
 
 const float vertexData[] = {
@@ -65,12 +62,12 @@ void display()
 	glUseProgram(theProgram);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glEnableVertexAttribArray(positionAttrib);
-	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(positionAttrib);
+	glDisableVertexAttribArray(0);
 	glUseProgram(0);
 
 	glutSwapBuffers();

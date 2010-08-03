@@ -123,12 +123,12 @@
     glUseProgram(theProgram);
     
     glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-    glEnableVertexAttribArray(positionAttrib);
-    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
-    glDisableVertexAttribArray(positionAttrib);
+    glDisableVertexAttribArray(0);
     glUseProgram(0);
     
     glutSwapBuffers();
@@ -174,9 +174,9 @@
             vertex shader used here is as follows:</para>
         <example>
             <title>Offsetting Vertex Shader</title>
-            <programlisting>#version 150
+            <programlisting>#version 330
 
-in vec4 position;
+layout(location = 0) in vec4 position;
 uniform vec2 offset;
 
 void main()
@@ -202,19 +202,21 @@ void main()
             variables defined as <literal>in</literal>. Input variables change with every execution
             of the shader. Uniform variables (called <glossterm>uniforms</glossterm>) change only
             between executions of rendering calls. And even then, they only change when the user
-            sets them explicitly to a value. </para>
+            sets them explicitly to a new value. </para>
         <para>Vertex shader inputs come from vertex attribute array definitions and buffer objects.
             By contrast, uniforms are set directly on program objects.</para>
         <para>In order to set a uniform in a program, we need two things. The first is a uniform
-            location. Much like with attributes, you must get an index that refers to the uniform
-            name. In this tutorial, this is done in the <function>InitializeProgram</function>
-            function, with this line:</para>
+            location. Much like with attributes, there is an index that refers to a specific uniform
+            value. Unlike attributes, you cannot set this location yourself; you must query it. In
+            this tutorial, this is done in the <function>InitializeProgram</function> function, with
+            this line:</para>
         <programlisting>offsetLocation = glGetUniformLocation(theProgram, "offset");</programlisting>
         <para>The function <function>glGetUniformLocation</function> retrieves the uniform location
-            for the uniform named by the second parameter. Note that, just because a uniform is
+            for the uniform named by the second parameter. Note that just because a uniform is
             defined in a shader, GLSL does not <emphasis>have</emphasis> to provide a location for
-            it. It will only if the uniform is actually used in the program, as we see in the vertex
-            shader.</para>
+            it. It will only have a location if the uniform is actually used in the program, as we
+            see in the vertex shader; <function>glGetUniformLocation</function> will return -1 if
+            the uniform has no location.</para>
         <para>Once we have the uniform location, we can set the uniform's value. However, unlike
             retrieving the uniform location, setting a uniform's value requires that the program be
             currently in use with <function>glUseProgram</function>. Thus, the rendering code looks
@@ -234,12 +236,12 @@ void main()
     glUniform2f(offsetLocation, fXOffset, fYOffset);
     
     glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-    glEnableVertexAttribArray(positionAttrib);
-    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
-    glDisableVertexAttribArray(positionAttrib);
+    glDisableVertexAttribArray(0);
     glUseProgram(0);
     
     glutSwapBuffers();
@@ -282,9 +284,9 @@ gl_Position.w = position.w + totalOffset.w;</programlisting>
         <para>The vertex program is found in <filename>data\calcOffset.vert</filename>.</para>
         <example>
             <title>Offset Computing Vertex Shader</title>
-            <programlisting>#version 150
+            <programlisting>#version 330
 
-in vec4 position;
+layout(location = 0) in vec4 position;
 uniform float loopDuration;
 uniform float time;
 
@@ -321,12 +323,12 @@ void main()
     glUniform1f(elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000.0f);
     
     glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-    glEnableVertexAttribArray(positionAttrib);
-    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
     
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
-    glDisableVertexAttribArray(positionAttrib);
+    glDisableVertexAttribArray(0);
     glUseProgram(0);
     
     glutSwapBuffers();
@@ -349,7 +351,6 @@ void main()
     
     theProgram = Framework::CreateProgram(shaderList);
     
-    positionAttrib = glGetAttribLocation(theProgram, "position");
     elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
     
     GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
@@ -377,7 +378,7 @@ void main()
                 <filename>data\calcColor.frag</filename>:</para>
         <example>
             <title>Time-based Fragment Shader</title>
-            <programlisting>#version 150
+            <programlisting>#version 330
 
 out vec4 outputColor;
 
@@ -420,7 +421,6 @@ void main()
     
     theProgram = Framework::CreateProgram(shaderList);
 
-    positionAttrib = glGetAttribLocation(theProgram, "position");
     elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
     
     GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
@@ -602,6 +602,51 @@ void main()
                     </glossdef>
                 </glossentry>
             </glosslist>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>mod</function></funcdef>
+                    <paramdef>vec <parameter>numerator</parameter></paramdef>
+                    <paramdef>float <parameter>denominator</parameter></paramdef>
+                </funcprototype>
+                <funcprototype>
+                    <funcdef>vec <function>mod</function></funcdef>
+                    <paramdef>vec <parameter>numerator</parameter></paramdef>
+                    <paramdef>vec <parameter>denominator</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>The <function>mod</function> function takes the modulus of the
+                    <parameter>numerator</parameter> by the <parameter>denominator</parameter>. The
+                modulus can be thought of as a way of causing a loop; the return value will be on
+                the range [0, <parameter>denominator</parameter>) in a looping fashion.
+                Mathematically, it is defined as <parameter>numerator</parameter> -
+                    (<parameter>denominator</parameter> *
+                    <function>FLOOR</function>(<parameter>numerator</parameter> /
+                    <parameter>denominator</parameter>)), where <function>FLOOR</function> rounds a
+                floating-point value down towards the smallest whole number.</para>
+            <para>The type <type>vec</type> can be either <type>float</type> or any vector type. It
+                must be the same type for all parameters. If a vector denominator is used, then the
+                modulus is taken for each corresponding component. The function returns a vector of
+                the same size as its <parameter>numerator</parameter> type.</para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>cos</function></funcdef>
+                    <paramdef>vec <parameter>angle</parameter></paramdef>
+                </funcprototype>
+                <funcprototype>
+                    <funcdef>vec <function>sin</function></funcdef>
+                    <paramdef>vec <parameter>angle</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>Returns the trigonometric <link
+                    xlink:href="http://en.wikipedia.org/wiki/Sine#Sine.2C_cosine_and_tangent">cosine
+                    or sine</link>, respectively, of the given <parameter>angle.</parameter> The
+                    <parameter>angle</parameter> is given in units of radians. If the
+                    <parameter>angle</parameter> is a vector, then the returned vector will be of
+                the same size, and will be the cosine or sine of each component of the
+                    <parameter>angle</parameter> vector.</para>
         </section>
     </section>
     <section xml:id="Tut03_Glossary">

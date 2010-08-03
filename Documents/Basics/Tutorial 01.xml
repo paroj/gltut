@@ -51,12 +51,12 @@ glClear(GL_COLOR_BUFFER_BIT);
 glUseProgram(theProgram);
 
 glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-glEnableVertexAttribArray(positionAttrib);
-glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 glDrawArrays(GL_TRIANGLES, 0, 3);
 
-glDisableVertexAttribArray(positionAttrib);
+glDisableVertexAttribArray(0);
 glUseProgram(0);
 
 glutSwapBuffers();</programlisting>
@@ -162,15 +162,12 @@ glutSwapBuffers();</programlisting>
                 there is vertex data in this buffer object.</para>
             <para>We do this in the rendering code. That is the purpose of these lines:</para>
             <programlisting>glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-glEnableVertexAttribArray(positionAttrib);
-glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
             <para>The first function we have seen before. It simply says that we are going to use
                 this buffer object.</para>
             <para>The second function, <function>glEnableVertexAttribArray</function> is something
-                we will explain in the next section, when we talk about where
-                    <varname>positionAttrib</varname> comes from. Suffice it to say that this
-                function tells OpenGL that the vertex data called <varname>positionAttrib</varname>
-                will be provided in rendering calls. Without this function, the next one is
+                we will explain in the next section. Without this function, the next one is
                 unimportant.</para>
             <para>The third function is the real key. <function>glVertexAttribPointer</function>,
                 despite having the word <quote>Pointer</quote> in it, does not deal with pointers.
@@ -180,7 +177,7 @@ glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlist
                 function is called is the buffer object that will be associated with this piece of
                 data.</para>
             <para>What this particular function call is saying is this. <quote>The piece of vertex
-                    data called <varname>positionAttrib</varname> comes from the buffer object
+                    data indexed 0 comes from the buffer object
                         <varname>positionBufferObject</varname>. This piece of vertex data contains
                     32-bit float values, and each piece is a sequence of 4 of them. The data starts
                     at the 0th byte of the buffer object, and each set of 4 32-bit floats is tightly
@@ -225,20 +222,21 @@ glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlist
                 forbidden). This is what our simple vertex shader looks like:</para>
             <example>
                 <title>Vertex Shader</title>
-                <programlisting>#version 150
+                <programlisting>#version 330
 
-in vec4 position;
+layout(location = 0) in vec4 position;
 void main()
 {
     gl_Position = position;
 }</programlisting>
             </example>
             <para>This looks fairly simple. The first line states that the version of GLSL used by
-                this shader is version 1.50. A version declaration is required for all GLSL
+                this shader is version 3.30. A version declaration is required for all GLSL
                 shaders.</para>
             <para>The next line defines an input to the vertex shader. The input is called
                     <varname>position</varname> and is of type <type>vec4</type>: a 4-dimensional
-                vector of floating-point values.</para>
+                vector of floating-point values. It also has a layout location of 0; we'll explain
+                that a little later.</para>
             <para>As with C, a shader's execution starts with the <function>main</function>
                 function. This shader is very simple, copying the input <varname>position</varname>
                 into something called <varname>gl_Position</varname>. This is a variable that is
@@ -253,9 +251,9 @@ void main()
             <formalpara>
                 <title>Vertex Attributes</title>
                 <para>Inputs to and outputs from a shader stage come from somewhere and go to
-                    somewhere. Thus, the input <varname>position</varname> must be filled in with
-                    data somewhere. So where does that data come from? Inputs to a vertex shader are
-                    called <glossterm>vertex attributes</glossterm>.</para>
+                    somewhere. Thus, the input <varname>position</varname> in the vertex shader must
+                    be filled in with data somewhere. So where does that data come from? Inputs to a
+                    vertex shader are called <glossterm>vertex attributes</glossterm>.</para>
             </formalpara>
             <para>You might recognize something similar to the term <quote>vertex attribute.</quote>
                 For example, <quote>glEnable<emphasis>VertexAttrib</emphasis>Array</quote> or
@@ -265,17 +263,24 @@ void main()
                     <varname>glVertexAttribPointer</varname>. This function describes where the data
                 for an attribute comes from. The connection between a particular call to
                     <function>glVertexAttribPointer</function> and the string name of an input value
-                to a vertex shader is somewhat complicated. This is where that mysterious variable,
-                    <varname>positionAttrib,</varname> comes into play.</para>
-            <para>The details of compiling a shader will be gone over a bit later, but the
-                connection is made with this call:</para>
-            <programlisting>positionAttrib = glGetAttribLocation(theProgram, "position");</programlisting>
-            <para>The variable <varname>theProgram</varname> represents the vertex shader (and the
-                fragment shader, but that's for later). The function
-                    <function>glGetAttribLocation</function> takes the given string that specifies a
-                vertex input, and it returns a number that represents that particular input. This
-                number is then used in subsequent <function>glVertexAttribPointer</function> calls
-                and the like to represent the attribute for <quote>position.</quote></para>
+                to a vertex shader is somewhat complicated.</para>
+            <para>Each attribute variable, an input to a vertex shader, has an index location called
+                an <glossterm>attribute index</glossterm>. The input in this shader was defined with
+                this statement:</para>
+            <programlisting>layout(location = 0) in vec4 position;</programlisting>
+            <para>The layout location part assigns the attribute index of 0 to
+                    <varname>position</varname>. Attribute indices must be positive numbers, and
+                there is a hardware-based limit on the number of attribute indices that can be in
+                use at any one time.</para>
+            <para>In code, when referring to attributes, they are <emphasis>always</emphasis>
+                referred to by attribute index. The functions
+                    <function>glEnableVertexAttribArray</function>,
+                    <function>glDisableVertexAttribArray</function>,  and
+                    <function>glVertexAttribPointer</function> all take as their first parameter an
+                attribute index. We assigned the attribute index of the <varname>position</varname>
+                attribute to 0 in the vertex shader, so the call to
+                    <function>glEnableVertexAttribArray(0)</function> enables the attribute index
+                for the <varname>position</varname> attribute.</para>
         </section>
         <section>
             <title>Rasterization</title>
@@ -319,11 +324,11 @@ void main()
             <title>Fragment Processing</title>
             <para>A fragment shader is used to compute the output color(s) of a fragment. The inputs
                 of a fragment shader include the window-space XYZ position of the fragment. It can
-                also include user-defined data, but we will get to that.</para>
+                also include user-defined data, but we will get to that in later tutorials.</para>
             <para>Our fragment shader looks like this:</para>
             <example>
                 <title>Fragment Shader</title>
-                <programlisting>#version 150
+                <programlisting>#version 330
 
 out vec4 outputColor;
 void main()
@@ -332,16 +337,32 @@ void main()
 }</programlisting>
             </example>
             <para>As with the vertex shader, the first line states that the shader uses GLSL version
-                1.50.</para>
+                3.30.</para>
             <para>The next line specifies an output for the fragment shader. The output variable is
                 of type <type>vec4</type>.</para>
             <para>The main function simply sets the output color to a 4-dimensional vector, with all
                 of the components as 1.0f. This sets the Red, Green, and Blue components of the
                 color to full intensity, which is 1.0; this creates the white color of the triangle.
                 The fourth component is something we will see in later tutorials.</para>
-            <para>This fragment shader does not do anything with the position input.</para>
+            <para>Though all fragment shaders are provided the window-space position of the
+                fragment, this one does not need it. So it simply does not use it.</para>
             <para>After the fragment shader executes, the fragment output color is written to the
                 output image.</para>
+            <note>
+                <para>In the section on vertex shaders, we had to use the <literal>layout(location =
+                        #)</literal> syntax in order to provide a connection between a vertex shader
+                    input and a vertex attribute index. This was required in order for the user to
+                    connect a vertex array to a vertex shader input. So you may be wondering where
+                    the connection between the fragment shader output and the screen comes
+                    in.</para>
+                <para>OpenGL recognizes that, in a lot of rendering, there is only one logical place
+                    for a fragment shader output to go: the current image being rendered to (in our
+                    case, the screen). Because of that, if you define only one output from a
+                    fragment shader, then this output value will automatically be written to the
+                    current destination image. It is possible to have multiple fragment shader
+                    outputs that go to multiple different destination images; this adds some
+                    complexity, similar to attribute indices. But that is for another time.</para>
+            </note>
         </section>
     </section>
     <section>
@@ -375,8 +396,6 @@ void main()
     shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
     
     theProgram = CreateProgram(shaderList);
-    
-    positionAttrib = glGetAttribLocation(theProgram, "position");
 }</programlisting>
         </example>
         <para>The first statement simply creates a list of the shader objects we intend to link
@@ -499,20 +518,16 @@ void main()
             linking status by calling <function>glGetProgramiv</function> with
                 <literal>GL_LINK_STATUS</literal>. If it is GL_FALSE, then the linking failed and we
             print the linking log. Otherwise, we return the created program.</para>
-        <formalpara>
-            <title>Vertex Attribute Indexes</title>
-            <para>The last line of <function>InitializeProgram</function> is the key to how
-                attributes are linked between the vertex array data and the vertex program's
-                input.</para>
-        </formalpara>
-        <programlisting>positionAttrib = glGetAttribLocation(theProgram, "position");</programlisting>
-        <para>The function <function>glGetAttribLocation</function> takes a successfully linked
-            program and a string naming one of the inputs of the vertex shader in that program. It
-            returns the attribute index of that input. Therefore, when we use this program, if we
-            want to send some vertex data to the <varname>position</varname> input variable, we
-            simply use the <varname>positionAttrib</varname> value we retrieved from
-                <function>glGetAttribLocation</function> in our call to
-                <function>glVertexAttribPointer</function>.</para>
+        <note>
+            <para>In the above shaders, the attribute index for the vertex shader input
+                    <varname>position</varname> was assigned directly in the shader itself. There
+                are other ways to assign attribute indices to attributes besides
+                    <literal>layout(location = #)</literal>. OpenGL will even assign an attribute
+                index if you don't use any of them. Therefore, it is possible that you may not know
+                the attribute index of an attribute. If you need to query the attribute index, you
+                may call <function>glGetAttribLocation</function> with the program object and a
+                string containing the attribute's name.</para>
+        </note>
         <formalpara>
             <title>Using Programs</title>
             <para>To tell OpenGL that rendering commands should use a particular program object, the
@@ -532,9 +547,10 @@ void main()
     <section>
         <?dbhtml filename="Tut01 Cleanup.html" ?>
         <title>Cleanup</title>
-        <para>The tutorial allocates a lot of system resources. It allocates a buffer object, which
-            represents memory on the GPU. It creates two shader objects and a program object. But it
-            never explicitly deletes any of this.</para>
+        <para>The tutorial allocates a lot of OpenGL resources. It allocates a buffer object, which
+            represents memory on the GPU. It creates two shader objects and a program object, all of
+            which stored in memory owned by OpenGL. But it never explicitly deletes any of
+            this.</para>
         <para>Part of this is due to the nature of FreeGLUT, which does not provide hooks for a
             cleanup function. But part of it is also due to the nature of OpenGL itself. In a simple
             example such as this, there is no need to delete anything. OpenGL will clean up its own
@@ -738,6 +754,14 @@ void main()
                         attribute in a particular program object has an index; this index can be queried
                         with <function>glGetAttribLocation</function>. The index is used by the various
                         other vertex attribute functions to refer to that specific attribute.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>attribute index</glossterm>
+                <glossdef>
+                    <para>Each input variable in a vertex shader must be assigned an index number.
+                        This number is used in code to refer to that particular attribute. This
+                        number is the attribute index.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

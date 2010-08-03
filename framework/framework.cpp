@@ -93,7 +93,7 @@ int main(int argc, char** argv)
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL);
 	/* add command line argument "classic" for a pre-3.x context */
 	if ((argc != 2) || (strcmp (argv[1], "classic") != 0)) {
-		glutInitContextVersion (3, 2);
+		glutInitContextVersion (3, 3);
 		glutInitContextProfile(GLUT_CORE_PROFILE);
 	}
 	glutInitWindowSize (500, 500); 

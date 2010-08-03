@@ -64,11 +64,10 @@ GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 }
 
 GLuint theProgram;
-GLuint positionAttrib;
 
 const std::string strVertexShader(
-	"#version 150\n"
-	"in vec4 position;\n"
+	"#version 330\n"
+	"layout(location = 0) in vec4 position;\n"
 	"void main()\n"
 	"{\n"
 	"   gl_Position = position;\n"
@@ -76,7 +75,7 @@ const std::string strVertexShader(
 );
 
 const std::string strFragmentShader(
-	"#version 150\n"
+	"#version 330\n"
 	"out vec4 outputColor;\n"
 	"void main()\n"
 	"{\n"
@@ -92,8 +91,6 @@ void InitializeProgram()
 	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
 
 	theProgram = CreateProgram(shaderList);
-
-	positionAttrib = glGetAttribLocation(theProgram, "position");
 }
 
 const float vertexPositions[] = {
@@ -136,12 +133,12 @@ void display()
 	glUseProgram(theProgram);
 
 	glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-	glEnableVertexAttribArray(positionAttrib);
-	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(positionAttrib);
+	glDisableVertexAttribArray(0);
 	glUseProgram(0);
 
 	glutSwapBuffers();

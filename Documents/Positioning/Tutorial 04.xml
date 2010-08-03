@@ -446,10 +446,10 @@
                 this:</para>
             <example>
                 <title>ManualPerspective Vertex Shader</title>
-                <programlisting><![CDATA[#version 150
+                <programlisting><![CDATA[#version 330
 
-in vec4 position;
-in vec4 color;
+layout(location = 0) in vec4 position;
+layout(location = 1) in vec4 color;
 
 smooth out vec4 theColor;
 
@@ -659,10 +659,10 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
         <para>The vertex shader is much simpler in this case:</para>
         <example>
             <title>MatrixPerspective Vertex Shader</title>
-            <programlisting><![CDATA[#version 150
+            <programlisting><![CDATA[#version 330
 
-in vec4 position;
-in vec4 color;
+layout(location = 0) in vec4 position;
+layout(location = 1) in vec4 color;
 
 smooth out vec4 theColor;
 

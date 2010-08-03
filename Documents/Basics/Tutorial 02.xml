@@ -30,7 +30,7 @@
             one in the last tutorial. The fragment shader is very new, however:</para>
         <example>
             <title>FragPosition's Fragment Shader</title>
-            <programlisting><![CDATA[#version 150
+            <programlisting><![CDATA[#version 330
 
 out vec4 outputColor;
 
@@ -160,15 +160,15 @@ void main()
     glUseProgram(theProgram);
     
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glEnableVertexAttribArray(positionAttrib);
-    glEnableVertexAttribArray(colorAttrib);
-    glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
-    glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
     
     glDrawArrays(GL_TRIANGLES, 0, 3);
     
-    glDisableVertexAttribArray(positionAttrib);
-    glDisableVertexAttribArray(colorAttrib);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
     glUseProgram(0);
     
     glutSwapBuffers();
@@ -249,10 +249,10 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
             <para>Our new vertex shader looks like this:</para>
             <example>
                 <title>Multi-input Vertex Shader</title>
-                <programlisting><![CDATA[#version 150
+                <programlisting><![CDATA[#version 330
 
-in vec4 position;
-in vec4 color;
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec4 color;
 
 smooth out vec4 theColor;
 
@@ -266,16 +266,10 @@ void main()
             <para>The declaration of the global <varname>color</varname> defines a new input for the
                 vertex shader. So this shader, in addition to taking an input named
                     <varname>position</varname> also takes a second input named
-                    <varname>color</varname>. As with the <varname>position</varname> input, the
-                tutorial queries the attribute location after the program is linked with the
-                    <function>glGetAttribLocation</function>:</para>
-            <example>
-                <title>Querying the Attributes</title>
-                <programlisting>positionAttrib = glGetAttribLocation(theProgram, "position");
-colorAttrib = glGetAttribLocation(theProgram, "color");</programlisting>
-            </example>
-            <para>The <varname>colorAttrib</varname> variable is used later when defining the
-                attribute arrays for rendering.</para>
+                    <varname>color</varname>. As with the <varname>position</varname> input, this
+                tutorial assigns each attribute to an attribute index. <varname>position</varname>
+                is assigned the attribute index 0, while <varname>color</varname> is assigned
+                1.</para>
             <para>That much only gets the data into the vertex shader. We want to pass this data out
                 of the vertex shader. To do this, we must define an <glossterm>output
                     variable</glossterm>. This is done using the <literal>out</literal> keyword. In
@@ -301,7 +295,7 @@ colorAttrib = glGetAttribLocation(theProgram, "color");</programlisting>
             <para>The new fragment shader looks like this:</para>
             <example>
                 <title>Fragment Shader with Input</title>
-                <programlisting><![CDATA[#version 150
+                <programlisting><![CDATA[#version 330
 
 smooth in vec4 theColor;
 
@@ -337,7 +331,7 @@ void main()
             <para>The fragment shader is not run 3 times. It is run once for every fragment produced
                 by the rasterizer for this triangle. The number of fragments produced by a triangle
                 depends on the viewing resolution and how much area of the screen the triangle
-                covers. An equilateral triangle the length of who's sides is 1 has an area of
+                covers. An equilateral triangle the length of who's sides are 1 has an area of
                 ~0.433. The total screen area (on the range [-1, 1] in X and Y) is 4, so our
                 triangle covers approximately one-tenth of the screen. The window's natural
                 resolution is 500x500 pixels. 500*500 is 250,000 pixels; one-tenth of this is
@@ -358,10 +352,11 @@ void main()
                 alternatives: <literal>noperspective</literal> and <literal>flat</literal>.</para>
             <para>If you were to modify the tutorial and change <literal>smooth</literal> to
                     <literal>noperspective</literal>, you would see no change. That does not mean a
-                change did not happen; our example is too simple for there to actually be a change.
-                The difference between <literal>smooth</literal> and
-                    <literal>noperspective</literal> is subtle, and only matters once we start using
-                more concrete and real tutorials. We will discuss this different much later.</para>
+                change did not happen; our example is just too simple for there to actually be a
+                change. The difference between <literal>smooth</literal> and
+                    <literal>noperspective</literal> is somewhat subtle, and only matters once we
+                start using more concrete and real tutorials. We will discuss this different much
+                later.</para>
             <para>The <literal>flat</literal> interpolation actually turns interpolation off. It
                 essentially says that, rather than interpolating between three values, each fragment
                 of the triangle will simply get the first of the three vertex shader output
@@ -428,6 +423,41 @@ void main()
                         color, based on the screen-space position of the fragment.</para>
                 </listitem>
             </itemizedlist>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>mix</function></funcdef>
+                    <paramdef>vec <parameter>initial</parameter></paramdef>
+                    <paramdef>vec <parameter>final</parameter></paramdef>
+                    <paramdef>float <parameter>alpha</parameter></paramdef>
+                </funcprototype>
+                <funcprototype>
+                    <funcdef>vec <function>mix</function></funcdef>
+                    <paramdef>vec <parameter>initial</parameter></paramdef>
+                    <paramdef>vec <parameter>final</parameter></paramdef>
+                    <paramdef>vec <parameter>alpha</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>Performs a linear interpolation between <parameter>initial</parameter>,
+                    <parameter>final</parameter>, based on <parameter>alpha</parameter>. An
+                    <parameter>alpha</parameter> value of 0 means that the
+                    <parameter>inital</parameter> value is returned, while an
+                    <parameter>alpha</parameter> of 1 means the <parameter>final</parameter> value
+                is returned. The <type>vec</type> type means that the parameter can be a vector or
+                    <type>float</type>. All occurrences of <type>vec</type> must be the same in a
+                particular function call, however, so <parameter>initial</parameter> and
+                    <parameter>final</parameter> must have the same type.</para>
+            <para>The <parameter>alpha</parameter> value can be either a scalar or a vector of the
+                same length as <parameter>initial</parameter> and <parameter>final</parameter>. If
+                it is a scalar, then all of the components of the two values are interpolated by
+                that scalar. If it is a vector, then the components of
+                    <parameter>initial</parameter> and <parameter>final</parameter> are interpolated
+                by their corresponding components of <parameter>alpha</parameter>.</para>
+            <para>If <parameter>alpha</parameter>, or any component of <parameter>alpha</parameter>,
+                is outside of the range [0, 1], then the return value of this function is
+                undefined.</para>
         </section>
     </section>
     <section xml:id="Tut02_Glossary">

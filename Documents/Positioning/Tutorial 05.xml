@@ -155,11 +155,11 @@ glBindVertexArray(vao);]]></programlisting>
   (Pos1, Clr1), (Pos2, Clr2), (Pos3, Clr3),</programlisting>
             <para>12 vertices, which for 4 triangles.</para>
             <note>
-                <para>Each attribute for a vertex uses the <emphasis>same</emphasis> index. That is,
-                    there is only <emphasis>one</emphasis> element array, and the indices fetched
-                    from the array are used for <emphasis>all</emphasis> attributes of the vertex
-                    arrays. So you cannot have an element array for positions and a separate one for
-                    colors; they all have to use the same element array.</para>
+                <para>Each attribute array for a vertex uses the <emphasis>same</emphasis> index.
+                    That is, there is only <emphasis>one</emphasis> element array, and the indices
+                    fetched from the array are used for <emphasis>all</emphasis> attributes of the
+                    vertex arrays. So you cannot have an element array for positions and a separate
+                    one for colors; they all have to use the same element array.</para>
                 <para>This means that there can and often will be some duplication within a
                     particular attribute array. For example, in order to have solid face colors, we
                     will still have to replicate the color for every position of that triangle. And
@@ -187,7 +187,7 @@ glBindVertexArray(vao);]]></programlisting>
                     bound to; buffer objects can be bound to multiple targets. So it is perfectly
                     legal to use the same buffer object to store vertex attributes and element
                     arrays (and, FYI, any data for any other use of buffer objects that exists in
-                    OpenGL). Obviously, the different data would be in separate parts of the
+                    OpenGL). Obviously, the different data would be in separate regions of the
                     buffer.</para>
             </note>
             <para>In order to do indexed drawing, we must bind the buffer to
@@ -261,10 +261,10 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
     size_t colorDataOffset = sizeof(float) * 3 * numberOfVertices;
     
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glEnableVertexAttribArray(positionAttrib);
-    glEnableVertexAttribArray(colorAttrib);
-    glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
     
     glBindVertexArray(0);
@@ -276,10 +276,10 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
     colorDataOffset += sizeof(float) * 4 * (numberOfVertices/2);
 
     //Use the same buffer object previously bound to GL_ARRAY_BUFFER.
-    glEnableVertexAttribArray(positionAttrib);
-    glEnableVertexAttribArray(colorAttrib);
-    glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 0, (void*)posDataOffset);
-    glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)posDataOffset);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
     
     glBindVertexArray(0);
@@ -477,10 +477,10 @@ glBindVertexArray(vao);
 
 size_t colorDataOffset = sizeof(float) * 3 * numberOfVertices;
 glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-glEnableVertexAttribArray(positionAttrib);
-glEnableVertexAttribArray(colorAttrib);
-glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+glEnableVertexAttribArray(0);
+glEnableVertexAttribArray(1);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
 
 glBindVertexArray(0);</programlisting>
@@ -510,14 +510,14 @@ glUseProgram(0);</programlisting>
                 the same index data. The more compelling way to use it is with objects that have
                 different index data. Of course, if objects have different index data, you may be
                 wondering why you would bother with BaseVertex when you could just manually add the
-                offset to the index data when you create the element buffer.</para>
+                offset to the indices themselves when you create the element buffer.</para>
             <para>There are several reasons not to do this. One of these is that
                     <literal>GL_UNSIGNED_INT</literal> is twice as large as
-                    <literal>GL_UNSIGNED_SHORT</literal>. If you have more than 65,536 attribute
-                values in an array, whether for one object or for many, you would need to use ints
-                instead of shorts for indices. Using ints can hurt performance, particularly on
-                older hardware with less bandwidth. With BaseVertex, you can use shorts for
-                everything, unless a particular object has more than 65,536 vertices.</para>
+                    <literal>GL_UNSIGNED_SHORT</literal>. If you have more than 65,536 entries in an
+                array, whether for one object or for many, you would need to use ints instead of
+                shorts for indices. Using ints can hurt performance, particularly on older hardware
+                with less bandwidth. With BaseVertex, you can use shorts for everything, unless a
+                particular object itself has more than 65,536 vertices.</para>
             <para>The other reason not to manually bias the index data is to more accurately match
                 the files you are using. When loading indexed mesh data from files, the index data
                 is not biased by a base vertex; it is all relative to the model's start. So it makes

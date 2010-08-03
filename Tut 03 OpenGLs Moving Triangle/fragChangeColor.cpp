@@ -7,7 +7,6 @@
 #include "../framework/framework.h"
 
 GLuint theProgram;
-GLuint positionAttrib;
 GLuint elapsedTimeUniform;
 
 void InitializeProgram()
@@ -19,7 +18,6 @@ void InitializeProgram()
 
 	theProgram = Framework::CreateProgram(shaderList);
 
-	positionAttrib = glGetAttribLocation(theProgram, "position");
 	elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
 
 	GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
@@ -74,12 +72,12 @@ void display()
 	glUniform1f(elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000.0f);
 
 	glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-	glEnableVertexAttribArray(positionAttrib);
-	glVertexAttribPointer(positionAttrib, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(positionAttrib);
+	glDisableVertexAttribArray(0);
 	glUseProgram(0);
 
 	glutSwapBuffers();
