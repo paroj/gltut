@@ -24,6 +24,8 @@
             themselves. Each <filename>Tut*</filename> directory has the code for the various
             tutorials. The <filename>framework</filename> directory simply contains utility code
             that is commonly used by each tutorial.</para>
+        <para>Each tutorial contains one or more projects; each project is referenced in the text
+            for that tutorial.</para>
         <para>The <filename>Documents</filename> directory contains the source for the text
             documentation explaining how these tutorials work. This source is in xml files using the
             DocBook 5.0 format.</para>

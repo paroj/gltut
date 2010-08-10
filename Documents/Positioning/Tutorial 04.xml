@@ -573,7 +573,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             <para>But it probably wouldn't be as fast as the swizzle and vector math version.</para>
         </section>
     </section>
-    <section>
+    <section xml:id="Tut04_matrix">
         <?dbhtml filename="Tut04 The Matrix Has You.html" ?>
         <title>The Matrix has You</title>
         <para>So, now that we can put the world into perspective, let's do it the right way. The

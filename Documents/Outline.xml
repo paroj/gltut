@@ -230,8 +230,7 @@
                     <para>Handle object hierarchies with a matrix stack.</para>
                 </listitem>
                 <listitem>
-                    <para>Uniform Buffer Objects. Use multiple different programs, so have UBOs for
-                        the shared data. Use std140 layout.</para>
+                    <para>Gimbol Lock.</para>
                 </listitem>
             </itemizedlist>
             <para>Tutorial sub-files:</para>
@@ -273,8 +272,8 @@
                         space.</para>
                 </listitem>
                 <listitem>
-                    <para>Transform composition. Taking multiple transformation matrices and
-                        converting them into one matrix.</para>
+                    <para>Uniform Buffer Objects. Use multiple different programs, so have UBOs for
+                        the shared data. Use std140 layout.</para>
                 </listitem>
                 <listitem>
                     <para>The dangers of having an explicit world space (precision problems with
@@ -324,6 +323,9 @@
             <itemizedlist>
                 <listitem>
                     <para>Limitations of per-vertex lighting.</para>
+                </listitem>
+                <listitem>
+                    <para>Scaling and normal transformation.</para>
                 </listitem>
                 <listitem>
                     <para>Implementing per-fragment lighting.</para>

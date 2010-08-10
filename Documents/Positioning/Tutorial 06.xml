@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <title>Objects in Motion</title>
+    <para>In this tutorial, we will look at a number of ways to transform objects, rendering them in
+        different locations and orientations in the world.</para>
+    <section>
+        <title>Spaces</title>
+        <para>Throughout this series of tutorials, we have discussed a number of different spaces.
+            We have seen OpenGL-defined spaces like normalized device coordinate (NDC) space,
+            clip-space, and window space. And we have seen user-defined spaces like camera space.
+            But we have yet to talk about what a space actually is.</para>
+        <para>A <glossterm>space</glossterm> is a shorthand term for a <glossterm>coordinate
+                system.</glossterm> For the purposes of this conversation, a coordinate system or
+            space consists of the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>The dimensionality of the space. 2D, 3D, 4D, etc.</para>
+            </listitem>
+            <listitem>
+                <para>A series of directions in those dimensions that define the axes of the space.
+                    The directions do not have to be orthogonal (at right-angles) to one another,
+                    but there must be one axis per dimension. Each axis vector in the space has a
+                    name, like X, Y, Z, etc.</para>
+            </listitem>
+            <listitem>
+                <para>A location in the space that defines the central <glossterm>origin</glossterm>
+                    point. The origin is the point from which all other points in the space are
+                    derived.</para>
+            </listitem>
+            <listitem>
+                <para>An area within this space in which points are valid. Outside of this range,
+                    positions are not valid. The range can be infinite depending on the
+                    space.</para>
+            </listitem>
+        </itemizedlist>
+        <para>A position or vertex in a space is defined as the sum of the axis vectors, where each
+            axis vector is multiplied by a value called a coordinate. Any point in the space is thus
+            defined by this equation:</para>
+        <!--TODO: Show the vectoral equation defining a point.-->
+        <para>The coordinate used to refer to a position depends entirely on the coordinate system
+            being used to describe that position. For example, here are two positions that appear
+            the same, from a neutral observer's point of view, that have completely different
+            coordinates.</para>
+        <!--TODO: Show a 2D orthogonal and 2D skewed coordinate system, and the same coordinate position from both.-->
+        <para>This is all well and good when dealing with axis vectors and the origin point as
+            generic quantities: simple directions from a neutral point of view. But what happens
+            when you give them a particular value? What does the value of, for example, the X axis
+            vector mean? After all, it is a coordinate, and all coordinates are defined relative to
+            some space. So what is the space of the axis vectors or origin points? Or more to the
+            point, what is a <quote>neutral point of view?</quote></para>
+        <para>There is a coordinate system that acts as an identity coordinate system; it can be
+            used as a generic viewpoint for a coordinate system. For a three-dimensional coordinate
+            system, this identity space has the origin at (0, 0, 0), with the X, Y and Z axis
+            vectors as (1, 0, 0), (0, 1, 0), and (0, 0, 1). The range of the space is infinite. Any
+            space can be defined relative to this identity space. And unless otherwise noted, this
+            is the space of any axis vectors or origin points.</para>
+        <section>
+            <title>Transformation</title>
+            <para>In the more recent tutorials, the ones dealing with perspective projections, we
+                have been taking positions in one coordinate system (space) and putting them in
+                another coordinate system. The process of taking a coordinate in one space and
+                making it relative to another space is called
+                <glossterm>transformation</glossterm>.</para>
+            <para>We have seen, and implemented, a number of coordinate system transformations.
+                OpenGL implements the transformation from clip-space to NDC space, and the
+                transformation from NDC to window space. Our shaders implement the transformation
+                from camera space to clip-space, and this was done using a matrix. Perspective
+                projection (and orthographic, for that matter) are simply a special kind of
+                transformation.</para>
+            <para>This tutorial will cover a large number of different kinds of transform
+                operations, and how to implement them in OpenGL.</para>
+        </section>
+        <section>
+            <title>Model Space</title>
+            <para>Before we begin, we must define a new kind of space: <glossterm>model
+                    space,</glossterm> sometimes called <glossterm>object space.</glossterm> This is
+                a user-defined space; but unlike camera space, model space does not have a single
+                definition. It is instead a catch-all term for the space that a particular object
+                begins in. Coordinates in vertex buffers, passed to the vertex shaders as vertex
+                attributes are <foreignphrase>de facto</foreignphrase> in model space.</para>
+            <para>There are an infinite variety of model spaces. Each object one intends to render
+                can, and often does, have its own model space, even if the difference between these
+                spaces is only in the origin point. Model spaces for an object are generally defined
+                for the convenience of the modeller or the programmer who intends to use that
+                model.</para>
+            <para>The transformation operation being discussed in this tutorial is the transform
+                from model space to camera space. Our shaders already know how to handle
+                camera-space data; all they need is a way to transform from model space to camera
+                space.</para>
+        </section>
+    </section>
+    <section>
+        <title>Translation</title>
+        <para>The simplest space transformation operation is translation. Indeed, we have not only
+            seen this transform before, it has been used in all of the tutorials with a perspective
+            projection. Remember this line from the vertex shaders:</para>
+        <programlisting>vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);</programlisting>
+        <para>This is a <glossterm>translation</glossterm> transformation: it is used to position
+            the origin point of the initial space relative to the destination space. Since all of
+            the coordinates in a space are relative to the origin point of that space, all a
+            translation needs to do is add a vector to all of the coordinates in that space. The
+            vector added tothese values is the location of where the user wants the origin point
+            relative to the destination coordinate system.</para>
+        <para>Here is a more concrete example. Let us say that an object which in its model space is
+            near its origin. This means that, if we want to see that object in front of the camera,
+            we must position the origin of the model in front of the camera. If the extent of the
+            model is only [-1, 1] in model space, we can ensure that the object is visible by adding
+            this vector to all of the model space coordinates: (0, 0, -3). This puts the origin of
+            the model at that position in camera space.</para>
+        <!--TODO: 2D diagram of this translation.-->
+        <para>Translation is ultimately just that simple. So let's make it needlessly complex. And
+            the best tool for doing that: matrices. Oh, we could just use a 3D uniform vector to
+            pass an offset to do the transformation. But matrices have hidden benefits we will
+            explore... soon.</para>
+        <para>All of our position vectors are 4D vectors, with a final W coordinate that is always
+            1.0. In <link linkend="Tut04_matrix">Tutorial 04,</link> we took advantage of this with
+            our perspective transformation matrix. The equation for the Z coordinate needed an
+            additive term, so we put that term in the W column of the transformation matrix. Matrix
+            multiplication causes the value in the W column to be multiplied by the W coordinate of
+            the vector (which is 1) and added to the sum of the other terms.</para>
+        <para>But how do we keep the matrix from doing something to the other terms? We only want
+            this matrix to apply an offset to the position. We don't want to have it modify the
+            position in some other way.</para>
+        <para>This is done by modifying an <glossterm>identity matrix.</glossterm> An identity
+            matrix is a matrix that, when performing matrix multiplication, will return the original
+            value. It is sort of like the number 1 with regular multiplication: 1*X = X. The 4x4
+            identity matrix looks like this:</para>
+        <!--TODO: An identity matrix.-->
+        <para>To modify the identity matrix into one that is suitable for translation, we simply put
+            the offset into the W column of the identity matrix.</para>
+        <!--TODO: The translation matrix.-->
+        <para>The tutorial project cleverly titled <phrase role="propername">Translation</phrase>
+            performs translation operations.</para>
+        <para>This tutorial renders 3 of the same object, all in different positions. One of the
+            objects is positioned in the center of the screen, and the other two's positions orbit
+            it at various speeds.</para>
+        <para>Because of the prevalence of matrix math, this is the first tutorial that uses the GLM
+            math library. So let's take a look at the shader program initialization code to see it
+            in action.</para>
+        <example>
+            <title>Translation Shader Initialization</title>
+            <programlisting>void InitializeProgram()
+{
+    std::vector&lt;GLuint> shaderList;
+    
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "PosColorLocalTransform.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "ColorPassthrough.frag"));
+    
+    theProgram = Framework::CreateProgram(shaderList);
+    
+    positionAttrib = glGetAttribLocation(theProgram, "position");
+    colorAttrib = glGetAttribLocation(theProgram, "color");
+    
+    modelToCameraMatrixUnif = glGetUniformLocation(theProgram, "modelToCameraMatrix");
+    cameraToClipMatrixUnif = glGetUniformLocation(theProgram, "cameraToClipMatrix");
+    
+    float fzNear = 1.0f; float fzFar = 45.0f;
+    
+    cameraToClipMatrix[0].x = fFrustumScale;
+    cameraToClipMatrix[1].y = fFrustumScale;
+    cameraToClipMatrix[2].z = (fzFar + fzNear) / (fzNear - fzFar);
+    cameraToClipMatrix[2].w = -1.0f;
+    cameraToClipMatrix[3].z = (2 * fzFar * fzNear) / (fzNear - fzFar);
+    
+    glUseProgram(theProgram);
+    glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(cameraToClipMatrix));
+    glUseProgram(0);
+}</programlisting>
+        </example>
+        <para>GLM takes a unique approach, for a vector/matrix math library. It attempts to emulate
+            GLSL's approach to vector operations where possible. It uses C++ operator overloading to
+            effectively emulate GLSL. In most cases, GLM-based code would compile in GLSL.</para>
+        <para>The matrix <varname>cameraToClipMatrix</varname> is defined as a
+                <type>glm::mat4</type>, which has the same properties as a GLSL <type>mat4.</type>
+            Array indexing of a <type>mat4</type>, whether GLM or GLSL, returns the zero-based
+                <emphasis>column</emphasis> of the matrix as a <type>vec4</type>.</para>
+        <para>The <function>glm::value_ptr</function> function is used to get a direct pointer to
+            the matrix data, in column-major order. This is useful for uploading data to OpenGL, as
+            shown with the call to <function>glUniformMatrix4fv</function>.</para>
+        <para>With the exception of getting a second uniform location (for our model transformation
+            matrix), this code functions exactly as it did in previous tutorials.</para>
+        <para>There is one important note: <varname>fFrustumScale</varname> is not 1.0 anymore.
+            Until now, the relative sizes of objects were not particularly meaningful. Now that we
+            are starting to deal with more complex objects that have a particular scale, picking a
+            proper field of view for the perspective projection is very important.</para>
+        <para>The new <varname>fFrustumScale</varname> is computed with this code:</para>
+        <example>
+            <title>Frustum Scale Computation</title>
+            <programlisting>float CalcFrustumScale(float fFovDeg)
+{
+    const float degToRad = 3.14159f * 2.0f / 360.0f;
+    float fFovRad = fFovDeg * degToRad;
+    return 1.0f / tan(fFovRad / 2.0f);
+}
+
+const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
+        </example>
+        <para>The function <function>CalcFrustumScale</function> computes the frustum scale based on
+            a field-of-view angle in degrees. The field of view in this case is the angle between
+            the forward direction and the direction of the farmost-extent of the view.</para>
+        <para>This code, and most of those that are part of this section, use a fairly complex bit
+            of code to manage the transform matrices for the various object instances. There is an
+                <classname>Instance</classname> object for each actual object; it has a function
+            pointer that is used to compute the object's offset position. The
+                <classname>Instance</classname> object then takes that position and computes a
+            transformation matrix, based on the current elapsed time, with this function:</para>
+        <example>
+            <title>Translation Matrix Generation</title>
+            <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
+{
+    glm::mat4 theMat(1.0f);
+    
+    theMat[3] = glm::vec4(CalcOffset(fElapsedTime), 1.0f);
+    
+    return theMat;
+}</programlisting>
+        </example>
+        <para>The <type>glm::mat4</type> constructor that takes only a single value constructs what
+            is known as a diagonal matrix. That is a matrix with all zeros except for along the
+            diagonal from the upper-left to the lower-right. The values along that diagonal will be
+            the value passed to the constructor. An identity matrix is just a diagonal matrix with 1
+            as the value along the diagonal.</para>
+        <para>This function simply replaces the W column of the matrix with the offset value.</para>
+    </section>
+    <section>
+        <title>Scale</title>
+        <para>Another kind of transformation is <glossterm>scaling</glossterm>. In terms of our
+            previous definition of a coordinate system, this means that our axis vectors are getting
+            shorter or longer.</para>
+        <!--TODO: show a 2D scaling transform.-->
+        <para>Scaling can be uniform, which means each axis vector is scaled by the same value. A
+            non-uniform scale means that each axis can get a different scale, or none at all.</para>
+        <para>Uniform scales are used to allow objects in model space to have different units from
+            the units used in camera space. For example, a modeller may have generated the model in
+            inches, but the world uses centimeters. This will require applying a uniform scale to
+            all of these models to compensate for this. This scale should be 2.54, which is the
+            conversion factor from inches to centimeters.</para>
+        <para>Note that scaling always happens relative to the origin of the space being
+            scaled.</para>
+        <para>Remember how we defined the way coordinate systems generate a position, based on the
+            axis vectors and origin point?</para>
+        <!--TODO: the vector equation from before-->
+        <para>If you are increasing or decreasing the length of the axis vectors, this is the same
+            as multiplying those axis vectors by the new length. So we can re-express this equation
+            as follows:</para>
+        <!--TODO: scaled version of vector equation-->
+        <para>Since multiplication is both associative and commutative, we can multiply the scales
+            directly into the coordinates to achieve the same effect. So a scaled space can be
+            reexpressed as simply multiplying the coordinate values.</para>
+        <para>This is easy enough to do in GLSL, if you pass a vector uniform containing the scale
+            values. But how do we express this as a matrix?</para>
+        <para>This gets a bit technical, in terms of how a matrix multiplication works. But look
+            back at the identity matrix:</para>
+        <!--TODO: identity matrix again.-->
+        <para>This matrix selects each coordinate in turn from the vector it is being multiplied
+            into. Each row is multiplied with the column of the vector; all of the zeros remove the
+            components of the vector that we do not want. The one multiplies into the component we
+            do want, thus selecting it. This produces the identity result: the vector we started
+            with.</para>
+        <para>We can see that, if the ones were some other value, we would get a scaled version of
+            the original vector, depending on which ones were changed. Thus, a scaling
+            transformation matrix looks like this:</para>
+        <!--TODO: scaling transform matrix.-->
+        <para>You may start to see a pattern emerging here, something that begins to suggest why
+            matrices are very, very useful. I won't spoil it for you, yet.</para>
+        <para>The tutorial project <phrase role="propername">Scale</phrase> will display 5 objects
+            at various scales. The objects are all at the same Z distance from the camera, so the
+            only size difference between the objects is the scale effects applied to them. The
+            object in the center is unscaled; each of the other objects has a scale function of some
+            kind applied to them.</para>
+        <para>Other than the way the tutorial builds its matrices, there is no difference between
+            this tutorial project and the previous one. The matrix building code works as
+            follows:</para>
+        <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
+{
+    glm::vec3 theScale = CalcScale(fElapsedTime);
+    glm::mat4 theMat(1.0f);
+    theMat[0].x = theScale.x;
+    theMat[1].y = theScale.y;
+    theMat[2].z = theScale.z;
+    theMat[3] = glm::vec4(offset, 1.0f);
+    
+    return theMat;
+}</programlisting>
+        <para>As before, the scale is supplied by a number of scale functions, depending on which
+            instance is being rendered. The scale is stored in the columns of the identity matrix.
+            Then the translation portion of the matrix is filled in.</para>
+        <para>The <varname>offset</varname> variable is also a member of the
+                <classname>Instance</classname> object. Unlike the last tutorial, the offset is a
+            fixed value. We will discuss the ramifications of applying multiple transforms later;
+            suffice it to say, this currently works.</para>
+        <para>Scaling is only slightly more complicated than translation.</para>
+    </section>
+    <section>
+        <title>Rotation</title>
+        <para>A <glossterm>rotation</glossterm> transformation is the result of the orientation of a
+            space being different from the orientation of the destination space. The axis vectors
+            have not changed relative to one another, but relative to the destination coordinate
+            system, they are pointed in different directions than they were in their own coordinate
+            system. A rotation looks like this:</para>
+        <!--TODO: Show a rotation transformation-->
+        <para>Rotations are usually considered the most complex of transformations, primarily
+            because of the math involved in computing the transformation matrix. Generally,
+            rotations are looked at as an operation, such as rotating around a particular axis or
+            some such. However, the prior part of the tutorial laid down some of the groundwork that
+            will make this much simpler.</para>
+        <para>First, let's look back at our equation for determining what the position of a
+            coordinate is relative to certain coordinate space:</para>
+        <!--TODO: Show the vector equation again-->
+        <para>Doesn't this look a bit familiar? No? Perhaps an alternate look at matrix
+            multiplication would help::</para>
+        <!--TODO: Show a matrix multiplication.-->
+        <para>Does it look familiar <emphasis>now</emphasis>?</para>
+        <para>What this tells us is that the columns of our transformation matrices are, and have
+            always been, nothing more than the axes of a coordinate system. Well, the fourth column
+            is the offset.</para>
+        <para>Transformation ultimately means this: taking the axis vectors and origin point from
+            the original coordinate system and re-expressing them relative to the destination
+            coordinate system.</para>
+        <para>Therefore, if a rotation is simply using a different set of axis directions, then
+            building a rotation transformation matrix simply requires computing a new set of axes
+            that different directions, but have the same length as the original ones. Now, this is
+            not easy; it requires semi-advanced math (which is easily encapsulated into various
+            functions). But no matter how complex the math may be, all it is is a way to compute
+            axis vectors that point in different directions.</para>
+        <para>That is, a rotation matrix is not really a rotation matrix; it is an
+                <emphasis>orientation</emphasis> matrix. It defines the orientation of a space.
+            Remember this, and you will avoid many pitfalls when you start dealing with more complex
+            transformations.</para>
+        <para>A common rotation question is to compute a rotation around an arbitrary axis. Or more
+            correctly, to determine the orientation of a space if it is rotated around an arbitrary
+            axis. The axis of rotation is expressed in terms of the initial space. In 2D, there is
+            only one axis that can be rotated around and still remain within that 2D plane: the
+            Z-axis.</para>
+        <!--TODO: show rotation transform.-->
+        <para>In 3D, there are many possible axes of rotation. It does not have to be one of the
+            initial space's basis axes; it can be any arbitrary direction. Of course, the problem is
+            made much simpler if one rotates only around the primary axes.</para>
+        <para>Deriving these matrix equations is beyond the scope of this tutorial; so instead, we
+            will simply provide them. To perform rotations along the primary axes, use the following
+            matrices:</para>
+        <!--TODO: show the 3 main rotation matrices.-->
+        <para>When using the C library <function>sin</function> and <function>cos</function>
+            functions, the angles must be in radians.</para>
+        <para>As useful as these are, the more generic equation for rotation by an angle about an
+            arbitrary axis is as follows.</para>
+        <!--TODO: Show the angle/axis rotation function.-->
+        <para>All of these matrices are such that, from the point of view of an observer looking
+            down the axis of rotation (the direction of the axis is pointed into the eye of the
+            observer), the object rotates counter-clockwise.</para>
+        <para>The <phrase role="propername">Rotations</phrase> tutorial shows off each of these
+            rotation matrix functions. Similar to how the others work, there are multiple instances
+            rendered based on functions. The function that builds the transformation matrix looks
+            like this:</para>
+        <example>
+            <title>Rotation Transformation Building</title>
+            <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
+{
+    const glm::mat3 &amp;rotMatrix = CalcRotation(fElapsedTime);
+    glm::mat4 theMat(rotMatrix);
+    theMat[3] = glm::vec4(offset, 1.0f);
+    
+    return theMat;
+}</programlisting>
+        </example>
+        <para>The constructor of glm::mat4 that takes a glm::mat3 generates a 4x4 matrix with the
+            3x3 matrix in the top-left corner, and all other positions 0 except the bottom-left
+            corner, which is set to 1. As with the rest of GLM, this works in GLSL as well.</para>
+    </section>
+    <section>
+        <title>Successive Transformations</title>
+        <para>In all of the previous examples except for the translation one, we always combined the
+            transformation with a translation operation. So the scale transform was not a pure scale
+            transform; it was a scale and translate transformation matrix. The translation was there
+            primarily so that we could see everything properly.</para>
+        <para>But these are not the only combinations of transformations that can be performed.
+            Indeed, any combination of transformation operations is possible, though it may not be
+                <emphasis>meaningful.</emphasis></para>
+        <para>Successive transformations can be seen as doing successive multiplication operations.
+            For example, if S is a pure scale matrix, T is a pure translation matrix, and R is a
+            pure scale matrix, then one can easily do the following in a shader:</para>
+        <programlisting>vec4 temp;
+temp = T * position;
+temp = R * temp;
+temp = S * temp;
+gl_Position = cameraToClipMatrix * temp;</programlisting>
+        <para>In mathematical terms, this would be the following series of matrix operations: <inlineequation>
+                <mathphrase>Final = C*S*R*T*position</mathphrase>
+            </inlineequation>, where C is the camera-to-clip space transformation matrix.</para>
+        <!--TODO: show an equation with the various terms.-->
+        <para>This is functional, but not particularly flexible; the series of transforms is baked
+            into the shader. It is also not particularly fast, what with having to do four matrix
+            multiplications, per vertex.</para>
+        <para>Matrix math gives us an opportunity, however. Matrix multiplication is not
+            commutative, so the order of operations cannot be changed. The usual grouping is this: <inlineequation>
+                <mathphrase>Final = C*(S*(R*(T*position)))</mathphrase>
+            </inlineequation>. But this can easily be regrouped as: <inlineequation>
+                <mathphrase>Final = (((C*S)*R)*T)*position</mathphrase>
+            </inlineequation>.</para>
+        <para>This would in fact be slower for the shader to compute, since full matrix-to-matrix
+            multiplication is quite slow. But the quantity <inlineequation>
+                <mathphrase>(((C*S)*R)*T)</mathphrase>
+            </inlineequation> is <emphasis>fixed</emphasis> for all of a given object's vertices.
+            This can be computed on the CPU, and all we have to do is upload a single matrix to
+            OpenGL.</para>
+        <para><emphasis>This</emphasis> is one of the main reasons matrices are used. You can have a
+            transformation sequence with dozens of component transformations, and yet all it takes
+            for the GPU to process this is a single vector/matrix multiplication.</para>
+        <section>
+            <title>Order of Transforms</title>
+            <para>As previously stated, matrix multiplication is not commutative. This means that
+                the combined transform S*T is not the same as T*S. Let us explore this further. This
+                is what these two composite transform matrices look like:</para>
+            <!--TODO: Show T, S, S*T and T*S.-->
+            <para>The transform S*T actually scales the translation part of the resulting matrix.
+                This means that the vertices will not just get farther from each other, but farther
+                    <emphasis>from the origin</emphasis> of the destination space. It is the
+                difference between these two transforms:</para>
+            <!--TODO: Show what the two transforms actually look like.-->
+            <para>If you think about the order of operations, this makes sense. Even though one can
+                think of the combined transform S*T as a single transform, it is ultimately a
+                composite operation. The transformation T happens first; the object is translated
+                into a new position.</para>
+            <para>What you must understand is that something special happens between S and T.
+                Namely, that S is now being applied to positions that are not from model space (the
+                space the original vertices were in), but are in <emphasis>post translation
+                    space.</emphasis> This is an intermediate coordinate system defined by T.
+                Remember: a matrix, even a translation matrix, defines a full-fledged coordinate
+                system.</para>
+            <para>So S now acts on the T-space position of the vertices. T-space has an origin,
+                defined by the matrix T. So the scaling matrix S will scale the points away from the
+                origin point in T-space. Since what you (probably) actually wanted was to scale the
+                points away from the origin point in <emphasis>model space</emphasis>, S needs to
+                come first.</para>
+            <para>Rotation (orientation) matrices have the same issue. The orientation is always
+                local to the origin in the current space of the positions. So a rotation matrix must
+                happen before the translation matrix. Scales generally should happen before
+                orientation; if they happen afterwards, then the scale will be relative to the
+                    <emphasis>new</emphasis> axis orientation, not the model-space one. This is fine
+                if it is a uniform scale, but a non-uniform scale will be problematic.</para>
+        </section>
+        <section>
+            <title>Hierarchical Models</title>
+            <para/>
+        </section>
+    </section>
+    <section>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>space, coordinate system</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>transformation</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>model space, object space</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>translation transform</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>identity matrix</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>scale transform</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>orthogonal</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>rotation transform</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
+</chapter>

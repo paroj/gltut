@@ -32,7 +32,7 @@ void InitializeProgram()
 	std::vector<GLuint> shaderList;
 
 	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "PosColorLocalTransform.vert"));
-	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "Standard.frag"));
+	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "ColorPassthrough.frag"));
 
 	theProgram = Framework::CreateProgram(shaderList);
 
@@ -57,8 +57,8 @@ void InitializeProgram()
 
 const int numberOfVertices = 8;
 
-#define GREEN_COLOR 0.75f, 0.75f, 1.0f, 1.0f
-#define BLUE_COLOR 	0.0f, 0.5f, 0.0f, 1.0f
+#define GREEN_COLOR 0.0f, 1.0f, 0.0f, 1.0f
+#define BLUE_COLOR 	0.0f, 0.0f, 1.0f, 1.0f
 #define RED_COLOR 1.0f, 0.0f, 0.0f, 1.0f
 #define GREY_COLOR 0.8f, 0.8f, 0.8f, 1.0f
 #define BROWN_COLOR 0.5f, 0.5f, 0.0f, 1.0f
