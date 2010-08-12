@@ -10,8 +10,6 @@
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
 GLuint theProgram;
-GLuint positionAttrib;
-GLuint colorAttrib;
 
 GLuint modelToCameraMatrixUnif;
 GLuint cameraToClipMatrixUnif;
@@ -35,9 +33,6 @@ void InitializeProgram()
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "ColorPassthrough.frag"));
 
 	theProgram = Framework::CreateProgram(shaderList);
-
-	positionAttrib = glGetAttribLocation(theProgram, "position");
-	colorAttrib = glGetAttribLocation(theProgram, "color");
 
 	modelToCameraMatrixUnif = glGetUniformLocation(theProgram, "modelToCameraMatrix");
 	cameraToClipMatrixUnif = glGetUniformLocation(theProgram, "cameraToClipMatrix");
@@ -249,10 +244,10 @@ void init()
 
 	size_t colorDataOffset = sizeof(float) * 3 * numberOfVertices;
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-	glEnableVertexAttribArray(positionAttrib);
-	glEnableVertexAttribArray(colorAttrib);
-	glVertexAttribPointer(positionAttrib, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(colorAttrib, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
 
 	glBindVertexArray(0);

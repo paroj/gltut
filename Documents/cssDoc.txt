@@ -35,7 +35,9 @@ Top-level constructs:
     code.varname: Used for variable names.
     code.filename: Used for filenames.
     code.literal: Used for various kinds of literals in code.
+    code.classname: Used for classes.
     span.type: Used for the types of things.
+    span.mathphrase: Used for math phrases.
     
     div.example: Stores the entire example.
         p.title: The title of the example.

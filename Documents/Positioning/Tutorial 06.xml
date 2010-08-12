@@ -394,36 +394,53 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
         <para>This is functional, but not particularly flexible; the series of transforms is baked
             into the shader. It is also not particularly fast, what with having to do four matrix
             multiplications, per vertex.</para>
-        <para>Matrix math gives us an opportunity, however. Matrix multiplication is not
-            commutative, so the order of operations cannot be changed. The usual grouping is this: <inlineequation>
+        <para>Matrix math gives us an optimization. Matrix math is not commutative: <inlineequation>
+                <mathphrase>S*R</mathphrase>
+            </inlineequation> is not the same as <inlineequation>
+                <mathphrase>R*S</mathphrase>
+            </inlineequation>. However, it <emphasis>is</emphasis> associative: <inlineequation>
+                <mathphrase>(S*R)*T</mathphrase>
+            </inlineequation> is the same as <inlineequation>
+                <mathphrase>S*(R*T)</mathphrase>
+            </inlineequation>. The usual grouping for vertex transformation is this: <inlineequation>
                 <mathphrase>Final = C*(S*(R*(T*position)))</mathphrase>
             </inlineequation>. But this can easily be regrouped as: <inlineequation>
                 <mathphrase>Final = (((C*S)*R)*T)*position</mathphrase>
             </inlineequation>.</para>
         <para>This would in fact be slower for the shader to compute, since full matrix-to-matrix
-            multiplication is quite slow. But the quantity <inlineequation>
+            multiplication is much slower than matrix-to-vector multiplication. But the combined
+            matrix <inlineequation>
                 <mathphrase>(((C*S)*R)*T)</mathphrase>
             </inlineequation> is <emphasis>fixed</emphasis> for all of a given object's vertices.
             This can be computed on the CPU, and all we have to do is upload a single matrix to
-            OpenGL.</para>
+            OpenGL. And since we're already uploading a matrix to OpenGL for each object we render,
+            this changes nothing about the overall performance characteristics of the
+            rendering.</para>
         <para><emphasis>This</emphasis> is one of the main reasons matrices are used. You can have a
             transformation sequence with dozens of component transformations, and yet all it takes
             for the GPU to process this is a single vector/matrix multiplication.</para>
         <section>
             <title>Order of Transforms</title>
             <para>As previously stated, matrix multiplication is not commutative. This means that
-                the combined transform S*T is not the same as T*S. Let us explore this further. This
-                is what these two composite transform matrices look like:</para>
+                the combined transform <inlineequation>
+                    <mathphrase>S*T</mathphrase>
+                </inlineequation> is not the same as <inlineequation>
+                    <mathphrase>T*S</mathphrase>
+                </inlineequation>. Let us explore this further. This is what these two composite
+                transform matrices look like:</para>
             <!--TODO: Show T, S, S*T and T*S.-->
-            <para>The transform S*T actually scales the translation part of the resulting matrix.
-                This means that the vertices will not just get farther from each other, but farther
+            <para>The transform <inlineequation>
+                    <mathphrase>S*T</mathphrase>
+                </inlineequation> actually scales the translation part of the resulting matrix. This
+                means that the vertices will not just get farther from each other, but farther
                     <emphasis>from the origin</emphasis> of the destination space. It is the
                 difference between these two transforms:</para>
             <!--TODO: Show what the two transforms actually look like.-->
             <para>If you think about the order of operations, this makes sense. Even though one can
-                think of the combined transform S*T as a single transform, it is ultimately a
-                composite operation. The transformation T happens first; the object is translated
-                into a new position.</para>
+                think of the combined transform <inlineequation>
+                    <mathphrase>S*T</mathphrase>
+                </inlineequation> as a single transform, it is ultimately a composite operation. The
+                transformation T happens first; the object is translated into a new position.</para>
             <para>What you must understand is that something special happens between S and T.
                 Namely, that S is now being applied to positions that are not from model space (the
                 space the original vertices were in), but are in <emphasis>post translation
@@ -431,20 +448,41 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 Remember: a matrix, even a translation matrix, defines a full-fledged coordinate
                 system.</para>
             <para>So S now acts on the T-space position of the vertices. T-space has an origin,
-                defined by the matrix T. So the scaling matrix S will scale the points away from the
-                origin point in T-space. Since what you (probably) actually wanted was to scale the
-                points away from the origin point in <emphasis>model space</emphasis>, S needs to
-                come first.</para>
+                defined by the matrix T. A scaling transformation matrix performs scaling based on
+                the origin point in the space of the vertices being scaled. So the scaling matrix S
+                will scale the points away from the origin point in T-space. Since what you
+                (probably) actually wanted was to scale the points away from the origin point in
+                    <emphasis>model space</emphasis>, S needs to come first.</para>
             <para>Rotation (orientation) matrices have the same issue. The orientation is always
                 local to the origin in the current space of the positions. So a rotation matrix must
                 happen before the translation matrix. Scales generally should happen before
                 orientation; if they happen afterwards, then the scale will be relative to the
                     <emphasis>new</emphasis> axis orientation, not the model-space one. This is fine
                 if it is a uniform scale, but a non-uniform scale will be problematic.</para>
+            <para>There are reasons to put a translation matrix first. If the model-space origin is
+                not the point that you wish to rotate or scale around, then you will need to perform
+                the translation first, then apply a scale or rotation. Doing this multiple times can
+                allow you to scale and rotate about two completely different points. However, this
+                gets progressively more difficult, as each new translation needs to be based on the
+                space of the rotated or scaled points.</para>
         </section>
         <section>
             <title>Hierarchical Models</title>
-            <para/>
+            <para>Successive transforms allow us to create a hierarchy of transformations </para>
+        </section>
+    </section>
+    <section>
+        <title>In Review</title>
+        <para/>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Reverse the order of rotations on the wrist in the Hierarchy tutorial.
+                        Note how this affects the ability to adjust the wrist.</para>
+                </listitem>
+            </itemizedlist>
         </section>
     </section>
     <section>
