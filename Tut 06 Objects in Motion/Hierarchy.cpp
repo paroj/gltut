@@ -245,35 +245,29 @@ glm::mat3 RotateZ(float fAngDeg)
 class MatrixStack
 {
 public:
-	glm::mat4 Top()
+	MatrixStack()
+		: m_currMat(1.0f)
 	{
-		if(m_matrices.empty())
-		{
-			m_matrices.push(glm::mat4(1.0f));
-		}
+	}
 
-		return m_matrices.top();
+	const glm::mat4 &Top()
+	{
+		return m_currMat;
 	}
 
 	void RotateX(float fAngDeg)
 	{
-		const glm::mat4 &top = Top();
-		m_matrices.pop();
-		m_matrices.push(top * glm::mat4(::RotateX(fAngDeg)));
+		m_currMat = m_currMat * glm::mat4(::RotateX(fAngDeg));
 	}
 
 	void RotateY(float fAngDeg)
 	{
-		const glm::mat4 &top = Top();
-		m_matrices.pop();
-		m_matrices.push(top * glm::mat4(::RotateY(fAngDeg)));
+		m_currMat = m_currMat * glm::mat4(::RotateY(fAngDeg));
 	}
 
 	void RotateZ(float fAngDeg)
 	{
-		const glm::mat4 &top = Top();
-		m_matrices.pop();
-		m_matrices.push(top * glm::mat4(::RotateZ(fAngDeg)));
+		m_currMat = m_currMat * glm::mat4(::RotateZ(fAngDeg));
 	}
 
 	void Scale(const glm::vec3 &scaleVec)
@@ -283,9 +277,7 @@ public:
 		scaleMat[1].y = scaleVec.y;
 		scaleMat[2].z = scaleVec.z;
 
-		const glm::mat4 &top = Top();
-		m_matrices.pop();
-		m_matrices.push(top * scaleMat);
+		m_currMat = m_currMat * scaleMat;
 	}
 
 	void Translate(const glm::vec3 &offsetVec)
@@ -293,22 +285,22 @@ public:
 		glm::mat4 translateMat(1.0f);
 		translateMat[3] = glm::vec4(offsetVec, 1.0f);
 
-		const glm::mat4 &top = Top();
-		m_matrices.pop();
-		m_matrices.push(top * translateMat);
+		m_currMat = m_currMat * translateMat;
 	}
 
 	void Push()
 	{
-		m_matrices.push(Top());
+		m_matrices.push(m_currMat);
 	}
 
 	void Pop()
 	{
+		m_currMat = m_matrices.top();
 		m_matrices.pop();
 	}
 
 private:
+	glm::mat4 m_currMat;
 	std::stack<glm::mat4> m_matrices;
 };
 
@@ -632,17 +624,16 @@ void keyboard(unsigned char key, int x, int y)
 	case 27:
 		glutLeaveMainLoop();
 		break;
-	case ',': g_armature.AdjBase(true); break;
-	case '/': g_armature.AdjBase(false); break;
-	case 'l': g_armature.AdjUpperArm(false); break;
-	case '.': g_armature.AdjUpperArm(true); break;
-	case 't': g_armature.AdjLowerArm(false); break;
-	case 'g': g_armature.AdjLowerArm(true); break;
-	case 'w': g_armature.AdjWristPitch(false); break;
-	case 's': g_armature.AdjWristPitch(true); break;
-	case 'a': g_armature.AdjWristRoll(true); break;
-	case 'd': g_armature.AdjWristRoll(false); break;
-
+	case 'a': g_armature.AdjBase(true); break;
+	case 'd': g_armature.AdjBase(false); break;
+	case 'w': g_armature.AdjUpperArm(false); break;
+	case 's': g_armature.AdjUpperArm(true); break;
+	case 'r': g_armature.AdjLowerArm(false); break;
+	case 'f': g_armature.AdjLowerArm(true); break;
+	case 't': g_armature.AdjWristPitch(false); break;
+	case 'g': g_armature.AdjWristPitch(true); break;
+	case 'z': g_armature.AdjWristRoll(true); break;
+	case 'c': g_armature.AdjWristRoll(false); break;
 	case 'q': g_armature.AdjFingerOpen(true); break;
 	case 'e': g_armature.AdjFingerOpen(false); break;
 	case 32: g_armature.WritePose(); break;

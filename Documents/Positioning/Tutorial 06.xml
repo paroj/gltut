@@ -76,11 +76,11 @@
         <section>
             <title>Model Space</title>
             <para>Before we begin, we must define a new kind of space: <glossterm>model
-                    space,</glossterm> sometimes called <glossterm>object space.</glossterm> This is
-                a user-defined space; but unlike camera space, model space does not have a single
-                definition. It is instead a catch-all term for the space that a particular object
-                begins in. Coordinates in vertex buffers, passed to the vertex shaders as vertex
-                attributes are <foreignphrase>de facto</foreignphrase> in model space.</para>
+                    space.</glossterm> This is a user-defined space; but unlike camera space, model
+                space does not have a single definition. It is instead a catch-all term for the
+                space that a particular object begins in. Coordinates in vertex buffers, passed to
+                the vertex shaders as vertex attributes are <foreignphrase>de facto</foreignphrase>
+                in model space.</para>
             <para>There are an infinite variety of model spaces. Each object one intends to render
                 can, and often does, have its own model space, even if the difference between these
                 spaces is only in the origin point. Model spaces for an object are generally defined
@@ -293,48 +293,72 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             fixed value. We will discuss the ramifications of applying multiple transforms later;
             suffice it to say, this currently works.</para>
         <para>Scaling is only slightly more complicated than translation.</para>
+        <section>
+            <title>Inversion</title>
+            <para>Scales can be theoretically negative, or even 0. A scale of 0 causes the axis
+                vector in that direction to become 0 entirely. An axis vector with no length means
+                that a dimension has effectively been lost. The resulting transform squashes
+                everthing in that direction down to the origin. A 3D space becomes a 2D space (or 1D
+                or 0D, depending on how many axes were scaled).</para>
+            <para>A negative scale changes the direction of an axis. This causes vertices
+                transformed with this scale to flip across the origin in that axis's direction. This
+                is called an <glossterm>inversion</glossterm>. This can have certain unintended
+                consequences. In particular, it can change the winding order of vertices.</para>
+            <para>Back in <link endterm="tut04_face_culling">Chapter 4</link>, we introduced the
+                ability to cull triangles based on the order in which the vertices appeared in
+                window space. Depending on which axis you negate, relative to camera space, an
+                inversion can flip the expected winding order of vertices. Thus, triangles that
+                were, in model space, forward-facing now in camera space are backwards-facing. And
+                vice-versa.</para>
+            <para>Negative scaling can have other problems as well. This is not to say that
+                inversions cannot be used, but they should be used with care.</para>
+        </section>
     </section>
     <section>
         <title>Rotation</title>
-        <para>A <glossterm>rotation</glossterm> transformation is the result of the orientation of a
-            space being different from the orientation of the destination space. The axis vectors
-            have not changed relative to one another, but relative to the destination coordinate
-            system, they are pointed in different directions than they were in their own coordinate
-            system. A rotation looks like this:</para>
+        <para>A <glossterm>rotation</glossterm> transformation is the result of the orientation of
+            the initial space being different from the orientation of the destination space. The
+            axis vectors of the space do not changed relative to one another, but relative to the
+            destination coordinate system, they are pointed in different directions than they were
+            in their own coordinate system.</para>
+        <para>A rotation looks like this:</para>
         <!--TODO: Show a rotation transformation-->
         <para>Rotations are usually considered the most complex of transformations, primarily
             because of the math involved in computing the transformation matrix. Generally,
             rotations are looked at as an operation, such as rotating around a particular axis or
-            some such. However, the prior part of the tutorial laid down some of the groundwork that
-            will make this much simpler.</para>
+            some such. The prior part of the tutorial laid down some of the groundwork that will
+            make this much simpler.</para>
         <para>First, let's look back at our equation for determining what the position of a
             coordinate is relative to certain coordinate space:</para>
         <!--TODO: Show the vector equation again-->
-        <para>Doesn't this look a bit familiar? No? Perhaps an alternate look at matrix
-            multiplication would help::</para>
+        <para>Doesn't this look a bit familiar? No? Perhaps an alternate look at vector-matrix
+            multiplication would help:</para>
         <!--TODO: Show a matrix multiplication.-->
         <para>Does it look familiar <emphasis>now</emphasis>?</para>
         <para>What this tells us is that the columns of our transformation matrices are, and have
-            always been, nothing more than the axes of a coordinate system. Well, the fourth column
-            is the offset.</para>
+            always been, nothing more than the axes of a coordinate system. Except for the fourth
+            column: because the position has a 1 in the W, it acts as an offset.</para>
         <para>Transformation ultimately means this: taking the axis vectors and origin point from
             the original coordinate system and re-expressing them relative to the destination
             coordinate system.</para>
-        <para>Therefore, if a rotation is simply using a different set of axis directions, then
+        <para>Therefore, if a rotation is just using a different set of axis directions, then
             building a rotation transformation matrix simply requires computing a new set of axes
             that different directions, but have the same length as the original ones. Now, this is
             not easy; it requires semi-advanced math (which is easily encapsulated into various
-            functions). But no matter how complex the math may be, all it is is a way to compute
-            axis vectors that point in different directions.</para>
+            functions). But no matter how complex the math may be, this is nothing more than a way
+            to compute axis vectors that point in different directions.</para>
         <para>That is, a rotation matrix is not really a rotation matrix; it is an
-                <emphasis>orientation</emphasis> matrix. It defines the orientation of a space.
-            Remember this, and you will avoid many pitfalls when you start dealing with more complex
-            transformations.</para>
+                <emphasis>orientation</emphasis> matrix. It defines the orientation of a space
+            relative to another space. Remember this, and you will avoid many pitfalls when you
+            start dealing with more complex transformations.</para>
+        <para>For any two spaces, the orientation transformation between then can be expressed as
+            rotating the source space by some angle around a particular axis (also in the initial
+            space). This is true for any change of orientation.</para>
         <para>A common rotation question is to compute a rotation around an arbitrary axis. Or more
             correctly, to determine the orientation of a space if it is rotated around an arbitrary
-            axis. The axis of rotation is expressed in terms of the initial space. In 2D, there is
-            only one axis that can be rotated around and still remain within that 2D plane: the
-            Z-axis.</para>
+            axis relative to the initial axis. The axis of rotation is expressed in terms of the
+            initial space. In 2D, there is only one axis that can be rotated around and still remain
+            within that 2D plane: the Z-axis.</para>
         <!--TODO: show rotation transform.-->
         <para>In 3D, there are many possible axes of rotation. It does not have to be one of the
             initial space's basis axes; it can be any arbitrary direction. Of course, the problem is
@@ -467,9 +491,309 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 space of the rotated or scaled points.</para>
         </section>
         <section>
-            <title>Hierarchical Models</title>
-            <para>Successive transforms allow us to create a hierarchy of transformations </para>
+            <title>Transformation Spaces</title>
+            <para>Our scaling transform is interesting, but it does have certain flaws. The most
+                important problem is that it causes a scale based on the X, Y and Z axes of the
+                initial coordinate system. So what do you do if you want to scale something along
+                different axes?</para>
+            <para>This is quite simple, really: you use successive transforms. First, you transform
+                into a space where the <quote>different axes</quote>
+                <emphasis>are</emphasis> the X, Y and Z axes. Then you do your scaling transform.
+                After that, you transform back to the original space.</para>
+            <para>If the different axes represent an orientation change, you can use a rotation
+                matrix. Simply rotate, apply the scale, and rotate back. The last part is done by
+                generating the rotation matrix using the same axis, but negating the angle.</para>
+            <para>Transforming into a space that is convenient for another transform, applying that
+                transform, and then undoing the first transform is a general-purpose operation. The
+                matrix that results from this is a transformation in a different space. In the
+                scaling case, we want to do the scaling in a different space, so we apply a rotation
+                matrix to get into that space, then undo the rotation after applying the
+                scale.</para>
+            <para>The general form of this sequence is as follows. Suppose you have a transformation
+                T, that you wish to apply in the space M. The transformation matrix T in the space
+                of M is <inlineequation>
+                    <mathphrase>M<superscript>-1</superscript>TM</mathphrase>
+                </inlineequation>.</para>
+            <para>The matrix M<superscript>-1</superscript> is the <glossterm>inverse
+                    matrix</glossterm> of M. The symbol <superscript>-1</superscript> does not
+                (strictly) mean to raise the matrix to the -1 power. It simply means to invert
+                it.</para>
+            <para>The inverse matrix of M is the matrix N such that <inlineequation>
+                    <mathphrase>MN = I</mathphrase>
+                </inlineequation>, where I is the identity matrix. This can be analogized to the
+                scalar multiplicative inverse (ie: reciprocal). The scalar multiplicative inverse of
+                X is the number Y such that <inlineequation>
+                    <mathphrase>XY = 1</mathphrase>
+                </inlineequation>.</para>
+            <para>In the case of the scalar inverse, this is very easy to compute: <inlineequation>
+                    <mathphrase>Y = 1/X</mathphrase>
+                </inlineequation>. However, even in this case, there are values of X for which there
+                is no multiplicative inverse. Well, one value of X: 0.</para>
+            <para>The case of the inverse matrix is much more complicated. Just as with the scalar
+                inverse, there are matrices that have no inverse. Unlike the scalar case, there are
+                a <emphasis>lot</emphasis> of matrices with no inverse. Also, computing the inverse
+                matrix is a <emphasis>lot</emphasis> more complicated than simply taking the
+                reciprocal of a value.</para>
+            <para>Most common transformation matrices <emphasis>do</emphasis> have an inverse. And
+                for the simplest of matrices, the inverse matrix is very easy to compute. For a pure
+                rotation matrix, simply compute a new rotation matrix by negating the angle that the
+                old one was generated with. For a translation matrix, negate the origin value in the
+                matrix. For a scale matrix, take the reciprocal of the scale along each axis.</para>
+            <para>To take the inverse of a sequence of matrices, you can take the inverse of each of
+                the component matrices. But you have to do the matrix multiplication in
+                    <emphasis>reverse</emphasis> order. So the inverse matrix for the sequence <inlineequation>
+                    <mathphrase>TRS</mathphrase>
+                </inlineequation> is <inlineequation>
+                    <mathphrase>S<superscript>-1</superscript>R<superscript>-1</superscript>T<superscript>-1</superscript></mathphrase>
+                </inlineequation>.</para>
         </section>
+        <section>
+            <title>Hierarchical Models</title>
+            <para>In more complex scenes, it is often desireable to specify the transform of one
+                model relative to the model space transform of another model. This is useful if you
+                want one object (object B) to pick up another object (object A). The object that
+                gets picked up needs to follow the transform of the object that picked it up. So it
+                is often easiest to specify the transform for object B relative to object A.</para>
+            <para>A conceptually single model that is composed of multiple transforms for multiple
+                rendered objects is called a <glossterm>hierarchical model.</glossterm> In such a
+                hierarchy, the final transform for any of the component pieces is a sequence of all
+                of the transforms of its parent transform, plus its own model space transform.
+                Models in this transform have a parent-child relationship to other objects.</para>
+            <para>For the purposes of this discussion, each complete transform for a model in the
+                hierarchy call be called a <glossterm>node.</glossterm> Each node is defined by a
+                specific series of transformations, which when combined yield the complete
+                transformation matrix for that node. Usually, each node has a translation, rotation,
+                and scale, though the specific transform can be entirely arbitrary. What matters is
+                that the full transformation matrix is relative to the space of its parent, not
+                camera space.</para>
+            <para>So if you have a node who's translation is (3, 0, 4), then it will be 3 X-units
+                and 4 Z-units from the origin of its parent transform. The node itself doesn't know
+                or care what the parent transform actually is; it simply stores a transform relative
+                to that.</para>
+            <para>Technically, a node does not have to have a mesh. It is sometimes useful in a
+                hierarchical model to have nodes that exist solely to position other, visible nodes.
+                Or to act as key points for other purposes, such as identifying the position of the
+                gun's muzzle to render a muzzle flash.</para>
+            <para>The <phrase role="propername">Hierarchy</phrase> tutorial renders a hierarchical
+                model of an arm. This tutorial is interactive; the relative angles of the nodes can
+                be changed with keyboard commands. The angles are bound within certain values, so
+                the model will stop bending once these values are exceeded. These commands are as
+                follows:</para>
+            <table frame="none">
+                <title>Hierarchy Tutorial Key Commands</title>
+                <tgroup cols="3">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c3" colnum="3" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>Node Angle</entry>
+                            <entry>Increase/Left</entry>
+                            <entry>Decrease/Right</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>Base Spin</entry>
+                            <entry><keycap>a</keycap></entry>
+                            <entry><keycap>d</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Arm Raise</entry>
+                            <entry><keycap>w</keycap></entry>
+                            <entry><keycap>s</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Elbow Raise</entry>
+                            <entry><keycap>r</keycap></entry>
+                            <entry><keycap>f</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Wrist Raise</entry>
+                            <entry><keycap>t</keycap></entry>
+                            <entry><keycap>g</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Wrist Spin</entry>
+                            <entry><keycap>z</keycap></entry>
+                            <entry><keycap>c</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Finger Open/Close</entry>
+                            <entry><keycap>q</keycap></entry>
+                            <entry><keycap>e</keycap></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <para>The structure of the tutorial is very interesting and shows off a number of
+                important data structures for doing this kind of rendering.</para>
+            <para>The class <classname>Hierarchy</classname> stores the information for our
+                hierarchy of nodes. It stores the relative positions for each node, as well as angle
+                information and size information for the size of each rectangle. The rendering code
+                in <function>display</function> simply does the usual setup work and calls
+                    <function>Hierarchy::Draw()</function>, where the real work happens.</para>
+            <para>The <function>Draw</function> function looks like this:</para>
+            <example>
+                <title>Hierarchy::Draw</title>
+                <programlisting>void Draw()
+{
+    MatrixStack modelToCameraStack;
+    
+    glUseProgram(theProgram);
+    glBindVertexArray(vao);
+    
+    modelToCameraStack.Translate(posBase);
+    modelToCameraStack.RotateY(angBase);
+    
+    //Draw left base.
+    {
+        modelToCameraStack.Push();
+        modelToCameraStack.Translate(posBaseLeft);
+        modelToCameraStack.Scale(glm::vec3(1.0f, 1.0f, scaleBaseZ));
+        glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelToCameraStack.Top()));
+        glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+        modelToCameraStack.Pop();
+    }
+    
+    //Draw right base.
+    {
+        modelToCameraStack.Push();
+        modelToCameraStack.Translate(posBaseRight);
+        modelToCameraStack.Scale(glm::vec3(1.0f, 1.0f, scaleBaseZ));
+        glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelToCameraStack.Top()));
+        glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+        modelToCameraStack.Pop();
+    }
+    
+    //Draw main arm.
+    DrawUpperArm(modelToCameraStack);
+    
+    glBindVertexArray(0);
+    glUseProgram(0);
+}</programlisting>
+            </example>
+            <para>The program and VAO binding code should look familiar, but most of the code should
+                be fairly foreign.</para>
+            <para>The <classname>MatrixStack</classname> object created in the very first line is a
+                class that is also a part of this project. It implements the concept of a
+                    <glossterm>matrix stack.</glossterm> The matrix stack is a method for dealing
+                with transformations in hierarchical models.</para>
+            <para>A stack is a particular data structure concept. Stacks store a controlled sequence
+                of objects. But unlike arrays, linked lists, or other general data structures, there
+                are only 3 operations available to the user of a stack: push, pop, and peek. Push
+                places a value on the top of the stack. Pop removes the value on the top of the
+                stack, making the previous top the current top. And peek simply returns the current
+                value at the top of the stack.</para>
+            <para>A matrix stack is, for the most part, a stack where the values are 4x4
+                transformation matrices. Matrix stacks do have a few differences from regular
+                stacks. C++ has an object, <classname>std::stack</classname>, that implements the
+                stack concept. <classname>MatrixStack</classname> is a wrapper around that object,
+                providing additional matrix stack functionality.</para>
+            <para>A matrix stack has a current matrix value. An initially constructed matrix stack
+                has an identity matrix. There are a number of functions on the matrix stack that
+                multiply the current matrix by a particular transformation matrix; the result
+                becomes the new current matrix. For example, the
+                    <classname>MatrixStack::RotateX</classname> function multiplies the current
+                matrix by a rotation around the X axis by the given angle.</para>
+            <para>The <function>MatrixStack::Push</function> function takes the current matrix and
+                pushes it onto the stack. The <function>MatrixStack::Pop</function> function makes
+                the current matrix whatever the top of the stack is, and removes the top from the
+                stack. The effect of these is to allow you to save a matrix, modify the current
+                matrix, and then restore the old one after you have finished with the modified one.
+                This is invaluable when dealing with a hierarchical model, as it allows you to
+                iterate over each element in the model from root to the leaf nodes, preserving older
+                transforms and recovering them as needed.</para>
+            <para>In the <function>Draw</function> code, the translation is applied to the stack
+                first, followed by an X rotation based on the current angle. Note that the order of
+                operations is <emphasis>backwards</emphasis> from what we said previously. That's
+                because the matrix stack looks at transforms backwards. When we said earlier that
+                the rotation should be applied before the translation, that was with respect to the
+                    <emphasis>position</emphasis>. That is, the equation should be <inlineequation>
+                    <mathphrase>T*R*v</mathphrase>
+                </inlineequation>, where v is the position. What we meant was that R should be
+                applied to v before T. This means that R comes to the right of T.</para>
+            <para>Rather than applying matrices to vertices, we are applying matrices to each other.
+                The matrix stack functions all perform right-multiplication; the new matrix being
+                multiplied by the current is on the right side. The matrix stack starts with the
+                identity matrix. To have it store T*R, you must first apply the T transform (the
+                current matrix is I*T) then apply the R transform, making the current matrix
+                I*T*R.</para>
+            <para>Right-multiplication is necessary, as the whole point of using the matrix stack is
+                so that we can start at the root of a hierarchical model and save each node's
+                transform to the stack as we go from parent to child. That simply would not be
+                possible if matrix stacks left-multiplied, since we would have to apply the child
+                transforms before the parent ones.</para>
+            <para>The next thing that happens is that the matrix is preserved by pushing it on the
+                stack. After this, a translation and scale are applied to the matrix stack. The
+                stack's current matrix is uploaded to the program, and a model is rendered. Then the
+                matrix stack is popped, restoring the original transform. What is the purpose of
+                this code?</para>
+            <para>This code effectively introduces a new kind of space. It was not strictly
+                necessary for this example, but it does show off a commonly used technique. The new
+                space here does not have a widely agreed upon name, the way other user-defined
+                spaces like model space and camera space do. For the purposes of these tutorials,
+                let us call this <glossterm>mesh space.</glossterm></para>
+            <para>Notice that, for the individual nodes of hierarchical models, model space (the
+                node's transform) is propagated to all of the children. The T*R matrix we generated
+                was the model space matrix for the base of the model; this transform is preserved on
+                the matrix stack and passed to the child drawing functions. However, sometimes it is
+                useful to use source mesh data where the mesh itself is <emphasis>not</emphasis> in
+                model space.</para>
+            <para>In our case, we do this because we know that all of our pieces are 3D rectangles.
+                A 3D rectangle is really just a cube with scales and translations applied to them.
+                The scale makes the cube into the proper size, and the translation positions the
+                origin point for our model space.</para>
+            <para>Rather than have this mesh space transform, we could have created 9 or so actual
+                rectangle meshes, one for each rendered rectangle. However, this would have required
+                more buffer object room and more vertex attribute changes when these were simply
+                unnecessary. The vertex shader runs no slower this way; it's still just multiplying
+                by matrices. And the minor CPU computation time is exactly that: minor.</para>
+            <para>Mesh space is very useful, even though it isn't commonly talked about to the point
+                where it gets a special name. Even when not reusing the same model like this, it can
+                be good for data compression. There are ways to store values on the range [0, 1] or
+                [-1, 1] in 16 or 8 bits, rather than 32-bit floating point values. If you can apply
+                a simple mesh space scale+translation transform to go from this [-1, 1] space to the
+                original space of the model, then you can cut your data in half (or less) with a
+                minimal precision loss.</para>
+            <para>Each section of the code where it uses a mesh space transform happens between a
+                    <function>MatrixStack::Push</function> and
+                <function>MatrixStack::Pop</function>.</para>
+            <para>At the bottom of the base drawing function is a call to draw the upper arm. That
+                function looks similar to this function: apply the model space matrix to the stack,
+                push, apply the mesh space matrix, render, pop, call functions for child parts. All
+                of the functions, to one degree or another, look like this. Indeed, they all looks
+                similar enough that you could probably abstract this down into a very generalized
+                form. And indeed, this is frequently done by scene graphs and the like. The major
+                difference between the child functions and the root one is that this function has a
+                push/pop wrapper around the entire thing. Though since the root creates a
+                MatrixStack to begin with, this could be considered the equivalent.</para>
+            <note>
+                <para>There are two possible conventions for matrix stack behavior. The caller could
+                    be responsible for pushing and popping the matrix, or the callee (the function
+                    being called) could be responsible for this. These are called caller-save and
+                    callee-save.</para>
+                <para>In caller-save, what it is saying is that a function that takes a matrix stack
+                    should feel free to do whatever they want to the current matrix, as well as
+                    push/pop as much as they want. However, the callee <emphasis>must</emphasis> not
+                    pop more than they push, though this is a general requirement with any function
+                    taking a matrix stack. After all, a stack doesn't report how many elements it
+                    has, so you can't know whether someone pushed anything at all.</para>
+                <para>In callee-save, what the convention is saying is that a function must be
+                    responsible for any changes it wants to make to the matrix stack. If it wants to
+                    change the matrix stack, then it must push first and pop after using those
+                    changes.</para>
+                <para>Callee-save is probably a better convention to use. With caller-save, a
+                    function that takes a matrix stack must be assumed to modify it (if it takes the
+                    object as a non-const reference), so it will have to do a push/pop. Whereas with
+                    callee-save, you only push/pop as you explicitly need: at the cite where you are
+                    modifying the matrix stack. It groups the code together better.</para>
+            </note>
+        </section>
+    </section>
+    <section>
+        <title>Gimbal Lock</title>
+        <para/>
     </section>
     <section>
         <title>In Review</title>
@@ -479,8 +803,32 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
+                    <para>In the Translation tutorial, we had two objects that rotated around a
+                        specific point. This was achieved by computing the offset for the rotated
+                        position on the CPU, not through the use of a rotation transformation.
+                        Change this code to use rotation transformations instead. Make sure that the
+                        orientation of the objects do not change as they are being rotated; this
+                        will require using more than one rotation transformation.</para>
+                </listitem>
+                <listitem>
                     <para>Reverse the order of rotations on the wrist in the Hierarchy tutorial.
                         Note how this affects the ability to adjust the wrist.</para>
+                </listitem>
+                <listitem>
+                    <para>Reimplement the Hierarchy tutorial, instead using a more generic data
+                        structure. Have each node be a struct/class that can be attached to an
+                        arbitrary node. The scene will simply be the root node. The individual angle
+                        values should be stored in the node object. The node should have a render
+                        function that will render this node, given the matrix stack. It would render
+                        itself, then recursively render its children. The node would also have a way
+                        to define the size (in world-space) and origin point of the rectangle to be
+                        drawn. The scene would be rendered by passing the identity matrix to the
+                        root.</para>
+                </listitem>
+                <listitem>
+                    <para>Given the above code, remove the matrix stack. Use objects created on the
+                        C++ stack instead. The node render function would take a const&amp; to a
+                        matrix rather than a matrix stack reference.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -501,7 +849,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>model space, object space</glossterm>
+                <glossterm>model space</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>
@@ -525,6 +873,12 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 </glossdef>
             </glossentry>
             <glossentry>
+                <glossterm>inversion</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>orthogonal</glossterm>
                 <glossdef>
                     <para/>
@@ -532,6 +886,30 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             </glossentry>
             <glossentry>
                 <glossterm>rotation transform</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>inverse matrix</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>hierarchical model</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>node</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>mesh space</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>

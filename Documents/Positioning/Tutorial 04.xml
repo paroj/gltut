@@ -41,7 +41,7 @@
             fragment stage, but it also takes a <type>vec2</type> offset uniform that it adds an
             offset to the X and Y components of the position. The fragment shader simply takes the
             interpolated color and uses it as the output color.</para>
-        <section>
+        <section xml:id="tut04_face_culling">
             <title>Face Culling</title>
             <para>There is one very noteworthy code change, however: the initialization routine. It
                 has a few new functions that need to be discussed.</para>
