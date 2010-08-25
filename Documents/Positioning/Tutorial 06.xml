@@ -700,10 +700,11 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 pushes it onto the stack. The <function>MatrixStack::Pop</function> function makes
                 the current matrix whatever the top of the stack is, and removes the top from the
                 stack. The effect of these is to allow you to save a matrix, modify the current
-                matrix, and then restore the old one after you have finished with the modified one.
-                This is invaluable when dealing with a hierarchical model, as it allows you to
-                iterate over each element in the model from root to the leaf nodes, preserving older
-                transforms and recovering them as needed.</para>
+                matrix, and then restore the old one after you have finished using the modified one.
+                And you can store an arbitrary number of matrices, all in a specific order. This is
+                invaluable when dealing with a hierarchical model, as it allows you to iterate over
+                each element in the model from root to the leaf nodes, preserving older transforms
+                and recovering them as needed.</para>
             <para>In the <function>Draw</function> code, the translation is applied to the stack
                 first, followed by an X rotation based on the current angle. Note that the order of
                 operations is <emphasis>backwards</emphasis> from what we said previously. That's

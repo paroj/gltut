@@ -337,6 +337,23 @@
                 </listitem>
             </itemizedlist>
         </section>
+        <section>
+            <title>Many Lights</title>
+            <para>This tutorial creates a scene with multiple light sources in it.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>How to use multiple light sources. Particularly, looping in a
+                        shader.</para>
+                </listitem>
+                <listitem>
+                    <para>Separating the effects of multiple light sources.</para>
+                </listitem>
+                <listitem>
+                    <para>Using arrays in shaders and UBOs.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
     </section>
     <section>
         <title>Texturing</title>
@@ -451,6 +468,22 @@
                     <para>How blending interacts with depth writing and testing. Namely, that you
                         have to manually sort objects now: turn depth writes off and depth tests
                         on.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Many Lights, Revisited</title>
+            <para>This tutorial creates a scene with multiple light sources in it.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>The problems with using loops in shaders.</para>
+                </listitem>
+                <listitem>
+                    <para>Multipass rendering of the lights.</para>
+                </listitem>
+                <listitem>
+                    <para>Precision problems with multipass.</para>
                 </listitem>
             </itemizedlist>
         </section>

@@ -647,6 +647,7 @@ glUseProgram(0);</programlisting>
             <example>
                 <title>Depth Buffer Setup</title>
                 <programlisting>glEnable(GL_DEPTH_TEST);
+glDepthMask(GL_TRUE);
 glDepthFunc(GL_LEQUAL);
 glDepthRange(0.0f, 1.0f);</programlisting>
             </example>
@@ -657,6 +658,11 @@ glDepthRange(0.0f, 1.0f);</programlisting>
                     <literal>GL_LESS</literal>. This allows for the use of multipass algorithms,
                 where you render the same geometry with the same vertex shader, but linked with a
                 different fragment shader. We'll look at those much, much later.</para>
+            <para>The call to <function>glDepthMask</function> causes rendering to write the depth
+                value from the fragment to the depth buffer. The activation of depth testing alone
+                does not cause this. Because of that, it is possible to have depth testing for
+                objects where their <emphasis>own</emphasis> depth (the incoming fragment's depth)
+                is not written to the depth buffer.</para>
             <para>There is one more issue. We know what the depth value is in the depth buffer after
                 a fragment is written to it. But what is its value before any rendering is done at
                 all? Depth buffers and color buffers are very similar; color buffers get their
@@ -1191,6 +1197,12 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                                 <function>glDepthFunc</function>, to the incoming fragment's depth
                             and the destination pixel's depth will determine if the incoming
                             fragment is written or not.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glDepthMask</glossterm>
+                    <glossdef>
+                        <para>Sets or unsets the writing of values to the depth buffer.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
