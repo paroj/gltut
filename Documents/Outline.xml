@@ -255,8 +255,7 @@
                 <listitem>
                     <para>Have multiple different object geometries, with their own individual
                         transforms. Animate the transforms. Objects have different programs attached
-                        that have different fragment shaders (and possibly vertex shaders). Use
-                        Uniform Buffer Objects to store their shared uniform data.</para>
+                        that have different fragment shaders (and possibly vertex shaders).</para>
                 </listitem>
             </orderedlist>
         </section>

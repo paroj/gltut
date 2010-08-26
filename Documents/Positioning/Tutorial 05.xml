@@ -987,7 +987,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 clipped.</para>
         </note>
     </section>
-    <section>
         <section>
             <title>Depth Precision</title>
             <para>There is one other thing that needs to be discussed with regard to depth buffers:
@@ -1116,7 +1115,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     into both, just to make sure their depth values show up properly.</para>
             </section>
         </section>
-    </section>
     <section>
         <?dbhtml filename="Tut05 In Review.html" ?>
         <title>In Review</title>

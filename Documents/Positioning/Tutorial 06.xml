@@ -201,8 +201,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>The function <function>CalcFrustumScale</function> computes the frustum scale based on
             a field-of-view angle in degrees. The field of view in this case is the angle between
             the forward direction and the direction of the farmost-extent of the view.</para>
-        <para>This code, and most of those that are part of this section, use a fairly complex bit
-            of code to manage the transform matrices for the various object instances. There is an
+        <para>This project, and many of the others in this tutorial, use a fairly complex bit of
+            code to manage the transform matrices for the various object instances. There is an
                 <classname>Instance</classname> object for each actual object; it has a function
             pointer that is used to compute the object's offset position. The
                 <classname>Instance</classname> object then takes that position and computes a
@@ -224,6 +224,15 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             the value passed to the constructor. An identity matrix is just a diagonal matrix with 1
             as the value along the diagonal.</para>
         <para>This function simply replaces the W column of the matrix with the offset value.</para>
+        <para>This all produces the following:</para>
+        <figure>
+            <title>Translation Project</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Translations.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
     </section>
     <section>
         <title>Scale</title>
@@ -265,12 +274,20 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             transformation matrix looks like this:</para>
         <!--TODO: scaling transform matrix.-->
         <para>You may start to see a pattern emerging here, something that begins to suggest why
-            matrices are very, very useful. I won't spoil it for you, yet.</para>
+            matrices are very, very useful. I won't spoil it for you yet though.</para>
         <para>The tutorial project <phrase role="propername">Scale</phrase> will display 5 objects
             at various scales. The objects are all at the same Z distance from the camera, so the
             only size difference between the objects is the scale effects applied to them. The
             object in the center is unscaled; each of the other objects has a scale function of some
             kind applied to them.</para>
+        <figure>
+            <title>Scale Project</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Scales.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Other than the way the tutorial builds its matrices, there is no difference between
             this tutorial project and the previous one. The matrix building code works as
             follows:</para>
@@ -294,7 +311,21 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             suffice it to say, this currently works.</para>
         <para>Scaling is only slightly more complicated than translation.</para>
         <section>
-            <title>Inversion</title>
+            <title>Perspective and Scaling</title>
+            <para>The way we construct a scale transformation matrix may seem familiar to you. Back
+                in Tutorial 4, the perspective transformation involved a frustum scale value. This
+                was used to make up for the fact that our projection defined a specific location for
+                the plane of projection and camera eye point. Using this frustum scale, we could
+                give the appearance of having a larger or smaller viewing size. Indeed, we later
+                used this to define the aspect ratio as well as the field of view, using the
+                function defined earlier in this tutorial.</para>
+            <para>This frustum scale was ultimately nothing more than a scale factor applied the X
+                and Y positions. When we constructed the perspective matrix, we used the frustum
+                scale as a uniform scaling in the X and Y dimensions. The aspect ratio compensation
+                code was nothing more than applying a <emphasis>non</emphasis>uniform scale.</para>
+        </section>
+        <section>
+            <title>Inversion and Winding Order</title>
             <para>Scales can be theoretically negative, or even 0. A scale of 0 causes the axis
                 vector in that direction to become 0 entirely. An axis vector with no length means
                 that a dimension has effectively been lost. The resulting transform squashes
@@ -304,7 +335,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 transformed with this scale to flip across the origin in that axis's direction. This
                 is called an <glossterm>inversion</glossterm>. This can have certain unintended
                 consequences. In particular, it can change the winding order of vertices.</para>
-            <para>Back in <link endterm="tut04_face_culling">Chapter 4</link>, we introduced the
+            <para>Back in <link linkend="tut04_face_culling">Tutorial 4</link>, we introduced the
                 ability to cull triangles based on the order in which the vertices appeared in
                 window space. Depending on which axis you negate, relative to camera space, an
                 inversion can flip the expected winding order of vertices. Thus, triangles that
@@ -345,8 +376,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             building a rotation transformation matrix simply requires computing a new set of axes
             that different directions, but have the same length as the original ones. Now, this is
             not easy; it requires semi-advanced math (which is easily encapsulated into various
-            functions). But no matter how complex the math may be, this is nothing more than a way
-            to compute axis vectors that point in different directions.</para>
+            functions). But no matter how complex the math may be, this math is nothing more than a
+            way to compute axis vectors that point in different directions.</para>
         <para>That is, a rotation matrix is not really a rotation matrix; it is an
                 <emphasis>orientation</emphasis> matrix. It defines the orientation of a space
             relative to another space. Remember this, and you will avoid many pitfalls when you
@@ -377,8 +408,16 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             observer), the object rotates counter-clockwise.</para>
         <para>The <phrase role="propername">Rotations</phrase> tutorial shows off each of these
             rotation matrix functions. Similar to how the others work, there are multiple instances
-            rendered based on functions. The function that builds the transformation matrix looks
-            like this:</para>
+            rendered based on functions.</para>
+        <figure>
+            <title>Rotation Project</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Rotations.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The function that builds the transformation matrix looks like this:</para>
         <example>
             <title>Rotation Transformation Building</title>
             <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
@@ -626,6 +665,14 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                     </tbody>
                 </tgroup>
             </table>
+            <figure>
+                <title>Hierarchy Project</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Robot%20Arm.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>The structure of the tutorial is very interesting and shows off a number of
                 important data structures for doing this kind of rendering.</para>
             <para>The class <classname>Hierarchy</classname> stores the information for our
@@ -751,15 +798,17 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 unnecessary. The vertex shader runs no slower this way; it's still just multiplying
                 by matrices. And the minor CPU computation time is exactly that: minor.</para>
             <para>Mesh space is very useful, even though it isn't commonly talked about to the point
-                where it gets a special name. Even when not reusing the same model like this, it can
-                be good for data compression. There are ways to store values on the range [0, 1] or
-                [-1, 1] in 16 or 8 bits, rather than 32-bit floating point values. If you can apply
-                a simple mesh space scale+translation transform to go from this [-1, 1] space to the
-                original space of the model, then you can cut your data in half (or less) with a
-                minimal precision loss.</para>
+                where it gets a special name. As we have seen, it allows easy model reusage, but it
+                has other properties as well. For example, it can be good for data compression. As
+                we will see in later tutorials, there are ways to store values on the range [0, 1]
+                or [-1, 1] in 16 or 8 bits, rather than 32-bit floating point values. If you can
+                apply a simple mesh space scale+translation transform to go from this [-1, 1] space
+                to the original space of the model, then you can cut your data in half (or less)
+                with virtually no impact on visual quality.</para>
             <para>Each section of the code where it uses a mesh space transform happens between a
                     <function>MatrixStack::Push</function> and
-                <function>MatrixStack::Pop</function>.</para>
+                <function>MatrixStack::Pop</function>. This preserves the model space matrix, so
+                that it may be used for rendering with other nodes.</para>
             <para>At the bottom of the base drawing function is a call to draw the upper arm. That
                 function looks similar to this function: apply the model space matrix to the stack,
                 push, apply the mesh space matrix, render, pop, call functions for child parts. All
@@ -794,11 +843,287 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
     </section>
     <section>
         <title>Gimbal Lock</title>
-        <para/>
+        <para>Remember back when we said that an rotation matrix isn't a rotation matrix at all,
+            that it is an orientation matrix? We also said that forgetting this can come back to
+            bite you. Well, here's likely the most common way.</para>
+        <para>Normally, when dealing with orienting an object like a plane or spaceship in 3D space,
+            you want to orient it based on 3 rotations about the 3 axes. The obvious way to do this
+            is with a series of 3 rotations. This means that the program stores 3 angles, and you
+            generate a rotation matrix by creating 3 rotation matrices based on these angles and
+            concatenating them. Indeed, the 3 angles often have special names, based on common
+            flight terminology: yaw, pitch, and roll.</para>
+        <para>Pitch is the rotation that raises or lowers the front of the object. Yaw is the
+            rotation that turns the object left and right. Roll is the rotation that spins it around
+            the direction of motion. These terms neatly duck the question of what the axes
+            technically are; they are defined in terms of semantic axes (front, left, direction of
+            motion, etc), rather than a specific model space. So in one model space, roll might be a
+            rotation about the X axis, but in another, it might be a rotation about the Z
+            axis.</para>
+        <para>One of the first problems you will note is that the order you apply these rotations
+            matter. As stated earlier, a rotation matrix is an <emphasis>orientation</emphasis>
+            matrix. Each transform defines a new coordinate system, and the next transform is based
+            on an object in the <emphasis>new</emphasis> space. For example, if we apply the roll
+            first, we have now changed what the axis for the subsequent yaw is.</para>
+        <para>You can use any order that you like, so long as you understand that what these angles
+            mean. If you apply the roll first, your yaw and pitch must be in terms of the new roll
+            coordinate system, and not the original coordinate system. That is, a change that is
+            intended to only affect the roll of the final space may need yaw or pitch changes to
+            allow it to have the same apparent orientation (except for the new roll, of
+            course).</para>
+        <para>But there is a far more insidious problem lurking in here. And this problem happens
+            anytime you compute a final rotation from a series of 3 rotations about axes
+            perpendicular to each other.</para>
+        <para>The tutorial project <phrase role="propername">Gimbal Lock</phrase> illustrates this
+            problem. Because the problem was first diagnosed with a device called a <link
+                xlink:href="http://en.wikipedia.org/wiki/Gimbal">gimbal</link>, the problem has
+            become known as <glossterm>gimbal lock.</glossterm></para>
+        <para>A gimbal is a pivoted support that provides the ability to rotate in one axis. A
+            gimbal can be mounted within another gimbal. The Gimbal Lock project has a set of 3
+            square gimbals, each with a pivot axis that is perpendicular to the other two. This
+            effectively mimics the common yaw/pitch/roll angle setup.</para>
+        <figure>
+            <title>Gimbal Lock Project</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Three%20Gimbal%20Array.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>You can control the orientation of each gimbal separately. The <keycap>w</keycap> and
+                <keycap>s</keycap> keys control the blue gimbal, the <keycap>a</keycap> and
+                <keycap>d</keycap> keys control the green gimbal, and the <keycap>q</keycap> and
+                <keycap>e</keycap> keys control the red gimbal.</para>
+        <para>With these three gimbals, you can cause the innermost gimbal (the red one) to have any
+            arbitrary orientation. That isn't the problem. The problem happens when two of the
+            gimbals are parallel with one another:</para>
+        <figure>
+            <title>Parallel Gimbals</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="In%20Gimbal%20Lock.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Now, the purpose of the three gimbals is to be able to adjust one of the three angles
+            and orient the object in a particular direction. In a flight-simulation game, the player
+            would have controls that would change their yaw, pitch, and roll. However, look at this
+            picture.</para>
+        <para>The player's theoretical ship is pointed in the direction of the red gimbal. Given the
+            controls you have in this project, can you cause the red gimbal to rotate around the
+            axis that it is facing? No. You can't even sort of do this. Why?</para>
+        <para>Because the blue and red gimbals are now rotating about the <emphasis>same
+                axis</emphasis>. Which means you really only have two gimbals to manipulate in order
+            to orient the red gimbal. And 3D orientation cannot be fully controlled with only 2
+            axial rotations, with only 2 gimbals.</para>
+        <para>When gimbals are in such a position, you have what is known as <glossterm>gimbal
+                lock</glossterm>; you have locked one of the gimbals to another, and now both cause
+            the same effect.</para>
+        <para>How do you fix this problem? There are several possible solutions to the
+            problem.</para>
+        <para>One solution is to simply not use gimbals. After all, if you don't have gimbals, you
+            can't gimbal lock. Instead of storing the orientation as a series of rotations, store
+            the orientation as an <emphasis>orientation.</emphasis> That is, maintain the current
+            orientation as a matrix. When you need to modify the orientation, you apply a
+            transformation to this matrix, storing the result as the new current orientation.</para>
+        <para>This means that every yaw, pitch, and roll applied to the current orientation will be
+            relative to that current orientation.</para>
+        <para>A downside of this approach, besides the size penalty of having to store a 4x4 matrix
+            rather than 3 floating-point angles, is that floating-point math can lead to errors. If
+            you keep accumulating successive transformations of an object, once every 1/30th of a
+            second for a period of several minutes, these floating-point errors start accumulating.
+            Eventually, the orientation stops being a pure rotation and starts incorporating scale
+            and skewing characteristics.</para>
+        <para>The solution here is to re-orthonormalize the matrix after applying each transform. A
+            transform (space) is said to be <glossterm>orthonormal</glossterm> if the axis vectors
+            are of unit length (no scale) and each axis is perpendicular to all of the
+            others.</para>
+        <para>Unfortunately, re-orthonormalize a matrix is not a simple operation. You could try to
+            normalize each of the axis vectors with typical vector normalization, but that wouldn't
+            ensure that the matrix was orthonormal. It would remove scaling, but the axes wouldn't
+            be guaranteed to be perpendicular.</para>
+        <para>The proper solution is to use <link
+                xlink:href="http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">unit
+                quaternions</link> to store orientations, which can be orthonormalized much more
+            easily. This is beyond the scope of this tutorial, but the Wikipedia article on the
+            subject is a good place to start.</para>
+        <section>
+            <title>Complex Mesh Space</title>
+            <para>The way this tutorial renders each gimbal serves as an object lesson in the use of
+                mesh space. The gimbals are composed of 6 pieces, each of which ultimately derives
+                from a simple 3D cube who's sides are of unit length. The cube is scaled and
+                translated to form the rectangular prisms used to build each the gimbal.</para>
+            <para>The <function>DrawGimbal</function> function takes a matrix stack, an axis (one of
+                the three kinds of gimbals), a size for the gimbal, and a color. The width and
+                height of a gimbal are the same, so this code only takes a single size.</para>
+            <para>There is ultimately only one gimbal <quote>mesh</quote>: the difference between
+                them is what their base orientation is. That is computed in this function:</para>
+            <example>
+                <title>DrawGimbal Function</title>
+                <programlisting>void DrawGimbal(MatrixStack &amp;currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
+{
+    currMatrix.Push();
+    
+    switch(eAxis)
+    {
+    case GIMBAL_X_AXIS:
+        break;
+    case GIMBAL_Y_AXIS:
+        currMatrix.RotateZ(90.0f);
+        currMatrix.RotateX(90.0f);
+        break;
+    case GIMBAL_Z_AXIS:
+        currMatrix.RotateY(90.0f);
+        currMatrix.RotateX(90.0f);
+        break;
+    }
+    
+    DrawBaseGimbal(currMatrix, fSize, baseColor);
+    currMatrix.Pop();
+}</programlisting>
+            </example>
+            <para>The rotation matrices change the orientation of the gimbal to its neutral
+                position. These matrices are chosen to allow the full array of 3 gimbals to connect
+                properly.</para>
+            <para>The <function>DrawBaseGimbal</function> function performs the basic computations
+                necessary to draw the pieces. It delegates the actual drawing to other
+                functions.</para>
+            <example>
+                <title>DrawBaseGimbal Function</title>
+                <programlisting>void DrawBaseGimbal(MatrixStack &amp;currMatrix, float fSize, glm::vec4 baseColor)
+{
+    //A Gimbal can only be 4 units in size or more.
+    assert(fSize > 4.0f);
+    
+    glUseProgram(theProgram);
+    //Set the base color for this object.
+    glUniform4fv(baseColorUnif, 1, glm::value_ptr(baseColor));
+    glBindVertexArray(vao);
+    
+    float fGimbolSidesOffset = (fSize / 2.0f) - 1.5f;
+    float fGimbolSidesScale = fSize - 2.0f;
+    
+    DrawGimbalSides(currMatrix, fGimbolSidesOffset, fGimbolSidesScale);
+    
+    float fGimbalAttachOffset = (fSize / 2.0f) - 0.5f;
+    
+    DrawGimbalAttachments(currMatrix, fGimbalAttachOffset);
+    
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
+</programlisting>
+            </example>
+            <para>The color is stored into a uniform in the program. The fragment shader uses this
+                color along with the interpolated per-vertex color to compute the final output
+                color.</para>
+            <example>
+                <title>ColorMultUniform Fragment Shader</title>
+                <programlisting>#version 330
+
+smooth in vec4 theColor;
+uniform vec4 baseColor;
+
+out vec4 outputColor;
+
+void main()
+{
+    outputColor = theColor * baseColor;
+}</programlisting>
+            </example>
+            <para>The interpolated per-vertex color is multiplied with the base color. The colors
+                from the mesh are not really colors in this case; they serve only to darken certain
+                faces. The front and back faces use full white (1.0, 1.0, 1.0, 1.0); multiplying
+                this by <varname>baseColor</varname> will simply return
+                <varname>baseColor</varname>. Thus the front and back faces of the object are the
+                intended color. The top and bottom sides use (0.75, 0.75, 0.75, 1.0), which serves
+                to make <varname>baseColor</varname> closer to zero, but not by a lot. The left and
+                right sides use a smaller value (0.5, 0.5, 0.5, 1.0), which makes the resulting
+                color even smaller.</para>
+            <para>The <function>DrawBaseGimbal</function> function computes the length and
+                positional offset for each of the main pieces of the ring of the gimbal. Since the
+                gimbal is square, it only needs a single length and offset. The
+                    <function>DrawGimbalSides</function> draws the gimbal's square ring.</para>
+            <para>The two attachment points are rendered with ; the sizes for these are fixed, so
+                they don't vary with the size of the gimbal. The <emphasis>location</emphasis> of
+                these do vary, so <function>DrawBaseGimbal</function> must compute that
+                offset.</para>
+            <para>All of this code uses multiple spaces in multiple different places. The most
+                important thing that it shows is how each layer in the hierarchy of functions
+                doesn't care what the space in the matrix stack currently is. DrawBaseGimbal draws
+                the gimbal in a certain space; it is up to whatever happens to be on the matrix
+                stack as to how it gets transformed into the final space.</para>
+            <para>Furthermore, the lower parts of the code don't care about how the gimbal drawing
+                gets done. The <function>display</function> function that ultimately calls
+                    <function>DrawGimbal</function> doesn't care if it is drawing multiple meshes,
+                or a single scaled mesh, or whatever. It simply says to draw the Y-axis gimbal of a
+                certain size in a certain color at a transform given by the matrix stack. Similarly,
+                    <function>DrawGimbal</function> only expects <function>DrawBaseGimbal</function>
+                to draw a X-oriented gimbal; that this requires 6 rendering calls and some matrix
+                stack work is not something <function>DrawGimbal</function> is concerned
+                with.</para>
+            <para>This is the ideal for dealing with complex objects that are positioned via various
+                transforms. The higher level code should be insulated from the fact that low level
+                code may be performing complex transformations, and low-level code should be
+                insulated from the specific uses of that particular object. Look at how simple the
+                display function is:</para>
+            <example>
+                <title>Gimbol Lock's Display Function</title>
+                <programlisting>void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    MatrixStack currMatrix;
+    currMatrix.Translate(glm::vec3(0.0f, 0.0f, -60.0f));
+    currMatrix.RotateX(g_angles.fAngleX);
+    DrawGimbal(currMatrix, GIMBAL_X_AXIS, 30.0f, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
+    currMatrix.RotateY(g_angles.fAngleY);
+    DrawGimbal(currMatrix, GIMBAL_Y_AXIS, 26.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    currMatrix.RotateZ(g_angles.fAngleZ);
+    DrawGimbal(currMatrix, GIMBAL_Z_AXIS, 22.0f, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</programlisting>
+            </example>
+            <para>It performs a translation, so that the gimbal is positioned in front of the
+                camera. Then it performs the 3 successive rotations, drawing each gimbal after each
+                one. So long as <function>DrawGimbal</function> is doing the job that
+                    <function>display</function> expects, everything works out fine.</para>
+        </section>
     </section>
     <section>
         <title>In Review</title>
-        <para/>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Coordinate systems (spaces) are defined by 3 basis axes and a position.</para>
+            </listitem>
+            <listitem>
+                <para>The transformation from one 3D space to another can be defined by a 4x4
+                    matrix, which is constructed from the 3 basis axes and the position.</para>
+            </listitem>
+            <listitem>
+                <para>Model space is the coordinate system that a particular model occupies,
+                    relative to camera space. Other models can have model spaces that depend on the
+                    model space of other models.</para>
+            </listitem>
+            <listitem>
+                <para>Scale, translation, and rotation transformations have specific matrix
+                    forms.</para>
+            </listitem>
+            <listitem>
+                <para>Transformations can be composed via matrix multiplication. All transformations
+                    for a model can be folded into a single matrix, which a vertex shader can
+                    execute at a fixed rate. Therefore, complex transforms are no slower to execute
+                    (for the graphics chip) than simple ones.</para>
+            </listitem>
+            <listitem>
+                <para>The order that successive transforms are applied in matters. Matrix
+                    multiplication is not commutative, and neither is object transformation.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
             <para>Try doing these things with the given programs.</para>
@@ -808,8 +1133,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                         specific point. This was achieved by computing the offset for the rotated
                         position on the CPU, not through the use of a rotation transformation.
                         Change this code to use rotation transformations instead. Make sure that the
-                        orientation of the objects do not change as they are being rotated; this
-                        will require using more than one rotation transformation.</para>
+                        orientation of the objects do not change as they are being rotated around;
+                        this will require applying more than one rotation transformation.</para>
                 </listitem>
                 <listitem>
                     <para>Reverse the order of rotations on the wrist in the Hierarchy tutorial.
@@ -827,9 +1152,9 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                         root.</para>
                 </listitem>
                 <listitem>
-                    <para>Given the above code, remove the matrix stack. Use objects created on the
-                        C++ stack instead. The node render function would take a const&amp; to a
-                        matrix rather than a matrix stack reference.</para>
+                    <para>Given the generalized Hierarchy code, remove the matrix stack. Use objects
+                        created on the C++ stack instead. The node render function would take a
+                        const&amp; to a matrix rather than a matrix stack reference.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -840,79 +1165,135 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             <glossentry>
                 <glossterm>space, coordinate system</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>This defines what the coordinates used to refer to positions actually
+                        mean. Coordinate systems have a dimensionality (the number of coordinates),
+                        an axis vector for each of the dimensions, and an origin position. A
+                        coordinate system of 3 dimensions therefore is defined by 3 vectors and a
+                        position. The X, Y and Z coordinates in that coordinate system refer to the
+                        value you get when you multiply the X, Y, Z values into the X, Y, and Z
+                        axes, then add the origin position to those values.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>transformation</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The process of moving objects defined in one space to be defined in
+                        another space.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>model space</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The space that a particular model is expected to be in, relative to some
+                        other space. This can be the camera space, or in hierarchical models, the
+                        space of a parent node. This does not have to be the initial space that mesh
+                        data is stored in.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>translation transform</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A transform between two spaces, where the origin of the spaces are not in
+                        the same location. This causes objects to shift as they are transformed
+                        between the two spaces.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>identity matrix</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The matrix I such that the following is true: <inlineequation>
+                            <mathphrase>MI = M</mathphrase>
+                        </inlineequation>, for any matrix M. Identity matrices only exist for square
+                        matrices (a matrix with the same number of columns and rows). An identity
+                        matrix consists of a matrix with ones along the diagonal from the top-left
+                        to the lower-right, and zeros everywhere else.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>scale transform</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A transform between two spaces where the axis vectors of the source space
+                        are longer or shorter than the corresponding axis vectors in the destination
+                        space. This causes objects to stretch or shrink along the axes as they are
+                        transformed between the two spaces.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>inversion</glossterm>
+                <glossterm>scale inversion</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Performing a scale by a negative value. This is perfectly allowed, though
+                        it can change the winding order of triangles, depending on the axis being
+                        scaled.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>orthogonal</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Two vectors are orthogonal if they are perpendicular to each other. Three
+                        vectors are othogonal if each vector is perpendicular to the other
+                        two.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>rotation transform</glossterm>
+                <glossterm>rotation transform, orientation transform</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A transform between two spaces, where the axis vectors of the two spaces
+                        are not pointed in the same direction, but the angle between the axis
+                        vectors stay the same. This cause a reorientation of objects as they are
+                        transformed from the initial space to the destination space.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>inverse matrix</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The inverse matrix of the matrix M is the matrix B for which the following
+                        equation is true: <inlineequation>
+                            <mathphrase>MB = I</mathphrase>
+                        </inlineequation>, where I is the identity matrix. The inverse of M is
+                        usually denoted as M<superscript>-1</superscript>.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>hierarchical model</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Models can be conceptually composed of multiple independent pieces in a
+                        hierarchy. The space of each component of that hierarchy is stored relative
+                        to its parent in the hierarchy.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>node</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A single model space transform within a hierarchy of model transforms. The
+                        node's transform is stored relative to the transform of the node beneath it,
+                        called the parent. Nodes can have a single parent node and multiple child
+                        nodes; the child nodes' transforms are relative to this node's space.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>mesh space</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A space beyond model space in the sequence of transforms ending in clip
+                        space. Mesh space is used to transform from a space that is convenient for
+                        storing a mesh in into the model space that the rest of the world
+                        uses.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>gimbal lock</glossterm>
+                <glossdef>
+                    <para>When applying 3 or more successive rotations about axes that are
+                        orthogonal to each other, gimbal lock occurs when a degree of rotational
+                        freedom is lost due to two or more axes that cause the same effective
+                        rotation.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>orthonormal</glossterm>
+                <glossdef>
+                    <para>A transform has the property of being orthonormal if the three basis axes
+                        are all orthogonal and the three axes are normal (have a length of
+                        1).</para>
                 </glossdef>
             </glossentry>
         </glosslist>
