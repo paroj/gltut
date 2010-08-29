@@ -3,6 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 06.html" ?>
     <title>Objects in Motion</title>
     <para>In this tutorial, we will look at a number of ways to transform objects, rendering them in
         different locations and orientations in the world.</para>
@@ -20,10 +21,11 @@
                 <para>The dimensionality of the space. 2D, 3D, 4D, etc.</para>
             </listitem>
             <listitem>
-                <para>A series of directions in those dimensions that define the axes of the space.
-                    The directions do not have to be orthogonal (at right-angles) to one another,
-                    but there must be one axis per dimension. Each axis vector in the space has a
-                    name, like X, Y, Z, etc.</para>
+                <para>A series of vectors in those dimensions that define the axes of the space. The
+                    directions do not have to be orthogonal (at right-angles) to one another, but
+                    there must be one axis per dimension. Each axis vector in the space has a name,
+                    like X, Y, Z, etc. These are called the <glossterm>basis vectors</glossterm> of
+                    a space.</para>
             </listitem>
             <listitem>
                 <para>A location in the space that defines the central <glossterm>origin</glossterm>
@@ -37,8 +39,8 @@
             </listitem>
         </itemizedlist>
         <para>A position or vertex in a space is defined as the sum of the axis vectors, where each
-            axis vector is multiplied by a value called a coordinate. Any point in the space is thus
-            defined by this equation:</para>
+            basis vector is multiplied by a value called a coordinate. Any point in the space is
+            thus defined by this equation:</para>
         <!--TODO: Show the vectoral equation defining a point.-->
         <para>The coordinate used to refer to a position depends entirely on the coordinate system
             being used to describe that position. For example, here are two positions that appear
@@ -46,30 +48,33 @@
             coordinates.</para>
         <!--TODO: Show a 2D orthogonal and 2D skewed coordinate system, and the same coordinate position from both.-->
         <para>This is all well and good when dealing with axis vectors and the origin point as
-            generic quantities: simple directions from a neutral point of view. But what happens
-            when you give them a particular value? What does the value of, for example, the X axis
-            vector mean? After all, it is a coordinate, and all coordinates are defined relative to
-            some space. So what is the space of the axis vectors or origin points? Or more to the
-            point, what is a <quote>neutral point of view?</quote></para>
-        <para>There is a coordinate system that acts as an identity coordinate system; it can be
-            used as a generic viewpoint for a coordinate system. For a three-dimensional coordinate
-            system, this identity space has the origin at (0, 0, 0), with the X, Y and Z axis
-            vectors as (1, 0, 0), (0, 1, 0), and (0, 0, 1). The range of the space is infinite. Any
-            space can be defined relative to this identity space. And unless otherwise noted, this
-            is the space of any axis vectors or origin points.</para>
+            generic vectors as drawn above. The origin point is just a position, and the basis
+            vectors are simply drawn. But what does it mean to give actual numbers to these
+            concepts? A position, like the origin point, is itself a coordinate. Which means that it
+            must be defined relative to some coordinate system. The same goes for the basis
+            vectors.</para>
+        <para>For the purpose of this discussion, there is a coordinate system that acts as a kind
+            of neutral coordinate system; it can be used as a generic viewpoint for a coordinate
+            system. For a three-dimensional coordinate system, this identity space has the origin at
+            (0, 0, 0), with the X, Y and Z axis vectors as (1, 0, 0), (0, 1, 0), and (0, 0, 1). The
+            range of the space is infinite. Any space can be defined relative to this identity
+            space. And unless otherwise noted, this is the space of any axis vectors or origin
+            points.</para>
         <section>
             <title>Transformation</title>
             <para>In the more recent tutorials, the ones dealing with perspective projections, we
                 have been taking positions in one coordinate system (space) and putting them in
-                another coordinate system. The process of taking a coordinate in one space and
-                making it relative to another space is called
-                <glossterm>transformation</glossterm>.</para>
-            <para>We have seen, and implemented, a number of coordinate system transformations.
-                OpenGL implements the transformation from clip-space to NDC space, and the
-                transformation from NDC to window space. Our shaders implement the transformation
-                from camera space to clip-space, and this was done using a matrix. Perspective
-                projection (and orthographic, for that matter) are simply a special kind of
-                transformation.</para>
+                another coordinate system. Specifically, we had objects in camera space that we
+                moved into clip space. The process of taking a coordinate in one space and
+                specifying it as a coordinate in another space is called
+                    <glossterm>transformation</glossterm>. The coordinate's actual meaning has not
+                changed; all that has changed is the coordinate system that this coordinate is
+                relative to.</para>
+            <para>We have seen a number of coordinate system transformations. OpenGL implements the
+                transformation from clip-space to NDC space, and the transformation from NDC to
+                window space. Our shaders implement the transformation from camera space to
+                clip-space, and this was done using a matrix. Perspective projection (and
+                orthographic, for that matter) are simply a special kind of transformation.</para>
             <para>This tutorial will cover a large number of different kinds of transform
                 operations, and how to implement them in OpenGL.</para>
         </section>
@@ -93,11 +98,12 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut06 Translation.html" ?>
         <title>Translation</title>
         <para>The simplest space transformation operation is translation. Indeed, we have not only
             seen this transform before, it has been used in all of the tutorials with a perspective
             projection. Remember this line from the vertex shaders:</para>
-        <programlisting>vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);</programlisting>
+        <programlisting language="glsl">vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);</programlisting>
         <para>This is a <glossterm>translation</glossterm> transformation: it is used to position
             the origin point of the initial space relative to the destination space. Since all of
             the coordinates in a space are relative to the origin point of that space, all a
@@ -142,7 +148,7 @@
             in action.</para>
         <example>
             <title>Translation Shader Initialization</title>
-            <programlisting>void InitializeProgram()
+            <programlisting language="cpp">void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
     
@@ -189,7 +195,7 @@
         <para>The new <varname>fFrustumScale</varname> is computed with this code:</para>
         <example>
             <title>Frustum Scale Computation</title>
-            <programlisting>float CalcFrustumScale(float fFovDeg)
+            <programlisting language="cpp">float CalcFrustumScale(float fFovDeg)
 {
     const float degToRad = 3.14159f * 2.0f / 360.0f;
     float fFovRad = fFovDeg * degToRad;
@@ -209,7 +215,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             transformation matrix, based on the current elapsed time, with this function:</para>
         <example>
             <title>Translation Matrix Generation</title>
-            <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
+            <programlisting language="cpp">glm::mat4 ConstructMatrix(float fElapsedTime)
 {
     glm::mat4 theMat(1.0f);
     
@@ -235,6 +241,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </figure>
     </section>
     <section>
+        <?dbhtml filename="Tut06 Scale.html" ?>
         <title>Scale</title>
         <para>Another kind of transformation is <glossterm>scaling</glossterm>. In terms of our
             previous definition of a coordinate system, this means that our axis vectors are getting
@@ -291,7 +298,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Other than the way the tutorial builds its matrices, there is no difference between
             this tutorial project and the previous one. The matrix building code works as
             follows:</para>
-        <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
+        <programlisting language="cpp">glm::mat4 ConstructMatrix(float fElapsedTime)
 {
     glm::vec3 theScale = CalcScale(fElapsedTime);
     glm::mat4 theMat(1.0f);
@@ -346,6 +353,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut06 Rotation.html" ?>
         <title>Rotation</title>
         <para>A <glossterm>rotation</glossterm> transformation is the result of the orientation of
             the initial space being different from the orientation of the destination space. The
@@ -420,7 +428,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>The function that builds the transformation matrix looks like this:</para>
         <example>
             <title>Rotation Transformation Building</title>
-            <programlisting>glm::mat4 ConstructMatrix(float fElapsedTime)
+            <programlisting language="cpp">glm::mat4 ConstructMatrix(float fElapsedTime)
 {
     const glm::mat3 &amp;rotMatrix = CalcRotation(fElapsedTime);
     glm::mat4 theMat(rotMatrix);
@@ -434,6 +442,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             corner, which is set to 1. As with the rest of GLM, this works in GLSL as well.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut06 Successive Transformations.html" ?>
         <title>Successive Transformations</title>
         <para>In all of the previous examples except for the translation one, we always combined the
             transformation with a translation operation. So the scale transform was not a pure scale
@@ -445,7 +454,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Successive transformations can be seen as doing successive multiplication operations.
             For example, if S is a pure scale matrix, T is a pure translation matrix, and R is a
             pure scale matrix, then one can easily do the following in a shader:</para>
-        <programlisting>vec4 temp;
+        <programlisting language="glsl">vec4 temp;
 temp = T * position;
 temp = R * temp;
 temp = S * temp;
@@ -683,7 +692,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             <para>The <function>Draw</function> function looks like this:</para>
             <example>
                 <title>Hierarchy::Draw</title>
-                <programlisting>void Draw()
+                <programlisting language="cpp">void Draw()
 {
     MatrixStack modelToCameraStack;
     
@@ -811,8 +820,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 that it may be used for rendering with other nodes.</para>
             <para>At the bottom of the base drawing function is a call to draw the upper arm. That
                 function looks similar to this function: apply the model space matrix to the stack,
-                push, apply the mesh space matrix, render, pop, call functions for child parts. All
-                of the functions, to one degree or another, look like this. Indeed, they all looks
+                push, apply a mesh space matrix, render, pop, call functions for child parts. All of
+                the functions, to one degree or another, look like this. Indeed, they all looks
                 similar enough that you could probably abstract this down into a very generalized
                 form. And indeed, this is frequently done by scene graphs and the like. The major
                 difference between the child functions and the root one is that this function has a
@@ -842,6 +851,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut06 Gimbal Lock.html" ?>
         <title>Gimbal Lock</title>
         <para>Remember back when we said that an rotation matrix isn't a rotation matrix at all,
             that it is an orientation matrix? We also said that forgetting this can come back to
@@ -959,7 +969,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 them is what their base orientation is. That is computed in this function:</para>
             <example>
                 <title>DrawGimbal Function</title>
-                <programlisting>void DrawGimbal(MatrixStack &amp;currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
+                <programlisting language="cpp">void DrawGimbal(MatrixStack &amp;currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
 {
     currMatrix.Push();
     
@@ -989,7 +999,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 functions.</para>
             <example>
                 <title>DrawBaseGimbal Function</title>
-                <programlisting>void DrawBaseGimbal(MatrixStack &amp;currMatrix, float fSize, glm::vec4 baseColor)
+                <programlisting language="cpp">void DrawBaseGimbal(MatrixStack &amp;currMatrix, float fSize, glm::vec4 baseColor)
 {
     //A Gimbal can only be 4 units in size or more.
     assert(fSize > 4.0f);
@@ -999,10 +1009,10 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
     glUniform4fv(baseColorUnif, 1, glm::value_ptr(baseColor));
     glBindVertexArray(vao);
     
-    float fGimbolSidesOffset = (fSize / 2.0f) - 1.5f;
-    float fGimbolSidesScale = fSize - 2.0f;
+    float fGimbalSidesOffset = (fSize / 2.0f) - 1.5f;
+    float fGimbalSidesScale = fSize - 2.0f;
     
-    DrawGimbalSides(currMatrix, fGimbolSidesOffset, fGimbolSidesScale);
+    DrawGimbalSides(currMatrix, fGimbalSidesOffset, fGimbalSidesScale);
     
     float fGimbalAttachOffset = (fSize / 2.0f) - 0.5f;
     
@@ -1018,7 +1028,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 color.</para>
             <example>
                 <title>ColorMultUniform Fragment Shader</title>
-                <programlisting>#version 330
+                <programlisting language="glsl">#version 330
 
 smooth in vec4 theColor;
 uniform vec4 baseColor;
@@ -1067,8 +1077,8 @@ void main()
                 insulated from the specific uses of that particular object. Look at how simple the
                 display function is:</para>
             <example>
-                <title>Gimbol Lock's Display Function</title>
-                <programlisting>void display()
+                <title>Gimbal Lock's Display Function</title>
+                <programlisting language="cpp">void display()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0f);
@@ -1094,6 +1104,7 @@ void main()
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut06 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you have learned the following:</para>
         <itemizedlist>
@@ -1159,7 +1170,8 @@ void main()
             </itemizedlist>
         </section>
     </section>
-    <section>
+    <section xml:id="Tut06_Glossary">
+        <?dbhtml filename="Tut06 Glossary.html" ?>
         <title>Glossary</title>
         <glosslist>
             <glossentry>
@@ -1167,11 +1179,18 @@ void main()
                 <glossdef>
                     <para>This defines what the coordinates used to refer to positions actually
                         mean. Coordinate systems have a dimensionality (the number of coordinates),
-                        an axis vector for each of the dimensions, and an origin position. A
+                        an basis vector for each of the dimensions, and an origin position. A
                         coordinate system of 3 dimensions therefore is defined by 3 vectors and a
                         position. The X, Y and Z coordinates in that coordinate system refer to the
                         value you get when you multiply the X, Y, Z values into the X, Y, and Z
                         axes, then add the origin position to those values.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>basis vector</glossterm>
+                <glossdef>
+                    <para>One of the vectors that define a coordinate system. The basis vectors of a
+                        coordinate system do not have to be orthogonal or of unit length.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

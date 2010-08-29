@@ -12,11 +12,20 @@ lfs.mkdir(outputDir);
 
 local mainDir = "Documents\\";
 
+--Generate the HTML files to the output directory.
+local cwd = lfs.currentdir();
+lfs.chdir(mainDir .. "Build\\");
+local BuildWebsite = assert(loadfile("BuildWebsite.lua"));
+BuildWebsite(cwd .. "\\" .. outputDir);
+lfs.chdir(cwd);
+
 --Copy the html files.
+--[=[
 local htmlDir = mainDir .. "web\\";
 local command = string.format([[xcopy "%s*" "%s" /s /c /q /r /y]], htmlDir, outputDir);
 print(command);
 os.execute(command);
+]=]
 
 --Copy the .css file.
 local cssFilename = "chunked.css";

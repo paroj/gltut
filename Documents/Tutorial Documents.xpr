@@ -2468,6 +2468,9 @@
             <file name="Basics/Tutorial%2001.xml"/>
             <file name="Basics/Tutorial%2002.xml"/>
         </folder>
+        <folder name="Build">
+            <file name="Build/html-highlights.xsl"/>
+        </folder>
         <folder name="css">
             <file name="chunked.css"/>
             <file name="standard.css"/>

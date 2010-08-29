@@ -47,7 +47,7 @@
                 has a few new functions that need to be discussed.</para>
             <example>
                 <title>Face Culling Initialization</title>
-                <programlisting><![CDATA[void init()
+                <programlisting language="cpp"><![CDATA[void init()
 {
     InitializeProgram();
     InitializeVertexBuffer();
@@ -446,7 +446,7 @@
                 this:</para>
             <example>
                 <title>ManualPerspective Vertex Shader</title>
-                <programlisting><![CDATA[#version 330
+                <programlisting language="glsl"><![CDATA[#version 330
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
@@ -491,7 +491,7 @@ void main()
                 changed:</para>
             <example>
                 <title>Program Initialization</title>
-                <programlisting><![CDATA[offsetUniform = glGetUniformLocation(theProgram, "offset");
+                <programlisting language="cpp"><![CDATA[offsetUniform = glGetUniformLocation(theProgram, "offset");
 
 frustumScaleUnif = glGetUniformLocation(theProgram, "frustumScale");
 zNearUnif = glGetUniformLocation(theProgram, "zNear");
@@ -526,7 +526,7 @@ glUseProgram(0);]]></programlisting>
             <title>Vector Math</title>
             <para>We glossed over something in the vertex shader that bears more discussion. Namely,
                 this line:</para>
-            <programlisting>clipPos.xy = cameraPos.xy * frustumScale;</programlisting>
+            <programlisting language="glsl">clipPos.xy = cameraPos.xy * frustumScale;</programlisting>
             <para>Even if you are familiar with vector math libraries in other languages, this code
                 should be rather odd. Traditional vector libraries allow you to write selectors like
                     <literal>vec.x</literal> and <literal>vec.w</literal> in order to get a specific
@@ -546,7 +546,7 @@ glUseProgram(0);]]></programlisting>
                 <listitem>
                     <para>You cannot select components that aren't in the source vector. So if you
                         have:</para>
-                    <programlisting>vec2 theVec;</programlisting>
+                    <programlisting language="glsl">vec2 theVec;</programlisting>
                     <para>You cannot do <literal>theVec.zz</literal>.</para>
                 </listitem>
                 <listitem>
@@ -568,7 +568,7 @@ glUseProgram(0);]]></programlisting>
                 component-wise multiply, returning a vector containing the scalar multiplied by each
                 of the components of the vector. We could have written the above line as
                 follows:</para>
-            <programlisting>clipPos.x = cameraPos.x * frustumScale;
+            <programlisting language="glsl">clipPos.x = cameraPos.x * frustumScale;
 clipPos.y = cameraPos.y * frustumScale;</programlisting>
             <para>But it probably wouldn't be as fast as the swizzle and vector math version.</para>
         </section>
@@ -659,7 +659,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
         <para>The vertex shader is much simpler in this case:</para>
         <example>
             <title>MatrixPerspective Vertex Shader</title>
-            <programlisting><![CDATA[#version 330
+            <programlisting language="glsl"><![CDATA[#version 330
 
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec4 color;
@@ -704,7 +704,7 @@ void main()
         <para>The program initialization routine has a few changes:</para>
         <example>
             <title>Program Initialization of Perspective Matrix</title>
-            <programlisting><![CDATA[offsetUniform = glGetUniformLocation(theProgram, "offset");
+            <programlisting language="cpp"><![CDATA[offsetUniform = glGetUniformLocation(theProgram, "offset");
 
 perspectiveMatrixUnif = glGetUniformLocation(theProgram, "perspectiveMatrix");
 
@@ -788,7 +788,7 @@ glUseProgram(0);]]></programlisting>
             be this:</para>
         <example>
             <title>Square-only Viewport</title>
-            <programlisting><![CDATA[void reshape (int w, int h)
+            <programlisting language="cpp"><![CDATA[void reshape (int w, int h)
 {
     if(w < h)
         glViewport(0, 0, (GLsizei) w, (GLsizei) w);
@@ -841,7 +841,7 @@ glUseProgram(0);]]></programlisting>
                 <function>reshape</function> function.</para>
         <example>
             <title>Reshape with Aspect Ratio</title>
-            <programlisting><![CDATA[void reshape (int w, int h)
+            <programlisting language="cpp"><![CDATA[void reshape (int w, int h)
 {
     perspectiveMatrix[0] = fFrustumScale * (h / (float)w);
     perspectiveMatrix[5] = fFrustumScale;

@@ -57,8 +57,8 @@
             <para>It is easy to show someone how to use <function>gluLookAt</function>,
                     <function>gluPerspective</function>, and other functions to make everything come
                 out <quote>right.</quote> But because these functions hide important details, what
-                the reader is often left with is a set of rules for where to put what code to make
-                things work.</para>
+                the reader is often left with is a set of rules for how to make things work: put
+                this line of code in this place, and you get this effect.</para>
             <para>Without the foundation of knowledge of what these functions actually are
                     <emphasis>doing</emphasis>, the reader is effectively living in a world of
                 copy-and-paste code. The reader can parrot code they found in a tutorial, but they

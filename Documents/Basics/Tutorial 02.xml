@@ -30,7 +30,7 @@
             one in the last tutorial. The fragment shader is very new, however:</para>
         <example>
             <title>FragPosition's Fragment Shader</title>
-            <programlisting><![CDATA[#version 330
+            <programlisting language="glsl"><![CDATA[#version 330
 
 out vec4 outputColor;
 
@@ -109,7 +109,7 @@ void main()
                 That data now looks like this:</para>
             <example>
                 <title>New Vertex Array Data</title>
-                <programlisting><![CDATA[const float vertexData[] = {
+                <programlisting language="cpp"><![CDATA[const float vertexData[] = {
      0.0f,    0.5f, 0.0f, 1.0f,
      0.5f, -0.366f, 0.0f, 1.0f,
     -0.5f, -0.366f, 0.0f, 1.0f,
@@ -127,7 +127,7 @@ void main()
                 before:</para>
             <example>
                 <title>Buffer Object Initialization</title>
-                <programlisting><![CDATA[void InitializeVertexBuffer()
+                <programlisting language="cpp"><![CDATA[void InitializeVertexBuffer()
 {
     glGenBuffers(1, &vertexBufferObject);
     
@@ -152,7 +152,7 @@ void main()
             <para>This is done as follows:</para>
             <example>
                 <title>Rendering the Scene</title>
-                <programlisting><![CDATA[void display()
+                <programlisting language="cpp"><![CDATA[void display()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -207,7 +207,7 @@ void main()
                     have is this:</para>
                 <example>
                     <title>Vertex Arrays</title>
-                    <programlisting><![CDATA[GLbyte *bufferObject = (void*){0.0f, 0.5f, 0.0f, 1.0f, 0.5f, -0.366f, ...};
+                    <programlisting language="cpp"><![CDATA[GLbyte *bufferObject = (void*){0.0f, 0.5f, 0.0f, 1.0f, 0.5f, -0.366f, ...};
 float *positionAttribArray[4] = (float *[4])(&(bufferObject + 0));
 float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlisting>
                 </example>
@@ -225,7 +225,7 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                     as follows:</para>
                 <example>
                     <title>Draw Arrays Implementation</title>
-                    <programlisting><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
+                    <programlisting language="cpp"><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
 {
     for(GLint element = start; element < start + count; element++)
     {
@@ -249,7 +249,7 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
             <para>Our new vertex shader looks like this:</para>
             <example>
                 <title>Multi-input Vertex Shader</title>
-                <programlisting><![CDATA[#version 330
+                <programlisting language="glsl"><![CDATA[#version 330
 
 layout (location = 0) in vec4 position;
 layout (location = 1) in vec4 color;
@@ -295,7 +295,7 @@ void main()
             <para>The new fragment shader looks like this:</para>
             <example>
                 <title>Fragment Shader with Input</title>
-                <programlisting><![CDATA[#version 330
+                <programlisting language="glsl"><![CDATA[#version 330
 
 smooth in vec4 theColor;
 

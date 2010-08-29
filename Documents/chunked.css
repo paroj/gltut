@@ -53,3 +53,20 @@ span.type {  }
 em.glossterm { text-decoration: underline; }
 
 acronym.acronym { font-weight: bold; }
+
+
+/* Code documentation. */
+span.code-type { color: #7B7BC0;}
+span.code-modifier { color: #0000FF;}
+span.code-sampler { color: #0f0aae;}
+span.code-keyword { color: #0000FF;}
+span.code-function { color: #a00010;}
+
+span.code-comment {color: #FF0000;}
+span.code-string { color: #008000; }
+
+
+
+
+
+

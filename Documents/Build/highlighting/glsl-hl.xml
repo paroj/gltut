@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Syntax highlighting definition for C++
+
+xslthl - XSLT Syntax Highlighting
+http://sourceforge.net/projects/xslthl/
+Copyright (C) 2005-2008 Michal Molhanec, Jirka Kosek, Michiel Hendriks
+
+This software is provided 'as-is', without any express or implied
+warranty.  In no event will the authors be held liable for any damages
+arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose,
+including commercial applications, and to alter it and redistribute it
+freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not
+   claim that you wrote the original software. If you use this software
+   in a product, an acknowledgment in the product documentation would be
+   appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be
+   misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.
+
+Michal Molhanec <mol1111 at users.sourceforge.net>
+Jirka Kosek <kosek at users.sourceforge.net>
+Michiel Hendriks <elmuerte at users.sourceforge.net>
+
+-->
+<highlighters>
+	<highlighter type="multiline-comment">
+		<start>/**</start>
+		<end>*/</end>
+		<style>doccomment</style>
+	</highlighter>
+	<highlighter type="oneline-comment">
+		<start><![CDATA[/// ]]></start>
+		<style>doccomment</style>
+	</highlighter>
+	<highlighter type="multiline-comment">
+		<start>/*</start>
+		<end>*/</end>
+	</highlighter>
+	<highlighter type="oneline-comment">//</highlighter>
+	<highlighter type="oneline-comment">
+		<!-- use the online-comment highlighter to detect directives -->
+		<start>#</start>
+		<lineBreakEscape>\</lineBreakEscape>
+		<style>directive</style>
+		<solitary/>
+	</highlighter>
+	<highlighter type="hexnumber">
+		<prefix>0x</prefix>
+		<suffix>ul</suffix>
+		<suffix>lu</suffix>
+		<suffix>u</suffix>
+		<suffix>l</suffix>
+		<ignoreCase />
+	</highlighter>
+	<highlighter type="number">
+		<point>.</point>
+		<pointStarts />
+		<exponent>e</exponent>
+		<suffix>ul</suffix>
+		<suffix>lu</suffix>
+		<suffix>u</suffix>
+		<suffix>f</suffix>
+		<suffix>l</suffix>
+		<ignoreCase />
+	</highlighter>
+	<highlighter type="keywords">
+		<keyword>break</keyword>
+		<keyword>continue</keyword>
+		<keyword>do</keyword>
+		<keyword>for</keyword>
+		<keyword>while</keyword>
+		<keyword>switch</keyword>
+		<keyword>case</keyword>
+		<keyword>default </keyword>
+		<keyword>if</keyword>
+		<keyword>else</keyword>
+		<keyword>true</keyword>
+		<keyword>false</keyword>
+		<keyword>discard</keyword>
+		<keyword>return</keyword>
+		<keyword>struct</keyword>
+	</highlighter>
+	<highlighter type="keywords">
+		<keyword>float</keyword>
+		<keyword>double</keyword>
+		<keyword>int</keyword>
+		<keyword>void</keyword>
+		<keyword>bool</keyword>
+		<keyword>mat2</keyword>
+		<keyword>mat3</keyword>
+		<keyword>mat4</keyword>
+		<keyword>dmat2</keyword>
+		<keyword>dmat3</keyword>
+		<keyword>dmat4</keyword>
+		<keyword>mat2x2</keyword>
+		<keyword>mat2x3</keyword>
+		<keyword>mat2x4</keyword>
+		<keyword>dmat2x2</keyword>
+		<keyword>dmat2x3</keyword>
+		<keyword>dmat2x4</keyword>
+		<keyword>mat3x2</keyword>
+		<keyword>mat3x3</keyword>
+		<keyword>mat3x4</keyword>
+		<keyword>dmat3x2</keyword>
+		<keyword>dmat3x3</keyword>
+		<keyword>dmat3x4</keyword>
+		<keyword>mat4x2</keyword>
+		<keyword>mat4x3</keyword>
+		<keyword>mat4x4</keyword>
+		<keyword>dmat4x2</keyword>
+		<keyword>dmat4x3</keyword>
+		<keyword>dmat4x4</keyword>
+		<keyword>vec2</keyword>
+		<keyword>vec3</keyword>
+		<keyword>vec4</keyword>
+		<keyword>ivec2</keyword>
+		<keyword>ivec3</keyword>
+		<keyword>ivec4</keyword>
+		<keyword>bvec2</keyword>
+		<keyword>bvec3</keyword>
+		<keyword>bvec4</keyword>
+		<keyword>dvec2</keyword>
+		<keyword>dvec3</keyword>
+		<keyword>dvec4</keyword>
+		<keyword>uint</keyword>
+		<keyword>uvec2</keyword>
+		<keyword>uvec3</keyword>
+		<keyword>uvec4</keyword>
+		<style>basic-type</style>
+	</highlighter>
+	<highlighter type="keywords">
+		<keyword>attribute</keyword>
+		<keyword>const</keyword>
+		<keyword>uniform</keyword>
+		<keyword>varying</keyword>
+		<keyword>layout</keyword>
+		<keyword>centroid</keyword>
+		<keyword>flat</keyword>
+		<keyword>smooth</keyword>
+		<keyword>noperspective</keyword>
+		<keyword>patch</keyword>
+		<keyword>sample</keyword>
+		<keyword>subroutine</keyword>
+		<keyword>in</keyword>
+		<keyword>out</keyword>
+		<keyword>inout</keyword>
+		<keyword>invariant</keyword>
+		<keyword>lowp</keyword>
+		<keyword>mediump</keyword>
+		<keyword>highp</keyword>
+		<keyword>precision</keyword>
+		<style>type-modifier</style>
+	</highlighter>
+	<highlighter type="keywords">
+		<keyword>sampler1D</keyword>
+		<keyword>sampler2D</keyword>
+		<keyword>sampler3D</keyword>
+		<keyword>samplerCube   </keyword>
+		<keyword>sampler1DShadow</keyword>
+		<keyword>sampler2DShadow</keyword>
+		<keyword>samplerCubeShadow</keyword>
+		<keyword>sampler1DArray</keyword>
+		<keyword>sampler2DArray</keyword>
+		<keyword>sampler1DArrayShadow</keyword>
+		<keyword>sampler2DArrayShadow</keyword>
+		<keyword>isampler1D</keyword>
+		<keyword>isampler2D</keyword>
+		<keyword>isampler3D</keyword>
+		<keyword>isamplerCube</keyword>
+		<keyword>isampler1DArray</keyword>
+		<keyword>isampler2DArray</keyword>
+		<keyword>usampler1D</keyword>
+		<keyword>usampler2D</keyword>
+		<keyword>usampler3D</keyword>
+		<keyword>usamplerCube</keyword>
+		<keyword>usampler1DArray</keyword>
+		<keyword>usampler2DArray</keyword>
+		<keyword>sampler2DRect</keyword>
+		<keyword>sampler2DRectShadow</keyword>
+		<keyword>isampler2DRect</keyword>
+		<keyword>usampler2DRect</keyword>
+		<keyword>samplerBuffer</keyword>
+		<keyword>isamplerBuffer</keyword>
+		<keyword>usamplerBuffer</keyword>
+		<keyword>sampler2DMS</keyword>
+		<keyword>isampler2DMS</keyword>
+		<keyword>usampler2DMS</keyword>
+		<keyword>sampler2DMSArray</keyword>
+		<keyword>isampler2DMSArray</keyword>
+		<keyword>usampler2DMSArray</keyword>
+		<keyword>samplerCubeArray</keyword>
+		<keyword>samplerCubeArrayShadow</keyword>
+		<keyword>isamplerCubeArray</keyword>
+		<keyword>usamplerCubeArray</keyword>
+		<style>sampler-type</style>
+	</highlighter>
+	<highlighter type="keywords">
+		<keyword>radians</keyword>
+		<keyword>degrees</keyword>
+		<keyword>sin</keyword>
+		<keyword>cos</keyword>
+		<keyword>tan</keyword>
+		<keyword>asin</keyword>
+		<keyword>acos</keyword>
+		<keyword>atan</keyword>
+		<keyword>sinh</keyword>
+		<keyword>cosh</keyword>
+		<keyword>tanh</keyword>
+		<keyword>asinh</keyword>
+		<keyword>acosh</keyword>
+		<keyword>atanh</keyword>
+		<keyword>pow</keyword>
+		<keyword>exp</keyword>
+		<keyword>log</keyword>
+		<keyword>exp2</keyword>
+		<keyword>log2</keyword>
+		<keyword>sqrt</keyword>
+		<keyword>inversesqrt</keyword>
+		<keyword>abs</keyword>
+		<keyword>sign</keyword>
+		<keyword>floor</keyword>
+		<keyword>trunc</keyword>
+		<keyword>round</keyword>
+		<keyword>roundEven</keyword>
+		<keyword>ceil</keyword>
+		<keyword>fract</keyword>
+		<keyword>mod</keyword>
+		<keyword>modf</keyword>
+		<keyword>min</keyword>
+		<keyword>max</keyword>
+		<keyword>clamp</keyword>
+		<keyword>mix</keyword>
+		<keyword>step</keyword>
+		<keyword>smoothstep</keyword>
+		<keyword>isnan</keyword>
+		<keyword>isinf</keyword>
+		<keyword>floatBitsToInt</keyword>
+		<keyword>floatBitsToUint</keyword>
+		<keyword>intBitsToFloat</keyword>
+		<keyword>uintBitsToFloat</keyword>
+		<keyword>fma</keyword>
+		<keyword>frexp</keyword>
+		<keyword>ldexp</keyword>
+		<keyword>packUnorm2x16</keyword>
+		<keyword>packUnorm4x8</keyword>
+		<keyword>packSnorm4x8</keyword>
+		<keyword>unpackUnorm2x16</keyword>
+		<keyword>unpackUnorm4x8</keyword>
+		<keyword>unpackSnorm4x8</keyword>
+		<keyword>packDouble2x32</keyword>
+		<keyword>unpackDouble2x32</keyword>
+		<keyword>length</keyword>
+		<keyword>distance</keyword>
+		<keyword>dot</keyword>
+		<keyword>cross</keyword>
+		<keyword>normalize</keyword>
+		<keyword>ftransform</keyword>
+		<keyword>faceforward</keyword>
+		<keyword>reflect</keyword>
+		<keyword>refract</keyword>
+		<keyword>matrixCompMult</keyword>
+		<keyword>outerProduct</keyword>
+		<keyword>transpose</keyword>
+		<keyword>determinant</keyword>
+		<keyword>inverse</keyword>
+		<keyword>lessThan</keyword>
+		<keyword>lessThanEqual</keyword>
+		<keyword>greaterThan</keyword>
+		<keyword>greaterThanEqual</keyword>
+		<keyword>equal</keyword>
+		<keyword>notEqual</keyword>
+		<keyword>any</keyword>
+		<keyword>all</keyword>
+		<keyword>not</keyword>
+		<keyword>uaddCarry</keyword>
+		<keyword>usubBorrow</keyword>
+		<keyword>umulExtended</keyword>
+		<keyword>imulExtended</keyword>
+		<keyword>bitfieldExtract</keyword>
+		<keyword>bitfieldInsert</keyword>
+		<keyword>bitfieldReverse</keyword>
+		<keyword>bitCount</keyword>
+		<keyword>findLSB</keyword>
+		<keyword>findMSB</keyword>
+		<keyword>textureSize</keyword>
+		<keyword>textureQueryLod</keyword>
+		<keyword>texture</keyword>
+		<keyword>textureProj</keyword>
+		<keyword>textureLod</keyword>
+		<keyword>textureOffset</keyword>
+		<keyword>texelFetch</keyword>
+		<keyword>texelFetchOffset</keyword>
+		<keyword>textureProjOffset</keyword>
+		<keyword>textureLodOffset</keyword>
+		<keyword>textureProjLod</keyword>
+		<keyword>textureProjLodOffset</keyword>
+		<keyword>textureGrad</keyword>
+		<keyword>textureGradOffset</keyword>
+		<keyword>textureProjGrad</keyword>
+		<keyword>textureProjGradOffset</keyword>
+		<keyword>textureGather</keyword>
+		<keyword>textureGatherOffset</keyword>
+		<keyword>textureGatherOffsets</keyword>
+		<keyword>dFdx</keyword>
+		<keyword>dFdy</keyword>
+		<keyword>fwidth</keyword>
+		<keyword>interpolateAtCentroid</keyword>
+		<keyword>interpolateAtSample</keyword>
+		<keyword>interpolateAtOffset</keyword>
+		<keyword>noise1</keyword>
+		<keyword>noise2</keyword>
+		<keyword>noise3</keyword>
+		<keyword>noise4</keyword>
+		<keyword>EmitStreamVertex</keyword>
+		<keyword>EndStreamPrimitive</keyword>
+		<keyword>EmitVertex</keyword>
+		<keyword>EndPrimitive</keyword>
+		<keyword>barrier</keyword>
+		<style>library-func</style>
+	</highlighter>
+</highlighters>

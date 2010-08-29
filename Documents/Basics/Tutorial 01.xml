@@ -45,7 +45,7 @@
             initialization done in the <function>init</function> function.</para>
         <example>
             <title>The <function>display</function> Function</title>
-            <programlisting>glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            <programlisting language="cpp">glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 glClear(GL_COLOR_BUFFER_BIT);
 
 glUseProgram(theProgram);
@@ -101,7 +101,7 @@ glutSwapBuffers();</programlisting>
                 space. Before OpenGL can do this however, it must receive a list of vertices. So the
                 very first stage of the pipeline is sending triangle data to OpenGL.</para>
             <para>This is the data that we wish to transfer:</para>
-            <programlisting>const float vertexPositions[] = {
+            <programlisting language="cpp">const float vertexPositions[] = {
     0.75f, 0.75f, 0.0f, 1.0f,
     0.75f, -0.75f, 0.0f, 1.0f,
     -0.75f, -0.75f, 0.0f, 1.0f,
@@ -125,7 +125,7 @@ glutSwapBuffers();</programlisting>
                 code responsible for creating the buffer object:</para>
             <example>
                 <title>Buffer Object Initialization</title>
-                <programlisting>void InitializeVertexBuffer()
+                <programlisting language="cpp">void InitializeVertexBuffer()
 {
     glGenBuffers(1, &amp;positionBufferObject);
     
@@ -161,7 +161,7 @@ glutSwapBuffers();</programlisting>
                 object with random binary data. We now need to do something that tells OpenGL that
                 there is vertex data in this buffer object.</para>
             <para>We do this in the rendering code. That is the purpose of these lines:</para>
-            <programlisting>glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+            <programlisting language="cpp">glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
 glEnableVertexAttribArray(0);
 glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
             <para>The first function we have seen before. It simply says that we are going to use
@@ -187,7 +187,7 @@ glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
             <para>The specifics of this function call will be discussed in later tutorials.</para>
             <para>Once OpenGL knows where to get its vertex data from, it can now use that vertex
                 data to render.</para>
-            <programlisting>glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
+            <programlisting language="cpp">glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
             <para>This function seems very simple on the surface, but it does a great deal. The
                 second and third parameters represent the start index and the number of indices to
                 read from our vertex data. We start at the 0th index, and read 3 vertices from it.
@@ -222,7 +222,7 @@ glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
                 forbidden). This is what our simple vertex shader looks like:</para>
             <example>
                 <title>Vertex Shader</title>
-                <programlisting>#version 330
+                <programlisting language="glsl">#version 330
 
 layout(location = 0) in vec4 position;
 void main()
@@ -244,7 +244,7 @@ void main()
                 variable defined by every vertex shader. If you see an identifier in GLSL that
                 starts with <quote>gl_,</quote> then it must be a built-in identifier.</para>
             <para><varname>gl_Position</varname> is defined as:</para>
-            <programlisting>out vec4 gl_Position;</programlisting>
+            <programlisting language="glsl">out vec4 gl_Position;</programlisting>
             <para>Recall that the minimum a vertex shader must do is generate a clip-space position
                 for the vertex. That is what <varname>gl_Position</varname> is: it is the output
                 that represents a clip-space position.</para>
@@ -267,7 +267,7 @@ void main()
             <para>Each attribute variable, an input to a vertex shader, has an index location called
                 an <glossterm>attribute index</glossterm>. The input in this shader was defined with
                 this statement:</para>
-            <programlisting>layout(location = 0) in vec4 position;</programlisting>
+            <programlisting language="glsl">layout(location = 0) in vec4 position;</programlisting>
             <para>The layout location part assigns the attribute index of 0 to
                     <varname>position</varname>. Attribute indices must be positive numbers, and
                 there is a hardware-based limit on the number of attribute indices that can be in
@@ -297,7 +297,7 @@ void main()
                 So the tutorial's implementation of reshape is this:</para>
             <example>
                 <title>Reshaping Window</title>
-                <programlisting>void reshape (int w, int h)
+                <programlisting language="cpp">void reshape (int w, int h)
 {
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }</programlisting>
@@ -328,7 +328,7 @@ void main()
             <para>Our fragment shader looks like this:</para>
             <example>
                 <title>Fragment Shader</title>
-                <programlisting>#version 330
+                <programlisting language="glsl">#version 330
 
 out vec4 outputColor;
 void main()
@@ -388,7 +388,7 @@ void main()
             is the responsibility of this code:</para>
         <example>
             <title>Program Initialization</title>
-            <programlisting>void InitializeProgram()
+            <programlisting language="cpp">void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
     
@@ -407,7 +407,7 @@ void main()
                 <function>CreateShader</function>:</para>
         <example>
             <title>Shader Creation</title>
-            <programlisting>GLuint CreateShader(GLenum eShaderType, const std::string &amp;strShaderFile)
+            <programlisting language="cpp">GLuint CreateShader(GLenum eShaderType, const std::string &amp;strShaderFile)
 {
     GLuint shader = glCreateShader(eShaderType);
     const char *strFileData = strShaderFile.c_str();
@@ -480,7 +480,7 @@ void main()
                 <function>CreateProgram</function> function:</para>
         <example>
             <title>Program Creation</title>
-            <programlisting>GLuint CreateProgram(const std::vector&lt;GLuint> &amp;shaderList)
+            <programlisting language="cpp">GLuint CreateProgram(const std::vector&lt;GLuint> &amp;shaderList)
 {
     GLuint program = glCreateProgram();
     

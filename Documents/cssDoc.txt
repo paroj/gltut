@@ -47,3 +47,14 @@ Top-level constructs:
     div.note: A short notation.
     div.tip: A longer notation.
     
+Syntax highlighting (all in spans)
+    code-type: Types that hold values (ints, vec3, etc)
+    code-modifier: Type modifiers (uniform, layout, etc)
+    code-sampler: Sampler types
+    code-keyword: Keywords that don't fit into the above.
+    code-function: A function from the standard library.
+    
+    code-number: Numbers.
+    code-comment: Comments.
+    code-directive: Directives.
+    

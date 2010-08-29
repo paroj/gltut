@@ -49,7 +49,7 @@
             <para>Once the VAO is bound, calls to certain functions change the data in the bound
                 VAO. Technically, they <emphasis>always</emphasis> have changed the VAO's state; all
                 of the prior tutorials have these lines in the initialization function:</para>
-            <programlisting><![CDATA[glGenVertexArrays(1, &vao);
+            <programlisting language="cpp"><![CDATA[glGenVertexArrays(1, &vao);
 glBindVertexArray(vao);]]></programlisting>
             <para>This means that we have been changing the state of a single VAO in each tutorial.
                 We just didn't talk about it at the time.</para>
@@ -124,7 +124,7 @@ glBindVertexArray(vao);]]></programlisting>
                 conceptually as the following pseudo-code:</para>
             <example>
                 <title>Draw Arrays Implementation</title>
-                <programlisting><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
+                <programlisting language="cpp"><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
 {
     for(GLint element = start; element < start + count; element++)
     {
@@ -218,7 +218,7 @@ glBindVertexArray(vao);]]></programlisting>
             <para>This function can be defined by the following pseudo-code:</para>
             <example>
                 <title>Draw Elements Implementation</title>
-                <programlisting><![CDATA[GLvoid *elementArray;
+                <programlisting language="cpp"><![CDATA[GLvoid *elementArray;
 
 void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
 {
@@ -253,7 +253,7 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
                 follows:</para>
             <example>
                 <title>VAO Initialization</title>
-                <programlisting><![CDATA[void InitializeVertexArrayObjects()
+                <programlisting language="cpp"><![CDATA[void InitializeVertexArrayObjects()
 {
     glGenVertexArrays(1, &vaoObject1);
     glBindVertexArray(vaoObject1);
@@ -314,7 +314,7 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
                 simple:</para>
             <example>
                 <title>VAO and Indexed Rendering Code</title>
-                <programlisting><![CDATA[    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+                <programlisting language="cpp"><![CDATA[    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     
     glUseProgram(theProgram);
@@ -372,7 +372,7 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
         <para>Look at the vertex data in the buffer object:</para>
         <example>
             <title>Vertex Attribute Data Abridged</title>
-            <programlisting>//Object 1 positions
+            <programlisting language="cpp">//Object 1 positions
 LEFT_EXTENT,    TOP_EXTENT,       REAR_EXTENT,
 LEFT_EXTENT,    MIDDLE_EXTENT,    FRONT_EXTENT,
 RIGHT_EXTENT,   MIDDLE_EXTENT,    FRONT_EXTENT,
@@ -422,7 +422,7 @@ GREY_COLOR,</programlisting>
             could look like this:</para>
         <example>
             <title>Array Drawing of Two Objects with One VAO</title>
-            <programlisting>glUseProgram(theProgram);
+            <programlisting language="cpp">glUseProgram(theProgram);
 
 glBindVertexArray(vaoObject);
 glUniform3f(offsetUniform, 0.0f, 0.0f, 0.0f);
@@ -444,7 +444,7 @@ glUseProgram(0);</programlisting>
             buffer. This changes our element buffer into the following:</para>
         <example>
             <title>MultiObject Element Buffer</title>
-            <programlisting>const GLshort indexData[] =
+            <programlisting language="cpp">const GLshort indexData[] =
 {
 //Object 1
 0, 2, 1,        3, 2, 0,
@@ -472,7 +472,7 @@ glUseProgram(0);</programlisting>
         <para>The initialization changes, building only one VAO.</para>
         <example>
             <title>Base Vertex Single VAO</title>
-            <programlisting>glGenVertexArrays(1, &amp;vao);
+            <programlisting language="cpp">glGenVertexArrays(1, &amp;vao);
 glBindVertexArray(vao);
 
 size_t colorDataOffset = sizeof(float) * 3 * numberOfVertices;
@@ -489,7 +489,7 @@ glBindVertexArray(0);</programlisting>
             follows:</para>
         <example>
             <title>Base Vertex Rendering</title>
-            <programlisting>glUseProgram(theProgram);
+            <programlisting language="cpp">glUseProgram(theProgram);
 
 glBindVertexArray(vao);
 
@@ -646,7 +646,7 @@ glUseProgram(0);</programlisting>
             <para>The initialization routine has all of the basic depth testing code in it:</para>
             <example>
                 <title>Depth Buffer Setup</title>
-                <programlisting>glEnable(GL_DEPTH_TEST);
+                <programlisting language="cpp">glEnable(GL_DEPTH_TEST);
 glDepthMask(GL_TRUE);
 glDepthFunc(GL_LEQUAL);
 glDepthRange(0.0f, 1.0f);</programlisting>
@@ -677,7 +677,7 @@ glDepthRange(0.0f, 1.0f);</programlisting>
                 the top of the function, happens as follows:</para>
             <example>
                 <title>Depth Buffer Clearing</title>
-                <programlisting>glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+                <programlisting language="cpp">glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 glClearDepth(1.0f);
 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </example>
@@ -706,7 +706,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             <para>Let's test our depth buffering a bit more. Let's create a little overlap between
                 the two objects. Change the first offset uniform statement in
                     <function>display</function> to be this:</para>
-            <programlisting>glUniform3f(offsetUniform, 0.0f, 0.0f, -0.75f);</programlisting>
+            <programlisting language="cpp">glUniform3f(offsetUniform, 0.0f, 0.0f, -0.75f);</programlisting>
             <para>We now get some overlap, but the result is still reasonable:</para>
             <figure>
                 <title>Mild Overlap</title>
@@ -718,7 +718,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 </mediaobject>
             </figure>
             <para>We can even change the line to cause major overlap without incident:</para>
-            <programlisting>glUniform3f(offsetUniform, 0.0f, 0.0f, -1.0f);</programlisting>
+            <programlisting language="cpp">glUniform3f(offsetUniform, 0.0f, 0.0f, -1.0f);</programlisting>
             <para>Which gives us:</para>
             <figure>
                 <title>Major Overlap</title>
@@ -748,7 +748,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     the generated window-space depth as the final depth of the fragment.</para>
                 <para>Oh, you could do this manually. We could add the following statement to the
                         <function>main</function> function of our fragment shader:</para>
-                <programlisting>gl_FragDepth = gl_FragCoord.z</programlisting>
+                <programlisting language="glsl">gl_FragDepth = gl_FragCoord.z</programlisting>
                 <para>This is, in terms of behavior a noop; it does nothing OpenGL wouldn't have
                     done itself. However, in terms of <emphasis>performance</emphasis>, this is a
                     drastic change.</para>
@@ -915,7 +915,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 <function>keyboard</function> function has changed as follows:</para>
         <example>
             <title>Depth Clamping On/Off</title>
-            <programlisting>void keyboard(unsigned char key, int x, int y)
+            <programlisting language="cpp">void keyboard(unsigned char key, int x, int y)
 {
     static bool bDepthClampingActive = false;
     switch (key)
@@ -988,6 +988,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         </note>
     </section>
         <section>
+            <?dbhtml filename="Tut05 Depth Precision.html" ?>
             <title>Depth Precision</title>
             <para>There is one other thing that needs to be discussed with regard to depth buffers:
                 precision.</para>
@@ -1030,7 +1031,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 15-bit depth buffer.</para>
             <para>Even so, the difference between 16 bits and 15 bits is not that great. Instead of
                 looking at half of NDC space, let's look at half of the
-                    <emphasis>precision.</emphasis> So, what is the camera-space range at which you
+                <emphasis>precision.</emphasis> So, what is the camera-space range at which you
                 lose half of your precision?</para>
             <para>For a 16-bit depth buffer, half-precision is 8 bits. In fixed-point, if the near
                 value is 0 and the far is 65535 (representing 1.0), then half-precision happens when
@@ -1063,7 +1064,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 range of [-1, -7573]. If these units are conceptually in inches, then you've got
                 most of the precision sitting in the first 600+ feet.</para>
             <para>And let's see what happens if we move the zNear plane forward just
-                    <emphasis>four</emphasis> inches, to 5:100,000. The percentage jumps to almost
+                <emphasis>four</emphasis> inches, to 5:100,000. The percentage jumps to almost
                 30%, with half-precision happening at over 29,000 inches; that's a good half-mile.
                 Increase the zNear to a mere 10 inches, and you have the equivalent of 1:10,000
                 again: 45%. 10 inches may seem like a lot, but that's still less than a foot away
@@ -1082,7 +1083,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     to 16,777,215. Even if the depth values were evenly distributed, you would only
                     get a resolution of 1/4th of an inch.</para>
                 <para>Second, this range is starting to come perilously close to the issues with
-                        <emphasis>floating-point</emphasis> precision. Yes, this still provides a
+                    <emphasis>floating-point</emphasis> precision. Yes, this still provides a
                     lot of precision, but remember: the depth range is for the current view. This
                     means that your world is probably much larger than this. If you're getting
                     numbers that large, you may need to start worrying about floating-point
@@ -1116,7 +1117,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </section>
         </section>
     <section>
-        <?dbhtml filename="Tut05 In Review.html" ?>
+    <?dbhtml filename="Tut05 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you have learned about the following:</para>
         <itemizedlist>

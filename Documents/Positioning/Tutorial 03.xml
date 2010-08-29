@@ -20,7 +20,7 @@
                 <function>ComputePositionOffset</function> function:</para>
         <example>
             <title>Computation of Position Offsets</title>
-            <programlisting>void ComputePositionOffsets(float &amp;fXOffset, float &amp;fYOffset)
+            <programlisting language="cpp">void ComputePositionOffsets(float &amp;fXOffset, float &amp;fYOffset)
 {
     const float fLoopDuration = 5.0f;
     const float fScale = 3.14159f * 2.0f / fLoopDuration;
@@ -50,7 +50,7 @@
             is done with the <function>AdjustVertexData</function> function:</para>
         <example>
             <title>Adjusting the Vertex Data</title>
-            <programlisting>void AdjustVertexData(float fXOffset, float fYOffset)
+            <programlisting language="cpp">void AdjustVertexData(float fXOffset, float fYOffset)
 {
     std::vector&lt;float> fNewData(ARRAY_COUNT(vertexPositions));
     memcpy(&amp;fNewData[0], vertexPositions, sizeof(vertexPositions));
@@ -99,9 +99,9 @@
                 of the last parameter of <function>glBufferData</function>. This tutorial changed
                 the allocation of the buffer object slightly, replacing:</para>
         </formalpara>
-        <programlisting>glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);</programlisting>
+        <programlisting language="cpp">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);</programlisting>
         <para>with this:</para>
-        <programlisting>glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STREAM_DRAW);</programlisting>
+        <programlisting language="cpp">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STREAM_DRAW);</programlisting>
         <para>GL_STATIC_DRAW tells OpenGL that you intend to only set the data in this buffer object
             once. GL_STREAM_DRAW tells OpenGL that you intend to set this data constantly, generally
             once per frame. These parameters don't mean <emphasis>anything</emphasis> with regard to
@@ -111,7 +111,7 @@
         <para>The rendering function now has become this:</para>
         <example>
             <title>Updating and Drawing the Vertex Data</title>
-            <programlisting>void display()
+            <programlisting language="cpp">void display()
 {
     float fXOffset = 0.0f, fYOffset = 0.0f;
     ComputePositionOffsets(fXOffset, fYOffset);
@@ -174,7 +174,7 @@
             vertex shader used here is as follows:</para>
         <example>
             <title>Offsetting Vertex Shader</title>
-            <programlisting>#version 330
+            <programlisting language="glsl">#version 330
 
 layout(location = 0) in vec4 position;
 uniform vec2 offset;
@@ -210,7 +210,7 @@ void main()
             value. Unlike attributes, you cannot set this location yourself; you must query it. In
             this tutorial, this is done in the <function>InitializeProgram</function> function, with
             this line:</para>
-        <programlisting>offsetLocation = glGetUniformLocation(theProgram, "offset");</programlisting>
+        <programlisting language="cpp">offsetLocation = glGetUniformLocation(theProgram, "offset");</programlisting>
         <para>The function <function>glGetUniformLocation</function> retrieves the uniform location
             for the uniform named by the second parameter. Note that just because a uniform is
             defined in a shader, GLSL does not <emphasis>have</emphasis> to provide a location for
@@ -223,7 +223,7 @@ void main()
             like this:</para>
         <example>
             <title>Draw with Calculated Offsets</title>
-            <programlisting>void display()
+            <programlisting language="cpp">void display()
 {
     float fXOffset = 0.0f, fYOffset = 0.0f;
     ComputePositionOffsets(fXOffset, fYOffset);
@@ -256,13 +256,13 @@ void main()
             <title>Vector Math</title>
             <para>You may be curious about how these lines work:</para>
         </formalpara>
-        <programlisting>vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
+        <programlisting language="cpp">vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
 gl_Position = position + totalOffset;</programlisting>
         <para>The <type>vec4</type> that looks like a function here is a constructor; it creates a
                 <type>vec4</type> from 4 floats. This is done to make the addition easier.</para>
         <para>The addition of <varname>position</varname> to <varname>totalOffset</varname> is a
             component-wise addition. It is a shorthand way of doing this:</para>
-        <programlisting>gl_Position.x = position.x + totalOffset.x;
+        <programlisting language="cpp">gl_Position.x = position.x + totalOffset.x;
 gl_Position.y = position.y + totalOffset.y;
 gl_Position.z = position.z + totalOffset.z;
 gl_Position.w = position.w + totalOffset.w;</programlisting>
@@ -284,7 +284,7 @@ gl_Position.w = position.w + totalOffset.w;</programlisting>
         <para>The vertex program is found in <filename>data\calcOffset.vert</filename>.</para>
         <example>
             <title>Offset Computing Vertex Shader</title>
-            <programlisting>#version 330
+            <programlisting language="glsl">#version 330
 
 layout(location = 0) in vec4 position;
 uniform float loopDuration;
@@ -313,7 +313,7 @@ void main()
         <para>The rendering code looks quite similar to the previous rendering code:</para>
         <example>
             <title>Rendering with Time</title>
-            <programlisting>void display()
+            <programlisting language="cpp">void display()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -342,7 +342,7 @@ void main()
             once:</para>
         <example>
             <title>Loop Duration Setting</title>
-            <programlisting>void InitializeProgram()
+            <programlisting language="cpp">void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
     
@@ -378,7 +378,7 @@ void main()
                 <filename>data\calcColor.frag</filename>:</para>
         <example>
             <title>Time-based Fragment Shader</title>
-            <programlisting>#version 330
+            <programlisting language="glsl">#version 330
 
 out vec4 outputColor;
 
@@ -412,7 +412,7 @@ void main()
         <para>Here is the program initialization code:</para>
         <example>
             <title>More Shader Creation</title>
-            <programlisting>void InitializeProgram()
+            <programlisting language="cpp">void InitializeProgram()
 {
     std::vector&lt;GLuint> shaderList;
     

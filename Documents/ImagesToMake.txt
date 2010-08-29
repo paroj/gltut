@@ -1,0 +1,5 @@
+Images and Equations for Tutorial 06
+
+- Image of how a 3D coordinate system defines a coordinate. It shows how the basis vectors and origin point are used to define a coordinate.
+
+- Image of two 2D coordinate systems. They use different basis vectors, but they define the same position relative to their origins.

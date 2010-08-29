@@ -304,13 +304,13 @@ private:
 	std::stack<glm::mat4> m_matrices;
 };
 
-void DrawGimbalSides(MatrixStack &currMatrix, float fGimbolSidesOffset, float fGimbolSidesScale)
+void DrawGimbalSides(MatrixStack &currMatrix, float fGimbalSidesOffset, float fGimbalSidesScale)
 {
 	//Draw the top
 	{
 		currMatrix.Push();
-		currMatrix.Translate(glm::vec3(0.0f, fGimbolSidesOffset, 0.0f));
-		currMatrix.Scale(glm::vec3(fGimbolSidesScale, 1.0f, 1.0f));
+		currMatrix.Translate(glm::vec3(0.0f, fGimbalSidesOffset, 0.0f));
+		currMatrix.Scale(glm::vec3(fGimbalSidesScale, 1.0f, 1.0f));
 		glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
 		glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 		currMatrix.Pop();
@@ -319,8 +319,8 @@ void DrawGimbalSides(MatrixStack &currMatrix, float fGimbolSidesOffset, float fG
 	//Draw the bottom
 	{
 		currMatrix.Push();
-		currMatrix.Translate(glm::vec3(0.0f, -fGimbolSidesOffset, 0.0f));
-		currMatrix.Scale(glm::vec3(fGimbolSidesScale, 1.0f, 1.0f));
+		currMatrix.Translate(glm::vec3(0.0f, -fGimbalSidesOffset, 0.0f));
+		currMatrix.Scale(glm::vec3(fGimbalSidesScale, 1.0f, 1.0f));
 		glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
 		glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 		currMatrix.Pop();
@@ -329,8 +329,8 @@ void DrawGimbalSides(MatrixStack &currMatrix, float fGimbolSidesOffset, float fG
 	//Draw the right
 	{
 		currMatrix.Push();
-		currMatrix.Translate(glm::vec3(fGimbolSidesOffset, 0.0f, 0.0f));
-		currMatrix.Scale(glm::vec3(1.0f, fGimbolSidesScale, 1.0f));
+		currMatrix.Translate(glm::vec3(fGimbalSidesOffset, 0.0f, 0.0f));
+		currMatrix.Scale(glm::vec3(1.0f, fGimbalSidesScale, 1.0f));
 		glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
 		glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 		currMatrix.Pop();
@@ -339,8 +339,8 @@ void DrawGimbalSides(MatrixStack &currMatrix, float fGimbolSidesOffset, float fG
 	//Draw the left
 	{
 		currMatrix.Push();
-		currMatrix.Translate(glm::vec3(-fGimbolSidesOffset, 0.0f, 0.0f));
-		currMatrix.Scale(glm::vec3(1.0f, fGimbolSidesScale, 1.0f));
+		currMatrix.Translate(glm::vec3(-fGimbalSidesOffset, 0.0f, 0.0f));
+		currMatrix.Scale(glm::vec3(1.0f, fGimbalSidesScale, 1.0f));
 		glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
 		glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 		currMatrix.Pop();
@@ -381,10 +381,10 @@ void DrawBaseGimbal(MatrixStack &currMatrix, float fSize, glm::vec4 baseColor)
 	glUniform4fv(baseColorUnif, 1, glm::value_ptr(baseColor));
 	glBindVertexArray(vao);
 
-	float fGimbolSidesOffset = (fSize / 2.0f) - 1.5f;
-	float fGimbolSidesScale = fSize - 2.0f;
+	float fGimbalSidesOffset = (fSize / 2.0f) - 1.5f;
+	float fGimbalSidesScale = fSize - 2.0f;
 
-	DrawGimbalSides(currMatrix, fGimbolSidesOffset, fGimbolSidesScale);
+	DrawGimbalSides(currMatrix, fGimbalSidesOffset, fGimbalSidesScale);
 	
 	float fGimbalAttachOffset = (fSize / 2.0f) - 0.5f;
 

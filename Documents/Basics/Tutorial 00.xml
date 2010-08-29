@@ -315,7 +315,7 @@
                 layer.</para>
             <para>In C++, if you wanted an object that contained an integer, a float, and a string,
                 you would create it and access it like this:</para>
-            <programlisting>struct Object
+            <programlisting language="cpp">struct Object
 {
     int anInteger;
     float aFloat;
@@ -331,7 +331,7 @@ newObject.aFloat = 0.4f;
 newObject.aString = "Some String";
 </programlisting>
             <para>In OpenGL, you would use an API that looks more like this:</para>
-            <programlisting>//Create the storage for the object
+            <programlisting language="cpp">//Create the storage for the object
 GLuint objectName;
 glGenObject(1, &amp;objectName);
 
