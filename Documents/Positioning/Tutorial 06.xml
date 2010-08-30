@@ -43,9 +43,9 @@
             thus defined by this equation:</para>
         <!--TODO: Show the vectoral equation defining a point.-->
         <para>The coordinate used to refer to a position depends entirely on the coordinate system
-            being used to describe that position. For example, here are two positions that appear
-            the same, from a neutral observer's point of view, that have completely different
-            coordinates.</para>
+            being used to describe that position. For example, here are two positions that have the
+            same numerical coordinate value, but appear in different locations (from the point of
+            view of a neutral observer).</para>
         <!--TODO: Show a 2D orthogonal and 2D skewed coordinate system, and the same coordinate position from both.-->
         <para>This is all well and good when dealing with axis vectors and the origin point as
             generic vectors as drawn above. The origin point is just a position, and the basis
@@ -56,9 +56,9 @@
         <para>For the purpose of this discussion, there is a coordinate system that acts as a kind
             of neutral coordinate system; it can be used as a generic viewpoint for a coordinate
             system. For a three-dimensional coordinate system, this identity space has the origin at
-            (0, 0, 0), with the X, Y and Z axis vectors as (1, 0, 0), (0, 1, 0), and (0, 0, 1). The
+            (0, 0, 0), with the X, Y and Z basis vectors as (1, 0, 0), (0, 1, 0), and (0, 0, 1). The
             range of the space is infinite. Any space can be defined relative to this identity
-            space. And unless otherwise noted, this is the space of any axis vectors or origin
+            space. And unless otherwise noted, this is the space of any basis vectors or origin
             points.</para>
         <section>
             <title>Transformation</title>
@@ -244,11 +244,12 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <?dbhtml filename="Tut06 Scale.html" ?>
         <title>Scale</title>
         <para>Another kind of transformation is <glossterm>scaling</glossterm>. In terms of our
-            previous definition of a coordinate system, this means that our axis vectors are getting
-            shorter or longer.</para>
+            previous definition of a coordinate system, this means that our basis vectors are
+            getting shorter or longer.</para>
         <!--TODO: show a 2D scaling transform.-->
-        <para>Scaling can be uniform, which means each axis vector is scaled by the same value. A
-            non-uniform scale means that each axis can get a different scale, or none at all.</para>
+        <para>Scaling can be uniform, which means each basis vector is scaled by the same value. A
+            non-uniform scale means that each basis can get a different scale, or none at
+            all.</para>
         <para>Uniform scales are used to allow objects in model space to have different units from
             the units used in camera space. For example, a modeller may have generated the model in
             inches, but the world uses centimeters. This will require applying a uniform scale to
@@ -257,10 +258,10 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Note that scaling always happens relative to the origin of the space being
             scaled.</para>
         <para>Remember how we defined the way coordinate systems generate a position, based on the
-            axis vectors and origin point?</para>
+            basis vectors and origin point?</para>
         <!--TODO: the vector equation from before-->
-        <para>If you are increasing or decreasing the length of the axis vectors, this is the same
-            as multiplying those axis vectors by the new length. So we can re-express this equation
+        <para>If you are increasing or decreasing the length of the basis vectors, this is the same
+            as multiplying those basis vectors by the new length. So we can re-express this equation
             as follows:</para>
         <!--TODO: scaled version of vector equation-->
         <para>Since multiplication is both associative and commutative, we can multiply the scales
@@ -333,8 +334,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </section>
         <section>
             <title>Inversion and Winding Order</title>
-            <para>Scales can be theoretically negative, or even 0. A scale of 0 causes the axis
-                vector in that direction to become 0 entirely. An axis vector with no length means
+            <para>Scales can be theoretically negative, or even 0. A scale of 0 causes the basis
+                vector in that direction to become 0 entirely. An basis vector with no length means
                 that a dimension has effectively been lost. The resulting transform squashes
                 everthing in that direction down to the origin. A 3D space becomes a 2D space (or 1D
                 or 0D, depending on how many axes were scaled).</para>
@@ -357,14 +358,14 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <title>Rotation</title>
         <para>A <glossterm>rotation</glossterm> transformation is the result of the orientation of
             the initial space being different from the orientation of the destination space. The
-            axis vectors of the space do not changed relative to one another, but relative to the
-            destination coordinate system, they are pointed in different directions than they were
-            in their own coordinate system.</para>
+            basis vectors of the space do not change orientation relative to one another, but
+            relative to the destination coordinate system, they are pointed in different directions
+            than they were in their own coordinate system.</para>
         <para>A rotation looks like this:</para>
         <!--TODO: Show a rotation transformation-->
         <para>Rotations are usually considered the most complex of transformations, primarily
             because of the math involved in computing the transformation matrix. Generally,
-            rotations are looked at as an operation, such as rotating around a particular axis or
+            rotations are looked at as an operation, such as rotating around a particular basis or
             some such. The prior part of the tutorial laid down some of the groundwork that will
             make this much simpler.</para>
         <para>First, let's look back at our equation for determining what the position of a
@@ -377,15 +378,15 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>What this tells us is that the columns of our transformation matrices are, and have
             always been, nothing more than the axes of a coordinate system. Except for the fourth
             column: because the position has a 1 in the W, it acts as an offset.</para>
-        <para>Transformation ultimately means this: taking the axis vectors and origin point from
+        <para>Transformation ultimately means this: taking the basis vectors and origin point from
             the original coordinate system and re-expressing them relative to the destination
             coordinate system.</para>
         <para>Therefore, if a rotation is just using a different set of axis directions, then
-            building a rotation transformation matrix simply requires computing a new set of axes
-            that different directions, but have the same length as the original ones. Now, this is
-            not easy; it requires semi-advanced math (which is easily encapsulated into various
-            functions). But no matter how complex the math may be, this math is nothing more than a
-            way to compute axis vectors that point in different directions.</para>
+            building a rotation transformation matrix simply requires computing a new set of basis
+            vectors that have different directions but the same length as the original ones. Now,
+            this is not easy; it requires semi-advanced math (which is easily encapsulated into
+            various functions). But no matter how complex the math may be, this math is nothing more
+            than a way to compute basis vectors that point in different directions.</para>
         <para>That is, a rotation matrix is not really a rotation matrix; it is an
                 <emphasis>orientation</emphasis> matrix. It defines the orientation of a space
             relative to another space. Remember this, and you will avoid many pitfalls when you
@@ -398,7 +399,6 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             axis relative to the initial axis. The axis of rotation is expressed in terms of the
             initial space. In 2D, there is only one axis that can be rotated around and still remain
             within that 2D plane: the Z-axis.</para>
-        <!--TODO: show rotation transform.-->
         <para>In 3D, there are many possible axes of rotation. It does not have to be one of the
             initial space's basis axes; it can be any arbitrary direction. Of course, the problem is
             made much simpler if one rotates only around the primary axes.</para>
@@ -462,10 +462,9 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
         <para>In mathematical terms, this would be the following series of matrix operations: <inlineequation>
                 <mathphrase>Final = C*S*R*T*position</mathphrase>
             </inlineequation>, where C is the camera-to-clip space transformation matrix.</para>
-        <!--TODO: show an equation with the various terms.-->
         <para>This is functional, but not particularly flexible; the series of transforms is baked
-            into the shader. It is also not particularly fast, what with having to do four matrix
-            multiplications, per vertex.</para>
+            into the shader. It is also not particularly fast, what with having to do four
+            vector/matrix multiplications for every vertex.</para>
         <para>Matrix math gives us an optimization. Matrix math is not commutative: <inlineequation>
                 <mathphrase>S*R</mathphrase>
             </inlineequation> is not the same as <inlineequation>
@@ -486,8 +485,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             </inlineequation> is <emphasis>fixed</emphasis> for all of a given object's vertices.
             This can be computed on the CPU, and all we have to do is upload a single matrix to
             OpenGL. And since we're already uploading a matrix to OpenGL for each object we render,
-            this changes nothing about the overall performance characteristics of the
-            rendering.</para>
+            this changes nothing about the overall performance characteristics of the rendering (for
+            the graphics hardware).</para>
         <para><emphasis>This</emphasis> is one of the main reasons matrices are used. You can have a
             transformation sequence with dozens of component transformations, and yet all it takes
             for the GPU to process this is a single vector/matrix multiplication.</para>
@@ -773,9 +772,9 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             <para>Rather than applying matrices to vertices, we are applying matrices to each other.
                 The matrix stack functions all perform right-multiplication; the new matrix being
                 multiplied by the current is on the right side. The matrix stack starts with the
-                identity matrix. To have it store T*R, you must first apply the T transform (the
-                current matrix is I*T) then apply the R transform, making the current matrix
-                I*T*R.</para>
+                identity matrix. To have it store T*R, you must first apply the T transform, which
+                makes the current matrix the current matrix is I*T. Then you apply the R transform,
+                making the current matrix I*T*R.</para>
             <para>Right-multiplication is necessary, as the whole point of using the matrix stack is
                 so that we can start at the root of a hierarchical model and save each node's
                 transform to the stack as we go from parent to child. That simply would not be
@@ -918,9 +917,11 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             and orient the object in a particular direction. In a flight-simulation game, the player
             would have controls that would change their yaw, pitch, and roll. However, look at this
             picture.</para>
-        <para>The player's theoretical ship is pointed in the direction of the red gimbal. Given the
-            controls you have in this project, can you cause the red gimbal to rotate around the
-            axis that it is facing? No. You can't even sort of do this. Why?</para>
+        <para>The player's theoretical ship is pointed in the direction of the red gimbal's plane.
+            Given the controls you have here, can you cause the red gimbal to rotate around the axis
+            that it is facing? No. You can't even do this somewhat; you can only rotate it in two
+            directions. But we have three gimbals, which means we should have three axes of
+            rotation. Why can't we rotate the red gimbal in the Z (forward) axis?</para>
         <para>Because the blue and red gimbals are now rotating about the <emphasis>same
                 axis</emphasis>. Which means you really only have two gimbals to manipulate in order
             to orient the red gimbal. And 3D orientation cannot be fully controlled with only 2
@@ -930,19 +931,20 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             the same effect.</para>
         <para>How do you fix this problem? There are several possible solutions to the
             problem.</para>
-        <para>One solution is to simply not use gimbals. After all, if you don't have gimbals, you
-            can't gimbal lock. Instead of storing the orientation as a series of rotations, store
-            the orientation as an <emphasis>orientation.</emphasis> That is, maintain the current
-            orientation as a matrix. When you need to modify the orientation, you apply a
-            transformation to this matrix, storing the result as the new current orientation.</para>
+        <para>Perhaps the most optimal solution is to simply not use gimbals. After all, if you
+            don't have gimbals, you can't gimbal lock. Instead of storing the orientation as a
+            series of rotations, store the orientation as an <emphasis>orientation.</emphasis> That
+            is, maintain the current orientation as a matrix. When you need to modify the
+            orientation, you apply a transformation to this matrix, storing the result as the new
+            current orientation.</para>
         <para>This means that every yaw, pitch, and roll applied to the current orientation will be
             relative to that current orientation.</para>
         <para>A downside of this approach, besides the size penalty of having to store a 4x4 matrix
             rather than 3 floating-point angles, is that floating-point math can lead to errors. If
             you keep accumulating successive transformations of an object, once every 1/30th of a
-            second for a period of several minutes, these floating-point errors start accumulating.
-            Eventually, the orientation stops being a pure rotation and starts incorporating scale
-            and skewing characteristics.</para>
+            second for a period of several minutes or hours, these floating-point errors start
+            accumulating. Eventually, the orientation stops being a pure rotation and starts
+            incorporating scale and skewing characteristics.</para>
         <para>The solution here is to re-orthonormalize the matrix after applying each transform. A
             transform (space) is said to be <glossterm>orthonormal</glossterm> if the axis vectors
             are of unit length (no scale) and each axis is perpendicular to all of the
