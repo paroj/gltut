@@ -1,14 +1,21 @@
 
 require "lfs"
-
-local function ToUnix(convString)
-	return string.gsub(convString, "%\\", "/");
-end
+require "_util"
 
 local data = dofile("_buildConfig.lua");
 
 local outputDir = ...;
 outputDir = outputDir or "..\\web\\";
+
+--Parameters
+local params = {}
+params["base.dir"] = ToUnix(outputDir);
+params["chunk.quietly"] = "1";
+params["html.stylesheet"] = "chunked.css";
+params["ignore.image.scaling"] = "1";
+params["highlight.source"] = "1";
+params["highlight.xslthl.config"] = "file:highlighting/xslthl-config.xml";
+
 
 --Auto-generate the main specialization file.
 local filename = "website.xsl";
@@ -26,6 +33,9 @@ hFile:write(
 hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "html\\chunkfast.xsl"), "\"/>\n");
 
 hFile:write([[    <xsl:import href="html-highlights.xsl"/>]], "\n");
+
+WriteParamsToFile(hFile, dofile("_commonParams.lua"));
+WriteParamsToFile(hFile, params);
 
 hFile:write([[</xsl:stylesheet> 
 ]]);
@@ -45,16 +55,6 @@ command[#command + 1] = "-o"
 command[#command + 1] = "\"" .. outputDir .. "nothing.html\""
 command[#command + 1] = "\"..\\Tutorials.xml\""
 command[#command + 1] = filename
---command[#command + 1] = "\"" .. data.docbookXSLBasepath .. "html\\chunkfast.xsl\""
-command[#command + 1] = "\"base.dir=" .. ToUnix(outputDir) .. "\""
-command[#command + 1] = "\"chunk.quietly=1\""
-command[#command + 1] = "html.stylesheet=chunked.css"
-command[#command + 1] = "ignore.image.scaling=1"
-command[#command + 1] = "toc.max.depth=2"
-command[#command + 1] = "toc.section.depth=1"
-command[#command + 1] = "funcsynopsis.style=ansi"
-command[#command + 1] = "highlight.source=1"
-command[#command + 1] = "\"highlight.xslthl.config=file:highlighting/xslthl-config.xml\""
 
 finalCmd = table.concat(command, " ");
 print(finalCmd);

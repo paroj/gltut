@@ -6,17 +6,21 @@ local data = dofile("_buildConfig.lua");
 
 local outputDir = ...;
 outputDir = outputDir or "..\\fo\\";
-local foFilename = "..\\computerfo.fo";
+local foFilename = "..\\kindle.fo";
 
 --Parameters
 local params = {}
-params["body.start.indent"] = "2pc";
-params["page.margin.top"] = "0.25in";
-params["page.margin.bottom"] = "0.25in";
-params["page.margin.inner"] = "0.25in";
-params["page.margin.outer"] = "0.25in";
-params["paper.type"] = "USLetter";
+params["body.font.master"] = "10";
 params["body.start.indent"] = "0pt";
+params["page.height"] = "4.79in";
+params["page.height.portrait"] = "4.79in";
+params["page.width"] = "3.59in";
+params["page.width.portrait"] = "3.59in";
+params["page.margin.top"] = "0in";
+params["page.margin.bottom"] = "0in";
+params["page.margin.inner"] = "0in";
+params["page.margin.outer"] = "0in";
+params["title.margin.left"] = "0pt";
 --params["highlight.source"] = "1";
 --params["highlight.xslthl.config"] = "file:highlighting/xslthl-config.xml";
 
@@ -73,7 +77,7 @@ command[#command + 1] = data.fopBatch
 command[#command + 1] = "-fo"
 command[#command + 1] = "\"" .. foFilename .. "\""
 command[#command + 1] = "-pdf"
-command[#command + 1] = "\"" .. outputDir .. "TutorialsComp.pdf\""
+command[#command + 1] = "\"" .. outputDir .. "TutorialsKindle.pdf\""
 
 finalCmd = table.concat(command, " ");
 print(finalCmd);

@@ -6,15 +6,11 @@ local data = dofile("_buildConfig.lua");
 
 local outputDir = ...;
 outputDir = outputDir or "..\\fo\\";
-local foFilename = "..\\computerfo.fo";
+local foFilename = "..\\printbw.fo";
 
 --Parameters
 local params = {}
-params["body.start.indent"] = "2pc";
-params["page.margin.top"] = "0.25in";
-params["page.margin.bottom"] = "0.25in";
-params["page.margin.inner"] = "0.25in";
-params["page.margin.outer"] = "0.25in";
+--params["body.start.indent"] = "2pc";
 params["paper.type"] = "USLetter";
 params["body.start.indent"] = "0pt";
 --params["highlight.source"] = "1";
@@ -73,7 +69,7 @@ command[#command + 1] = data.fopBatch
 command[#command + 1] = "-fo"
 command[#command + 1] = "\"" .. foFilename .. "\""
 command[#command + 1] = "-pdf"
-command[#command + 1] = "\"" .. outputDir .. "TutorialsComp.pdf\""
+command[#command + 1] = "\"" .. outputDir .. "TutorialsPrintBW.pdf\""
 
 finalCmd = table.concat(command, " ");
 print(finalCmd);
