@@ -44,7 +44,7 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #ifndef WGL_NV_present_video
 DECLARE_HANDLE(HVIDEOOUTPUTDEVICENV);
 #endif
-#ifndef WGL_NV_video_out
+#ifndef WGL_NV_video_output
 DECLARE_HANDLE(HPVIDEODEV);
 #endif
 #ifndef WGL_NV_gpu_affinity
@@ -57,6 +57,9 @@ typedef struct _GPU_DEVICE {
     DWORD  Flags;
     RECT   rcVirtualScreen;
 } GPU_DEVICE, *PGPU_DEVICE;
+#endif
+#ifndef WGL_NV_video_capture
+DECLARE_HANDLE(HVIDEOINPUTDEVICENV);
 #endif
 
 #ifdef __cplusplus
@@ -72,8 +75,10 @@ extern int wglext_ARB_make_current_read;
 extern int wglext_ARB_pbuffer;
 extern int wglext_ARB_render_texture;
 extern int wglext_ARB_pixel_format_float;
+extern int wglext_ARB_framebuffer_sRGB;
 extern int wglext_ARB_create_context;
 extern int wglext_ARB_create_context_profile;
+extern int wglext_ARB_create_context_robustness;
 extern int wglext_EXT_make_current_read;
 extern int wglext_EXT_pixel_format;
 extern int wglext_EXT_pbuffer;
@@ -97,6 +102,10 @@ extern int wglext_NV_video_out;
 extern int wglext_NV_swap_group;
 extern int wglext_NV_gpu_affinity;
 extern int wglext_AMD_gpu_association;
+extern int wglext_NV_video_capture;
+extern int wglext_NV_copy_image;
+extern int wglext_NV_multisample_coverage;
+extern int wglext_EXT_create_context_es2_profile;
 
 
 
@@ -211,12 +220,29 @@ extern PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 
 
 /******************************
+* Extension: WGL_ARB_create_context_robustness
+******************************/
+
+#define WGL_CONTEXT_ROBUST_ACCESS_BIT_ARB 0x00000004
+#define WGL_LOSE_CONTEXT_ON_RESET_ARB 0x8252
+#define WGL_CONTEXT_RESET_NOTIFICATION_STRATEGY_ARB 0x8256
+#define WGL_NO_RESET_NOTIFICATION_ARB 0x8261
+
+
+/******************************
 * Extension: WGL_ARB_extensions_string
 ******************************/
 
 typedef const char * (GLE_FUNCPTR * PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
 
 extern PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB;
+
+
+/******************************
+* Extension: WGL_ARB_framebuffer_sRGB
+******************************/
+
+#define WGL_FRAMEBUFFER_SRGB_CAPABLE_ARB 0x20A9
 
 
 /******************************
@@ -398,6 +424,13 @@ extern PFNWGLSETPBUFFERATTRIBARBPROC wglSetPbufferAttribARB;
 ******************************/
 
 #define WGL_TYPE_RGBA_FLOAT_ATI 0x21A0
+
+
+/******************************
+* Extension: WGL_EXT_create_context_es2_profile
+******************************/
+
+#define WGL_CONTEXT_ES2_PROFILE_BIT_EXT 0x00000004
 
 
 /******************************
@@ -644,6 +677,15 @@ extern PFNWGLQUERYFRAMELOCKMASTERI3DPROC wglQueryFrameLockMasterI3D;
 
 
 /******************************
+* Extension: WGL_NV_copy_image
+******************************/
+
+typedef BOOL (GLE_FUNCPTR * PFNWGLCOPYIMAGESUBDATANVPROC)(HGLRC hSrcRC, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, HGLRC hDstRC, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
+
+extern PFNWGLCOPYIMAGESUBDATANVPROC wglCopyImageSubDataNV;
+
+
+/******************************
 * Extension: WGL_NV_float_buffer
 ******************************/
 
@@ -677,6 +719,14 @@ extern PFNWGLENUMGPUDEVICESNVPROC wglEnumGpuDevicesNV;
 extern PFNWGLCREATEAFFINITYDCNVPROC wglCreateAffinityDCNV;
 extern PFNWGLENUMGPUSFROMAFFINITYDCNVPROC wglEnumGpusFromAffinityDCNV;
 extern PFNWGLDELETEDCNVPROC wglDeleteDCNV;
+
+
+/******************************
+* Extension: WGL_NV_multisample_coverage
+******************************/
+
+#define WGL_COVERAGE_SAMPLES_NV 0x2042
+#define WGL_COLOR_SAMPLES_NV 0x20B9
 
 
 /******************************
@@ -735,6 +785,27 @@ extern PFNWGLRESETFRAMECOUNTNVPROC wglResetFrameCountNV;
 
 
 /******************************
+* Extension: WGL_NV_video_capture
+******************************/
+
+#define WGL_UNIQUE_ID_NV 0x20CE
+#define WGL_NUM_VIDEO_CAPTURE_SLOTS_NV 0x20CF
+
+
+typedef BOOL (GLE_FUNCPTR * PFNWGLBINDVIDEOCAPTUREDEVICENVPROC)(UINT uVideoSlot, HVIDEOINPUTDEVICENV hDevice);
+typedef UINT (GLE_FUNCPTR * PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC)(HDC hDc, HVIDEOINPUTDEVICENV *phDeviceList);
+typedef BOOL (GLE_FUNCPTR * PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC)(HDC hDc, HVIDEOINPUTDEVICENV hDevice);
+typedef BOOL (GLE_FUNCPTR * PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC)(HDC hDc, HVIDEOINPUTDEVICENV hDevice, int iAttribute, int *piValue);
+typedef BOOL (GLE_FUNCPTR * PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC)(HDC hDc, HVIDEOINPUTDEVICENV hDevice);
+
+extern PFNWGLBINDVIDEOCAPTUREDEVICENVPROC wglBindVideoCaptureDeviceNV;
+extern PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC wglEnumerateVideoCaptureDevicesNV;
+extern PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC wglLockVideoCaptureDeviceNV;
+extern PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC wglQueryVideoCaptureDeviceNV;
+extern PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC wglReleaseVideoCaptureDeviceNV;
+
+
+/******************************
 * Extension: WGL_NV_video_out
 ******************************/
 
@@ -751,21 +822,6 @@ extern PFNWGLRESETFRAMECOUNTNVPROC wglResetFrameCountNV;
 #define WGL_VIDEO_OUT_FIELD_2 0x20CA
 #define WGL_VIDEO_OUT_STACKED_FIELDS_1_2 0x20CB
 #define WGL_VIDEO_OUT_STACKED_FIELDS_2_1 0x20CC
-
-
-typedef BOOL (GLE_FUNCPTR * PFNWGLGETVIDEODEVICENVPROC)(HDC hDC, int numDevices, HPVIDEODEV *hVideoDevice);
-typedef BOOL (GLE_FUNCPTR * PFNWGLRELEASEVIDEODEVICENVPROC)(HPVIDEODEV hVideoDevice);
-typedef BOOL (GLE_FUNCPTR * PFNWGLBINDVIDEOIMAGENVPROC)(HPVIDEODEV hVideoDevice, HPBUFFERARB hPbuffer, int iVideoBuffer);
-typedef BOOL (GLE_FUNCPTR * PFNWGLRELEASEVIDEOIMAGENVPROC)(HPBUFFERARB hPbuffer, int iVideoBuffer);
-typedef BOOL (GLE_FUNCPTR * PFNWGLSENDPBUFFERTOVIDEONVPROC)(HPBUFFERARB hPbuffer, int iBufferType, unsigned long *pulCounterPbuffer, BOOL bBlock);
-typedef BOOL (GLE_FUNCPTR * PFNWGLGETVIDEOINFONVPROC)(HPVIDEODEV hpVideoDevice, unsigned long *pulCounterOutputPbuffer, unsigned long *pulCounterOutputVideo);
-
-extern PFNWGLGETVIDEODEVICENVPROC wglGetVideoDeviceNV;
-extern PFNWGLRELEASEVIDEODEVICENVPROC wglReleaseVideoDeviceNV;
-extern PFNWGLBINDVIDEOIMAGENVPROC wglBindVideoImageNV;
-extern PFNWGLRELEASEVIDEOIMAGENVPROC wglReleaseVideoImageNV;
-extern PFNWGLSENDPBUFFERTOVIDEONVPROC wglSendPbufferToVideoNV;
-extern PFNWGLGETVIDEOINFONVPROC wglGetVideoInfoNV;
 
 
 #ifdef __cplusplus

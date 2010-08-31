@@ -89,8 +89,10 @@ int wglext_ARB_make_current_read = 0;
 int wglext_ARB_pbuffer = 0;
 int wglext_ARB_render_texture = 0;
 int wglext_ARB_pixel_format_float = 0;
+int wglext_ARB_framebuffer_sRGB = 0;
 int wglext_ARB_create_context = 0;
 int wglext_ARB_create_context_profile = 0;
+int wglext_ARB_create_context_robustness = 0;
 int wglext_EXT_make_current_read = 0;
 int wglext_EXT_pixel_format = 0;
 int wglext_EXT_pbuffer = 0;
@@ -114,6 +116,10 @@ int wglext_NV_video_out = 0;
 int wglext_NV_swap_group = 0;
 int wglext_NV_gpu_affinity = 0;
 int wglext_AMD_gpu_association = 0;
+int wglext_NV_video_capture = 0;
+int wglext_NV_copy_image = 0;
+int wglext_NV_multisample_coverage = 0;
+int wglext_EXT_create_context_es2_profile = 0;
 
 
 void wgleIntClear()
@@ -126,8 +132,10 @@ void wgleIntClear()
 	wglext_ARB_pbuffer = 0;
 	wglext_ARB_render_texture = 0;
 	wglext_ARB_pixel_format_float = 0;
+	wglext_ARB_framebuffer_sRGB = 0;
 	wglext_ARB_create_context = 0;
 	wglext_ARB_create_context_profile = 0;
+	wglext_ARB_create_context_robustness = 0;
 	wglext_EXT_make_current_read = 0;
 	wglext_EXT_pixel_format = 0;
 	wglext_EXT_pbuffer = 0;
@@ -151,6 +159,10 @@ void wgleIntClear()
 	wglext_NV_swap_group = 0;
 	wglext_NV_gpu_affinity = 0;
 	wglext_AMD_gpu_association = 0;
+	wglext_NV_video_capture = 0;
+	wglext_NV_copy_image = 0;
+	wglext_NV_multisample_coverage = 0;
+	wglext_EXT_create_context_es2_profile = 0;
 }
 
 
@@ -244,6 +256,7 @@ static int wgleIntLoad_ARB_create_context()
 	return bIsLoaded;
 }
 
+
 typedef const char * (GLE_FUNCPTR * PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
 
 PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB;
@@ -255,6 +268,7 @@ static int wgleIntLoad_ARB_extensions_string()
 	if(!TestPointer(wglGetExtensionsStringARB)) bIsLoaded = 0;
 	return bIsLoaded;
 }
+
 typedef BOOL (GLE_FUNCPTR * PFNWGLMAKECONTEXTCURRENTARBPROC)(HDC hDrawDC, HDC hReadDC, HGLRC hglrc);
 typedef HDC (GLE_FUNCPTR * PFNWGLGETCURRENTREADDCARBPROC)();
 
@@ -337,6 +351,7 @@ static int wgleIntLoad_ARB_render_texture()
 	if(!TestPointer(wglSetPbufferAttribARB)) bIsLoaded = 0;
 	return bIsLoaded;
 }
+
 
 
 
@@ -542,6 +557,17 @@ static int wgleIntLoad_I3D_swap_frame_lock()
 	if(!TestPointer(wglQueryFrameLockMasterI3D)) bIsLoaded = 0;
 	return bIsLoaded;
 }
+typedef BOOL (GLE_FUNCPTR * PFNWGLCOPYIMAGESUBDATANVPROC)(HGLRC hSrcRC, GLuint srcName, GLenum srcTarget, GLint srcLevel, GLint srcX, GLint srcY, GLint srcZ, HGLRC hDstRC, GLuint dstName, GLenum dstTarget, GLint dstLevel, GLint dstX, GLint dstY, GLint dstZ, GLsizei width, GLsizei height, GLsizei depth);
+
+PFNWGLCOPYIMAGESUBDATANVPROC wglCopyImageSubDataNV;
+
+static int wgleIntLoad_NV_copy_image()
+{
+	int bIsLoaded = 1;
+	wglCopyImageSubDataNV = (PFNWGLCOPYIMAGESUBDATANVPROC)gleIntGetProcAddress("wglCopyImageSubDataNV");
+	if(!TestPointer(wglCopyImageSubDataNV)) bIsLoaded = 0;
+	return bIsLoaded;
+}
 
 typedef BOOL (GLE_FUNCPTR * PFNWGLENUMGPUSNVPROC)(UINT iGpuIndex, HGPUNV *phGpu);
 typedef BOOL (GLE_FUNCPTR * PFNWGLENUMGPUDEVICESNVPROC)(HGPUNV hGpu, UINT iDeviceIndex, PGPU_DEVICE lpGpuDevice);
@@ -570,6 +596,7 @@ static int wgleIntLoad_NV_gpu_affinity()
 	if(!TestPointer(wglDeleteDCNV)) bIsLoaded = 0;
 	return bIsLoaded;
 }
+
 typedef int (GLE_FUNCPTR * PFNWGLENUMERATEVIDEODEVICESNVPROC)(HDC hDC, HVIDEOOUTPUTDEVICENV *phDeviceList);
 typedef BOOL (GLE_FUNCPTR * PFNWGLBINDVIDEODEVICENVPROC)(HDC hDC, unsigned int uVideoSlot, HVIDEOOUTPUTDEVICENV hVideoDevice, const int *piAttribList);
 typedef BOOL (GLE_FUNCPTR * PFNWGLQUERYCURRENTCONTEXTNVPROC)(int iAttribute, int *piValue);
@@ -622,37 +649,34 @@ static int wgleIntLoad_NV_swap_group()
 	if(!TestPointer(wglResetFrameCountNV)) bIsLoaded = 0;
 	return bIsLoaded;
 }
-typedef BOOL (GLE_FUNCPTR * PFNWGLGETVIDEODEVICENVPROC)(HDC hDC, int numDevices, HPVIDEODEV *hVideoDevice);
-typedef BOOL (GLE_FUNCPTR * PFNWGLRELEASEVIDEODEVICENVPROC)(HPVIDEODEV hVideoDevice);
-typedef BOOL (GLE_FUNCPTR * PFNWGLBINDVIDEOIMAGENVPROC)(HPVIDEODEV hVideoDevice, HPBUFFERARB hPbuffer, int iVideoBuffer);
-typedef BOOL (GLE_FUNCPTR * PFNWGLRELEASEVIDEOIMAGENVPROC)(HPBUFFERARB hPbuffer, int iVideoBuffer);
-typedef BOOL (GLE_FUNCPTR * PFNWGLSENDPBUFFERTOVIDEONVPROC)(HPBUFFERARB hPbuffer, int iBufferType, unsigned long *pulCounterPbuffer, BOOL bBlock);
-typedef BOOL (GLE_FUNCPTR * PFNWGLGETVIDEOINFONVPROC)(HPVIDEODEV hpVideoDevice, unsigned long *pulCounterOutputPbuffer, unsigned long *pulCounterOutputVideo);
+typedef BOOL (GLE_FUNCPTR * PFNWGLBINDVIDEOCAPTUREDEVICENVPROC)(UINT uVideoSlot, HVIDEOINPUTDEVICENV hDevice);
+typedef UINT (GLE_FUNCPTR * PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC)(HDC hDc, HVIDEOINPUTDEVICENV *phDeviceList);
+typedef BOOL (GLE_FUNCPTR * PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC)(HDC hDc, HVIDEOINPUTDEVICENV hDevice);
+typedef BOOL (GLE_FUNCPTR * PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC)(HDC hDc, HVIDEOINPUTDEVICENV hDevice, int iAttribute, int *piValue);
+typedef BOOL (GLE_FUNCPTR * PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC)(HDC hDc, HVIDEOINPUTDEVICENV hDevice);
 
-PFNWGLGETVIDEODEVICENVPROC wglGetVideoDeviceNV;
-PFNWGLRELEASEVIDEODEVICENVPROC wglReleaseVideoDeviceNV;
-PFNWGLBINDVIDEOIMAGENVPROC wglBindVideoImageNV;
-PFNWGLRELEASEVIDEOIMAGENVPROC wglReleaseVideoImageNV;
-PFNWGLSENDPBUFFERTOVIDEONVPROC wglSendPbufferToVideoNV;
-PFNWGLGETVIDEOINFONVPROC wglGetVideoInfoNV;
+PFNWGLBINDVIDEOCAPTUREDEVICENVPROC wglBindVideoCaptureDeviceNV;
+PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC wglEnumerateVideoCaptureDevicesNV;
+PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC wglLockVideoCaptureDeviceNV;
+PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC wglQueryVideoCaptureDeviceNV;
+PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC wglReleaseVideoCaptureDeviceNV;
 
-static int wgleIntLoad_NV_video_out()
+static int wgleIntLoad_NV_video_capture()
 {
 	int bIsLoaded = 1;
-	wglGetVideoDeviceNV = (PFNWGLGETVIDEODEVICENVPROC)gleIntGetProcAddress("wglGetVideoDeviceNV");
-	if(!TestPointer(wglGetVideoDeviceNV)) bIsLoaded = 0;
-	wglReleaseVideoDeviceNV = (PFNWGLRELEASEVIDEODEVICENVPROC)gleIntGetProcAddress("wglReleaseVideoDeviceNV");
-	if(!TestPointer(wglReleaseVideoDeviceNV)) bIsLoaded = 0;
-	wglBindVideoImageNV = (PFNWGLBINDVIDEOIMAGENVPROC)gleIntGetProcAddress("wglBindVideoImageNV");
-	if(!TestPointer(wglBindVideoImageNV)) bIsLoaded = 0;
-	wglReleaseVideoImageNV = (PFNWGLRELEASEVIDEOIMAGENVPROC)gleIntGetProcAddress("wglReleaseVideoImageNV");
-	if(!TestPointer(wglReleaseVideoImageNV)) bIsLoaded = 0;
-	wglSendPbufferToVideoNV = (PFNWGLSENDPBUFFERTOVIDEONVPROC)gleIntGetProcAddress("wglSendPbufferToVideoNV");
-	if(!TestPointer(wglSendPbufferToVideoNV)) bIsLoaded = 0;
-	wglGetVideoInfoNV = (PFNWGLGETVIDEOINFONVPROC)gleIntGetProcAddress("wglGetVideoInfoNV");
-	if(!TestPointer(wglGetVideoInfoNV)) bIsLoaded = 0;
+	wglBindVideoCaptureDeviceNV = (PFNWGLBINDVIDEOCAPTUREDEVICENVPROC)gleIntGetProcAddress("wglBindVideoCaptureDeviceNV");
+	if(!TestPointer(wglBindVideoCaptureDeviceNV)) bIsLoaded = 0;
+	wglEnumerateVideoCaptureDevicesNV = (PFNWGLENUMERATEVIDEOCAPTUREDEVICESNVPROC)gleIntGetProcAddress("wglEnumerateVideoCaptureDevicesNV");
+	if(!TestPointer(wglEnumerateVideoCaptureDevicesNV)) bIsLoaded = 0;
+	wglLockVideoCaptureDeviceNV = (PFNWGLLOCKVIDEOCAPTUREDEVICENVPROC)gleIntGetProcAddress("wglLockVideoCaptureDeviceNV");
+	if(!TestPointer(wglLockVideoCaptureDeviceNV)) bIsLoaded = 0;
+	wglQueryVideoCaptureDeviceNV = (PFNWGLQUERYVIDEOCAPTUREDEVICENVPROC)gleIntGetProcAddress("wglQueryVideoCaptureDeviceNV");
+	if(!TestPointer(wglQueryVideoCaptureDeviceNV)) bIsLoaded = 0;
+	wglReleaseVideoCaptureDeviceNV = (PFNWGLRELEASEVIDEOCAPTUREDEVICENVPROC)gleIntGetProcAddress("wglReleaseVideoCaptureDeviceNV");
+	if(!TestPointer(wglReleaseVideoCaptureDeviceNV)) bIsLoaded = 0;
 	return bIsLoaded;
 }
+
 StrToExtMap wgleIntExtensionMap[] = {
 	{"WGL_3DFX_multisample", &wglext_3DFX_multisample, NULL},
 	{"WGL_3DL_stereo_control", &wglext_3DL_stereo_control, wgleIntLoad_3DL_stereo_control},
@@ -660,7 +684,9 @@ StrToExtMap wgleIntExtensionMap[] = {
 	{"WGL_ARB_buffer_region", &wglext_ARB_buffer_region, wgleIntLoad_ARB_buffer_region},
 	{"WGL_ARB_create_context", &wglext_ARB_create_context, wgleIntLoad_ARB_create_context},
 	{"WGL_ARB_create_context_profile", &wglext_ARB_create_context_profile, NULL},
+	{"WGL_ARB_create_context_robustness", &wglext_ARB_create_context_robustness, NULL},
 	{"WGL_ARB_extensions_string", &wglext_ARB_extensions_string, wgleIntLoad_ARB_extensions_string},
+	{"WGL_ARB_framebuffer_sRGB", &wglext_ARB_framebuffer_sRGB, NULL},
 	{"WGL_ARB_make_current_read", &wglext_ARB_make_current_read, wgleIntLoad_ARB_make_current_read},
 	{"WGL_ARB_multisample", &wglext_ARB_multisample, NULL},
 	{"WGL_ARB_pbuffer", &wglext_ARB_pbuffer, wgleIntLoad_ARB_pbuffer},
@@ -668,6 +694,7 @@ StrToExtMap wgleIntExtensionMap[] = {
 	{"WGL_ARB_pixel_format_float", &wglext_ARB_pixel_format_float, NULL},
 	{"WGL_ARB_render_texture", &wglext_ARB_render_texture, wgleIntLoad_ARB_render_texture},
 	{"WGL_ATI_pixel_format_float", &wglext_ATI_pixel_format_float, NULL},
+	{"WGL_EXT_create_context_es2_profile", &wglext_EXT_create_context_es2_profile, NULL},
 	{"WGL_EXT_depth_float", &wglext_EXT_depth_float, NULL},
 	{"WGL_EXT_framebuffer_sRGB", &wglext_EXT_framebuffer_sRGB, NULL},
 	{"WGL_EXT_make_current_read", &wglext_EXT_make_current_read, wgleIntLoad_EXT_make_current_read},
@@ -680,16 +707,19 @@ StrToExtMap wgleIntExtensionMap[] = {
 	{"WGL_I3D_genlock", &wglext_I3D_genlock, wgleIntLoad_I3D_genlock},
 	{"WGL_I3D_image_buffer", &wglext_I3D_image_buffer, wgleIntLoad_I3D_image_buffer},
 	{"WGL_I3D_swap_frame_lock", &wglext_I3D_swap_frame_lock, wgleIntLoad_I3D_swap_frame_lock},
+	{"WGL_NV_copy_image", &wglext_NV_copy_image, wgleIntLoad_NV_copy_image},
 	{"WGL_NV_float_buffer", &wglext_NV_float_buffer, NULL},
 	{"WGL_NV_gpu_affinity", &wglext_NV_gpu_affinity, wgleIntLoad_NV_gpu_affinity},
+	{"WGL_NV_multisample_coverage", &wglext_NV_multisample_coverage, NULL},
 	{"WGL_NV_present_video", &wglext_NV_present_video, wgleIntLoad_NV_present_video},
 	{"WGL_NV_render_depth_texture", &wglext_NV_render_depth_texture, NULL},
 	{"WGL_NV_render_texture_rectangle", &wglext_NV_render_texture_rectangle, NULL},
 	{"WGL_NV_swap_group", &wglext_NV_swap_group, wgleIntLoad_NV_swap_group},
-	{"WGL_NV_video_out", &wglext_NV_video_out, wgleIntLoad_NV_video_out},
+	{"WGL_NV_video_capture", &wglext_NV_video_capture, wgleIntLoad_NV_video_capture},
+	{"WGL_NV_video_out", &wglext_NV_video_out, NULL},
 };
 
-int wgleIntExtensionMapSize = 33;
+int wgleIntExtensionMapSize = 39;
 
 
 

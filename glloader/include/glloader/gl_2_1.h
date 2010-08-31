@@ -128,10 +128,24 @@ typedef unsigned __int64 uint64_t;
 typedef int64_t GLint64EXT;
 typedef uint64_t GLuint64EXT;
 #endif
-#ifndef ARB_sync
+#ifndef GL_ARB_sync
 typedef int64_t GLint64;
 typedef uint64_t GLuint64;
 typedef struct __GLsync *GLsync;
+#endif
+#ifndef GL_ARB_cl_event
+/* These incomplete types let us declare types compatible with OpenCL's cl_context and cl_event */
+struct _cl_context;
+struct _cl_event;
+#endif
+#ifndef GL_ARB_debug_output
+typedef void (APIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+#endif
+#ifndef GL_AMD_debug_output
+typedef void (APIENTRY *GLDEBUGPROCAMD)(GLuint id,GLenum category,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+#endif
+#ifndef GL_NV_vdpau_interop
+typedef GLintptr GLvdpauSurfaceNV;
 #endif
 
 #ifdef __cplusplus
@@ -204,6 +218,35 @@ extern int glext_ARB_sample_shading;
 extern int glext_ARB_texture_cube_map_array;
 extern int glext_ARB_texture_gather;
 extern int glext_ARB_texture_query_lod;
+extern int glext_ARB_shading_language_include;
+extern int glext_ARB_texture_compression_bptc;
+extern int glext_ARB_blend_func_extended;
+extern int glext_ARB_explicit_attrib_location;
+extern int glext_ARB_occlusion_query2;
+extern int glext_ARB_sampler_objects;
+extern int glext_ARB_shader_bit_encoding;
+extern int glext_ARB_texture_rgb10_a2ui;
+extern int glext_ARB_texture_swizzle;
+extern int glext_ARB_timer_query;
+extern int glext_ARB_vertex_type_2_10_10_10_rev;
+extern int glext_ARB_draw_indirect;
+extern int glext_ARB_gpu_shader5;
+extern int glext_ARB_gpu_shader_fp64;
+extern int glext_ARB_shader_subroutine;
+extern int glext_ARB_tessellation_shader;
+extern int glext_ARB_texture_buffer_object_rgb32;
+extern int glext_ARB_transform_feedback2;
+extern int glext_ARB_transform_feedback3;
+extern int glext_ARB_ES2_compatibility;
+extern int glext_ARB_get_program_binary;
+extern int glext_ARB_separate_shader_objects;
+extern int glext_ARB_shader_precision;
+extern int glext_ARB_vertex_attrib_64bit;
+extern int glext_ARB_viewport_array;
+extern int glext_ARB_cl_event;
+extern int glext_ARB_debug_output;
+extern int glext_ARB_robustness;
+extern int glext_ARB_shader_stencil_export;
 extern int glext_EXT_abgr;
 extern int glext_EXT_blend_color;
 extern int glext_EXT_polygon_offset;
@@ -481,6 +524,21 @@ extern int glext_NV_parameter_buffer_object2;
 extern int glext_NV_shader_buffer_load;
 extern int glext_NV_vertex_buffer_unified_memory;
 extern int glext_NV_texture_barrier;
+extern int glext_AMD_shader_stencil_export;
+extern int glext_AMD_seamless_cubemap_per_texture;
+extern int glext_AMD_conservative_depth;
+extern int glext_EXT_shader_image_load_store;
+extern int glext_EXT_vertex_attrib_64bit;
+extern int glext_NV_gpu_program5;
+extern int glext_NV_gpu_shader5;
+extern int glext_NV_shader_buffer_store;
+extern int glext_NV_tessellation_program5;
+extern int glext_NV_vertex_attrib_integer_64bit;
+extern int glext_NV_multisample_coverage;
+extern int glext_AMD_name_gen_delete;
+extern int glext_AMD_debug_output;
+extern int glext_NV_vdpau_interop;
+extern int glext_AMD_transform_feedback3_lines_triangles;
 
 
 /******************************
@@ -605,7 +663,6 @@ extern int glext_NV_texture_barrier;
 #define GL_TEXTURE_HEIGHT 0x1001
 #define GL_TEXTURE_INTERNAL_FORMAT 0x1003
 #define GL_TEXTURE_BORDER_COLOR 0x1004
-#define GL_TEXTURE_BORDER 0x1005
 #define GL_TEXTURE_RED_SIZE 0x805C
 #define GL_TEXTURE_GREEN_SIZE 0x805D
 #define GL_TEXTURE_BLUE_SIZE 0x805E
@@ -918,6 +975,7 @@ extern int glext_NV_texture_barrier;
 #define GL_TEXTURE_COORD_ARRAY_STRIDE 0x808A
 #define GL_EDGE_FLAG_ARRAY_STRIDE 0x808C
 #define GL_TEXTURE_COMPONENTS 0x1003
+#define GL_TEXTURE_BORDER 0x1005
 #define GL_TEXTURE_LUMINANCE_SIZE 0x8060
 #define GL_TEXTURE_INTENSITY_SIZE 0x8061
 #define GL_TEXTURE_PRIORITY 0x8066
@@ -2481,7 +2539,7 @@ extern PFNGLMULTTRANSPOSEMATRIXDPROC __gleMultTransposeMatrixd;
 
 
 typedef void (GLE_FUNCPTR * PFNGLBLENDFUNCSEPARATEPROC)(GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
-typedef void (GLE_FUNCPTR * PFNGLMULTIDRAWARRAYSPROC)(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount);
+typedef void (GLE_FUNCPTR * PFNGLMULTIDRAWARRAYSPROC)(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
 typedef void (GLE_FUNCPTR * PFNGLMULTIDRAWELEMENTSPROC)(GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount);
 typedef void (GLE_FUNCPTR * PFNGLPOINTPARAMETERFPROC)(GLenum pname, GLfloat param);
 typedef void (GLE_FUNCPTR * PFNGLPOINTPARAMETERFVPROC)(GLenum pname, const GLfloat *params);
@@ -2827,7 +2885,7 @@ extern PFNGLGETBUFFERPOINTERVPROC __gleGetBufferPointerv;
 typedef void (GLE_FUNCPTR * PFNGLBLENDEQUATIONSEPARATEPROC)(GLenum modeRGB, GLenum modeAlpha);
 typedef void (GLE_FUNCPTR * PFNGLDRAWBUFFERSPROC)(GLsizei n, const GLenum *bufs);
 typedef void (GLE_FUNCPTR * PFNGLSTENCILOPSEPARATEPROC)(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
-typedef void (GLE_FUNCPTR * PFNGLSTENCILFUNCSEPARATEPROC)(GLenum frontfunc, GLenum backfunc, GLint ref, GLuint mask);
+typedef void (GLE_FUNCPTR * PFNGLSTENCILFUNCSEPARATEPROC)(GLenum face, GLenum func, GLint ref, GLuint mask);
 typedef void (GLE_FUNCPTR * PFNGLSTENCILMASKSEPARATEPROC)(GLenum face, GLuint mask);
 typedef void (GLE_FUNCPTR * PFNGLATTACHSHADERPROC)(GLuint program, GLuint shader);
 typedef void (GLE_FUNCPTR * PFNGLBINDATTRIBLOCATIONPROC)(GLuint program, GLuint index, const GLchar *name);
@@ -3186,6 +3244,40 @@ extern PFNGLTBUFFERMASK3DFXPROC glTbufferMask3DFX;
 
 
 /******************************
+* Extension: GL_AMD_conservative_depth
+******************************/
+
+/******************************
+* Extension: GL_AMD_debug_output
+******************************/
+
+#define GL_MAX_DEBUG_LOGGED_MESSAGES_AMD 0x9144
+#define GL_DEBUG_LOGGED_MESSAGES_AMD 0x9145
+#define GL_DEBUG_SEVERITY_HIGH_AMD 0x9146
+#define GL_DEBUG_SEVERITY_MEDIUM_AMD 0x9147
+#define GL_DEBUG_SEVERITY_LOW_AMD 0x9148
+#define GL_DEBUG_CATEGORY_API_ERROR_AMD 0x9149
+#define GL_DEBUG_CATEGORY_WINDOW_SYSTEM_AMD 0x914A
+#define GL_DEBUG_CATEGORY_DEPRECATION_AMD 0x914B
+#define GL_DEBUG_CATEGORY_UNDEFINED_BEHAVIOR_AMD 0x914C
+#define GL_DEBUG_CATEGORY_PERFORMANCE_AMD 0x914D
+#define GL_DEBUG_CATEGORY_SHADER_COMPILER_AMD 0x914E
+#define GL_DEBUG_CATEGORY_APPLICATION_AMD 0x914F
+#define GL_DEBUG_CATEGORY_OTHER_AMD 0x9150
+
+
+typedef void (GLE_FUNCPTR * PFNGLDEBUGMESSAGEENABLEAMDPROC)(GLenum category, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
+typedef void (GLE_FUNCPTR * PFNGLDEBUGMESSAGEINSERTAMDPROC)(GLenum category, GLenum severity, GLuint id, GLsizei length, const GLchar *buf);
+typedef void (GLE_FUNCPTR * PFNGLDEBUGMESSAGECALLBACKAMDPROC)(GLDEBUGPROCAMD callback, GLvoid *userParam);
+typedef GLuint (GLE_FUNCPTR * PFNGLGETDEBUGMESSAGELOGAMDPROC)(GLuint count, GLsizei bufsize, GLenum *categories, GLuint *severities, GLuint *ids, GLsizei *lengths, GLchar *message);
+
+extern PFNGLDEBUGMESSAGEENABLEAMDPROC glDebugMessageEnableAMD;
+extern PFNGLDEBUGMESSAGEINSERTAMDPROC glDebugMessageInsertAMD;
+extern PFNGLDEBUGMESSAGECALLBACKAMDPROC glDebugMessageCallbackAMD;
+extern PFNGLGETDEBUGMESSAGELOGAMDPROC glGetDebugMessageLogAMD;
+
+
+/******************************
 * Extension: GL_AMD_draw_buffers_blend
 ******************************/
 
@@ -3198,6 +3290,26 @@ extern PFNGLBLENDFUNCINDEXEDAMDPROC glBlendFuncIndexedAMD;
 extern PFNGLBLENDFUNCSEPARATEINDEXEDAMDPROC glBlendFuncSeparateIndexedAMD;
 extern PFNGLBLENDEQUATIONINDEXEDAMDPROC glBlendEquationIndexedAMD;
 extern PFNGLBLENDEQUATIONSEPARATEINDEXEDAMDPROC glBlendEquationSeparateIndexedAMD;
+
+
+/******************************
+* Extension: GL_AMD_name_gen_delete
+******************************/
+
+#define GL_DATA_BUFFER_AMD 0x9151
+#define GL_PERFORMANCE_MONITOR_AMD 0x9152
+#define GL_QUERY_OBJECT_AMD 0x9153
+#define GL_VERTEX_ARRAY_OBJECT_AMD 0x9154
+#define GL_SAMPLER_OBJECT_AMD 0x9155
+
+
+typedef void (GLE_FUNCPTR * PFNGLGENNAMESAMDPROC)(GLenum identifier, GLuint num, GLuint *names);
+typedef void (GLE_FUNCPTR * PFNGLDELETENAMESAMDPROC)(GLenum identifier, GLuint num, const GLuint *names);
+typedef GLboolean (GLE_FUNCPTR * PFNGLISNAMEAMDPROC)(GLenum identifier, GLuint name);
+
+extern PFNGLGENNAMESAMDPROC glGenNamesAMD;
+extern PFNGLDELETENAMESAMDPROC glDeleteNamesAMD;
+extern PFNGLISNAMEAMDPROC glIsNameAMD;
 
 
 /******************************
@@ -3217,7 +3329,7 @@ typedef void (GLE_FUNCPTR * PFNGLGETPERFMONITORGROUPSAMDPROC)(GLint *numGroups, 
 typedef void (GLE_FUNCPTR * PFNGLGETPERFMONITORCOUNTERSAMDPROC)(GLuint group, GLint *numCounters, GLint *maxActiveCounters, GLsizei counterSize, GLuint *counters);
 typedef void (GLE_FUNCPTR * PFNGLGETPERFMONITORGROUPSTRINGAMDPROC)(GLuint group, GLsizei bufSize, GLsizei *length, GLchar *groupString);
 typedef void (GLE_FUNCPTR * PFNGLGETPERFMONITORCOUNTERSTRINGAMDPROC)(GLuint group, GLuint counter, GLsizei bufSize, GLsizei *length, GLchar *counterString);
-typedef void (GLE_FUNCPTR * PFNGLGETPERFMONITORCOUNTERINFOAMDPROC)(GLuint group, GLuint counter, GLenum pname, void *data);
+typedef void (GLE_FUNCPTR * PFNGLGETPERFMONITORCOUNTERINFOAMDPROC)(GLuint group, GLuint counter, GLenum pname, GLvoid *data);
 typedef void (GLE_FUNCPTR * PFNGLGENPERFMONITORSAMDPROC)(GLsizei n, GLuint *monitors);
 typedef void (GLE_FUNCPTR * PFNGLDELETEPERFMONITORSAMDPROC)(GLsizei n, GLuint *monitors);
 typedef void (GLE_FUNCPTR * PFNGLSELECTPERFMONITORCOUNTERSAMDPROC)(GLuint monitor, GLboolean enable, GLuint group, GLint numCounters, GLuint *counterList);
@@ -3239,7 +3351,22 @@ extern PFNGLGETPERFMONITORCOUNTERDATAAMDPROC glGetPerfMonitorCounterDataAMD;
 
 
 /******************************
+* Extension: GL_AMD_seamless_cubemap_per_texture
+******************************/
+
+#define GL_TEXTURE_CUBE_MAP_SEAMLESS 0x884F
+
+
+/******************************
+* Extension: GL_AMD_shader_stencil_export
+******************************/
+
+/******************************
 * Extension: GL_AMD_texture_texture4
+******************************/
+
+/******************************
+* Extension: GL_AMD_transform_feedback3_lines_triangles
 ******************************/
 
 /******************************
@@ -3280,9 +3407,9 @@ extern PFNGLTESSELLATIONMODEAMDPROC glTessellationModeAMD;
 * Extension: GL_APPLE_element_array
 ******************************/
 
-#define GL_ELEMENT_ARRAY_APPLE 0x8768
-#define GL_ELEMENT_ARRAY_TYPE_APPLE 0x8769
-#define GL_ELEMENT_ARRAY_POINTER_APPLE 0x876A
+#define GL_ELEMENT_ARRAY_APPLE 0x8A0C
+#define GL_ELEMENT_ARRAY_TYPE_APPLE 0x8A0D
+#define GL_ELEMENT_ARRAY_POINTER_APPLE 0x8A0E
 
 
 typedef void (GLE_FUNCPTR * PFNGLELEMENTPOINTERAPPLEPROC)(GLenum type, const GLvoid *pointer);
@@ -3457,6 +3584,7 @@ extern PFNGLISVERTEXARRAYAPPLEPROC glIsVertexArrayAPPLE;
 #define GL_VERTEX_ARRAY_RANGE_LENGTH_APPLE 0x851E
 #define GL_VERTEX_ARRAY_STORAGE_HINT_APPLE 0x851F
 #define GL_VERTEX_ARRAY_RANGE_POINTER_APPLE 0x8521
+#define GL_STORAGE_CLIENT_APPLE 0x85B4
 #define GL_STORAGE_CACHED_APPLE 0x85BE
 #define GL_STORAGE_SHARED_APPLE 0x85BF
 
@@ -3513,6 +3641,77 @@ extern PFNGLMAPVERTEXATTRIB2FAPPLEPROC glMapVertexAttrib2fAPPLE;
 
 
 /******************************
+* Extension: GL_ARB_ES2_compatibility
+******************************/
+
+#define GL_FIXED 0x140C
+#define GL_IMPLEMENTATION_COLOR_READ_TYPE 0x8B9A
+#define GL_IMPLEMENTATION_COLOR_READ_FORMAT 0x8B9B
+#define GL_LOW_FLOAT 0x8DF0
+#define GL_MEDIUM_FLOAT 0x8DF1
+#define GL_HIGH_FLOAT 0x8DF2
+#define GL_LOW_INT 0x8DF3
+#define GL_MEDIUM_INT 0x8DF4
+#define GL_HIGH_INT 0x8DF5
+#define GL_SHADER_COMPILER 0x8DFA
+#define GL_NUM_SHADER_BINARY_FORMATS 0x8DF9
+#define GL_MAX_VERTEX_UNIFORM_VECTORS 0x8DFB
+#define GL_MAX_VARYING_VECTORS 0x8DFC
+#define GL_MAX_FRAGMENT_UNIFORM_VECTORS 0x8DFD
+
+
+typedef void (GLE_FUNCPTR * PFNGLRELEASESHADERCOMPILERPROC)();
+typedef void (GLE_FUNCPTR * PFNGLSHADERBINARYPROC)(GLsizei count, const GLuint *shaders, GLenum binaryformat, const GLvoid *binary, GLsizei length);
+typedef void (GLE_FUNCPTR * PFNGLGETSHADERPRECISIONFORMATPROC)(GLenum shadertype, GLenum precisiontype, GLint *range, GLint *precision);
+typedef void (GLE_FUNCPTR * PFNGLDEPTHRANGEFPROC)(GLclampf n, GLclampf f);
+typedef void (GLE_FUNCPTR * PFNGLCLEARDEPTHFPROC)(GLclampf d);
+
+extern PFNGLRELEASESHADERCOMPILERPROC __gleReleaseShaderCompiler;
+#define glReleaseShaderCompiler __gleReleaseShaderCompiler
+extern PFNGLSHADERBINARYPROC __gleShaderBinary;
+#define glShaderBinary __gleShaderBinary
+extern PFNGLGETSHADERPRECISIONFORMATPROC __gleGetShaderPrecisionFormat;
+#define glGetShaderPrecisionFormat __gleGetShaderPrecisionFormat
+extern PFNGLDEPTHRANGEFPROC __gleDepthRangef;
+#define glDepthRangef __gleDepthRangef
+extern PFNGLCLEARDEPTHFPROC __gleClearDepthf;
+#define glClearDepthf __gleClearDepthf
+
+
+/******************************
+* Extension: GL_ARB_blend_func_extended
+******************************/
+
+#define GL_SRC1_ALPHA 0x8589
+#define GL_SRC1_COLOR 0x88F9
+#define GL_ONE_MINUS_SRC1_COLOR 0x88FA
+#define GL_ONE_MINUS_SRC1_ALPHA 0x88FB
+#define GL_MAX_DUAL_SOURCE_DRAW_BUFFERS 0x88FC
+
+
+typedef void (GLE_FUNCPTR * PFNGLBINDFRAGDATALOCATIONINDEXEDPROC)(GLuint program, GLuint colorNumber, GLuint index, const GLchar *name);
+typedef GLint (GLE_FUNCPTR * PFNGLGETFRAGDATAINDEXPROC)(GLuint program, const GLchar *name);
+
+extern PFNGLBINDFRAGDATALOCATIONINDEXEDPROC __gleBindFragDataLocationIndexed;
+#define glBindFragDataLocationIndexed __gleBindFragDataLocationIndexed
+extern PFNGLGETFRAGDATAINDEXPROC __gleGetFragDataIndex;
+#define glGetFragDataIndex __gleGetFragDataIndex
+
+
+/******************************
+* Extension: GL_ARB_cl_event
+******************************/
+
+#define GL_SYNC_CL_EVENT_ARB 0x8240
+#define GL_SYNC_CL_EVENT_COMPLETE_ARB 0x8241
+
+
+typedef GLsync (GLE_FUNCPTR * PFNGLCREATESYNCFROMCLEVENTARBPROC)(struct _cl_context * context, struct _cl_event * event, GLbitfield flags);
+
+extern PFNGLCREATESYNCFROMCLEVENTARBPROC glCreateSyncFromCLeventARB;
+
+
+/******************************
 * Extension: GL_ARB_color_buffer_float
 ******************************/
 
@@ -3544,6 +3743,45 @@ typedef void (GLE_FUNCPTR * PFNGLCOPYBUFFERSUBDATAPROC)(GLenum readTarget, GLenu
 
 extern PFNGLCOPYBUFFERSUBDATAPROC __gleCopyBufferSubData;
 #define glCopyBufferSubData __gleCopyBufferSubData
+
+
+/******************************
+* Extension: GL_ARB_debug_output
+******************************/
+
+#define GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB 0x8242
+#define GL_DEBUG_NEXT_LOGGED_MESSAGE_LENGTH_ARB 0x8243
+#define GL_DEBUG_CALLBACK_FUNCTION_ARB 0x8244
+#define GL_DEBUG_CALLBACK_USER_PARAM_ARB 0x8245
+#define GL_DEBUG_SOURCE_API_ARB 0x8246
+#define GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB 0x8247
+#define GL_DEBUG_SOURCE_SHADER_COMPILER_ARB 0x8248
+#define GL_DEBUG_SOURCE_THIRD_PARTY_ARB 0x8249
+#define GL_DEBUG_SOURCE_APPLICATION_ARB 0x824A
+#define GL_DEBUG_SOURCE_OTHER_ARB 0x824B
+#define GL_DEBUG_TYPE_ERROR_ARB 0x824C
+#define GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB 0x824D
+#define GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB 0x824E
+#define GL_DEBUG_TYPE_PORTABILITY_ARB 0x824F
+#define GL_DEBUG_TYPE_PERFORMANCE_ARB 0x8250
+#define GL_DEBUG_TYPE_OTHER_ARB 0x8251
+#define GL_MAX_DEBUG_MESSAGE_LENGTH_ARB 0x9143
+#define GL_MAX_DEBUG_LOGGED_MESSAGES_ARB 0x9144
+#define GL_DEBUG_LOGGED_MESSAGES_ARB 0x9145
+#define GL_DEBUG_SEVERITY_HIGH_ARB 0x9146
+#define GL_DEBUG_SEVERITY_MEDIUM_ARB 0x9147
+#define GL_DEBUG_SEVERITY_LOW_ARB 0x9148
+
+
+typedef void (GLE_FUNCPTR * PFNGLDEBUGMESSAGECONTROLARBPROC)(GLenum source, GLenum type, GLenum severity, GLsizei count, const GLuint *ids, GLboolean enabled);
+typedef void (GLE_FUNCPTR * PFNGLDEBUGMESSAGEINSERTARBPROC)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *buf);
+typedef void (GLE_FUNCPTR * PFNGLDEBUGMESSAGECALLBACKARBPROC)(GLDEBUGPROCARB callback, const GLvoid *userParam);
+typedef GLuint (GLE_FUNCPTR * PFNGLGETDEBUGMESSAGELOGARBPROC)(GLuint count, GLsizei bufsize, GLenum *sources, GLenum *types, GLuint *ids, GLenum *severities, GLsizei *lengths, GLchar *messageLog);
+
+extern PFNGLDEBUGMESSAGECONTROLARBPROC glDebugMessageControlARB;
+extern PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB;
+extern PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB;
+extern PFNGLGETDEBUGMESSAGELOGARBPROC glGetDebugMessageLogARB;
 
 
 /******************************
@@ -3605,15 +3843,15 @@ extern PFNGLDRAWBUFFERSARBPROC glDrawBuffersARB;
 * Extension: GL_ARB_draw_buffers_blend
 ******************************/
 
-typedef void (GLE_FUNCPTR * PFNGLBLENDEQUATIONIARBPROC)(GLuint buf, GLenum mode);
-typedef void (GLE_FUNCPTR * PFNGLBLENDEQUATIONSEPARATEIARBPROC)(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
-typedef void (GLE_FUNCPTR * PFNGLBLENDFUNCIARBPROC)(GLuint buf, GLenum src, GLenum dst);
-typedef void (GLE_FUNCPTR * PFNGLBLENDFUNCSEPARATEIARBPROC)(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
+typedef void (GLE_FUNCPTR * PFNGLBLENDEQUATIONIARBARBPROC)(GLuint buf, GLenum mode);
+typedef void (GLE_FUNCPTR * PFNGLBLENDEQUATIONSEPARATEIARBARBPROC)(GLuint buf, GLenum modeRGB, GLenum modeAlpha);
+typedef void (GLE_FUNCPTR * PFNGLBLENDFUNCIARBARBPROC)(GLuint buf, GLenum src, GLenum dst);
+typedef void (GLE_FUNCPTR * PFNGLBLENDFUNCSEPARATEIARBARBPROC)(GLuint buf, GLenum srcRGB, GLenum dstRGB, GLenum srcAlpha, GLenum dstAlpha);
 
-extern PFNGLBLENDEQUATIONIARBPROC glBlendEquationiARB;
-extern PFNGLBLENDEQUATIONSEPARATEIARBPROC glBlendEquationSeparateiARB;
-extern PFNGLBLENDFUNCIARBPROC glBlendFunciARB;
-extern PFNGLBLENDFUNCSEPARATEIARBPROC glBlendFuncSeparateiARB;
+extern PFNGLBLENDEQUATIONIARBARBPROC glBlendEquationiARBARB;
+extern PFNGLBLENDEQUATIONSEPARATEIARBARBPROC glBlendEquationSeparateiARBARB;
+extern PFNGLBLENDFUNCIARBARBPROC glBlendFunciARBARB;
+extern PFNGLBLENDFUNCSEPARATEIARBARBPROC glBlendFuncSeparateiARBARB;
 
 
 /******************************
@@ -3636,6 +3874,23 @@ extern PFNGLMULTIDRAWELEMENTSBASEVERTEXPROC __gleMultiDrawElementsBaseVertex;
 
 
 /******************************
+* Extension: GL_ARB_draw_indirect
+******************************/
+
+#define GL_DRAW_INDIRECT_BUFFER 0x8F3F
+#define GL_DRAW_INDIRECT_BUFFER_BINDING 0x8F43
+
+
+typedef void (GLE_FUNCPTR * PFNGLDRAWARRAYSINDIRECTPROC)(GLenum mode, const GLvoid *indirect);
+typedef void (GLE_FUNCPTR * PFNGLDRAWELEMENTSINDIRECTPROC)(GLenum mode, GLenum type, const GLvoid *indirect);
+
+extern PFNGLDRAWARRAYSINDIRECTPROC __gleDrawArraysIndirect;
+#define glDrawArraysIndirect __gleDrawArraysIndirect
+extern PFNGLDRAWELEMENTSINDIRECTPROC __gleDrawElementsIndirect;
+#define glDrawElementsIndirect __gleDrawElementsIndirect
+
+
+/******************************
 * Extension: GL_ARB_draw_instanced
 ******************************/
 
@@ -3645,6 +3900,10 @@ typedef void (GLE_FUNCPTR * PFNGLDRAWELEMENTSINSTANCEDARBPROC)(GLenum mode, GLsi
 extern PFNGLDRAWARRAYSINSTANCEDARBPROC glDrawArraysInstancedARB;
 extern PFNGLDRAWELEMENTSINSTANCEDARBPROC glDrawElementsInstancedARB;
 
+
+/******************************
+* Extension: GL_ARB_explicit_attrib_location
+******************************/
 
 /******************************
 * Extension: GL_ARB_fragment_coord_conventions
@@ -3875,6 +4134,116 @@ extern PFNGLPROGRAMPARAMETERIARBPROC glProgramParameteriARB;
 extern PFNGLFRAMEBUFFERTEXTUREARBPROC glFramebufferTextureARB;
 extern PFNGLFRAMEBUFFERTEXTURELAYERARBPROC glFramebufferTextureLayerARB;
 extern PFNGLFRAMEBUFFERTEXTUREFACEARBPROC glFramebufferTextureFaceARB;
+
+
+/******************************
+* Extension: GL_ARB_get_program_binary
+******************************/
+
+#define GL_PROGRAM_BINARY_RETRIEVABLE_HINT 0x8257
+#define GL_PROGRAM_BINARY_LENGTH 0x8741
+#define GL_NUM_PROGRAM_BINARY_FORMATS 0x87FE
+#define GL_PROGRAM_BINARY_FORMATS 0x87FF
+
+
+typedef void (GLE_FUNCPTR * PFNGLGETPROGRAMBINARYPROC)(GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, GLvoid *binary);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMBINARYPROC)(GLuint program, GLenum binaryFormat, const GLvoid *binary, GLsizei length);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMPARAMETERIPROC)(GLuint program, GLenum pname, GLint value);
+
+extern PFNGLGETPROGRAMBINARYPROC __gleGetProgramBinary;
+#define glGetProgramBinary __gleGetProgramBinary
+extern PFNGLPROGRAMBINARYPROC __gleProgramBinary;
+#define glProgramBinary __gleProgramBinary
+extern PFNGLPROGRAMPARAMETERIPROC __gleProgramParameteri;
+#define glProgramParameteri __gleProgramParameteri
+
+
+/******************************
+* Extension: GL_ARB_gpu_shader5
+******************************/
+
+#define GL_GEOMETRY_SHADER_INVOCATIONS 0x887F
+#define GL_MAX_GEOMETRY_SHADER_INVOCATIONS 0x8E5A
+#define GL_MIN_FRAGMENT_INTERPOLATION_OFFSET 0x8E5B
+#define GL_MAX_FRAGMENT_INTERPOLATION_OFFSET 0x8E5C
+#define GL_FRAGMENT_INTERPOLATION_OFFSET_BITS 0x8E5D
+#define GL_MAX_VERTEX_STREAMS 0x8E71
+
+
+/******************************
+* Extension: GL_ARB_gpu_shader_fp64
+******************************/
+
+#define GL_DOUBLE 0x140A
+#define GL_DOUBLE_VEC2 0x8FFC
+#define GL_DOUBLE_VEC3 0x8FFD
+#define GL_DOUBLE_VEC4 0x8FFE
+#define GL_DOUBLE_MAT2 0x8F46
+#define GL_DOUBLE_MAT3 0x8F47
+#define GL_DOUBLE_MAT4 0x8F48
+#define GL_DOUBLE_MAT2x3 0x8F49
+#define GL_DOUBLE_MAT2x4 0x8F4A
+#define GL_DOUBLE_MAT3x2 0x8F4B
+#define GL_DOUBLE_MAT3x4 0x8F4C
+#define GL_DOUBLE_MAT4x2 0x8F4D
+#define GL_DOUBLE_MAT4x3 0x8F4E
+
+
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM1DPROC)(GLint location, GLdouble x);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM2DPROC)(GLint location, GLdouble x, GLdouble y);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM3DPROC)(GLint location, GLdouble x, GLdouble y, GLdouble z);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM4DPROC)(GLint location, GLdouble x, GLdouble y, GLdouble z, GLdouble w);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM1DVPROC)(GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM2DVPROC)(GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM3DVPROC)(GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM4DVPROC)(GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX2DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX3DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX4DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX2X3DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX2X4DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX3X2DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX3X4DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX4X2DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMMATRIX4X3DVPROC)(GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLGETUNIFORMDVPROC)(GLuint program, GLint location, GLdouble *params);
+
+extern PFNGLUNIFORM1DPROC __gleUniform1d;
+#define glUniform1d __gleUniform1d
+extern PFNGLUNIFORM2DPROC __gleUniform2d;
+#define glUniform2d __gleUniform2d
+extern PFNGLUNIFORM3DPROC __gleUniform3d;
+#define glUniform3d __gleUniform3d
+extern PFNGLUNIFORM4DPROC __gleUniform4d;
+#define glUniform4d __gleUniform4d
+extern PFNGLUNIFORM1DVPROC __gleUniform1dv;
+#define glUniform1dv __gleUniform1dv
+extern PFNGLUNIFORM2DVPROC __gleUniform2dv;
+#define glUniform2dv __gleUniform2dv
+extern PFNGLUNIFORM3DVPROC __gleUniform3dv;
+#define glUniform3dv __gleUniform3dv
+extern PFNGLUNIFORM4DVPROC __gleUniform4dv;
+#define glUniform4dv __gleUniform4dv
+extern PFNGLUNIFORMMATRIX2DVPROC __gleUniformMatrix2dv;
+#define glUniformMatrix2dv __gleUniformMatrix2dv
+extern PFNGLUNIFORMMATRIX3DVPROC __gleUniformMatrix3dv;
+#define glUniformMatrix3dv __gleUniformMatrix3dv
+extern PFNGLUNIFORMMATRIX4DVPROC __gleUniformMatrix4dv;
+#define glUniformMatrix4dv __gleUniformMatrix4dv
+extern PFNGLUNIFORMMATRIX2X3DVPROC __gleUniformMatrix2x3dv;
+#define glUniformMatrix2x3dv __gleUniformMatrix2x3dv
+extern PFNGLUNIFORMMATRIX2X4DVPROC __gleUniformMatrix2x4dv;
+#define glUniformMatrix2x4dv __gleUniformMatrix2x4dv
+extern PFNGLUNIFORMMATRIX3X2DVPROC __gleUniformMatrix3x2dv;
+#define glUniformMatrix3x2dv __gleUniformMatrix3x2dv
+extern PFNGLUNIFORMMATRIX3X4DVPROC __gleUniformMatrix3x4dv;
+#define glUniformMatrix3x4dv __gleUniformMatrix3x4dv
+extern PFNGLUNIFORMMATRIX4X2DVPROC __gleUniformMatrix4x2dv;
+#define glUniformMatrix4x2dv __gleUniformMatrix4x2dv
+extern PFNGLUNIFORMMATRIX4X3DVPROC __gleUniformMatrix4x3dv;
+#define glUniformMatrix4x3dv __gleUniformMatrix4x3dv
+extern PFNGLGETUNIFORMDVPROC __gleGetUniformdv;
+#define glGetUniformdv __gleGetUniformdv
 
 
 /******************************
@@ -4197,6 +4566,13 @@ extern PFNGLGETQUERYOBJECTUIVARBPROC glGetQueryObjectuivARB;
 
 
 /******************************
+* Extension: GL_ARB_occlusion_query2
+******************************/
+
+#define GL_ANY_SAMPLES_PASSED 0x8C2F
+
+
+/******************************
 * Extension: GL_ARB_pixel_buffer_object
 ******************************/
 
@@ -4248,16 +4624,125 @@ extern PFNGLPROVOKINGVERTEXPROC __gleProvokingVertex;
 
 
 /******************************
+* Extension: GL_ARB_robustness
+******************************/
+
+#define GL_NO_ERROR 0
+#define GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT_ARB 0x00000004
+#define GL_LOSE_CONTEXT_ON_RESET_ARB 0x8252
+#define GL_GUILTY_CONTEXT_RESET_ARB 0x8253
+#define GL_INNOCENT_CONTEXT_RESET_ARB 0x8254
+#define GL_UNKNOWN_CONTEXT_RESET_ARB 0x8255
+#define GL_RESET_NOTIFICATION_STRATEGY_ARB 0x8256
+#define GL_NO_RESET_NOTIFICATION_ARB 0x8261
+
+
+typedef GLenum (GLE_FUNCPTR * PFNGLGETGRAPHICSRESETSTATUSARBPROC)();
+typedef void (GLE_FUNCPTR * PFNGLGETNMAPDVARBPROC)(GLenum target, GLenum query, GLsizei bufSize, GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLGETNMAPFVARBPROC)(GLenum target, GLenum query, GLsizei bufSize, GLfloat *v);
+typedef void (GLE_FUNCPTR * PFNGLGETNMAPIVARBPROC)(GLenum target, GLenum query, GLsizei bufSize, GLint *v);
+typedef void (GLE_FUNCPTR * PFNGLGETNPIXELMAPFVARBPROC)(GLenum map, GLsizei bufSize, GLfloat *values);
+typedef void (GLE_FUNCPTR * PFNGLGETNPIXELMAPUIVARBPROC)(GLenum map, GLsizei bufSize, GLuint *values);
+typedef void (GLE_FUNCPTR * PFNGLGETNPIXELMAPUSVARBPROC)(GLenum map, GLsizei bufSize, GLushort *values);
+typedef void (GLE_FUNCPTR * PFNGLGETNPOLYGONSTIPPLEARBPROC)(GLsizei bufSize, GLubyte *pattern);
+typedef void (GLE_FUNCPTR * PFNGLGETNCOLORTABLEARBPROC)(GLenum target, GLenum format, GLenum type, GLsizei bufSize, GLvoid *table);
+typedef void (GLE_FUNCPTR * PFNGLGETNCONVOLUTIONFILTERARBPROC)(GLenum target, GLenum format, GLenum type, GLsizei bufSize, GLvoid *image);
+typedef void (GLE_FUNCPTR * PFNGLGETNSEPARABLEFILTERARBPROC)(GLenum target, GLenum format, GLenum type, GLsizei rowBufSize, GLvoid *row, GLsizei columnBufSize, GLvoid *column, GLvoid *span);
+typedef void (GLE_FUNCPTR * PFNGLGETNHISTOGRAMARBPROC)(GLenum target, GLboolean reset, GLenum format, GLenum type, GLsizei bufSize, GLvoid *values);
+typedef void (GLE_FUNCPTR * PFNGLGETNMINMAXARBPROC)(GLenum target, GLboolean reset, GLenum format, GLenum type, GLsizei bufSize, GLvoid *values);
+typedef void (GLE_FUNCPTR * PFNGLGETNTEXIMAGEARBPROC)(GLenum target, GLint level, GLenum format, GLenum type, GLsizei bufSize, GLvoid *img);
+typedef void (GLE_FUNCPTR * PFNGLREADNPIXELSARBPROC)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLsizei bufSize, GLvoid *data);
+typedef void (GLE_FUNCPTR * PFNGLGETNCOMPRESSEDTEXIMAGEARBPROC)(GLenum target, GLint lod, GLsizei bufSize, GLvoid *img);
+typedef void (GLE_FUNCPTR * PFNGLGETNUNIFORMFVARBPROC)(GLuint program, GLint location, GLsizei bufSize, GLfloat *params);
+typedef void (GLE_FUNCPTR * PFNGLGETNUNIFORMIVARBPROC)(GLuint program, GLint location, GLsizei bufSize, GLint *params);
+typedef void (GLE_FUNCPTR * PFNGLGETNUNIFORMUIVARBPROC)(GLuint program, GLint location, GLsizei bufSize, GLuint *params);
+typedef void (GLE_FUNCPTR * PFNGLGETNUNIFORMDVARBPROC)(GLuint program, GLint location, GLsizei bufSize, GLdouble *params);
+
+extern PFNGLGETGRAPHICSRESETSTATUSARBPROC glGetGraphicsResetStatusARB;
+extern PFNGLGETNMAPDVARBPROC glGetnMapdvARB;
+extern PFNGLGETNMAPFVARBPROC glGetnMapfvARB;
+extern PFNGLGETNMAPIVARBPROC glGetnMapivARB;
+extern PFNGLGETNPIXELMAPFVARBPROC glGetnPixelMapfvARB;
+extern PFNGLGETNPIXELMAPUIVARBPROC glGetnPixelMapuivARB;
+extern PFNGLGETNPIXELMAPUSVARBPROC glGetnPixelMapusvARB;
+extern PFNGLGETNPOLYGONSTIPPLEARBPROC glGetnPolygonStippleARB;
+extern PFNGLGETNCOLORTABLEARBPROC glGetnColorTableARB;
+extern PFNGLGETNCONVOLUTIONFILTERARBPROC glGetnConvolutionFilterARB;
+extern PFNGLGETNSEPARABLEFILTERARBPROC glGetnSeparableFilterARB;
+extern PFNGLGETNHISTOGRAMARBPROC glGetnHistogramARB;
+extern PFNGLGETNMINMAXARBPROC glGetnMinmaxARB;
+extern PFNGLGETNTEXIMAGEARBPROC glGetnTexImageARB;
+extern PFNGLREADNPIXELSARBPROC glReadnPixelsARB;
+extern PFNGLGETNCOMPRESSEDTEXIMAGEARBPROC glGetnCompressedTexImageARB;
+extern PFNGLGETNUNIFORMFVARBPROC glGetnUniformfvARB;
+extern PFNGLGETNUNIFORMIVARBPROC glGetnUniformivARB;
+extern PFNGLGETNUNIFORMUIVARBPROC glGetnUniformuivARB;
+extern PFNGLGETNUNIFORMDVARBPROC glGetnUniformdvARB;
+
+
+/******************************
 * Extension: GL_ARB_sample_shading
 ******************************/
 
-#define GL_SAMPLE_SHADING_ARB 0x8C36
-#define GL_MIN_SAMPLE_SHADING_VALUE_ARB 0x8C37
+#define GL_SAMPLE_SHADING_ARB_ARB 0x8C36
+#define GL_MIN_SAMPLE_SHADING_VALUE_ARB_ARB 0x8C37
 
 
-typedef void (GLE_FUNCPTR * PFNGLMINSAMPLESHADINGARBPROC)(GLclampf value);
+typedef void (GLE_FUNCPTR * PFNGLMINSAMPLESHADINGARBARBPROC)(GLclampf value);
 
-extern PFNGLMINSAMPLESHADINGARBPROC glMinSampleShadingARB;
+extern PFNGLMINSAMPLESHADINGARBARBPROC glMinSampleShadingARBARB;
+
+
+/******************************
+* Extension: GL_ARB_sampler_objects
+******************************/
+
+#define GL_SAMPLER_BINDING 0x8919
+
+
+typedef void (GLE_FUNCPTR * PFNGLGENSAMPLERSPROC)(GLsizei count, GLuint *samplers);
+typedef void (GLE_FUNCPTR * PFNGLDELETESAMPLERSPROC)(GLsizei count, const GLuint *samplers);
+typedef GLboolean (GLE_FUNCPTR * PFNGLISSAMPLERPROC)(GLuint sampler);
+typedef void (GLE_FUNCPTR * PFNGLBINDSAMPLERPROC)(GLuint unit, GLuint sampler);
+typedef void (GLE_FUNCPTR * PFNGLSAMPLERPARAMETERIPROC)(GLuint sampler, GLenum pname, GLint param);
+typedef void (GLE_FUNCPTR * PFNGLSAMPLERPARAMETERIVPROC)(GLuint sampler, GLenum pname, const GLint *param);
+typedef void (GLE_FUNCPTR * PFNGLSAMPLERPARAMETERFPROC)(GLuint sampler, GLenum pname, GLfloat param);
+typedef void (GLE_FUNCPTR * PFNGLSAMPLERPARAMETERFVPROC)(GLuint sampler, GLenum pname, const GLfloat *param);
+typedef void (GLE_FUNCPTR * PFNGLSAMPLERPARAMETERIIVPROC)(GLuint sampler, GLenum pname, const GLint *param);
+typedef void (GLE_FUNCPTR * PFNGLSAMPLERPARAMETERIUIVPROC)(GLuint sampler, GLenum pname, const GLuint *param);
+typedef void (GLE_FUNCPTR * PFNGLGETSAMPLERPARAMETERIVPROC)(GLuint sampler, GLenum pname, GLint *params);
+typedef void (GLE_FUNCPTR * PFNGLGETSAMPLERPARAMETERIIVPROC)(GLuint sampler, GLenum pname, GLint *params);
+typedef void (GLE_FUNCPTR * PFNGLGETSAMPLERPARAMETERFVPROC)(GLuint sampler, GLenum pname, GLfloat *params);
+typedef void (GLE_FUNCPTR * PFNGLGETSAMPLERPARAMETERIUIVPROC)(GLuint sampler, GLenum pname, GLuint *params);
+
+extern PFNGLGENSAMPLERSPROC __gleGenSamplers;
+#define glGenSamplers __gleGenSamplers
+extern PFNGLDELETESAMPLERSPROC __gleDeleteSamplers;
+#define glDeleteSamplers __gleDeleteSamplers
+extern PFNGLISSAMPLERPROC __gleIsSampler;
+#define glIsSampler __gleIsSampler
+extern PFNGLBINDSAMPLERPROC __gleBindSampler;
+#define glBindSampler __gleBindSampler
+extern PFNGLSAMPLERPARAMETERIPROC __gleSamplerParameteri;
+#define glSamplerParameteri __gleSamplerParameteri
+extern PFNGLSAMPLERPARAMETERIVPROC __gleSamplerParameteriv;
+#define glSamplerParameteriv __gleSamplerParameteriv
+extern PFNGLSAMPLERPARAMETERFPROC __gleSamplerParameterf;
+#define glSamplerParameterf __gleSamplerParameterf
+extern PFNGLSAMPLERPARAMETERFVPROC __gleSamplerParameterfv;
+#define glSamplerParameterfv __gleSamplerParameterfv
+extern PFNGLSAMPLERPARAMETERIIVPROC __gleSamplerParameterIiv;
+#define glSamplerParameterIiv __gleSamplerParameterIiv
+extern PFNGLSAMPLERPARAMETERIUIVPROC __gleSamplerParameterIuiv;
+#define glSamplerParameterIuiv __gleSamplerParameterIuiv
+extern PFNGLGETSAMPLERPARAMETERIVPROC __gleGetSamplerParameteriv;
+#define glGetSamplerParameteriv __gleGetSamplerParameteriv
+extern PFNGLGETSAMPLERPARAMETERIIVPROC __gleGetSamplerParameterIiv;
+#define glGetSamplerParameterIiv __gleGetSamplerParameterIiv
+extern PFNGLGETSAMPLERPARAMETERFVPROC __gleGetSamplerParameterfv;
+#define glGetSamplerParameterfv __gleGetSamplerParameterfv
+extern PFNGLGETSAMPLERPARAMETERIUIVPROC __gleGetSamplerParameterIuiv;
+#define glGetSamplerParameterIuiv __gleGetSamplerParameterIuiv
 
 
 /******************************
@@ -4266,6 +4751,208 @@ extern PFNGLMINSAMPLESHADINGARBPROC glMinSampleShadingARB;
 
 #define GL_TEXTURE_CUBE_MAP_SEAMLESS 0x884F
 
+
+/******************************
+* Extension: GL_ARB_separate_shader_objects
+******************************/
+
+#define GL_VERTEX_SHADER_BIT 0x00000001
+#define GL_FRAGMENT_SHADER_BIT 0x00000002
+#define GL_GEOMETRY_SHADER_BIT 0x00000004
+#define GL_TESS_CONTROL_SHADER_BIT 0x00000008
+#define GL_TESS_EVALUATION_SHADER_BIT 0x00000010
+#define GL_ALL_SHADER_BITS 0xFFFFFFFF
+#define GL_PROGRAM_SEPARABLE 0x8258
+#define GL_ACTIVE_PROGRAM 0x8259
+#define GL_PROGRAM_PIPELINE_BINDING 0x825A
+
+
+typedef void (GLE_FUNCPTR * PFNGLUSEPROGRAMSTAGESPROC)(GLuint pipeline, GLbitfield stages, GLuint program);
+typedef void (GLE_FUNCPTR * PFNGLACTIVESHADERPROGRAMPROC)(GLuint pipeline, GLuint program);
+typedef GLuint (GLE_FUNCPTR * PFNGLCREATESHADERPROGRAMVPROC)(GLenum type, GLsizei count, const GLchar* *strings);
+typedef void (GLE_FUNCPTR * PFNGLBINDPROGRAMPIPELINEPROC)(GLuint pipeline);
+typedef void (GLE_FUNCPTR * PFNGLDELETEPROGRAMPIPELINESPROC)(GLsizei n, const GLuint *pipelines);
+typedef void (GLE_FUNCPTR * PFNGLGENPROGRAMPIPELINESPROC)(GLsizei n, GLuint *pipelines);
+typedef GLboolean (GLE_FUNCPTR * PFNGLISPROGRAMPIPELINEPROC)(GLuint pipeline);
+typedef void (GLE_FUNCPTR * PFNGLGETPROGRAMPIPELINEIVPROC)(GLuint pipeline, GLenum pname, GLint *params);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1IPROC)(GLuint program, GLint location, GLint v0);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1IVPROC)(GLuint program, GLint location, GLsizei count, const GLint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1FPROC)(GLuint program, GLint location, GLfloat v0);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1FVPROC)(GLuint program, GLint location, GLsizei count, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1DPROC)(GLuint program, GLint location, GLdouble v0);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1DVPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1UIPROC)(GLuint program, GLint location, GLuint v0);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1UIVPROC)(GLuint program, GLint location, GLsizei count, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2IPROC)(GLuint program, GLint location, GLint v0, GLint v1);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2IVPROC)(GLuint program, GLint location, GLsizei count, const GLint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2FPROC)(GLuint program, GLint location, GLfloat v0, GLfloat v1);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2FVPROC)(GLuint program, GLint location, GLsizei count, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2DPROC)(GLuint program, GLint location, GLdouble v0, GLdouble v1);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2DVPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2UIPROC)(GLuint program, GLint location, GLuint v0, GLuint v1);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2UIVPROC)(GLuint program, GLint location, GLsizei count, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3IPROC)(GLuint program, GLint location, GLint v0, GLint v1, GLint v2);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3IVPROC)(GLuint program, GLint location, GLsizei count, const GLint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3FPROC)(GLuint program, GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3FVPROC)(GLuint program, GLint location, GLsizei count, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3DPROC)(GLuint program, GLint location, GLdouble v0, GLdouble v1, GLdouble v2);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3DVPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3UIPROC)(GLuint program, GLint location, GLuint v0, GLuint v1, GLuint v2);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3UIVPROC)(GLuint program, GLint location, GLsizei count, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4IPROC)(GLuint program, GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4IVPROC)(GLuint program, GLint location, GLsizei count, const GLint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4FPROC)(GLuint program, GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4FVPROC)(GLuint program, GLint location, GLsizei count, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4DPROC)(GLuint program, GLint location, GLdouble v0, GLdouble v1, GLdouble v2, GLdouble v3);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4DVPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4UIPROC)(GLuint program, GLint location, GLuint v0, GLuint v1, GLuint v2, GLuint v3);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4UIVPROC)(GLuint program, GLint location, GLsizei count, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2X3DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3X2DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2X4DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4X2DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3X4DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLVALIDATEPROGRAMPIPELINEPROC)(GLuint pipeline);
+typedef void (GLE_FUNCPTR * PFNGLGETPROGRAMPIPELINEINFOLOGPROC)(GLuint pipeline, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+
+extern PFNGLUSEPROGRAMSTAGESPROC __gleUseProgramStages;
+#define glUseProgramStages __gleUseProgramStages
+extern PFNGLACTIVESHADERPROGRAMPROC __gleActiveShaderProgram;
+#define glActiveShaderProgram __gleActiveShaderProgram
+extern PFNGLCREATESHADERPROGRAMVPROC __gleCreateShaderProgramv;
+#define glCreateShaderProgramv __gleCreateShaderProgramv
+extern PFNGLBINDPROGRAMPIPELINEPROC __gleBindProgramPipeline;
+#define glBindProgramPipeline __gleBindProgramPipeline
+extern PFNGLDELETEPROGRAMPIPELINESPROC __gleDeleteProgramPipelines;
+#define glDeleteProgramPipelines __gleDeleteProgramPipelines
+extern PFNGLGENPROGRAMPIPELINESPROC __gleGenProgramPipelines;
+#define glGenProgramPipelines __gleGenProgramPipelines
+extern PFNGLISPROGRAMPIPELINEPROC __gleIsProgramPipeline;
+#define glIsProgramPipeline __gleIsProgramPipeline
+extern PFNGLGETPROGRAMPIPELINEIVPROC __gleGetProgramPipelineiv;
+#define glGetProgramPipelineiv __gleGetProgramPipelineiv
+extern PFNGLPROGRAMUNIFORM1IPROC __gleProgramUniform1i;
+#define glProgramUniform1i __gleProgramUniform1i
+extern PFNGLPROGRAMUNIFORM1IVPROC __gleProgramUniform1iv;
+#define glProgramUniform1iv __gleProgramUniform1iv
+extern PFNGLPROGRAMUNIFORM1FPROC __gleProgramUniform1f;
+#define glProgramUniform1f __gleProgramUniform1f
+extern PFNGLPROGRAMUNIFORM1FVPROC __gleProgramUniform1fv;
+#define glProgramUniform1fv __gleProgramUniform1fv
+extern PFNGLPROGRAMUNIFORM1DPROC __gleProgramUniform1d;
+#define glProgramUniform1d __gleProgramUniform1d
+extern PFNGLPROGRAMUNIFORM1DVPROC __gleProgramUniform1dv;
+#define glProgramUniform1dv __gleProgramUniform1dv
+extern PFNGLPROGRAMUNIFORM1UIPROC __gleProgramUniform1ui;
+#define glProgramUniform1ui __gleProgramUniform1ui
+extern PFNGLPROGRAMUNIFORM1UIVPROC __gleProgramUniform1uiv;
+#define glProgramUniform1uiv __gleProgramUniform1uiv
+extern PFNGLPROGRAMUNIFORM2IPROC __gleProgramUniform2i;
+#define glProgramUniform2i __gleProgramUniform2i
+extern PFNGLPROGRAMUNIFORM2IVPROC __gleProgramUniform2iv;
+#define glProgramUniform2iv __gleProgramUniform2iv
+extern PFNGLPROGRAMUNIFORM2FPROC __gleProgramUniform2f;
+#define glProgramUniform2f __gleProgramUniform2f
+extern PFNGLPROGRAMUNIFORM2FVPROC __gleProgramUniform2fv;
+#define glProgramUniform2fv __gleProgramUniform2fv
+extern PFNGLPROGRAMUNIFORM2DPROC __gleProgramUniform2d;
+#define glProgramUniform2d __gleProgramUniform2d
+extern PFNGLPROGRAMUNIFORM2DVPROC __gleProgramUniform2dv;
+#define glProgramUniform2dv __gleProgramUniform2dv
+extern PFNGLPROGRAMUNIFORM2UIPROC __gleProgramUniform2ui;
+#define glProgramUniform2ui __gleProgramUniform2ui
+extern PFNGLPROGRAMUNIFORM2UIVPROC __gleProgramUniform2uiv;
+#define glProgramUniform2uiv __gleProgramUniform2uiv
+extern PFNGLPROGRAMUNIFORM3IPROC __gleProgramUniform3i;
+#define glProgramUniform3i __gleProgramUniform3i
+extern PFNGLPROGRAMUNIFORM3IVPROC __gleProgramUniform3iv;
+#define glProgramUniform3iv __gleProgramUniform3iv
+extern PFNGLPROGRAMUNIFORM3FPROC __gleProgramUniform3f;
+#define glProgramUniform3f __gleProgramUniform3f
+extern PFNGLPROGRAMUNIFORM3FVPROC __gleProgramUniform3fv;
+#define glProgramUniform3fv __gleProgramUniform3fv
+extern PFNGLPROGRAMUNIFORM3DPROC __gleProgramUniform3d;
+#define glProgramUniform3d __gleProgramUniform3d
+extern PFNGLPROGRAMUNIFORM3DVPROC __gleProgramUniform3dv;
+#define glProgramUniform3dv __gleProgramUniform3dv
+extern PFNGLPROGRAMUNIFORM3UIPROC __gleProgramUniform3ui;
+#define glProgramUniform3ui __gleProgramUniform3ui
+extern PFNGLPROGRAMUNIFORM3UIVPROC __gleProgramUniform3uiv;
+#define glProgramUniform3uiv __gleProgramUniform3uiv
+extern PFNGLPROGRAMUNIFORM4IPROC __gleProgramUniform4i;
+#define glProgramUniform4i __gleProgramUniform4i
+extern PFNGLPROGRAMUNIFORM4IVPROC __gleProgramUniform4iv;
+#define glProgramUniform4iv __gleProgramUniform4iv
+extern PFNGLPROGRAMUNIFORM4FPROC __gleProgramUniform4f;
+#define glProgramUniform4f __gleProgramUniform4f
+extern PFNGLPROGRAMUNIFORM4FVPROC __gleProgramUniform4fv;
+#define glProgramUniform4fv __gleProgramUniform4fv
+extern PFNGLPROGRAMUNIFORM4DPROC __gleProgramUniform4d;
+#define glProgramUniform4d __gleProgramUniform4d
+extern PFNGLPROGRAMUNIFORM4DVPROC __gleProgramUniform4dv;
+#define glProgramUniform4dv __gleProgramUniform4dv
+extern PFNGLPROGRAMUNIFORM4UIPROC __gleProgramUniform4ui;
+#define glProgramUniform4ui __gleProgramUniform4ui
+extern PFNGLPROGRAMUNIFORM4UIVPROC __gleProgramUniform4uiv;
+#define glProgramUniform4uiv __gleProgramUniform4uiv
+extern PFNGLPROGRAMUNIFORMMATRIX2FVPROC __gleProgramUniformMatrix2fv;
+#define glProgramUniformMatrix2fv __gleProgramUniformMatrix2fv
+extern PFNGLPROGRAMUNIFORMMATRIX3FVPROC __gleProgramUniformMatrix3fv;
+#define glProgramUniformMatrix3fv __gleProgramUniformMatrix3fv
+extern PFNGLPROGRAMUNIFORMMATRIX4FVPROC __gleProgramUniformMatrix4fv;
+#define glProgramUniformMatrix4fv __gleProgramUniformMatrix4fv
+extern PFNGLPROGRAMUNIFORMMATRIX2DVPROC __gleProgramUniformMatrix2dv;
+#define glProgramUniformMatrix2dv __gleProgramUniformMatrix2dv
+extern PFNGLPROGRAMUNIFORMMATRIX3DVPROC __gleProgramUniformMatrix3dv;
+#define glProgramUniformMatrix3dv __gleProgramUniformMatrix3dv
+extern PFNGLPROGRAMUNIFORMMATRIX4DVPROC __gleProgramUniformMatrix4dv;
+#define glProgramUniformMatrix4dv __gleProgramUniformMatrix4dv
+extern PFNGLPROGRAMUNIFORMMATRIX2X3FVPROC __gleProgramUniformMatrix2x3fv;
+#define glProgramUniformMatrix2x3fv __gleProgramUniformMatrix2x3fv
+extern PFNGLPROGRAMUNIFORMMATRIX3X2FVPROC __gleProgramUniformMatrix3x2fv;
+#define glProgramUniformMatrix3x2fv __gleProgramUniformMatrix3x2fv
+extern PFNGLPROGRAMUNIFORMMATRIX2X4FVPROC __gleProgramUniformMatrix2x4fv;
+#define glProgramUniformMatrix2x4fv __gleProgramUniformMatrix2x4fv
+extern PFNGLPROGRAMUNIFORMMATRIX4X2FVPROC __gleProgramUniformMatrix4x2fv;
+#define glProgramUniformMatrix4x2fv __gleProgramUniformMatrix4x2fv
+extern PFNGLPROGRAMUNIFORMMATRIX3X4FVPROC __gleProgramUniformMatrix3x4fv;
+#define glProgramUniformMatrix3x4fv __gleProgramUniformMatrix3x4fv
+extern PFNGLPROGRAMUNIFORMMATRIX4X3FVPROC __gleProgramUniformMatrix4x3fv;
+#define glProgramUniformMatrix4x3fv __gleProgramUniformMatrix4x3fv
+extern PFNGLPROGRAMUNIFORMMATRIX2X3DVPROC __gleProgramUniformMatrix2x3dv;
+#define glProgramUniformMatrix2x3dv __gleProgramUniformMatrix2x3dv
+extern PFNGLPROGRAMUNIFORMMATRIX3X2DVPROC __gleProgramUniformMatrix3x2dv;
+#define glProgramUniformMatrix3x2dv __gleProgramUniformMatrix3x2dv
+extern PFNGLPROGRAMUNIFORMMATRIX2X4DVPROC __gleProgramUniformMatrix2x4dv;
+#define glProgramUniformMatrix2x4dv __gleProgramUniformMatrix2x4dv
+extern PFNGLPROGRAMUNIFORMMATRIX4X2DVPROC __gleProgramUniformMatrix4x2dv;
+#define glProgramUniformMatrix4x2dv __gleProgramUniformMatrix4x2dv
+extern PFNGLPROGRAMUNIFORMMATRIX3X4DVPROC __gleProgramUniformMatrix3x4dv;
+#define glProgramUniformMatrix3x4dv __gleProgramUniformMatrix3x4dv
+extern PFNGLPROGRAMUNIFORMMATRIX4X3DVPROC __gleProgramUniformMatrix4x3dv;
+#define glProgramUniformMatrix4x3dv __gleProgramUniformMatrix4x3dv
+extern PFNGLVALIDATEPROGRAMPIPELINEPROC __gleValidateProgramPipeline;
+#define glValidateProgramPipeline __gleValidateProgramPipeline
+extern PFNGLGETPROGRAMPIPELINEINFOLOGPROC __gleGetProgramPipelineInfoLog;
+#define glGetProgramPipelineInfoLog __gleGetProgramPipelineInfoLog
+
+
+/******************************
+* Extension: GL_ARB_shader_bit_encoding
+******************************/
 
 /******************************
 * Extension: GL_ARB_shader_objects
@@ -4389,6 +5076,58 @@ extern PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB;
 
 
 /******************************
+* Extension: GL_ARB_shader_precision
+******************************/
+
+/******************************
+* Extension: GL_ARB_shader_stencil_export
+******************************/
+
+/******************************
+* Extension: GL_ARB_shader_subroutine
+******************************/
+
+#define GL_UNIFORM_SIZE 0x8A38
+#define GL_UNIFORM_NAME_LENGTH 0x8A39
+#define GL_ACTIVE_SUBROUTINES 0x8DE5
+#define GL_ACTIVE_SUBROUTINE_UNIFORMS 0x8DE6
+#define GL_ACTIVE_SUBROUTINE_UNIFORM_LOCATIONS 0x8E47
+#define GL_ACTIVE_SUBROUTINE_MAX_LENGTH 0x8E48
+#define GL_ACTIVE_SUBROUTINE_UNIFORM_MAX_LENGTH 0x8E49
+#define GL_MAX_SUBROUTINES 0x8DE7
+#define GL_MAX_SUBROUTINE_UNIFORM_LOCATIONS 0x8DE8
+#define GL_NUM_COMPATIBLE_SUBROUTINES 0x8E4A
+#define GL_COMPATIBLE_SUBROUTINES 0x8E4B
+
+
+typedef GLint (GLE_FUNCPTR * PFNGLGETSUBROUTINEUNIFORMLOCATIONPROC)(GLuint program, GLenum shadertype, const GLchar *name);
+typedef GLuint (GLE_FUNCPTR * PFNGLGETSUBROUTINEINDEXPROC)(GLuint program, GLenum shadertype, const GLchar *name);
+typedef void (GLE_FUNCPTR * PFNGLGETACTIVESUBROUTINEUNIFORMIVPROC)(GLuint program, GLenum shadertype, GLuint index, GLenum pname, GLint *values);
+typedef void (GLE_FUNCPTR * PFNGLGETACTIVESUBROUTINEUNIFORMNAMEPROC)(GLuint program, GLenum shadertype, GLuint index, GLsizei bufsize, GLsizei *length, GLchar *name);
+typedef void (GLE_FUNCPTR * PFNGLGETACTIVESUBROUTINENAMEPROC)(GLuint program, GLenum shadertype, GLuint index, GLsizei bufsize, GLsizei *length, GLchar *name);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORMSUBROUTINESUIVPROC)(GLenum shadertype, GLsizei count, const GLuint *indices);
+typedef void (GLE_FUNCPTR * PFNGLGETUNIFORMSUBROUTINEUIVPROC)(GLenum shadertype, GLint location, GLuint *params);
+typedef void (GLE_FUNCPTR * PFNGLGETPROGRAMSTAGEIVPROC)(GLuint program, GLenum shadertype, GLenum pname, GLint *values);
+
+extern PFNGLGETSUBROUTINEUNIFORMLOCATIONPROC __gleGetSubroutineUniformLocation;
+#define glGetSubroutineUniformLocation __gleGetSubroutineUniformLocation
+extern PFNGLGETSUBROUTINEINDEXPROC __gleGetSubroutineIndex;
+#define glGetSubroutineIndex __gleGetSubroutineIndex
+extern PFNGLGETACTIVESUBROUTINEUNIFORMIVPROC __gleGetActiveSubroutineUniformiv;
+#define glGetActiveSubroutineUniformiv __gleGetActiveSubroutineUniformiv
+extern PFNGLGETACTIVESUBROUTINEUNIFORMNAMEPROC __gleGetActiveSubroutineUniformName;
+#define glGetActiveSubroutineUniformName __gleGetActiveSubroutineUniformName
+extern PFNGLGETACTIVESUBROUTINENAMEPROC __gleGetActiveSubroutineName;
+#define glGetActiveSubroutineName __gleGetActiveSubroutineName
+extern PFNGLUNIFORMSUBROUTINESUIVPROC __gleUniformSubroutinesuiv;
+#define glUniformSubroutinesuiv __gleUniformSubroutinesuiv
+extern PFNGLGETUNIFORMSUBROUTINEUIVPROC __gleGetUniformSubroutineuiv;
+#define glGetUniformSubroutineuiv __gleGetUniformSubroutineuiv
+extern PFNGLGETPROGRAMSTAGEIVPROC __gleGetProgramStageiv;
+#define glGetProgramStageiv __gleGetProgramStageiv
+
+
+/******************************
 * Extension: GL_ARB_shader_texture_lod
 ******************************/
 
@@ -4397,6 +5136,30 @@ extern PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB;
 ******************************/
 
 #define GL_SHADING_LANGUAGE_VERSION_ARB 0x8B8C
+
+
+/******************************
+* Extension: GL_ARB_shading_language_include
+******************************/
+
+#define GL_SHADER_INCLUDE_ARB 0x8DAE
+#define GL_NAMED_STRING_LENGTH_ARB 0x8DE9
+#define GL_NAMED_STRING_TYPE_ARB 0x8DEA
+
+
+typedef void (GLE_FUNCPTR * PFNGLNAMEDSTRINGARBPROC)(GLenum type, GLint namelen, const GLchar *name, GLint stringlen, const GLchar *string);
+typedef void (GLE_FUNCPTR * PFNGLDELETENAMEDSTRINGARBPROC)(GLint namelen, const GLchar *name);
+typedef void (GLE_FUNCPTR * PFNGLCOMPILESHADERINCLUDEARBPROC)(GLuint shader, GLsizei count, const GLchar* *path, const GLint *length);
+typedef GLboolean (GLE_FUNCPTR * PFNGLISNAMEDSTRINGARBPROC)(GLint namelen, const GLchar *name);
+typedef void (GLE_FUNCPTR * PFNGLGETNAMEDSTRINGARBPROC)(GLint namelen, const GLchar *name, GLsizei bufSize, GLint *stringlen, GLchar *string);
+typedef void (GLE_FUNCPTR * PFNGLGETNAMEDSTRINGIVARBPROC)(GLint namelen, const GLchar *name, GLenum pname, GLint *params);
+
+extern PFNGLNAMEDSTRINGARBPROC glNamedStringARB;
+extern PFNGLDELETENAMEDSTRINGARBPROC glDeleteNamedStringARB;
+extern PFNGLCOMPILESHADERINCLUDEARBPROC glCompileShaderIncludeARB;
+extern PFNGLISNAMEDSTRINGARBPROC glIsNamedStringARB;
+extern PFNGLGETNAMEDSTRINGARBPROC glGetNamedStringARB;
+extern PFNGLGETNAMEDSTRINGIVARBPROC glGetNamedStringivARB;
 
 
 /******************************
@@ -4461,6 +5224,58 @@ extern PFNGLGETSYNCIVPROC __gleGetSynciv;
 
 
 /******************************
+* Extension: GL_ARB_tessellation_shader
+******************************/
+
+#define GL_TRIANGLES 0x0004
+#define GL_EQUAL 0x0202
+#define GL_CW 0x0900
+#define GL_CCW 0x0901
+#define GL_QUADS 0x0007
+#define GL_PATCHES 0x000E
+#define GL_PATCH_VERTICES 0x8E72
+#define GL_PATCH_DEFAULT_INNER_LEVEL 0x8E73
+#define GL_PATCH_DEFAULT_OUTER_LEVEL 0x8E74
+#define GL_TESS_CONTROL_OUTPUT_VERTICES 0x8E75
+#define GL_TESS_GEN_MODE 0x8E76
+#define GL_TESS_GEN_SPACING 0x8E77
+#define GL_TESS_GEN_VERTEX_ORDER 0x8E78
+#define GL_TESS_GEN_POINT_MODE 0x8E79
+#define GL_ISOLINES 0x8E7A
+#define GL_FRACTIONAL_ODD 0x8E7B
+#define GL_FRACTIONAL_EVEN 0x8E7C
+#define GL_MAX_PATCH_VERTICES 0x8E7D
+#define GL_MAX_TESS_GEN_LEVEL 0x8E7E
+#define GL_MAX_TESS_CONTROL_UNIFORM_COMPONENTS 0x8E7F
+#define GL_MAX_TESS_EVALUATION_UNIFORM_COMPONENTS 0x8E80
+#define GL_MAX_TESS_CONTROL_TEXTURE_IMAGE_UNITS 0x8E81
+#define GL_MAX_TESS_EVALUATION_TEXTURE_IMAGE_UNITS 0x8E82
+#define GL_MAX_TESS_CONTROL_OUTPUT_COMPONENTS 0x8E83
+#define GL_MAX_TESS_PATCH_COMPONENTS 0x8E84
+#define GL_MAX_TESS_CONTROL_TOTAL_OUTPUT_COMPONENTS 0x8E85
+#define GL_MAX_TESS_EVALUATION_OUTPUT_COMPONENTS 0x8E86
+#define GL_MAX_TESS_CONTROL_UNIFORM_BLOCKS 0x8E89
+#define GL_MAX_TESS_EVALUATION_UNIFORM_BLOCKS 0x8E8A
+#define GL_MAX_TESS_CONTROL_INPUT_COMPONENTS 0x886C
+#define GL_MAX_TESS_EVALUATION_INPUT_COMPONENTS 0x886D
+#define GL_MAX_COMBINED_TESS_CONTROL_UNIFORM_COMPONENTS 0x8E1E
+#define GL_MAX_COMBINED_TESS_EVALUATION_UNIFORM_COMPONENTS 0x8E1F
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_CONTROL_SHADER 0x84F0
+#define GL_UNIFORM_BLOCK_REFERENCED_BY_TESS_EVALUATION_SHADER 0x84F1
+#define GL_TESS_EVALUATION_SHADER 0x8E87
+#define GL_TESS_CONTROL_SHADER 0x8E88
+
+
+typedef void (GLE_FUNCPTR * PFNGLPATCHPARAMETERIPROC)(GLenum pname, GLint value);
+typedef void (GLE_FUNCPTR * PFNGLPATCHPARAMETERFVPROC)(GLenum pname, const GLfloat *values);
+
+extern PFNGLPATCHPARAMETERIPROC __glePatchParameteri;
+#define glPatchParameteri __glePatchParameteri
+extern PFNGLPATCHPARAMETERFVPROC __glePatchParameterfv;
+#define glPatchParameterfv __glePatchParameterfv
+
+
+/******************************
 * Extension: GL_ARB_texture_border_clamp
 ******************************/
 
@@ -4481,6 +5296,15 @@ extern PFNGLGETSYNCIVPROC __gleGetSynciv;
 typedef void (GLE_FUNCPTR * PFNGLTEXBUFFERARBPROC)(GLenum target, GLenum internalformat, GLuint buffer);
 
 extern PFNGLTEXBUFFERARBPROC glTexBufferARB;
+
+
+/******************************
+* Extension: GL_ARB_texture_buffer_object_rgb32
+******************************/
+
+#define GL_RGB32F 0x8815
+#define GL_RGB32UI 0x8D71
+#define GL_RGB32I 0x8D83
 
 
 /******************************
@@ -4518,6 +5342,16 @@ extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB;
 
 
 /******************************
+* Extension: GL_ARB_texture_compression_bptc
+******************************/
+
+#define GL_COMPRESSED_RGBA_BPTC_UNORM_ARB 0x8E8C
+#define GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB 0x8E8D
+#define GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB 0x8E8E
+#define GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB 0x8E8F
+
+
+/******************************
 * Extension: GL_ARB_texture_compression_rgtc
 ******************************/
 
@@ -4549,13 +5383,13 @@ extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB;
 * Extension: GL_ARB_texture_cube_map_array
 ******************************/
 
-#define GL_TEXTURE_CUBE_MAP_ARRAY_ARB 0x9009
-#define GL_TEXTURE_BINDING_CUBE_MAP_ARRAY_ARB 0x900A
-#define GL_PROXY_TEXTURE_CUBE_MAP_ARRAY_ARB 0x900B
-#define GL_SAMPLER_CUBE_MAP_ARRAY_ARB 0x900C
-#define GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW_ARB 0x900D
-#define GL_INT_SAMPLER_CUBE_MAP_ARRAY_ARB 0x900E
-#define GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_ARB 0x900F
+#define GL_TEXTURE_CUBE_MAP_ARRAY_ARB_ARB 0x9009
+#define GL_TEXTURE_BINDING_CUBE_MAP_ARRAY_ARB_ARB 0x900A
+#define GL_PROXY_TEXTURE_CUBE_MAP_ARRAY_ARB_ARB 0x900B
+#define GL_SAMPLER_CUBE_MAP_ARRAY_ARB_ARB 0x900C
+#define GL_SAMPLER_CUBE_MAP_ARRAY_SHADOW_ARB_ARB 0x900D
+#define GL_INT_SAMPLER_CUBE_MAP_ARRAY_ARB_ARB 0x900E
+#define GL_UNSIGNED_INT_SAMPLER_CUBE_MAP_ARRAY_ARB_ARB 0x900F
 
 
 /******************************
@@ -4634,7 +5468,6 @@ extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC glGetCompressedTexImageARB;
 
 #define GL_MIN_PROGRAM_TEXTURE_GATHER_OFFSET_ARB 0x8E5E
 #define GL_MAX_PROGRAM_TEXTURE_GATHER_OFFSET_ARB 0x8E5F
-#define GL_MAX_PROGRAM_TEXTURE_GATHER_COMPONENTS_ARB 0x8F9F
 
 
 /******************************
@@ -4730,6 +5563,101 @@ extern PFNGLSAMPLEMASKIPROC __gleSampleMaski;
 #define GL_RG16UI 0x823A
 #define GL_RG32I 0x823B
 #define GL_RG32UI 0x823C
+
+
+/******************************
+* Extension: GL_ARB_texture_rgb10_a2ui
+******************************/
+
+#define GL_RGB10_A2UI 0x906F
+
+
+/******************************
+* Extension: GL_ARB_texture_swizzle
+******************************/
+
+#define GL_TEXTURE_SWIZZLE_R 0x8E42
+#define GL_TEXTURE_SWIZZLE_G 0x8E43
+#define GL_TEXTURE_SWIZZLE_B 0x8E44
+#define GL_TEXTURE_SWIZZLE_A 0x8E45
+#define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
+
+
+/******************************
+* Extension: GL_ARB_timer_query
+******************************/
+
+#define GL_TIME_ELAPSED 0x88BF
+#define GL_TIMESTAMP 0x8E28
+
+
+typedef void (GLE_FUNCPTR * PFNGLQUERYCOUNTERPROC)(GLuint id, GLenum target);
+typedef void (GLE_FUNCPTR * PFNGLGETQUERYOBJECTI64VPROC)(GLuint id, GLenum pname, GLint64 *params);
+typedef void (GLE_FUNCPTR * PFNGLGETQUERYOBJECTUI64VPROC)(GLuint id, GLenum pname, GLuint64 *params);
+
+extern PFNGLQUERYCOUNTERPROC __gleQueryCounter;
+#define glQueryCounter __gleQueryCounter
+extern PFNGLGETQUERYOBJECTI64VPROC __gleGetQueryObjecti64v;
+#define glGetQueryObjecti64v __gleGetQueryObjecti64v
+extern PFNGLGETQUERYOBJECTUI64VPROC __gleGetQueryObjectui64v;
+#define glGetQueryObjectui64v __gleGetQueryObjectui64v
+
+
+/******************************
+* Extension: GL_ARB_transform_feedback2
+******************************/
+
+#define GL_TRANSFORM_FEEDBACK 0x8E22
+#define GL_TRANSFORM_FEEDBACK_BUFFER_PAUSED 0x8E23
+#define GL_TRANSFORM_FEEDBACK_BUFFER_ACTIVE 0x8E24
+#define GL_TRANSFORM_FEEDBACK_BINDING 0x8E25
+
+
+typedef void (GLE_FUNCPTR * PFNGLBINDTRANSFORMFEEDBACKPROC)(GLenum target, GLuint id);
+typedef void (GLE_FUNCPTR * PFNGLDELETETRANSFORMFEEDBACKSPROC)(GLsizei n, const GLuint *ids);
+typedef void (GLE_FUNCPTR * PFNGLGENTRANSFORMFEEDBACKSPROC)(GLsizei n, GLuint *ids);
+typedef GLboolean (GLE_FUNCPTR * PFNGLISTRANSFORMFEEDBACKPROC)(GLuint id);
+typedef void (GLE_FUNCPTR * PFNGLPAUSETRANSFORMFEEDBACKPROC)();
+typedef void (GLE_FUNCPTR * PFNGLRESUMETRANSFORMFEEDBACKPROC)();
+typedef void (GLE_FUNCPTR * PFNGLDRAWTRANSFORMFEEDBACKPROC)(GLenum mode, GLuint id);
+
+extern PFNGLBINDTRANSFORMFEEDBACKPROC __gleBindTransformFeedback;
+#define glBindTransformFeedback __gleBindTransformFeedback
+extern PFNGLDELETETRANSFORMFEEDBACKSPROC __gleDeleteTransformFeedbacks;
+#define glDeleteTransformFeedbacks __gleDeleteTransformFeedbacks
+extern PFNGLGENTRANSFORMFEEDBACKSPROC __gleGenTransformFeedbacks;
+#define glGenTransformFeedbacks __gleGenTransformFeedbacks
+extern PFNGLISTRANSFORMFEEDBACKPROC __gleIsTransformFeedback;
+#define glIsTransformFeedback __gleIsTransformFeedback
+extern PFNGLPAUSETRANSFORMFEEDBACKPROC __glePauseTransformFeedback;
+#define glPauseTransformFeedback __glePauseTransformFeedback
+extern PFNGLRESUMETRANSFORMFEEDBACKPROC __gleResumeTransformFeedback;
+#define glResumeTransformFeedback __gleResumeTransformFeedback
+extern PFNGLDRAWTRANSFORMFEEDBACKPROC __gleDrawTransformFeedback;
+#define glDrawTransformFeedback __gleDrawTransformFeedback
+
+
+/******************************
+* Extension: GL_ARB_transform_feedback3
+******************************/
+
+#define GL_MAX_VERTEX_STREAMS 0x8E71
+#define GL_MAX_TRANSFORM_FEEDBACK_BUFFERS 0x8E70
+
+
+typedef void (GLE_FUNCPTR * PFNGLDRAWTRANSFORMFEEDBACKSTREAMPROC)(GLenum mode, GLuint id, GLuint stream);
+typedef void (GLE_FUNCPTR * PFNGLBEGINQUERYINDEXEDPROC)(GLenum target, GLuint index, GLuint id);
+typedef void (GLE_FUNCPTR * PFNGLENDQUERYINDEXEDPROC)(GLenum target, GLuint index);
+typedef void (GLE_FUNCPTR * PFNGLGETQUERYINDEXEDIVPROC)(GLenum target, GLuint index, GLenum pname, GLint *params);
+
+extern PFNGLDRAWTRANSFORMFEEDBACKSTREAMPROC __gleDrawTransformFeedbackStream;
+#define glDrawTransformFeedbackStream __gleDrawTransformFeedbackStream
+extern PFNGLBEGINQUERYINDEXEDPROC __gleBeginQueryIndexed;
+#define glBeginQueryIndexed __gleBeginQueryIndexed
+extern PFNGLENDQUERYINDEXEDPROC __gleEndQueryIndexed;
+#define glEndQueryIndexed __gleEndQueryIndexed
+extern PFNGLGETQUERYINDEXEDIVPROC __gleGetQueryIndexediv;
+#define glGetQueryIndexediv __gleGetQueryIndexediv
 
 
 /******************************
@@ -4843,6 +5771,58 @@ extern PFNGLGENVERTEXARRAYSPROC __gleGenVertexArrays;
 #define glGenVertexArrays __gleGenVertexArrays
 extern PFNGLISVERTEXARRAYPROC __gleIsVertexArray;
 #define glIsVertexArray __gleIsVertexArray
+
+
+/******************************
+* Extension: GL_ARB_vertex_attrib_64bit
+******************************/
+
+#define GL_RGB32I 0x8D83
+#define GL_DOUBLE_VEC2 0x8FFC
+#define GL_DOUBLE_VEC3 0x8FFD
+#define GL_DOUBLE_VEC4 0x8FFE
+#define GL_DOUBLE_MAT2 0x8F46
+#define GL_DOUBLE_MAT3 0x8F47
+#define GL_DOUBLE_MAT4 0x8F48
+#define GL_DOUBLE_MAT2x3 0x8F49
+#define GL_DOUBLE_MAT2x4 0x8F4A
+#define GL_DOUBLE_MAT3x2 0x8F4B
+#define GL_DOUBLE_MAT3x4 0x8F4C
+#define GL_DOUBLE_MAT4x2 0x8F4D
+#define GL_DOUBLE_MAT4x3 0x8F4E
+
+
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1DPROC)(GLuint index, GLdouble x);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2DPROC)(GLuint index, GLdouble x, GLdouble y);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3DPROC)(GLuint index, GLdouble x, GLdouble y, GLdouble z);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4DPROC)(GLuint index, GLdouble x, GLdouble y, GLdouble z, GLdouble w);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1DVPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2DVPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3DVPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4DVPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBLPOINTERPROC)(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+typedef void (GLE_FUNCPTR * PFNGLGETVERTEXATTRIBLDVPROC)(GLuint index, GLenum pname, GLdouble *params);
+
+extern PFNGLVERTEXATTRIBL1DPROC __gleVertexAttribL1d;
+#define glVertexAttribL1d __gleVertexAttribL1d
+extern PFNGLVERTEXATTRIBL2DPROC __gleVertexAttribL2d;
+#define glVertexAttribL2d __gleVertexAttribL2d
+extern PFNGLVERTEXATTRIBL3DPROC __gleVertexAttribL3d;
+#define glVertexAttribL3d __gleVertexAttribL3d
+extern PFNGLVERTEXATTRIBL4DPROC __gleVertexAttribL4d;
+#define glVertexAttribL4d __gleVertexAttribL4d
+extern PFNGLVERTEXATTRIBL1DVPROC __gleVertexAttribL1dv;
+#define glVertexAttribL1dv __gleVertexAttribL1dv
+extern PFNGLVERTEXATTRIBL2DVPROC __gleVertexAttribL2dv;
+#define glVertexAttribL2dv __gleVertexAttribL2dv
+extern PFNGLVERTEXATTRIBL3DVPROC __gleVertexAttribL3dv;
+#define glVertexAttribL3dv __gleVertexAttribL3dv
+extern PFNGLVERTEXATTRIBL4DVPROC __gleVertexAttribL4dv;
+#define glVertexAttribL4dv __gleVertexAttribL4dv
+extern PFNGLVERTEXATTRIBLPOINTERPROC __gleVertexAttribLPointer;
+#define glVertexAttribLPointer __gleVertexAttribLPointer
+extern PFNGLGETVERTEXATTRIBLDVPROC __gleGetVertexAttribLdv;
+#define glGetVertexAttribLdv __gleGetVertexAttribLdv
 
 
 /******************************
@@ -5210,6 +6190,183 @@ typedef GLint (GLE_FUNCPTR * PFNGLGETATTRIBLOCATIONARBPROC)(GLhandleARB programO
 extern PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB;
 extern PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB;
 extern PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB;
+
+
+/******************************
+* Extension: GL_ARB_vertex_type_2_10_10_10_rev
+******************************/
+
+#define GL_UNSIGNED_INT_2_10_10_10_REV 0x8368
+#define GL_INT_2_10_10_10_REV 0x8D9F
+
+
+typedef void (GLE_FUNCPTR * PFNGLVERTEXP2UIPROC)(GLenum type, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXP2UIVPROC)(GLenum type, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXP3UIPROC)(GLenum type, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXP3UIVPROC)(GLenum type, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXP4UIPROC)(GLenum type, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXP4UIVPROC)(GLenum type, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP1UIPROC)(GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP1UIVPROC)(GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP2UIPROC)(GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP2UIVPROC)(GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP3UIPROC)(GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP3UIVPROC)(GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP4UIPROC)(GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLTEXCOORDP4UIVPROC)(GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP1UIPROC)(GLenum texture, GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP1UIVPROC)(GLenum texture, GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP2UIPROC)(GLenum texture, GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP2UIVPROC)(GLenum texture, GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP3UIPROC)(GLenum texture, GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP3UIVPROC)(GLenum texture, GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP4UIPROC)(GLenum texture, GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLMULTITEXCOORDP4UIVPROC)(GLenum texture, GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLNORMALP3UIPROC)(GLenum type, GLuint coords);
+typedef void (GLE_FUNCPTR * PFNGLNORMALP3UIVPROC)(GLenum type, const GLuint *coords);
+typedef void (GLE_FUNCPTR * PFNGLCOLORP3UIPROC)(GLenum type, GLuint color);
+typedef void (GLE_FUNCPTR * PFNGLCOLORP3UIVPROC)(GLenum type, const GLuint *color);
+typedef void (GLE_FUNCPTR * PFNGLCOLORP4UIPROC)(GLenum type, GLuint color);
+typedef void (GLE_FUNCPTR * PFNGLCOLORP4UIVPROC)(GLenum type, const GLuint *color);
+typedef void (GLE_FUNCPTR * PFNGLSECONDARYCOLORP3UIPROC)(GLenum type, GLuint color);
+typedef void (GLE_FUNCPTR * PFNGLSECONDARYCOLORP3UIVPROC)(GLenum type, const GLuint *color);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP1UIPROC)(GLuint index, GLenum type, GLboolean normalized, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP1UIVPROC)(GLuint index, GLenum type, GLboolean normalized, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP2UIPROC)(GLuint index, GLenum type, GLboolean normalized, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP2UIVPROC)(GLuint index, GLenum type, GLboolean normalized, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP3UIPROC)(GLuint index, GLenum type, GLboolean normalized, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP3UIVPROC)(GLuint index, GLenum type, GLboolean normalized, const GLuint *value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP4UIPROC)(GLuint index, GLenum type, GLboolean normalized, GLuint value);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBP4UIVPROC)(GLuint index, GLenum type, GLboolean normalized, const GLuint *value);
+
+extern PFNGLVERTEXP2UIPROC __gleVertexP2ui;
+#define glVertexP2ui __gleVertexP2ui
+extern PFNGLVERTEXP2UIVPROC __gleVertexP2uiv;
+#define glVertexP2uiv __gleVertexP2uiv
+extern PFNGLVERTEXP3UIPROC __gleVertexP3ui;
+#define glVertexP3ui __gleVertexP3ui
+extern PFNGLVERTEXP3UIVPROC __gleVertexP3uiv;
+#define glVertexP3uiv __gleVertexP3uiv
+extern PFNGLVERTEXP4UIPROC __gleVertexP4ui;
+#define glVertexP4ui __gleVertexP4ui
+extern PFNGLVERTEXP4UIVPROC __gleVertexP4uiv;
+#define glVertexP4uiv __gleVertexP4uiv
+extern PFNGLTEXCOORDP1UIPROC __gleTexCoordP1ui;
+#define glTexCoordP1ui __gleTexCoordP1ui
+extern PFNGLTEXCOORDP1UIVPROC __gleTexCoordP1uiv;
+#define glTexCoordP1uiv __gleTexCoordP1uiv
+extern PFNGLTEXCOORDP2UIPROC __gleTexCoordP2ui;
+#define glTexCoordP2ui __gleTexCoordP2ui
+extern PFNGLTEXCOORDP2UIVPROC __gleTexCoordP2uiv;
+#define glTexCoordP2uiv __gleTexCoordP2uiv
+extern PFNGLTEXCOORDP3UIPROC __gleTexCoordP3ui;
+#define glTexCoordP3ui __gleTexCoordP3ui
+extern PFNGLTEXCOORDP3UIVPROC __gleTexCoordP3uiv;
+#define glTexCoordP3uiv __gleTexCoordP3uiv
+extern PFNGLTEXCOORDP4UIPROC __gleTexCoordP4ui;
+#define glTexCoordP4ui __gleTexCoordP4ui
+extern PFNGLTEXCOORDP4UIVPROC __gleTexCoordP4uiv;
+#define glTexCoordP4uiv __gleTexCoordP4uiv
+extern PFNGLMULTITEXCOORDP1UIPROC __gleMultiTexCoordP1ui;
+#define glMultiTexCoordP1ui __gleMultiTexCoordP1ui
+extern PFNGLMULTITEXCOORDP1UIVPROC __gleMultiTexCoordP1uiv;
+#define glMultiTexCoordP1uiv __gleMultiTexCoordP1uiv
+extern PFNGLMULTITEXCOORDP2UIPROC __gleMultiTexCoordP2ui;
+#define glMultiTexCoordP2ui __gleMultiTexCoordP2ui
+extern PFNGLMULTITEXCOORDP2UIVPROC __gleMultiTexCoordP2uiv;
+#define glMultiTexCoordP2uiv __gleMultiTexCoordP2uiv
+extern PFNGLMULTITEXCOORDP3UIPROC __gleMultiTexCoordP3ui;
+#define glMultiTexCoordP3ui __gleMultiTexCoordP3ui
+extern PFNGLMULTITEXCOORDP3UIVPROC __gleMultiTexCoordP3uiv;
+#define glMultiTexCoordP3uiv __gleMultiTexCoordP3uiv
+extern PFNGLMULTITEXCOORDP4UIPROC __gleMultiTexCoordP4ui;
+#define glMultiTexCoordP4ui __gleMultiTexCoordP4ui
+extern PFNGLMULTITEXCOORDP4UIVPROC __gleMultiTexCoordP4uiv;
+#define glMultiTexCoordP4uiv __gleMultiTexCoordP4uiv
+extern PFNGLNORMALP3UIPROC __gleNormalP3ui;
+#define glNormalP3ui __gleNormalP3ui
+extern PFNGLNORMALP3UIVPROC __gleNormalP3uiv;
+#define glNormalP3uiv __gleNormalP3uiv
+extern PFNGLCOLORP3UIPROC __gleColorP3ui;
+#define glColorP3ui __gleColorP3ui
+extern PFNGLCOLORP3UIVPROC __gleColorP3uiv;
+#define glColorP3uiv __gleColorP3uiv
+extern PFNGLCOLORP4UIPROC __gleColorP4ui;
+#define glColorP4ui __gleColorP4ui
+extern PFNGLCOLORP4UIVPROC __gleColorP4uiv;
+#define glColorP4uiv __gleColorP4uiv
+extern PFNGLSECONDARYCOLORP3UIPROC __gleSecondaryColorP3ui;
+#define glSecondaryColorP3ui __gleSecondaryColorP3ui
+extern PFNGLSECONDARYCOLORP3UIVPROC __gleSecondaryColorP3uiv;
+#define glSecondaryColorP3uiv __gleSecondaryColorP3uiv
+extern PFNGLVERTEXATTRIBP1UIPROC __gleVertexAttribP1ui;
+#define glVertexAttribP1ui __gleVertexAttribP1ui
+extern PFNGLVERTEXATTRIBP1UIVPROC __gleVertexAttribP1uiv;
+#define glVertexAttribP1uiv __gleVertexAttribP1uiv
+extern PFNGLVERTEXATTRIBP2UIPROC __gleVertexAttribP2ui;
+#define glVertexAttribP2ui __gleVertexAttribP2ui
+extern PFNGLVERTEXATTRIBP2UIVPROC __gleVertexAttribP2uiv;
+#define glVertexAttribP2uiv __gleVertexAttribP2uiv
+extern PFNGLVERTEXATTRIBP3UIPROC __gleVertexAttribP3ui;
+#define glVertexAttribP3ui __gleVertexAttribP3ui
+extern PFNGLVERTEXATTRIBP3UIVPROC __gleVertexAttribP3uiv;
+#define glVertexAttribP3uiv __gleVertexAttribP3uiv
+extern PFNGLVERTEXATTRIBP4UIPROC __gleVertexAttribP4ui;
+#define glVertexAttribP4ui __gleVertexAttribP4ui
+extern PFNGLVERTEXATTRIBP4UIVPROC __gleVertexAttribP4uiv;
+#define glVertexAttribP4uiv __gleVertexAttribP4uiv
+
+
+/******************************
+* Extension: GL_ARB_viewport_array
+******************************/
+
+#define GL_DEPTH_RANGE 0x0B70
+#define GL_VIEWPORT 0x0BA2
+#define GL_SCISSOR_BOX 0x0C10
+#define GL_SCISSOR_TEST 0x0C11
+#define GL_FIRST_VERTEX_CONVENTION 0x8E4D
+#define GL_LAST_VERTEX_CONVENTION 0x8E4E
+#define GL_PROVOKING_VERTEX 0x8E4F
+#define GL_MAX_VIEWPORTS 0x825B
+#define GL_VIEWPORT_SUBPIXEL_BITS 0x825C
+#define GL_VIEWPORT_BOUNDS_RANGE 0x825D
+#define GL_LAYER_PROVOKING_VERTEX 0x825E
+#define GL_VIEWPORT_INDEX_PROVOKING_VERTEX 0x825F
+#define GL_UNDEFINED_VERTEX 0x8260
+
+
+typedef void (GLE_FUNCPTR * PFNGLVIEWPORTARRAYVPROC)(GLuint first, GLsizei count, const GLfloat *v);
+typedef void (GLE_FUNCPTR * PFNGLVIEWPORTINDEXEDFPROC)(GLuint index, GLfloat x, GLfloat y, GLfloat w, GLfloat h);
+typedef void (GLE_FUNCPTR * PFNGLVIEWPORTINDEXEDFVPROC)(GLuint index, const GLfloat *v);
+typedef void (GLE_FUNCPTR * PFNGLSCISSORARRAYVPROC)(GLuint first, GLsizei count, const GLint *v);
+typedef void (GLE_FUNCPTR * PFNGLSCISSORINDEXEDPROC)(GLuint index, GLint left, GLint bottom, GLsizei width, GLsizei height);
+typedef void (GLE_FUNCPTR * PFNGLSCISSORINDEXEDVPROC)(GLuint index, const GLint *v);
+typedef void (GLE_FUNCPTR * PFNGLDEPTHRANGEARRAYVPROC)(GLuint first, GLsizei count, const GLclampd *v);
+typedef void (GLE_FUNCPTR * PFNGLDEPTHRANGEINDEXEDPROC)(GLuint index, GLclampd n, GLclampd f);
+typedef void (GLE_FUNCPTR * PFNGLGETFLOATI_VPROC)(GLenum target, GLuint index, GLfloat *data);
+typedef void (GLE_FUNCPTR * PFNGLGETDOUBLEI_VPROC)(GLenum target, GLuint index, GLdouble *data);
+
+extern PFNGLVIEWPORTARRAYVPROC __gleViewportArrayv;
+#define glViewportArrayv __gleViewportArrayv
+extern PFNGLVIEWPORTINDEXEDFPROC __gleViewportIndexedf;
+#define glViewportIndexedf __gleViewportIndexedf
+extern PFNGLVIEWPORTINDEXEDFVPROC __gleViewportIndexedfv;
+#define glViewportIndexedfv __gleViewportIndexedfv
+extern PFNGLSCISSORARRAYVPROC __gleScissorArrayv;
+#define glScissorArrayv __gleScissorArrayv
+extern PFNGLSCISSORINDEXEDPROC __gleScissorIndexed;
+#define glScissorIndexed __gleScissorIndexed
+extern PFNGLSCISSORINDEXEDVPROC __gleScissorIndexedv;
+#define glScissorIndexedv __gleScissorIndexedv
+extern PFNGLDEPTHRANGEARRAYVPROC __gleDepthRangeArrayv;
+#define glDepthRangeArrayv __gleDepthRangeArrayv
+extern PFNGLDEPTHRANGEINDEXEDPROC __gleDepthRangeIndexed;
+#define glDepthRangeIndexed __gleDepthRangeIndexed
+extern PFNGLGETFLOATI_VPROC __gleGetFloati_v;
+#define glGetFloati_v __gleGetFloati_v
+extern PFNGLGETDOUBLEI_VPROC __gleGetDoublei_v;
+#define glGetDoublei_v __gleGetDoublei_v
 
 
 /******************************
@@ -6233,6 +7390,9 @@ typedef void (GLE_FUNCPTR * PFNGLNAMEDBUFFERDATAEXTPROC)(GLuint buffer, GLsizeip
 typedef void (GLE_FUNCPTR * PFNGLNAMEDBUFFERSUBDATAEXTPROC)(GLuint buffer, GLintptr offset, GLsizeiptr size, const GLvoid *data);
 typedef GLvoid* (GLE_FUNCPTR * PFNGLMAPNAMEDBUFFEREXTPROC)(GLuint buffer, GLenum access);
 typedef GLboolean (GLE_FUNCPTR * PFNGLUNMAPNAMEDBUFFEREXTPROC)(GLuint buffer);
+typedef GLvoid* (GLE_FUNCPTR * PFNGLMAPNAMEDBUFFERRANGEEXTPROC)(GLuint buffer, GLintptr offset, GLsizeiptr length, GLbitfield access);
+typedef void (GLE_FUNCPTR * PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEEXTPROC)(GLuint buffer, GLintptr offset, GLsizeiptr length);
+typedef void (GLE_FUNCPTR * PFNGLNAMEDCOPYBUFFERSUBDATAEXTPROC)(GLuint readBuffer, GLuint writeBuffer, GLintptr readOffset, GLintptr writeOffset, GLsizeiptr size);
 typedef void (GLE_FUNCPTR * PFNGLGETNAMEDBUFFERPARAMETERIVEXTPROC)(GLuint buffer, GLenum pname, GLint *params);
 typedef void (GLE_FUNCPTR * PFNGLGETNAMEDBUFFERPOINTERVEXTPROC)(GLuint buffer, GLenum pname, GLvoid* *params);
 typedef void (GLE_FUNCPTR * PFNGLGETNAMEDBUFFERSUBDATAEXTPROC)(GLuint buffer, GLintptr offset, GLsizeiptr size, GLvoid *data);
@@ -6259,6 +7419,23 @@ typedef void (GLE_FUNCPTR * PFNGLNAMEDFRAMEBUFFERTEXTURELAYEREXTPROC)(GLuint fra
 typedef void (GLE_FUNCPTR * PFNGLNAMEDFRAMEBUFFERTEXTUREFACEEXTPROC)(GLuint framebuffer, GLenum attachment, GLuint texture, GLint level, GLenum face);
 typedef void (GLE_FUNCPTR * PFNGLTEXTURERENDERBUFFEREXTPROC)(GLuint texture, GLenum target, GLuint renderbuffer);
 typedef void (GLE_FUNCPTR * PFNGLMULTITEXRENDERBUFFEREXTPROC)(GLenum texunit, GLenum target, GLuint renderbuffer);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1DEXTPROC)(GLuint program, GLint location, GLdouble x);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2DEXTPROC)(GLuint program, GLint location, GLdouble x, GLdouble y);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3DEXTPROC)(GLuint program, GLint location, GLdouble x, GLdouble y, GLdouble z);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4DEXTPROC)(GLuint program, GLint location, GLdouble x, GLdouble y, GLdouble z, GLdouble w);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1DVEXTPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2DVEXTPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3DVEXTPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4DVEXTPROC)(GLuint program, GLint location, GLsizei count, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2X3DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX2X4DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3X2DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX3X4DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4X2DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMMATRIX4X3DVEXTPROC)(GLuint program, GLint location, GLsizei count, GLboolean transpose, const GLdouble *value);
 
 extern PFNGLCLIENTATTRIBDEFAULTEXTPROC glClientAttribDefaultEXT;
 extern PFNGLPUSHCLIENTATTRIBDEFAULTEXTPROC glPushClientAttribDefaultEXT;
@@ -6420,6 +7597,9 @@ extern PFNGLNAMEDBUFFERDATAEXTPROC glNamedBufferDataEXT;
 extern PFNGLNAMEDBUFFERSUBDATAEXTPROC glNamedBufferSubDataEXT;
 extern PFNGLMAPNAMEDBUFFEREXTPROC glMapNamedBufferEXT;
 extern PFNGLUNMAPNAMEDBUFFEREXTPROC glUnmapNamedBufferEXT;
+extern PFNGLMAPNAMEDBUFFERRANGEEXTPROC glMapNamedBufferRangeEXT;
+extern PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEEXTPROC glFlushMappedNamedBufferRangeEXT;
+extern PFNGLNAMEDCOPYBUFFERSUBDATAEXTPROC glNamedCopyBufferSubDataEXT;
 extern PFNGLGETNAMEDBUFFERPARAMETERIVEXTPROC glGetNamedBufferParameterivEXT;
 extern PFNGLGETNAMEDBUFFERPOINTERVEXTPROC glGetNamedBufferPointervEXT;
 extern PFNGLGETNAMEDBUFFERSUBDATAEXTPROC glGetNamedBufferSubDataEXT;
@@ -6446,6 +7626,23 @@ extern PFNGLNAMEDFRAMEBUFFERTEXTURELAYEREXTPROC glNamedFramebufferTextureLayerEX
 extern PFNGLNAMEDFRAMEBUFFERTEXTUREFACEEXTPROC glNamedFramebufferTextureFaceEXT;
 extern PFNGLTEXTURERENDERBUFFEREXTPROC glTextureRenderbufferEXT;
 extern PFNGLMULTITEXRENDERBUFFEREXTPROC glMultiTexRenderbufferEXT;
+extern PFNGLPROGRAMUNIFORM1DEXTPROC glProgramUniform1dEXT;
+extern PFNGLPROGRAMUNIFORM2DEXTPROC glProgramUniform2dEXT;
+extern PFNGLPROGRAMUNIFORM3DEXTPROC glProgramUniform3dEXT;
+extern PFNGLPROGRAMUNIFORM4DEXTPROC glProgramUniform4dEXT;
+extern PFNGLPROGRAMUNIFORM1DVEXTPROC glProgramUniform1dvEXT;
+extern PFNGLPROGRAMUNIFORM2DVEXTPROC glProgramUniform2dvEXT;
+extern PFNGLPROGRAMUNIFORM3DVEXTPROC glProgramUniform3dvEXT;
+extern PFNGLPROGRAMUNIFORM4DVEXTPROC glProgramUniform4dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX2DVEXTPROC glProgramUniformMatrix2dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX3DVEXTPROC glProgramUniformMatrix3dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX4DVEXTPROC glProgramUniformMatrix4dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX2X3DVEXTPROC glProgramUniformMatrix2x3dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX2X4DVEXTPROC glProgramUniformMatrix2x4dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX3X2DVEXTPROC glProgramUniformMatrix3x2dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX3X4DVEXTPROC glProgramUniformMatrix3x4dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX4X2DVEXTPROC glProgramUniformMatrix4x2dvEXT;
+extern PFNGLPROGRAMUNIFORMMATRIX4X3DVEXTPROC glProgramUniformMatrix4x3dvEXT;
 
 
 /******************************
@@ -6869,7 +8066,7 @@ extern PFNGLTEXTUREMATERIALEXTPROC glTextureMaterialEXT;
 * Extension: GL_EXT_multi_draw_arrays
 ******************************/
 
-typedef void (GLE_FUNCPTR * PFNGLMULTIDRAWARRAYSEXTPROC)(GLenum mode, GLint *first, GLsizei *count, GLsizei primcount);
+typedef void (GLE_FUNCPTR * PFNGLMULTIDRAWARRAYSEXTPROC)(GLenum mode, const GLint *first, const GLsizei *count, GLsizei primcount);
 typedef void (GLE_FUNCPTR * PFNGLMULTIDRAWELEMENTSEXTPROC)(GLenum mode, const GLsizei *count, GLenum type, const GLvoid* *indices, GLsizei primcount);
 
 extern PFNGLMULTIDRAWARRAYSEXTPROC glMultiDrawArraysEXT;
@@ -7126,6 +8323,74 @@ extern PFNGLCREATESHADERPROGRAMEXTPROC glCreateShaderProgramEXT;
 #define GL_LIGHT_MODEL_COLOR_CONTROL_EXT 0x81F8
 #define GL_SINGLE_COLOR_EXT 0x81F9
 #define GL_SEPARATE_SPECULAR_COLOR_EXT 0x81FA
+
+
+/******************************
+* Extension: GL_EXT_shader_image_load_store
+******************************/
+
+#define GL_MAX_IMAGE_UNITS_EXT 0x8F38
+#define GL_MAX_COMBINED_IMAGE_UNITS_AND_FRAGMENT_OUTPUTS_EXT 0x8F39
+#define GL_IMAGE_BINDING_NAME_EXT 0x8F3A
+#define GL_IMAGE_BINDING_LEVEL_EXT 0x8F3B
+#define GL_IMAGE_BINDING_LAYERED_EXT 0x8F3C
+#define GL_IMAGE_BINDING_LAYER_EXT 0x8F3D
+#define GL_IMAGE_BINDING_ACCESS_EXT 0x8F3E
+#define GL_IMAGE_1D_EXT 0x904C
+#define GL_IMAGE_2D_EXT 0x904D
+#define GL_IMAGE_3D_EXT 0x904E
+#define GL_IMAGE_2D_RECT_EXT 0x904F
+#define GL_IMAGE_CUBE_EXT 0x9050
+#define GL_IMAGE_BUFFER_EXT 0x9051
+#define GL_IMAGE_1D_ARRAY_EXT 0x9052
+#define GL_IMAGE_2D_ARRAY_EXT 0x9053
+#define GL_IMAGE_CUBE_MAP_ARRAY_EXT 0x9054
+#define GL_IMAGE_2D_MULTISAMPLE_EXT 0x9055
+#define GL_IMAGE_2D_MULTISAMPLE_ARRAY_EXT 0x9056
+#define GL_INT_IMAGE_1D_EXT 0x9057
+#define GL_INT_IMAGE_2D_EXT 0x9058
+#define GL_INT_IMAGE_3D_EXT 0x9059
+#define GL_INT_IMAGE_2D_RECT_EXT 0x905A
+#define GL_INT_IMAGE_CUBE_EXT 0x905B
+#define GL_INT_IMAGE_BUFFER_EXT 0x905C
+#define GL_INT_IMAGE_1D_ARRAY_EXT 0x905D
+#define GL_INT_IMAGE_2D_ARRAY_EXT 0x905E
+#define GL_INT_IMAGE_CUBE_MAP_ARRAY_EXT 0x905F
+#define GL_INT_IMAGE_2D_MULTISAMPLE_EXT 0x9060
+#define GL_INT_IMAGE_2D_MULTISAMPLE_ARRAY_EXT 0x9061
+#define GL_UNSIGNED_INT_IMAGE_1D_EXT 0x9062
+#define GL_UNSIGNED_INT_IMAGE_2D_EXT 0x9063
+#define GL_UNSIGNED_INT_IMAGE_3D_EXT 0x9064
+#define GL_UNSIGNED_INT_IMAGE_2D_RECT_EXT 0x9065
+#define GL_UNSIGNED_INT_IMAGE_CUBE_EXT 0x9066
+#define GL_UNSIGNED_INT_IMAGE_BUFFER_EXT 0x9067
+#define GL_UNSIGNED_INT_IMAGE_1D_ARRAY_EXT 0x9068
+#define GL_UNSIGNED_INT_IMAGE_2D_ARRAY_EXT 0x9069
+#define GL_UNSIGNED_INT_IMAGE_CUBE_MAP_ARRAY_EXT 0x906A
+#define GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_EXT 0x906B
+#define GL_UNSIGNED_INT_IMAGE_2D_MULTISAMPLE_ARRAY_EXT 0x906C
+#define GL_MAX_IMAGE_SAMPLES_EXT 0x906D
+#define GL_IMAGE_BINDING_FORMAT_EXT 0x906E
+#define GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT_EXT 0x00000001
+#define GL_ELEMENT_ARRAY_BARRIER_BIT_EXT 0x00000002
+#define GL_UNIFORM_BARRIER_BIT_EXT 0x00000004
+#define GL_TEXTURE_FETCH_BARRIER_BIT_EXT 0x00000008
+#define GL_SHADER_IMAGE_ACCESS_BARRIER_BIT_EXT 0x00000020
+#define GL_COMMAND_BARRIER_BIT_EXT 0x00000040
+#define GL_PIXEL_BUFFER_BARRIER_BIT_EXT 0x00000080
+#define GL_TEXTURE_UPDATE_BARRIER_BIT_EXT 0x00000100
+#define GL_BUFFER_UPDATE_BARRIER_BIT_EXT 0x00000200
+#define GL_FRAMEBUFFER_BARRIER_BIT_EXT 0x00000400
+#define GL_TRANSFORM_FEEDBACK_BARRIER_BIT_EXT 0x00000800
+#define GL_ATOMIC_COUNTER_BARRIER_BIT_EXT 0x00001000
+#define GL_ALL_BARRIER_BITS_EXT 0xFFFFFFFF
+
+
+typedef void (GLE_FUNCPTR * PFNGLBINDIMAGETEXTUREEXTPROC)(GLuint index, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLint format);
+typedef void (GLE_FUNCPTR * PFNGLMEMORYBARRIEREXTPROC)(GLbitfield barriers);
+
+extern PFNGLBINDIMAGETEXTUREEXTPROC glBindImageTextureEXT;
+extern PFNGLMEMORYBARRIEREXTPROC glMemoryBarrierEXT;
 
 
 /******************************
@@ -7695,6 +8960,50 @@ extern PFNGLVERTEXPOINTEREXTPROC glVertexPointerEXT;
 ******************************/
 
 #define GL_BGRA 0x80E1
+
+
+/******************************
+* Extension: GL_EXT_vertex_attrib_64bit
+******************************/
+
+#define GL_DOUBLE 0x140A
+#define GL_DOUBLE_VEC2_EXT 0x8FFC
+#define GL_DOUBLE_VEC3_EXT 0x8FFD
+#define GL_DOUBLE_VEC4_EXT 0x8FFE
+#define GL_DOUBLE_MAT2_EXT 0x8F46
+#define GL_DOUBLE_MAT3_EXT 0x8F47
+#define GL_DOUBLE_MAT4_EXT 0x8F48
+#define GL_DOUBLE_MAT2x3_EXT 0x8F49
+#define GL_DOUBLE_MAT2x4_EXT 0x8F4A
+#define GL_DOUBLE_MAT3x2_EXT 0x8F4B
+#define GL_DOUBLE_MAT3x4_EXT 0x8F4C
+#define GL_DOUBLE_MAT4x2_EXT 0x8F4D
+#define GL_DOUBLE_MAT4x3_EXT 0x8F4E
+
+
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1DEXTPROC)(GLuint index, GLdouble x);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2DEXTPROC)(GLuint index, GLdouble x, GLdouble y);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3DEXTPROC)(GLuint index, GLdouble x, GLdouble y, GLdouble z);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4DEXTPROC)(GLuint index, GLdouble x, GLdouble y, GLdouble z, GLdouble w);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1DVEXTPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2DVEXTPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3DVEXTPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4DVEXTPROC)(GLuint index, const GLdouble *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBLPOINTEREXTPROC)(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
+typedef void (GLE_FUNCPTR * PFNGLGETVERTEXATTRIBLDVEXTPROC)(GLuint index, GLenum pname, GLdouble *params);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXARRAYVERTEXATTRIBLOFFSETEXTPROC)(GLuint vaobj, GLuint buffer, GLuint index, GLint size, GLenum type, GLsizei stride, GLintptr offset);
+
+extern PFNGLVERTEXATTRIBL1DEXTPROC glVertexAttribL1dEXT;
+extern PFNGLVERTEXATTRIBL2DEXTPROC glVertexAttribL2dEXT;
+extern PFNGLVERTEXATTRIBL3DEXTPROC glVertexAttribL3dEXT;
+extern PFNGLVERTEXATTRIBL4DEXTPROC glVertexAttribL4dEXT;
+extern PFNGLVERTEXATTRIBL1DVEXTPROC glVertexAttribL1dvEXT;
+extern PFNGLVERTEXATTRIBL2DVEXTPROC glVertexAttribL2dvEXT;
+extern PFNGLVERTEXATTRIBL3DVEXTPROC glVertexAttribL3dvEXT;
+extern PFNGLVERTEXATTRIBL4DVEXTPROC glVertexAttribL4dvEXT;
+extern PFNGLVERTEXATTRIBLPOINTEREXTPROC glVertexAttribLPointerEXT;
+extern PFNGLGETVERTEXATTRIBLDVEXTPROC glGetVertexAttribLdvEXT;
+extern PFNGLVERTEXARRAYVERTEXATTRIBLOFFSETEXTPROC glVertexArrayVertexAttribLOffsetEXT;
 
 
 /******************************
@@ -8578,6 +9887,129 @@ extern PFNGLGETPROGRAMENVPARAMETERIUIVNVPROC glGetProgramEnvParameterIuivNV;
 
 
 /******************************
+* Extension: GL_NV_gpu_program5
+******************************/
+
+#define GL_MAX_GEOMETRY_PROGRAM_INVOCATIONS_NV 0x8E5A
+#define GL_MIN_FRAGMENT_INTERPOLATION_OFFSET_NV 0x8E5B
+#define GL_MAX_FRAGMENT_INTERPOLATION_OFFSET_NV 0x8E5C
+#define GL_FRAGMENT_PROGRAM_INTERPOLATION_OFFSET_BITS_NV 0x8E5D
+#define GL_MAX_PROGRAM_SUBROUTINE_PARAMETERS_NV 0x8F44
+#define GL_MAX_PROGRAM_SUBROUTINE_NUM_NV 0x8F45
+
+
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMSUBROUTINEPARAMETERSUIVNVPROC)(GLenum target, GLsizei count, const GLuint *params);
+typedef void (GLE_FUNCPTR * PFNGLGETPROGRAMSUBROUTINEPARAMETERUIVNVPROC)(GLenum target, GLuint index, GLuint *param);
+
+extern PFNGLPROGRAMSUBROUTINEPARAMETERSUIVNVPROC glProgramSubroutineParametersuivNV;
+extern PFNGLGETPROGRAMSUBROUTINEPARAMETERUIVNVPROC glGetProgramSubroutineParameteruivNV;
+
+
+/******************************
+* Extension: GL_NV_gpu_shader5
+******************************/
+
+#define GL_PATCHES 0x000E
+#define GL_INT64_NV 0x140E
+#define GL_UNSIGNED_INT64_NV 0x140F
+#define GL_INT8_NV 0x8FE0
+#define GL_INT8_VEC2_NV 0x8FE1
+#define GL_INT8_VEC3_NV 0x8FE2
+#define GL_INT8_VEC4_NV 0x8FE3
+#define GL_INT16_NV 0x8FE4
+#define GL_INT16_VEC2_NV 0x8FE5
+#define GL_INT16_VEC3_NV 0x8FE6
+#define GL_INT16_VEC4_NV 0x8FE7
+#define GL_INT64_VEC2_NV 0x8FE9
+#define GL_INT64_VEC3_NV 0x8FEA
+#define GL_INT64_VEC4_NV 0x8FEB
+#define GL_UNSIGNED_INT8_NV 0x8FEC
+#define GL_UNSIGNED_INT8_VEC2_NV 0x8FED
+#define GL_UNSIGNED_INT8_VEC3_NV 0x8FEE
+#define GL_UNSIGNED_INT8_VEC4_NV 0x8FEF
+#define GL_UNSIGNED_INT16_NV 0x8FF0
+#define GL_UNSIGNED_INT16_VEC2_NV 0x8FF1
+#define GL_UNSIGNED_INT16_VEC3_NV 0x8FF2
+#define GL_UNSIGNED_INT16_VEC4_NV 0x8FF3
+#define GL_UNSIGNED_INT64_VEC2_NV 0x8FF5
+#define GL_UNSIGNED_INT64_VEC3_NV 0x8FF6
+#define GL_UNSIGNED_INT64_VEC4_NV 0x8FF7
+#define GL_FLOAT16_NV 0x8FF8
+#define GL_FLOAT16_VEC2_NV 0x8FF9
+#define GL_FLOAT16_VEC3_NV 0x8FFA
+#define GL_FLOAT16_VEC4_NV 0x8FFB
+
+
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM1I64NVPROC)(GLint location, GLint64EXT x);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM2I64NVPROC)(GLint location, GLint64EXT x, GLint64EXT y);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM3I64NVPROC)(GLint location, GLint64EXT x, GLint64EXT y, GLint64EXT z);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM4I64NVPROC)(GLint location, GLint64EXT x, GLint64EXT y, GLint64EXT z, GLint64EXT w);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM1I64VNVPROC)(GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM2I64VNVPROC)(GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM3I64VNVPROC)(GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM4I64VNVPROC)(GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM1UI64NVPROC)(GLint location, GLuint64EXT x);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM2UI64NVPROC)(GLint location, GLuint64EXT x, GLuint64EXT y);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM3UI64NVPROC)(GLint location, GLuint64EXT x, GLuint64EXT y, GLuint64EXT z);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM4UI64NVPROC)(GLint location, GLuint64EXT x, GLuint64EXT y, GLuint64EXT z, GLuint64EXT w);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM1UI64VNVPROC)(GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM2UI64VNVPROC)(GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM3UI64VNVPROC)(GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLUNIFORM4UI64VNVPROC)(GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLGETUNIFORMI64VNVPROC)(GLuint program, GLint location, GLint64EXT *params);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1I64NVPROC)(GLuint program, GLint location, GLint64EXT x);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2I64NVPROC)(GLuint program, GLint location, GLint64EXT x, GLint64EXT y);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3I64NVPROC)(GLuint program, GLint location, GLint64EXT x, GLint64EXT y, GLint64EXT z);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4I64NVPROC)(GLuint program, GLint location, GLint64EXT x, GLint64EXT y, GLint64EXT z, GLint64EXT w);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1I64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2I64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3I64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4I64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1UI64NVPROC)(GLuint program, GLint location, GLuint64EXT x);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2UI64NVPROC)(GLuint program, GLint location, GLuint64EXT x, GLuint64EXT y);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3UI64NVPROC)(GLuint program, GLint location, GLuint64EXT x, GLuint64EXT y, GLuint64EXT z);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4UI64NVPROC)(GLuint program, GLint location, GLuint64EXT x, GLuint64EXT y, GLuint64EXT z, GLuint64EXT w);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM1UI64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM2UI64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM3UI64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLuint64EXT *value);
+typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORM4UI64VNVPROC)(GLuint program, GLint location, GLsizei count, const GLuint64EXT *value);
+
+extern PFNGLUNIFORM1I64NVPROC glUniform1i64NV;
+extern PFNGLUNIFORM2I64NVPROC glUniform2i64NV;
+extern PFNGLUNIFORM3I64NVPROC glUniform3i64NV;
+extern PFNGLUNIFORM4I64NVPROC glUniform4i64NV;
+extern PFNGLUNIFORM1I64VNVPROC glUniform1i64vNV;
+extern PFNGLUNIFORM2I64VNVPROC glUniform2i64vNV;
+extern PFNGLUNIFORM3I64VNVPROC glUniform3i64vNV;
+extern PFNGLUNIFORM4I64VNVPROC glUniform4i64vNV;
+extern PFNGLUNIFORM1UI64NVPROC glUniform1ui64NV;
+extern PFNGLUNIFORM2UI64NVPROC glUniform2ui64NV;
+extern PFNGLUNIFORM3UI64NVPROC glUniform3ui64NV;
+extern PFNGLUNIFORM4UI64NVPROC glUniform4ui64NV;
+extern PFNGLUNIFORM1UI64VNVPROC glUniform1ui64vNV;
+extern PFNGLUNIFORM2UI64VNVPROC glUniform2ui64vNV;
+extern PFNGLUNIFORM3UI64VNVPROC glUniform3ui64vNV;
+extern PFNGLUNIFORM4UI64VNVPROC glUniform4ui64vNV;
+extern PFNGLGETUNIFORMI64VNVPROC glGetUniformi64vNV;
+extern PFNGLPROGRAMUNIFORM1I64NVPROC glProgramUniform1i64NV;
+extern PFNGLPROGRAMUNIFORM2I64NVPROC glProgramUniform2i64NV;
+extern PFNGLPROGRAMUNIFORM3I64NVPROC glProgramUniform3i64NV;
+extern PFNGLPROGRAMUNIFORM4I64NVPROC glProgramUniform4i64NV;
+extern PFNGLPROGRAMUNIFORM1I64VNVPROC glProgramUniform1i64vNV;
+extern PFNGLPROGRAMUNIFORM2I64VNVPROC glProgramUniform2i64vNV;
+extern PFNGLPROGRAMUNIFORM3I64VNVPROC glProgramUniform3i64vNV;
+extern PFNGLPROGRAMUNIFORM4I64VNVPROC glProgramUniform4i64vNV;
+extern PFNGLPROGRAMUNIFORM1UI64NVPROC glProgramUniform1ui64NV;
+extern PFNGLPROGRAMUNIFORM2UI64NVPROC glProgramUniform2ui64NV;
+extern PFNGLPROGRAMUNIFORM3UI64NVPROC glProgramUniform3ui64NV;
+extern PFNGLPROGRAMUNIFORM4UI64NVPROC glProgramUniform4ui64NV;
+extern PFNGLPROGRAMUNIFORM1UI64VNVPROC glProgramUniform1ui64vNV;
+extern PFNGLPROGRAMUNIFORM2UI64VNVPROC glProgramUniform2ui64vNV;
+extern PFNGLPROGRAMUNIFORM3UI64VNVPROC glProgramUniform3ui64vNV;
+extern PFNGLPROGRAMUNIFORM4UI64VNVPROC glProgramUniform4ui64vNV;
+
+
+/******************************
 * Extension: GL_NV_half_float
 ******************************/
 
@@ -8685,6 +10117,14 @@ extern PFNGLVERTEXATTRIBS4HVNVPROC glVertexAttribs4hvNV;
 
 #define GL_MAX_SHININESS_NV 0x8504
 #define GL_MAX_SPOT_EXPONENT_NV 0x8505
+
+
+/******************************
+* Extension: GL_NV_multisample_coverage
+******************************/
+
+#define GL_COVERAGE_SAMPLES_NV 0x80A9
+#define GL_COLOR_SAMPLES_NV 0x8E20
 
 
 /******************************
@@ -8947,8 +10387,8 @@ extern PFNGLGETCOMBINERSTAGEPARAMETERFVNVPROC glGetCombinerStageParameterfvNV;
 typedef void (GLE_FUNCPTR * PFNGLMAKEBUFFERRESIDENTNVPROC)(GLenum target, GLenum access);
 typedef void (GLE_FUNCPTR * PFNGLMAKEBUFFERNONRESIDENTNVPROC)(GLenum target);
 typedef GLboolean (GLE_FUNCPTR * PFNGLISBUFFERRESIDENTNVPROC)(GLenum target);
-typedef void (GLE_FUNCPTR * PFNGLNAMEDMAKEBUFFERRESIDENTNVPROC)(GLuint buffer, GLenum access);
-typedef void (GLE_FUNCPTR * PFNGLNAMEDMAKEBUFFERNONRESIDENTNVPROC)(GLuint buffer);
+typedef void (GLE_FUNCPTR * PFNGLMAKENAMEDBUFFERRESIDENTNVPROC)(GLuint buffer, GLenum access);
+typedef void (GLE_FUNCPTR * PFNGLMAKENAMEDBUFFERNONRESIDENTNVPROC)(GLuint buffer);
 typedef GLboolean (GLE_FUNCPTR * PFNGLISNAMEDBUFFERRESIDENTNVPROC)(GLuint buffer);
 typedef void (GLE_FUNCPTR * PFNGLGETBUFFERPARAMETERUI64VNVPROC)(GLenum target, GLenum pname, GLuint64EXT *params);
 typedef void (GLE_FUNCPTR * PFNGLGETNAMEDBUFFERPARAMETERUI64VNVPROC)(GLuint buffer, GLenum pname, GLuint64EXT *params);
@@ -8962,8 +10402,8 @@ typedef void (GLE_FUNCPTR * PFNGLPROGRAMUNIFORMUI64VNVPROC)(GLuint program, GLin
 extern PFNGLMAKEBUFFERRESIDENTNVPROC glMakeBufferResidentNV;
 extern PFNGLMAKEBUFFERNONRESIDENTNVPROC glMakeBufferNonResidentNV;
 extern PFNGLISBUFFERRESIDENTNVPROC glIsBufferResidentNV;
-extern PFNGLNAMEDMAKEBUFFERRESIDENTNVPROC glNamedMakeBufferResidentNV;
-extern PFNGLNAMEDMAKEBUFFERNONRESIDENTNVPROC glNamedMakeBufferNonResidentNV;
+extern PFNGLMAKENAMEDBUFFERRESIDENTNVPROC glMakeNamedBufferResidentNV;
+extern PFNGLMAKENAMEDBUFFERNONRESIDENTNVPROC glMakeNamedBufferNonResidentNV;
 extern PFNGLISNAMEDBUFFERRESIDENTNVPROC glIsNamedBufferResidentNV;
 extern PFNGLGETBUFFERPARAMETERUI64VNVPROC glGetBufferParameterui64vNV;
 extern PFNGLGETNAMEDBUFFERPARAMETERUI64VNVPROC glGetNamedBufferParameterui64vNV;
@@ -8973,6 +10413,26 @@ extern PFNGLUNIFORMUI64VNVPROC glUniformui64vNV;
 extern PFNGLGETUNIFORMUI64VNVPROC glGetUniformui64vNV;
 extern PFNGLPROGRAMUNIFORMUI64NVPROC glProgramUniformui64NV;
 extern PFNGLPROGRAMUNIFORMUI64VNVPROC glProgramUniformui64vNV;
+
+
+/******************************
+* Extension: GL_NV_shader_buffer_store
+******************************/
+
+#define GL_WRITE_ONLY 0x88B9
+#define GL_READ_WRITE 0x88BA
+#define GL_SHADER_GLOBAL_ACCESS_BARRIER_BIT_NV 0x00000010
+
+
+/******************************
+* Extension: GL_NV_tessellation_program5
+******************************/
+
+#define GL_MAX_PROGRAM_PATCH_ATTRIBS_NV 0x86D8
+#define GL_TESS_CONTROL_PROGRAM_NV 0x891E
+#define GL_TESS_EVALUATION_PROGRAM_NV 0x891F
+#define GL_TESS_CONTROL_PROGRAM_PARAMETER_BUFFER_NV 0x8C74
+#define GL_TESS_EVALUATION_PROGRAM_PARAMETER_BUFFER_NV 0x8C75
 
 
 /******************************
@@ -9171,6 +10631,7 @@ extern PFNGLTEXTUREBARRIERNVPROC glTextureBarrierNV;
 #define GL_SEPARATE_ATTRIBS_NV 0x8C8D
 #define GL_TRANSFORM_FEEDBACK_BUFFER_NV 0x8C8E
 #define GL_TRANSFORM_FEEDBACK_BUFFER_BINDING_NV 0x8C8F
+#define GL_LAYER_NV 0x8DAA
 
 
 typedef void (GLE_FUNCPTR * PFNGLBEGINTRANSFORMFEEDBACKNVPROC)(GLenum primitiveMode);
@@ -9179,11 +10640,12 @@ typedef void (GLE_FUNCPTR * PFNGLTRANSFORMFEEDBACKATTRIBSNVPROC)(GLuint count, c
 typedef void (GLE_FUNCPTR * PFNGLBINDBUFFERRANGENVPROC)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
 typedef void (GLE_FUNCPTR * PFNGLBINDBUFFEROFFSETNVPROC)(GLenum target, GLuint index, GLuint buffer, GLintptr offset);
 typedef void (GLE_FUNCPTR * PFNGLBINDBUFFERBASENVPROC)(GLenum target, GLuint index, GLuint buffer);
-typedef void (GLE_FUNCPTR * PFNGLTRANSFORMFEEDBACKVARYINGSNVPROC)(GLuint program, GLsizei count, const GLchar* *varyings, GLenum bufferMode);
+typedef void (GLE_FUNCPTR * PFNGLTRANSFORMFEEDBACKVARYINGSNVPROC)(GLuint program, GLsizei count, const GLint *locations, GLenum bufferMode);
 typedef void (GLE_FUNCPTR * PFNGLACTIVEVARYINGNVPROC)(GLuint program, const GLchar *name);
 typedef GLint (GLE_FUNCPTR * PFNGLGETVARYINGLOCATIONNVPROC)(GLuint program, const GLchar *name);
 typedef void (GLE_FUNCPTR * PFNGLGETACTIVEVARYINGNVPROC)(GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLsizei *size, GLenum *type, GLchar *name);
 typedef void (GLE_FUNCPTR * PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC)(GLuint program, GLuint index, GLint *location);
+typedef void (GLE_FUNCPTR * PFNGLTRANSFORMFEEDBACKSTREAMATTRIBSNVPROC)(GLsizei count, const GLint *attribs, GLsizei nbuffers, const GLint *bufstreams, GLenum bufferMode);
 
 extern PFNGLBEGINTRANSFORMFEEDBACKNVPROC glBeginTransformFeedbackNV;
 extern PFNGLENDTRANSFORMFEEDBACKNVPROC glEndTransformFeedbackNV;
@@ -9196,6 +10658,7 @@ extern PFNGLACTIVEVARYINGNVPROC glActiveVaryingNV;
 extern PFNGLGETVARYINGLOCATIONNVPROC glGetVaryingLocationNV;
 extern PFNGLGETACTIVEVARYINGNVPROC glGetActiveVaryingNV;
 extern PFNGLGETTRANSFORMFEEDBACKVARYINGNVPROC glGetTransformFeedbackVaryingNV;
+extern PFNGLTRANSFORMFEEDBACKSTREAMATTRIBSNVPROC glTransformFeedbackStreamAttribsNV;
 
 
 /******************************
@@ -9226,6 +10689,39 @@ extern PFNGLDRAWTRANSFORMFEEDBACKNVPROC glDrawTransformFeedbackNV;
 
 
 /******************************
+* Extension: GL_NV_vdpau_interop
+******************************/
+
+#define GL_SURFACE_STATE_NV 0x86EB
+#define GL_SURFACE_REGISTERED_NV 0x86FD
+#define GL_SURFACE_MAPPED_NV 0x8700
+#define GL_WRITE_DISCARD_NV 0x88BE
+
+
+typedef void (GLE_FUNCPTR * PFNGLVDPAUINITNVPROC)(const GLvoid *vdpDevice, const GLvoid *getProcAddress);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUFININVPROC)();
+typedef GLvdpauSurfaceNV (GLE_FUNCPTR * PFNGLVDPAUREGISTERVIDEOSURFACENVPROC)(GLvoid *vdpSurface, GLenum target, GLsizei numTextureNames, const GLuint *textureNames);
+typedef GLvdpauSurfaceNV (GLE_FUNCPTR * PFNGLVDPAUREGISTEROUTPUTSURFACENVPROC)(GLvoid *vdpSurface, GLenum target, GLsizei numTextureNames, const GLuint *textureNames);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUISSURFACENVPROC)(GLvdpauSurfaceNV surface);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUUNREGISTERSURFACENVPROC)(GLvdpauSurfaceNV surface);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUGETSURFACEIVNVPROC)(GLvdpauSurfaceNV surface, GLenum pname, GLsizei bufSize, GLsizei *length, GLint *values);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUSURFACEACCESSNVPROC)(GLvdpauSurfaceNV surface, GLenum access);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUMAPSURFACESNVPROC)(GLsizei numSurfaces, const GLvdpauSurfaceNV *surfaces);
+typedef void (GLE_FUNCPTR * PFNGLVDPAUUNMAPSURFACESNVPROC)(GLsizei numSurface, const GLvdpauSurfaceNV *surfaces);
+
+extern PFNGLVDPAUINITNVPROC glVDPAUInitNV;
+extern PFNGLVDPAUFININVPROC glVDPAUFiniNV;
+extern PFNGLVDPAUREGISTERVIDEOSURFACENVPROC glVDPAURegisterVideoSurfaceNV;
+extern PFNGLVDPAUREGISTEROUTPUTSURFACENVPROC glVDPAURegisterOutputSurfaceNV;
+extern PFNGLVDPAUISSURFACENVPROC glVDPAUIsSurfaceNV;
+extern PFNGLVDPAUUNREGISTERSURFACENVPROC glVDPAUUnregisterSurfaceNV;
+extern PFNGLVDPAUGETSURFACEIVNVPROC glVDPAUGetSurfaceivNV;
+extern PFNGLVDPAUSURFACEACCESSNVPROC glVDPAUSurfaceAccessNV;
+extern PFNGLVDPAUMAPSURFACESNVPROC glVDPAUMapSurfacesNV;
+extern PFNGLVDPAUUNMAPSURFACESNVPROC glVDPAUUnmapSurfacesNV;
+
+
+/******************************
 * Extension: GL_NV_vertex_array_range
 ******************************/
 
@@ -9248,6 +10744,55 @@ extern PFNGLVERTEXARRAYRANGENVPROC glVertexArrayRangeNV;
 ******************************/
 
 #define GL_VERTEX_ARRAY_RANGE_WITHOUT_FLUSH_NV 0x8533
+
+
+/******************************
+* Extension: GL_NV_vertex_attrib_integer_64bit
+******************************/
+
+#define GL_INT64_NV 0x140E
+#define GL_UNSIGNED_INT64_NV 0x140F
+
+
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1I64NVPROC)(GLuint index, GLint64EXT x);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2I64NVPROC)(GLuint index, GLint64EXT x, GLint64EXT y);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3I64NVPROC)(GLuint index, GLint64EXT x, GLint64EXT y, GLint64EXT z);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4I64NVPROC)(GLuint index, GLint64EXT x, GLint64EXT y, GLint64EXT z, GLint64EXT w);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1I64VNVPROC)(GLuint index, const GLint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2I64VNVPROC)(GLuint index, const GLint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3I64VNVPROC)(GLuint index, const GLint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4I64VNVPROC)(GLuint index, const GLint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1UI64NVPROC)(GLuint index, GLuint64EXT x);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2UI64NVPROC)(GLuint index, GLuint64EXT x, GLuint64EXT y);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3UI64NVPROC)(GLuint index, GLuint64EXT x, GLuint64EXT y, GLuint64EXT z);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4UI64NVPROC)(GLuint index, GLuint64EXT x, GLuint64EXT y, GLuint64EXT z, GLuint64EXT w);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL1UI64VNVPROC)(GLuint index, const GLuint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL2UI64VNVPROC)(GLuint index, const GLuint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL3UI64VNVPROC)(GLuint index, const GLuint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBL4UI64VNVPROC)(GLuint index, const GLuint64EXT *v);
+typedef void (GLE_FUNCPTR * PFNGLGETVERTEXATTRIBLI64VNVPROC)(GLuint index, GLenum pname, GLint64EXT *params);
+typedef void (GLE_FUNCPTR * PFNGLGETVERTEXATTRIBLUI64VNVPROC)(GLuint index, GLenum pname, GLuint64EXT *params);
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBLFORMATNVPROC)(GLuint index, GLint size, GLenum type, GLsizei stride);
+
+extern PFNGLVERTEXATTRIBL1I64NVPROC glVertexAttribL1i64NV;
+extern PFNGLVERTEXATTRIBL2I64NVPROC glVertexAttribL2i64NV;
+extern PFNGLVERTEXATTRIBL3I64NVPROC glVertexAttribL3i64NV;
+extern PFNGLVERTEXATTRIBL4I64NVPROC glVertexAttribL4i64NV;
+extern PFNGLVERTEXATTRIBL1I64VNVPROC glVertexAttribL1i64vNV;
+extern PFNGLVERTEXATTRIBL2I64VNVPROC glVertexAttribL2i64vNV;
+extern PFNGLVERTEXATTRIBL3I64VNVPROC glVertexAttribL3i64vNV;
+extern PFNGLVERTEXATTRIBL4I64VNVPROC glVertexAttribL4i64vNV;
+extern PFNGLVERTEXATTRIBL1UI64NVPROC glVertexAttribL1ui64NV;
+extern PFNGLVERTEXATTRIBL2UI64NVPROC glVertexAttribL2ui64NV;
+extern PFNGLVERTEXATTRIBL3UI64NVPROC glVertexAttribL3ui64NV;
+extern PFNGLVERTEXATTRIBL4UI64NVPROC glVertexAttribL4ui64NV;
+extern PFNGLVERTEXATTRIBL1UI64VNVPROC glVertexAttribL1ui64vNV;
+extern PFNGLVERTEXATTRIBL2UI64VNVPROC glVertexAttribL2ui64vNV;
+extern PFNGLVERTEXATTRIBL3UI64VNVPROC glVertexAttribL3ui64vNV;
+extern PFNGLVERTEXATTRIBL4UI64VNVPROC glVertexAttribL4ui64vNV;
+extern PFNGLGETVERTEXATTRIBLI64VNVPROC glGetVertexAttribLi64vNV;
+extern PFNGLGETVERTEXATTRIBLUI64VNVPROC glGetVertexAttribLui64vNV;
+extern PFNGLVERTEXATTRIBLFORMATNVPROC glVertexAttribLFormatNV;
 
 
 /******************************
@@ -9276,6 +10821,9 @@ extern PFNGLVERTEXARRAYRANGENVPROC glVertexArrayRangeNV;
 #define GL_SECONDARY_COLOR_ARRAY_LENGTH_NV 0x8F31
 #define GL_FOG_COORD_ARRAY_LENGTH_NV 0x8F32
 #define GL_ELEMENT_ARRAY_LENGTH_NV 0x8F33
+#define GL_DRAW_INDIRECT_UNIFIED_NV 0x8F40
+#define GL_DRAW_INDIRECT_ADDRESS_NV 0x8F41
+#define GL_DRAW_INDIRECT_LENGTH_NV 0x8F42
 
 
 typedef void (GLE_FUNCPTR * PFNGLBUFFERADDRESSRANGENVPROC)(GLenum pname, GLuint index, GLuint64EXT address, GLsizeiptr length);

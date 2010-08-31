@@ -185,6 +185,9 @@ int main(int argc, char** argv)
 	if ((argc != 2) || (strcmp (argv[1], "classic") != 0)) {
 		glutInitContextVersion (3, 3);
 		glutInitContextProfile(GLUT_CORE_PROFILE);
+#ifdef DEBUG
+		glutInitContextFlags(GLUT_DEBUG);
+#endif
 	}
 	glutInitWindowSize (500, 500); 
 	glutInitWindowPosition (300, 200);

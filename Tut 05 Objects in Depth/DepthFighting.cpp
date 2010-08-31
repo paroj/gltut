@@ -1,4 +1,6 @@
 
+
+
 #include <string>
 #include <vector>
 #include <math.h>
@@ -55,14 +57,14 @@ const float Z_OFFSET = 0.5f;
 const float vertexData[] = {
 	//Front face positions
 	-400.0f,		 400.0f,			0.0f,
-	 400.0f,		 400.0f,			0.0f,
-	 400.0f,		-400.0f,			0.0f,
+	400.0f,		 400.0f,			0.0f,
+	400.0f,		-400.0f,			0.0f,
 	-400.0f,		-400.0f,			0.0f,
 
 	//Rear face positions
 	-200.0f,		 600.0f,			-Z_OFFSET,
-	 600.0f,		 600.0f,			0.0f - Z_OFFSET,
-	 600.0f,		-200.0f,			0.0f - Z_OFFSET,
+	600.0f,		 600.0f,			0.0f - Z_OFFSET,
+	600.0f,		-200.0f,			0.0f - Z_OFFSET,
 	-200.0f,		-200.0f,			-Z_OFFSET,
 
 	//Front face colors.
@@ -141,21 +143,18 @@ float fDelta = 0.0f;
 
 float CalcZOFfset()
 {
-	const float fLoopDuration = 50.0f;
+	const float fLoopDuration = 5.0f;
 	const float fScale = 3.14159f * 2.0f / fLoopDuration;
 
 	float fElapsedTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
 
 	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
 
-	float fRet = cosf(fCurrTimeThroughLoop * fScale) * 100.0f - 2700.0f;
+	float fRet = cosf(fCurrTimeThroughLoop * fScale) * 500.0f - 2700.0f;
 	fRet = fDelta - 2700.0f;
 
 	return fRet;
 }
-
-volatile bool bReadDepthBuffer = false;
-
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -167,30 +166,13 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(theProgram);
-
 	glBindVertexArray(vao);
 
-	float fOffset = CalcZOFfset();
-
-	glUniform3f(offsetUniform, 0.0f, 0.0f, fOffset);
+	glUniform3f(offsetUniform, 0.0f, 0.0f, CalcZOFfset());
 	glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 
 	glBindVertexArray(0);
 	glUseProgram(0);
-
-	if(bReadDepthBuffer)
-	{
-		bReadDepthBuffer = false;
-
-		GLuint depthBuffer[500*500];
-		memset(depthBuffer, 0, sizeof(depthBuffer));
-
-		glReadPixels(0, 0, 500, 500, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, depthBuffer);
-
-		//Print the depth buffer to a file.
-		static int iFoo = 0;
-		iFoo++;
-	}
 
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -210,6 +192,7 @@ void reshape (int w, int h)
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
 
+
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
 //It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
@@ -225,7 +208,7 @@ void keyboard(unsigned char key, int x, int y)
 		{
 			float fValue = CalcZOFfset();
 			printf("%f\n", fValue);
-			bReadDepthBuffer = true;
+//			bReadDepthBuffer = true;
 		}
 		break;
 		//Hundreds
@@ -281,5 +264,4 @@ void keyboard(unsigned char key, int x, int y)
 
 	printf("%f\n", fDelta);
 }
-
 

@@ -44,7 +44,7 @@ DECLARE_HANDLE(HPBUFFEREXT);
 #ifndef WGL_NV_present_video
 DECLARE_HANDLE(HVIDEOOUTPUTDEVICENV);
 #endif
-#ifndef WGL_NV_video_out
+#ifndef WGL_NV_video_output
 DECLARE_HANDLE(HPVIDEODEV);
 #endif
 #ifndef WGL_NV_gpu_affinity
@@ -57,6 +57,9 @@ typedef struct _GPU_DEVICE {
     DWORD  Flags;
     RECT   rcVirtualScreen;
 } GPU_DEVICE, *PGPU_DEVICE;
+#endif
+#ifndef WGL_NV_video_capture
+DECLARE_HANDLE(HVIDEOINPUTDEVICENV);
 #endif
 
 #include "gle_util.h"

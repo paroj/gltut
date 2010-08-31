@@ -1,5 +1,5 @@
-#ifndef GL_3_2_H
-#define GL_3_2_H
+#ifndef GL_3_3_H
+#define GL_3_3_H
 
 
 #if defined(__gl_h_) || defined(__GL_H__)
@@ -2042,6 +2042,34 @@ extern PFNGLGETBUFFERPARAMETERI64VPROC __gleGetBufferParameteri64v;
 #define glGetBufferParameteri64v __gleGetBufferParameteri64v
 extern PFNGLFRAMEBUFFERTEXTUREPROC __gleFramebufferTexture;
 #define glFramebufferTexture __gleFramebufferTexture
+
+
+/******************************
+* Version: 3.3
+******************************/
+
+#define GL_VERTEX_ATTRIB_ARRAY_DIVISOR 0x88FE
+#define GL_SRC1_COLOR 0x88F9
+#define GL_ONE_MINUS_SRC1_COLOR 0x88FA
+#define GL_ONE_MINUS_SRC1_ALPHA 0x88FB
+#define GL_MAX_DUAL_SOURCE_DRAW_BUFFERS 0x88FC
+#define GL_ANY_SAMPLES_PASSED 0x8C2F
+#define GL_SAMPLER_BINDING 0x8919
+#define GL_RGB10_A2UI 0x906F
+#define GL_TEXTURE_SWIZZLE_R 0x8E42
+#define GL_TEXTURE_SWIZZLE_G 0x8E43
+#define GL_TEXTURE_SWIZZLE_B 0x8E44
+#define GL_TEXTURE_SWIZZLE_A 0x8E45
+#define GL_TEXTURE_SWIZZLE_RGBA 0x8E46
+#define GL_TIME_ELAPSED 0x88BF
+#define GL_TIMESTAMP 0x8E28
+#define GL_INT_2_10_10_10_REV 0x8D9F
+
+
+typedef void (GLE_FUNCPTR * PFNGLVERTEXATTRIBDIVISORPROC)(GLuint index, GLuint divisor);
+
+extern PFNGLVERTEXATTRIBDIVISORPROC __gleVertexAttribDivisor;
+#define glVertexAttribDivisor __gleVertexAttribDivisor
 
 
 
@@ -11182,5 +11210,5 @@ extern PFNGLREPLACEMENTCODEUITEXCOORD2FCOLOR4FNORMAL3FVERTEX3FVSUNPROC glReplace
 	#undef APIENTRY
 #endif //GLE_REMOVE_APIENTRY
 
-#endif //GL_3_2_H
+#endif //GL_3_3_H
 

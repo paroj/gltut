@@ -128,10 +128,24 @@ typedef unsigned __int64 uint64_t;
 typedef int64_t GLint64EXT;
 typedef uint64_t GLuint64EXT;
 #endif
-#ifndef ARB_sync
+#ifndef GL_ARB_sync
 typedef int64_t GLint64;
 typedef uint64_t GLuint64;
 typedef struct __GLsync *GLsync;
+#endif
+#ifndef GL_ARB_cl_event
+/* These incomplete types let us declare types compatible with OpenCL's cl_context and cl_event */
+struct _cl_context;
+struct _cl_event;
+#endif
+#ifndef GL_ARB_debug_output
+typedef void (APIENTRY *GLDEBUGPROCARB)(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+#endif
+#ifndef GL_AMD_debug_output
+typedef void (APIENTRY *GLDEBUGPROCAMD)(GLuint id,GLenum category,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
+#endif
+#ifndef GL_NV_vdpau_interop
+typedef GLintptr GLvdpauSurfaceNV;
 #endif
 
 #include "gle_util.h"
@@ -153,6 +167,12 @@ int gleIntLoad_Version_3_1();
 int gleIntLoad_Version_3_1_Comp();
 int gleIntLoad_Version_3_2();
 int gleIntLoad_Version_3_2_Comp();
+int gleIntLoad_Version_3_3();
+int gleIntLoad_Version_3_3_Comp();
+int gleIntLoad_Version_4_0();
+int gleIntLoad_Version_4_0_Comp();
+int gleIntLoad_Version_4_1();
+int gleIntLoad_Version_4_1_Comp();
 
 #define GL_VERSION 0x1F02
 #define GL_EXTENSIONS 0x1F03
