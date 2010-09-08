@@ -75,20 +75,31 @@
             debug and release.</para>
     </simplesect>
     <simplesect>
-        <title>GlLoader</title>
-        <para>The GlLoader library is a home-brewed library for loading OpenGL function entrypoints
-            from the .dll. For reasons that are too technical to repeat here, using OpenGL on most
-            platforms requires manually loading function pointers from a .dll. This library makes
-            this process painless.</para>
+        <title>TinyXML</title>
+        <para><link xlink:href="http://sourceforge.net/projects/tinyxml/">TinyXML</link> is an XML
+            parser. The framework uses an XML file format for loading complex 3D mesh data. This
+            library simply makes the loading and parsing of this format easier.</para>
         <para>Unlike the previous libraries, this library uses Premake to generate its build files.
             So, with <command>premake4.exe</command> in your path, go to the
-                <filename>glloader</filename> directory. Type <literal>premake4
+                <filename>tinyxml</filename> directory. Type <literal>premake4
                     <replaceable>plat</replaceable></literal>, where <replaceable>plat</replaceable>
             is the name of the platform of choice. For Visual Studio 2008, this would be
                 <quote>vs2008</quote>; for VS2010, this would be <quote>vs2010.</quote> The Premake
             documentation has a full list of output platforms.</para>
         <para>This will create the appropriate build file. Use this build file as is appropriate for
             the platform, compiling both debug and release.</para>
+    </simplesect>
+    <simplesect>
+        <title>GlLoader</title>
+        <para>The GlLoader library is a home-brewed library for loading OpenGL function entrypoints
+            from the .dll. For reasons that are too technical to repeat here, using OpenGL on most
+            platforms requires manually loading function pointers from a .dll. This library makes
+            this process painless.</para>
+        <para>Like TinyXML, GlLoader uses Premake to generate its build files. To create the build
+            files, go to the <filename>glloader</filename> directory. Type <literal>premake4
+                    <replaceable>plat</replaceable></literal> as you did for TinyXML. This will
+            create the build file you need to use to build the library for both debug and
+            release.</para>
     </simplesect>
     <simplesect>
         <title>Tutorial Building</title>

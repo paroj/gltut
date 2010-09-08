@@ -39,20 +39,21 @@
             </listitem>
         </itemizedlist>
         <para>A position or vertex in a space is defined as the sum of the axis vectors, where each
-            basis vector is multiplied by a value called a coordinate. Any point in the space is
-            thus defined by this equation:</para>
-        <!--TODO: Show the vectoral equation defining a point.-->
+            basis vector is multiplied by a value called a coordinate. Geometrically, this looks
+            like the following:</para>
+        <!--TODO: Show the geometric diagram for a coordinate in 3D.-->
+        <para>The numerical equivalent is this:</para>
+        <!--TODO: Show the vectoral equation defining a coordinate in 3D.-->
         <para>The coordinate used to refer to a position depends entirely on the coordinate system
             being used to describe that position. For example, here are two positions that have the
             same numerical coordinate value, but appear in different locations (from the point of
             view of a neutral observer).</para>
         <!--TODO: Show a 2D orthogonal and 2D skewed coordinate system, and the same coordinate position from both.-->
-        <para>This is all well and good when dealing with axis vectors and the origin point as
-            generic vectors as drawn above. The origin point is just a position, and the basis
-            vectors are simply drawn. But what does it mean to give actual numbers to these
-            concepts? A position, like the origin point, is itself a coordinate. Which means that it
-            must be defined relative to some coordinate system. The same goes for the basis
-            vectors.</para>
+        <para>This is all well and good when dealing with the geometric basis vectors and origin
+            point. The origin point is just a position, and the basis vectors are simply drawn. But
+            what does it mean to give actual numbers to these concepts in the numerical version? A
+            position, like the origin point, is itself a coordinate. Which means that it must be
+            defined relative to some coordinate system. The same goes for the basis vectors.</para>
         <para>For the purpose of this discussion, there is a coordinate system that acts as a kind
             of neutral coordinate system; it can be used as a generic viewpoint for a coordinate
             system. For a three-dimensional coordinate system, this identity space has the origin at
