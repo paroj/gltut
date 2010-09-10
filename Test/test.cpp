@@ -1,256 +1,189 @@
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h>
-#include <string.h>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <sstream>
 #include <glloader/gl_3_2_comp.h>
-#include <glloader/wgl_exts.h>
-#include <glloader/gle.h>
 #include <GL/freeglut.h>
+#include "../framework/framework.h"
 
-/* report GL errors, if any, to stderr */
-void checkError(const char *functionName)
+
+GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
 {
-	GLenum error;
-	while (( error = glGetError() ) != GL_NO_ERROR) {
-		fprintf (stderr, "GL error 0x%X detected in %s\n", error, functionName);
-	}
-}
+	GLuint shader = glCreateShader(eShaderType);
+	const char *strFileData = strShaderFile.c_str();
+	glShaderSource(shader, 1, &strFileData, NULL);
 
-/* vertex array data for a colored 2D triangle, consisting of RGB color values
-and XY coordinates */
-const GLfloat varray[] = {
-	1.0f, 0.0f, 0.0f, /* red */
-	5.0f, 5.0f,       /* lower left */
+	glCompileShader(shader);
 
-	0.0f, 1.0f, 0.0f, /* green */
-	25.0f, 5.0f,      /* lower right */
-
-	0.0f, 0.0f, 1.0f, /* blue */
-	5.0f, 25.0f       /* upper left */
-};
-
-/* ISO C somehow enforces this silly use of 'enum' for compile-time constants */
-enum {
-	numColorComponents = 3,
-	numVertexComponents = 2,
-	stride = sizeof(GLfloat) * (numColorComponents + numVertexComponents),
-	numElements = sizeof(varray) / stride
-};
-
-/* the name of the vertex buffer object */
-GLuint vertexBufferName;
-
-void initBuffer(void)
-{
-	glGenBuffers (1, &vertexBufferName);
-	glBindBuffer (GL_ARRAY_BUFFER, vertexBufferName);
-	glBufferData (GL_ARRAY_BUFFER, sizeof(varray), varray, GL_STATIC_DRAW);
-	checkError ("initBuffer");
-}
-
-const GLchar *vertexShaderSource[] = {
-	"#version 140\n",
-	"uniform mat4 fg_ProjectionMatrix;\n",
-	"in vec4 fg_Color;\n",
-	"in vec4 fg_Vertex;\n",
-	"smooth out vec4 fg_SmoothColor;\n",
-	"void main()\n",
-	"{\n",
-	"   fg_SmoothColor = fg_Color;\n",
-	"   gl_Position = fg_ProjectionMatrix * fg_Vertex;\n",
-	"}\n"
-};
-
-const GLchar *fragmentShaderSource[] = {
-	"#version 140\n",
-	"smooth in vec4 fg_SmoothColor;\n",
-	"out vec4 fg_FragColor;\n",
-	"void main(void)\n",
-	"{\n",
-	"   fg_FragColor = fg_SmoothColor;\n",
-	"}\n"
-};
-
-void compileAndCheck(GLuint shader)
-{
 	GLint status;
-	glCompileShader (shader);
-	glGetShaderiv (shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE) {
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+	if (status == GL_FALSE)
+	{
 		GLint infoLogLength;
-		GLchar *infoLog;
-		glGetShaderiv (shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-		infoLog = (GLchar*) malloc (infoLogLength);
-		glGetShaderInfoLog (shader, infoLogLength, NULL, infoLog);
-		fprintf (stderr, "compile log: %s\n", infoLog);
-		free (infoLog);
-	}
-}
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-GLuint compileShaderSource(GLenum type, GLsizei count, const GLchar **string)
-{
-	GLuint shader = glCreateShader (type);
-	glShaderSource (shader, count, string, NULL);
-	compileAndCheck (shader);
+		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+		glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+
+		const char *strShaderType = NULL;
+		switch(eShaderType)
+		{
+		case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+		case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+		case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+		}
+
+		fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+		delete[] strInfoLog;
+	}
+
 	return shader;
 }
 
-void linkAndCheck(GLuint program)
+GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 {
-	GLint status;
-	glLinkProgram (program);
-	glGetProgramiv (program, GL_LINK_STATUS, &status);
-	if (status == GL_FALSE) {
-		GLint infoLogLength;
-		GLchar *infoLog;
-		glGetProgramiv (program, GL_INFO_LOG_LENGTH, &infoLogLength);
-		infoLog = (GLchar*) malloc (infoLogLength);
-		glGetProgramInfoLog (program, infoLogLength, NULL, infoLog);
-		fprintf (stderr, "link log: %s\n", infoLog);
-		free (infoLog);
-	}
-}
+	GLuint program = glCreateProgram();
 
-GLuint createProgram(GLuint vertexShader, GLuint fragmentShader)
-{
-	GLuint program = glCreateProgram ();
-	if (vertexShader != 0) {
-		glAttachShader (program, vertexShader);
+	for(size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
+		glAttachShader(program, shaderList[iLoop]);
+
+	glLinkProgram(program);
+
+	GLint status;
+	glGetProgramiv (program, GL_LINK_STATUS, &status);
+	if (status == GL_FALSE)
+	{
+		GLint infoLogLength;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+		glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
+		fprintf(stderr, "Linker failure: %s\n", strInfoLog);
+		delete[] strInfoLog;
 	}
-	if (fragmentShader != 0) {
-		glAttachShader (program, fragmentShader);
-	}
-	linkAndCheck (program);
+
 	return program;
 }
 
-GLuint fgProjectionMatrixIndex;
-GLuint fgColorIndex;
-GLuint fgVertexIndex;
+GLuint theProgram;
 
-void initShader(void)
+const std::string strVertexShader(
+								  "#version 330\n"
+								  "layout(location = 0) in vec4 position;\n"
+								  "void main()\n"
+								  "{\n"
+								  "   gl_Position = position;\n"
+								  "}\n"
+								  );
+
+const std::string strFragmentShader(
+									"#version 330\n"
+									"out vec4 outputColor;\n"
+									"void main()\n"
+									"{\n"
+									"   outputColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
+									"}\n"
+									);
+
+void InitializeProgram()
 {
-	const GLsizei vertexShaderLines = sizeof(vertexShaderSource) / sizeof(GLchar*);
-	GLuint vertexShader =
-		compileShaderSource (GL_VERTEX_SHADER, vertexShaderLines, vertexShaderSource);
+	std::vector<GLuint> shaderList;
 
-	const GLsizei fragmentShaderLines = sizeof(fragmentShaderSource) / sizeof(GLchar*);
-	GLuint fragmentShader =
-		compileShaderSource (GL_FRAGMENT_SHADER, fragmentShaderLines, fragmentShaderSource);
+	shaderList.push_back(CreateShader(GL_VERTEX_SHADER, strVertexShader));
+	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
 
-	GLuint program = createProgram (vertexShader, fragmentShader);
-
-	glUseProgram (program);
-
-	fgProjectionMatrixIndex = glGetUniformLocation(program, "fg_ProjectionMatrix");
-
-	fgColorIndex = glGetAttribLocation(program, "fg_Color");
-	glEnableVertexAttribArray (fgColorIndex);
-
-	fgVertexIndex = glGetAttribLocation(program, "fg_Vertex");
-	glEnableVertexAttribArray (fgVertexIndex);
-
-	checkError ("initShader");
+	theProgram = CreateProgram(shaderList);
 }
 
-void initRendering(void)
+const float vertexPositions[] = {
+	0.75f, 0.75f, 0.0f, 1.0f,
+	0.75f, -0.75f, 0.0f, 1.0f,
+	-0.75f, -0.75f, 0.0f, 1.0f,
+};
+
+GLuint positionBufferObject;
+GLuint vao;
+
+
+void InitializeVertexBuffer()
 {
-	glClearColor (0.0, 0.0, 0.0, 0.0);
-	checkError ("initRendering");
+	glGenBuffers(1, &positionBufferObject);
+
+	glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void dumpInfo(void)
+const char *g_strTestFloats = " \n-10.0 10.0 23.4\n4.32 -4 -5 ";
+Framework::Mesh *g_theMesh = NULL;
+
+//Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
+void init()
 {
-	printf ("Vendor: %s\n", glGetString (GL_VENDOR));
-	printf ("Renderer: %s\n", glGetString (GL_RENDERER));
-	printf ("Version: %s\n", glGetString (GL_VERSION));
-	printf ("GLSL: %s\n", glGetString (GL_SHADING_LANGUAGE_VERSION));
-	checkError ("dumpInfo");
+	try
+	{
+		g_theMesh = new Framework::Mesh("mesh.xml");
+	}
+	catch(std::exception &except)
+	{
+		g_theMesh = NULL;
+		printf(except.what());
+	}
+
+	InitializeProgram();
+	InitializeVertexBuffer();
+
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 }
 
-void init(void) 
+//Called to update the display.
+//You should call glutSwapBuffers after all of your rendering to display what you rendered.
+//If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
+void display()
 {
-	dumpInfo ();
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
-	initBuffer ();
-	initShader ();
-	initRendering ();
-}
+	glUseProgram(theProgram);
 
-const GLvoid *bufferObjectPtr (GLsizei index)
-{
-	return (const GLvoid *) (((char *) NULL) + index);
-}
+	if(g_theMesh)
+		g_theMesh->Render();
+/*
+	glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 
-GLfloat projectionMatrix[16];
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+*/
 
-void triangle(void)
-{
-	glUniformMatrix4fv (fgProjectionMatrixIndex, 1, GL_FALSE, projectionMatrix);
+	glDisableVertexAttribArray(0);
+	glUseProgram(0);
 
-	glBindBuffer (GL_ARRAY_BUFFER, vertexBufferName);
-	glVertexAttribPointer (fgColorIndex, numColorComponents, GL_FLOAT, GL_FALSE,
-		stride, bufferObjectPtr (0));
-	glVertexAttribPointer (fgVertexIndex, numVertexComponents, GL_FLOAT, GL_FALSE,
-		stride, bufferObjectPtr (sizeof(GLfloat) * numColorComponents));
-	glDrawArrays(GL_TRIANGLES, 0, numElements);
-	checkError ("triangle");
-}
-
-void display(void)
-{
-	glClear (GL_COLOR_BUFFER_BIT);
-	triangle ();
-	checkError ("display");
 	glutSwapBuffers();
 }
 
-void loadOrthof(GLfloat *m, GLfloat l, GLfloat r, GLfloat b, GLfloat t,
-				GLfloat n, GLfloat f)
-{
-	m[ 0] = 2.0f / (r - l);
-	m[ 1] = 0.0f;
-	m[ 2] = 0.0f;
-	m[ 3] = 0.0f;
-
-	m[ 4] = 0.0f;
-	m[ 5] = 2.0f / (t - b);
-	m[ 6] = 0.0f;
-	m[ 7] = 0.0f;
-
-	m[ 8] = 0.0f;
-	m[ 9] = 0.0f;
-	m[10] = -2.0f / (f - n);
-	m[11] = 0.0f;
-
-	m[12] = -(r + l) / (r - l);
-	m[13] = -(t + b) / (t - b);
-	m[14] = -(f + n) / (f - n);
-	m[15] = 1.0f;
-}
-
-void loadOrtho2Df(GLfloat *m, GLfloat l, GLfloat r, GLfloat b, GLfloat t)
-{
-	loadOrthof (m, l, r, b, t, -1.0f, 1.0f);
-}
-
+//Called whenever the window is resized. The new window size is given, in pixels.
+//This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	if (w <= h) {
-		loadOrtho2Df (projectionMatrix, 0.0f, 30.0f, 0.0f, 30.0f * (GLfloat) h/(GLfloat) w);
-	} else {
-		loadOrtho2Df (projectionMatrix, 0.0f, 30.0f * (GLfloat) w/(GLfloat) h, 0.0f, 30.0f);
-	}
-	checkError ("reshape");
+	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
 
+//Called whenever a key on the keyboard was pressed.
+//The key is given by the ''key'' parameter, which is in ASCII.
+//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
+//exit the program.
 void keyboard(unsigned char key, int x, int y)
 {
-	switch (key) {
-	  case 27:
-		  glutLeaveMainLoop();
-		  break;
+	switch (key)
+	{
+	case 27:
+		delete g_theMesh;
+		glutLeaveMainLoop();
+		break;
 	}
 }
+
+

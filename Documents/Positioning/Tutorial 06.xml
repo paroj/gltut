@@ -575,8 +575,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 </inlineequation>.</para>
             <para>In the case of the scalar inverse, this is very easy to compute: <inlineequation>
                     <mathphrase>Y = 1/X</mathphrase>
-                </inlineequation>. However, even in this case, there are values of X for which there
-                is no multiplicative inverse. Well, one value of X: 0.</para>
+                </inlineequation>. Even in this case, there are values of X for which there is no
+                multiplicative inverse. OK, there's <emphasis>one</emphasis> value of X: 0.</para>
             <para>The case of the inverse matrix is much more complicated. Just as with the scalar
                 inverse, there are matrices that have no inverse. Unlike the scalar case, there are
                 a <emphasis>lot</emphasis> of matrices with no inverse. Also, computing the inverse
@@ -589,10 +589,11 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 matrix. For a scale matrix, take the reciprocal of the scale along each axis.</para>
             <para>To take the inverse of a sequence of matrices, you can take the inverse of each of
                 the component matrices. But you have to do the matrix multiplication in
-                    <emphasis>reverse</emphasis> order. So the inverse matrix for the sequence <inlineequation>
-                    <mathphrase>TRS</mathphrase>
-                </inlineequation> is <inlineequation>
-                    <mathphrase>S<superscript>-1</superscript>R<superscript>-1</superscript>T<superscript>-1</superscript></mathphrase>
+                    <emphasis>reverse</emphasis> order. So if we have <inlineequation>
+                    <mathphrase>M = TRS</mathphrase>
+                </inlineequation>, then M<superscript>-1</superscript> is <inlineequation>
+                    <mathphrase>M<superscript>-1</superscript> =
+                            S<superscript>-1</superscript>R<superscript>-1</superscript>T<superscript>-1</superscript></mathphrase>
                 </inlineequation>.</para>
         </section>
         <section>

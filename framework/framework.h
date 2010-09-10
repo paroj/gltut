@@ -2,6 +2,7 @@
 #define FRAMEWORK_H
 
 #include <stack>
+#include <string>
 #include <glm/glm.hpp>
 
 namespace Framework
@@ -10,8 +11,24 @@ namespace Framework
 	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename);
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList);
 
+	struct MeshData;
+
+	class Mesh
+	{
+	public:
+		Mesh(const std::string &strFilename);
+		~Mesh();
+
+		void Render();
+		void DeleteObjects();
+
+	private:
+		MeshData *m_pData;
+	};
+
 	class MatrixStack
 	{
+	public:
 		MatrixStack()
 			: m_currMat(1.0f)
 		{
