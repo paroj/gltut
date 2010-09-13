@@ -161,7 +161,7 @@ Michiel Hendriks <elmuerte at users.sourceforge.net>
 		<keyword>sampler1D</keyword>
 		<keyword>sampler2D</keyword>
 		<keyword>sampler3D</keyword>
-		<keyword>samplerCube   </keyword>
+		<keyword>samplerCube</keyword>
 		<keyword>sampler1DShadow</keyword>
 		<keyword>sampler2DShadow</keyword>
 		<keyword>samplerCubeShadow</keyword>

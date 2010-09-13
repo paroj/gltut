@@ -190,6 +190,7 @@ namespace Framework
 	WRITE_ARRAY_FUNCDEF(bValue,		GLbyte,		WriteBytes);
 
 
+
 	namespace
 	{
 		const AttribType g_allAttributeTypes[] =
@@ -613,6 +614,8 @@ namespace Framework
 				{
 					prim.start = (GLuint)indexStartLocs[iCurrIndexed];
 					prim.elemCount = (GLuint)indexData[iCurrIndexed].dataArray.size();
+					prim.eIndexDataType = indexData[iCurrIndexed].pAttribType->eGLType;
+					iCurrIndexed++;
 				}
 			}
 		}
@@ -746,14 +749,11 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL);
-	/* add command line argument "classic" for a pre-3.x context */
-	if ((argc != 2) || (strcmp (argv[1], "classic") != 0)) {
-		glutInitContextVersion (3, 3);
-		glutInitContextProfile(GLUT_CORE_PROFILE);
+	glutInitContextVersion (3, 3);
+	glutInitContextProfile(GLUT_CORE_PROFILE);
 #ifdef DEBUG
-		glutInitContextFlags(GLUT_DEBUG);
+	glutInitContextFlags(GLUT_DEBUG);
 #endif
-	}
 	glutInitWindowSize (500, 500); 
 	glutInitWindowPosition (300, 200);
 	glutCreateWindow (argv[0]);

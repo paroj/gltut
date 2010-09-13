@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?oxygen RNGSchema="../Documents/meshFormat.rnc" type="compact"?>
+<?oxygen RNGSchema="../../Documents/meshFormat.rnc" type="compact"?>
 <mesh xmlns="http://www.arcsynthesis.com/gltut/mesh">
     <attribute index="0" type="float" size="4">
         0.75 0.75 0.0 1.0
