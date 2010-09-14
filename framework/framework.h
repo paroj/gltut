@@ -7,6 +7,8 @@
 
 namespace Framework
 {
+	float DegToRad(float fAngDeg);
+
 	GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile);
 	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename);
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList);
@@ -46,6 +48,11 @@ namespace Framework
 
 		void Scale(const glm::vec3 &scaleVec);
 		void Translate(const glm::vec3 &offsetVec);
+
+		void ApplyMatrix(const glm::mat4 &theMatrix);
+		void SetMatrix(const glm::mat4 &theMatrix);
+		void SetIdentity();
+		void Perspective(float fDegFOV, float fAspectRatio, float fZNear, float fZFar);
 
 	private:
 		glm::mat4 m_currMat;

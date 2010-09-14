@@ -649,13 +649,10 @@ namespace Framework
 		m_pData->oVAO = 0;
 	}
 
-	namespace
+	float DegToRad(float fAngDeg)
 	{
-		inline float DegToRad(float fAngDeg)
-		{
-			const float fDegToRad = 3.14159f * 2.0f / 360.0f;
-			return fAngDeg * fDegToRad;
-		}
+		const float fDegToRad = 3.14159f * 2.0f / 360.0f;
+		return fAngDeg * fDegToRad;
 	}
 
 	void MatrixStack::Rotate( glm::vec3 &axisOfRotation, float fAngDeg )
@@ -737,6 +734,38 @@ namespace Framework
 
 		m_currMat *= translateMat;
 	}
+
+	void MatrixStack::ApplyMatrix( const glm::mat4 &theMatrix )
+	{
+		m_currMat *= theMatrix;
+	}
+
+	void MatrixStack::SetIdentity()
+	{
+		m_currMat = glm::mat4(1.0f);
+	}
+
+	void MatrixStack::Perspective( float fDegFOV, float fAspectRatio, float fZNear, float fZFar )
+	{
+		glm::mat4 persMat(0.0f);
+
+		const float degToRad = 3.14159f * 2.0f / 360.0f;
+		float fFovRad = fDegFOV * degToRad;
+		float fFrustumScale = 1.0f / tan(fFovRad / 2.0f);
+
+		persMat[0].x = fFrustumScale * fAspectRatio;
+		persMat[1].y = fFrustumScale;
+		persMat[2].z = (fZFar + fZNear) / (fZNear - fZFar);
+		persMat[2].w = -1.0f;
+		persMat[3].z = (2 * fZFar * fZNear) / (fZNear - fZFar);
+
+		m_currMat *= persMat;
+	}
+
+	void MatrixStack::SetMatrix( const glm::mat4 &theMatrix )
+	{
+		m_currMat = theMatrix;
+	}
 }
 
 
@@ -748,7 +777,7 @@ void keyboard(unsigned char key, int x, int y);
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL);
+	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL/* | GLUT_MULTISAMPLE | GLUT_SRGB*/);
 	glutInitContextVersion (3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 #ifdef DEBUG

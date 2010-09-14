@@ -4,4 +4,4 @@ SetupProject("Tut 07 World Scene", "World Scene.cpp",
 	"data/PosColorWorldTransform.vert",
 	"data/ColorPassthrough.frag",
 	"data/ColorMultUniform.frag",
-	"data/ColorExactUniform.frag")
+	"data/ColorUniform.frag")

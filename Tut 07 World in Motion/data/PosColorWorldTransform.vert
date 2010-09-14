@@ -12,7 +12,7 @@ uniform mat4 modelToWorldMatrix;
 void main()
 {
 	vec4 temp = modelToWorldMatrix * position;
-//	temp = worldToCameraMatrix * temp;
+	temp = worldToCameraMatrix * temp;
 	gl_Position = cameraToClipMatrix * temp;
 	interpColor = color;
 }
