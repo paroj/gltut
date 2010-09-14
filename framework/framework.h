@@ -47,7 +47,9 @@ namespace Framework
 		void RotateZ(float fAngDeg);
 
 		void Scale(const glm::vec3 &scaleVec);
+		void Scale(float fScaleX, float fScaleY, float fScaleZ) {Scale(glm::vec3(fScaleX, fScaleY, fScaleZ));}
 		void Translate(const glm::vec3 &offsetVec);
+		void Translate(float fTransX, float fTransY, float fTransZ) {Translate(glm::vec3(fTransX, fTransY, fTransZ));}
 
 		void ApplyMatrix(const glm::mat4 &theMatrix);
 		void SetMatrix(const glm::mat4 &theMatrix);

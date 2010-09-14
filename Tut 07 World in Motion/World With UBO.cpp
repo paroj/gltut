@@ -13,10 +13,10 @@
 struct ProgramData
 {
 	GLuint theProgram;
+	GLuint globalUniformBlockIndex;
 	GLuint modelToWorldMatrixUnif;
-	GLuint worldToCameraMatrixUnif;
-	GLuint cameraToClipMatrixUnif;
 	GLuint baseColorUnif;
+	GLuint thing;
 };
 
 float g_fzNear = 1.0f;
@@ -25,6 +25,10 @@ float g_fzFar = 1000.0f;
 ProgramData UniformColor;
 ProgramData ObjectColor;
 ProgramData UniformColorTint;
+
+GLuint g_GlobalMatricesUBO;
+
+static const int g_iGlobalMatricesBindingIndex = 0;
 
 ProgramData LoadProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
@@ -36,18 +40,27 @@ ProgramData LoadProgram(const std::string &strVertexShader, const std::string &s
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToWorldMatrixUnif = glGetUniformLocation(data.theProgram, "modelToWorldMatrix");
-	data.worldToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "worldToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
+	data.globalUniformBlockIndex = glGetUniformBlockIndex(data.theProgram, "GlobalMatrices");
 	data.baseColorUnif = glGetUniformLocation(data.theProgram, "baseColor");
+
+	glUniformBlockBinding(data.theProgram, data.globalUniformBlockIndex, g_iGlobalMatricesBindingIndex);
 
 	return data;
 }
 
 void InitializeProgram()
 {
-	UniformColor = LoadProgram("PosOnlyWorldTransform.vert", "ColorUniform.frag");
-	ObjectColor = LoadProgram("PosColorWorldTransform.vert", "ColorPassthrough.frag");
-	UniformColorTint = LoadProgram("PosColorWorldTransform.vert", "ColorMultUniform.frag");
+	UniformColor = LoadProgram("PosOnlyWorldTransformUBO.vert", "ColorUniform.frag");
+	ObjectColor = LoadProgram("PosColorWorldTransformUBO.vert", "ColorPassthrough.frag");
+	UniformColorTint = LoadProgram("PosColorWorldTransformUBO.vert", "ColorMultUniform.frag");
+
+	glGenBuffers(1, &g_GlobalMatricesUBO);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STREAM_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_iGlobalMatricesBindingIndex, g_GlobalMatricesUBO,
+		0, sizeof(glm::mat4) * 2);
 }
 
 glm::mat4 CalcLookAtMatrix(const glm::vec3 &cameraPt, const glm::vec3 &lookPt, const glm::vec3 &upPt)
@@ -460,63 +473,63 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	const glm::vec3 &camPos = ResolveCamPosition();
-
-	Framework::MatrixStack camMatrix;
-	camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
-
-	glUseProgram(UniformColor.theProgram);
-	glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-	glUseProgram(ObjectColor.theProgram);
-	glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-	glUseProgram(UniformColorTint.theProgram);
-	glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-	glUseProgram(0);
-
-	Framework::MatrixStack modelMatrix;
-
-	//Render the ground plane.
+	if(g_pConeMesh && g_pCylinderMesh && g_pCubeTintMesh && g_pCubeColorMesh && g_pPlaneMesh)
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		const glm::vec3 &camPos = ResolveCamPosition();
 
-		modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
+		Framework::MatrixStack camMatrix;
+		camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
 
-		glUseProgram(UniformColor.theProgram);
-		glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-		glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-		glUniform4f(UniformColor.baseColorUnif, 0.302f, 0.416f, 0.0589f, 1.0f);
-		g_pPlaneMesh->Render();
-		glUseProgram(0);
-	}
+		glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
+		glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camMatrix.Top()));
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	//Draw the trees
-	DrawForest(modelMatrix);
+		Framework::MatrixStack modelMatrix;
 
-	//Draw the building.
-	{
-		Framework::MatrixStackPusher push(modelMatrix);
-		modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
+		//Render the ground plane.
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
 
-		DrawParthenon(modelMatrix);
-	}
+			modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
 
-	if(g_bDrawLookatPoint)
-	{
-		glDisable(GL_DEPTH_TEST);
-		glm::mat4 idenity(1.0f);
+			glUseProgram(UniformColor.theProgram);
+			glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+			glUniform4f(UniformColor.baseColorUnif, 0.302f, 0.416f, 0.0589f, 1.0f);
+			g_pPlaneMesh->Render();
+			glUseProgram(0);
+		}
 
-		Framework::MatrixStackPusher push(modelMatrix);
+		//Draw the trees
+		DrawForest(modelMatrix);
 
-		glm::vec3 cameraAimVec = g_camTarget - camPos;
-		modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
-		modelMatrix.Scale(1.0f, 1.0f, 1.0f);
-	
-		glUseProgram(ObjectColor.theProgram);
-		glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-		glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(idenity));
-		g_pCubeColorMesh->Render();
-		glUseProgram(0);
-		glEnable(GL_DEPTH_TEST);
+		//Draw the building.
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
+			modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
+
+//			DrawParthenon(modelMatrix);
+		}
+
+		if(g_bDrawLookatPoint)
+		{
+			/*
+			glDisable(GL_DEPTH_TEST);
+			glm::mat4 idenity(1.0f);
+
+			Framework::MatrixStackPusher push(modelMatrix);
+
+			glm::vec3 cameraAimVec = g_camTarget - camPos;
+			modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
+			modelMatrix.Scale(1.0f, 1.0f, 1.0f);
+
+			glUseProgram(ObjectColor.theProgram);
+			glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+			glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(idenity));
+			g_pCubeColorMesh->Render();
+			glUseProgram(0);
+			glEnable(GL_DEPTH_TEST);
+			*/
+		}
 	}
 
 	glutSwapBuffers();
@@ -526,11 +539,14 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-// 	cameraToClipMatrix[0].x = fFrustumScale * (h / (float)w);
-// 	cameraToClipMatrix[1].y = fFrustumScale;
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
 
+	glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(persMatrix.Top()));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+/*
 	glUseProgram(UniformColor.theProgram);
 	glUniformMatrix4fv(UniformColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
 	glUseProgram(ObjectColor.theProgram);
@@ -538,6 +554,7 @@ void reshape (int w, int h)
 	glUseProgram(UniformColorTint.theProgram);
 	glUniformMatrix4fv(UniformColorTint.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
 	glUseProgram(0);
+*/
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
@@ -553,9 +570,15 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		delete g_pConeMesh;
+		g_pConeMesh = NULL;
 		delete g_pCylinderMesh;
+		g_pCylinderMesh = NULL;
 		delete g_pCubeTintMesh;
+		g_pCubeTintMesh = NULL;
 		delete g_pCubeColorMesh;
+		g_pCubeColorMesh = NULL;
+		delete g_pPlaneMesh;
+		g_pPlaneMesh = NULL;
 		glutLeaveMainLoop();
 		break;
 	case 'w': g_camTarget.z -= 4.0f; break;

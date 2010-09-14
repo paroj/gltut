@@ -1,0 +1,89 @@
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace msh = "http://www.arcsynthesis.com/gltut/mesh"
+
+##Structure and elements
+div
+{
+    start = mf.rootelements
+    
+    mf.rootelements =
+        mf.mesh
+        
+    mf.mesh =
+        ##The mesh format
+        element msh:mesh {mf.mesh.content}
+
+    mf.mesh.content =
+        mf.attribute+, (mf.indices+ | mf.arrays+)
+        
+    mf.attribute =
+        ##A single attribute array.
+        element msh:attribute { mf.attribute.content }
+        
+    mf.attribute.content =
+        mf.attribute.attlist, text
+
+    mf.indices =
+        ##A single element array, which is rendered with a particular rendering command.
+        element msh:indices { mf.indices.content }
+        
+    mf.indices.content =
+        mf.indices.attlist, text
+        
+    mf.arrays =
+        ##A single array rendering, which is rendered with a particular rendering command.
+        ##Cannot be combined with element arrays in a single mesh.
+        element msh:arrays { mf.arrays.content }
+        
+    mf.arrays.content =
+        mf.arrays.attlist, text
+}
+
+##Attributes
+div
+{
+    mf.attribute.attlist =
+        mf.attribute.index.attribute, mf.attribute.type.attribute, mf.attribute.size.attribute
+        
+    mf.indices.attlist =
+        mf.indices.type.attribute, mf.cmd.attribute, mf.indices.primrestart.attribute?
+        
+    mf.arrays.attlist =
+        mf.cmd.attribute, mf.arrays.start.attribute, mf.arrays.count.attribute
+        
+    mf.attribute.index.attribute =
+        ##The attribute index to be used for this attribute.
+        attribute index { xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "16"} }
+        
+    mf.attribute.size.attribute =
+        ##The size of each value in the attribute. 1-4.
+        attribute size { xsd:positiveInteger { minInclusive = "1" maxInclusive = "4"} }
+    
+    mf.attribute.type.attribute =
+        ##The type of the attribute's data. Integer, float, normalized, etc.
+        attribute type { "float" | "int" | "uint" | "short" | "ushort" | "byte" | "ubyte" |
+            "norm-int" | "norm-uint" | "norm-short" | "norm-ushort" | "norm-byte" | "norm-ubyte"}
+        
+    mf.indices.type.attribute =
+        ##The type of the index data.
+        attribute type { "uint" | "ushort" | "ubyte" }
+    
+    mf.cmd.attribute =
+        ##The command used to render this part of the mesh.
+        attribute cmd { "triangles" | "tri-strip" | "tri-fan" | "lines" | "line-strip" |
+        "line-loop" | "points" }
+        
+    mf.indices.primrestart.attribute =
+        ##Sets the primitive restart index. Don't set it if you don't want one.
+        attribute prim-restart { xsd:unsignedInt }
+        
+    mf.arrays.start.attribute =
+        ##Sets the initial index for array rendering.
+        attribute start { xsd:nonNegativeInteger }
+    
+    mf.arrays.count.attribute =
+        ##Sets the number of elements to be rendered with array rendering.
+        attribute count { xsd:positiveInteger }
+}
+
