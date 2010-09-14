@@ -116,6 +116,7 @@ void init()
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
+	glEnable(GL_DEPTH_CLAMP);
 }
 
 static float g_fYAngle = 0.0f;
@@ -507,28 +508,25 @@ void display()
 			Framework::MatrixStackPusher push(modelMatrix);
 			modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
 
-//			DrawParthenon(modelMatrix);
+			DrawParthenon(modelMatrix);
 		}
 
 		if(g_bDrawLookatPoint)
 		{
-			/*
 			glDisable(GL_DEPTH_TEST);
 			glm::mat4 idenity(1.0f);
 
 			Framework::MatrixStackPusher push(modelMatrix);
 
-			glm::vec3 cameraAimVec = g_camTarget - camPos;
-			modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
+			modelMatrix.Translate(g_camTarget);
 			modelMatrix.Scale(1.0f, 1.0f, 1.0f);
 
 			glUseProgram(ObjectColor.theProgram);
 			glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-			glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(idenity));
 			g_pCubeColorMesh->Render();
 			glUseProgram(0);
 			glEnable(GL_DEPTH_TEST);
-			*/
+
 		}
 	}
 

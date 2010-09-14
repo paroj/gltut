@@ -103,6 +103,7 @@ void init()
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
+	glEnable(GL_DEPTH_CLAMP);
 }
 
 static float g_fYAngle = 0.0f;
