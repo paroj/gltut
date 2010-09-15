@@ -461,63 +461,65 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	const glm::vec3 &camPos = ResolveCamPosition();
-
-	Framework::MatrixStack camMatrix;
-	camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
-
-	glUseProgram(UniformColor.theProgram);
-	glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-	glUseProgram(ObjectColor.theProgram);
-	glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-	glUseProgram(UniformColorTint.theProgram);
-	glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-	glUseProgram(0);
-
-	Framework::MatrixStack modelMatrix;
-
-	//Render the ground plane.
+	if(g_pConeMesh && g_pCylinderMesh && g_pCubeTintMesh && g_pCubeColorMesh && g_pPlaneMesh)
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		const glm::vec3 &camPos = ResolveCamPosition();
 
-		modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
+		Framework::MatrixStack camMatrix;
+		camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 		glUseProgram(UniformColor.theProgram);
 		glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
-		glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-		glUniform4f(UniformColor.baseColorUnif, 0.302f, 0.416f, 0.0589f, 1.0f);
-		g_pPlaneMesh->Render();
-		glUseProgram(0);
-	}
-
-	//Draw the trees
-	DrawForest(modelMatrix);
-
-	//Draw the building.
-	{
-		Framework::MatrixStackPusher push(modelMatrix);
-		modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
-
-		DrawParthenon(modelMatrix);
-	}
-
-	if(g_bDrawLookatPoint)
-	{
-		glDisable(GL_DEPTH_TEST);
-		glm::mat4 idenity(1.0f);
-
-		Framework::MatrixStackPusher push(modelMatrix);
-
-		glm::vec3 cameraAimVec = g_camTarget - camPos;
-		modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
-		modelMatrix.Scale(1.0f, 1.0f, 1.0f);
-	
 		glUseProgram(ObjectColor.theProgram);
-		glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-		glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(idenity));
-		g_pCubeColorMesh->Render();
+		glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+		glUseProgram(UniformColorTint.theProgram);
+		glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
 		glUseProgram(0);
-		glEnable(GL_DEPTH_TEST);
+
+		Framework::MatrixStack modelMatrix;
+
+		//Render the ground plane.
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
+
+			modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
+
+			glUseProgram(UniformColor.theProgram);
+			glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+			glUniform4f(UniformColor.baseColorUnif, 0.302f, 0.416f, 0.0589f, 1.0f);
+			g_pPlaneMesh->Render();
+			glUseProgram(0);
+		}
+
+		//Draw the trees
+		DrawForest(modelMatrix);
+
+		//Draw the building.
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
+			modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
+
+			DrawParthenon(modelMatrix);
+		}
+
+		if(g_bDrawLookatPoint)
+		{
+			glDisable(GL_DEPTH_TEST);
+			glm::mat4 idenity(1.0f);
+
+			Framework::MatrixStackPusher push(modelMatrix);
+
+			glm::vec3 cameraAimVec = g_camTarget - camPos;
+			modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
+			modelMatrix.Scale(1.0f, 1.0f, 1.0f);
+		
+			glUseProgram(ObjectColor.theProgram);
+			glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+			glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(idenity));
+			g_pCubeColorMesh->Render();
+			glUseProgram(0);
+			glEnable(GL_DEPTH_TEST);
+		}
 	}
 
 	glutSwapBuffers();
@@ -527,8 +529,6 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-// 	cameraToClipMatrix[0].x = fFrustumScale * (h / (float)w);
-// 	cameraToClipMatrix[1].y = fFrustumScale;
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
 

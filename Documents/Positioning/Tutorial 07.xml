@@ -3,13 +3,397 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 07.html" ?>
     <title>World in Motion</title>
     <para>In this tutorial, we will show how to build a world of objects with a dynamic, moving
         camera.</para>
     <section>
         <title>World Space</title>
-        <para>Thus far, we have defined a chain of transformations. Some of these are implemented by
-            OpenGL, and some have been defined by our needs. Our current sequence of user-defined
-            spaces are as follows:</para>
+        <para>In the perspective projection tutorial, we defined a projection matrix that transforms
+            objects from a specific camera space to clip-space. This camera space was defined
+            primarily to make our perspective transformation as simple as possible. The camera
+            itself sits immobile at the origin (0, 0, 0). The camera always looks down the Z axis,
+            with objects that have a negative Z being considered in front of the camera.</para>
+        <para>All of the tutorials we have seen since then have had model transformations that go
+            directly to camera space. While this functions, it is not as useful as it could be.
+            Camera space is not a particularly flexible space. If we want to have a moving camera,
+            obviously something needs to change.</para>
+        <para>We could modify our perspective matrix generation functions, so that we can project
+            onto a camera that has an arbitrary position and orientation. But really, that's too
+            much work; camera space itself works just fine for our needs. It would be easier to just
+            introduce an additional transformation.</para>
+        <para>Right now, the problem is that we transform all of the objects from their individual
+            model spaces to camera space directly. The only time the objects are in the same space
+            relative to one another is when they are in camera space. So instead, we will introduce
+            an intermediate space between model and camera space; let us call this space
+                <glossterm>world space.</glossterm></para>
+        <para>All objects will be transformed into world space. The camera itself will also have a
+            particular position and orientation in world space. And since the camera has a known
+            space, with a known position and orientation relative to world space, we have a
+            transformation from world space to camera space.</para>
+        <para>World space is the last space (in terms of vertex positions) that we will discuss.
+            While a user can define innumerable spaces with matrix and non-matrix transformations,
+            world space is the last one that is commonly used and has a specific, universal
+            definition.</para>
+        <para>While the concept of world space has a definition, the orientation of it is entirely
+            up to the user. The orientation of world space relative to camera space will of course
+            affect what the world-to-camera transformation looks like. But in terms of the rest of
+            the transformation pipeline, it is essentially irrelevant.</para>
+        <para>Speaking of the transformation pipeline, here is a diagram of the full transform for
+            vertex positions, from the initial attribute loaded from the buffer object, to the final
+            window-space position.</para>
+        <!--TODO: An Image of the full vertex transformation sequence, from attribute to window-space.-->
+        <para>The tutorial project <phrase role="propername">World Space</phrase> demonstrates the
+            use of a mobile camera in a world-space scene.</para>
+        <!--TODO: Add a screenshot of the tutorial.-->
+        <para>The controls for this tutorial are as follows:</para>
+        <!--TODO: Add the table of key controls.-->
+        <para>In addition, if you hold down the shift key while pressing any of these keys, then the
+            affected control will be much slower. This allows for more precision movements.</para>
+        <para>This world is more complicated than anything we've seen up until now. There are a lot
+            of objects being rendered, and most of them are composed out of multiple objects.</para>
+        <para>This tutorial is the first to incorporate a number of the tutorial framework's
+            features. The <classname>Framework::MatrixStack</classname> class implements a matrix
+            stack very much like we saw in the last tutorial. The main difference is that the stack
+            class does not have public push/pop functions. To push a matrix onto the stack, we use a
+            stack object, <classname>Framework::MatrixStackPusher</classname>. The constructor
+            pushes the matrix and the destructor automatically pops. This way, we can never stack
+            overflow or underflow.<footnote>
+                <para>This technique, using constructors and destructors to do this kind of
+                    scope-bounded work, is called Resource Acquisition Is Initialization
+                        (<acronym>RAII</acronym>). It is a common C++ resource management technique.
+                    You can find more information about it <link
+                        xlink:href="http://www.hackcraft.net/raii/">online</link>. If you are
+                    unfamiliar with it, I suggest you become familiar with it.</para>
+            </footnote></para>
+        <para>The <classname>Framework::Mesh</classname> class is much more complicated. It
+            implements mesh loading from an XML-based file format. We will discuss some of the
+            functioning of this class in detail in the next section. For now, let us say that this
+            class's <function>Mesh::Render</function> function is equivalent to binding a vertex
+            array object, rendering with one or more <function>glDraw*</function> calls, and then
+            unbinding the VAO. It expects a suitable program object to be bound to the
+            context.</para>
+        <section>
+            <title>Multiple Programs</title>
+            <para>Speaking of suitable program objects, this will be the first tutorial that uses
+                more than one program object. This is the perfect time to bring up an important
+                issue.</para>
+            <para>Separate programs do not share uniform locations. That is, if you call
+                    <function>glGetUniformLocation</function> on one program object, it will not
+                necessarily return the same value from a different program object. This is
+                regardless of any other circumstance. You can declare the uniforms with the same
+                name, with the same types, in the same order, but OpenGL will not
+                    <emphasis>guarantee</emphasis> that you get the same uniform locations. It
+                doesn't even guarantee that you get the same uniform locations on different
+                run-through of the same executable.</para>
+            <para>This means that uniform locations are local to a program object. Uniform data is
+                also local to an object. For example:</para>
+            <example>
+                <title>Window Resizing</title>
+                <programlisting language="cpp">void reshape (int w, int h)
+{
+    Framework::MatrixStack persMatrix;
+    persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+    
+    glUseProgram(UniformColor.theProgram);
+    glUniformMatrix4fv(UniformColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+        glm::value_ptr(persMatrix.Top()));
+    glUseProgram(ObjectColor.theProgram);
+    glUniformMatrix4fv(ObjectColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+        glm::value_ptr(persMatrix.Top()));
+    glUseProgram(UniformColorTint.theProgram);
+    glUniformMatrix4fv(UniformColorTint.cameraToClipMatrixUnif, 1, GL_FALSE,
+        glm::value_ptr(persMatrix.Top()));
+    glUseProgram(0);
+    
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+    glutPostRedisplay();
+}</programlisting>
+            </example>
+            <para>Here's our new function of the window reshaping function, using the
+                    <function>MatrixStack::Perspective</function> function to generate the correct
+                perspective projection matrix. Notice that we must bind the 3 separate programs and
+                individually update each one's uniform for the camera-to-clip matrix.</para>
+        </section>
+        <section>
+            <title>Attributes and Programs</title>
+            <para>Our three programs are made from 2 vertex shaders and 3 fragment shaders. The
+                differences between these shaders is based on where they get their color information
+                from.</para>
+            <para>We create three programs. One that expects a per-vertex color and uses that to
+                write the fragment color. One that expects a per-vertex color and multiplies that
+                with a uniform color to determine the fragment color. And one that does not take a
+                per-vertex color; it simply uses the uniform color as the fragment's color. All of
+                these do the same positional transformation, which is a series of three matrix
+                multiplications:</para>
+            <example>
+                <title>Position-only Vertex Shader</title>
+                <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec4 position;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 worldToCameraMatrix;
+uniform mat4 modelToWorldMatrix;
+
+void main()
+{
+    vec4 temp = modelToWorldMatrix * position;
+    temp = worldToCameraMatrix * temp;
+    gl_Position = cameraToClipMatrix * temp;
+}</programlisting>
+            </example>
+        </section>
+        <section>
+            <title>Camera of the World</title>
+            <para>The main rendering function implements the world-space and camera code. It begins
+                by updating the world-to-camera matrix.</para>
+            <example>
+                <title>Upload World to Camera Matrix</title>
+                <programlisting>const glm::vec3 &amp;camPos = ResolveCamPosition();
+
+Framework::MatrixStack camMatrix;
+camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+glUseProgram(UniformColor.theProgram);
+glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+glUseProgram(ObjectColor.theProgram);
+glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+glUseProgram(UniformColorTint.theProgram);
+glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+glUseProgram(0);</programlisting>
+            </example>
+            <para>The function <function>ResolveCamPosition</function> computes the camera position,
+                based on the user's input. The more important function is
+                    <function>CalcLookAtMatrix</function>. There are a number of ways to compute a
+                camera matrix, but this one is the simplest. It takes a position for the camera, a
+                point in the world that the camera should be looking in, and a direction in
+                world-space that should be considered <quote>up</quote> based on where the camera is
+                looking.</para>
+            <para>The implementation of this function is less simple. It does a lot of complex
+                geometric computations. I won't go into detail explaining how it work, but there is
+                one thing you need to know.</para>
+            <para>It is very important that the <quote>up</quote> direction is not along the same
+                line as the direction from the camera position to the look at target. If up is very
+                close to that direction then the generated matrix is no longer valid, and unpleasant
+                things will happen.</para>
+            <para>Since it doesn't make physical sense for <quote>up</quote> to be directly behind
+                or in front of the viewer, it makes a degree of sense that this would likewise
+                produce a nonsensical matrix. This problem usually crops up in camera systems like
+                the one devised here, where the camera is facing a certain point and is rotating
+                around that point, without rotating the up direction at the same time. In this case,
+                the up/down angle is clamped to never get high enough to cause a problem.</para>
+            <para>Speaking of which, let's look at how <function>ResolveCamPosition</function>
+                works. The basic idea of this camera system is that there is a target point, which
+                is mobile. The camera's position is computed relative to this target point, so if
+                the target moves, the camera will follow it perfectly.</para>
+            <para>To do this, we use a special coordinate system trick. Instead of storing the
+                relative position of the camera in a normal coordinate system, we instead use a
+                    <glossterm>spherical coordinate system.</glossterm></para>
+            <para>Previously, we said that a coordinate system was defined by a series of vectors
+                and an origin point. This was a useful simplification of the possibilities; this is
+                true of any coordinate system that follows the rules of <glossterm>Euclidean
+                    geometry</glossterm>. Spherical coordinates (among many others) are
+                non-Euclidean. For example, in Euclidean geometry, the sum of the angles of any
+                triangle will add up to 180 degrees exactly. This is not true of spherical
+                geometries or spherical coordinates. This is because <quote>lines</quote> in
+                spherical geometries are curves when seen relative to Euclidean geometries.</para>
+            <para>Spherical coordinates are three dimensional, so they have 3 values. One value,
+                commonly given the name <quote>r</quote> (for radius) represents the distance of the
+                coordinate from the center of the coordinate system. This value is on the range [0,
+                ∞). The second value, called <quote>φ</quote> (rho), represents the angle in the
+                elliptical plane. This value extends on the range [0, 360). The third value, called
+                    <quote>θ</quote> (theta), represents the angle above and below the elliptical
+                plane. This value is on the range [0, 180], where 0 means straight up and 180 means
+                straight down.</para>
+            <para>This is much easier to see in diagram form:</para>
+            <!--TODO: A diagram of spherical coordinates.-->
+            <para>This is a very convenient coordinate system for positioning an object around
+                another object, particularly if you want to move along spheres relative to another
+                object. The transformation from spherical coordinates back to Euclidean geometric
+                coordinates is implemented in <function>ResolveCamPosition.</function></para>
+            <example>
+                <title>Spherical to Euclidean Transform</title>
+                <programlisting language="cpp">glm::vec3 ResolveCamPosition()
+{
+    Framework::MatrixStack tempMat;
+    
+    float rho = Framework::DegToRad(g_sphereCamRelPos.x);
+    float theta = Framework::DegToRad(g_sphereCamRelPos.y + 90.0f);
+    
+    float fSinTheta = sinf(theta);
+    float fCosTheta = cosf(theta);
+    float fCosRho = cosf(rho);
+    float fSinRho = sinf(rho);
+    
+    glm::vec3 dirToCamera(fSinTheta * fCosRho, fCosTheta, fSinTheta * fSinRho);
+    return (dirToCamera * g_sphereCamRelPos.z) + g_camTarget;
+}</programlisting>
+            </example>
+            <para>The global variable <varname>g_sphereCamRelPos</varname> contains the spherical
+                coordinates. The X value contains Rho, the Y value contains Theta, and the Z value
+                is the radius.</para>
+            <para>The Theta value used in our spherical coordinates is slightly different from the
+                usual. Instead of being on the range [0, 180], it is on the range [-90, 90]; this is
+                why there is an addition by 90 degrees before computing the Theta angle in
+                radians.</para>
+            <para>The <varname>dirToCamera</varname> is just a direction vector. Only by scaling it
+                by the radius (<varname>g_sphereCamRelPos.z</varname>) do we get the full
+                decomposition from spherical coordinates to Euclidean. Applying the camera target as
+                an offset is what keeps the camera's position relative to the target.</para>
+        </section>
+        <section>
+            <title>World Rendering</title>
+            <para>Once the camera matrix is computed, it is farmed out to each of the programs.
+                After that, rendering is pretty simple.</para>
+            <para>The meshes we have loaded for this tutorial are unit sized. That is, they are one
+                unit across in their major axes. They also are usually centered at the origin in
+                their local coordinate system. This make it easy to scale them to arbitrary sizes
+                for any particular use.</para>
+            <para>The ground is based on the unit plane mesh. This is just a square with the sides
+                being unit length. This is rendered by the following code:</para>
+            <example>
+                <title>Draw the Ground</title>
+                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+
+modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
+
+glUseProgram(UniformColor.theProgram);
+glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glUniform4f(UniformColor.baseColorUnif, 0.302f, 0.416f, 0.0589f, 1.0f);
+g_pPlaneMesh->Render();
+glUseProgram(0);</programlisting>
+            </example>
+            <para>The unit plane mesh has no color attribute, so we use the
+                    <varname>UniformColor</varname> program. We apply a scale matrix to the model
+                stack, so that the 1x1 plane becomes 100x100 in size. After setting the color, the
+                plane is rendered.</para>
+            <para>All of the trees are drawn from the <function>DrawForest</function>
+                function.</para>
+            <example>
+                <title>DrawForest Function</title>
+                <programlisting language="cpp">void DrawForest(Framework::MatrixStack &amp;modelMatrix)
+{
+    for(int iTree = 0; iTree &lt; ARRAY_COUNT(g_forest); iTree++)
+    {
+        const TreeData &amp;currTree = g_forest[iTree];
+        
+        Framework::MatrixStackPusher push(modelMatrix);
+        modelMatrix.Translate(glm::vec3(currTree.fXPos, 0.0f, currTree.fZPos));
+        DrawTree(modelMatrix, currTree.fTrunkHeight, currTree.fConeHeight);
+    }
+}</programlisting>
+            </example>
+            <para>This function iterates over a large table and draws a tree for each element in
+                that table. The table entries determine where in world space the tree is drawn and
+                how tall it is. The location is stored as a translation in the matrix stack (after
+                pushing), and the tree attributes are passed to the <function>DrawTree</function>
+                function to render.</para>
+            <para/>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut07 Primitive Drawing.html" ?>
+        <title>Primitive Drawing</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut07 Shared Uniforms.html" ?>
+        <title>Shared Uniforms</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut07 The Perils of World Space.html" ?>
+        <title>The Perils of World Space</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut07 In Review.html" ?>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>World space is an intermediate space between model space and camera space. All
+                    objects are transformed into it, and the position/orientation of the camera is
+                    specified relative to it.</para>
+            </listitem>
+            <listitem>
+                <para>OpenGL can processes a sequence of vertex data as triangles in different ways.
+                    It can process the vertices as a list of triangles, a triangle fan, or a
+                    triangle strip. Each of these has its own way of building triangles from a
+                    sequence of vertices.</para>
+            </listitem>
+            <listitem>
+                <para>Uniform data can be stored in buffer objects, so that multiple programs can
+                    share the same uniform. Changing the buffer object data will automatically
+                    change the data the programs get.</para>
+            </listitem>
+            <listitem>
+                <para>It is usually not a good idea to have vertex positions in an explicit world
+                    space. Doing so can lead to numerical precision problems if the vertex positions
+                    are sufficiently far from 0.</para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>Further Study</title>
+            <para>Play around with the world space tutorials in the following ways:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>In the World Space tutorial, we use 3 matrices. This requires an extra
+                        matrix multiply, which is a wasteful per-vertex cost. Fold the camera matrix
+                        into the perspective transformation matrix, so that only two matrices are
+                        used. Any time parameters change to one matrix, make sure to recompute both
+                        and combine them together before uploading the combined world-to-clip-space
+                        matrix.</para>
+                </listitem>
+                <listitem>
+                    <para>Instead of folding the world-to-camera transform into the perspective
+                        matrix, fold it into the model-to-world matrix instead. Simply push it onto
+                        the same stack as everything else. The function MatrixStack::ApplyMatrix can
+                        right-multiply an arbitrary matrix with the current matrix.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <glosslist>
+                <glossentry>
+                    <glossterm/>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut07 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>world space</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>spherical coordinate system</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Euclidean geometry</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm/>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
     </section>
 </chapter>

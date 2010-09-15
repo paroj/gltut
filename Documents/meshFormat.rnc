@@ -11,21 +11,26 @@ div
         mf.mesh
         
     mf.mesh =
-        ##The mesh format
+        ##The root element. Contains a number of attribute arrays and rendering commands.
         element msh:mesh {mf.mesh.content}
 
     mf.mesh.content =
-        mf.attribute+, (mf.indices+ | mf.arrays+)
+        mf.attribute+, mf.rendering-commands+
         
     mf.attribute =
-        ##A single attribute array.
+        ##A single attribute array. It can contain any kind of attribute data.
         element msh:attribute { mf.attribute.content }
         
     mf.attribute.content =
         mf.attribute.attlist, text
+        
+    mf.rendering-commands =
+        ##These are the possible commands for rendering this mesh.
+        (mf.indices | mf.arrays)
 
     mf.indices =
         ##A single element array, which is rendered with a particular rendering command.
+        ##This cannot be combined with array rendering in the same mesh.
         element msh:indices { mf.indices.content }
         
     mf.indices.content =
@@ -53,29 +58,30 @@ div
         mf.cmd.attribute, mf.arrays.start.attribute, mf.arrays.count.attribute
         
     mf.attribute.index.attribute =
-        ##The attribute index to be used for this attribute.
+        ##The attribute index to be used for this vertex attribute.
         attribute index { xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "16"} }
         
     mf.attribute.size.attribute =
-        ##The size of each value in the attribute. 1-4.
+        ##The number of components in this vertex attribute. 1-4.
         attribute size { xsd:positiveInteger { minInclusive = "1" maxInclusive = "4"} }
     
     mf.attribute.type.attribute =
-        ##The type of the attribute's data. Integer, float, normalized, etc.
+        ##The type of the vertex attribute's data. Float, integer, normalized-integer, etc.
         attribute type { "float" | "int" | "uint" | "short" | "ushort" | "byte" | "ubyte" |
             "norm-int" | "norm-uint" | "norm-short" | "norm-ushort" | "norm-byte" | "norm-ubyte"}
         
-    mf.indices.type.attribute =
-        ##The type of the index data.
-        attribute type { "uint" | "ushort" | "ubyte" }
-    
     mf.cmd.attribute =
-        ##The command used to render this part of the mesh.
+        ##The primitive type used to render with this rendering command..
         attribute cmd { "triangles" | "tri-strip" | "tri-fan" | "lines" | "line-strip" |
         "line-loop" | "points" }
         
+    mf.indices.type.attribute =
+        ##The data type that the index is to be stored as.
+        attribute type { "uint" | "ushort" | "ubyte" }
+    
     mf.indices.primrestart.attribute =
-        ##Sets the primitive restart index. Don't set it if you don't want one.
+        ##Sets the primitive restart index. Don't set it if you don't want primitive restarting for
+        ## this rendering command.
         attribute prim-restart { xsd:unsignedInt }
         
     mf.arrays.start.attribute =
