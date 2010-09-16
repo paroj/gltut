@@ -196,6 +196,7 @@ namespace Framework
 		const AttribType g_allAttributeTypes[] =
 		{
 			{"float",		false,	GL_FLOAT,			sizeof(GLfloat),	ParseFloats,	WriteFloats},
+			{"half",		false,	GL_HALF_FLOAT,		sizeof(GLhalfARB),	ParseFloats,	WriteFloats},
 			{"int",			false,	GL_INT,				sizeof(GLint),		ParseInts,		WriteInts},
 			{"uint",		false,	GL_UNSIGNED_INT,	sizeof(GLuint),		ParseUInts,		WriteUInts},
 			{"norm-int",	true,	GL_INT,				sizeof(GLint),		ParseInts,		WriteInts},
@@ -266,6 +267,7 @@ namespace Framework
 			: iAttribIx(0xFFFFFFFF)
 			, pAttribType(NULL)
 			, iSize(-1)
+			, bIsIntegral(false)
 		{}
 
 		explicit Attribute(const TiXmlElement *pAttribElem)
@@ -289,6 +291,27 @@ namespace Framework
 				throw std::exception("Missing 'type' attribute in an 'attribute' element.");
 
 			pAttribType = GetAttribType(strType);
+
+			std::string strIntegral;
+			if(pAttribElem->QueryStringAttribute("integral", &strIntegral) != TIXML_SUCCESS)
+				 bIsIntegral = false;
+			else
+			{
+				if(strIntegral == "true")
+					bIsIntegral = true;
+				else if(strIntegral == "false")
+					bIsIntegral = false;
+				else
+					throw std::exception("Incorrect 'integral' value for the 'attribute'.");
+
+				if(pAttribType->bNormalized)
+					throw std::exception("Attribute cannot be both 'integral' and a normalized 'type'.");
+
+				if(pAttribType->eGLType == GL_FLOAT ||
+					pAttribType->eGLType == GL_HALF_FLOAT ||
+					pAttribType->eGLType == GL_DOUBLE)
+					throw std::exception("Attribute cannot be both 'integral' and a floating-point 'type'.");
+			}
 		
 			//Read the text data.
 			std::stringstream strStream;
@@ -319,6 +342,7 @@ namespace Framework
 			iAttribIx = rhs.iAttribIx;
 			pAttribType = rhs.pAttribType;
 			iSize = rhs.iSize;
+			bIsIntegral = rhs.bIsIntegral;
 			dataArray = rhs.dataArray;
 		}
 
@@ -327,6 +351,7 @@ namespace Framework
 			iAttribIx = rhs.iAttribIx;
 			pAttribType = rhs.pAttribType;
 			iSize = rhs.iSize;
+			bIsIntegral = rhs.bIsIntegral;
 			dataArray = rhs.dataArray;
 			return *this;
 		}
@@ -349,17 +374,23 @@ namespace Framework
 		void SetupAttributeArray(size_t iOffset) const
 		{
 			glEnableVertexAttribArray(iAttribIx);
-			glVertexAttribPointer(iAttribIx,
-				iSize,
-				pAttribType->eGLType,
-				pAttribType->bNormalized ? GL_TRUE : GL_FALSE,
-				0,
-				(void*)iOffset);
+			if(bIsIntegral)
+			{
+				glVertexAttribIPointer(iAttribIx, iSize, pAttribType->eGLType,
+					0, (void*)iOffset);
+			}
+			else
+			{
+				glVertexAttribPointer(iAttribIx, iSize,
+					pAttribType->eGLType, pAttribType->bNormalized ? GL_TRUE : GL_FALSE,
+					0, (void*)iOffset);
+			}
 		}
 
 		GLuint iAttribIx;
 		const AttribType *pAttribType;
 		int iSize;
+		bool bIsIntegral;
 		std::vector<AttribData> dataArray;
 	};
 

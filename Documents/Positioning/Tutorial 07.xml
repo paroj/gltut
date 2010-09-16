@@ -143,6 +143,30 @@ void main()
     gl_Position = cameraToClipMatrix * temp;
 }</programlisting>
             </example>
+            <note>
+                <title>Mismatched Attributes and Programs</title>
+                <para>You may be wondering what happens if there is a mis-match between the
+                    attributes provided by a VAO and the vertex shader inputs. For example, if we
+                    use the position-only vertex shader, which takes attribute 0) with a mesh that
+                    provides attributes 0 and 1, with 0 being the position and 1 being the
+                    color.</para>
+                <para>OpenGL is actually very lenient about this sort of thing. It also goes through
+                    some effort to fully define what information the vertex shader gets in the event
+                    of a mismatch.</para>
+                <para>A VAO can provide attributes that a vertex shader does not use without
+                    penalty. Well, there may be a performance penalty for reading unused
+                    information, but it will still render correctly.</para>
+                <para>If a vertex shader takes attributes that the VAO does not provide, then the
+                    value the vertex shader gets will be a vector of (0, 0, 0, 1). If the vertex
+                    shader input vector has fewer than 4 elements, then it fills them in in that
+                    order. A vec3 input that isn't provided by the VAO will be (0, 0, 0).</para>
+                <para>Speaking of which, if a VAO provides more components of an attribute vector
+                    than the vertex shader expects (the VAO provides 4 elements, but the vertex
+                    shader input is a vec2), then the vertex shader input will be filled in as much
+                    as it can be. If the reverse is true, if the VAO doesn't provide enough
+                    components of the vector, then the unfilled values are always filled in from the
+                    (0, 0, 0, 1) vector.</para>
+            </note>
         </section>
         <section>
             <title>Camera of the World</title>
@@ -289,13 +313,66 @@ glUseProgram(0);</programlisting>
                 how tall it is. The location is stored as a translation in the matrix stack (after
                 pushing), and the tree attributes are passed to the <function>DrawTree</function>
                 function to render.</para>
-            <para/>
+            <para>The Parthenon is drawn from the <function>DrawParthenon</function> function. Since
+                this draw function, like <function>DrawTree</function>, expects the matrix stack to
+                transform it to its world-space position, the first step we see is applying a
+                translation matrix to the stack.</para>
+            <example>
+                <title>Call to DrawParthenon</title>
+                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
+
+DrawParthenon(modelMatrix);</programlisting>
+            </example>
+            <para>The actual <function>DrawParthenon</function> function is pretty simple. It uses
+                    <function>DrawColumn</function> to draw all of the columns at the various
+                locations around the building. It draws scaled cubes for the base and ceiling, and
+                uses the colored version of the cube for the headpiece at the front and the interior
+                of the building. Columns are scaled cubes and cylinders.</para>
+            <para>The last part of the <function>display</function> function is more interesting.
+                Pressing the spacebar toggles the drawing of a representation of the camera target
+                point. Here is how it gets drawn:</para>
+            <example>
+                <title>Draw Camera Target</title>
+                <programlisting language="cpp">glDisable(GL_DEPTH_TEST);
+glm::mat4 idenity(1.0f);
+
+Framework::MatrixStackPusher push(modelMatrix);
+
+glm::vec3 cameraAimVec = g_camTarget - camPos;
+modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
+modelMatrix.Scale(1.0f, 1.0f, 1.0f);
+
+glUseProgram(ObjectColor.theProgram);
+glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(idenity));
+g_pCubeColorMesh->Render();
+glUseProgram(0);
+glEnable(GL_DEPTH_TEST);</programlisting>
+            </example>
+            <para>The first thing that happens is that the depth test is turned off. This means that
+                the camera target point will always be seen, no matter where it is. So if you move
+                the target point inside the building or a tree, you will still see it. This is a
+                useful technique for UI-type objects like this.</para>
+            <para>The next important thing is that the world-to-camera matrix is set to identity.
+                This means that the model-to-world matrix functions as a model-to-camera matrix. So
+                the translation is transforming it to camera-relative coordinates. The cube is
+                translated down the -Z axis, which positions it in front of the camera. It positions
+                the square at the same distance from the camera as the camera would be from the
+                target point.</para>
+            <para>Being able to work directly in camera space like this is also a quite useful
+                technique. It allows the object to be positions relative to the camera, so that no
+                matter how the camera moves relative to the world, the object will always appear
+                fixed. It will also always appear facing the camera.</para>
         </section>
     </section>
     <section>
         <?dbhtml filename="Tut07 Primitive Drawing.html" ?>
         <title>Primitive Drawing</title>
-        <para/>
+        <para>We skipped over how the <function>Mesh::Render</function> function and mesh loading
+            works. So let's cover that now.</para>
+        <para>The XML-based mesh files define a number of vertex attribute arrays, followed by a
+            number of rendering commands. The format fully supports the entire array of OpenGL-based </para>
     </section>
     <section>
         <?dbhtml filename="Tut07 Shared Uniforms.html" ?>

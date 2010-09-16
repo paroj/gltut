@@ -49,7 +49,7 @@ div
 div
 {
     mf.attribute.attlist =
-        mf.attribute.index.attribute, mf.attribute.type.attribute, mf.attribute.size.attribute
+        mf.attribute.index.attribute, mf.attribute.integral.attribute?, mf.attribute.type.attribute, mf.attribute.size.attribute
         
     mf.indices.attlist =
         mf.indices.type.attribute, mf.cmd.attribute, mf.indices.primrestart.attribute?
@@ -67,8 +67,13 @@ div
     
     mf.attribute.type.attribute =
         ##The type of the vertex attribute's data. Float, integer, normalized-integer, etc.
-        attribute type { "float" | "int" | "uint" | "short" | "ushort" | "byte" | "ubyte" |
+        attribute type { "float" | "half" | "int" | "uint" | "short" | "ushort" | "byte" | "ubyte" |
             "norm-int" | "norm-uint" | "norm-short" | "norm-ushort" | "norm-byte" | "norm-ubyte"}
+            
+    mf.attribute.integral.attribute =
+        ##True if this attribute is to be passed as an integral attribute.
+        ##Defaults to false.
+        attribute integral {"true"|"false"}
         
     mf.cmd.attribute =
         ##The primitive type used to render with this rendering command..
