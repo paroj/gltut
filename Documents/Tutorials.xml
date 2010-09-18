@@ -123,6 +123,7 @@
         <xi:include href="Positioning/tutorial 04.xml"/>
         <xi:include href="Positioning/tutorial 05.xml"/>
         <xi:include href="Positioning/tutorial 06.xml"/>
+        <xi:include href="Positioning/tutorial 07.xml"/>
     </part>
     <part>
         <?dbhtml filename="Illumination.html" dir="Illumination" ?>

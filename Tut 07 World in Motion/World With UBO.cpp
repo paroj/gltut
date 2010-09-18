@@ -514,7 +514,6 @@ void display()
 		if(g_bDrawLookatPoint)
 		{
 			glDisable(GL_DEPTH_TEST);
-			glm::mat4 idenity(1.0f);
 
 			Framework::MatrixStackPusher push(modelMatrix);
 
@@ -526,7 +525,6 @@ void display()
 			g_pCubeColorMesh->Render();
 			glUseProgram(0);
 			glEnable(GL_DEPTH_TEST);
-
 		}
 	}
 
@@ -543,16 +541,6 @@ void reshape (int w, int h)
 	glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(persMatrix.Top()));
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-/*
-	glUseProgram(UniformColor.theProgram);
-	glUniformMatrix4fv(UniformColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
-	glUseProgram(ObjectColor.theProgram);
-	glUniformMatrix4fv(ObjectColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
-	glUseProgram(UniformColorTint.theProgram);
-	glUniformMatrix4fv(UniformColorTint.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
-	glUseProgram(0);
-*/
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
