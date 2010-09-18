@@ -46,6 +46,14 @@
         <para>The tutorial project <phrase role="propername">World Space</phrase> demonstrates the
             use of a mobile camera in a world-space scene.</para>
         <!--TODO: Add a screenshot of the tutorial.-->
+        <figure>
+            <title>World Space Scene</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="World%20Scene.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The controls for this tutorial are as follows:</para>
         <!--TODO: Add the table of key controls.-->
         <para>In addition, if you hold down the shift key while pressing any of these keys, then the
