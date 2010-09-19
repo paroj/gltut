@@ -6,7 +6,7 @@
       <mtd>
         <mtext>Rotation Angle</mtext>
         <mo>=</mo>
-        <mi>&theta;</mi>
+        <mi>&#x03D1;</mi>
       </mtd>
     </mtr>
     <mtr>
@@ -39,19 +39,19 @@
                         <mn>0</mn>
                       </mtd>
                       <mtd>
-                        <mi>cos</mi><mo>&ApplyFunction;</mo>
+                        <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
                       <mtd>
                         <mo>-</mo>
-                        <mi>sin</mi><mo>&ApplyFunction;</mo>
+                        <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -64,18 +64,18 @@
                         <mn>0</mn>
                       </mtd>
                       <mtd>
-                        <mi>sin</mi><mo>&ApplyFunction;</mo>
+                        <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
                       <mtd>
-                        <mi>cos</mi><mo>&ApplyFunction;</mo>
+                        <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -112,10 +112,10 @@
                   <mtable>
                     <mtr>
                       <mtd>
-                        <mi>cos</mi><mo>&ApplyFunction;</mo>
+                        <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -123,10 +123,10 @@
                         <mn>0</mn>
                       </mtd>
                       <mtd>
-                        <mi>sin</mi><mo>&ApplyFunction;</mo>
+                        <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -151,10 +151,10 @@
                     <mtr>
                       <mtd>
                         <mo>-</mo>
-                        <mi>sin</mi><mo>&ApplyFunction;</mo>
+                        <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -162,10 +162,10 @@
                         <mn>0</mn>
                       </mtd>
                       <mtd>
-                        <mi>cos</mi><mo>&ApplyFunction;</mo>
+                        <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -202,19 +202,19 @@
                   <mtable>
                     <mtr>
                       <mtd>
-                        <mi>cos</mi><mo>&ApplyFunction;</mo>
+                        <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
                       <mtd>
                         <mo>-</mo>
-                        <mi>sin</mi><mo>&ApplyFunction;</mo>
+                        <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -227,18 +227,18 @@
                     </mtr>
                     <mtr>
                       <mtd>
-                        <mi>sin</mi><mo>&ApplyFunction;</mo>
+                        <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
                       <mtd>
-                        <mi>cos</mi><mo>&ApplyFunction;</mo>
+                        <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&theta;</mi>
+                            <mi>&#x03D1;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>

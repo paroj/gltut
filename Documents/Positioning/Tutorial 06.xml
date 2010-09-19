@@ -132,13 +132,28 @@
             this matrix to apply an offset to the position. We don't want to have it modify the
             position in some other way.</para>
         <para>This is done by modifying an <glossterm>identity matrix.</glossterm> An identity
-            matrix is a matrix that, when performing matrix multiplication, will return the original
-            value. It is sort of like the number 1 with regular multiplication: 1*X = X. The 4x4
-            identity matrix looks like this:</para>
-        <!--TODO: An identity matrix.-->
+            matrix is a matrix that, when performing matrix multiplication, will return the matrix
+            it is multiplied with. It is sort of like the number 1 with regular multiplication: 1*X
+            = X. The 4x4 identity matrix looks like this:</para>
+        <equation>
+            <title>Identity Matrix</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="IdentityMatrix.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>To modify the identity matrix into one that is suitable for translation, we simply put
             the offset into the W column of the identity matrix.</para>
         <!--TODO: The translation matrix.-->
+        <equation>
+            <title>Translation Matrix</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TranslationMatrix.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>The tutorial project cleverly titled <phrase role="propername">Translation</phrase>
             performs translation operations.</para>
         <para>This tutorial renders 3 of the same object, all in different positions. One of the
@@ -272,7 +287,13 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             values. But how do we express this as a matrix?</para>
         <para>This gets a bit technical, in terms of how a matrix multiplication works. But look
             back at the identity matrix:</para>
-        <!--TODO: identity matrix again.-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="IdentityMatrix.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>This matrix selects each coordinate in turn from the vector it is being multiplied
             into. Each row is multiplied with the column of the vector; all of the zeros remove the
             components of the vector that we do not want. The one multiplies into the component we
@@ -281,7 +302,14 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>We can see that, if the ones were some other value, we would get a scaled version of
             the original vector, depending on which ones were changed. Thus, a scaling
             transformation matrix looks like this:</para>
-        <!--TODO: scaling transform matrix.-->
+        <equation>
+            <title>Scaling Transformation Matrix</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="ScaleMatrix.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>You may start to see a pattern emerging here, something that begins to suggest why
             matrices are very, very useful. I won't spoil it for you yet though.</para>
         <para>The tutorial project <phrase role="propername">Scale</phrase> will display 5 objects
@@ -372,9 +400,25 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>First, let's look back at our equation for determining what the position of a
             coordinate is relative to certain coordinate space:</para>
         <!--TODO: Show the vector equation again-->
-        <para>Doesn't this look a bit familiar? No? Perhaps an alternate look at vector-matrix
-            multiplication would help:</para>
-        <!--TODO: Show a matrix multiplication.-->
+        <para>Doesn't this look a bit familiar? No? Maybe this look at vector-matrix multiplication
+            will jog your memory:</para>
+        <equation>
+            <title>Vector Matrix Multiplication</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorMatrixMultiplication.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>Still nothing? Perhaps an alternate look would help:</para>
+        <equation>
+            <title>Vectorized Matrix Multiplication</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CoordSysMatrixMultiply.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>Does it look familiar <emphasis>now</emphasis>?</para>
         <para>What this tells us is that the columns of our transformation matrices are, and have
             always been, nothing more than the axes of a coordinate system. Except for the fourth
@@ -406,12 +450,25 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Deriving these matrix equations is beyond the scope of this tutorial; so instead, we
             will simply provide them. To perform rotations along the primary axes, use the following
             matrices:</para>
-        <!--TODO: show the 3 main rotation matrices.-->
+        <equation>
+            <title>Axial Rotation Matrices</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="AxialRotationMatrices.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>When using the C library <function>sin</function> and <function>cos</function>
             functions, the angles must be in radians.</para>
         <para>As useful as these are, the more generic equation for rotation by an angle about an
             arbitrary axis is as follows.</para>
-        <!--TODO: Show the angle/axis rotation function.-->
+        <equation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="AngleAxisRotationMatrix.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>All of these matrices are such that, from the point of view of an observer looking
             down the axis of rotation (the direction of the axis is pointed into the eye of the
             observer), the object rotates counter-clockwise.</para>
@@ -500,7 +557,14 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                     <mathphrase>T*S</mathphrase>
                 </inlineequation>. Let us explore this further. This is what these two composite
                 transform matrices look like:</para>
-            <!--TODO: Show T, S, S*T and T*S.-->
+            <equation>
+                <title>Order of Transformation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="TransformOrder.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
             <para>The transform <inlineequation>
                     <mathphrase>S*T</mathphrase>
                 </inlineequation> actually scales the translation part of the resulting matrix. This

@@ -101,17 +101,17 @@
         </mtr>
         <mtr>
           <mtd>
-            <mi>m21</mi>
+            <mi>m12</mi>
           </mtd>
         </mtr>
         <mtr>
           <mtd>
-            <mi>m31</mi>
+            <mi>m13</mi>
           </mtd>
         </mtr>
         <mtr>
           <mtd>
-            <mi>m41</mi>
+            <mi>m14</mi>
           </mtd>
         </mtr>
       </mtable>
@@ -124,7 +124,7 @@
       <mtable>
         <mtr>
           <mtd>
-            <mi>m12</mi>
+            <mi>m21</mi>
           </mtd>
         </mtr>
         <mtr>
@@ -134,12 +134,12 @@
         </mtr>
         <mtr>
           <mtd>
-            <mi>m32</mi>
+            <mi>m23</mi>
           </mtd>
         </mtr>
         <mtr>
           <mtd>
-            <mi>m42</mi>
+            <mi>m24</mi>
           </mtd>
         </mtr>
       </mtable>
@@ -152,12 +152,12 @@
       <mtable>
         <mtr>
           <mtd>
-            <mi>m13</mi>
+            <mi>m31</mi>
           </mtd>
         </mtr>
         <mtr>
           <mtd>
-            <mi>m23</mi>
+            <mi>m32</mi>
           </mtd>
         </mtr>
         <mtr>
@@ -167,7 +167,7 @@
         </mtr>
         <mtr>
           <mtd>
-            <mi>m43</mi>
+            <mi>m34</mi>
           </mtd>
         </mtr>
       </mtable>
@@ -180,17 +180,17 @@
       <mtable>
         <mtr>
           <mtd>
-            <mi>m14</mi>
+            <mi>m41</mi>
           </mtd>
         </mtr>
         <mtr>
           <mtd>
-            <mi>m24</mi>
+            <mi>m42</mi>
           </mtd>
         </mtr>
         <mtr>
           <mtd>
-            <mi>m34</mi>
+            <mi>m43</mi>
           </mtd>
         </mtr>
         <mtr>

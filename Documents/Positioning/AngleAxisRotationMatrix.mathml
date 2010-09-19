@@ -24,27 +24,27 @@
             <mtd>
               <mtext>Angle</mtext>
               <mo>=</mo>
-              <mi>&theta;</mi>
+              <mi>&#x03D1;</mi>
             </mtd>
           </mtr>
           <mtr>
             <mtd>
               <mi>C</mi>
               <mo>=</mo>
-              <mi>cos</mi><mo>&ApplyFunction;</mo>
+              <mi>cos</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&theta;</mi>
+                  <mi>&#x03D1;</mi>
                 </mrow>
               </mfenced>
             </mtd>
             <mtd>
               <mi>S</mi>
               <mo>=</mo>
-              <mi>sin</mi><mo>&ApplyFunction;</mo>
+              <mi>sin</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&theta;</mi>
+                  <mi>&#x03D1;</mi>
                 </mrow>
               </mfenced>
             </mtd>
@@ -55,10 +55,10 @@
               <mo>=</mo>
               <mn>1</mn>
               <mo>-</mo>
-              <mi>cos</mi><mo>&ApplyFunction;</mo>
+              <mi>cos</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&theta;</mi>
+                  <mi>&#x03D1;</mi>
                 </mrow>
               </mfenced>
             </mtd>
@@ -67,10 +67,10 @@
               <mo>=</mo>
               <mn>1</mn>
               <mo>-</mo>
-              <mi>sin</mi><mo>&ApplyFunction;</mo>
+              <mi>sin</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&theta;</mi>
+                  <mi>&#x03D1;</mi>
                 </mrow>
               </mfenced>
             </mtd>
@@ -122,6 +122,7 @@
                   <mn>0</mn>
                 </mtd>
               </mtr>
+			  
               <mtr>
                 <mtd>
                   <mi>iC</mi>
