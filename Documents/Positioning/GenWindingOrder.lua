@@ -1,25 +1,12 @@
 require "SvgWriter"
 require "vmath"
+require "SubImage"
 
 -- Sizing
-local numSubImages = 2;
-local subImageWidth, subImageHeight = 300, 300;
-local subImageSpacing = 100;
+local subImages = SubImage.SubImage(2, 1, 300, 300, 100, 0);
 
-local imageWidth = (subImageWidth * numSubImages) + (subImageSpacing * (numSubImages - 1));
-local imageHeight = subImageHeight;
-
-local subImageSize = {subImageWidth, imageHeight};
 local pointSize = 10
-local circleRadius = subImageWidth / 8
-
-local subImagePositions = {}
-
-for i = 1, numSubImages, 1 do
-	subImagePositions[i] = {(subImageWidth + subImageSpacing) * (i-1), 0};
-end
-
-
+local circleRadius = subImages:SubSize().x / 8
 
 -- Styles
 local styleLib = SvgWriter.StyleLibrary();
@@ -52,9 +39,9 @@ arrowheadPath:M{10, 4}:L{0, 0}:L{0, 8}:Z();
 
 local trianglePoints =
 {
-	vmath.vec2{subImageWidth * 0.3, (subImageHeight * 0.2)},
-	vmath.vec2{subImageWidth * 0.8, (subImageHeight * 0.6)},
-	vmath.vec2{subImageWidth * 0.1, (subImageHeight * 0.8)},
+	subImages:SubSize() * vmath.vec2{0.3, 0.2},
+	subImages:SubSize() * vmath.vec2{0.8, 0.6},
+	subImages:SubSize() * vmath.vec2{0.1, 0.8},
 }
 
 local cwLabelOffsets = 
@@ -100,7 +87,7 @@ end
 
 
 -- The SVG itself.
-local writer = SvgWriter.SvgWriter("WindingOrder.svg", {imageWidth .."px", imageHeight .. "px"});
+local writer = SvgWriter.SvgWriter("testSubImage.svg", {subImages:Size().x .."px", subImages:Size().y .. "px"});
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginMarker({pointSize, pointSize}, {pointSize/2, pointSize/2}, "auto", true, nil, "point");
@@ -131,14 +118,14 @@ local writer = SvgWriter.SvgWriter("WindingOrder.svg", {imageWidth .."px", image
 	writer:EndDefinitions();
 
 	--First subimage: just the triangle.
-	writer:Use("g_triangle", subImagePositions[1], subImageSize, {"black", "fill_none", "pointed"});
-	writer:Use("g_triangle", subImagePositions[2], subImageSize, {"black", "fill_none", "pointed"});
-	writer:Use("g_cwLabels", subImagePositions[1], subImageSize, {"black", "text"});
-	writer:Use("g_cwCircle", subImagePositions[1], subImageSize, {"black", "fill_none"});
-	writer:Use("g_ccwLabels", subImagePositions[2], subImageSize, {"black", "text"});
-	writer:Use("g_ccwCircle", subImagePositions[2], subImageSize, {"black", "fill_none"});
---	writer:Rect(subImagePositions[1], subImageSize, nil, {"black", "fill_none"});
---	writer:Rect(subImagePositions[2], subImageSize, nil, {"black", "fill_none"});
+	writer:Use("g_triangle", subImages:Offset(1, 1), subImages:SubSize(), {"black", "fill_none", "pointed"});
+	writer:Use("g_triangle", subImages:Offset(2, 1), subImages:SubSize(), {"black", "fill_none", "pointed"});
+	writer:Use("g_cwLabels", subImages:Offset(1, 1), subImages:SubSize(), {"black", "text"});
+	writer:Use("g_cwCircle", subImages:Offset(1, 1), subImages:SubSize(), {"black", "fill_none"});
+	writer:Use("g_ccwLabels", subImages:Offset(2, 1), subImages:SubSize(), {"black", "text"});
+	writer:Use("g_ccwCircle", subImages:Offset(2, 1), subImages:SubSize(), {"black", "fill_none"});
+--	writer:Rect(subImages:Offset(1, 1), subImages:SubSize(), nil, {"black", "fill_none"});
+--	writer:Rect(subImages:Offset(2, 1), subImages:SubSize(), nil, {"black", "fill_none"});
 	
 writer:Close();
 
