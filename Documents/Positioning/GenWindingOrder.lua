@@ -87,7 +87,7 @@ end
 
 
 -- The SVG itself.
-local writer = SvgWriter.SvgWriter("testSubImage.svg", {subImages:Size().x .."px", subImages:Size().y .. "px"});
+local writer = SvgWriter.SvgWriter("WindingOrder.svg", {subImages:Size().x .."px", subImages:Size().y .. "px"});
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginMarker({pointSize, pointSize}, {pointSize/2, pointSize/2}, "auto", true, nil, "point");

@@ -584,11 +584,12 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 Remember: a matrix, even a translation matrix, defines a full-fledged coordinate
                 system.</para>
             <para>So S now acts on the T-space position of the vertices. T-space has an origin,
-                defined by the matrix T. A scaling transformation matrix performs scaling based on
-                the origin point in the space of the vertices being scaled. So the scaling matrix S
-                will scale the points away from the origin point in T-space. Since what you
-                (probably) actually wanted was to scale the points away from the origin point in
-                    <emphasis>model space</emphasis>, S needs to come first.</para>
+                which in T-space is (0, 0, 0), but in model space is the translation part of the
+                matrix T. A scaling transformation matrix performs scaling based on the origin point
+                in the space of the vertices being scaled. So the scaling matrix S will scale the
+                points away from the origin point in T-space. Since what you (probably) actually
+                wanted was to scale the points away from the origin point in <emphasis>model
+                    space</emphasis>, S needs to come first.</para>
             <para>Rotation (orientation) matrices have the same issue. The orientation is always
                 local to the origin in the current space of the positions. So a rotation matrix must
                 happen before the translation matrix. Scales generally should happen before
@@ -597,10 +598,9 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 if it is a uniform scale, but a non-uniform scale will be problematic.</para>
             <para>There are reasons to put a translation matrix first. If the model-space origin is
                 not the point that you wish to rotate or scale around, then you will need to perform
-                the translation first, then apply a scale or rotation. Doing this multiple times can
-                allow you to scale and rotate about two completely different points. However, this
-                gets progressively more difficult, as each new translation needs to be based on the
-                space of the rotated or scaled points.</para>
+                a translation first, so that the vertices are in the space you want to rotate from,
+                then apply a scale or rotation. Doing this multiple times can allow you to scale and
+                rotate about two completely different points.</para>
         </section>
         <section>
             <title>Transformation Spaces</title>
@@ -1004,7 +1004,9 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             orientation, you apply a transformation to this matrix, storing the result as the new
             current orientation.</para>
         <para>This means that every yaw, pitch, and roll applied to the current orientation will be
-            relative to that current orientation.</para>
+            relative to that current orientation. Which is usually exactly what you want. If the
+            user applies a positive yaw, you want that yaw to rotate them relative to where they are
+            current pointing.</para>
         <para>A downside of this approach, besides the size penalty of having to store a 4x4 matrix
             rather than 3 floating-point angles, is that floating-point math can lead to errors. If
             you keep accumulating successive transformations of an object, once every 1/30th of a
@@ -1012,13 +1014,13 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             accumulating. Eventually, the orientation stops being a pure rotation and starts
             incorporating scale and skewing characteristics.</para>
         <para>The solution here is to re-orthonormalize the matrix after applying each transform. A
-            transform (space) is said to be <glossterm>orthonormal</glossterm> if the axis vectors
+            transform (space) is said to be <glossterm>orthonormal</glossterm> if the basis vectors
             are of unit length (no scale) and each axis is perpendicular to all of the
             others.</para>
-        <para>Unfortunately, re-orthonormalize a matrix is not a simple operation. You could try to
-            normalize each of the axis vectors with typical vector normalization, but that wouldn't
-            ensure that the matrix was orthonormal. It would remove scaling, but the axes wouldn't
-            be guaranteed to be perpendicular.</para>
+        <para>Unfortunately, re-orthonormalizing a matrix is not a simple operation. You could try
+            to normalize each of the axis vectors with typical vector normalization, but that
+            wouldn't ensure that the matrix was orthonormal. It would remove scaling, but the axes
+            wouldn't be guaranteed to be perpendicular.</para>
         <para>The proper solution is to use <link
                 xlink:href="http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">unit
                 quaternions</link> to store orientations, which can be orthonormalized much more

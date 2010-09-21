@@ -37,7 +37,7 @@ function ClassMembers:Offset(x, y)
 
 	offset.x = (self.subImageSize.x + self.spacing.x) * x;
 	offset.y = (self.subImageSize.y + self.spacing.y) * y;
-	
+
 	return offset;
 end
 
@@ -51,16 +51,16 @@ end
 
 --Points must be in pixel coordinates, relative to the upper-left.
 function ClassMembers:Transform(image, points)
+	local offset = self:Offset(image[1], image[2]);
 	if(vmath.vtype(points) == "table") then
 		local ret = {};
-		local offset = self:Offset(image.x, image.y);
 		for i, realPoint in ipairs(points) do
-			ret[i] = vmath.vec2(points) + offset;
+			ret[i] = vmath.vec2(realPoint) + offset;
 		end
 		return ret;
 	end
 	
-	return vmath.vec2(points) + self:Offset(image.x, image.y);
+	return vmath.vec2(points) + offset;
 end
 
 
