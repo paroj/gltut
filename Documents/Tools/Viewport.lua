@@ -57,12 +57,21 @@ function View:SetTransform(transform)
 	self.transform = transform;
 end
 
---Returns the top-right and bottom-left corners of the viewport.
+--Returns the top-right and bottom-left corners of the viewport in viewport space.
 function View:Extents()
 	local halfSize = self.vpSize / 2;
 	local upperBound = self.vpOrigin + halfSize;
 	local lowerBound = self.vpOrigin - halfSize;
 	return upperBound, lowerBound;
+end
+
+--Computes what the given viewport length will be in pixel coordinates.
+function View:Length(testVal)
+	local originVec = vmath.vec2(0, 0);
+	local testVec = vmath.vec2(testVal, 0);
+	local test1 = self:Transform(originVec);
+	local test2 = self:Transform(testVec);
+	return vmath.length(test2 - test1);
 end
 
 function Viewport(pixelSize, vpOrigin, vpSize)
@@ -143,6 +152,18 @@ function Trans2D:Vector(point)
 	return vmath.vec2(point);
 end
 
+function Trans2D:Transform(points)
+	if(vmath.vtype(points) == "table") then
+		local ret = {};
+		for i, realPoint in ipairs(points) do
+			ret[i] = self:Transform(realPoint);
+		end
+		return ret;
+	end
+	
+	return self.currMatrix:Transform(points);
+end
+
 function Transform2D()
 	local transform = {};
 	transform.currMatrix = Identity3();
@@ -213,6 +234,8 @@ function Trans3D:RotateZ(angleDeg)
 end
 
 Trans3D.MultMatrix = Trans2D.MultMatrix;
+Trans3D.Transform = Trans2D.Transform
+
 
 function Trans3D:Identity()
 	self.currMatrix = Identity4();
