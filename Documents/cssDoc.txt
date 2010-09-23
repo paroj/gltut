@@ -38,6 +38,7 @@ Top-level constructs:
     code.classname: Used for classes.
     span.type: Used for the types of things.
     span.mathphrase: Used for math phrases.
+    span.propername: Used for the names of the various tutorials.
     
     div.example: Stores the entire example.
         p.title: The title of the example.

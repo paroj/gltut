@@ -825,7 +825,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             have to worry about those pesky zeros. Unfortunately, because homogeneous spaces are not
             easy to draw, we can't show you what it would look like. But we can show you what it
             would look like if you clipped in camera space, in 2D:</para>
-        <!--TODO: Create images of clipping, one that creates a single triangle, and one that creates more than one-->
         <figure>
             <title>Triangle Clipping</title>
             <mediaobject>
@@ -995,6 +994,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 clipped.</para>
         </note>
     </section>
+    <!--
         <section>
             <?dbhtml filename="Tut05 Depth Precision.html" ?>
             <title>Depth Precision</title>
@@ -1059,7 +1059,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 If the camera or these objects are in motion, horrible flickering artifacts can be
                 seen. This is called <glossterm>z-fighting,</glossterm> as multiple objects appear
                 to be fighting each other when animated.</para>
-            <!--TODO: Show an image of z-fighting.-->
             <para>Fortunately, the days of 16-bit depth buffers are long over; the modern standard
                 is (and has been for years now) 24-bits of precision. Half-precision of 24-bits is
                 12-bits, which is not too far from a 16-bit depth buffer in and of itself. If you
@@ -1124,8 +1123,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     into both, just to make sure their depth values show up properly.</para>
             </section>
         </section>
+        -->
     <section>
-    <?dbhtml filename="Tut05 In Review.html" ?>
+        <?dbhtml filename="Tut05 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you have learned about the following:</para>
         <itemizedlist>

@@ -49,10 +49,12 @@ code.filename {  }
 code.literal { color: #0f0aae; }
 
 span.type {  }
+code.classname {  }
 
 em.glossterm { text-decoration: underline; }
 
 acronym.acronym { font-weight: bold; }
+span.propername { font-weight: bold; }
 
 
 /* Code documentation. */

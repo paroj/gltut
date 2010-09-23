@@ -61,7 +61,7 @@
             <title>Coordinate System</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="FullCoordinateEquation.svg"/>
+                    <imagedata fileref="FullCoordinateEquation.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -191,16 +191,20 @@
 {
     std::vector&lt;GLuint> shaderList;
     
-    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "PosColorLocalTransform.vert"));
-    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "ColorPassthrough.frag"));
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER,
+        "PosColorLocalTransform.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER,
+        "ColorPassthrough.frag"));
     
     theProgram = Framework::CreateProgram(shaderList);
     
     positionAttrib = glGetAttribLocation(theProgram, "position");
     colorAttrib = glGetAttribLocation(theProgram, "color");
     
-    modelToCameraMatrixUnif = glGetUniformLocation(theProgram, "modelToCameraMatrix");
-    cameraToClipMatrixUnif = glGetUniformLocation(theProgram, "cameraToClipMatrix");
+    modelToCameraMatrixUnif = glGetUniformLocation(theProgram,
+        "modelToCameraMatrix");
+    cameraToClipMatrixUnif = glGetUniformLocation(theProgram,
+        "cameraToClipMatrix");
     
     float fzNear = 1.0f; float fzFar = 45.0f;
     
@@ -211,7 +215,8 @@
     cameraToClipMatrix[3].z = (2 * fzFar * fzNear) / (fzNear - fzFar);
     
     glUseProgram(theProgram);
-    glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(cameraToClipMatrix));
+    glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
+        glm::value_ptr(cameraToClipMatrix));
     glUseProgram(0);
 }</programlisting>
         </example>
@@ -556,8 +561,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             corner, which is set to 1. As with the rest of GLM, this works in GLSL as well.</para>
     </section>
     <section>
-        <?dbhtml filename="Tut06 Successive Transformations.html" ?>
-        <title>Successive Transformations</title>
+        <?dbhtml filename="Tut06 Fun with Matrices.html" ?>
+        <title>Fun with Matrices</title>
         <para>In all of the previous examples except for the translation one, we always combined the
             transformation with a translation operation. So the scale transform was not a pure scale
             transform; it was a scale and translate transformation matrix. The translation was there
@@ -835,8 +840,10 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
         modelToCameraStack.Push();
         modelToCameraStack.Translate(posBaseLeft);
         modelToCameraStack.Scale(glm::vec3(1.0f, 1.0f, scaleBaseZ));
-        glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelToCameraStack.Top()));
-        glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+        glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE,
+            glm::value_ptr(modelToCameraStack.Top()));
+        glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData),
+            GL_UNSIGNED_SHORT, 0);
         modelToCameraStack.Pop();
     }
     
@@ -845,8 +852,10 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
         modelToCameraStack.Push();
         modelToCameraStack.Translate(posBaseRight);
         modelToCameraStack.Scale(glm::vec3(1.0f, 1.0f, scaleBaseZ));
-        glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelToCameraStack.Top()));
-        glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+        glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE,
+            glm::value_ptr(modelToCameraStack.Top()));
+        glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData),
+            GL_UNSIGNED_SHORT, 0);
         modelToCameraStack.Pop();
     }
     
