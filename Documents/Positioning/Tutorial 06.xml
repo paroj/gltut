@@ -6,7 +6,8 @@
     <?dbhtml filename="Tutorial 06.html" ?>
     <title>Objects in Motion</title>
     <para>In this tutorial, we will look at a number of ways to transform objects, rendering them in
-        different locations and orientations in the world.</para>
+        different locations and orientations in the world. And we will also solve the secret of why
+        we overcomplicated everything with those matrices.</para>
     <section>
         <title>Spaces</title>
         <para>Throughout this series of tutorials, we have discussed a number of different spaces.
@@ -41,19 +42,35 @@
         <para>A position or vertex in a space is defined as the sum of the axis vectors, where each
             basis vector is multiplied by a value called a coordinate. Geometrically, this looks
             like the following:</para>
-        <!--TODO: Show the geometric diagram for a coordinate in 3D.-->
-        <para>The numerical equivalent is this:</para>
-        <!--TODO: Show the vectoral equation defining a coordinate in 3D.-->
-        <para>The coordinate used to refer to a position depends entirely on the coordinate system
-            being used to describe that position. For example, here are two positions that have the
-            same numerical coordinate value, but appear in different locations (from the point of
-            view of a neutral observer).</para>
-        <!--TODO: Show a 2D orthogonal and 2D skewed coordinate system, and the same coordinate position from both.-->
-        <para>This is all well and good when dealing with the geometric basis vectors and origin
-            point. The origin point is just a position, and the basis vectors are simply drawn. But
-            what does it mean to give actual numbers to these concepts in the numerical version? A
-            position, like the origin point, is itself a coordinate. Which means that it must be
-            defined relative to some coordinate system. The same goes for the basis vectors.</para>
+        <figure>
+            <title>Two 2D Coordinate Systems</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CoordSys2D.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>These are two different coordinate systems. The same coordinate, in this case (2, 2)
+            (each basis vector is added twice) can have two very different positions, from the point
+            of view of a neutral observer. What is interesting to note is that (2, 2) is the same in
+            their own coordinate system. This means that a coordinate itself is not enough
+            information to know what it means; one must also know what coordinate system it is
+            in.</para>
+        <para>The numerical version of the coordinate system equation is as follows:</para>
+        <equation>
+            <title>Coordinate System</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="FullCoordinateEquation.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>The geometric version is all well and good when dealing with the geometric basis
+            vectors and origin point. The origin point is just a position, and the basis vectors are
+            simply drawn. But what does it mean to give actual numbers to these concepts in the
+            numerical version? A position, like the origin point, is itself a coordinate. Which
+            means that it must be defined relative to some coordinate system. The same goes for the
+            basis vectors.</para>
         <para>For the purpose of this discussion, there is a coordinate system that acts as a kind
             of neutral coordinate system; it can be used as a generic viewpoint for a coordinate
             system. For a three-dimensional coordinate system, this identity space has the origin at
@@ -117,11 +134,18 @@
             model is only [-1, 1] in model space, we can ensure that the object is visible by adding
             this vector to all of the model space coordinates: (0, 0, -3). This puts the origin of
             the model at that position in camera space.</para>
-        <!--TODO: 2D diagram of this translation.-->
+        <figure>
+            <title>Coordinate System Translation in 2D</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TranslationTransform.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Translation is ultimately just that simple. So let's make it needlessly complex. And
             the best tool for doing that: matrices. Oh, we could just use a 3D uniform vector to
             pass an offset to do the transformation. But matrices have hidden benefits we will
-            explore... soon.</para>
+            explore very soon.</para>
         <para>All of our position vectors are 4D vectors, with a final W coordinate that is always
             1.0. In <link linkend="Tut04_matrix">Tutorial 04,</link> we took advantage of this with
             our perspective transformation matrix. The equation for the Z coordinate needed an
@@ -145,7 +169,6 @@
         </equation>
         <para>To modify the identity matrix into one that is suitable for translation, we simply put
             the offset into the W column of the identity matrix.</para>
-        <!--TODO: The translation matrix.-->
         <equation>
             <title>Translation Matrix</title>
             <mediaobject>
@@ -262,7 +285,14 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Another kind of transformation is <glossterm>scaling</glossterm>. In terms of our
             previous definition of a coordinate system, this means that our basis vectors are
             getting shorter or longer.</para>
-        <!--TODO: show a 2D scaling transform.-->
+        <figure>
+            <title>Coordinate System Scaling in 2D</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ScaleTransform.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Scaling can be uniform, which means each basis vector is scaled by the same value. A
             non-uniform scale means that each basis can get a different scale, or none at
             all.</para>
@@ -275,16 +305,29 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             scaled.</para>
         <para>Remember how we defined the way coordinate systems generate a position, based on the
             basis vectors and origin point?</para>
-        <!--TODO: the vector equation from before-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CoordinateEquation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>If you are increasing or decreasing the length of the basis vectors, this is the same
             as multiplying those basis vectors by the new length. So we can re-express this equation
             as follows:</para>
-        <!--TODO: scaled version of vector equation-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ScaledCoordEquation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>Since multiplication is both associative and commutative, we can multiply the scales
-            directly into the coordinates to achieve the same effect. So a scaled space can be
+            directly into the coordinate values to achieve the same effect. So a scaled space can be
             reexpressed as simply multiplying the coordinate values.</para>
         <para>This is easy enough to do in GLSL, if you pass a vector uniform containing the scale
-            values. But how do we express this as a matrix?</para>
+            values. But that's just not complicated enough. Obviously, we need to get matrices
+            involved, but how?</para>
         <para>This gets a bit technical, in terms of how a matrix multiplication works. But look
             back at the identity matrix:</para>
         <informalequation>
@@ -391,7 +434,14 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             relative to the destination coordinate system, they are pointed in different directions
             than they were in their own coordinate system.</para>
         <para>A rotation looks like this:</para>
-        <!--TODO: Show a rotation transformation-->
+        <figure>
+            <title>Coordinate Rotation in 2D</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RotationTransform.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Rotations are usually considered the most complex of transformations, primarily
             because of the math involved in computing the transformation matrix. Generally,
             rotations are looked at as an operation, such as rotating around a particular basis or
@@ -399,7 +449,13 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             make this much simpler.</para>
         <para>First, let's look back at our equation for determining what the position of a
             coordinate is relative to certain coordinate space:</para>
-        <!--TODO: Show the vector equation again-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CoordinateEquation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>Doesn't this look a bit familiar? No? Maybe this look at vector-matrix multiplication
             will jog your memory:</para>
         <equation>
@@ -571,7 +627,14 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 means that the vertices will not just get farther from each other, but farther
                     <emphasis>from the origin</emphasis> of the destination space. It is the
                 difference between these two transforms:</para>
-            <!--TODO: Show what the two transforms actually look like.-->
+            <figure>
+                <title>Transform Order Diagram</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="TransOrderGeom.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>If you think about the order of operations, this makes sense. Even though one can
                 think of the combined transform <inlineequation>
                     <mathphrase>S*T</mathphrase>

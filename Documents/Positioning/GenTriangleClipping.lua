@@ -127,7 +127,7 @@ newPoints[4] =
 }
 
 
-local writer = SvgWriter.SvgWriter("TriangleClipping.svg", {subImages:Size().x .."px", subImages:Size().y .. "px"});
+local writer = SvgWriter.SvgWriter("TriangleClipping.svg", {(subImages:Size().x + 1) .."px", (subImages:Size().y + 1) .. "px"});
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginMarker({pointSize, pointSize}, {pointSize/2, pointSize/2}, "auto", true, nil, "m_point");

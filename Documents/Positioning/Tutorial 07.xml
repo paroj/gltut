@@ -43,9 +43,16 @@
             vertex positions, from the initial attribute loaded from the buffer object, to the final
             window-space position.</para>
         <!--TODO: An Image of the full vertex transformation sequence, from attribute to window-space.-->
+        <figure>
+            <title>Full Vertex Transformation Pipeline</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TransformPipeline.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The tutorial project <phrase role="propername">World Space</phrase> demonstrates the
             use of a mobile camera in a world-space scene.</para>
-        <!--TODO: Add a screenshot of the tutorial.-->
         <figure>
             <title>World Space Scene</title>
             <mediaobject>
@@ -240,6 +247,14 @@ glUseProgram(0);</programlisting>
                 straight down.</para>
             <para>This is much easier to see in diagram form:</para>
             <!--TODO: A diagram of spherical coordinates.-->
+            <figure>
+                <title>Spherical Coordinates</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Coord_system_SZ_0.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>This is a very convenient coordinate system for positioning an object around
                 another object, particularly if you want to move along spheres relative to another
                 object. The transformation from spherical coordinates back to Euclidean geometric
@@ -432,7 +447,17 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             the initial vertex. So <literal>GL_TRIANGLE_FAN</literal> will generate triangles as
             follows: (0, 1, 2), (0, 2, 3), (0, 3, 4), …. Visually, a triangle fan looks like
             this:</para>
-        <!--TODO: Show an image of a triangle fan.-->
+        <figure>
+            <title>Triangle Fan</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TriangleFan.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The numbers represent the order that the vertices are in in the vertex stream. The red
+            line shows the triangle edges that are directly specified by the vertex stream. All
+            other edges are generated automatically by the primitive representation.</para>
         <para>This is why it is called a <quote>fan</quote>. The number of vertices in a triangle
             fan vertex stream must be 3 or greater, but can be otherwise any number. For N vertices
             in a stream, triangle fans will generate N-2 triangles.</para>
@@ -442,7 +467,14 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             triangle primitive type. The primitive representation means that every 3 adjacent
             vertices will generate a triangle, in order. So strips generate triangles as follows:
             (0, 1, 2), (1, 2, 3), (2, 3, 4), …. Visually, a triangle strip looks like this:</para>
-        <!--TODO: Show an image of a triangle strip.-->
+        <figure>
+            <title>Triangle Strip</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="TriangleStrip.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Like with triangle fans, the number of vertices must be 3 or greater, but can be any
             number otherwise. For N vertices in a stream, triangle strips will generate N-2
             triangles.</para>
@@ -454,7 +486,14 @@ glEnable(GL_DEPTH_TEST);</programlisting>
                 order of the triangles.</para>
         </formalpara>
         <para>The winding order for the triangles in a strip looks like this:</para>
-        <!--TODO: Show triangle strip with winding order.-->
+        <figure>
+            <title>Triangle Strips with Winding Order</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="StripWindingOrder.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Notice how it alternates between clockwise and counter-clockwise. This means that,
             regardless of what face you consider front, and what face you cull, you'll always lose
             about half of the faces.</para>
@@ -694,8 +733,19 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 points. For each uniform block in a program, there is a reference, not to a buffer
                 object, but to one of these uniform buffer binding points. This reference is just a
                 numerical index: 0, 1, 2, etc.</para>
-            <para>Here's a diagram:</para>
-            <!--TODO: Draw a picture of a program, uniform buffer, and the context binding points.-->
+            <para>A diagram should make it clearer:</para>
+            <figure>
+                <title>Uniform Buffer and Block Binding Points</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="UBOContextBinding.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The program object is given an index that represents one of the slots in the
+                context. The uniform buffer is bound to one of those slots. Therefore, when you
+                render with that program, the uniform buffer that is in the slot specified by the
+                program will be where the program gets its uniform data from.</para>
             <para>Therefore, to use a uniform buffer, one first must tell the program which binding
                 point in the context to find the buffer. This association is made with the
                     <function>glUniformBlockBinding</function> function.</para>

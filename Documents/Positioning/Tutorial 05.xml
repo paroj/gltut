@@ -826,12 +826,20 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             easy to draw, we can't show you what it would look like. But we can show you what it
             would look like if you clipped in camera space, in 2D:</para>
         <!--TODO: Create images of clipping, one that creates a single triangle, and one that creates more than one-->
+        <figure>
+            <title>Triangle Clipping</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="TriangleClipping.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>To see the results of clipping in action, run the <phrase role="propername">Vertex
                 Clipping</phrase> tutorial. It is the same as the one for depth buffering, except
             one object has been moved very close to the zNear plane. Close enough that part of it is
             beyond the zNear and therefore is not part of the viewable area:</para>
         <figure>
-            <title>Vertex Clipping</title>
+            <title>Near Plane Clipping</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="Vertex%20Clipping.png" contentwidth="4in"/>
