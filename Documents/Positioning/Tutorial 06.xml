@@ -524,6 +524,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>As useful as these are, the more generic equation for rotation by an angle about an
             arbitrary axis is as follows.</para>
         <equation>
+			<title>Angle/Axis Rotation Matrix</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="AngleAxisRotationMatrix.svg" format="SVG"/>
