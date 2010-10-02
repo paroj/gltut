@@ -133,7 +133,7 @@
                 by W to get normalized device coordinates. That is all.</para>
             <para>The space of normalized device coordinates is essentially just clip space, except
                 that the range of X, Y and Z are [-1, 1]. The directions are all the same. The
-                division by W is an important part of projecting 3D triangles onto 2D images, but we
+                division by W is an important part of projecting 3D triangles onto 2D images; we
                 will cover that in a future tutorial.</para>
             <figure>
                 <title>Normalized Device Coordinate Space</title>

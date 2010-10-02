@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<article xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 08.html" ?>
+    <title>Lights On</title>
+    <para/>
+    <section>
+        <title>Modelling Lights</title>
+        <para>Lighting is complicated. Very complicated. The interaction between a surface and a
+            light is mostly well understood in terms of the science, but there is a problem.
+            Modeling the full light/surface interaction as it is currently understood is
+            prohibitively expensive.</para>
+        <para>As such, all lighting in any real-time application is some form of approximation of
+            the real world. How accurate that approximation is generally determines how close to
+                <glossterm>photorealism</glossterm> one gets. Photorealism is the ability to render
+            a scene that is indistinguishable from a photograph of reality.</para>
+        <note>
+            <title>Non-Photorealistic Rendering</title>
+            <para>There are lighting models that do not attempt to model reality. These are
+                categorized as non-photorealistic rendering (<acronym>NPR</acronym>) techniques.
+                These lighting models and rendering techniques can attempt to model cartoon styles
+                (typically called <quote>cel shading</quote>), paintbrush effects, or other similar
+                things.</para>
+            <para>Developing good NPR techniques is at least as difficult as developing good
+                photorealistic lighting models. For the most part, in this book, we will focus on
+                approximating photorealism.</para>
+        </note>
+        <para>A <glossterm>lighting model</glossterm> is an algorithm, a mathematical function, that
+            determines how a surface interacts with light.</para>
+        <para>In the real world, our eyes see by detecting light that hits them. The structure of
+            our iris and lenses allow us to use a number of photorecepters, light-sensitive cells,
+            to resolve a pair of images. The light we see can have one of two sources. A light
+            emitting object can emit light that is directly captured by our eyes. Or a surface can
+            reflect light that is captured by our eyes.</para>
+        <para>The interaction between a light and a surface is the most important part of a lighting
+            model. It is also the most difficult to get right. The way light interacts with atoms on
+            a surface alone involves complicated quantum mechanics to understand. And even that does
+            not get into the fact that surfaces are not perfectly smooth or perfectly opaque.</para>
+        <para>This is made more complicated by the fact that light itself is not one thing. There is
+            no such thing as <quote>white light.</quote> Virtually all light is made up of a number
+            of different wavelengths. Each wavelength (in the visible spectrum) represents a color.
+            The rainbow effect of light scattering, easily seen in a prism, breaks white light into
+            its constituents.</para>
+        <!--TODO: Show a prism defraction of light.-->
+        <note>
+            <para>Developing a lighting model that can actually diffract white light into this
+                pattern is very, <emphasis>very</emphasis> difficult. We won't even come close to
+                such a thing in this book.</para>
+        </note>
+        <para>Colored light simply has fewer wavelengths in it than pure white light. Surfaces
+            interact with light of different wavelengths in different ways. As a simplification of
+            this complex interaction, a surface can do one of two things: absorb that wavelength of
+            light or reflect it.</para>
+        <para>A surface looks blue under white light because the surface absorbs all non-blue parts
+            of the light and only reflects the blue parts. If one were to shine a red light on the
+            surface, the surface would appear very dark, as the surface absorbs non-blue
+            light.</para>
+        <para>Therefore, the apparent color of a surface is a combination of the absorbing
+            characteristics of the surface (which wavelengths are absorbed or reflected) and the
+            wavelengths of light shone upon that surface.</para>
+        <para>The very first approximation that is made is that not all of these wavelengths matter.
+            Instead of tracking millions of wavelengths in the visible spectrum, we will instead
+            track 3. Red, green, and blue.</para>
+        <para>So, we know that the RGB color of the light from a surface is a combination of
+            absorbing characteristics of the surface and the color and intensity of the light. We
+            can describe both the light color and the absorbing characteristics of the surface as
+            RGB colors.</para>
+        <para>But the intensity of light reflected from a surface depends on more than just the
+            color and intensity of the light emitted from the light and the surface color. It also
+            depends on the angle between the light and the surface.</para>
+        <para>Consider a perfectly flat surface. If you shine a column of light with a known
+            intensity directly onto that surface, the intensity of that light at each point under
+            the surface will be a known value, based on the intensity of the light divide by the
+            area projected on the surface.</para>
+        <!--TODO: Show a column of light shining directly onto the surface.-->
+        <para>If the light is shone instead at an angle, the area on the surface is much wider. This
+            spreads the light intensity over a larger area of the surface, so each point under the
+            light sees the light less intensely.</para>
+        <!--TODO: Show a column of light shining at an angle to the surface.-->
+        <para>Therefore, the intensity of the light on a surface is a function of the original
+            light's intensity and the angle between the surface and the light source. This angle is
+            called the <glossterm>angle of incidence</glossterm> of the light.</para>
+        <para>A lighting model is a way to take these parameters (potentially other parameters as
+            well) and combine them into the reflected light color to be seen by the camera.</para>
+        <section>
+            <title>Standard Diffuse Lighting</title>
+            <para>The most common lighting model in use is <glossterm>diffuse lighting</glossterm>.
+                It is simple, quick to compute, and gives decent results for the kinds of materials
+                it approximates. Unfortunately, it only approximates dull plastics; rendering
+                anything else correctly requires actual work.</para>
+            <para>The diffuse lighting model makes the approximation that the intensity of the
+                reflected light depends <emphasis>only</emphasis> on the angle of incidence and the
+                intensity of the source light. In particular, this means that light is reflected in
+                all directions equally. So the view angle, the angle between the surface and the
+                camera, is irrelevant to diffuse lighting.</para>
+            <para>The equation for diffuse lighting is quite simple:</para>
+            <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Color * cos(angle of incidence).-->
+        </section>
+        <section>
+            <title>Surface Geometry</title>
+            <para>Now that we know what we need to compute, the question becomes how to compute it.
+                Specifically, this means how to compute the angle of incidence for the light, but it
+                also means where to perform the lighting computations.</para>
+            <para>Since our mesh geometry is made of triangles, each individual triangle is flat.
+                Therefore, much like the plane above, each triangle faces a single direction. This
+                direction is called the <glossterm>surface normal</glossterm> or
+                    <glossterm>normal.</glossterm> It is the direction that the surface is facing at
+                the location of interest.</para>
+            <para>Every point along a triangle has the same geometric surface normal. That's all
+                well and good.</para>
+            <para>But polygonal models are supposed to be approximations of real, curved surfaces.
+                If one used the actual triangle's surface normal, the object would look very
+                faceted. If instead we can use </para>
+        </section>
+        <para/>
+        <para/>
+    </section>
+    <section>
+        <title>Intensity of Light</title>
+        <para/>
+    </section>
+    <section>
+        <title>In Review</title>
+        <para/>
+        <section>
+            <title>Further Study</title>
+            <para/>
+        </section>
+    </section>
+    <section>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>photorealism</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>lighting model</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>angle of incidence</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>diffuse lighting</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
+</article>

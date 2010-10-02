@@ -353,6 +353,22 @@
                 </listitem>
             </itemizedlist>
         </section>
+        <section>
+            <title>Of Metal and Plastic</title>
+            <para>This tutorial involves creating a single mesh that has multiple lighting models:
+                one reflective and one very diffuse. There should be an animated light or two that
+                shows this off.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>BDRFs: Lighting models that are a function of surface normal, angle to the
+                        light, and angle to the camera.</para>
+                </listitem>
+                <listitem>
+                    <para>The Phong specular lighting model.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
     </section>
     <section>
         <title>Texturing</title>
@@ -548,26 +564,6 @@
     <section>
         <title>Advanced Lighting</title>
         <section>
-            <title>Of Metal and Plastic</title>
-            <para>This tutorial involves creating a single mesh that has multiple lighting models:
-                one reflective and one very diffuse. There should be an animated light or two that
-                shows this off.</para>
-            <para>Concepts:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>BDRFs: Lighting models that are a function of surface normal, angle to the
-                        light, and angle to the camera.</para>
-                </listitem>
-                <listitem>
-                    <para>The Phong specular lighting model.</para>
-                </listitem>
-                <listitem>
-                    <para>Using a texture's value to control the strength of the Phong curve and
-                        other lighting parameters. Introduce floating-point textures here.</para>
-                </listitem>
-            </itemizedlist>
-        </section>
-        <section>
             <title>Dynamic Lighting</title>
             <para>This tutorial takes a scene with directional lighting and shadows, with specular
                 lighting on some of the objects (and an identifiable ground), and applies basic HDR
@@ -698,6 +694,12 @@
     <section>
         <title>Functionality that needs tutorials</title>
         <glosslist>
+            <glossentry>
+                <glossterm>Radial fog</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
             <glossentry>
                 <glossterm>Procedural Textures</glossterm>
                 <glossdef>

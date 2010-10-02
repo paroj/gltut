@@ -131,10 +131,17 @@
             <title>Illumination</title>
         </info>
         <partintro>
-            <para>Lighting is a fundamental part of almost all rendering. These tutorials provide
-                information on how lights can work, as well as details on a few different
-                mathematical illumination models.</para>
+            <para>One of the most important aspects of rendering is lighting. Thus far, all of our
+                objects have had a color that is either entirely part of the mesh data or passed in
+                via a uniform. This is not how color works in the real world.</para>
+            <para>Properly modeling the interaction between light and a surface is vital in creating
+                a photorealistic effect. Indeed, modeling light/surface interaction is vital in
+                doing just about any kind of graphics work, photorealistic or not. The result
+                depends entirely on how one chooses to model the light/surface interaction.</para>
+            <para>The tutorials in this section will introduce some simple light/surface models and
+                explain how to implement them.</para>
         </partintro>
+        <xi:include href="Illumination/tutorial 08.xml"/>
     </part>
     <part>
         <?dbhtml filename="Texturing.html" dir="Texturing" ?>
