@@ -9,8 +9,8 @@
     <section>
         <title>Modelling Lights</title>
         <para>Lighting is complicated. Very complicated. The interaction between a surface and a
-            light is mostly well understood in terms of the science, but there is a problem.
-            Modeling the full light/surface interaction as it is currently understood is
+            light is mostly well understood in terms of the physics. But actually doing the
+            computations for full light/surface interaction as it is currently understood is
             prohibitively expensive.</para>
         <para>As such, all lighting in any real-time application is some form of approximation of
             the real world. How accurate that approximation is generally determines how close to
@@ -18,11 +18,12 @@
             a scene that is indistinguishable from a photograph of reality.</para>
         <note>
             <title>Non-Photorealistic Rendering</title>
-            <para>There are lighting models that do not attempt to model reality. These are
-                categorized as non-photorealistic rendering (<acronym>NPR</acronym>) techniques.
+            <para>There are lighting models that do not attempt to model reality. These are, as a
+                group, called non-photorealistic rendering (<acronym>NPR</acronym>) techniques.
                 These lighting models and rendering techniques can attempt to model cartoon styles
-                (typically called <quote>cel shading</quote>), paintbrush effects, or other similar
-                things.</para>
+                (typically called <quote>cel shading</quote>), paintbrush effects, pencil-sketch, or
+                other similar things. NPR techniques including lighting models, but they also do
+                other, non-lighting things.</para>
             <para>Developing good NPR techniques is at least as difficult as developing good
                 photorealistic lighting models. For the most part, in this book, we will focus on
                 approximating photorealism.</para>
@@ -112,10 +113,18 @@
                 well and good.</para>
             <para>But polygonal models are supposed to be approximations of real, curved surfaces.
                 If one used the actual triangle's surface normal, the object would look very
-                faceted. If instead we can use </para>
+                faceted. This might be an accurate of what was actually drawn, but it reveals the
+                surface to be exactly what it is: an approximation.</para>
+            <para>Instead of using the triangle's normal, we can instead assign each vertex the
+                normal it <emphasis>would</emphasis> have on the surface it is approximating. That
+                is, while the mesh is an approximating, the normal for a vertex is the actual normal
+                for that surface. This actually works out surprisingly well.</para>
+            <para>This means that we must add to the vertex's information. In past tutorials, we
+                have had a position and sometimes a color. To that information, we add a normal. So
+                we will need a vertex shader input, a vertex attribute, that represents the
+                normal.</para>
+            <para/>
         </section>
-        <para/>
-        <para/>
     </section>
     <section>
         <title>Intensity of Light</title>

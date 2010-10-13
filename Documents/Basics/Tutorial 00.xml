@@ -380,7 +380,7 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 equivalent of a NULL pointer. Binding object 0 means to unbind the currently bound
                 object. This means that the original context state, the state that was in place
                 before the binding took place, now becomes the context state.</para>
-            <para>Due note that this is simply a model of OpenGL's <emphasis>behavior.</emphasis>
+            <para>Do note that this is simply a model of OpenGL's <emphasis>behavior.</emphasis>
                 This is most certainly <emphasis>not</emphasis> how it is actually
                 implemented.</para>
         </section>

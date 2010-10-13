@@ -701,6 +701,12 @@
                 </glossdef>
             </glossentry>
             <glossentry>
+                <glossterm>1:1 Pixel accurate texture rendering</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>Procedural Textures</glossterm>
                 <glossdef>
                     <para>How to do procedural textures, with proper filtering and so forth.</para>

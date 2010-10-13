@@ -200,7 +200,7 @@ glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
             <title>Vertex Processing and Shaders</title>
             <para>Now that we can tell OpenGL what the vertex data is, we come to the next stage of
                 the pipeline: vertex processing. This is one of two programmable stages that we will
-                cover in this tutorial, so this involve the use of a
+                cover in this tutorial, so this involves the use of a
                 <glossterm>shader.</glossterm></para>
             <para>All a shader is is a program that runs on the GPU. There are several possible
                 shader stages in the pipeline, and each has its own inputs and outputs. The purpose
