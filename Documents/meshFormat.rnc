@@ -15,7 +15,7 @@ div
         element msh:mesh {mf.mesh.content}
 
     mf.mesh.content =
-        mf.attribute+, mf.rendering-commands+
+        mf.attribute+, mf.vao*, mf.rendering-commands+
         
     mf.attribute =
         ##A single attribute array. It can contain any kind of attribute data.
@@ -23,7 +23,22 @@ div
         
     mf.attribute.content =
         mf.attribute.attlist, text
+    
+    mf.vao =
+        ##These are named VAOs, which represent collections of attributes that can be used to render
+        ##the mesh.
+        element msh:vao { mf.vao.content }
         
+    mf.vao.content =
+        mf.vao.attlist, mf.source+
+        
+    mf.source =
+        ##This represents one of the attributes used by the VAO.
+        element msh:source { mf.source.content }
+        
+    mf.source.content =
+        mf.source.attlist
+    
     mf.rendering-commands =
         ##These are the possible commands for rendering this mesh.
         (mf.indices | mf.arrays)
@@ -51,6 +66,12 @@ div
     mf.attribute.attlist =
         mf.attribute.index.attribute, mf.attribute.integral.attribute?, mf.attribute.type.attribute, mf.attribute.size.attribute
         
+    mf.vao.attlist =
+        mf.vao.name.attribute
+
+    mf.source.attlist =
+        mf.source.attrib.attribute
+
     mf.indices.attlist =
         mf.indices.type.attribute, mf.cmd.attribute, mf.indices.primrestart.attribute?
         
@@ -59,7 +80,7 @@ div
         
     mf.attribute.index.attribute =
         ##The attribute index to be used for this vertex attribute.
-        attribute index { xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "16"} }
+        attribute index { acc.attribute.type }
         
     mf.attribute.size.attribute =
         ##The number of components in this vertex attribute. 1-4.
@@ -74,7 +95,13 @@ div
         ##True if this attribute is to be passed as an integral attribute.
         ##Defaults to false.
         attribute integral {"true"|"false"}
-        
+
+    mf.vao.name.attribute =
+        attribute name { text }
+    
+    mf.source.attrib.attribute =
+        attribute attrib { acc.attribute.type }
+
     mf.cmd.attribute =
         ##The primitive type used to render with this rendering command..
         attribute cmd { "triangles" | "tri-strip" | "tri-fan" | "lines" | "line-strip" |
@@ -96,5 +123,12 @@ div
     mf.arrays.count.attribute =
         ##Sets the number of elements to be rendered with array rendering.
         attribute count { xsd:positiveInteger }
+}
+
+## Accessories
+div
+{
+    acc.attribute.type =
+        xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "16"}
 }
 

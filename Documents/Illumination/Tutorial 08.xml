@@ -5,7 +5,8 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 08.html" ?>
     <title>Lights On</title>
-    <para/>
+    <para>It is always best to start simply. And since lighting is a big topic, we will begin with
+        the simplest possible scenario.</para>
     <section>
         <title>Modelling Lights</title>
         <para>Lighting is complicated. Very complicated. The interaction between a surface and a
@@ -23,7 +24,8 @@
                 These lighting models and rendering techniques can attempt to model cartoon styles
                 (typically called <quote>cel shading</quote>), paintbrush effects, pencil-sketch, or
                 other similar things. NPR techniques including lighting models, but they also do
-                other, non-lighting things.</para>
+                other, non-lighting things, like drawing object silhouettes in an dark, ink
+                color.</para>
             <para>Developing good NPR techniques is at least as difficult as developing good
                 photorealistic lighting models. For the most part, in this book, we will focus on
                 approximating photorealism.</para>
@@ -31,10 +33,10 @@
         <para>A <glossterm>lighting model</glossterm> is an algorithm, a mathematical function, that
             determines how a surface interacts with light.</para>
         <para>In the real world, our eyes see by detecting light that hits them. The structure of
-            our iris and lenses allow us to use a number of photorecepters, light-sensitive cells,
-            to resolve a pair of images. The light we see can have one of two sources. A light
-            emitting object can emit light that is directly captured by our eyes. Or a surface can
-            reflect light that is captured by our eyes.</para>
+            our iris and lenses use a number of photorecepters (light-sensitive cells) to resolve a
+            pair of images. The light we see can have one of two sources. A light emitting object
+            like the sun or a lamp can emit light that is directly captured by our eyes. Or a
+            surface can reflect light from another source that is captured by our eyes.</para>
         <para>The interaction between a light and a surface is the most important part of a lighting
             model. It is also the most difficult to get right. The way light interacts with atoms on
             a surface alone involves complicated quantum mechanics to understand. And even that does
@@ -56,8 +58,8 @@
             light or reflect it.</para>
         <para>A surface looks blue under white light because the surface absorbs all non-blue parts
             of the light and only reflects the blue parts. If one were to shine a red light on the
-            surface, the surface would appear very dark, as the surface absorbs non-blue
-            light.</para>
+            surface, the surface would appear very dark, as the surface absorbs non-blue light, and
+            the red light doesn't have much non-blue light in it.</para>
         <para>Therefore, the apparent color of a surface is a combination of the absorbing
             characteristics of the surface (which wavelengths are absorbed or reflected) and the
             wavelengths of light shone upon that surface.</para>
@@ -73,7 +75,7 @@
             depends on the angle between the light and the surface.</para>
         <para>Consider a perfectly flat surface. If you shine a column of light with a known
             intensity directly onto that surface, the intensity of that light at each point under
-            the surface will be a known value, based on the intensity of the light divide by the
+            the surface will be a known value, based on the intensity of the light divided by the
             area projected on the surface.</para>
         <!--TODO: Show a column of light shining directly onto the surface.-->
         <para>If the light is shone instead at an angle, the area on the surface is much wider. This
@@ -83,8 +85,8 @@
         <para>Therefore, the intensity of the light on a surface is a function of the original
             light's intensity and the angle between the surface and the light source. This angle is
             called the <glossterm>angle of incidence</glossterm> of the light.</para>
-        <para>A lighting model is a way to take these parameters (potentially other parameters as
-            well) and combine them into the reflected light color to be seen by the camera.</para>
+        <para>A lighting model is a function of all of these parameters. Complex lighting models can
+            add additional parameters.</para>
         <section>
             <title>Standard Diffuse Lighting</title>
             <para>The most common lighting model in use is <glossterm>diffuse lighting</glossterm>.
@@ -93,11 +95,11 @@
                 anything else correctly requires actual work.</para>
             <para>The diffuse lighting model makes the approximation that the intensity of the
                 reflected light depends <emphasis>only</emphasis> on the angle of incidence and the
-                intensity of the source light. In particular, this means that light is reflected in
-                all directions equally. So the view angle, the angle between the surface and the
-                camera, is irrelevant to diffuse lighting.</para>
+                intensity of the source light. In particular, this means that, for a particular
+                point on the surface, is reflected in all directions equally. So the view angle, the
+                angle between the surface and the camera, is irrelevant to diffuse lighting.</para>
             <para>The equation for diffuse lighting is quite simple:</para>
-            <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Color * cos(angle of incidence).-->
+            <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Intensity * cos(angle of incidence).-->
         </section>
         <section>
             <title>Surface Geometry</title>
@@ -112,19 +114,77 @@
             <para>Every point along a triangle has the same geometric surface normal. That's all
                 well and good.</para>
             <para>But polygonal models are supposed to be approximations of real, curved surfaces.
-                If one used the actual triangle's surface normal, the object would look very
-                faceted. This might be an accurate of what was actually drawn, but it reveals the
-                surface to be exactly what it is: an approximation.</para>
-            <para>Instead of using the triangle's normal, we can instead assign each vertex the
-                normal it <emphasis>would</emphasis> have on the surface it is approximating. That
-                is, while the mesh is an approximating, the normal for a vertex is the actual normal
-                for that surface. This actually works out surprisingly well.</para>
+                If we use the actual triangle's surface normal for all of the points on a triangle,
+                the object would look very faceted. This would certainly be an accurate
+                representation of the actual triangular mesh, but it reveals the surface to be
+                exactly what it is: a triangular mesh approximation of a curved surface. If we want
+                to create the illusion that the surface really is curved, we need to do something
+                else.</para>
+            <para>Instead of using the triangle's normal, we can assign to each vertex the normal
+                that it <emphasis>would</emphasis> have on the surface it is approximating. That is,
+                while the mesh is an approximating, the normal for a vertex is the actual normal for
+                that surface. This actually works out surprisingly well.</para>
             <para>This means that we must add to the vertex's information. In past tutorials, we
                 have had a position and sometimes a color. To that information, we add a normal. So
-                we will need a vertex shader input, a vertex attribute, that represents the
-                normal.</para>
-            <para/>
+                we will need a vertex attribute that represents the normal.</para>
         </section>
+        <section>
+            <title>Gouraud Shading</title>
+            <para>So each vertex has a normal. That is useful, but it is not sufficient, for one
+                simple reason. We don't draw the vertices of triangles; we draw the rasterized form
+                that makes up the interior of a triangle.</para>
+            <para>There are several ways to go about computing lighting across the surface of a
+                triangle. The simplest to code, and most efficient for rendering, is to perform the
+                lighting computations at every vertex, and then let the result of this computation
+                be interpolated across the surface of the triangle. This process is called
+                    <glossterm>Gouraud shading.</glossterm></para>
+            <para>Gouraud shading is a pretty decent approximation, when using the diffuse lighting
+                model. It usually looks OK, and was commonly used for a good decade or so.
+                Interpolation of vertex outputs is a very fast process, and not having to compute
+                lighting at every fragment generated from the triangle raises the performance
+                substantially.</para>
+            <para>That being said, modern games have essentially abandoned this technique. Part of
+                that is because the per-fragment computation isn't as limited as it used to be. And
+                part of it is simply that games tend to not use simple diffuse lighting
+                anymore.</para>
+        </section>
+        <section>
+            <title>Directional Light Source</title>
+            <para>The angle of incidence is the angle between the surface normal and the direction
+                towards the light. Computing the direction from the point in question to the light
+                can be done in a couple of ways.</para>
+            <para>If you have a light source that is very close to an object, then the direction
+                towards the light can change dramatically over the surface of that object. As the
+                light source is moved farther and farther away, the direction towards the light
+                varies less and less over the surface of the object.</para>
+            <!--TODO: Show a picture of a light source close to an object, and the direction twoards the light. The show a more distant light source,
+and the directions towards the light.-->
+            <para>If the light source is sufficiently distant, relative to the size of the scene
+                being rendered, then the direction towards the light is the same for every object
+                you render. Since the direction is the same for all objects, the direction can
+                simply be a single direction given to all of the objects. There is no need to
+                compute the direction based on the position of the point being illuminated.</para>
+            <para>This situation is called a <glossterm>directional light source.</glossterm> Light
+                from such a source effectively comes from a particular direction as a wall of
+                intensity, evenly distributed over the scene.</para>
+            <!--TODO: Show a diagram of directional light source lighting a scene in 2D.-->
+            <para>Direction light sources are a good model for lights like the sun relative to a
+                small region of the Earth. It would not be a good model for the sun relative to the
+                rest of the solar system. So scale is important.</para>
+            <para>Alternatives to directional lights will be discussed a bit later.</para>
+        </section>
+    </section>
+    <section>
+        <title>Normal Transformation</title>
+        <para/>
+    </section>
+    <section>
+        <title>Interreflection</title>
+        <para/>
+    </section>
+    <section>
+        <title>Positional Lights</title>
+        <para/>
     </section>
     <section>
         <title>Intensity of Light</title>
@@ -161,6 +221,24 @@
             </glossentry>
             <glossentry>
                 <glossterm>diffuse lighting</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>surface normal, normal</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Gouraud shading</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>directional light source</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>
