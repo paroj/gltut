@@ -2489,6 +2489,7 @@
         <file name="cssDoc.txt"/>
         <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
+        <file name="preface.xml"/>
         <file name="Tutorials.xml"/>
     </projectTree>
 </project>

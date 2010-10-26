@@ -60,6 +60,8 @@
             of the light and only reflects the blue parts. If one were to shine a red light on the
             surface, the surface would appear very dark, as the surface absorbs non-blue light, and
             the red light doesn't have much non-blue light in it.</para>
+        <!--TODO: Show a picture of a surface being hit with various colored rays, but only the ones the same
+color as the surface are reflected.-->
         <para>Therefore, the apparent color of a surface is a combination of the absorbing
             characteristics of the surface (which wavelengths are absorbed or reflected) and the
             wavelengths of light shone upon that surface.</para>
@@ -98,6 +100,7 @@
                 intensity of the source light. In particular, this means that, for a particular
                 point on the surface, is reflected in all directions equally. So the view angle, the
                 angle between the surface and the camera, is irrelevant to diffuse lighting.</para>
+            <!--TODO: Show an image of a surface being hit with light, then reflecting the light in all directions equally.-->
             <para>The equation for diffuse lighting is quite simple:</para>
             <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Intensity * cos(angle of incidence).-->
         </section>
@@ -144,9 +147,9 @@
                 lighting at every fragment generated from the triangle raises the performance
                 substantially.</para>
             <para>That being said, modern games have essentially abandoned this technique. Part of
-                that is because the per-fragment computation isn't as limited as it used to be. And
-                part of it is simply that games tend to not use simple diffuse lighting
-                anymore.</para>
+                that is because the per-fragment computation isn't as slow and limited as it used to
+                be. And part of it is simply that games tend to not use just diffuse lighting
+                anymore, so the Gouraud approximation is more noticeably inaccurate.</para>
         </section>
         <section>
             <title>Directional Light Source</title>
@@ -157,8 +160,8 @@
                 towards the light can change dramatically over the surface of that object. As the
                 light source is moved farther and farther away, the direction towards the light
                 varies less and less over the surface of the object.</para>
-            <!--TODO: Show a picture of a light source close to an object, and the direction twoards the light. The show a more distant light source,
-and the directions towards the light.-->
+            <!--TODO: Show a picture of a light source close to an object, and the direction twoards the light.
+Then show a more distant light source, and the directions towards the light.-->
             <para>If the light source is sufficiently distant, relative to the size of the scene
                 being rendered, then the direction towards the light is the same for every object
                 you render. Since the direction is the same for all objects, the direction can

@@ -1,0 +1,18 @@
+Variations:
+
+Book vs. Web.
+
+Within Book:
+	Coloring:
+		-BW
+		-Color
+	Output size:
+		-Kindle size (different size images)
+		-US Letter
+		-Possibly iPad size format.
+
+OpenGL vs. WebGL.
+
+
+Currently existing:
+	condition: web/book
