@@ -18,7 +18,7 @@
                 Position</phrase> tutorial, who's main file is
             <filename>FragPosition.cpp</filename>.</para>
         <para>In this tutorial, and all future ones, shaders will be loaded from files instead of
-            hard-coded strings in the .cpp file. To support this, the framework has added the
+            hard-coded strings in the .cpp file. To support this, the framework has the
                 <function>Framework::LoadShader</function> and
                 <function>Framework::CreateProgram</function> functions. These work similarly to the
             previous tutorial's <function>CreateShader</function> and
@@ -62,7 +62,8 @@ void main()
         <para>The <function>mix</function> function performs a linear interpolation. It will return
             exactly the first parameter if the third parameter is 0, and it will return exactly the
             second parameter if the third parameter is 1. If the third parameter is between 0 and 1,
-            it will return a value that much between the two other parameters.</para>
+            it will return a value between the two other parameters, based on the third
+            parameter.</para>
         <note>
             <para>The third parameter to <function>mix</function> must be on the range [0, 1].
                 However, GLSL will not check this or do the clamping for you. If it is not on this
@@ -70,6 +71,15 @@ void main()
                     <quote>Undefined</quote> is the OpenGL shorthand for, <quote>I don't know, but
                     it's probably not what you want.</quote></para>
         </note>
+        <para>We get the following image:</para>
+        <figure>
+            <title>Fragment Position</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="FragmentPosition.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>In this case, the bottom of the triangle, the one closest to a Y of 0, will be the
             most white. While the top of the triangle, the parts closest to a Y of 500, will have
             the darkest color.</para>
@@ -218,9 +228,10 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                         <literal>GL_FLOAT</literal>. The array takes its data from
                         <varname>bufferObject</varname> because this was the buffer object that was
                     bound at the time that <function>glVertexAttribPointer</function> was called.
-                    And the offset fro the beginning of the buffer object is 0 because that is the
+                    And the offset from the beginning of the buffer object is 0 because that is the
                     last parameter of <function>glVertexAttribPointer</function>.</para>
-                <para>The same goes for <varname>colorAttribArray</varname>.</para>
+                <para>The same goes for <varname>colorAttribArray</varname>, except for the offset
+                    value, which is 48 bytes.</para>
                 <para>Using the above pseudo-code, <function>glDrawArrays</function> is implemented
                     as follows:</para>
                 <example>
@@ -315,7 +326,7 @@ void main()
                 fragment shader must do the same.</para>
             <para>This is a good part of the reason why OpenGL requires vertex and fragment shaders
                 to be linked together; if the names, types, or interpolation qualifiers do not
-                match, then OpenGL can raise an error at link time.</para>
+                match, then OpenGL will raise an error when the program is linked.</para>
             <para>So the fragment shader receives the value output from the vertex shader. The
                 shader simply takes this value and copies it to the output. Thus, the color of each
                 fragment will simply be whatever the vertex shader passed along.</para>
@@ -324,8 +335,8 @@ void main()
             <title>Fragment Interpolation</title>
             <para>Now we come to the elephant in the room, so to speak. There is a basic
                 communication problem.</para>
-            <para>See, our vertex shader is run 3 times. This execution produces 3 output positions
-                    (<varname>gl_Position</varname>) and 3 output colors
+            <para>See, our vertex shader is run only 3 times. This execution produces 3 output
+                positions (<varname>gl_Position</varname>) and 3 output colors
                     (<varname>theColor</varname>). The 3 positions are used to construct and
                 rasterize a triangle, producing a number of fragments.</para>
             <para>The fragment shader is not run 3 times. It is run once for every fragment produced
@@ -343,25 +354,26 @@ void main()
             <para>By using the interpolation qualifier <literal>smooth</literal> when defining the
                 vertex output and fragment input, we are telling OpenGL to do something special with
                 this value. Instead of each fragment receiving one of the values, what each fragment
-                gets is a <emphasis>blend</emphasis> between the three output values. The closer the
-                fragment is to one vertex, the more that vertex's output contributes to the value
-                that the fragment program receives.</para>
-            <para>Because such interpolation is by far the most common ode for communicating between
-                the vertex shader and the fragment shader, if you do not provide an interpolation
-                keyword, <literal>smooth</literal> will be used by default. There are two other
-                alternatives: <literal>noperspective</literal> and <literal>flat</literal>.</para>
+                gets is a <emphasis>blend</emphasis> between the three output values over the
+                surface of the triangle. The closer the fragment is to one vertex, the more that
+                vertex's output contributes to the value that the fragment program receives.</para>
+            <para>Because such interpolation is by far the most common mode for communicating
+                between the vertex shader and the fragment shader, if you do not provide an
+                interpolation keyword, <literal>smooth</literal> will be used by default. There are
+                two other alternatives: <literal>noperspective</literal> and
+                <literal>flat</literal>.</para>
             <para>If you were to modify the tutorial and change <literal>smooth</literal> to
                     <literal>noperspective</literal>, you would see no change. That does not mean a
                 change did not happen; our example is just too simple for there to actually be a
                 change. The difference between <literal>smooth</literal> and
                     <literal>noperspective</literal> is somewhat subtle, and only matters once we
-                start using more concrete and real tutorials. We will discuss this different much
+                start using more concrete and real tutorials. We will discuss this difference much
                 later.</para>
             <para>The <literal>flat</literal> interpolation actually turns interpolation off. It
                 essentially says that, rather than interpolating between three values, each fragment
                 of the triangle will simply get the first of the three vertex shader output
                 variables. The fragment shader gets a flat value across the surface of the triangle,
-                hence the term <quote>flat.</quote></para>
+                hence the term <quote><literal>flat</literal>.</quote></para>
             <para>Each rasterized triangle has its own set of 3 outputs that are interpolated to
                 compute the value for the fragments created by that triangle. So if you render 2
                 triangles, the interpolated values from one triangle do not directly affect the
@@ -419,8 +431,8 @@ void main()
                 </listitem>
                 <listitem>
                     <para>Combine the FragPosition tutorial with the Vertex Color tutorial. Use
-                        interpolated color from the vertex shader and combine that with a constant
-                        color, based on the screen-space position of the fragment.</para>
+                        interpolated color from the vertex shader and multiply that with the value
+                        computed based on the screen-space position of the fragment.</para>
                 </listitem>
             </itemizedlist>
         </section>

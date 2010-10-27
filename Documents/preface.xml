@@ -39,13 +39,14 @@
     <section>
         <title>Yet Another OpenGL Tutorial?</title>
         <para><phrase condition="web">If you are here, then you are clearly interested in 3D
-                graphics programming with OpenGL. </phrase>There are many OpenGL tutorials on the
-            internet. So why should you use this tutorial instead of another?</para>
+                graphics programming with OpenGL. </phrase>There are a lot of materials, online and
+            in book form, that you chould use. So why should you use this book instead of
+            another?</para>
         <para>Programmable graphics cards have been around, in one form or another, for almost
             10 years. Programmability as a core features has been around in OpenGL for almost 5
             years; various vendor-specific API extensions have been around even longer.</para>
-        <para>Yet despite the ubiquity of programmability in OpenGL users lives, using
-            programmability is often considered advanced material. Many 3D graphics teching
+        <para>Yet despite the ubiquity of programmability in the lives of most graphics developers,
+            using programmability is often considered advanced material. Many 3D graphics teaching
             materials focus on doing what they consider the easy things: using the OpenGL
             fixed-function pipeline.</para>
         <para>This indeed makes it very easy to actually accomplish something. If you want to
@@ -68,8 +69,8 @@
         <para>Without a real foundation of knowledge, such persons will quickly find using the
             programmable functionality in OpenGL to be confusing and disorienting. Stripped of all
             of the convenience functionality, such persons are left to their own devices. This is
-            doubly so, considering that while there are a lot of OpenGL tutorials, very few of them
-            go into any real depth in terms of programmability.</para>
+            doubly so, considering that while there are a lot of OpenGL tutorials and books, very
+            few of them go into any real depth in terms of programmability.</para>
         <para>This book is designed first and foremost to <emphasis>teach</emphasis> the reader
             valuable information about how graphics works. To this end, each and every tutorials
             will use the OpenGL Shading Language and all modern (as of OpenGL 3.3) features of the

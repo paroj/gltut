@@ -6,19 +6,15 @@
     version="5.0">
     <?dbhtml filename="Introduction.html"?>
     <title>Introduction</title>
-    <para>Unlike most of the tutorials, this tutorial is purely text. There is no source code or
-        project associated with this tutorial.</para>
-    <para>Here, we will be discussing graphical rendering theory and OpenGL. This serves as a primer
-        to the rest of the tutorials.</para>
+    <para>Unlike most sections of this text, there is no source code or project associated with this
+        section. Here, we will be discussing graphical rendering theory and OpenGL. This serves as a
+        primer to the rest of the tutorials.</para>
     <section>
         <title>Graphics and Rendering</title>
-        <para>These tutorials are for users with any knowledge of graphics or none. As such, there
-            is some basic background information you need to know before we can start looking at
-            actual OpenGL code.</para>
-        <para>Everything you see on your screen, even the text you are reading right now (assuming
-            you are reading this on an electronic display device, rather than a printout) is simply
-            a two-dimensional array of pixels. If you take a screenshot of something on your screen,
-            and blow it up, it will look very blocky.</para>
+        <para>Everything you see on your computer's screen, even the text you are reading right now
+            (assuming you are reading this on an electronic display device, rather than a printout)
+            is simply a two-dimensional array of pixels. If you take a screenshot of something on
+            your screen, and blow it up, it will look very blocky.</para>
         <figure>
             <title>An Image</title>
             <mediaobject>
@@ -40,7 +36,7 @@
             scene you are looking at is a 3D world rather than a 2D image. The process of converting
             a 3D world into a 2D image of that world is called
             <glossterm>rendering.</glossterm></para>
-        <para>There are several methods of rendering a 3D world. The process used by real-time
+        <para>There are several methods for rendering a 3D world. The process used by real-time
             graphics hardware, such as that found in your computer, involves a very great deal of
             fakery. This process is called <glossterm>rasterization,</glossterm> and a rendering
             system that uses rasterization is called a <glossterm>rasterizer.</glossterm></para>
@@ -54,24 +50,30 @@
             see the faceted silhouette of the object. But they are always made of triangles.</para>
         <note>
             <para>Some rasterizers use planar quadrilaterals: four-sided objects, where all of the
-                lines lie in the same plane. One of the reasons that graphics hardware always uses
-                triangles is that all of the lines of triangles are guaranteed to be in the same
-                plane.</para>
+                lines lie in the same plane. One of the reasons that hardware-based rasterizers
+                always uses triangles is that all of the lines of triangles are guaranteed to be in
+                the same plane. Knowing this makes the rasterization process less
+                complicated.</para>
         </note>
-        <para>Objects made from triangles are often called <glossterm>geometry</glossterm>, a
-                <glossterm>model</glossterm> or a <glossterm>mesh</glossterm>; these terms are used
-            interchangeably.</para>
+        <para>An object is made out of a series of adjacent triangles that define the outer surface
+            of the object. Such serieses of triangles are often called
+                <glossterm>geometry</glossterm>, a <glossterm>model</glossterm> or a
+                <glossterm>mesh</glossterm>. These terms are used interchangeably.</para>
         <para>The process of rasterization has several phases. These phases are ordered into a
             pipeline, where triangles enter from the top and a 2D image is filled in at the bottom.
             This is one of the reasons why rasterization is so amenable to hardware acceleration: it
-            operates on each triangle one at a time, in a specific order.</para>
-        <para>This also means that the order in which meshes are submitted to the rasterizer can
-            affect its output.</para>
+            operates on each triangle one at a time, in a specific order. Triangles can be fed into
+            the top of the pipeline while triangles that were sent earlier can still be in some
+            phase of rasterization.</para>
+        <para>The order in which triangles and the various meshes are submitted to the rasterizer
+            can affect its output. Always remember that, no matter how you submit the triangular
+            mesh data, the rasterizer will process each triangle in a specific order, drawing the
+            next one only when the previous triangle has finished being drawn.</para>
         <para>OpenGL is an API for accessing a hardware-based rasterizer. As such, it conforms to
-            the model for rasterizers. A rasterizer receives a sequence of triangles from the user,
-            performs operations on them, and writes pixels based on this triangle data. This is a
-            simplification of how rasterization works in OpenGL, but it is useful for our
-            purposes.</para>
+            the model for rasterization-based 3D renderers. A rasterizer receives a sequence of
+            triangles from the user, performs operations on them, and writes pixels based on this
+            triangle data. This is a simplification of how rasterization works in OpenGL, but it is
+            useful for our purposes.</para>
         <formalpara>
             <title>Triangles and Vertices</title>
             <para>Triangles consist of 3 vertices. A vertex consists of a collection of data. For
@@ -93,24 +95,24 @@
             <formalpara>
                 <title>Clip Space Transformation</title>
                 <para>The first phase of rasterization is to transform the vertices of each triangle
-                    into a certain volume of space. Everything within this volume will be rendered
+                    into a certain region of space. Everything within this volume will be rendered
                     to the output image, and everything that falls outside of this region will not
                     be. This region corresponds to the view of the world that the user wants to
-                    render, to some degree.</para>
+                    render.</para>
             </formalpara>
             <para>The volume that the triangle is transformed into is called, in OpenGL parlance,
-                    <glossterm>clip space</glossterm>. The positions of a vertex of a triangle in
+                    <glossterm>clip space</glossterm>. The positions of the triangle's vertices in
                 clip space are called <glossterm>clip coordinates.</glossterm></para>
             <para>Clip coordinates are a little different from regular positions. A position in 3D
                 space has 3 coordinates. A position in clip space has <emphasis>four</emphasis>
                 coordinates. The first three are the usual X, Y, Z positions; the fourth is called
                 W. This last coordinate actually defines the extents of clip space is for this
                 vertex.</para>
-            <para>Clip space can actually be different for different vertices. It is a region of 3D
-                space on the range [-W, W] in each of the X, Y, and Z directions. So vertices with a
-                different W coordinate are in a different clip space cube from other vertices. Since
-                each vertex can have an independent W component, each vertex of a triangle exists in
-                its own clip space.</para>
+            <para>Clip space can actually be different for different vertices within a triangle. It
+                is a region of 3D space on the range [-W, W] in each of the X, Y, and Z directions.
+                So vertices with a different W coordinate are in a different clip space cube from
+                other vertices. Since each vertex can have an independent W component, each vertex
+                of a triangle exists in its own clip space.</para>
             <para>In clip space, the positive X direction is to the right, the positive Y direction
                 is up, and the positive Z direction is away from the viewer.</para>
             <para>The process of transforming vertices into clip space is quite arbitrary. OpenGL
@@ -120,7 +122,7 @@
                 that fall outside of this region are discarded. Any triangles that are partially
                 outside of this region undergo a process called <glossterm>clipping.</glossterm>
                 This breaks the triangle apart into a number of smaller triangles, such that the
-                smaller triangles cover the area within clip space. Hence the name <quote>clip
+                smaller triangles are all entirely within clip space. Hence the name <quote>clip
                     space.</quote></para>
             <formalpara>
                 <title>Normalized Coordinates</title>
@@ -163,7 +165,7 @@
             <para>Note that window coordinates have the bottom-left position as the (0, 0) origin
                 point. This is counter to what users are used to in window coordinates, which is
                 having the top-left position be the origin. There are transform tricks you can play
-                to allow you to work in a top-left coordinate space.</para>
+                to allow you to work in a top-left coordinate space if you need to.</para>
             <para>The full details of this process will be discussed at length as the tutorials
                 progress.</para>
             <formalpara>
@@ -203,11 +205,11 @@
             <para>To make it easier to use this, OpenGL also offers the guarantee that if you pass
                 the same input vertex data through same vertex processor, you will get identical
                 output; this is called the <glossterm>invariance guarantee</glossterm>. So the onus
-                is on the user to use the same input vertices if you want to ensure gap-less scan
+                is on the user to use the same input vertices in order to ensure gap-less scan
                 conversion.</para>
             <para>Scan conversion is an inherently 2D operation. This process only uses the X and Y
                 position of the triangle in window coordinates to determine which fragments to
-                generate. The Z value is not forgotten, but it is directly part of the actual
+                generate. The Z value is not forgotten, but it is not directly part of the actual
                 process of scan converting the triangle.</para>
             <para>The result of scan converting a triangle is a sequence of fragments that cover the
                 shape of the triangle. Each fragment has certain data associated with it. This data
@@ -220,7 +222,7 @@
                 <para>This phase takes a fragment from a scan converted triangle and transforms it
                     into one or more color values and a single depth value. The order that fragments
                     from a single triangle are processed in is irrelevant; since a single triangle
-                    lies in a single plane, fragments generated from it cannot possible overlap.
+                    lies in a single plane, fragments generated from it cannot possibly overlap.
                     However, the fragments from another triangle can possibly overlap. Since order
                     is important in a rasterizer, the fragments from one triangle must all be
                     processed before the fragments from another triangle.</para>
@@ -234,11 +236,11 @@
                         <quote>pixel shading</quote>. This is a misnomer, for several reasons.
                     First, a pixel's final color can be composed of the results of multiple
                     fragments generated by multiple <emphasis>samples</emphasis> within a single
-                    pixel. This is a common antialiasing technique. Also, the fragment data has not
-                    been written to the image, so it isn't a pixel yet. Indeed, the fragment
-                    processing step can conditionally prevent rendering of a fragment based on
-                    arbitrary computations. Thus a <quote>pixel</quote> in D3D parlance may never
-                    actually become a pixel at all.</para>
+                    pixel. This is a common technique to remove jagged edges of triangles. Also, the
+                    fragment data has not been written to the image, so it isn't a pixel yet.
+                    Indeed, the fragment processing step can conditionally prevent rendering of a
+                    fragment based on arbitrary computations. Thus a <quote>pixel</quote> in D3D
+                    parlance may never actually become a pixel at all.</para>
             </note>
             <formalpara>
                 <title>Fragment Writing</title>
@@ -302,7 +304,7 @@
             what it is that we are writing. What exactly is OpenGL?</para>
         <section>
             <title>OpenGL as an API</title>
-            <para>OpenGL is usually looked at as an Application Programming Interface
+            <para>OpenGL is usually thought of as an Application Programming Interface
                     (<acronym>API</acronym>). The OpenGL API has been exposed to a number of
                 languages. But the one that they all ultimately use at their lowest level is the C
                 API.</para>
@@ -512,6 +514,13 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                         away.</para>
                     <para>Clip-space vertices are output by the vertex processing stage of the rendering
                         pipeline.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>clipping</glossterm>
+                <glossdef>
+                    <para>The process of taking a triangle in clip coordinates and splitting it if
+                        one or more of its vertices is outside of clip space.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
