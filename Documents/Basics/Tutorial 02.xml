@@ -46,8 +46,8 @@ void main()
             fragment shader. It is a <classname>vec3</classname>, so it has an X, Y, and Z
             component. The X and Y values are in <emphasis>window</emphasis> coordinates, so the
             absolute value of these numbers will change based on the window's resolution. Recall
-            that window coordinates put the origin at the bottom-left corner. So the bottom of the
-            triangle would have a lower Y value than the top.</para>
+            that window coordinates put the origin at the bottom-left corner. So fragments along the
+            bottom of the triangle would have a lower Y value than those at the top.</para>
         <para>The idea with this shader is that the color of a fragment will be based on the Y value
             of its window position. The 500.0f is the height of the window (unless you resize the
             window). The division in the first line of the function simply converts the Y position
@@ -222,18 +222,22 @@ float *positionAttribArray[4] = (float *[4])(&(bufferObject + 0));
 float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlisting>
                 </example>
                 <para>Each element of the <varname>positionAttribArray</varname> contains 4
-                    components. This is the case because the second parameter of
-                        <function>glVertexAttribPointer</function> is 4. Each component is a
-                    floating-point number; similarly because the third parameter is
-                        <literal>GL_FLOAT</literal>. The array takes its data from
+                    components, the size of our input to the vertex shader (vec4). This is the case
+                    because the second parameter of <function>glVertexAttribPointer</function> is 4.
+                    Each component is a floating-point number; similarly because the third parameter
+                    is <literal>GL_FLOAT</literal>. The array takes its data from
                         <varname>bufferObject</varname> because this was the buffer object that was
                     bound at the time that <function>glVertexAttribPointer</function> was called.
                     And the offset from the beginning of the buffer object is 0 because that is the
                     last parameter of <function>glVertexAttribPointer</function>.</para>
                 <para>The same goes for <varname>colorAttribArray</varname>, except for the offset
                     value, which is 48 bytes.</para>
-                <para>Using the above pseudo-code, <function>glDrawArrays</function> is implemented
-                    as follows:</para>
+                <para>This is a diagram of the memory for this buffer.</para>
+                <!--TODO: Show a diagram of this memory structure. Show how the float value takes up 4 bytes, then
+show that each 4 floats is a vec4, then show how each vec4 is a single attribute with no space between.
+Also show the offset to the beginning of the color data.-->
+                <para>Using the above pseudo-code representation of the vertex array data,
+                        <function>glDrawArrays</function> would be implemented as follows:</para>
                 <example>
                     <title>Draw Arrays Implementation</title>
                     <programlisting language="cpp"><![CDATA[void glDrawArrays(GLenum type, GLint start, GLint count)
@@ -253,6 +257,10 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                     The second time pulls the position from <literal>bufferObject[0 + (1 * 4 *
                         sizeof(float))]</literal> and color from <literal>bufferObject[48 + (1 * 4 *
                         sizeof(float))]</literal>. And so on.</para>
+                <para>The data flow from the buffer object to the vertex shaders looks like this
+                    now:</para>
+                <!--TODO: show two data chunks from the buffer becoming a single set of attribute data. Then show these
+data sets going to vertex shader invocations. Show at least 3 vertex shaders.-->
             </section>
         </section>
         <section>
@@ -353,10 +361,11 @@ void main()
             <para>The answer is <glossterm>fragment interpolation</glossterm>.</para>
             <para>By using the interpolation qualifier <literal>smooth</literal> when defining the
                 vertex output and fragment input, we are telling OpenGL to do something special with
-                this value. Instead of each fragment receiving one of the values, what each fragment
-                gets is a <emphasis>blend</emphasis> between the three output values over the
-                surface of the triangle. The closer the fragment is to one vertex, the more that
-                vertex's output contributes to the value that the fragment program receives.</para>
+                this value. Instead of each fragment receiving one value from a single vertex, what
+                each fragment gets is a <emphasis>blend</emphasis> between the three output values
+                over the surface of the triangle. The closer the fragment is to one vertex, the more
+                that vertex's output contributes to the value that the fragment program
+                receives.</para>
             <para>Because such interpolation is by far the most common mode for communicating
                 between the vertex shader and the fragment shader, if you do not provide an
                 interpolation keyword, <literal>smooth</literal> will be used by default. There are
@@ -367,8 +376,7 @@ void main()
                 change did not happen; our example is just too simple for there to actually be a
                 change. The difference between <literal>smooth</literal> and
                     <literal>noperspective</literal> is somewhat subtle, and only matters once we
-                start using more concrete and real tutorials. We will discuss this difference much
-                later.</para>
+                start using more concrete examples. We will discuss this difference later.</para>
             <para>The <literal>flat</literal> interpolation actually turns interpolation off. It
                 essentially says that, rather than interpolating between three values, each fragment
                 of the triangle will simply get the first of the three vertex shader output

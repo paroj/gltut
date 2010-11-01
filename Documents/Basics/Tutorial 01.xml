@@ -303,6 +303,12 @@ void main()
                 attribute to 0 in the vertex shader, so the call to
                     <function>glEnableVertexAttribArray(0)</function> enables the attribute index
                 for the <varname>position</varname> attribute.</para>
+            <para>Here is a diagram of the data flow through the vertex shader:</para>
+            <!--TODO: A diagram with the following. Show input attribute from
+glEnableVertexAttrib/glVertexAttribPointer going from the buffer object to the
+attribute. Then show the attribute going to the vertex shader's 'position' input.
+Then show the output gl_Position coming out of the vertex shader.
+Show 3 invocations of the shader.-->
             <para>Without the call to <function>glEnableVertexAttribArray</function>, calling
                     <function>glVertexAttribPointer</function> on that attribute index would not
                 mean much. The enable call does not have to be called before the vertex attribute
@@ -349,6 +355,9 @@ void main()
             <para>The enum <literal>GL_TRIANGLES</literal> tells OpenGL that every 3 vertices of the
                 list should be taken to be a triangle. Since we passed only 3 vertices, we get 1
                 triangle.</para>
+            <!--TODO: Expand on the above diagram, showing the 3 vertex shader invocations and that the output
+data are composed into a single triangle, one triangle for every 3 vertices.-->
+            <para>If we rendered 6 vertices, then we would get 2 triangles.</para>
         </section>
         <section>
             <title>Fragment Processing</title>
