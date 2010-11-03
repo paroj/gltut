@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<preface xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="About these Tutorials.html" ?>
+    <title>About this Book</title>
+    <para>This book is structured as a series of programming tutorials. Most chapters of the book
+        represent a series of tutorials on a particular subject. These tutorials build on one
+        another, demonstrating various 3D graphics programming techniques.</para>
+    <para>This book is designed for a beginning graphics programmer. To make use of this book, you
+        are expected to know the following</para>
+    <itemizedlist>
+        <listitem>
+            <para>C/C++ programming. You should be able to read C and mild C++. If <quote>Hello,
+                world!</quote> is the extent of your C/C++ knowledge, then perhaps you
+                should write some more substantial code before proceeding with trying to render
+                images.</para>
+            <para>These tutorials should be transferable to other languages as well. If you can
+                read C/C++, that is enough to understand what the code is doing. The text
+                descriptions that explain what the code does are also sufficient to get
+                information out of these tutorials.</para>
+        </listitem>
+        <listitem>
+            <para>Basic geometry and algebra math. The tutorials will present the more advanced
+                math needed for graphics, but you should have at least a working knowledge of
+                geometry and algebra. Linear algebra is not required, though it would be
+                helpful.</para>
+        </listitem>
+    </itemizedlist>
+    <note condition="web">
+        <title>Browser Note</title>
+        <para>This website and these tutorials make extensive use of SVG images. Basic SVG
+            support is in all major browsers except any version of Internet Explorer. And even
+            though IE has the dominant marketshare, I'm afraid that these images will remain SVG
+            images. If you are content with Internet Explorer, consider installing the Google
+            Chrome Frame add-on for IE8. This will allow you to see the images correctly.</para>
+    </note>
+    <section>
+        <title>Yet Another OpenGL Tutorial?</title>
+        <para><phrase condition="web">If you are here, then you are clearly interested in 3D
+                graphics programming with OpenGL. </phrase>There are a lot of materials, online and
+            in book form, that you chould use. So why should you use this book instead of
+            another?</para>
+        <para>Programmable graphics cards have been around, in one form or another, for almost
+            10 years. Programmability as a core features has been around in OpenGL for almost 5
+            years; various vendor-specific API extensions have been around even longer.</para>
+        <para>Yet despite the ubiquity of programmability in the lives of most graphics developers,
+            using programmability is often considered advanced material. Many 3D graphics teaching
+            materials focus on doing what they consider the easy things: using the OpenGL
+            fixed-function pipeline.</para>
+        <para>This indeed makes it very easy to actually accomplish something. If you want to
+            have a camera with a perspective projection over a scene of objects in a
+            well-defined world, these tutorials can show you how. They give you an effective
+            list of rules and API commands to execute in a particular order to achieve a certain
+            effect. But what they are terrible at is actually imparting
+            <emphasis>knowledge</emphasis> upon the reader.</para>
+        <para>It is easy to show someone how to use <function>gluLookAt</function>,
+                <function>gluPerspective</function>, and other functions to make everything simply
+            come out right. But because these functions hide the details of what is going on under
+            the hood, what the reader is often left with is a set of rules for how to make things
+            work: put this line of code in this place, and you get this effect.</para>
+        <para>Without the foundation of knowledge of what these functions actually are
+            <emphasis>doing</emphasis>, the reader is effectively living in a world of
+            copy-and-paste code. The reader can parrot code they found in a tutorial, but they
+            don't know why it works. And if they should copy it incorrectly or use it in the
+            wrong circumstances, they do not have the foundation of knowledge to diagnose the
+            problem and find a solution.</para>
+        <para>Without a real body of knowledge, such persons will quickly find using the
+            programmable functionality in OpenGL to be confusing and disorienting. Stripped of all
+            of the convenience functionality, such persons are left to their own devices. This is
+            doubly so, considering that while there are a lot of OpenGL tutorials and books, very
+            few of them go into any real depth in terms of programmability.</para>
+        <para>This book is designed first and foremost to <emphasis>teach</emphasis> the reader
+            valuable information about how graphics works. To this end, each and every tutorials
+            will use the OpenGL Shading Language and all modern (as of OpenGL 3.3) features of the
+            API. This makes it impossible to gloss over seemingly minor yet critical information
+            about how various features of the language and graphics hardware actually work.</para>
+        <note>
+            <para>As a side-effect, these tutorials all require OpenGL 3.3-capable hardware and
+                drivers. This means any GeForce 8xxx or better, or any Radeon HD-class card.
+                These are also called <quote>Direct3D 10</quote> cards, but you do not need
+                Windows Vista or 7 to use their advanced features through OpenGL.</para>
+        </note>
+        <para>This does not mean that you need to have read other tutorials first. As previously
+            stated, this book is intended primarily for the beginning graphics programmer. These
+            tutorials are in-depth, but they are also designed to break complex subjects down into
+            easily understood sections.</para>
+        <para>Because of this, these tutorials are not merely heavily commented source code. Indeed,
+            the source code is usually secondary, used only as a way to show how to implement the
+            concept that was previously discussed. In most cases, the entire source code for a
+            tutorial will not be shown within that tutorial; only the relevant new sections of code
+            will be described.</para>
+    </section>
+</preface>

@@ -2475,6 +2475,9 @@
             <file name="chunked.css"/>
             <file name="standard.css"/>
         </folder>
+        <folder name="Illumination">
+            <file name="Illumination/Tutorial%2008.xml"/>
+        </folder>
         <folder name="Positioning">
             <file name="Positioning/Tutorial%2003.xml"/>
             <file name="Positioning/Tutorial%2004.xml"/>
@@ -2486,6 +2489,7 @@
         <file name="cssDoc.txt"/>
         <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
+        <file name="preface.xml"/>
         <file name="Tutorials.xml"/>
     </projectTree>
 </project>

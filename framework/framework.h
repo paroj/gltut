@@ -22,6 +22,7 @@ namespace Framework
 		~Mesh();
 
 		void Render();
+		void Render(const std::string &strMeshName);
 		void DeleteObjects();
 
 	private:

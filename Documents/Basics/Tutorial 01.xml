@@ -118,9 +118,10 @@ glutSwapBuffers();</programlisting>
                 that memory with our data. This is done with something called a <glossterm>buffer
                     object.</glossterm></para>
             <para>A buffer object is a linear array of memory allocated by OpenGL at the behest of
-                the user. This memory is controlled by the user, but the user has only indirect
-                control over it. Think of a buffer object as an array of GPU memory. The GPU can
-                read this memory quickly, so storing data in it has performance advantages.</para>
+                the user. The content of this memory is controlled by the user, but the user has
+                only indirect control over it. Think of a buffer object as an array of GPU memory.
+                The GPU can read this memory quickly, so storing data in it has performance
+                advantages.</para>
             <para>The buffer object in the tutorial was created during initialization. Here is the
                 code responsible for creating the buffer object:</para>
             <example>
@@ -138,18 +139,18 @@ glutSwapBuffers();</programlisting>
                 global variable <varname>positionBufferObject</varname>. Though the object now
                 exists, it doesn't own any memory yet. That is because we have not allocated any
                 with this object.</para>
-            <para>The <function>glBindBuffer</function> function makes the buffer object the
-                currently bound buffer to the <literal>GL_ARRAY_BUFFER</literal> binding target. As
-                mentioned in <link linkend="OpenGLObjects">Tutorial 0</link>, objects in OpenGL
-                usually have to be bound to the context in order for them to do anything, and buffer
-                objects are no exception.</para>
+            <para>The <function>glBindBuffer</function> function binds the newly-created buffer
+                object to the <literal>GL_ARRAY_BUFFER</literal> binding target. As mentioned in
+                    <link linkend="OpenGLObjects">Tutorial 0</link>, objects in OpenGL usually have
+                to be bound to the context in order for them to do anything, and buffer objects are
+                no exception.</para>
             <para>The <function>glBufferData</function> function allocates memory for the buffer
                 currently bound to <literal>GL_ARRAY_BUFFER</literal>, which is the one we just
-                created. We already have some vertex data; the problem is that it is in our memory
-                rather than OpenGL's memory. This function allocates enough GPU memory to store our
-                vertex data. The third parameter is a pointer to the data to initialize the buffer
-                with; we give it our vertex data. The fourth parameter is something we will look at
-                in future tutorials.</para>
+                created and bound. We already have some vertex data; the problem is that it is in
+                our memory rather than OpenGL's memory. This function allocates enough GPU memory to
+                store our vertex data. The third parameter is a pointer to the data to initialize
+                the buffer with; we give it our vertex data. The fourth parameter is something we
+                will look at in future tutorials.</para>
             <para>The second bind buffer call is simply cleanup. By binding the buffer object 0 to
                     <literal>GL_ARRAY_BUFFER</literal>, we cause the buffer object previously bound
                 to that target to become unbound from it. This was not strictly necessary, as any
@@ -176,46 +177,62 @@ glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
                 The buffer that is bound to <literal>GL_ARRAY_BUFFER</literal> at the time that this
                 function is called is the buffer object that will be associated with this piece of
                 data.</para>
-            <para>What this particular function call is saying is this. <quote>The piece of vertex
-                    data indexed 0 comes from the buffer object
-                        <varname>positionBufferObject</varname>. This piece of vertex data contains
-                    32-bit float values, and each piece is a sequence of 4 of them. The data starts
-                    at the 0th byte of the buffer object, and each set of 4 32-bit floats is tightly
-                    packed together.</quote> This means that our data of 12 floats represents enough
-                information for the 3 vertices of a single triangle; this is exactly what we
-                want.</para>
-            <para>The specifics of this function call will be discussed in later tutorials.</para>
+            <para>When rendering, OpenGL pulls vertex data from arrays stored in buffer objects. What
+                we need to tell OpenGL is what format our vertex array data in the buffer object is
+                stored in. That is, we need to tell OpenGL how to interpret the array of data stored
+                in the buffer.</para>
+            <para>In our case, the array of data contains 32-bit floating-point values. Every 4
+                floating-point values represents a position. And each piece of position data is
+                directly adjacent to the next; there are no gaps between positions in the array.
+                Lastly, our data was placed at the very beginning of the buffer object. OpenGL needs
+                to know where in the buffer object the array starts, as you can have data for many
+                objects in a single buffer.</para>
+            <para>The <function>glVertexAttribPointer</function> function tells OpenGL all of this.
+                The third parameter tells OpenGL what the type of data is (floats, in this case).
+                The second parameter tells OpenGL how many of them compose a single piece of data;
+                there are 4 values to our position data.</para>
+            <para>The fifth parameter tells OpenGL how much space there is between elements; 0 means
+                that there is no space between array values. And the last parameter is the byte
+                offset from the beginning of the buffer object to the position of the first element
+                in our array of data. In this case, the data is at the beginning of the buffer, so
+                the offset is zero.</para>
+            <para>This function will be looked at in greater detail in later tutorials.</para>
             <para>Once OpenGL knows where to get its vertex data from, it can now use that vertex
                 data to render.</para>
             <programlisting language="cpp">glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
             <para>This function seems very simple on the surface, but it does a great deal. The
                 second and third parameters represent the start index and the number of indices to
-                read from our vertex data. We start at the 0th index, and read 3 vertices from it.
-                The first parameter tells OpenGL that it is to take every 3 vertices that it gets as
-                an independent triangle. Thus, it will read 3 vertices and connect them to form a
-                triangle.</para>
+                read from our vertex data. The 0th index of the vertex array (defined with
+                    <function>glVertexAttribPointer</function>) will be processed, followed by the
+                1st and 2nd indices. That is, it starts with the 0th index, and reads 3 vertices
+                from the arrays.</para>
+            <para>The first parameter to <function>glDrawArrays</function> tells OpenGL that it is
+                to take every 3 vertices that it gets as an independent triangle. Thus, it will read
+                just 3 vertices and connect them to form a triangle.</para>
             <para>Again, we will go into details in another tutorial.</para>
         </section>
         <section>
             <title>Vertex Processing and Shaders</title>
             <para>Now that we can tell OpenGL what the vertex data is, we come to the next stage of
                 the pipeline: vertex processing. This is one of two programmable stages that we will
-                cover in this tutorial, so this involve the use of a
+                cover in this tutorial, so this involves the use of a
                 <glossterm>shader.</glossterm></para>
-            <para>All a shader is is a program that runs on the GPU. There are several possible
-                shader stages in the pipeline, and each has its own inputs and outputs. The purpose
-                of a shader is to take its inputs, as well as potentially various other data, and
-                convert them into a set of outputs.</para>
+            <para>A shader is nothing more than a program that runs on the GPU. There are several
+                possible shader stages in the pipeline, and each has its own inputs and outputs. The
+                purpose of a shader is to take its inputs, as well as potentially various other
+                data, and convert them into a set of outputs.</para>
             <para>Each shader is executed over a set of inputs. It is important to note that a
                 shader, of any stage, operates <emphasis>completely independently</emphasis> of any
                 other shader of that stage. There can be no crosstalk between separate executions of
                 a shader. Execution for each set of inputs starts from the beginning of the shader
                 and continues to the end. A shader defines what its inputs and outputs are, and it
-                is illegal for a shader to complete without writing to all of its outputs.</para>
+                is illegal for a shader to complete without writing to all of its outputs (in most
+                cases).</para>
             <para>Vertex shaders, as the name implies, operate on vertices. Specifically, each
                 invocation of a vertex shader operates on a <emphasis>single</emphasis> vertex.
                 These shaders must output, among any other user-defined outputs, a clip-space
-                position for that vertex. Where this comes from is up to the shader.</para>
+                position for that vertex. How this clip-space position is computed is entirely up to
+                the shader.</para>
             <para>Shaders in OpenGL are written in the OpenGL Shading Language
                     (<acronym>GLSL</acronym>). This language looks suspiciously like C, but it is
                 very much not C. It has far too many limitations to be C (for example, recursion is
@@ -233,7 +250,7 @@ void main()
             <para>This looks fairly simple. The first line states that the version of GLSL used by
                 this shader is version 3.30. A version declaration is required for all GLSL
                 shaders.</para>
-            <para>The next line defines an input to the vertex shader. The input is called
+            <para>The next line defines an input to the vertex shader. The input is a variable named
                     <varname>position</varname> and is of type <type>vec4</type>: a 4-dimensional
                 vector of floating-point values. It also has a layout location of 0; we'll explain
                 that a little later.</para>
@@ -241,20 +258,24 @@ void main()
                 function. This shader is very simple, copying the input <varname>position</varname>
                 into something called <varname>gl_Position</varname>. This is a variable that is
                     <emphasis>not</emphasis> defined in the shader; that is because it is a standard
-                variable defined by every vertex shader. If you see an identifier in GLSL that
-                starts with <quote>gl_,</quote> then it must be a built-in identifier.</para>
+                variable defined in every vertex shader. If you see an identifier in a GLSL shader
+                that starts with <quote>gl_</quote>, then it must be a built-in identifier.</para>
             <para><varname>gl_Position</varname> is defined as:</para>
             <programlisting language="glsl">out vec4 gl_Position;</programlisting>
             <para>Recall that the minimum a vertex shader must do is generate a clip-space position
-                for the vertex. That is what <varname>gl_Position</varname> is: it is the output
-                that represents a clip-space position.</para>
+                for the vertex. That is what <varname>gl_Position</varname> is: the clip-space
+                position of the vertex. Since our input position data is already a clip-space
+                position, this shader simply copies it directly into the output.</para>
             <formalpara>
                 <title>Vertex Attributes</title>
-                <para>Inputs to and outputs from a shader stage come from somewhere and go to
-                    somewhere. Thus, the input <varname>position</varname> in the vertex shader must
-                    be filled in with data somewhere. So where does that data come from? Inputs to a
-                    vertex shader are called <glossterm>vertex attributes</glossterm>.</para>
             </formalpara>
+            <para>Shaders have inputs and outputs. Think of these like function parameters and
+                function return values. If the shader is a function, then it is called with input
+                values, and it is expected to return a number of output values.</para>
+            <para>Inputs to and outputs from a shader stage come from somewhere and go to somewhere.
+                Thus, the input <varname>position</varname> in the vertex shader must be filled in
+                with data somewhere. So where does that data come from? Inputs to a vertex shader
+                are called <glossterm>vertex attributes</glossterm>.</para>
             <para>You might recognize something similar to the term <quote>vertex attribute.</quote>
                 For example, <quote>glEnable<emphasis>VertexAttrib</emphasis>Array</quote> or
                         <quote>gl<emphasis>VertexAttrib</emphasis>Pointer.</quote></para>
@@ -264,14 +285,15 @@ void main()
                 for an attribute comes from. The connection between a particular call to
                     <function>glVertexAttribPointer</function> and the string name of an input value
                 to a vertex shader is somewhat complicated.</para>
-            <para>Each attribute variable, an input to a vertex shader, has an index location called
-                an <glossterm>attribute index</glossterm>. The input in this shader was defined with
-                this statement:</para>
+            <para>Each input to a vertex shader has an index location called an <glossterm>attribute
+                    index</glossterm>. The input in this shader was defined with this
+                statement:</para>
             <programlisting language="glsl">layout(location = 0) in vec4 position;</programlisting>
             <para>The layout location part assigns the attribute index of 0 to
                     <varname>position</varname>. Attribute indices must be positive numbers, and
                 there is a hardware-based limit on the number of attribute indices that can be in
-                use at any one time.</para>
+                use at any one time (for virtually all hardware since the beginning of commercial
+                programmable hardware, this has been 16).</para>
             <para>In code, when referring to attributes, they are <emphasis>always</emphasis>
                 referred to by attribute index. The functions
                     <function>glEnableVertexAttribArray</function>,
@@ -281,14 +303,26 @@ void main()
                 attribute to 0 in the vertex shader, so the call to
                     <function>glEnableVertexAttribArray(0)</function> enables the attribute index
                 for the <varname>position</varname> attribute.</para>
+            <para>Here is a diagram of the data flow through the vertex shader:</para>
+            <!--TODO: A diagram with the following. Show input attribute from
+glEnableVertexAttrib/glVertexAttribPointer going from the buffer object to the
+attribute. Then show the attribute going to the vertex shader's 'position' input.
+Then show the output gl_Position coming out of the vertex shader.
+Show 3 invocations of the shader.-->
+            <para>Without the call to <function>glEnableVertexAttribArray</function>, calling
+                    <function>glVertexAttribPointer</function> on that attribute index would not
+                mean much. The enable call does not have to be called before the vertex attribute
+                pointer call, but it does need to be called before rendering. If the attribute is
+                not enabled, it will not be used during rendering.</para>
         </section>
         <section>
             <title>Rasterization</title>
             <para>All that has happened thus far is that 3 vertices have been given to OpenGL and it
                 has transformed them with a vertex shader into 3 positions in clip-space. Next, the
                 vertex positions are transformed into normalized-device coordinates by dividing the
-                3 XYZ components of the position by the W component. In our case, W is always 1.0,
-                so the positions are already effectively in normalized-device coordinates.</para>
+                3 XYZ components of the position by the W component. In our case, W for our 3
+                positions was 1.0, so the positions are already effectively in normalized-device
+                coordinate space.</para>
             <para>After this, the vertex positions are transformed into window coordinates. This is
                 done with something called the <glossterm>viewport transform</glossterm>. This is so
                 named because of the function used to set it up, <function>glViewport</function>.
@@ -303,9 +337,11 @@ void main()
 }</programlisting>
             </example>
             <para>This tells OpenGL what area of the available area we are rendering to. In this
-                case, we change it to match the full available area; without this function, resizing
-                the window would have no effect on the rendering. Also, make note of the fact that
-                we make no effort to keep the aspect ratio constant.</para>
+                case, we change it to match the full available area. Without this function call,
+                resizing the window would have no effect on the rendering. Also, make note of the
+                fact that we make no effort to keep the aspect ratio constant; shrinking or
+                stretching the window in a direction will cause the triangle to shrink and stretch
+                to match.</para>
             <para>Recall that window coordinates are in a lower-left coordinate system. So the point
                 (0, 0) is the bottom left of the window. This function takes the bottom left
                 position as the first two coordinates, and the width and height of the viewport
@@ -319,6 +355,9 @@ void main()
             <para>The enum <literal>GL_TRIANGLES</literal> tells OpenGL that every 3 vertices of the
                 list should be taken to be a triangle. Since we passed only 3 vertices, we get 1
                 triangle.</para>
+            <!--TODO: Expand on the above diagram, showing the 3 vertex shader invocations and that the output
+data are composed into a single triangle, one triangle for every 3 vertices.-->
+            <para>If we rendered 6 vertices, then we would get 2 triangles.</para>
         </section>
         <section>
             <title>Fragment Processing</title>
@@ -368,12 +407,12 @@ void main()
     <section>
         <?dbhtml filename="Tut01 Making Shaders.html" ?>
         <title>Making Shaders</title>
-        <para>We glossed over exactly how these text strings called shaders actually get used. We
-            will go into some detail on that now.</para>
+        <para>We glossed over exactly how these text strings called shaders actually get sent to
+            OpenGL. We will go into some detail on that now.</para>
         <note>
-            <para>If you are familiar with how shaders work in other APIs, that will not help you
-                here. OpenGL shaders work very differently from the way they work in other
-                APIs.</para>
+            <para>If you are familiar with how shaders work in other APIs like Direct3D, that will
+                not help you here. OpenGL shaders work very differently from the way they work in
+                other APIs.</para>
         </note>
         <para>Shaders are written in a C-like language. So OpenGL uses a very C-like compilation
             model. In C, each individual .c file is compiled into an object file. Then, one or more
@@ -587,14 +626,14 @@ void main()
             <itemizedlist>
                 <listitem>
                     <para>Change the color value set by the fragment shader to different values. Use
-                        values in the range [0, 1], and see what happens when you go outside that
-                        range.</para>
+                        values in the range [0, 1], and then see what happens when you go outside
+                        that range.</para>
                 </listitem>
                 <listitem>
                     <para>Change the positions of the vertex data. Keep position values in the [-1,
                         1] range, then see what happens when triangles go outside this range. Notice
                         what happens when you change the Z value of the positions (note: nothing
-                        should happen). Keep W at 1.0 for now.</para>
+                        should happen while they're within the range). Keep W at 1.0 for now.</para>
                 </listitem>
                 <listitem>
                     <para>Change the values that <function>reshape</function> gives to
@@ -605,12 +644,12 @@ void main()
                 <listitem>
                     <para>Change the <function>reshape</function> function so that it respects
                         aspect ratio. This means that the area rendered to may be smaller than the
-                        window area. Also, try to make it so that it always centers it within the
-                        window.</para>
+                        window area. Also, try to make it so that it always centers the area within
+                        the window.</para>
                 </listitem>
                 <listitem>
                     <para>Change the clear color, using values in the range [0, 1]. Notice how this
-                        interacts with changes to the viewport.</para>
+                        interacts with changes to the viewport above.</para>
                 </listitem>
                 <listitem>
                     <para>Add another 3 vertices to the list, and change the number of vertices sent

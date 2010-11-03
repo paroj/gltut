@@ -1,6 +1,8 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <utility>
 #include <fstream>
 #include <sstream>
 #include <functional>
@@ -394,6 +396,23 @@ namespace Framework
 		std::vector<AttribData> dataArray;
 	};
 
+	void ProcessVAO(const TiXmlElement *pVaoElem, std::string &strName, std::vector<GLuint> &attributes)
+	{
+		if(pVaoElem->QueryStringAttribute("name", &strName) != TIXML_SUCCESS)
+			throw std::exception("Missing 'name' attribute in a 'vao' element.");
+
+		for(const TiXmlElement *pNode = pVaoElem->FirstChildElement();
+			pNode;
+			pNode = pNode->NextSiblingElement())
+		{
+			int iAttrib = -1;
+			if(pNode->QueryIntAttribute("attrib", &iAttrib) != TIXML_SUCCESS)
+				throw std::exception("Missing 'attrib' attribute in a 'source' element.");
+
+			attributes.push_back(iAttrib);
+		}
+	}
+
 	struct IndexData
 	{
 		IndexData(const TiXmlElement *pIndexElem)
@@ -514,6 +533,9 @@ namespace Framework
 		return cmd;
 	}
 
+	typedef std::map<std::string, GLuint> VAOMap;
+	typedef VAOMap::value_type VAOMapData;
+
 	struct MeshData
 	{
 		MeshData()
@@ -526,6 +548,8 @@ namespace Framework
 		GLuint oIndexBuffer;
 		GLuint oVAO;
 
+		VAOMap namedVAOs;
+
 		std::vector<RenderCmd> primatives;
 	};
 
@@ -536,6 +560,8 @@ namespace Framework
 		attribs.reserve(16); //Max possible attributes
 
 		std::vector<IndexData> indexData;
+
+		std::vector<std::pair<std::string, std::vector<GLuint> > > namedVaoList;
 
 		{
 			std::string strDataFilename = "data\\" + strFilename;
@@ -555,6 +581,14 @@ namespace Framework
 			while(pProcNode->ValueStr() == "attribute")
 			{
 				attribs.push_back(Attribute(pProcNode));
+				pProcNode = pProcNode->NextSiblingElement();
+			}
+
+			while(pProcNode->ValueStr() == "vao")
+			{
+				namedVaoList.push_back(std::pair<std::string, std::vector<GLuint> >());
+				std::pair<std::string, std::vector<GLuint> > &namedVao = namedVaoList.back();
+				ProcessVAO(pProcNode, namedVao.first, namedVao.second);
 				pProcNode = pProcNode->NextSiblingElement();
 			}
 
@@ -607,6 +641,26 @@ namespace Framework
 			attrib.SetupAttributeArray(attribStartLocs[iLoop]);
 		}
 
+		//Fill the named VAOs.
+		for(size_t iLoop = 0; iLoop < namedVaoList.size(); iLoop++)
+		{
+			std::pair<std::string, std::vector<GLuint> > &namedVao = namedVaoList[iLoop];
+			GLuint vao = -1;
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+
+			for(size_t iAttribIx = 0; iAttribIx < namedVao.second.size(); iAttribIx++)
+			{
+				GLuint iAttrib = namedVao.second[iAttribIx];
+				const Attribute &attrib = attribs[iAttrib];
+				attrib.SetupAttributeArray(attribStartLocs[iAttrib]);
+			}
+
+			m_pData->namedVAOs[namedVao.first] = vao;
+		}
+
+		glBindVertexArray(0);
+
 		//Get the size of our index buffer data.
 		size_t iIndexBufferSize = 0;
 		std::vector<size_t> indexStartLocs;
@@ -625,6 +679,8 @@ namespace Framework
 		//Create the index buffer object.
 		if(iIndexBufferSize)
 		{
+			glBindVertexArray(m_pData->oVAO);
+
 			glGenBuffers(1, &m_pData->oIndexBuffer);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pData->oIndexBuffer);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, iIndexBufferSize, NULL, GL_STATIC_DRAW);
@@ -649,9 +705,19 @@ namespace Framework
 					iCurrIndexed++;
 				}
 			}
-		}
 
-		glBindVertexArray(0);
+			VAOMap::iterator endIt = m_pData->namedVAOs.end();
+			for(VAOMap::iterator currIt = m_pData->namedVAOs.begin();
+				currIt != endIt;
+				++currIt)
+			{
+				VAOMapData &data = *currIt;
+				glBindVertexArray(data.second);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pData->oIndexBuffer);
+			}
+
+			glBindVertexArray(0);
+		}
 	}
 
 	Mesh::~Mesh()
@@ -670,6 +736,18 @@ namespace Framework
 		glBindVertexArray(0);
 	}
 
+	void Mesh::Render( const std::string &strMeshName )
+	{
+		VAOMap::iterator theIt = m_pData->namedVAOs.find(strMeshName);
+		if(theIt == m_pData->namedVAOs.end())
+			return;
+
+		glBindVertexArray(theIt->second);
+		std::for_each(m_pData->primatives.begin(), m_pData->primatives.end(),
+			std::mem_fun_ref(&RenderCmd::Render));
+		glBindVertexArray(0);
+	}
+
 	void Mesh::DeleteObjects()
 	{
 		glDeleteBuffers(1, &m_pData->oAttribArraysBuffer);
@@ -678,6 +756,16 @@ namespace Framework
 		m_pData->oIndexBuffer = 0;
 		glDeleteVertexArrays(1, &m_pData->oVAO);
 		m_pData->oVAO = 0;
+
+		VAOMap::iterator endIt = m_pData->namedVAOs.end();
+		for(VAOMap::iterator currIt = m_pData->namedVAOs.begin();
+			currIt != endIt;
+			++currIt)
+		{
+			VAOMapData &data = *currIt;
+			glDeleteVertexArrays(1, &data.second);
+			data.second = 0;
+		}
 	}
 
 	float DegToRad(float fAngDeg)

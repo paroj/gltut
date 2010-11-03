@@ -1,10 +1,9 @@
 --[[
-Must manually generate the following first:
-* Documents/web, generated with Oxygen template
-
-May also generate the following:
-* Documents/tutorials.pdf, generated with Oxygen template
-* Documents/kindleTutorials.pdf, generated with Oxygen template
+Will automatically generate all files from the current sources.
+Takes three parameters:
+- The destination directory, as a relative directory. Will create it if it does not exist.
+- The Mercurial revision number to archive to the destination directory.
+- The version number of the tutorials.
 ]]--
 
 require "lfs"
@@ -13,7 +12,7 @@ local destDir, hgChangelist, versionNum = ...
 
 --local test = {...}
 --print(#test, ...)
-assert(#({...}) == 3, "Not enough commandline parameters.");
+assert(#({...}) == 3, "Not enough commandline parameters. You provided: " .. #({...}));
 
 lfs.mkdir(destDir);
 
