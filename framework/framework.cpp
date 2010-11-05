@@ -19,7 +19,8 @@
 
 namespace Framework
 {
-	GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
+	GLuint CreateShader(GLenum eShaderType,
+		const std::string &strShaderFile, const std::string &strShaderName)
 	{
 		GLuint shader = glCreateShader(eShaderType);
 		const char *strFileData = strShaderFile.c_str();
@@ -45,7 +46,8 @@ namespace Framework
 			case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
 			}
 
-			fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+			fprintf(stderr, "Compile failure in %s shader named \"%s\". Error:\n%s\n",
+				strShaderType, strShaderName.c_str(), strInfoLog);
 			delete[] strInfoLog;
 		}
 
@@ -60,7 +62,7 @@ namespace Framework
 		shaderData << shaderFile.rdbuf();
 		shaderFile.close();
 
-		return CreateShader(eShaderType, shaderData.str());
+		return CreateShader(eShaderType, shaderData.str(), strShaderFilename);
 	}
 
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList)

@@ -61,7 +61,6 @@
             </mediaobject>
         </figure>
         <para>The controls for this tutorial are as follows:</para>
-        <!--TODO: Add the table of key controls.-->
         <table frame="all">
             <title>World Space Controls</title>
             <tgroup cols="3">

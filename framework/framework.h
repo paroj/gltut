@@ -9,7 +9,8 @@ namespace Framework
 {
 	float DegToRad(float fAngDeg);
 
-	GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile);
+	GLuint CreateShader(GLenum eShaderType,
+		const std::string &strShaderFile, const std::string &strShaderName);
 	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename);
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList);
 
