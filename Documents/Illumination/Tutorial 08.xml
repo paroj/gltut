@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
-<article xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 08.html" ?>
     <title>Lights On</title>
@@ -108,7 +108,7 @@ color as the surface are reflected.-->
             <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Intensity * cos(angle of incidence).-->
         </section>
         <section>
-            <title>Surface Geometry</title>
+            <title>Surface Orientation</title>
             <para>Now that we know what we need to compute, the question becomes how to compute it.
                 Specifically, this means how to compute the angle of incidence for the light, but it
                 also means where to perform the lighting computations.</para>
@@ -181,6 +181,59 @@ Then show a more distant light source, and the directions towards the light.-->
                 rendering the surface we want to see. However, having light appear from seemingly
                 nothing hurts verisimilitude; this should be avoided where possible.</para>
             <para>Alternatives to directional lights will be discussed a bit later.</para>
+        </section>
+        <section>
+            <title>Normals and Space</title>
+            <para>Normals have many properties that positions do. Normals are 3D coordinates, so
+                like positions, they exist in a certain coordinate system. It is usually a good idea
+                to have the normals for your vertices be in the same coordinate system as the
+                positions in those vertices. So that means mesh space.</para>
+            <para>This also means that normals must be transformed from mesh space to another space.
+                That other space needs to be the same space that the lighting direction is in;
+                otherwise, the two vectors cannot be compared. One might think that world space is a
+                fine choice. After all, the light direction is already defined in world
+                space.</para>
+            <para>You certainly could use world space to do lighting. However, for our purposes, we
+                will use camera space. The reason for this is partially illustrative: in later
+                tutorials, we are going to do lighting in some rather unusual spaces. By using
+                camera space, it gets us in the habit of transforming both our light direction and
+                the surface normal.</para>
+            <para>We will talk more in later sections about exactly how we transform the normal. For
+                now, we will just transform it with the regular transformation matrix.</para>
+        </section>
+        <section>
+            <title>Drawing with Lighting</title>
+            <para>The full lighting model for computing the diffuse reflectance from directional
+                light sources, using per-vertex normals and Gouraud shading, is as follows. The
+                light will be represented by a direction and a light intensity (color). The light
+                direction passed to our shader is expected to be in camera space already, so the
+                shader is not responsible for this transformation. For each vertex (in addition to
+                the normal position transform), we:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Transform the normal from mesh space to camera space using the
+                        model-to-camera transformation matrix.</para>
+                </listitem>
+                <listitem>
+                    <para>Compute the cosine of the angle of incidence.</para>
+                </listitem>
+                <listitem>
+                    <para>Multiply the light intensity by the cosine of the angle of incidence, and
+                        multiply that by the diffuse surface color.</para>
+                </listitem>
+                <listitem>
+                    <para>Pass this value as a vertex shader output, which will be written to the
+                        screen by the fragment shader.</para>
+                </listitem>
+            </orderedlist>
+            <para>This is what we do in the <phrase role="propername">Basic Lighting</phrase>
+                tutorial. It renders a cylinder above a flat plane, with a single directional light
+                source illuminating both objects.</para>
+            <!--TODO: Show an image of the tutorial output.-->
+            <para>The light is at a fixed direction; the model and camera both can be rotated. The
+                controls for the tutorial are as follows:</para>
+            <!--TODO: A table of the controls.-->
+            <para/>
         </section>
     </section>
     <section>
@@ -267,4 +320,4 @@ Then show a more distant light source, and the directions towards the light.-->
             </glossentry>
         </glosslist>
     </section>
-</article>
+</chapter>

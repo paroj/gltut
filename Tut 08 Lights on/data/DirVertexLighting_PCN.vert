@@ -23,5 +23,5 @@ void main()
 	float cosAngIncidence = dot(normCamSpace, dirToLight);
 	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
 	
-	interpColor = lightIntensity * diffuseColor * cosAngIncidence;;
+	interpColor = lightIntensity * diffuseColor * cosAngIncidence;
 }

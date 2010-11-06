@@ -23,8 +23,8 @@ iColorRepeatCount = iColorRepeatCount or 3;
 
 local iAngle = 3.14159 * 2.0 / iSegCount;
 local iColorCycleAngle = 3.14159 * 2.0 / iColorRepeatCount;
-local highColor = vmath.vec4(0.9, 0.9, 0.9, 1.0);
-local lowColor = vmath.vec4(0.5, 0.5, 0.5, 1.0)
+local highColor = vmath.vec4(0.9, 0.5, 0.5, 1.0);
+local lowColor = vmath.vec4(0.5, 0.1, 0.1, 1.0)
 
 --Compute caps
 positions[#positions + 1] = vmath.vec3(0.0, 0.5, 0.0);
