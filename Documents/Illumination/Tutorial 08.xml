@@ -547,6 +547,14 @@ g_pCylinderMesh->Render("tint");
 glUseProgram(0);</programlisting>
         </example>
         <para>It's pretty self-explanatory.</para>
+        <para>One more thing to note before we move on. Doing the inverse-transpose is only really
+            necessary if you are using a <emphasis>non-uniform</emphasis> scale. In practice, it's
+            actually somewhat rare to use this kind of scale factor. We do it in these tutorials, so
+            that it is easier to build models from simple geometric components. But when you have an
+            actual modeller creating objects for a specific purpose, non-uniform scales generally
+            are not used. It's better to just get the modeller to adjust the model as needed.</para>
+        <para>Uniform scales are commonly used. So you still need to normalize the normal after
+            transforming it with the model-to-camera matrix.</para>
     </section>
     <section>
         <title>Interreflection</title>
