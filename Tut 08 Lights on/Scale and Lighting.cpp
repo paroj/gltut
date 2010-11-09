@@ -127,7 +127,8 @@ static float g_CylYaw = 0.0f;
 static float g_CylPitch = 0.0f;
 static float g_CylRoll = 0.0f;
 
-static bool g_bDrawColoredCyl = true;
+static bool g_bScaleCyl = false;
+static bool g_bDoInvTranspose = false; 
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -179,24 +180,21 @@ void display()
 				modelMatrix.RotateY(g_CylYaw);
 				modelMatrix.RotateZ(g_CylRoll);
 
-				if(g_bDrawColoredCyl)
+				if(g_bScaleCyl)
 				{
-					glUseProgram(g_VertexDiffuseColor.theProgram);
-					glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-					glm::mat3 normMatrix(modelMatrix.Top());
-					glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
-					glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-					g_pCylinderMesh->Render("tint");
+					modelMatrix.Scale(1.0f, 1.0f, 0.2f);
 				}
-				else
+
+				glUseProgram(g_VertexDiffuseColor.theProgram);
+				glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+				glm::mat3 normMatrix(modelMatrix.Top());
+				if(g_bDoInvTranspose)
 				{
-					glUseProgram(g_WhiteDiffuseColor.theProgram);
-					glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
-					glm::mat3 normMatrix(modelMatrix.Top());
-					glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
-					glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-					g_pCylinderMesh->Render("flat");
+					normMatrix = glm::transpose(glm::inverse(normMatrix));
 				}
+				glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+				glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+				g_pCylinderMesh->Render("tint");
 				glUseProgram(0);
 			}
 		}
@@ -261,9 +259,19 @@ void keyboard(unsigned char key, int x, int y)
 	case 'U': g_sphereCamRelPos.z += 0.25f; break;
 		
 	case 32:
-		g_bDrawColoredCyl = !g_bDrawColoredCyl;
+		g_bScaleCyl = !g_bScaleCyl;
 		printf("Position: %f, %f, %f\n", g_sphereCamRelPos.x, g_sphereCamRelPos.y, g_sphereCamRelPos.z);
 		printf("Yaw: %f, Pitch: %f, Roll: %f\n", g_CylYaw, g_CylPitch, g_CylRoll);
+		break;
+
+	case 't':
+	case 'T':
+		g_bDoInvTranspose = !g_bDoInvTranspose;
+		if(g_bDoInvTranspose)
+			printf("Doing Inverse Transpose.\n");
+		else
+			printf("Bad lighting.\n");
+
 		break;
 	}
 

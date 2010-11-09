@@ -12,13 +12,13 @@ uniform vec4 lightIntensity;
 uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
 
-uniform mat4 normalModelToCameraMatrix;
+uniform mat3 normalModelToCameraMatrix;
 
 void main()
 {
 	gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
 
-	vec3 normCamSpace = (normalModelToCameraMatrix * vec4(normal, 0.0)).xyz;
+	vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
 	
 	float cosAngIncidence = dot(normCamSpace, dirToLight);
 	cosAngIncidence = clamp(cosAngIncidence, 0, 1);

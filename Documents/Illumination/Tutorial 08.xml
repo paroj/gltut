@@ -94,18 +94,23 @@ color as the surface are reflected.-->
             future discussions.</para>
         <section>
             <title>Standard Diffuse Lighting</title>
-            <para>The most common lighting model in use is <glossterm>diffuse lighting</glossterm>.
-                It is simple, quick to compute, and gives decent results for the kinds of materials
-                it approximates. Unfortunately, it only approximates dull plastics; rendering
-                anything else correctly requires actual work.</para>
-            <para>The diffuse lighting model makes the approximation that the intensity of the
-                reflected light depends <emphasis>only</emphasis> on the angle of incidence and the
-                intensity of the source light. In particular, this means that, for a particular
-                point on the surface, is reflected in all directions equally. So the view angle, the
-                angle between the surface and the camera, is irrelevant to diffuse lighting.</para>
-            <!--TODO: Show an image of a surface being hit with light, then reflecting the light in all directions equally.-->
-            <para>The equation for diffuse lighting is quite simple:</para>
+            <para><glossterm>Diffuse lighting</glossterm> refers to a particular kind of
+                light/surface interaction, where the light from the light source reflects from the
+                surface at many angles, instead of as a perfect mirror.</para>
+            <!--TODO: Show an image of a light ray hitting a surface and bouncing off at many angles.-->
+            <para>An ideal diffuse material will reflect light evenly in all directions, as shown in
+                the picture above. No actual surfaces are ideal diffuse materials, but this is a
+                good starting point and looks pretty decent.</para>
+            <para>For this tutorial, we will be using the <glossterm>Lambertian
+                    reflectance</glossterm> model of diffuse lighting. It represents the ideal case
+                shown above, where light is reflected in all directions equally. The equation for
+                this lighting model is quite simple:</para>
             <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Intensity * cos(angle of incidence).-->
+            <para>The cosine of the angle of incidence is used because it represents the perfect
+                hemisphere of light that would be reflected. When the angle of incidence is 0°, the
+                cosine of this angle will be 1.0. The lighting will be at its brightest. When the
+                angle of incidence is 90°, the cosine of this angle will be 0.0, so the lighting
+                will be 0. Values less than 0 are clamped to 0.</para>
         </section>
         <section>
             <title>Surface Orientation</title>
@@ -233,12 +238,315 @@ Then show a more distant light source, and the directions towards the light.-->
             <para>The light is at a fixed direction; the model and camera both can be rotated. The
                 controls for the tutorial are as follows:</para>
             <!--TODO: A table of the controls.-->
-            <para/>
+            <para>The initialization code does the usual: loads the shaders, gets uniforms from
+                them, and loads a number of meshes. In this case, it loads a mesh for the ground
+                plane and a mesh for the cylinder. Both of these meshes have normals at each vertex;
+                we'll look at the mesh data a bit later.</para>
+            <para>The display code has gone through a few changes. The vertex shader uses only two
+                matrices: one for model-to-camera, and one for camera-to-clip-space. So our matrix
+                stack will have the camera matrix at the very bottom.</para>
+            <example>
+                <title>Display Camera Code</title>
+                <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
+
+Framework::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+glm::vec4 lightDirCameraSpace = modelMatrix.Top() * g_lightDirection;
+
+glUseProgram(g_WhiteDiffuseColor.theProgram);
+glUniform3fv(g_WhiteDiffuseColor.dirToLightUnif, 1, glm::value_ptr(lightDirCameraSpace));
+glUseProgram(g_VertexDiffuseColor.theProgram);
+glUniform3fv(g_VertexDiffuseColor.dirToLightUnif, 1, glm::value_ptr(lightDirCameraSpace));
+glUseProgram(0);</programlisting>
+            </example>
+            <para>Since our vertex shader will be doing all of its lighting computations in camera
+                space, we need to move the <varname>g_lightDirection</varname> from world space to
+                camera space. So we multiply it by the camera matrix.</para>
+            <para>Now, we need to talk a bit about vector transforms with matrices. When
+                transforming positions, the fourth component was 1.0; this was used so that the
+                translation component of the matrix transformation would be applied to each
+                position.</para>
+            <para>Vectors represent directions, not absolute positions. And while rotating or
+                scaling a direction is a reasonable operation, translating it is not. Now, we could
+                just adjust the matrix to remove all translations before transforming our light into
+                camera space. But that's highly unnecessary; we can simply put 0.0 in the fourth
+                component of the direction. This will do the same job, only we don't have to mess
+                with the matrix to do so.</para>
+            <para>This also allows us to use the same transformation matrix for vectors as for
+                positions.</para>
+            <para>We upload the camera-space light direction to the two programs.</para>
+            <para>To render the ground plane, we run this code:</para>
+            <example>
+                <title>Ground Plane Lighting</title>
+                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+
+glUseProgram(g_WhiteDiffuseColor.theProgram);
+glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glm::mat3 normMatrix(modelMatrix.Top());
+glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+g_pPlaneMesh->Render();
+glUseProgram(0);</programlisting>
+            </example>
+            <para>We upload two matrices. One of these is used for normals, and the other is used
+                for positions. The normal matrix is only 3x3 instead of the usual 4x4. This is
+                because normals do not use the translation component. We could have used the trick
+                we used earlier, where we use a 0.0 as the W component of a 4 component normal. But
+                instead, we just extract the top-left 3x3 area of the model-to-camera matrix and
+                send that.</para>
+            <para>Of course, the matrix is the same as the model-to-camera, except for the lack of
+                translation. The reason for having separate matrices will come into play
+                later.</para>
+            <para>We also upload the intensity of the light, as a pure-white light at full
+                brightness. Then we render the mesh.</para>
+            <para>To render the cylinder, we run this code:</para>
+            <example>
+                <title>Cylinder Lighting</title>
+                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+
+modelMatrix.Translate(0.0f, 0.5f, 0.0f);
+
+modelMatrix.RotateX(g_CylPitch);
+modelMatrix.RotateY(g_CylYaw);
+modelMatrix.RotateZ(g_CylRoll);
+
+if(g_bDrawColoredCyl)
+{
+    glUseProgram(g_VertexDiffuseColor.theProgram);
+    glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+    glm::mat3 normMatrix(modelMatrix.Top());
+    glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+    glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    g_pCylinderMesh->Render("tint");
+}
+else
+{
+    glUseProgram(g_WhiteDiffuseColor.theProgram);
+    glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+    glm::mat3 normMatrix(modelMatrix.Top());
+    glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+    glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    g_pCylinderMesh->Render("flat");
+}
+glUseProgram(0);</programlisting>
+            </example>
+            <para>The cylinder is not scaled at all. It is one unit from top to bottom, and the
+                diameter of the cylinder is also 1. Translating it up by 0.5 simply moves it to
+                being on top of the ground plane. Then we apply a rotation to it, based on user
+                inputs.</para>
+            <para>We actually draw two different kinds of cylinders, based on user input. The
+                colored cylinder is tinted red and is the initial cylinder. The white cylinder uses
+                a vertex program that doesn't use per-vertex colors for the diffuse color; instead,
+                it uses a hard-coded color of full white. These both come from the same mesh file,
+                but have special names to differentiate between them.</para>
+            <para>What changes is that the <quote>flat</quote> mesh doesn't pass the color vertex
+                attribute and the <quote>tint</quote> mesh does.</para>
+            <para>Other than which program is used to render them and what mesh name they use, they
+                are both rendered similarly.</para>
+            <para>The camera-to-clip matrix is uploaded to the programs in the
+                    <function>reshape</function> function, as previous tutorials have
+                demonstrated.</para>
+        </section>
+        <section>
+            <title>Vertex Lighting</title>
+            <para>There are two vertex shaders used in this tutorial. One of them uses a color
+                vertex attribute as the diffuse color, and the other assumes the diffuse color is
+                (1, 1, 1, 1). Here is the vertex shader that uses the color attribute,
+                    <filename>DirVertexLighting_PCN</filename>:</para>
+            <example>
+                <title>Lighting Vertex Shader</title>
+                <programlisting>#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 diffuseColor;
+layout(location = 2) in vec3 normal;
+
+smooth out vec4 interpColor;
+
+uniform vec3 dirToLight;
+uniform vec4 lightIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+uniform mat3 normalModelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+	vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
+    
+    float cosAngIncidence = dot(normCamSpace, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = lightIntensity * diffuseColor * cosAngIncidence;
+}</programlisting>
+            </example>
+            <para>We define a single output variable, <varname>interpColor</varname>, which will be
+                interpolated across the surface of the triangle. We have a uniform for the
+                camera-space lighting direction <varname>dirToLight</varname>. Notice the name: it
+                is the direction from the surface <emphasis>towards</emphasis> the light. It is not
+                the direction <emphasis>from</emphasis> the light.</para>
+            <para>We also have a light intensity uniform value, as well as two matrices for
+                positions and a separate one for normals.</para>
+            <para>The first line of <function>main</function> simply does the position transforms we
+                need to position our vertices, as we have seen before. We don't need to store the
+                camera-space position, so we can do the entire transformation in a single
+                step.</para>
+            <para>The next line takes our normal and transforms it by the model-to-camera matrix
+                specifically for normals. As noted earlier, the contents of this matrix are
+                identical to the contents of <varname>modelToCameraMatrix.</varname> The
+                    <function>normalize</function> function takes the result of the transform and
+                ensures that the normal has a length of one. The need for this will be explained
+                later.</para>
+            <para>We then compute the cosine of the angle of incidence. We'll explain how this math
+                computes this shortly. Do note that after computing the cosine of the angle of
+                incidence, we then clamp the value to between 0 and 1 using the GLSL built-in
+                function <function>clamp.</function></para>
+            <para>This is important, because the cosine of the angle of incidence can be negative.
+                This is for values which are pointed directly away from the light, such as the
+                underside of the ground plane, or any part of the cylinder that is facing away from
+                the light. The lighting computations don't make sense with this value being
+                negative, so the clamping is necessary.</para>
+            <para>After computing that value, we multiply it by the light intensity and diffuse
+                color. This result is then passed to the interpolated output color. The fragment
+                shader is a simple passthrough shader that writes the interpolated color
+                directly.</para>
+            <para>The version of the vertex shader without the per-vertex color attribute simply
+                omits the multiplication with the <varname>diffuseColor</varname> (as well as the
+                definition of that input variable). This is the same as doing a multiply with a
+                color vector of all 1.0.</para>
+        </section>
+        <section>
+            <title>Vector Dot Product</title>
+            <para>We glossed over an important point in looking at the vertex shader. Namely, how
+                the cosine of the angle of incidence is computed.</para>
+            <para>Given two vectors, one can certainly compute the angle of incidence, then take the
+                cosine of it. But both of these computations are quite expensive. Instead, we elect
+                to use a vector math trick: the <glossterm>dot product.</glossterm></para>
+            <para>Geometrically, the vector dot product of two direction vectors represents the
+                length of the projection of one vector onto the other.</para>
+            <!--TODO: Show two vectors, and the projection onto each other.-->
+            <para>This effectively means that the dot product of two vectors yields this
+                equation:</para>
+            <!--TODO: Equation of vector dot product equalling the length of the vectors times the cosine of the angle.-->
+            <para>If both vectors have a length of one, and thus are <glossterm>unit
+                    vectors</glossterm>, then the result of a dot product is just the cosine of the
+                angle between the vectors.</para>
+            <para>This is also part of the reason why the light direction is the direction
+                    <emphasis>towards</emphasis> the light rather than from the light. Otherwise we
+                would have to negate the vector before performing the dot product.</para>
+            <para>What makes this faster than doing the cosine of the angle directly is that, while
+                the dot product is geometrically the cosine of the angle between the two vectors,
+                mathematically computing the dot product is very simple:</para>
+            <!--TODO: Equation for computing the dot product-->
+            <para>This doesn't require any messy cosine transcendental math computations. This
+                doesn't require using trigonometry to compute the angle between the two vectors.
+                Simple multiplications and additions; most graphics hardware can do billions of
+                these a second.</para>
         </section>
     </section>
     <section>
         <title>Normal Transformation</title>
-        <para/>
+        <para>In the last section, we saw that our computation of the cosine of the angle of
+            incidence has certain requirements. Namely, that the two vectors involved, the surface
+            normal and the light direction, are of unit length. The light direction can be assumed
+            to be of unit length, since it is passed directly as a uniform.</para>
+        <para>The surface normal can also be assumed to be of unit length.
+                <emphasis>Initially.</emphasis> However, the normal undergoes a transformation by an
+            arbitrary matrix; there is no guarantee that this transformation will not apply scaling
+            or other transformations to the vector that will result in a non-unit vector.</para>
+        <para>Of course, it is easy enough to correct this. The GLSL function
+                <function>normalize</function> will return a vector that is of unit length.</para>
+        <para>And while mathematically this would function, geometrically, it would be nonsense. For
+            example, consider a 2D circle. We can apply a non-uniform scale (different scales in
+            different axes) to the positions on this circle that will transform it into an
+            ellipse:</para>
+        <!--TODO: Show a circle, then show the squashed ellipse-->
+        <para>This is all well and good, but consider the normals in this transformation:</para>
+        <!--TODO: Show the circle with normals, then show the ellipse with squashed normals.
+Also show an ellipse with proper normals.-->
+        <para>The ellipse in the middle has the normals that you would expect if you transformed the
+            normals from the circle by the same matrix the circle was transformed by. They may be
+            unit length, but they no longer reflect the <emphasis>shape</emphasis> of the ellipse.
+            The ellipse on the right has normals that reflect the actual shape.</para>
+        <para>It turns out that, what you really want to do is transform the normals with the same
+            rotations as the positions, but invert the scales. That is, a scale of 0.5 along the X
+            axis will shrink positions in that axis by half. For the surface normals, you want to
+                <emphasis>double</emphasis> the X value of the normals, then normalize the
+            result.</para>
+        <para>This is easy if you have a simple matrix. But more complicated matrices, composed from
+            multiple successive rotations, scales, and other operations, are not so easy to
+            compute.</para>
+        <para>Instead, what we must do is compute something called the <glossterm>inverse
+                transpose</glossterm> of the matrix in question. This means we first compute the
+            inverse matrix, then compute the <glossterm>transpose</glossterm> of that matrix. The
+            transpose of a matrix is simply the same matrix with its rows exchanged with its
+            columns. That is:</para>
+        <!--TODO: Show the matrix transpose operation.-->
+        <para>So how does this inverse transpose help us?</para>
+        <para>Remember, what we want is to invert the scales of our matrix without affecting the
+            rotational characteristics of our matrix. Given a 3x3 matrix M which contains rotations
+            and scales, we can express this matrix as follows:</para>
+        <!--TODO: Show M becoming R1 * S * R2.-->
+        <para>That is, the matrix can be expressed as doing a rotation, followed by a scale,
+            followed by another rotation.<footnote>
+                <para>We will skip over deriving how this is true. If you are interested, look up
+                        <quote>Singular Value Decomposition</quote> online.</para>
+            </footnote></para>
+        <para>Now, the matrix we actually want to compute is:</para>
+        <!--TODO: Show R1 * S-1 * R2 -->
+        <para>The inverse of a scale matrix is the scale matrix with all of its individual scale
+            values inverted. Therefore, this is indeed the matrix we want to compute.</para>
+        <para>An interesting fact about pure-rotation matrices: the inverse of any rotation matrix
+                <emphasis>is</emphasis> its transpose. Also, scale matrices do not change under
+            transposition, since all of the scale values are along the main diagonal of the matrix.
+            Therefore, we can re-express the matrix we want to compute as:</para>
+        <!--TODO: Show (R1^T)^-1 (S^T)^-1 (R2^T)^-1-->
+        <para>Using matrix algebra, we can factor the transposes out, but it requires reversing the
+            order of the matrix multiplication:</para>
+        <!--TODO: Show (R2^-1 S^-1 R1^-1)^T-->
+        <para>Similar, we can factor out the inverse operations by reversing the order again:</para>
+        <!--TODO: Show ((R1 S1 R2)^-1)^T = (M^-1)^T-->
+        <para>Thus, the inverse-transpose solves our problem. And both GLM and GLSL have nice
+            functions that can do these operations for us. Though really, if you can avoid doing an
+            inverse-transpose in GLSL, you are <emphasis>strongly</emphasis> advised to do so; this
+            is not a trivial computation.</para>
+        <para>We do this in the <phrase role="propername">Scale and Lighting</phrase> tutorial. It
+            controls mostly the same as the previous tutorial, with a few exceptions. Pressing the
+            space bar will toggle between a regular cylinder and a scaled one. The <quote>T</quote>
+            key will toggle between properly using the inverse-transpose (the default) and not using
+            the inverse transpose. The rendering code for the cylinder is as follows:</para>
+        <example>
+            <title>Lighting with Proper Normal Transform</title>
+            <programlisting>Framework::MatrixStackPusher push(modelMatrix);
+
+modelMatrix.Translate(0.0f, 0.5f, 0.0f);
+
+modelMatrix.RotateX(g_CylPitch);
+modelMatrix.RotateY(g_CylYaw);
+modelMatrix.RotateZ(g_CylRoll);
+
+if(g_bScaleCyl)
+{
+    modelMatrix.Scale(1.0f, 1.0f, 0.2f);
+}
+
+glUseProgram(g_VertexDiffuseColor.theProgram);
+glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glm::mat3 normMatrix(modelMatrix.Top());
+if(g_bDoInvTranspose)
+{
+    normMatrix = glm::transpose(glm::inverse(normMatrix));
+}
+glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+g_pCylinderMesh->Render("tint");
+glUseProgram(0);</programlisting>
+        </example>
+        <para>It's pretty self-explanatory.</para>
     </section>
     <section>
         <title>Interreflection</title>
@@ -258,6 +566,46 @@ Then show a more distant light source, and the directions towards the light.-->
         <section>
             <title>Further Study</title>
             <para/>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>clamp</function></funcdef>
+                    <paramdef>vec <parameter>val</parameter></paramdef>
+                    <paramdef>vec <parameter>minVal</parameter></paramdef>
+                    <paramdef>vec <parameter>maxVal</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>This function does a clamping operation of each component of
+                    <parameter>val</parameter>. All of the parameters must scalars or vectors of the
+                same dimensionality. This function will work with any scalar or vector type. It
+                returns a scalar or vector of the same dimensionality as the parameters, where each
+                component of <parameter>val</parameter> will be clamped to the closed range
+                    [<parameter>minVal</parameter>, <parameter>maxVal</parameter>]. This is useful
+                for ensuring that values are in a certain range.</para>
+            <para>All components of <parameter>minVal</parameter>
+                <emphasis>must</emphasis> be smaller than the corresponding components of
+                    <parameter>maxVal</parameter>.</para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>float <function>dot</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
+                    <paramdef>vec <parameter>y</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>This function performs a vector dot product on <parameter>x</parameter> and
+                    <parameter>y</parameter>. This always results in a scalar value. The two
+                parameters must have the same dimensionality and must be vectors.</para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>normalize</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>This function returns a vector in the same direction as <parameter>x</parameter>,
+                but with a length of 1. <parameter>x</parameter> must have a length greater than 0
+                (that is, it cannot be a vector with all zeros).</para>
         </section>
     </section>
     <section>
@@ -301,6 +649,12 @@ Then show a more distant light source, and the directions towards the light.-->
                 </glossdef>
             </glossentry>
             <glossentry>
+                <glossterm>Lambertian reflectance</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>surface normal, normal</glossterm>
                 <glossdef>
                     <para/>
@@ -314,6 +668,30 @@ Then show a more distant light source, and the directions towards the light.-->
             </glossentry>
             <glossentry>
                 <glossterm>directional light source</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vector dot product</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>unit vector</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>transpose</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>inverse transpose</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>
