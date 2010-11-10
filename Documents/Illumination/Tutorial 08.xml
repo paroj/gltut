@@ -695,9 +695,31 @@ else
     </section>
     <section>
         <title>Intensity of Light</title>
-        <para>There are many, many things wrong with the very primitive lighting model introduced
-            here. But one of the most important is the treatment of the lighting intensity.</para>
-        <para>Thus far, we have shown</para>
+        <para>There are many, many things wrong with the primitive lighting model introduced here.
+            But one of the most important is the treatment of the lighting intensity.</para>
+        <para>Thus far, we have used light intensity like a color. We clamp it to the range [0, 1].
+            We even make sure that combined intensities from different lighting models always are on
+            that range.</para>
+        <para>What this effectively means is that the light doesn't brighten the scene. The scene
+            without the light is fully lit; our lights simply <emphasis>darken</emphasis> parts of
+            the scene. They take the diffuse color and make it smaller.</para>
+        <para>This is of course not conversant with reality. In real life, there is no such thing as
+            a <quote>maximum</quote> illumination. There is no such thing as a (1, 1, 1) light
+            intensity. The actual range of light intensity is [0, ∞). This also means that the range
+            of intensity for reflected light is [0, ∞); after all, if you shine a really bright
+            light on a surface, it will reflect a lot of it. Of course, in the real world, things
+            tend to catch on fire if you shine <emphasis>too much</emphasis> light at them, but
+            that's not something we need to model.</para>
+        <para>The concept of lighting darkening a scene was common for a long time. It is another
+            part of the reason why, for so many years, 3D games tended to avoid the bright outdoors,
+            preferring corridors with darker lighting. The sun is a powerful light source; binding
+            lighting intensity to the [0, 1] range doesn't lead to a realistic model of
+            sunlight.</para>
+        <para>It is certainly possible on modern hardware to model light intensity correctly. And we
+            will eventually do that. But these more primitive lighting models do still have their
+            uses in some cases. And it is illustrative to see what an improvement having proper
+            lighting intensity can make on the result. The lighting computations themselves don't
+            change; what changes are the numbers fed into them.</para>
     </section>
     <section>
         <title>In Review</title>
