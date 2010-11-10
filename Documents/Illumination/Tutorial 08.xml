@@ -547,6 +547,7 @@ g_pCylinderMesh->Render("tint");
 glUseProgram(0);</programlisting>
         </example>
         <para>It's pretty self-explanatory.</para>
+        <!--TODO: Show a picture of the tutorial, with scale applied.-->
         <para>One more thing to note before we move on. Doing the inverse-transpose is only really
             necessary if you are using a <emphasis>non-uniform</emphasis> scale. In practice, it's
             actually somewhat rare to use this kind of scale factor. We do it in these tutorials, so
@@ -557,8 +558,136 @@ glUseProgram(0);</programlisting>
             transforming it with the model-to-camera matrix.</para>
     </section>
     <section>
-        <title>Interreflection</title>
-        <para/>
+        <title>Global Illumination</title>
+        <para>You may notice something very unrealistic about the results of this tutorial. For
+            example, take this image:</para>
+        <!--TODO: Show an image of the cylinder with half lit and half unlit-->
+        <para>The unlit portions of the cylinder are completely, 100% black. This almost never
+            happens in real life. The reason for this is somewhat complicated.</para>
+        <para>Consider a scene of the outdoors. In normal daylight, there is exactly one light
+            source: the sun. Objects that are in direct sunlight appear to be bright, and objects
+            that have some object between them and the sun are in shadow.</para>
+        <para>But think about what those shadows look like. They're not 100% black. They're
+            certainly darker than the surrounding area, but they still have some color. And
+            remember: we only see anything because our eyes detect light. This means, in order to
+            see an object in the shadow of a light source, that object must either be emitting light
+            directly or reflecting light that came from somewhere else. Grass is not known for
+            emitting light, so where does the light come from?</para>
+        <para>Think about it. We see because an object reflects light into our eyes. But our eyes
+            are not special; the object does not reflect light <emphasis>only</emphasis> into our
+            eyes. It reflects light in all directions. Not necessarily at the same intensity, but
+            objects that reflect light tend to do so in all directions to some degree. What happens
+            when that light hits another surface?</para>
+        <para>The same thing that happens when light hits any surface: some of it is absorbed, and
+            some is reflected in some way.</para>
+        <para>The light being cast in shadows from the sun comes from many places. Part of it is an
+            atmospheric effect; the sun is so bright that the weakly reflective atmosphere reflects
+            enough light to shine a color. Typically, this is a pale blue. Part of the light comes
+            from other objects. The sun gives off so much light that the light reflected from other
+            objects is bright enough to be a substantial contributer to the overall lighting in a
+            scene.</para>
+        <para>This phenomenon is called <glossterm>interreflection.</glossterm> A lighting model
+            that handles interreflection is said to handle <glossterm>global
+                illumination.</glossterm> It represents light that bounces from object to object
+            before hitting the eye's of the person viewing the scene. Modelling only lighting
+            directly from a light-emitting surface is called <glossterm>local
+                illumination</glossterm> or <glossterm>direct illumination,</glossterm> and it is
+            what we have been doing up until this point.</para>
+        <para>As you might imagine, modelling global illumination is hard. <emphasis>Very</emphasis>
+            hard. It is typically a subtle effect, but in many scenes, particularly outdoor scenes,
+            it is almost a necessity to some at least basic global illumination modelling in order
+            to achieve a decent degree of photorealism. Incidentally, this is a good part of the
+            reason why most games tend to avoid outdoor scenes or light outdoor scenes as though the
+            sky were cloudy or overcast. This neatly avoids needing to do difficult global
+            illumination modelling, by damping down the brightness of the sun to levels when
+            interreflection would be difficult to notice.</para>
+        <para>Having this completely black area in our rendering looks incredibly fake. Since doing
+            actual global illumination modelling is hard, we will instead do a time-tested
+                <quote>model</quote>: <glossterm>ambient lighting.</glossterm></para>
+        <para>The ambient lighting <quote>model</quote><footnote>
+                <para>I put model in quotations because it is so divorced from anything in reality
+                    that it doesn't really deserve to be called a model.</para>
+            </footnote> is quite simple. We assume that, on every object in the scene, there is a
+            light of a certain intensity that emanates from everywhere. It comes from all directions
+            equally, so there is no angle of incidence in our diffuse calculation. It is simply the
+            ambient light intensity * the diffuse surface color.</para>
+        <para>We do this in the <phrase role="propername">Ambient Lighting</phrase> tutorial. The
+            controls are the same as the last tutorial, except that the space bar swaps between the
+            two cylinders (red and white), and that the <keycap>T</keycap> key toggles ambient
+            lighting on and off (defaults to off).</para>
+        <!--TODO: Show a picture of the ambient lighting.-->
+        <para>The rendering code now uses four of vertex shaders instead of two. Two of them are
+            used for non-ambient lighting, and use the same shaders we have seen before, and the
+            other two use ambient lighting.</para>
+        <para>The ambient vertex shader that uses per-vertex colors is called
+                <filename>DirAmbVertexLighting_PCN.vert</filename> and reads as follows:</para>
+        <example>
+            <title>Ambient Vertex Lighting</title>
+            <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 diffuseColor;
+layout(location = 2) in vec3 normal;
+
+smooth out vec4 interpColor;
+
+uniform vec3 dirToLight;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+uniform mat3 normalModelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
+    
+    float cosAngIncidence = dot(normCamSpace, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
+        </example>
+        <para>It takes two uniforms that specify lighting intensity. One specifies the intensity for
+            the diffuse lighting, and the other for the ambient lighting. The only other change is
+            to the last line in the shader. The usual diffuse lighting result has its value added to
+            the ambient lighting computation.</para>
+        <para>Of particular note is the difference between the lighting intensities in the
+            pure-diffuse case and the diffuse+ambient case:</para>
+        <example>
+            <title>Lighting Intensity Settings</title>
+            <programlisting language="cpp">if(g_bShowAmbient)
+{
+    glUseProgram(whiteDiffuse.theProgram);
+    glUniform4f(whiteDiffuse.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+    glUniform4f(whiteDiffuse.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+    glUseProgram(vertexDiffuse.theProgram);
+    glUniform4f(vertexDiffuse.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+    glUniform4f(vertexDiffuse.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+}
+else
+{
+    glUseProgram(whiteDiffuse.theProgram);
+    glUniform4f(whiteDiffuse.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    glUseProgram(vertexDiffuse.theProgram);
+    glUniform4f(vertexDiffuse.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+}</programlisting>
+        </example>
+        <para>In the pure-diffuse case, the light intensity is full white. But in the ambient case,
+            we deliberately set the diffuse intensity to less than full white. This is very
+            intensional.</para>
+        <para>We will talk more about this issue in the near future, but it is very critical that
+            light intensity values not exceed 1.0. This includes <emphasis>combined</emphasis>
+            lighting intensity values. OpenGL clamps colors that it writes to the output image to
+            the range [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined
+            with other lights, can cause unpleasant visual effects.</para>
+        <para>There are ways around this, and those ways will be discussed in the eventual
+            future.</para>
     </section>
     <section>
         <title>Positional Lights</title>
@@ -566,7 +695,9 @@ glUseProgram(0);</programlisting>
     </section>
     <section>
         <title>Intensity of Light</title>
-        <para/>
+        <para>There are many, many things wrong with the very primitive lighting model introduced
+            here. But one of the most important is the treatment of the lighting intensity.</para>
+        <para>Thus far, we have shown</para>
     </section>
     <section>
         <title>In Review</title>
@@ -700,6 +831,30 @@ glUseProgram(0);</programlisting>
             </glossentry>
             <glossentry>
                 <glossterm>inverse transpose</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>interreflection</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>global illumination</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>local illumination, direct illumination</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>ambient lighting</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>
