@@ -7,6 +7,7 @@
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
+#include "../framework/MousePole.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -54,29 +55,31 @@ void InitializeProgram()
 	g_VertexDiffuseColor = LoadProgram("DirVertexLighting_PCN.vert", "ColorPassthrough.frag");
 }
 
-glm::mat4 CalcLookAtMatrix(const glm::vec3 &cameraPt, const glm::vec3 &lookPt, const glm::vec3 &upPt)
-{
-	glm::vec3 lookDir = glm::normalize(lookPt - cameraPt);
-	glm::vec3 upDir = glm::normalize(upPt);
-
-	glm::vec3 rightDir = glm::normalize(glm::cross(lookDir, upDir));
-	glm::vec3 perpUpDir = glm::cross(rightDir, lookDir);
-
-	glm::mat4 rotMat(1.0f);
-	rotMat[0] = glm::vec4(rightDir, 0.0f);
-	rotMat[1] = glm::vec4(perpUpDir, 0.0f);
-	rotMat[2] = glm::vec4(-lookDir, 0.0f);
-
-	rotMat = glm::transpose(rotMat);
-
-	glm::mat4 transMat(1.0f);
-	transMat[3] = glm::vec4(-cameraPt, 1.0f);
-
-	return rotMat * transMat;
-}
-
 Framework::Mesh *g_pCylinderMesh = NULL;
 Framework::Mesh *g_pPlaneMesh = NULL;
+Framework::RadiusDef radiusDef = {5.0f, 3.0f, 20.0f, 1.5f, 0.5f};
+Framework::MousePole g_mousePole(glm::vec3(0.0f, 0.5f, 0.0f), radiusDef);
+
+namespace
+{
+	void MouseMotion(int x, int y)
+	{
+		g_mousePole.GLUTMouseMove(glm::ivec2(x, y));
+		glutPostRedisplay();
+	}
+
+	void MouseButton(int button, int state, int x, int y)
+	{
+		g_mousePole.GLUTMouseButton(button, state, glm::ivec2(x, y));
+		glutPostRedisplay();
+	}
+
+	void MouseWheel(int wheel, int direction, int x, int y)
+	{
+		g_mousePole.GLUTMouseWheel(direction, glm::ivec2(x, y));
+		glutPostRedisplay();
+	}
+}
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -93,6 +96,10 @@ void init()
 		printf(except.what());
 	}
 
+	glutMouseFunc(MouseButton);
+	glutMotionFunc(MouseMotion);
+	glutMouseWheelFunc(MouseWheel);
+
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
@@ -102,25 +109,6 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
 	glEnable(GL_DEPTH_CLAMP);
-}
-
-static glm::vec3 g_camTarget(0.0f, 0.5f, 0.0f);
-
-//In spherical coordinates.
-static glm::vec3 g_sphereCamRelPos(67.5f, -46.0f, 5.0f);
-
-glm::vec3 ResolveCamPosition()
-{
-	float rho = Framework::DegToRad(g_sphereCamRelPos.x);
-	float theta = Framework::DegToRad(g_sphereCamRelPos.y + 90.0f);
-
-	float fSinTheta = sinf(theta);
-	float fCosTheta = cosf(theta);
-	float fCosRho = cosf(rho);
-	float fSinRho = sinf(rho);
-
-	glm::vec3 dirToCamera(fSinTheta * fCosRho, fCosTheta, fSinTheta * fSinRho);
-	return (dirToCamera * g_sphereCamRelPos.z) + g_camTarget;
 }
 
 glm::vec4 g_lightDirection(0.866f, 0.5f, 0.0f, 0.0f);
@@ -142,10 +130,8 @@ void display()
 
 	if(g_pPlaneMesh && g_pCylinderMesh)
 	{
-		const glm::vec3 &camPos = ResolveCamPosition();
-
 		Framework::MatrixStack modelMatrix;
-		modelMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
+		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
 
 		glm::vec4 lightDirCameraSpace = modelMatrix.Top() * g_lightDirection;
 
@@ -249,29 +235,12 @@ void keyboard(unsigned char key, int x, int y)
 	case 'A': g_CylRoll += 4.0f; break;
 	case 'E': g_CylYaw -= 4.0f; break;
 	case 'Q': g_CylYaw += 4.0f; break;
-	case 'i': g_sphereCamRelPos.y -= 11.25f; break;
-	case 'k': g_sphereCamRelPos.y += 11.25f; break;
-	case 'j': g_sphereCamRelPos.x += 11.25f; break;
-	case 'l': g_sphereCamRelPos.x -= 11.25f; break;
-	case 'o': g_sphereCamRelPos.z -= 1.5f; break;
-	case 'u': g_sphereCamRelPos.z += 1.5f; break;
-	case 'I': g_sphereCamRelPos.y -= 1.125f; break;
-	case 'K': g_sphereCamRelPos.y += 1.125f; break;
-	case 'J': g_sphereCamRelPos.x += 1.125f; break;
-	case 'L': g_sphereCamRelPos.x -= 1.125f; break;
-	case 'O': g_sphereCamRelPos.z -= 0.25f; break;
-	case 'U': g_sphereCamRelPos.z += 0.25f; break;
 		
 	case 32:
 		g_bDrawColoredCyl = !g_bDrawColoredCyl;
-		printf("Position: %f, %f, %f\n", g_sphereCamRelPos.x, g_sphereCamRelPos.y, g_sphereCamRelPos.z);
 		printf("Yaw: %f, Pitch: %f, Roll: %f\n", g_CylYaw, g_CylPitch, g_CylRoll);
 		break;
 	}
-
-	g_sphereCamRelPos.y = glm::clamp(g_sphereCamRelPos.y, -78.75f, 78.75f);
-	g_camTarget.y = g_camTarget.y > 0.0f ? g_camTarget.y : 0.0f;
-	g_sphereCamRelPos.z = g_sphereCamRelPos.z > 2.0f ? g_sphereCamRelPos.z : 2.0f;
 
 	glutPostRedisplay();
 }

@@ -21,6 +21,7 @@ namespace Framework
 		}
 
 		void Rotate(glm::vec3 &axisOfRotation, float fAngDeg);
+		void RotateRadians(glm::vec3 &axisOfRotation, float fAngRad);
 		void RotateX(float fAngDeg);
 		void RotateY(float fAngDeg);
 		void RotateZ(float fAngDeg);

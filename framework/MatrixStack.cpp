@@ -10,6 +10,12 @@ namespace Framework
 	void MatrixStack::Rotate( glm::vec3 &axisOfRotation, float fAngDeg )
 	{
 		float fAngRad = DegToRad(fAngDeg);
+
+		RotateRadians(axisOfRotation, fAngRad);
+	}
+
+	void MatrixStack::RotateRadians( glm::vec3 &axisOfRotation, float fAngRad )
+	{
 		float fCos = cosf(fAngRad);
 		float fInvCos = 1.0f - fCos;
 		float fSin = sinf(fAngRad);

@@ -97,6 +97,7 @@ void display();
 void reshape(int w, int h);
 void keyboard(unsigned char key, int x, int y);
 
+
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
@@ -115,6 +116,8 @@ int main(int argc, char** argv)
 	gleLoadFunctions();
 	init();
 
+// 	glutMouseFunc(MouseButton);
+// 	glutMotionFunc(MouseMotion);
 	glutDisplayFunc(display); 
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
