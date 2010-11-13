@@ -5,6 +5,29 @@ function SetupSolution(slnName)
 		configurations {"Debug", "Release"}
 		defines {"_CRT_SECURE_NO_WARNINGS", "_CRT_SECURE_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS", "TIXML_USE_STL"}
 		defines {"FREEGLUT_STATIC", "WIN32"}
+		
+	project "framework"
+		kind "StaticLib"
+		language "c++"
+		
+		files  "../framework/*.cpp"
+		files  "../framework/*.h"
+		excludes "../framework/empty.cpp"
+		
+		targetdir "../framework/lib"
+		objdir "../framework/lib"
+
+		includedirs {"../freeglut-2.6.0/include", "../glloader/include",
+			"../FreeImage/dist", "../glm-0.9.0.0", "../tinyxml", "../framework"}
+		
+		configuration "Debug"
+			defines {"DEBUG", "_DEBUG"}
+			flags "Symbols"
+			targetname("frameworkD")
+
+		configuration "Release"
+			defines {"RELEASE", "NDEBUG"};
+			targetname("framework")
 end
 
 function SetupProject(projName, ...)
@@ -12,13 +35,13 @@ function SetupProject(projName, ...)
 		kind "ConsoleApp"
 		language "c++"
 		
-		files { "../framework/framework.cpp" }
-		files { "../framework/framework.h" }
 		files {...}
 		targetdir "bin"
 
 		includedirs {"../freeglut-2.6.0/include", "../glloader/include",
 			"../FreeImage/dist", "../glm-0.9.0.0", "../tinyxml"}
+			
+		links "framework"
 
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
