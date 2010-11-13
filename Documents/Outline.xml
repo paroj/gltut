@@ -302,15 +302,12 @@
                         incidental reflectance.</para>
                 </listitem>
                 <listitem>
-                    <para>Directional lights vs. point lights.</para>
+                    <para>Directional lights.</para>
                 </listitem>
                 <listitem>
                     <para>Implementing lighting in a vertex shader for both directional and point
                         lights. Combining results from both kinds of lighting into a single
                         value.</para>
-                </listitem>
-                <listitem>
-                    <para>Perspective-correct interpolation of vertex attributes.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -321,18 +318,19 @@
             <para>Concepts:</para>
             <itemizedlist>
                 <listitem>
-                    <para>Limitations of per-vertex lighting.</para>
+                    <para>Perspective-correct interpolation of vertex attributes.</para>
                 </listitem>
                 <listitem>
-                    <para>Scaling and normal transformation.</para>
+                    <para>Point lights.</para>
+                </listitem>
+                <listitem>
+                    <para>Limitations of point lights and vertex-based lighting.</para>
                 </listitem>
                 <listitem>
                     <para>Implementing per-fragment lighting.</para>
                 </listitem>
                 <listitem>
-                    <para>Different transforms for lighting. Use different transforms to optimize
-                        fragment lighting by doing some of the computations in the vertex
-                        shader.</para>
+                    <para>Tangent-space transform for per-fragment lighting.</para>
                 </listitem>
             </itemizedlist>
         </section>

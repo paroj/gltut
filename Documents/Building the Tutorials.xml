@@ -119,8 +119,9 @@
             build.</para>
         <para>If you look at any of the tutorial source files, you will not find the
                 <function>main</function> function defined anywhere. This function is defined in
-                <filename>framwork/framework.cpp</filename>; it is shared by every tutorial. It does
-            the basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial
-            source files to contain the useful OpenGL-specific code.</para>
+                <filename>framwork/framework.cpp</filename>; it and all of the other source files in
+            the <filename>framework</filename> directory is shared by every tutorial. It does the
+            basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source
+            files to contain the useful OpenGL-specific code.</para>
     </simplesect>
 </article>
