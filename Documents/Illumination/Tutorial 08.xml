@@ -8,6 +8,7 @@
     <para>It is always best to start simply. And since lighting is a big topic, we will begin with
         the simplest possible scenario.</para>
     <section>
+        <?dbhtml filename="Tut08 Modelling Lights.html" ?>
         <title>Modelling Lights</title>
         <para>Lighting is complicated. Very complicated. The interaction between a surface and a
             light is mostly well understood in terms of the physics. But actually doing the
@@ -472,6 +473,7 @@ void main()
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Normal Transformation.html" ?>
         <title>Normal Transformation</title>
         <para>In the last section, we saw that our computation of the cosine of the angle of
             incidence has certain requirements. Namely, that the two vectors involved, the surface
@@ -589,6 +591,7 @@ glUseProgram(0);</programlisting>
             transforming it with the model-to-camera matrix.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Global Illumination.html" ?>
         <title>Global Illumination</title>
         <para>You may notice something very unrealistic about the results of this tutorial. For
             example, take this image:</para>
@@ -723,6 +726,7 @@ else
             future.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Intensity of Light.html" ?>
         <title>Intensity of Light</title>
         <para>There are many, many things wrong with the primitive lighting model introduced here.
             But one of the most important is the treatment of the lighting intensity.</para>
@@ -765,6 +769,7 @@ else
             change; what changes are the numbers fed into them.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut08 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you have learned the following:</para>
         <itemizedlist>
@@ -845,6 +850,7 @@ else
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Glossary.html" ?>
         <title>Glossary</title>
         <glosslist>
             <glossentry>
