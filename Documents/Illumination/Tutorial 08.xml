@@ -552,7 +552,7 @@ Also show an ellipse with proper normals.-->
             the inverse transpose. The rendering code for the cylinder is as follows:</para>
         <example>
             <title>Lighting with Proper Normal Transform</title>
-            <programlisting>Framework::MatrixStackPusher push(modelMatrix);
+            <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
 
 modelMatrix.Translate(0.0f, 0.5f, 0.0f);
 
