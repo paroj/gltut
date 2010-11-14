@@ -235,8 +235,28 @@ Then show a more distant light source, and the directions towards the light.-->
                 tutorial. It renders a cylinder above a flat plane, with a single directional light
                 source illuminating both objects.</para>
             <!--TODO: Show an image of the tutorial output.-->
-            <para>The light is at a fixed direction; the model and camera both can be rotated. The
-                controls for the tutorial are as follows:</para>
+            <para>The light is at a fixed direction; the model and camera both can be
+                rotated.</para>
+            <formalpara>
+                <title>Mouse Pole</title>
+                <para>This is the first tutorial that uses the Mouse Pole interface for controlling
+                    camera orientation. As the name suggests, this is a mouse-based interface for
+                    controlling the camera. Most of the rest of the tutorials also use this
+                    interface. The source code can be found in
+                        <filename>framework/MousePole.h</filename> and
+                        <filename>framework/MousePole.cpp</filename>.</para>
+            </formalpara>
+            <para>Left-clicking and dragging will rotate the camera around the target point. This
+                will rotate both horizontally and vertically around the object. Think of the world
+                as a sphere. Starting to drag means placing your finger on the sphere. Moving your
+                mouse is like moving your finger; the sphere rotates along with your finger's
+                movement. If you hold <keycap>Ctrl</keycap> when you left-click, then you can only
+                rotate horizontally. If you right-click and drag, you will only rotate
+                vertically.</para>
+            <para>None of these operations can change what is considered the vertical axis. To do
+                that, middle-click and drag; this is conceptually like seizing the sphere and
+                turning it clockwise or counter-clockwise, relative to the view direction.</para>
+            <para>The controls for the non-camera controls are as follows:</para>
             <!--TODO: A table of the controls.-->
             <para>The initialization code does the usual: loads the shaders, gets uniforms from
                 them, and loads a number of meshes. In this case, it loads a mesh for the ground
@@ -250,7 +270,7 @@ Then show a more distant light source, and the directions towards the light.-->
                 <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
 
 Framework::MatrixStack modelMatrix;
-modelMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
+modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
 
 glm::vec4 lightDirCameraSpace = modelMatrix.Top() * g_lightDirection;
 
@@ -262,10 +282,11 @@ glUseProgram(0);</programlisting>
             </example>
             <para>Since our vertex shader will be doing all of its lighting computations in camera
                 space, we need to move the <varname>g_lightDirection</varname> from world space to
-                camera space. So we multiply it by the camera matrix.</para>
+                camera space. So we multiply it by the camera matrix. Notice that the camera matrix
+                now comes from the MousePole object.</para>
             <para>Now, we need to talk a bit about vector transforms with matrices. When
                 transforming positions, the fourth component was 1.0; this was used so that the
-                translation component of the matrix transformation would be applied to each
+                translation component of the matrix transformation would be added to each
                 position.</para>
             <para>Vectors represent directions, not absolute positions. And while rotating or
                 scaling a direction is a reasonable operation, translating it is not. Now, we could
@@ -485,27 +506,35 @@ Also show an ellipse with proper normals.-->
         <para>Instead, what we must do is compute something called the <glossterm>inverse
                 transpose</glossterm> of the matrix in question. This means we first compute the
             inverse matrix, then compute the <glossterm>transpose</glossterm> of that matrix. The
-            transpose of a matrix is simply the same matrix with its rows exchanged with its
-            columns. That is:</para>
+            transpose of a matrix is simply the same matrix flipped along the diagonal. The columns
+            of the original matrix are the rows of its transpose. That is:</para>
         <!--TODO: Show the matrix transpose operation.-->
         <para>So how does this inverse transpose help us?</para>
         <para>Remember, what we want is to invert the scales of our matrix without affecting the
-            rotational characteristics of our matrix. Given a 3x3 matrix M which contains rotations
-            and scales, we can express this matrix as follows:</para>
+            rotational characteristics of our matrix. Given a 3x3 matrix M which is composed of only
+            rotation and scale transformations, we can express this matrix as follows:</para>
         <!--TODO: Show M becoming R1 * S * R2.-->
-        <para>That is, the matrix can be expressed as doing a rotation, followed by a scale,
-            followed by another rotation.<footnote>
-                <para>We will skip over deriving how this is true. If you are interested, look up
-                        <quote>Singular Value Decomposition</quote> online.</para>
+        <para>That is, the matrix can be expressed as doing a rotation into a space, followed by a
+            single scale transformation, followed by another rotation.<footnote>
+                <para>We will skip over deriving how this is true. If you are interested, the
+                    Wikipedia entry on <quote><link
+                            xlink:href="http://en.wikipedia.org/wiki/Singular_value_decomposition"
+                            >Singular Value Decomposition</link></quote> is a good place to
+                    start.</para>
             </footnote></para>
-        <para>Now, the matrix we actually want to compute is:</para>
+        <para>Recall that what we want to do is invert the scales in our transformation. Where we
+            scale by 0.4 in the original, we want to scale by 2.5 in the inverse. The inverse matrix
+            of a pure scale matrix is a matrix with each of the scaling components inverted.
+            Therefore, we can express the matrix that we actually want as this:</para>
         <!--TODO: Show R1 * S-1 * R2 -->
-        <para>The inverse of a scale matrix is the scale matrix with all of its individual scale
-            values inverted. Therefore, this is indeed the matrix we want to compute.</para>
         <para>An interesting fact about pure-rotation matrices: the inverse of any rotation matrix
-                <emphasis>is</emphasis> its transpose. Also, scale matrices do not change under
-            transposition, since all of the scale values are along the main diagonal of the matrix.
-            Therefore, we can re-express the matrix we want to compute as:</para>
+                <emphasis>is</emphasis> its transpose. Therefore, you can express any pure-rotation
+            matrix as the inverse transpose of itself, without affecting the outcome. Since the
+            inverse is its transpose, and doing a transpose twice on a matrix doesn't change its
+            value, the inverse-transpose of a rotation matrix is a no-op.</para>
+        <para>Adding to that, since the values in pure-scale matrices are along the diagonal, a
+            transpose operation on scale matrices does nothing. With thee two facts in hand, we can
+            re-express the matrix we want to compute as:</para>
         <!--TODO: Show (R1^T)^-1 (S^T)^-1 (R2^T)^-1-->
         <para>Using matrix algebra, we can factor the transposes out, but it requires reversing the
             order of the matrix multiplication:</para>
@@ -604,11 +633,12 @@ glUseProgram(0);</programlisting>
             illumination modelling by damping down the brightness of the sun to levels when
             interreflection would be difficult to notice.</para>
         <para>Having this completely black area in our rendering looks incredibly fake. Since doing
-            actual global illumination modelling is hard, we will instead do a time-tested
-                <quote>model</quote>: <glossterm>ambient lighting.</glossterm></para>
+            actual global illumination modelling is hard, we will instead use a time-tested
+            technique: <glossterm>ambient lighting.</glossterm></para>
         <para>The ambient lighting <quote>model</quote><footnote>
                 <para>I put model in quotations because ambient lighting is so divorced from
-                    anything in reality that it doesn't really deserve to be called a model.</para>
+                    anything in reality that it doesn't really deserve to be called a model. This
+                    doesn't mean that it isn't <emphasis>useful</emphasis>, however.</para>
             </footnote> is quite simple. It assumes that, on every object in the scene, there is a
             light of a certain intensity that emanates from everywhere. It comes from all directions
             equally, so there is no angle of incidence in our diffuse calculation. It is simply the
@@ -658,7 +688,8 @@ void main()
         <para>It takes two uniforms that specify lighting intensity. One specifies the intensity for
             the diffuse lighting, and the other for the ambient lighting. The only other change is
             to the last line in the shader. The usual diffuse lighting result has its value added to
-            the ambient lighting computation.</para>
+            the ambient lighting computation. Also, note that the contribution from two lighting
+            models is added together.</para>
         <para>Of particular note is the difference between the lighting intensities in the
             pure-diffuse case and the diffuse+ambient case:</para>
         <example>
@@ -683,17 +714,13 @@ else
         <para>In the pure-diffuse case, the light intensity is full white. But in the ambient case,
             we deliberately set the diffuse intensity to less than full white. This is very
             intensional.</para>
-        <para>We will talk more about this issue in the near future, but it is very critical that
+        <para>We will talk more about this issue in the next future, but it is very critical that
             light intensity values not exceed 1.0. This includes <emphasis>combined</emphasis>
             lighting intensity values. OpenGL clamps colors that it writes to the output image to
             the range [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined
             with other lights, can cause unpleasant visual effects.</para>
         <para>There are ways around this, and those ways will be discussed in the eventual
             future.</para>
-    </section>
-    <section>
-        <title>Positional Lights</title>
-        <para/>
     </section>
     <section>
         <title>Intensity of Light</title>
@@ -704,19 +731,33 @@ else
             within that range.</para>
         <para>What this effectively means is that the light doesn't brighten the scene. The scene
             without the light is fully lit; our lights simply <emphasis>darken</emphasis> parts of
-            the scene. They take the diffuse color and make it smaller.</para>
+            the scene. They take the diffuse color and make it smaller, because multiplying with a
+            number on the range [0, 1] can only ever make a number smaller (or the same).</para>
         <para>This is of course not realistic. In reality, there is no such thing as a
-                <quote>maximum</quote> illumination. There is no such thing as a (1, 1, 1) light
-            intensity. The actual range of light intensity per wavelength is [0, ∞). This also means
-            that the range of intensity for reflected light is [0, ∞); after all, if you shine a
-            really bright light on a surface, it will reflect a lot of it. Of course, in the real
-            world, things tend to catch on fire if you shine <emphasis>too much</emphasis> light at
-            them, but that's not something we need to model.</para>
+                <quote>maximum</quote> illumination or brightness. There is no such thing as a (1,
+            1, 1) light intensity. The actual range of light intensity per wavelength is [0, ∞).
+            This also means that the range of intensity for reflected light is [0, ∞); after all, if
+            you shine a really bright light on a surface, it will reflect a lot of it. A surface
+            that looks dark blue under dim light can appear light blue under very bright
+            light.</para>
+        <para>Of course in the real world, things tend to catch on fire if you shine <emphasis>too
+                much</emphasis> light at them, but that's not something we need to model.</para>
         <para>The concept of lighting darkening a scene was common for a long time in real-time
             applications. It is another part of the reason why, for so many years, 3D games tended
             to avoid the bright outdoors, preferring corridors with darker lighting. The sun is a
             powerful light source; binding lighting intensity to the [0, 1] range doesn't lead to a
             realistic vision of the outdoors.</para>
+        <para>One obvious way to correct this is to take all of the diffuse colors and divide them by
+            a value like 2. Then increase your light intensity range from [0, 1] to [0, 2]. This is
+            a workable solution, to some extent. Lights can be brighter than 1.0, and lighting can
+            serve to increase the brightness of the diffuse color as well as decrease it. Of course,
+            2 is just as far from infinity as 1 is, so it isn't technically any closer to proper
+            lighting. But it is an improvement.</para>
+        <para>This technique does have its flaws. As we will see in later tutorials, you often will
+            want to render the same object multiple times and combine the results. This method
+            doesn't work when adding contributions from multiple light sources this way, unless you
+            limit the sum total of all lights to the same value. Just as we did for diffuse when
+            combining it with an ambient term.</para>
         <para>It is certainly possible on modern hardware to model light intensity correctly. And we
             will eventually do that. But these more primitive lighting models do still have their
             uses in some cases. And it is illustrative to see what an improvement having proper
@@ -725,10 +766,42 @@ else
     </section>
     <section>
         <title>In Review</title>
-        <para/>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Diffuse lighting is a simple lighting model based on the angle between the
+                    light source and the surface normal.</para>
+            </listitem>
+            <listitem>
+                <para>Surface normals are values used, per-vertex, to define the direction of the
+                    surface at a particular location. They do not have to mirror the actual normal
+                    of the mesh geometry.</para>
+            </listitem>
+            <listitem>
+                <para>Surface normals must be transformed by the inverse-transpose of the
+                    model-to-camera matrix, if that matrix can involve a non-uniform scale
+                    operation.</para>
+            </listitem>
+            <listitem>
+                <para>Light interreflection can be approximated by adding a single light that has no
+                    direction.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
-            <para/>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Modify the ambient lighting tutorial, bumping the diffuse light intensity
+                        up to 1.0. See how this effects the results.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the shaders in the ambient lighting tutorial to use the lighting
+                        intensity correction mentioned above. Divide the diffuse color by a value,
+                        then pass larger lighting intensities to the shader. Notice how this changes
+                        the quality of the lighting.</para>
+                </listitem>
+            </itemizedlist>
         </section>
         <section>
             <title>GLSL Functions of Note</title>
@@ -777,19 +850,22 @@ else
             <glossentry>
                 <glossterm>photorealism</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A rendering system has achieved photorealism when it can render a still
+                        image that is essentially indistinguishable from a real photograph.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>lighting model</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A mathematical model that defines light/surface interactions. This can
+                        attempt to model reality, but it does not have to.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>light source</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Mathematically, this is something that produces light and adds it to a
+                        scene. It does not have to be an actual object shown in the world.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -802,85 +878,99 @@ else
             <glossentry>
                 <glossterm>angle of incidence</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The angle between the surface normal and the direction towards the
+                        light.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>diffuse lighting</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A lighting model that assumes light is reflected from a surface in many
+                        directions, as opposed to a flat mirror that reflects light in one
+                        direction.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>Lambertian reflectance</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A particular diffuse lighting model that represents the ideal diffuse
+                        case: lighting is reflected evenly in all directions.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>surface normal, normal</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The direction that a particular point on a surface faces.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>Gouraud shading</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Computing lighting computations at every vertex, and interpolating the
+                        results of these computations across the surface of the triangle.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>directional light source</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A light source that emits light along a particular direction. Every point
+                        in the scene to be rendered receives light from the same direction.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>vector dot product</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Computes the length of the projection of one vector onto another. If the
+                        two vectors are unit vectors, then the dot product is also the cosine of the
+                        angle between them.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>unit vector</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A vector direction who's length is 1.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>transpose</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A matrix operation that flips the matrix along the main diagonal. The
+                        columns of the original matrix become the rows of the transpose.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>inverse transpose</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A matrix operation, where a matrix is inverted and then transposed.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>interreflection</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Light that reflects off of multiple surfaces before reaching the
+                        viewer.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>global illumination</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A category of lighting models that take into account lighting
+                        contributions from interreflection.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>local illumination, direct illumination</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Lighting computations made only from light sources that cast light
+                        directly onto the surface.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>ambient lighting</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A lighting model that models all contributions from interreflection as a
+                        single light intensity that does not originate from any particular
+                        direction.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
