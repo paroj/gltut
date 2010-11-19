@@ -352,9 +352,9 @@
             </itemizedlist>
         </section>
         <section>
-            <title>Of Metal and Plastic</title>
-            <para>This tutorial involves creating a single mesh that has multiple lighting models:
-                one reflective and one very diffuse. There should be an animated light or two that
+            <title>Shininess</title>
+            <para>This tutorial introduces ways to make an object look shiny. Specifically specular
+                lighting and the Phong lighting model. There should be an animated light or two that
                 shows this off.</para>
             <para>Concepts:</para>
             <itemizedlist>
@@ -433,7 +433,7 @@
         <section>
             <title>Climbing the Mountain</title>
             <para>This tutorial uses a height map and adjust vertex positions and normals to match
-                it. The height map is a texture. No lighting yet.</para>
+                it. The height map is a texture.</para>
             <para>Concepts:</para>
             <itemizedlist>
                 <listitem>
@@ -457,6 +457,24 @@
                 <listitem>
                     <para>Texture space-based lighting. Transforming the light into the space of the
                         texture to do lighting. This requires binormal and tangent vectors.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Spot Lights</title>
+            <para>Use a projected texture to imitate a spot light.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Projective texturing. The concept of it and the GLSL language
+                        support.</para>
+                </listitem>
+                <listitem>
+                    <para>Textures as light sources. The texel values are light intensity values,
+                        not diffuse colors.</para>
+                </listitem>
+                <listitem>
+                    <para>Using a global texture over a scene.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -600,7 +618,7 @@
                         done before reduction to the integer colorspace.</para>
                 </listitem>
                 <listitem>
-                    <para>Introduce R11_G11_B10 as an optimization.</para>
+                    <para>Introduce R11F_G11F_B10F as an optimization.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -692,6 +710,12 @@
     <section>
         <title>Functionality that needs tutorials</title>
         <glosslist>
+            <glossentry>
+                <glossterm>sRGB Colorspace</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
             <glossentry>
                 <glossterm>Radial fog</glossterm>
                 <glossdef>

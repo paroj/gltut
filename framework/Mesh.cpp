@@ -486,7 +486,7 @@ namespace Framework
 		: m_pData(new MeshData)
 	{
 		std::vector<Attribute> attribs;
-		attribs.reserve(16); //Max possible attributes
+		attribs.reserve(16);
 
 		std::vector<IndexData> indexData;
 
@@ -553,7 +553,7 @@ namespace Framework
 				iNumElements = attrib.NumElements();
 		}
 
-		//Create our VAO.
+		//Create the "Everything" VAO.
 		glGenVertexArrays(1, &m_pData->oVAO);
 		glBindVertexArray(m_pData->oVAO);
 
