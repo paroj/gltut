@@ -543,16 +543,15 @@ glUseProgram(0);</programlisting>
             is.</para>
         <para>The OpenGL specification defines a rasterization-based renderer. Rasterizers offer
             great opportunities for optimizations and hardware implementation, and using them
-            provides great power to the programmer. However, they're very stupid. When you strip out
-            all of the shaders and other logic, a rasterizer is basically just a triangle drawer.
-            That's all they know how to do. And they're very good at it.</para>
+            provides great power to the programmer. However, they're very stupid. A rasterizer is basically just a triangle drawer. Vertex shaders tell it what vertex positions are, and fragment shaders tell it what colors to put within that triangle. But no matter how fancy, a rasterization-based render is just drawing triangles.</para>
+			<para>That's fine in general because rasterizers are very fast. They are very good at drawing triangles.</para>
         <para>But rasterizers do exactly and only what the user says. They draw each triangle
                 <emphasis>in the order given</emphasis>. This means that, if there is overlap
             between multiple triangles in window space, the triangle that is rendered last will
-            win.</para>
+            be the one that is seen.</para>
         <para>This problem is called <glossterm>hidden surface elimination.</glossterm></para>
         <para>The first thing you might think of when solving this problem is to simply render the
-            farther objects first. This is called <glossterm>depth sorting.</glossterm> As you might
+            most distant objects first. This is called <glossterm>depth sorting.</glossterm> As you might
             imagine, this <quote>solution</quote> scales incredibly poorly. Doing it for each
             triangle is prohibitive, particularly with scenes with millions of triangles.</para>
         <para>And the worst part is that even if you put in all the effort, <emphasis>it doesn't
@@ -560,22 +559,23 @@ glUseProgram(0);</programlisting>
             sorting, but non-trivial cases have real problems. You can have an arrangement of 3
             triangles where each overlaps the other, such that there simply is no order you can
             render them in to achieve the right effect.</para>
+			<!--TODO: Show the 3 triangle arrangement.-->
         <para>Even worse, it does nothing for interpenetrating triangles; that is, triangles that
             pass through each other in 3D space (as opposed to just from the perspective of the
             camera).</para>
         <para>Depth sorting isn't going to cut it; clearly, we need something better.</para>
         <para>One solution might be to tag fragments with the distance from the viewer. Then, if a
-            fragment is about to be written is going to write a farther distance (ie: the fragment
-            is behind what was already written), we simply do not write that fragment. That way, if
+            fragment is about to be written has a farther distance (ie: the fragment
+            is behind what was already draw), we simply do not write that fragment. That way, if
             you draw something behind something else, the fragments that were written by the higher
             objects will prevent you from writing the farther away ones.</para>
         <para>The <quote>tag</quote> is the window-space Z value. You may recall from <link
                 linkend="tut00_window_space">the introduction,</link> the window-space Z position of
             a fragment ranges from 0 to 1, where 0 is the closest and 1 is the farthest.</para>
-        <para>Colors output from the fragment shader are output into the color buffer. Therefore it
+        <para>Colors output from the fragment shader are output into the color image buffer. Therefore it
             naturally follows that depth values would be stored in a <glossterm>depth
                 buffer</glossterm> (also called a <glossterm>z buffer</glossterm>, because it stores
-            the Z value). The depth buffer is an image, the same size as the main color buffer, that
+            Z values). The depth buffer is an image, the same size as the main color buffer, that
             stores depth values as pixels rather than colors. Where a color is a 4-component vector,
             a depth is just a single floating-point value.</para>
         <para>Like the color buffer, the depth buffer for the main window is created automatically
@@ -618,7 +618,7 @@ glUseProgram(0);</programlisting>
                 coordinates. But <function>glViewport</function> only defines the transform for the
                 X and Y coordinates of the NDC-space vertex positions.</para>
             <para>The window-space Z coordinate ranges from [0, 1]; the transformation from NDC's
-                [-1, 1] is defined with the <function>glDepthRange</function> function. This
+                [-1, 1] range is defined with the <function>glDepthRange</function> function. This
                 function takes 2 floating-point parameters: the <glossterm>range zNear</glossterm>
                 and the <glossterm>range zFar</glossterm>. These values are in window-space; they
                 define a simple linear mapping from NDC space to window space. So if zNear is 0.5
@@ -730,7 +730,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 </mediaobject>
             </figure>
             <para>No amount of depth sorting will help with <emphasis>that</emphasis>.</para>
-            <tip>
+            <sidebar>
                 <title>Fragments and Depth</title>
                 <para>Way back in the <link linkend="tut_00">introduction</link>, we said that part
                     of the fragment's data was the window-space position of the fragment. This is a
@@ -764,11 +764,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     potentially complex fragment shaders. Indeed, most hardware nowadays has
                     complicated early z culling hardware that can discard multiple fragments with
                     one test.</para>
-                <para>The moment your fragment shader has to write anything to
-                        <varname>gl_FragDepth</varname>, all of those optimizations go away. So
-                    generally, you should only write a depth value if you
-                        <emphasis>really</emphasis> need it.</para>
-            </tip>
+                <para>The moment your fragment shader writes anything to
+                        <varname>gl_FragDepth</varname>, all of those optimizations have to go away. So
+                    generally, you should only write a depth value yourself if you
+                        <emphasis>really</emphasis> need to do it.</para>
+            </sidebar>
         </section>
     </section>
     <section>
@@ -777,7 +777,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         <para>If you recall back to the <link linkend="ShaderPerspective">Perspective projection
                 tutorial,</link> we choose to use some special hardware in the graphics chip to do
             the final division of the W coordinate, rather than doing the entire perspective
-            projection ourselves. At the time, it was promised that we would see why this is
+            projection ourselves in the vertex shader. At the time, it was promised that we would see why this is
             hardware functionality rather than something the shader does.</para>
         <para>Let us review the full math operation we are computing here:</para>
         <equation>
@@ -976,7 +976,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             some of the values from the depth buffer also have a depth of 0. Since our depth test is
                 <literal>GL_LESS</literal>, the incoming 0 is not less than the depth buffer's 0, so
             the part of the second object does not get rendered. This is pretty much the opposite of
-            where we started. We could change it to <literal>GL_LEQUAL</literal>, but that only gets
+            where we started: previous rendered objects are in front of newer ones. We could change it to <literal>GL_LEQUAL</literal>, but that only gets
             us to <emphasis>exactly</emphasis> where we started.</para>
         <para>So a word of warning: be careful with depth clamping when you have overlapping objects
             near the planes. Similar problems happen with the far plane, though backface culling can
@@ -989,9 +989,10 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 off the top and bottom. If near/far clipping isn't active, then the frustum becomes
                 a pyramid. The other 4 clipping planes are still fully in effect. Clip-space
                 vertices with a W of less than 0 are all outside of the boundary of any of the other
-                four clipping planes. And the only clip-space point with a W of 0 that is within
+                four clipping planes.</para>
+			<para>The only clip-space point with a W of 0 that is within
                 this volume is the homogeneous origin point: (0, 0, 0, 0); everything else will be
-                clipped.</para>
+                clipped. And a triangle made from three positions that all are at the same position would have no area; it would therefore generate no fragments anyway. It can be safely eliminated before the perspective divide.</para>
         </note>
     </section>
     <!--
@@ -1154,14 +1155,17 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     the camera.</para>
             </listitem>
             <listitem>
-                <para>Clipping holes can be repaired by activating depth clamping, so long as there
-                    is no overlap.</para>
+                <para>Clipping holes can be repaired to a degree by activating depth clamping, so long as there
+                    is no overlap. And as long as the triangles don't extend beyond 0 in camera space.</para>
             </listitem>
+			<!--TODO: Reinstate this.-->
+			<!--
             <listitem>
                 <para>Depth buffers have a finite precision, and this can cause z-fighting.
                     Z-fighting can be repaired by moving the Camera zNear forward, or moving objects
                     farther apart.</para>
             </listitem>
+			-->
         </itemizedlist>
         <section>
             <title>OpenGL Functions of Note</title>
@@ -1342,6 +1346,8 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                         depth, then the early depth test optimization will not be active.</para>
                 </glossdef>
             </glossentry>
+			<!--TODO: Reinstate this.-->
+			<!--
             <glossentry>
                 <glossterm>z-fighting</glossterm>
                 <glossdef>
@@ -1351,6 +1357,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                         is to try to move the camera zNear further from 0.</para>
                 </glossdef>
             </glossentry>
+			-->
             <glossentry>
                 <glossterm>homogeneous coordinate system</glossterm>
                 <glossdef>

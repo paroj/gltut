@@ -177,7 +177,7 @@
             orthographic.</para>
         <para>Human eyes do not see the world via orthographic projection. If they did, you would
             only be able to see an area of the world the size of your pupils. Because we do not use
-            orthographic projections (among other reasons) orthographic projections do not look
+            orthographic projections to see (among other reasons), orthographic projections do not look
             particularly real to us.</para>
         <para>Instead, we use a pinhole camera model for our eyesight. This model performs a
                 <glossterm>perspective projection</glossterm>. A perspective projection is a
@@ -193,9 +193,10 @@
         </figure>
         <para>As you can see, the projection is radial, based on the location of a particular point.
             That point is the eye of the projection.</para>
+			<!--TODO: Remove next paragraph-->
         <para>From this point forward, we are going to make a simplifying assumption. The position
             of the eye will be centered relative to the size of the surface of projection. This need
-            not always be the case, but it function well enough for most of our needs.</para>
+            not always be the case, but it functions well enough for most of our needs.</para>
         <para>Just from the shape of the projection, we can see that the perspective projection
             causes a larger field of geometry to be projected onto the surface. An orthographic
             projection only captures the rectangular prism directly in front of the surface of
@@ -215,6 +216,7 @@
         <section>
             <title>Mathematical Perspective</title>
             <para>Now that we know what we want to do, we just need to know how to do it.</para>
+			<!--TODO: Reformat next paragraph into a list of assumptions.-->
             <para>We will be making a few simplifying assumptions. In addition to the assumption
                 that the eye point is centered relative to the projection surface, we will also
                 assume that the plane of projection is axis aligned and is facing down the -Z axis.
@@ -231,6 +233,7 @@
                 direction.</para>
             <para>The problem is really just a simple geometry problem. Here is the equivalent form
                 in a 2D to 1D perspective projection.</para>
+				<!--TODO: This section is wrong. Pz needs to extend from E to P, not from P to the projection plane.-->
             <figure>
                 <title>2D to 1D Perspective Projection Diagram</title>
                 <mediaobject>
@@ -281,8 +284,8 @@
                 <para>You may be wondering why this arbitrary division-by-W step exists. You may
                     also be wondering, in this modern days of vertex shaders that can do vector
                     divisions very quickly, why we should bother to use the hardware division-by-W
-                    step at all. There are two reasons. One we will cover in just a bit when we deal
-                    with matrices; the main one will be covered in the next tutorial. Suffice it to
+                    step at all. There are several reasons. One we will cover in just a bit when we deal
+                    with matrices. More important ones will be covered in future tutorials. Suffice it to
                     say that there are very good reasons to put the perspective term in the W
                     coordinate of clip space vertices.</para>
             </note>
@@ -319,6 +322,7 @@
                 is always -1 in the Z. This means that our perspective term, when phrased as
                 division rather than multiplication, is simply P<subscript>z</subscript>/-1: the
                 negation of the camera-space Z coordinate.</para>
+				<!--TODO: Add an image showing the location of the projection plane in camera space. -->
             <para>Having a fixed eye position and projection plane makes it difficult to have
                 zoom-in/zoom-out style effects. This would normally be done by moving the plane
                 relative to the fixed eye point. There is a way to do this, however. All you need to
@@ -547,14 +551,14 @@ glUseProgram(0);]]></programlisting>
                     <para>You cannot select components that aren't in the source vector. So if you
                         have:</para>
                     <programlisting language="glsl">vec2 theVec;</programlisting>
-                    <para>You cannot do <literal>theVec.zz</literal>.</para>
+                    <para>You cannot do <literal>theVec.zz</literal> because it has no Z component.</para>
                 </listitem>
                 <listitem>
                     <para>You cannot select more than 4 components.</para>
                 </listitem>
             </itemizedlist>
             <para>These are the only rules. So you can have a <type>vec2</type> that you swizzle to
-                create a <type>vec4</type> (<literal>vec.yyyx</literal>), you can repeat components,
+                create a <type>vec4</type> (<literal>vec.yyyx</literal>); you can repeat components;
                 etc. Anything goes so long as you stick to those rules.</para>
             <para>You should also assume that swizzling is fast. This is not true of most CPU-based
                 vector hardware, but since the earliest days of programmable GPUs, swizzle selection
@@ -611,7 +615,8 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
                 Z<subscript>clip</subscript>'s value by the camera space W. Well, our input camera
             space position's W coordinate is always 1. So performing the multiplication is valid, so
             long as this continues to be the case. Being able to do what we are about to do is part
-            of the reason why the W coordinate exists (the perspective divide is the other).</para>
+            of the reason why the W coordinate exists in our camera-space position values (the perspective divide is the other).</para>
+			<!--TODO: Talk about a linear system of equations. -->
         <para>Let us now re-express this again, using the coefficients of the equation above. You
             may recognize this reformulation, depending on your knowledge of linear algebra:</para>
         <equation>
@@ -909,7 +914,7 @@ glUseProgram(0);]]></programlisting>
                         at (0, 0, 1). However, this was not strictly necessary; we could have
                         altered our perspective transform algorithm to use a variable eye point.
                         Adjust the <phrase role="propername">ShaderPerspective</phrase> to implement
-                        an arbitrary perspective plane location (the size remains fixed at [-1, 1].
+                        an arbitrary perspective plane location (the size remains fixed at [-1, 1]).
                         You will need to offset the X, Y camera-space positions of the vertices by
                             E<subscript>x</subscript> and E<subscript>y</subscript> respectively,
                         but only <emphasis>after</emphasis> the scaling (for aspect ratio). And you
@@ -1091,7 +1096,7 @@ vec3 thirdVec = secondVec.wzyx;</programlisting>
                         matrices involved, depending on the arithmetic operation. Multiplying two
                         matrices together can only be performed if the number of rows in the matrix
                         on the left is equal to the number of columns in the matrix on the right.
-                        Because of this, matrix multiplication is not commutative (A*B is not B*A;
+                        For this reason, among others, matrix multiplication is not commutative (A*B is not B*A;
                         sometimes B*A isn't even possible).</para>
                     <para>4x4 matrices are used in computer graphics to transform 3 or 4-dimensional
                         vectors from one space to another. Most kinds of linear transforms can be

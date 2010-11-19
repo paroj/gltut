@@ -13,7 +13,7 @@
         <para>Throughout this series of tutorials, we have discussed a number of different spaces.
             We have seen OpenGL-defined spaces like normalized device coordinate (NDC) space,
             clip-space, and window space. And we have seen user-defined spaces like camera space.
-            But we have yet to talk about what a space actually is.</para>
+            But we have yet to really discuss about what a space actually is.</para>
         <para>A <glossterm>space</glossterm> is a shorthand term for a <glossterm>coordinate
                 system.</glossterm> For the purposes of this conversation, a coordinate system or
             space consists of the following:</para>
@@ -94,12 +94,12 @@
                 clip-space, and this was done using a matrix. Perspective projection (and
                 orthographic, for that matter) are simply a special kind of transformation.</para>
             <para>This tutorial will cover a large number of different kinds of transform
-                operations, and how to implement them in OpenGL.</para>
+                operations and how to implement them in OpenGL.</para>
         </section>
         <section>
             <title>Model Space</title>
             <para>Before we begin, we must define a new kind of space: <glossterm>model
-                    space.</glossterm> This is a user-defined space; but unlike camera space, model
+                    space.</glossterm> This is a user-defined space, but unlike camera space, model
                 space does not have a single definition. It is instead a catch-all term for the
                 space that a particular object begins in. Coordinates in vertex buffers, passed to
                 the vertex shaders as vertex attributes are <foreignphrase>de facto</foreignphrase>
@@ -126,7 +126,7 @@
             the origin point of the initial space relative to the destination space. Since all of
             the coordinates in a space are relative to the origin point of that space, all a
             translation needs to do is add a vector to all of the coordinates in that space. The
-            vector added tothese values is the location of where the user wants the origin point
+            vector added to these values is the location of where the user wants the origin point
             relative to the destination coordinate system.</para>
         <para>Here is a more concrete example. Let us say that an object which in its model space is
             near its origin. This means that, if we want to see that object in front of the camera,
@@ -500,9 +500,9 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>For any two spaces, the orientation transformation between then can be expressed as
             rotating the source space by some angle around a particular axis (also in the initial
             space). This is true for any change of orientation.</para>
-        <para>A common rotation question is to compute a rotation around an arbitrary axis. Or more
+        <para>A common rotation question is to compute a rotation around an arbitrary axis. Or to put it more
             correctly, to determine the orientation of a space if it is rotated around an arbitrary
-            axis relative to the initial axis. The axis of rotation is expressed in terms of the
+            axis. The axis of rotation is expressed in terms of the
             initial space. In 2D, there is only one axis that can be rotated around and still remain
             within that 2D plane: the Z-axis.</para>
         <para>In 3D, there are many possible axes of rotation. It does not have to be one of the
@@ -533,7 +533,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </equation>
         <para>All of these matrices are such that, from the point of view of an observer looking
             down the axis of rotation (the direction of the axis is pointed into the eye of the
-            observer), the object rotates counter-clockwise.</para>
+            observer), the object rotates counter-clockwise with positive angles.</para>
         <para>The <phrase role="propername">Rotations</phrase> tutorial shows off each of these
             rotation matrix functions. Similar to how the others work, there are multiple instances
             rendered based on functions.</para>
@@ -589,7 +589,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 <mathphrase>S*R</mathphrase>
             </inlineequation> is not the same as <inlineequation>
                 <mathphrase>R*S</mathphrase>
-            </inlineequation>. However, it <emphasis>is</emphasis> associative: <inlineequation>
+            </inlineequation>. However, it is <emphasis>associative</emphasis>: <inlineequation>
                 <mathphrase>(S*R)*T</mathphrase>
             </inlineequation> is the same as <inlineequation>
                 <mathphrase>S*(R*T)</mathphrase>
@@ -742,7 +742,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 of the transforms of its parent transform, plus its own model space transform.
                 Models in this transform have a parent-child relationship to other objects.</para>
             <para>For the purposes of this discussion, each complete transform for a model in the
-                hierarchy call be called a <glossterm>node.</glossterm> Each node is defined by a
+                hierarchy will be called a <glossterm>node.</glossterm> Each node is defined by a
                 specific series of transformations, which when combined yield the complete
                 transformation matrix for that node. Usually, each node has a translation, rotation,
                 and scale, though the specific transform can be entirely arbitrary. What matters is
@@ -1012,7 +1012,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             matrix. Each transform defines a new coordinate system, and the next transform is based
             on an object in the <emphasis>new</emphasis> space. For example, if we apply the roll
             first, we have now changed what the axis for the subsequent yaw is.</para>
-        <para>You can use any order that you like, so long as you understand that what these angles
+        <para>You can use any order that you like, so long as you understand what these angles
             mean. If you apply the roll first, your yaw and pitch must be in terms of the new roll
             coordinate system, and not the original coordinate system. That is, a change that is
             intended to only affect the roll of the final space may need yaw or pitch changes to
@@ -1302,8 +1302,7 @@ void main()
                         function that will render this node, given the matrix stack. It would render
                         itself, then recursively render its children. The node would also have a way
                         to define the size (in world-space) and origin point of the rectangle to be
-                        drawn. The scene would be rendered by passing the identity matrix to the
-                        root.</para>
+                        drawn.</para>
                 </listitem>
                 <listitem>
                     <para>Given the generalized Hierarchy code, remove the matrix stack. Use objects
