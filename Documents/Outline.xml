@@ -603,7 +603,13 @@
                         color.</para>
                 </listitem>
                 <listitem>
+                    <para>Light attenuation.</para>
+                </listitem>
+                <listitem>
                     <para>Why one should use HDR.</para>
+                </listitem>
+                <listitem>
+                    <para>Multiple light sources and how to combine them.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -712,6 +718,12 @@
         <glosslist>
             <glossentry>
                 <glossterm>sRGB Colorspace</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Integral textures</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>
