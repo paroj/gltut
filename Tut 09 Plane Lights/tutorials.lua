@@ -12,3 +12,11 @@ SetupProject("Tut 09 Perspective Interpolation", "Perspective Interpolation.cpp"
 	"data/NoCorrectVertexColors.vert",
 	"data/NoCorrectVertexColors.frag")
 
+SetupProject("Tut 09 Fragment Directional Lighting", "Fragment Directional Lighting.cpp",
+	"data/ModelPosVertexLighting_PCN.vert",
+	"data/ModelPosVertexLighting_PN.vert",
+	"data/ColorPassthrough.frag",
+	"data/FragmentLighting_PCN.vert",
+	"data/FragmentLighting_PN.vert",
+	"data/FragmentLighting.frag")
+
