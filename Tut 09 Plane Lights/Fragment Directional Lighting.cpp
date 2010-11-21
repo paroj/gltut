@@ -176,6 +176,7 @@ static float g_CylRoll = 0.0f;
 static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;
 static bool g_bDrawLight = false;
+static bool g_bScaleCyl = false;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -249,6 +250,9 @@ void display()
 				modelMatrix.RotateX(g_CylPitch);
 				modelMatrix.RotateY(g_CylYaw);
 				modelMatrix.RotateZ(g_CylRoll);
+
+				if(g_bScaleCyl)
+					modelMatrix.Scale(1.0f, 1.0f, 0.2f);
 
 				if(g_bDrawColoredCyl)
 				{
@@ -375,6 +379,7 @@ void keyboard(unsigned char key, int x, int y)
 	case 'J': g_fLightRadius -= 0.05f; break;
 
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
+	case 't': g_bScaleCyl = !g_bScaleCyl; break;
 	}
 
 	if(g_fLightRadius < 0.2f)
