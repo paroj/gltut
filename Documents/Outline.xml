@@ -318,9 +318,6 @@
             <para>Concepts:</para>
             <itemizedlist>
                 <listitem>
-                    <para>Perspective-correct interpolation of vertex attributes.</para>
-                </listitem>
-                <listitem>
                     <para>Point lights.</para>
                 </listitem>
                 <listitem>
@@ -330,7 +327,31 @@
                     <para>Implementing per-fragment lighting.</para>
                 </listitem>
                 <listitem>
-                    <para>Tangent-space transform for per-fragment lighting.</para>
+                    <para>Talk about the artifact when lights get too close to the object. Talk
+                        about why it happens (surface being planar and not circular).</para>
+                </listitem>
+                <listitem>
+                    <para>Light attenuation.</para>
+                </listitem>
+                <listitem>
+                    <para>Distances in alternate spaces and how to compensate.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Shininess</title>
+            <para>This tutorial introduces ways to make an object look shiny. Specifically specular
+                lighting and the Phong lighting model. There should be an animated light that shows
+                this off.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>BDRFs: Lighting models that are a function of surface normal, angle to the
+                        light, and angle to the camera.</para>
+                </listitem>
+                <listitem>
+                    <para>The Phong specular lighting model. With both directional and point
+                        lights.</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -351,30 +372,18 @@
                 </listitem>
             </itemizedlist>
         </section>
-        <section>
-            <title>Shininess</title>
-            <para>This tutorial introduces ways to make an object look shiny. Specifically specular
-                lighting and the Phong lighting model. There should be an animated light or two that
-                shows this off.</para>
-            <para>Concepts:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>BDRFs: Lighting models that are a function of surface normal, angle to the
-                        light, and angle to the camera.</para>
-                </listitem>
-                <listitem>
-                    <para>The Phong specular lighting model.</para>
-                </listitem>
-            </itemizedlist>
-        </section>
     </section>
     <section>
         <title>Texturing</title>
         <section>
-            <title>Texturing the World</title>
-            <para>This tutorial involves putting a texture on a simple, lit object.</para>
+            <title>Textures are not Pictures</title>
+            <para>This tutorial involves using a texture to define the specular value of an object
+                at a certain point.</para>
             <para>Concepts:</para>
             <itemizedlist>
+                <listitem>
+                    <para>Perspective-correct interpolation of vertex attributes.</para>
+                </listitem>
                 <listitem>
                     <para>Texture objects. An OpenGL object that holds images.</para>
                 </listitem>
@@ -398,15 +407,15 @@
                         units.</para>
                 </listitem>
                 <listitem>
-                    <para>Combining texture colors with the results of lighting.</para>
+                    <para>Using values from textures in lighting equations.</para>
                 </listitem>
             </itemizedlist>
         </section>
         <section>
             <title>More Images is Better</title>
-            <para>This tutorial shows a ground plane with a highly aliased texture. An animated
-                camera shows off the aliasing. Then we apply mipmapping and anisotropic filtering to
-                the surface to improve it.</para>
+            <para>This tutorial shows a ground plane with a highly aliased texture (as the diffuse
+                color). An animated camera shows off the aliasing. Then we apply mipmapping and
+                anisotropic filtering to the surface to improve it.</para>
             <para>Concepts:</para>
             <itemizedlist>
                 <listitem>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 09.html" ?>
+    <title>Plane Lights</title>
+    <para>Directional lights are useful for representing light sources like the sun and so forth.
+        But most light sources are more likely to be represented as point lights.</para>
+    <para>A <glossterm>point light</glossterm> is a light source that has a position in the world
+        and shines with equal intensity in all directions. Our simple diffuse lighting equation is a
+        function of these properties:</para>
+    <itemizedlist>
+        <listitem>
+            <para>The surface normal at that point.</para>
+        </listitem>
+        <listitem>
+            <para>The direction from the point on the surface to the light.</para>
+        </listitem>
+    </itemizedlist>
+    <para>The direction to the light source from the point is a constant when dealing with
+        directional light. It is a parameter for lighting, but it is a constant value for all points
+        in the scene. The difference between directional lighting and point lights is only that this
+        direction must be computed for each position in the scene.</para>
+    <para>Computing this is quite simple. At the point of interest, we take the difference between
+        the point on the surface and the light's position. We normalize the result to produce a unit
+        vector direction to the light. Then we use the light direction as we did before. The surface
+        point, light position, and surface normal must all be in the same space for this equation to
+        make sense.</para>
+    <section>
+        <title>Vertex Point Lighting</title>
+        <para>Thus far, we have computed the lighting equation at each vertex and interpolated the
+            results across the surface of the triangle. We will continue to do so for point lights.
+            For the moment, at least.</para>
+        <para>We implement point lights per-vertex in the <phrase role="propername">Vertex Point
+                Lighting</phrase> tutorial. This tutorial has a moving point light that circles
+            around the cylinder.</para>
+        <!--TODO: Show a picture of the tutorial.-->
+        <para>It controls as follows:</para>
+        <!--TODO: Have a table explaining the tutorial's controls.-->
+        <para>Most of the code is nothing we haven't seen elsewhere. The main changes are at the top
+            of the rendering function.</para>
+        <example>
+            <title>Per-Vertex Point Light Rendering</title>
+            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+
+const glm::vec4 &amp;worldLightPos = CalcLightPosition();
+
+glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
+
+glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
+glUniform3fv(g_WhiteAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
+glUseProgram(g_VertexAmbDiffuseColor.theProgram);
+glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));</programlisting>
+        </example>
+        <para>The light is computed initially in world space, then transformed into camera space.
+            The camera-space light position is given to both of the shaders. Rendering proceeds
+            normally from there.</para>
+        <para>Our vertex shader has had a few changes:</para>
+        <example>
+            <title>Per-Vertex Point Light Vertex Shader</title>
+            <programlisting>#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 diffuseColor;
+layout(location = 2) in vec3 normal;
+
+smooth out vec4 interpColor;
+
+uniform vec3 lightPos;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+uniform mat3 normalModelToCameraMatrix;
+
+void main()
+{
+    vec4 cameraPosition = (modelToCameraMatrix * vec4(position, 1.0));
+    gl_Position = cameraToClipMatrix * cameraPosition;
+    
+    vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
+    
+    vec3 dirToLight = normalize(lightPos - vec3(cameraPosition));
+    
+    float cosAngIncidence = dot(normCamSpace, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
+        </example>
+        <para>The vertex shader takes a camera-space light position instead of a camera-space light
+            direction. It also stores the camera-space vertex position in a temporary in the first
+            line of <function>main</function>. This is used to compute the direction to the light.
+            From there, the computation proceeds normally.</para>
+        <para>Note the order of operations in computing <varname>dirToLight.</varname> The
+                <varname>lightPos</varname> is on the left and the <varname>cameraPosition</varname>
+            is on the right. Geometrically, this is correct. If you have two points, and you want to
+            find the direction from point A to point B, you compute B - A. The
+                <function>normalize</function> call is just to convert it into a unit vector.</para>
+    </section>
+    <section>
+        <title>Interpolation</title>
+        <para>As you can see, doing point lighting is quite simple. Unfortunately, the visual
+            results are not.</para>
+        <para>For example, use the controls to display the position of the point light source, then
+            position it near the ground plane. See anything wrong?</para>
+        <para>If everything were working correctly, one would expect to see a bright area directly
+            under the light. After all, geometrically, this situation looks like this:</para>
+        <!--TODO: Show a 2D diagram of a point light near a line surface.-->
+        <para>The area directly under the point should be very bright, but the area farther from the
+            point light should be darker. What we see is nothing of the sort. There is no bright
+            light directly under the light source. Why is that?</para>
+        <para>Well, consider what we are doing. We are computing the lighting at every triangle's
+                <emphasis>vertex</emphasis>, and then interpolating the results across the surface
+            of the triangle. The ground plane is made up of precisely four vertices: the four
+            corners. And those are all very far from the light position. Since none of the vertices
+            are close to the light, none of the colors that are interpolated across the surface are
+            bright.</para>
+        <para>You can see this is evident by putting the light position next to the cylinder. If the
+            light is at the top or bottom of the cylinder, then the area near the light will be
+            bright. But if you move the light to the middle of the cylinder, far the top or bottom
+            vertices, then the illumination will be much dimmer.</para>
+        <!--TODO: Show this tutorial with the light at the middle of the cylinder.-->
+        <para>This is not the only problem with doing per-vertex lighting. For example, run the
+            tutorial again and don't move the light. Just watch how the light behaves on the
+            cylinder's surface as it animates around. Unlike with directional lighting, you can very
+            easily see the triangles on the cylinder's surface. This has issues for similar reasons,
+            but it also introduces a new problem: interpolation artifacts.</para>
+        <para>If you move the light source farther away, you can see that the triangles smooth out.
+            But this is simply because, if the light source is far enough away, the results are
+            indistinguishable from a directional light. Each vertex's direction to the light is
+            almost the same as each other vertex's direction to the light.</para>
+        <para>Per-vertex lighting was reasonable when dealing with directional lights. But it simply
+            is not a good idea for point lighting. The question arises: why was per-vertex lighting
+            good with directional lights to begin with?</para>
+        <para>Remember that our diffuse lighting equation has two parameters: the direction to the
+            light and the surface normal. In directional lighting, the direction to the light is
+            always the same. Therefore, the only value that changes over a triangle's surface is the
+            surface normal.</para>
+        <para>The more physically correct method of lighting is to perform lighting at every
+            rendered pixel. To do that, we would have to interpolate the lighting parameters across
+            the triangle, and perform the lighting computation in the fragment shader.</para>
+        <para>Linear interpolation of vectors looks like this:</para>
+        <!--TODO: equation: Va& + Va(1-&)-->
+        <para>And our lighting equation is this:</para>
+        <!--TODO: eq: D * I * dot(L, N)-->
+        <para>If the surface normal N is being interpolated, then at any particular point on the
+            surface, we get this equation:</para>
+        <!--TODO: D * I * dot(L, Na& + Nb(1-&))-->
+        <para>The dot product is distributive, like scalar multiplication. So we can distribute the
+            L to both sides of the dot product term:</para>
+        <!--TODO: D * I * (dot(L, Na&) + dot(L, Nb(1-&)))-->
+        <para>We can extract the linear terms from the dot product. Remember that the dot product is
+            the cosine of the angle between two vectors, times the length of those vectors. The two
+            scaling terms directly modify the length of the vectors. So they can be pulled out to
+            give us:</para>
+        <!--TODO: D * I * (&dot(L, Na) + (1-&)dot(L, Nb))-->
+        <para>Vector multiplication happens to be distributive as well, so we get this:</para>
+        <!--TODO: (D * I * &dot(L, Na)) + (D * I * (1-&)dot(L, Nb))-->
+        <para>Or, rewritten to make things more clear:</para>
+        <!--TODO: (D * I * dot(L, Na))& + (D * I * dot(L, Nb))(1-&)-->
+        <para>This means that if L is constant, linearly interpolating N is exactly equivalent to
+            linearly interpolating the results of the lighting equation. And the addition of the
+            ambient term doesn't change this, since it is a constant and would not be affected by
+            linear interpolation.</para>
+        <para>When doing point lighting, you would have to interpolate both N and L. And that does
+            not yield the same results as linearly interpolating the two colors you get from the
+            lighting equation. This is a big part of the reason why the cylinder doesn't look
+            correct.</para>
+    </section>
+    <section>
+        <title>Fragment Lighting</title>
+        <para>So, in order to deal with interpolation artifacts, we need to interpolate the actual
+            light direction and normal, instead of just the results of the lighting equation. This
+            is called per-fragment lighting or just <glossterm>fragment lighting.</glossterm></para>
+        <para>There is a problem that needs to be dealt with first. Normals do not interpolate well.
+            Or rather, wildly different normals do not interpolate well. And light directions can be
+            very different.</para>
+        <para>Consider the large plane we have. The direction toward the light will be very
+            different at each vertex, so long as our light remains in relatively close proximity to
+            the plane.</para>
+        <para>Part of the problem is with interpolating values along the diagonal of our triangle.
+            Using two triangles to form a square plane does not mean that the values at the four
+            vertices interpolate the way you would expect. The plane is actually made of these two
+            triangles:</para>
+        <!--TODO: Show a picture of the two triangles composing the plane.-->
+        <para>The interpolation always happens between the three vertices of the particular
+            triangle. Which means that vertices near the diagonal will be basically doing a linear
+            interpolation between the two values on either end of that diagonal. This is not the
+            same thing as doing interpolation between all 4 values.</para>
+        <!--TODO: Show bilinear interpolation vs. triangular interpolation.-->
+        <para>In our case, this means that for points along the main diagonal, the light direction
+            will only be composed of the direction values from the two vertices on that diagonal.
+            This is not good. This wouldn't be much of a problem if the light direction did not
+            change much along the surface, but that is not the case here.</para>
+        <para>Since we cannot interpolate the light direction very well, we need to interpolate
+            something else. Something that does exhibit the characteristics we need.</para>
+        <para>Positions interpolate linearly quite well. So instead of interpolating the light
+            direction, we interpolate the components of the light direction. Namely, the two
+            positions. The light position is a constant, so we only need to interpolate the vertex
+            position.</para>
+        <para>Now, we could do this in any space. But for illustrative purposes, we will be doing
+            this in model space. That is, both the light position and vertex position will be in
+            model space.</para>
+        <para>One of the advantages of doing things in model space is that it gets rid of that pesky
+            matrix inverse/transpose we had to do to transform normals correctly. Indeed, normals
+            are not transformed at all. One of the disadvantages is that it requires computing an
+            inverse matrix for our light position, so that we can go from world space to model
+            space.</para>
+        <para>The <phrase role="propername">Fragment Point Lighting</phrase> tutorial shows off how
+            fragment lighting works.</para>
+    </section>
+    <section>
+        <title>Distance and Points</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut09 In Review.html" ?>
+        <title>In Review</title>
+        <para/>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>When we used model space-based lighting computations, we had to perform an
+                        inverse on our matrix from the matrix stack to transform the light position
+                        from camera space to model space. However, it would be entirely possible to
+                        simply build an inverse matrix at the same time we build a regular matrix on
+                        our matrix stack. The inverse of a rotation matrix is just the rotation
+                        matrix with a negated angle; the inverse of a scale is just the
+                        multiplicative inverse of the scales, and the inverse of the translation is
+                        the negation of the translation vector.</para>
+                    <para>To do this, you will need to modify the <classname>MatrixStack</classname>
+                        class in a number of ways. It must store a second matrix representing the
+                        accumulated inverse matrix. When a transformation command is given to the
+                        stack, it must also generate the inverse matrix for this transform and
+                            <emphasis>left multiply</emphasis> this into the accumulated inverse.
+                        The push/pop will have to push/pop the inverse matrix as well. It can use
+                        the same stack, so long as the pop function puts the two matrices in the
+                        proper places.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut09 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>point light</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>fragment lighting</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
+    
+</chapter>

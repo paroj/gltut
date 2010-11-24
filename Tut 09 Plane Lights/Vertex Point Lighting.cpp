@@ -191,16 +191,16 @@ void display()
 		glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
 
 		glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
+		glUniform3fv(g_WhiteAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
+		glUseProgram(g_VertexAmbDiffuseColor.theProgram);
+		glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
+
+		glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
 		glUniform4f(g_WhiteAmbDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
 		glUniform4f(g_WhiteAmbDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
 		glUseProgram(g_VertexAmbDiffuseColor.theProgram);
 		glUniform4f(g_VertexAmbDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
 		glUniform4f(g_VertexAmbDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
-
-		glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
-		glUniform3fv(g_WhiteAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-		glUseProgram(g_VertexAmbDiffuseColor.theProgram);
-		glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
 		glUseProgram(0);
 
 		{
