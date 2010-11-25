@@ -17,13 +17,19 @@ struct ProgramData
 {
 	GLuint theProgram;
 
-	GLuint lightPosUnif;
+	GLuint cameraToClipMatrixUnif;
+	GLuint modelToCameraMatrixUnif;
+
 	GLuint lightIntensityUnif;
 	GLuint ambientIntensityUnif;
 
-	GLuint cameraToClipMatrixUnif;
-	GLuint modelToCameraMatrixUnif;
 	GLuint normalModelToCameraMatrixUnif;
+	GLuint cameraSpaceLightPosUnif;
+	GLuint clipToCameraMatrixUnif;
+	GLuint windowSizeUnif;
+	GLuint depthRangeUnif;
+	GLuint lightAttenuationUnif;
+	GLuint bUseRSquareUnif;
 };
 
 struct UnlitProgData
@@ -38,8 +44,8 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-ProgramData g_WhiteDiffuseColor;
-ProgramData g_VertexDiffuseColor;
+ProgramData g_FragWhiteDiffuseColor;
+ProgramData g_FragVertexDiffuseColor;
 
 UnlitProgData g_Unlit;
 
@@ -70,18 +76,25 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
 	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
-	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
-	data.lightPosUnif = glGetUniformLocation(data.theProgram, "lightPos");
 	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
 	data.ambientIntensityUnif = glGetUniformLocation(data.theProgram, "ambientIntensity");
+
+	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
+	data.cameraSpaceLightPosUnif = glGetUniformLocation(data.theProgram, "cameraSpaceLightPos");
+	data.clipToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "clipToCameraMatrix");
+	data.windowSizeUnif = glGetUniformLocation(data.theProgram, "windowSize");
+	data.depthRangeUnif = glGetUniformLocation(data.theProgram, "depthRange");
+	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
+	data.bUseRSquareUnif = glGetUniformLocation(data.theProgram, "bUseRSquare");
 
 	return data;
 }
 
 void InitializePrograms()
 {
-	g_WhiteDiffuseColor = LoadLitProgram("PosVertexLighting_PN.vert", "ColorPassthrough.frag");
-	g_VertexDiffuseColor = LoadLitProgram("PosVertexLighting_PCN.vert", "ColorPassthrough.frag");
+	g_FragWhiteDiffuseColor = LoadLitProgram("FragLightAtten_PN.vert", "FragLightAtten.frag");
+	g_FragVertexDiffuseColor = LoadLitProgram("FragLightAtten_PCN.vert", "FragLightAtten.frag");
+
 	g_Unlit = LoadUnlitProgram("PosTransform.vert", "UniformColor.frag");
 }
 
@@ -89,7 +102,7 @@ Framework::Mesh *g_pCylinderMesh = NULL;
 Framework::Mesh *g_pPlaneMesh = NULL;
 Framework::Mesh *g_pCubeMesh = NULL;
 
-Framework::RadiusDef radiusDef = {5.0f, 3.0f, 20.0f, 1.5f, 0.5f};
+Framework::RadiusDef radiusDef = {5.0f, 3.0f, 200.0f, 1.5f, 0.5f};
 Framework::MousePole g_mousePole(glm::vec3(0.0f, 0.5f, 0.0f), radiusDef);
 
 namespace
@@ -137,11 +150,20 @@ void init()
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
 
+	const float depthZNear = 0.0f;
+	const float depthZFar = 1.0f;
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LEQUAL);
-	glDepthRange(0.0f, 1.0f);
+	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
+
+	glUseProgram(g_FragWhiteDiffuseColor.theProgram);
+	glUniform2f(g_FragWhiteDiffuseColor.depthRangeUnif,depthZNear, depthZFar);
+	glUseProgram(g_FragVertexDiffuseColor.theProgram);
+	glUniform2f(g_FragVertexDiffuseColor.depthRangeUnif,depthZNear, depthZFar);
+	glUseProgram(0);
 }
 
 static float g_fLightHeight = 1.5f;
@@ -168,8 +190,13 @@ static float g_CylYaw = 0.0f;
 static float g_CylPitch = 0.0f;
 static float g_CylRoll = 0.0f;
 
+static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;
 static bool g_bDrawLight = false;
+static bool g_bScaleCyl = false;
+static bool g_bUseRSquare = false;
+
+static float g_fLightAttenuation = 1.0f;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -187,20 +214,20 @@ void display()
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
 
 		const glm::vec4 &worldLightPos = CalcLightPosition();
+		const glm::vec4 &lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
 
-		glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
-
-		glUseProgram(g_WhiteDiffuseColor.theProgram);
-		glUniform3fv(g_WhiteDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-		glUseProgram(g_VertexDiffuseColor.theProgram);
-		glUniform3fv(g_VertexDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-
-		glUseProgram(g_WhiteDiffuseColor.theProgram);
-		glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
-		glUniform4f(g_WhiteDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
-		glUseProgram(g_VertexDiffuseColor.theProgram);
-		glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
-		glUniform4f(g_VertexDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+		glUseProgram(g_FragWhiteDiffuseColor.theProgram);
+		glUniform4f(g_FragWhiteDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+		glUniform4f(g_FragWhiteDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+		glUniform3fv(g_FragWhiteDiffuseColor.cameraSpaceLightPosUnif,1, glm::value_ptr(lightPosCameraSpace));
+		glUniform1f(g_FragWhiteDiffuseColor.lightAttenuationUnif, g_fLightAttenuation);
+		glUniform1i(g_FragWhiteDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);
+		glUseProgram(g_FragVertexDiffuseColor.theProgram);
+		glUniform4f(g_FragVertexDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+		glUniform4f(g_FragVertexDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+		glUniform3fv(g_FragVertexDiffuseColor.cameraSpaceLightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
+		glUniform1f(g_FragVertexDiffuseColor.lightAttenuationUnif, g_fLightAttenuation);
+		glUniform1i(g_FragVertexDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);
 		glUseProgram(0);
 
 		{
@@ -210,11 +237,14 @@ void display()
 			{
 				Framework::MatrixStackPusher push(modelMatrix);
 
-				glUseProgram(g_WhiteDiffuseColor.theProgram);
-				glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(modelMatrix.Top()));
 				glm::mat3 normMatrix(modelMatrix.Top());
-				glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
+				normMatrix = glm::transpose(glm::inverse(normMatrix));
+
+				glUseProgram(g_FragWhiteDiffuseColor.theProgram);
+				glUniformMatrix4fv(g_FragWhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE,
+					glm::value_ptr(modelMatrix.Top()));
+
+				glUniformMatrix3fv(g_FragWhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 					glm::value_ptr(normMatrix));
 				g_pPlaneMesh->Render();
 				glUseProgram(0);
@@ -230,23 +260,29 @@ void display()
 				modelMatrix.RotateY(g_CylYaw);
 				modelMatrix.RotateZ(g_CylRoll);
 
+				if(g_bScaleCyl)
+					modelMatrix.Scale(1.0f, 1.0f, 0.2f);
+
+				glm::mat3 normMatrix(modelMatrix.Top());
+				normMatrix = glm::transpose(glm::inverse(normMatrix));
+
 				if(g_bDrawColoredCyl)
 				{
-					glUseProgram(g_VertexDiffuseColor.theProgram);
-					glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE,
+					glUseProgram(g_FragVertexDiffuseColor.theProgram);
+					glUniformMatrix4fv(g_FragVertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(modelMatrix.Top()));
-					glm::mat3 normMatrix(modelMatrix.Top());
-					glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
+
+					glUniformMatrix3fv(g_FragVertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(normMatrix));
 					g_pCylinderMesh->Render("tint");
 				}
 				else
 				{
-					glUseProgram(g_WhiteDiffuseColor.theProgram);
-					glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE,
+					glUseProgram(g_FragWhiteDiffuseColor.theProgram);
+					glUniformMatrix4fv(g_FragWhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(modelMatrix.Top()));
-					glm::mat3 normMatrix(modelMatrix.Top());
-					glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
+
+					glUniformMatrix3fv(g_FragWhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(normMatrix));
 					g_pCylinderMesh->Render("flat");
 				}
@@ -280,13 +316,22 @@ void reshape (int w, int h)
 {
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+	const glm::mat4 &invMat = glm::inverse(persMatrix.Top());
 
-	glUseProgram(g_WhiteDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_WhiteDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+	glUseProgram(g_FragWhiteDiffuseColor.theProgram);
+	glUniformMatrix4fv(g_FragWhiteDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
-	glUseProgram(g_VertexDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_VertexDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+	glUniform2i(g_FragWhiteDiffuseColor.windowSizeUnif, w, h);
+	glUniformMatrix4fv(g_FragWhiteDiffuseColor.clipToCameraMatrixUnif, 1, GL_FALSE,
+		glm::value_ptr(invMat));
+
+	glUseProgram(g_FragVertexDiffuseColor.theProgram);
+	glUniformMatrix4fv(g_FragVertexDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
+	glUniform2i(g_FragVertexDiffuseColor.windowSizeUnif, w, h);
+	glUniformMatrix4fv(g_FragVertexDiffuseColor.clipToCameraMatrixUnif, 1, GL_FALSE,
+		glm::value_ptr(invMat));
+
 	glUseProgram(g_Unlit.theProgram);
 	glUniformMatrix4fv(g_Unlit.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
@@ -302,6 +347,7 @@ void reshape (int w, int h)
 //exit the program.
 void keyboard(unsigned char key, int x, int y)
 {
+	bool bChangedAtten = false;
 	switch (key)
 	{
 	case 27:
@@ -332,17 +378,29 @@ void keyboard(unsigned char key, int x, int y)
 	case 'k': g_fLightHeight -= 0.2f; break;
 	case 'l': g_fLightRadius += 0.2f; break;
 	case 'j': g_fLightRadius -= 0.2f; break;
-
 	case 'I': g_fLightHeight += 0.05f; break;
 	case 'K': g_fLightHeight -= 0.05f; break;
 	case 'L': g_fLightRadius += 0.05f; break;
 	case 'J': g_fLightRadius -= 0.05f; break;
 
+	case 'o': g_fLightAttenuation += 1.0f; bChangedAtten = true; break;
+	case 'u': g_fLightAttenuation -= 1.0f; bChangedAtten = true; break;
+	case 'O': g_fLightAttenuation += 0.1f; bChangedAtten = true; break;
+	case 'U': g_fLightAttenuation -= 0.1f; bChangedAtten = true; break;
+
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
+	case 't': g_bScaleCyl = !g_bScaleCyl; break;
+	case 'h': g_bUseRSquare = !g_bUseRSquare; break;
 	}
 
 	if(g_fLightRadius < 0.2f)
 		g_fLightRadius = 0.2f;
+
+	if(g_fLightAttenuation < 0.1f)
+		g_fLightAttenuation = 0.1f;
+
+	if(bChangedAtten)
+		printf("Atten: %f\n", g_fLightAttenuation); 
 
 	glutPostRedisplay();
 }

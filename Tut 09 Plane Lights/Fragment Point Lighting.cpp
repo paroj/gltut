@@ -23,7 +23,6 @@ struct ProgramData
 
 	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
-	GLuint normalModelToCameraMatrixUnif;
 };
 
 struct UnlitProgData
@@ -38,10 +37,10 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-ProgramData g_WhiteAmbDiffuseColor;
-ProgramData g_VertexAmbDiffuseColor;
-ProgramData g_WhiteAmbFragDiffuseColor;
-ProgramData g_VertexAmbFragDiffuseColor;
+ProgramData g_WhiteDiffuseColor;
+ProgramData g_VertexDiffuseColor;
+ProgramData g_FragWhiteDiffuseColor;
+ProgramData g_FragVertexDiffuseColor;
 
 UnlitProgData g_Unlit;
 
@@ -72,7 +71,6 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
 	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
-	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
 	data.modelSpaceLightPosUnif = glGetUniformLocation(data.theProgram, "modelSpaceLightPos");
 	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
 	data.ambientIntensityUnif = glGetUniformLocation(data.theProgram, "ambientIntensity");
@@ -82,10 +80,10 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 
 void InitializePrograms()
 {
-	g_WhiteAmbDiffuseColor = LoadLitProgram("ModelPosVertexLighting_PN.vert", "ColorPassthrough.frag");
-	g_VertexAmbDiffuseColor = LoadLitProgram("ModelPosVertexLighting_PCN.vert", "ColorPassthrough.frag");
-	g_WhiteAmbFragDiffuseColor = LoadLitProgram("FragmentLighting_PN.vert", "FragmentLighting.frag");
-	g_VertexAmbFragDiffuseColor = LoadLitProgram("FragmentLighting_PCN.vert", "FragmentLighting.frag");
+	g_WhiteDiffuseColor = LoadLitProgram("ModelPosVertexLighting_PN.vert", "ColorPassthrough.frag");
+	g_VertexDiffuseColor = LoadLitProgram("ModelPosVertexLighting_PCN.vert", "ColorPassthrough.frag");
+	g_FragWhiteDiffuseColor = LoadLitProgram("FragmentLighting_PN.vert", "FragmentLighting.frag");
+	g_FragVertexDiffuseColor = LoadLitProgram("FragmentLighting_PCN.vert", "FragmentLighting.frag");
 
 	g_Unlit = LoadUnlitProgram("PosTransform.vert", "UniformColor.frag");
 }
@@ -202,13 +200,13 @@ void display()
 
 		if(g_bUseFragmentLighting)
 		{
-			pWhiteProgram = &g_WhiteAmbFragDiffuseColor;
-			pVertColorProgram = &g_VertexAmbFragDiffuseColor;
+			pWhiteProgram = &g_FragWhiteDiffuseColor;
+			pVertColorProgram = &g_FragVertexDiffuseColor;
 		}
 		else
 		{
-			pWhiteProgram = &g_WhiteAmbDiffuseColor;
-			pVertColorProgram = &g_VertexAmbDiffuseColor;
+			pWhiteProgram = &g_WhiteDiffuseColor;
+			pVertColorProgram = &g_VertexDiffuseColor;
 		}
 
 		glUseProgram(pWhiteProgram->theProgram);
@@ -234,9 +232,6 @@ void display()
 				glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
 				glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
-				glm::mat3 normMatrix(modelMatrix.Top());
-				glUniformMatrix3fv(pWhiteProgram->normalModelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(normMatrix));
 				g_pPlaneMesh->Render();
 				glUseProgram(0);
 			}
@@ -264,9 +259,6 @@ void display()
 					glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
 					glUniform3fv(pVertColorProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
-					glm::mat3 normMatrix(modelMatrix.Top());
-					glUniformMatrix3fv(pVertColorProgram->normalModelToCameraMatrixUnif, 1, GL_FALSE,
-						glm::value_ptr(normMatrix));
 					g_pCylinderMesh->Render("tint");
 				}
 				else
@@ -279,9 +271,6 @@ void display()
 					glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
 					glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
-					glm::mat3 normMatrix(modelMatrix.Top());
-					glUniformMatrix3fv(pWhiteProgram->normalModelToCameraMatrixUnif, 1, GL_FALSE,
-						glm::value_ptr(normMatrix));
 					g_pCylinderMesh->Render("flat");
 				}
 				glUseProgram(0);
@@ -315,17 +304,17 @@ void reshape (int w, int h)
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
 
-	glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_WhiteAmbDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+	glUseProgram(g_WhiteDiffuseColor.theProgram);
+	glUniformMatrix4fv(g_WhiteDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
-	glUseProgram(g_VertexAmbDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_VertexAmbDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+	glUseProgram(g_VertexDiffuseColor.theProgram);
+	glUniformMatrix4fv(g_VertexDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
-	glUseProgram(g_WhiteAmbFragDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_WhiteAmbFragDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+	glUseProgram(g_FragWhiteDiffuseColor.theProgram);
+	glUniformMatrix4fv(g_FragWhiteDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
-	glUseProgram(g_VertexAmbFragDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_VertexAmbFragDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
+	glUseProgram(g_FragVertexDiffuseColor.theProgram);
+	glUniformMatrix4fv(g_FragVertexDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
 		glm::value_ptr(persMatrix.Top()));
 	glUseProgram(g_Unlit.theProgram);
 	glUniformMatrix4fv(g_Unlit.cameraToClipMatrixUnif, 1, GL_FALSE,

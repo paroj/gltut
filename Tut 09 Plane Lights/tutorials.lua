@@ -14,3 +14,8 @@ SetupProject("Tut 09 Fragment Point Lighting", "Fragment Point Lighting.cpp",
 	"data/FragmentLighting_PN.vert",
 	"data/FragmentLighting.frag")
 
+SetupProject("Tut 09 Fragment Attenuation", "Fragment Attenuation.cpp",
+	"data/FragLightAtten_PCN.vert",
+	"data/FragLightAtten_PN.vert",
+	"data/FragLightAtten.frag")
+
