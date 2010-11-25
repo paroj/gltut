@@ -222,6 +222,7 @@ void display()
 		glUniform3fv(g_FragWhiteDiffuseColor.cameraSpaceLightPosUnif,1, glm::value_ptr(lightPosCameraSpace));
 		glUniform1f(g_FragWhiteDiffuseColor.lightAttenuationUnif, g_fLightAttenuation);
 		glUniform1i(g_FragWhiteDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);
+
 		glUseProgram(g_FragVertexDiffuseColor.theProgram);
 		glUniform4f(g_FragVertexDiffuseColor.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
 		glUniform4f(g_FragVertexDiffuseColor.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
