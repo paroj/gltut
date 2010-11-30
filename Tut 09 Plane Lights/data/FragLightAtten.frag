@@ -32,11 +32,13 @@ vec3 CalcCameraSpacePosition()
 	return vec3(clipToCameraMatrix * clipPos);
 }
 
-vec4 CalcLightIntensity(in vec3 cameraSpacePosition)
+vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
 {
-	float lightDistance = length(cameraSpaceLightPos - cameraSpacePosition);
+	lightDirection =  cameraSpaceLightPos - cameraSpacePosition;
+	float lightDistanceSqr = dot(lightDirection, lightDirection);
+	lightDirection = lightDirection * inversesqrt(lightDistanceSqr);
 	
-	float distFactor = bUseRSquare ? lightDistance * lightDistance : lightDistance;
+	float distFactor = bUseRSquare ? lightDistanceSqr : sqrt(lightDistanceSqr);
 
 	return lightIntensity * (1 / ( 1.0 + lightAttenuation * distFactor));
 }
@@ -44,12 +46,13 @@ vec4 CalcLightIntensity(in vec3 cameraSpacePosition)
 void main()
 {
 	vec3 cameraSpacePosition = CalcCameraSpacePosition();
-	vec3 lightDir = normalize(cameraSpaceLightPos - cameraSpacePosition);
 
-	float cosAngIncidence = dot(normalize(vertexNormal),
-		normalize(lightDir));
+	vec3 lightDir = vec3(0.0);
+	vec4 attenIntensity = ApplyLightIntensity(cameraSpacePosition, lightDir);
+
+	float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
 	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
 	
-	outputColor = (diffuseColor * CalcLightIntensity(cameraSpacePosition) * cosAngIncidence) +
+	outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
 		(diffuseColor * ambientIntensity);
 }

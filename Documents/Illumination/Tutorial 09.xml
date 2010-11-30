@@ -214,10 +214,279 @@ void main()
             space.</para>
         <para>The <phrase role="propername">Fragment Point Lighting</phrase> tutorial shows off how
             fragment lighting works.</para>
+        <para>This tutorial is controlled as before, with a few exceptions. Pressing the
+                <keycap>t</keycap> key will toggle a scale factor onto to be applied to the
+            cylinder, and pressing the <keycap>h</keycap> key will toggle between per-fragment
+            lighting and per-vertex lighting.</para>
+        <!--TODO: Show a picture of the tutorial.-->
+        <para>Much better.</para>
+        <para>The rendering code has changed somewhat, considering the use of model space for
+            lighting instead of camera space. The start of the rendering looks as follows:</para>
+        <example>
+            <title>Initial Per-Fragment Rendering</title>
+            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+
+const glm::vec4 &amp;worldLightPos = CalcLightPosition();
+
+glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;</programlisting>
+        </example>
+        <para>The new code is the last line, where we transform the world-space light into camera
+            space. This is done to make the math much easier. Since our matrix stack is building up
+            the transform from model to camera space, the inverse of this matrix would be a
+            transform from camera space to model space. So we need to put our light position into
+            camera space before we transform it by the inverse.</para>
+        <para>After doing that, it uses a variable to switch between per-vertex and per-fragment
+            lighting. This just selects which shaders to use; both sets of shaders take the same
+            uniform values, even though they use them in different program stages.</para>
+        <para>The ground plane is rendered with this code:</para>
+        <example>
+            <title>Ground Plane Per-Fragment Rendering</title>
+            <programlisting language="cpp">glUseProgram(pWhiteProgram->theProgram);
+glUniformMatrix4fv(pWhiteProgram->modelToCameraMatrixUnif, 1, GL_FALSE,
+    glm::value_ptr(modelMatrix.Top()));
+
+glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
+glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
+glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
+
+g_pPlaneMesh->Render();
+glUseProgram(0);</programlisting>
+        </example>
+        <para>We compute the inverse matrix using <function>glm::inverse</function> and store it.
+            Then we use that to compute the model space light position and pass that to the shader.
+            Then the plane is rendered.</para>
+        <para>The cylinder is rendered using similar code. It simply does a few transformations to
+            the model matrix before computing the inverse and rendering.</para>
+        <para>The shaders are where the real action is. As with previous lighting tutorials, there
+            are two sets of shaders: one that take a per-vertex color, and one that uses a constant
+            white color. The vertex shaders that do per-vertex lighting computations should be
+            familiar:</para>
+        <example>
+            <title>Model Space Per-Vertex Lighting Vertex Shader</title>
+            <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 inDiffuseColor;
+layout(location = 2) in vec3 normal;
+
+out vec4 interpColor;
+
+uniform vec3 modelSpaceLightPos;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    vec3 dirToLight = normalize(modelSpaceLightPos - position);
+    
+    float cosAngIncidence = dot( normal, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = (lightIntensity * cosAngIncidence * inDiffuseColor) +
+        (ambientIntensity * inDiffuseColor);
+}</programlisting>
+        </example>
+        <para>The main differences between this version and the previous version are simply what one
+            would expect from the change from camera-space lighting to model space lighting. The
+            per-vertex inputs are used directly, rather than being transformed into camera space.
+            There is a second version that omits the <varname>inDiffuseColor</varname> input.</para>
+        <para>With per-vertex lighting, we have two vertex shaders:
+                <filename>ModelPosVertexLighting_PCN.vert</filename> and
+                <filename>ModelPosVertexLighting_PN.vert</filename>. With per-fragment lighting, we
+            also have two shaders: <filename>FragmentLighting_PCN.vert</filename> and
+                <filename>FragmentLighting_PN.vert</filename>. They are disappointingly
+            simple:</para>
+        <example>
+            <title>Model Space Per-Fragment Lighting Vertex Shader</title>
+            <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 inDiffuseColor;
+layout(location = 2) in vec3 normal;
+
+out vec4 diffuseColor;
+out vec3 vertexNormal;
+out vec3 modelSpacePosition;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    modelSpacePosition = position;
+    vertexNormal = normal;
+    diffuseColor = inDiffuseColor;
+}</programlisting>
+        </example>
+        <para>Since our lighting is done in the fragment shader, there isn't much to do except pass
+            variables through and set the output clip-space position. The version that takes no
+            diffuse color just passes a <type>vec4</type> containing just 1.0.</para>
+        <para>The fragment shader is much more interesting:</para>
+        <example>
+            <title>Per-Fragment Lighting Fragment Shader</title>
+            <programlisting language="glsl">#version 330
+
+in vec4 diffuseColor;
+in vec3 vertexNormal;
+in vec3 modelSpacePosition;
+
+out vec4 outputColor;
+
+uniform vec3 modelSpaceLightPos;
+
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+void main()
+{
+    vec3 lightDir = normalize(modelSpaceLightPos - modelSpacePosition);
+    
+    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    outputColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
+        </example>
+        <para>The math is essentially identical between the per-vertex and per-fragment case. The
+            main difference is the normalization of <varname>vertexNormal</varname>. This is
+            necessary because interpolating between two unit vectors does not mean you will get a
+            unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
+            you will not get a unit vector.</para>
+        <section>
+            <title>Close Lights</title>
+            <para>While this may look perfect, there are still a few problem spots. Use the <keycombo>
+                    <keycap>Shift</keycap>
+                    <keycap>j</keycap>
+                </keycombo> key to move the light really close to the cylinder, but without putting
+                the light inside the cylinder. You should see something like this:</para>
+            <!--TODO: Picture of the cylinder with a close light.-->
+            <para>This looks like the same problem we had before. Wasn't doing lighting at the
+                fragment level supposed to fix this?</para>
+            <para>Actually, this is a completely different problem. And it is one that is
+                essentially impossible to solve. Well, not without changing our geometry.</para>
+            <para>The source of the problem is this: we're lying and the light finally caught us.
+                Remember what we are actually doing. We are not rendering a cylinder; we are
+                rendering a group of flat triangles that we attempt to make
+                    <emphasis>appear</emphasis> to be a round cylinder. We are rendering a polygonal
+                approximation of a cylinder, then using our lighting computations to make it seem
+                like the faceted shape is really round.</para>
+            <para>This works quite well when the light is fairly far from the surface. But when the
+                light is very close, as it is here, it reveals our fakery for what it is.
+                Why?</para>
+            <para>Let's take a top-down view of our cylinder approximation, but let's also draw what
+                the actual cylinder would look like:</para>
+            <!--TODO: Show a diagram of a faceted cylinder inscribed within a circle.-->
+            <para>Now, consider our lighting equation at a particular point on the fake
+                cylinder:</para>
+            <!--TODO: Extend the previous diagram with two lights, one close and one far. Also show a point on the fake
+cylinder, and a normal. And show the corresponding point/normal.-->
+            <para>The problem comes from the difference between the actual position being rendered
+                and the corresponding position on the circle that has the normal that we are
+                pretending our point has. When the light is somewhat away, the difference that this
+                creates in the direction to the light is pretty small. But when the light is very
+                close, the difference is substantial.</para>
+            <para>The key point is that there isn't much we can do about this problem. The only
+                solution is to add more vertices to the approximation of the cylinder. For our
+                simple case, this is easy. For a complicated case like a human being, this is
+                usually rather more difficult. It also takes up more performance, since there are
+                more vertices, more executions of our (admittedly simple) vertex shader, and more
+                triangles rasterized or discarded for being back-facing.</para>
+        </section>
     </section>
     <section>
-        <title>Distance and Points</title>
-        <para/>
+        <title>Distant Points of Light</title>
+        <para>There is another issue with our current example. Use the <keycap>i</keycap> key to
+            raise the light up really high. Notice how bright all of the upwardly-facing surfaces
+            get:</para>
+        <!--TODO: Show a picture of a high light's effect on the surface.-->
+        <para>You probably have no experience with this in real life. Holding a light farther from
+            the surface in reality does not make the light brighter. So obviously something is
+            happening in reality that our simple lighting model is not accounting for.</para>
+        <para>In reality, lights emit a certain quantity of light per unit time. For a point-like
+            light such as a light bulb, it emits this light radially, in all directions. The farther
+            from the light source one gets, the more area that this must ultimately cover.</para>
+        <para>Light is essentially a wave. The farther away from the source of the wave, the less
+            intense the wave is. For light, this is called <glossterm>light
+            attenuation.</glossterm></para>
+        <para>Our model does not include light attenuation, so let's fix that.</para>
+        <para>Attenuation is a well-understood physical phenomenon. In the absence of other factors
+            (atmospheric light scattering, etc), the light intensity varies with the inverse of the
+            square of the distance. An object 2 units away from the light feels like with one-fourth
+            the intensity. So our equation for light attenuation is as follows:</para>
+        <!--TODO: An equation for light attenuation. AttenLight = Light * (1 / (1.0 + k * r^2))-->
+        <para>There is a constant in the equation, which is used for unit correction. Of course, we
+            can (and will) use it as a fudge factor to make things look right.</para>
+        <para>The constant can take on a physical meaning. If you want to specify a distance at
+            which half of the light intensity is lost, <varname>k</varname> simply becomes:</para>
+        <!--TODO: An equation for k = 1/khalf^2-->
+        <para>However physically correct this equation is, it has certain drawbacks. And this brings
+            us back to the light intensity problem we touched on earlier.</para>
+        <para>Since our lights are clamped on the [0, 1] range, it doesn't take much distance from
+            the light before the contribution from a light to become effectively nil. In reality,
+            with an unclamped range, we could just pump the light's intensity up to realistic
+            values. But we're working with a clamped range.</para>
+        <para>Therefore, a more common attenuation scheme is to use the inverse of just the distance
+            instead of the inverse of the distance squared:</para>
+        <!--TODO: Light equation with 1/(1.0 + kr)-->
+        <para>It looks brighter for more distant lights. It isn't physically correct, but so much
+            about our rendering is at this point that it won't be noticed much.</para>
+        <section>
+            <title>Reverse of the Transform</title>
+            <para>However, there is a problem. We previously did per-fragment lighting in model
+                space. And while this is a perfectly useful space to do lighting in, distance stops
+                making sense in model space.</para>
+            <para>We want to specify the attenuation constant factor in terms of world space
+                distances. But we aren't dealing in world space; we are in model space. And model
+                space distances are, naturally, in model space, which may well be scaled relative to
+                world space. Here, any kind of scale is a problem, not just non-uniform scales.
+                Although if there was a uniform scale, we could apply theoretically apply it to the
+                attenuation constant.</para>
+            <para>So now we cannot use model space. Fortunately, camera space is a space that has
+                the same scale as world space, just with a rotation/translation applied to it. So we
+                can do our lighting in that space.</para>
+            <para>However, that is not clever enough. Doing it in camera space requires computing a
+                camera space position and passing it to the fragment shader to be interpolated.
+                Isn't there some way to get around that?</para>
+            <para>Yes, there is. Recall <varname>gl_FragCoord</varname>, an intrinsic value given to
+                every fragment shader. It represents the location of the fragment in window space.
+                So instead of transforming from model space to camera space, we will transform from
+                window space to camera space.</para>
+            <note>
+                <para>The use of this technique here should not be taken as a suggestion to use it
+                    in all, or even most cases like this. In all likelihood, it will be much slower
+                    than just passing the camera space position to the fragment shader. It is here
+                    primarily for demonstration purposes, though we will eventually get to use it in
+                    a more legitimate way.</para>
+            </note>
+            <para>The sequence of transformations that take a position from camera space to window
+                space is as follows:</para>
+            <!--TODO: The sequence of transforms for camera to window coordinates.-->
+            <para>Therefore, given <varname>gl_FragCoord</varname>, we will need to perform the
+                reverse of these:</para>
+            <!--TODO: Invert the sequence and the functions.-->
+            <para>This means that our fragment shader needs to be given each of those values.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>The inverse projection matrix.</para>
+                </listitem>
+                <listitem>
+                    <para>The viewport width/height.</para>
+                </listitem>
+                <listitem>
+                    <para>The depth range.</para>
+                </listitem>
+            </itemizedlist>
+            <para/>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut09 In Review.html" ?>
@@ -245,6 +514,14 @@ void main()
                         the same stack, so long as the pop function puts the two matrices in the
                         proper places.</para>
                 </listitem>
+                <listitem>
+                    <para>Since we're dealing with fake lighting anyway, we can make attenuation
+                        behave in a way that is useful, but doesn't even come close to reality. We
+                        can do a linear interpolation between a distance of zero, where the
+                        intensity is full, and a given distance, where the intensity is 0. So
+                        instead of a smooth falloff, we have a linear decrease to a distance where
+                        the light is no longer applied to points. Implement this.</para>
+                </listitem>
             </itemizedlist>
         </section>
     </section>
@@ -260,6 +537,18 @@ void main()
             </glossentry>
             <glossentry>
                 <glossterm>fragment lighting</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>light attenuation</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm/>
                 <glossdef>
                     <para/>
                 </glossdef>

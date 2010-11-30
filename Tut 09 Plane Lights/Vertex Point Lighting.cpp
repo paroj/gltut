@@ -181,7 +181,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pPlaneMesh && g_pCylinderMesh)
+	if(g_pPlaneMesh && g_pCylinderMesh && g_pCubeMesh)
 	{
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());

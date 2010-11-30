@@ -208,7 +208,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pPlaneMesh && g_pCylinderMesh)
+	if(g_pPlaneMesh && g_pCylinderMesh && g_pCubeMesh)
 	{
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
@@ -349,6 +349,7 @@ void reshape (int w, int h)
 void keyboard(unsigned char key, int x, int y)
 {
 	bool bChangedAtten = false;
+	bool bChangedType = false;
 	switch (key)
 	{
 	case 27:
@@ -384,14 +385,21 @@ void keyboard(unsigned char key, int x, int y)
 	case 'L': g_fLightRadius += 0.05f; break;
 	case 'J': g_fLightRadius -= 0.05f; break;
 
-	case 'o': g_fLightAttenuation += 1.0f; bChangedAtten = true; break;
-	case 'u': g_fLightAttenuation -= 1.0f; bChangedAtten = true; break;
-	case 'O': g_fLightAttenuation += 0.1f; bChangedAtten = true; break;
-	case 'U': g_fLightAttenuation -= 0.1f; bChangedAtten = true; break;
+	case 'o': g_fLightAttenuation *= 1.5f; bChangedAtten = true; break;
+	case 'u': g_fLightAttenuation /= 1.5f; bChangedAtten = true; break;
+	case 'O': g_fLightAttenuation *= 1.1f; bChangedAtten = true; break;
+	case 'U': g_fLightAttenuation /= 1.1f; bChangedAtten = true; break;
 
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
 	case 't': g_bScaleCyl = !g_bScaleCyl; break;
-	case 'h': g_bUseRSquare = !g_bUseRSquare; break;
+
+	case 'h':
+		g_bUseRSquare = !g_bUseRSquare;
+		if(g_bUseRSquare)
+			printf("Inverse Squared Attenuation\n");
+		else
+			printf("Plain Inverse Attenuation\n");
+		break;
 	}
 
 	if(g_fLightRadius < 0.2f)
