@@ -34,9 +34,9 @@ vec3 CalcCameraSpacePosition()
 
 vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
 {
-	lightDirection =  cameraSpaceLightPos - cameraSpacePosition;
-	float lightDistanceSqr = dot(lightDirection, lightDirection);
-	lightDirection = lightDirection * inversesqrt(lightDistanceSqr);
+	vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
+	float lightDistanceSqr = dot(lightDifference, lightDifference);
+	lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
 	
 	float distFactor = bUseRSquare ? lightDistanceSqr : sqrt(lightDistanceSqr);
 

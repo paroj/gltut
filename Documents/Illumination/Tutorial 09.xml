@@ -150,7 +150,8 @@ void main()
         <para>And our lighting equation is this:</para>
         <!--TODO: eq: D * I * dot(L, N)-->
         <para>If the surface normal N is being interpolated, then at any particular point on the
-            surface, we get this equation:</para>
+            surface, we get this equation for a directional light (the light direction L does not
+            change):</para>
         <!--TODO: D * I * dot(L, Na& + Nb(1-&))-->
         <para>The dot product is distributive, like scalar multiplication. So we can distribute the
             L to both sides of the dot product term:</para>
@@ -362,10 +363,10 @@ void main()
             unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
             you will not get a unit vector.</para>
         <section>
-            <title>Close Lights</title>
-            <para>While this may look perfect, there are still a few problem spots. Use the <keycombo>
+            <title>Caught in a Lie</title>
+            <para>While this may look perfect, there is still one problem. Use the <keycombo>
                     <keycap>Shift</keycap>
-                    <keycap>j</keycap>
+                    <keycap>J</keycap>
                 </keycombo> key to move the light really close to the cylinder, but without putting
                 the light inside the cylinder. You should see something like this:</para>
             <!--TODO: Picture of the cylinder with a close light.-->
@@ -373,8 +374,8 @@ void main()
                 fragment level supposed to fix this?</para>
             <para>Actually, this is a completely different problem. And it is one that is
                 essentially impossible to solve. Well, not without changing our geometry.</para>
-            <para>The source of the problem is this: we're lying and the light finally caught us.
-                Remember what we are actually doing. We are not rendering a cylinder; we are
+            <para>The source of the problem is this: the light finally caught us in our lie.
+                Remember what we are actually doing. We are not rendering a true cylinder; we are
                 rendering a group of flat triangles that we attempt to make
                     <emphasis>appear</emphasis> to be a round cylinder. We are rendering a polygonal
                 approximation of a cylinder, then using our lighting computations to make it seem
@@ -391,12 +392,21 @@ void main()
 cylinder, and a normal. And show the corresponding point/normal.-->
             <para>The problem comes from the difference between the actual position being rendered
                 and the corresponding position on the circle that has the normal that we are
-                pretending our point has. When the light is somewhat away, the difference that this
-                creates in the direction to the light is pretty small. But when the light is very
-                close, the difference is substantial.</para>
+                pretending our point has. When the light is somewhat distant, the difference between
+                the actual light direction we use, and the one we would use on a real cylinder is
+                pretty small. But when the light is very close, the difference is
+                substantial.</para>
+            <para>The lighting computations are correct for the vertices near the edges of a
+                triangle. But the farther from the edges you get, the more incorrect it
+                becomes.</para>
             <para>The key point is that there isn't much we can do about this problem. The only
-                solution is to add more vertices to the approximation of the cylinder. For our
-                simple case, this is easy. For a complicated case like a human being, this is
+                solution is to add more vertices to the approximation of the cylinder. It should
+                also be noted that adding more triangles would also make per-vertex lighting look
+                more correct. Thus making the whole exercise in using per-fragment lighting somewhat
+                pointless; if the mesh is fine enough so that each vertex effectively becomes a
+                fragment, then there is no difference between them.</para>
+            <para>For our simple case, adding triangles is easy, since a cylinder is a
+                mathematically defined object. For a complicated case like a human being, this is
                 usually rather more difficult. It also takes up more performance, since there are
                 more vertices, more executions of our (admittedly simple) vertex shader, and more
                 triangles rasterized or discarded for being back-facing.</para>
@@ -442,38 +452,39 @@ cylinder, and a normal. And show the corresponding point/normal.-->
         <section>
             <title>Reverse of the Transform</title>
             <para>However, there is a problem. We previously did per-fragment lighting in model
-                space. And while this is a perfectly useful space to do lighting in, distance stops
-                making sense in model space.</para>
+                space. And while this is a perfectly useful space to do lighting in, model space is
+                not world space.</para>
             <para>We want to specify the attenuation constant factor in terms of world space
                 distances. But we aren't dealing in world space; we are in model space. And model
                 space distances are, naturally, in model space, which may well be scaled relative to
-                world space. Here, any kind of scale is a problem, not just non-uniform scales.
-                Although if there was a uniform scale, we could apply theoretically apply it to the
-                attenuation constant.</para>
+                world space. Here, any kind of scale in the model-to-world transform is a problem,
+                not just non-uniform scales. Although if there was a uniform scale, we could apply
+                theoretically apply the scale to the attenuation constant.</para>
             <para>So now we cannot use model space. Fortunately, camera space is a space that has
                 the same scale as world space, just with a rotation/translation applied to it. So we
                 can do our lighting in that space.</para>
-            <para>However, that is not clever enough. Doing it in camera space requires computing a
-                camera space position and passing it to the fragment shader to be interpolated.
-                Isn't there some way to get around that?</para>
+            <para>Doing it in camera space requires computing a camera space position and passing it
+                to the fragment shader to be interpolated. And while we could do this, that's not
+                clever enough. Isn't there some way to get around that?</para>
             <para>Yes, there is. Recall <varname>gl_FragCoord</varname>, an intrinsic value given to
                 every fragment shader. It represents the location of the fragment in window space.
                 So instead of transforming from model space to camera space, we will transform from
                 window space to camera space.</para>
             <note>
-                <para>The use of this technique here should not be taken as a suggestion to use it
-                    in all, or even most cases like this. In all likelihood, it will be much slower
-                    than just passing the camera space position to the fragment shader. It is here
-                    primarily for demonstration purposes, though we will eventually get to use it in
-                    a more legitimate way.</para>
+                <para>The use of this reverse-transformation technique here should not be taken as a
+                    suggestion to use it in all, or even most cases like this. In all likelihood, it
+                    will be much slower than just passing the camera space position to the fragment
+                    shader. It is here primarily for demonstration purposes; it is useful for other
+                    techniques that we will see in the future.</para>
             </note>
             <para>The sequence of transformations that take a position from camera space to window
                 space is as follows:</para>
-            <!--TODO: The sequence of transforms for camera to window coordinates.-->
+            <!--TODO: The sequence of transforms to get gl_FragCoord from camera space.-->
             <para>Therefore, given <varname>gl_FragCoord</varname>, we will need to perform the
                 reverse of these:</para>
             <!--TODO: Invert the sequence and the functions.-->
-            <para>This means that our fragment shader needs to be given each of those values.</para>
+            <para>In order for our fragment shader to perform this transformation, it must be given
+                the following values:</para>
             <itemizedlist>
                 <listitem>
                     <para>The inverse projection matrix.</para>
@@ -485,13 +496,249 @@ cylinder, and a normal. And show the corresponding point/normal.-->
                     <para>The depth range.</para>
                 </listitem>
             </itemizedlist>
-            <para/>
+        </section>
+        <section>
+            <title>Applied Attenuation</title>
+            <para>The <phrase role="propername">Fragment Attenuation</phrase> tutorial performs
+                per-fragment attenuation, both with linear and quadratic attenuation.</para>
+            <!--TODO: Show a picture of the tutorial.-->
+            <para>This tutorial controls as before, with the following exceptions. The
+                    <keycap>O</keycap> and <keycap>U</keycap> keys increase and decrease the
+                attenuation constant. However, remember that decreasing the constant makes the
+                attenuation less, which makes the light appear <emphasis>brighter</emphasis> at a
+                particular distance. Using the shift key in combination with them will
+                increase/decrease the attenuation by smaller increments. The <keycap>H</keycap> key
+                swaps between the linear and quadratic interpolation functions.</para>
+            <para>The drawing code is mostly the same as we saw in the per-vertex point light
+                tutorial, since both this and that one perform lighting in camera space. The vertex
+                shader is also nothing new; passes the vertex normal and color to the fragment
+                shader. The vertex normal is multiplied by the normal matrix, which allows us to use
+                non-uniform scaling.</para>
+        </section>
+        <section>
+            <title>New Uniform Types</title>
+            <para>The more interesting part is the fragment shader. The definitions are not much
+                changed from the last one, but there have been some additions:</para>
+            <example>
+                <title>Light Attenuation Fragment Shader Definitions</title>
+                <programlisting language="glsl">uniform mat4 clipToCameraMatrix;
+uniform ivec2 windowSize;
+uniform vec2 depthRange;
+
+uniform float lightAttenuation;
+uniform bool bUseRSquare;</programlisting>
+            </example>
+            <para>The first three lines are the information we need to perform the
+                previously-discussed reverse-transformation, so that we can turn
+                    <varname>gl_FragCoord</varname> into a camera-space position. Notice that the
+                    <varname>windowSize</varname> uses a new type: <type>ivec2</type>. This is a
+                2-dimensional vector of integers.</para>
+            <para>Thus far, we have only modified uniforms of floating-point type. All of the vector
+                uploading functions we have used have been of the forms
+                    <function>glUniform#f</function> or <function>glUniform#fv</function>, where the
+                # is a number 1-4. The <quote>v</quote> represents a vector version, which takes a
+                pointer instead of 1-4 parameters.</para>
+            <para>Uploading to an integer uniform uses functions of the form
+                    <function>glUniform#i</function> and <function>glUniform#iv</function>. So the
+                code we use to set the window size uniform is this:</para>
+            <programlisting language="cpp">glUniform2i(g_FragWhiteDiffuseColor.windowSizeUnif, w, h);</programlisting>
+            <para>The <varname>w</varname> and <varname>h</varname> values are the width and height
+                passed to the <function>reshape</function> function. That is where this line of code
+                is, and that is where we set both the clip-to-camera matrix and the window size. The
+                    <varname>depthRange</varname> is set in the initialization code, since it never
+                changes.</para>
+            <para>The <varname>lightAttenuation</varname> uniform is just a float, but
+                    <varname>bUseRSquare</varname> uses a new type: boolean.</para>
+            <para>GLSL has the <type>bool</type> type just like C++ does. The
+                    <literal>true</literal> and <literal>false</literal> values work just like C++'s
+                equivalents. Where they differ is that GLSL also has vectors of bools, called
+                    <type>bvec#</type>, where the # can be 2, 3, or 4. We don't use that here, but
+                it is important to note.</para>
+            <para>OpenGL's API, however, is still a C API. And C (at least, pre-C99) has no
+                    <type>bool</type> type. Uploading a boolean value to a shader looks like
+                this:</para>
+            <programlisting language="cpp">glUniform1i(g_FragWhiteDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);</programlisting>
+            <para>The integer form of uniform uploading is used, but the floating-point form could
+                be allowed as well. The number 0 represents false, and any other number is
+                true.</para>
+        </section>
+        <section>
+            <title>Functions in GLSL</title>
+            <para>For the first time, we have a shader complex enough that splitting it into
+                different functions makes sense. So we do that. The first function is one that
+                computes the camera-space position:</para>
+            <example>
+                <title>Window to Camera Space Function</title>
+                <programlisting language="glsl">vec3 CalcCameraSpacePosition()
+{
+    vec3 ndcPos;
+    ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
+    ndcPos.z = 2.0 * (gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+    
+    vec4 clipPos;
+    clipPos.w = 1.0f / gl_FragCoord.w;
+    clipPos.xyz = ndcPos.xyz * clipPos.w;
+    
+    return vec3(clipToCameraMatrix * clipPos);
+}</programlisting>
+            </example>
+            <para>Not unsurprisingly, GLSL functions are defined much like C and C++
+                functions.</para>
+            <para>The first three lines compute the position in normalized device coordinates.
+                Notice that the computation of the X and Y coordinates is simplified from the
+                original function. This is because our viewport always sets the lower-left position
+                of the viewport to (0, 0). This is what you get when you plug zeros into that
+                equation.</para>
+            <para>From there, the clip-space position is computed as previously shown. Then the
+                result is multiplied through the clip-to-camera matrix, and that vector is returned
+                to the caller.</para>
+            <para>This is a simple function that uses only uniforms to compute a value. It takes no
+                inputs and outputs. The second function is not quite as simple.</para>
+            <example>
+                <title>Light Intensity Application Function</title>
+                <programlisting language="glsl">vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
+{
+    vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
+    float lightDistanceSqr = dot(lightDifference, lightDifference);
+    lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
+    
+    float distFactor = bUseRSquare ? lightDistanceSqr : sqrt(lightDistanceSqr);
+    
+    return lightIntensity * (1 / ( 1.0 + lightAttenuation * distFactor));
+}</programlisting>
+            </example>
+            <para>The function header looks rather different from the standard C/C++ function
+                definition syntax. Parameters to GLSL functions are designated as being inputs,
+                outputs, or inputs and outputs.</para>
+            <para>Parameters designated with <literal>in</literal> are input parameters. Functions
+                can change these values, but they will have no effect on the variable or expression
+                used in the function call. So any changes . This is much like the default in C/C++,
+                where parameter changes are local. Naturally, this is the default with GLSL
+                parameters if you do not specify a qualifier.</para>
+            <para>Parameters designated with <literal>out</literal> can be written to, and its value
+                will be returned to the calling function. These are similar to non-const reference
+                parameter types in C++. And just as with reference parameters, the caller of a
+                function must call it with a real variable (called an <quote>l-value</quote>). And
+                this variable must be a variable that can be <emphasis>changed</emphasis>, so you
+                cannot pass a uniform or shader stage input value as this parameter.</para>
+            <para>However, the initial value of parameters declared as outputs is
+                    <emphasis>not</emphasis> initialized from the calling function. This means that
+                the initial value is uninitialized and therefore undefined (ie: it could be
+                anything). Because of this, you can pass shader stage outputs as
+                    <literal>out</literal> parameters. Shader stage output variables can be written
+                to, but <emphasis>never</emphasis> read from.</para>
+            <para>Parameters designated as <literal>inout</literal> will have its value initialized
+                by the caller and have the final value returned to the caller. These are exactly
+                like non-const reference parameters in C++. The main difference is that the value is
+                initialized with the one that the user passed in, which forbids the passing of
+                shader stage outputs as <literal>inout</literal> parameters.</para>
+            <para>This function is semi-complex, as an optimization. Previously, our functions
+                simply normalized the difference between the vertex position and the light position.
+                In computing the attenuation, we need the distance between the two. And the process
+                of normalization computes the distance. So instead of calling the GLSL function to
+                normalize the direction, we do it ourselves, so that the distance is not computed
+                twice (once in the GLSL function and once for us).</para>
+            <para>The second line performs a dot product with the same vector. Remember that the dot
+                product between two vectors is the cosine of the angle between them, multiplied by
+                each of the lengths of the vectors. Well, the angle between a vector and itself is
+                zero, and the cosine of zero is always one. So what you get is just the length of
+                the two vectors times one another. And since the vectors are the same, the lengths
+                are the same. Thus, the dot product of a vector with itself is the square of its
+                length.</para>
+            <para>To normalize a vector, we must divide the vector by it's length. And the length of
+                    <varname>lightDifference</varname> is the square root of
+                    <varname>lightDistanceSqr</varname>. The <function>inversesqrt</function>
+                computes 1 / the square root of the given value, so all we need to do is multiply
+                this with the <varname>lightDifference</varname> to get the light direction as a
+                normalized vector. This value is written to our output variable.</para>
+            <para>The next line computes our lighting term. Notice the use of the ?: operator. This
+                works just like in C/C++. If we are using the square of the distance, that's what we
+                store. Otherwise we get the square-root and store that.</para>
+            <note>
+                <para>The assumption in using ?: here is that only one or the other of the two
+                    expressions will be evaluated. That's why the expensive call to
+                        <function>sqrt</function> is done here. However, this may not be the case.
+                    It is entirely possible (and quite likely) that the shader will always evaluate
+                        <emphasis>both</emphasis> expressions and simply store one value or the
+                    other as needed. So do not rely on such conditional logic to save
+                    performance.</para>
+            </note>
+            <para>After that, things proceed as expected.</para>
+            <para>Making these separate functions makes the main function look almost identical to
+                prior versions:</para>
+            <example>
+                <title>Main Light Attenuation</title>
+                <programlisting language="glsl">void main()
+{
+    vec3 cameraSpacePosition = CalcCameraSpacePosition();
+    
+    vec3 lightDir = vec3(0.0);
+    vec4 attenIntensity = ApplyLightIntensity(cameraSpacePosition, lightDir);
+    
+    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
+            </example>
+            <para>Function calls appear very similar to C/C++, with the exceptions about parameters
+                noted before. The camera-space position is determined. Then the light intensity,
+                modified by attenuation, is computed. From there, things proceed as before.</para>
+            <sidebar>
+                <title>Alternative Attenuation</title>
+                <para>As nice as these somewhat-realistic attenuation schemes are, it is often
+                    useful to model light attenuation in a very different way. This is in no way
+                    physically accurate, but it can look reasonably good.</para>
+                <para>We simply do linear interpolation based on the distance. When the distance is
+                    0, the light has full intensity. When the distance is beyond a given distance,
+                    the maximum light range (which varies per-light), the intensity is 1.</para>
+                <para>Note that <quote>reasonably good</quote> depends on your needs. The closer you
+                    get in other way to providing physically accurate lighting, the closer you get
+                    to photorealism, the less you can rely on less accurate phenomena. It does no
+                    good to implement a complicated sub-surface scattering lighting model that
+                    includes Fresnel factors and so forth, while simultaneously using a simple
+                    interpolation lighting attenuation model.</para>
+            </sidebar>
         </section>
     </section>
     <section>
         <?dbhtml filename="Tut09 In Review.html" ?>
         <title>In Review</title>
-        <para/>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Point lights are lights that have a position within the world, radiating light
+                    equally in all directions. The light direction at a particular point on the
+                    surface must be computed using the position at that point and the position of
+                    the light.</para>
+            </listitem>
+            <listitem>
+                <para>Attempting to perform per-vertex lighting computations with point lights leads
+                    to artifacts.</para>
+            </listitem>
+            <listitem>
+                <para>Lighting can be computed per-fragment by passing the fragment's position in an
+                    appropriate space.</para>
+            </listitem>
+            <listitem>
+                <para>Lighting can be computed in model space.</para>
+            </listitem>
+            <listitem>
+                <para>Point lights have a falloff with distance, called attenuation. Not performing
+                    this can cause odd effects, where a light appears to be brighter when it moves
+                    farther from a surface. Light attenuation varies with the inverse of the square
+                    of the distance, but other attenuation models can be used.</para>
+            </listitem>
+            <listitem>
+                <para>Fragment shaders can compute the camera space position of the fragment in
+                    question by using <varname>gl_FragCoord</varname> and a few uniform variables
+                    holding information about the camera to window space transform.</para>
+            </listitem>
+            <listitem>
+                <para>GLSL can have integer vectors, boolean values, and functions.</para>
+            </listitem>
+        </itemizedlist>
         <section>
             <title>Further Study</title>
             <para>Try doing these things with the given programs.</para>
@@ -515,14 +762,31 @@ cylinder, and a normal. And show the corresponding point/normal.-->
                         proper places.</para>
                 </listitem>
                 <listitem>
-                    <para>Since we're dealing with fake lighting anyway, we can make attenuation
-                        behave in a way that is useful, but doesn't even come close to reality. We
-                        can do a linear interpolation between a distance of zero, where the
-                        intensity is full, and a given distance, where the intensity is 0. So
-                        instead of a smooth falloff, we have a linear decrease to a distance where
-                        the light is no longer applied to points. Implement this.</para>
+                    <para>Implement the alternative attenuation described at the end of the section
+                        on attenuation.</para>
                 </listitem>
             </itemizedlist>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>inversesqrt</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>This function computes 1 / the square root of <varname>x</varname>. This is a
+                component-wise computation, so vectors may be used. The return value will have the
+                same type as <varname>x</varname>.</para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>sqrt</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>This function computes the square root of <varname>x</varname>. This is a
+                component-wise computation, so vectors may be used. The return value will have the
+                same type as <varname>x</varname>.</para>
         </section>
     </section>
     <section>
@@ -530,27 +794,26 @@ cylinder, and a normal. And show the corresponding point/normal.-->
         <title>Glossary</title>
         <glosslist>
             <glossentry>
-                <glossterm>point light</glossterm>
+                <glossterm>point light source</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A light source that emits light from a particular location in the world.
+                        The light is emitted in all directions evenly.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>fragment lighting</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Evaluating the lighting equation at every fragment.</para>
+                    <para>This is also called Phong shading, in contrast with Goroud shading, but
+                        this name has fallen out of favor due to similarities with names for other
+                        lighting models.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>light attenuation</glossterm>
                 <glossdef>
-                    <para/>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm/>
-                <glossdef>
-                    <para/>
+                    <para>The decrease of the intensity of light with distance from the source of
+                        that light.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
