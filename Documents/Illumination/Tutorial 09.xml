@@ -28,6 +28,7 @@
         point, light position, and surface normal must all be in the same space for this equation to
         make sense.</para>
     <section>
+        <?dbhtml filename="Tut09 Vertex Point Lighting.html" ?>
         <title>Vertex Point Lighting</title>
         <para>Thus far, we have computed the lighting equation at each vertex and interpolated the
             results across the surface of the triangle. We will continue to do so for point lights.
@@ -104,6 +105,7 @@ void main()
                 <function>normalize</function> call is just to convert it into a unit vector.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut09 Interpolation.html" ?>
         <title>Interpolation</title>
         <para>As you can see, doing point lighting is quite simple. Unfortunately, the visual
             results are not.</para>
@@ -175,6 +177,7 @@ void main()
             correct.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut09 Fragment Lighting.html" ?>
         <title>Fragment Lighting</title>
         <para>So, in order to deal with interpolation artifacts, we need to interpolate the actual
             light direction and normal, instead of just the results of the lighting equation. This
@@ -413,6 +416,7 @@ cylinder, and a normal. And show the corresponding point/normal.-->
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut09 Distant Points of Light.html" ?>
         <title>Distant Points of Light</title>
         <para>There is another issue with our current example. Use the <keycap>i</keycap> key to
             raise the light up really high. Notice how bright all of the upwardly-facing surfaces
