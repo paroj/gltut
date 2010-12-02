@@ -186,7 +186,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pPlaneMesh && g_pCylinderMesh)
+	if(g_pPlaneMesh && g_pCylinderMesh && g_pCubeMesh)
 	{
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
@@ -249,14 +249,15 @@ void display()
 				if(g_bScaleCyl)
 					modelMatrix.Scale(1.0f, 1.0f, 0.2f);
 
+				glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
+				glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
+
 				if(g_bDrawColoredCyl)
 				{
 					glUseProgram(pVertColorProgram->theProgram);
 					glUniformMatrix4fv(pVertColorProgram->modelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(modelMatrix.Top()));
 
-					glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
-					glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
 					glUniform3fv(pVertColorProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
 					g_pCylinderMesh->Render("tint");
@@ -267,8 +268,6 @@ void display()
 					glUniformMatrix4fv(pWhiteProgram->modelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(modelMatrix.Top()));
 
-					glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
-					glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
 					glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
 					g_pCylinderMesh->Render("flat");
@@ -369,6 +368,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
 	case 't': g_bScaleCyl = !g_bScaleCyl; break;
+	case 'h': g_bUseFragmentLighting = !g_bUseFragmentLighting; break;
 	}
 
 	if(g_fLightRadius < 0.2f)

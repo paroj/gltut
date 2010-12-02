@@ -234,7 +234,9 @@ Then show a more distant light source, and the directions towards the light.-->
             </orderedlist>
             <para>This is what we do in the <phrase role="propername">Basic Lighting</phrase>
                 tutorial. It renders a cylinder above a flat plane, with a single directional light
-                source illuminating both objects.</para>
+                source illuminating both objects. One of the nice things about a cylinder is that it
+                has both curved and flat surfaces, thus making an adequate demonstration of how
+                light interacts with a surface.</para>
             <!--TODO: Show an image of the tutorial output.-->
             <para>The light is at a fixed direction; the model and camera both can be
                 rotated.</para>
@@ -920,7 +922,9 @@ else
                 <glossterm>directional light source</glossterm>
                 <glossdef>
                     <para>A light source that emits light along a particular direction. Every point
-                        in the scene to be rendered receives light from the same direction.</para>
+                        in the scene to be rendered receives light from the same direction. This
+                        models a very distant light source that lights the scene evenly from a
+                        single direction.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

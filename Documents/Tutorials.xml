@@ -53,6 +53,7 @@
                 light/surface models and explain how to implement them.</para>
         </partintro>
         <xi:include href="Illumination/tutorial 08.xml"/>
+        <xi:include href="Illumination/tutorial 09.xml"/>
     </part>
     <part>
         <?dbhtml filename="Texturing.html" dir="Texturing" ?>
