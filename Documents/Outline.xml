@@ -372,6 +372,25 @@
                 </listitem>
             </itemizedlist>
         </section>
+        <section>
+            <title>Lies and Imposters</title>
+            <para>This tutorial shows how to create a sphere imposter, complete with accurate depth.</para>
+            <para>Concepts:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Making up positions of objects out of whole cloth.</para>
+                </listitem>
+                <listitem>
+                    <para>Fragment discard.</para>
+                </listitem>
+                <listitem>
+                    <para>Fragment depth writes.</para>
+                </listitem>
+                <listitem>
+                    <para>The fact that fake objects can be created out of just a triangle.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
     </section>
     <section>
         <title>Texturing</title>
