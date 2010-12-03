@@ -745,6 +745,13 @@
         <title>Functionality that needs tutorials</title>
         <glosslist>
             <glossentry>
+                <glossterm>Depth Precision and Reverse Transform</glossterm>
+                <glossdef>
+                    <para>The issues with depth precision and reverse transform. Introduce fix where
+                        you reverse camera Znear and Zfar.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>sRGB Colorspace</glossterm>
                 <glossdef>
                     <para/>
