@@ -663,6 +663,13 @@ glDepthRange(0.0f, 1.0f);</programlisting>
                 does not cause this. Because of that, it is possible to have depth testing for
                 objects where their <emphasis>own</emphasis> depth (the incoming fragment's depth)
                 is not written to the depth buffer.</para>
+            <note>
+                <para>Due to an odd quirk of OpenGL, writing to the depth buffer is always inactive
+                    if <literal>GL_DEPTH_TEST</literal> is disabled. If you just want to write to
+                    the depth buffer, without actually doing a test, you must enable
+                        <literal>GL_DEPTH_TEST</literal> and use the depth function of
+                        <literal>GL_ALWAYS.</literal></para>
+            </note>
             <para>There is one more issue. We know what the depth value is in the depth buffer after
                 a fragment is written to it. But what is its value before any rendering is done at
                 all? Depth buffers and color buffers are very similar; color buffers get their
