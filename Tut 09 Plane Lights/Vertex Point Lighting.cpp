@@ -146,15 +146,24 @@ void init()
 
 static float g_fLightHeight = 1.5f;
 static float g_fLightRadius = 1.0f;
+static bool g_bRotateLight = true;
+
+static float g_fRotateTime = 0.0f;
+static float g_fPrevTime = 0.0f;
 
 glm::vec4 CalcLightPosition()
 {
 	const float fLoopDuration = 5.0f;
 	const float fScale = 3.14159f * 2.0f / fLoopDuration;
 
-	float fElapsedTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+	float fCurrTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+	float fDeltaTime = fCurrTime - g_fPrevTime;
+	g_fPrevTime = fCurrTime;
 
-	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
+	if(g_bRotateLight)
+		g_fRotateTime += fDeltaTime;
+
+	float fCurrTimeThroughLoop = fmodf(g_fRotateTime, fLoopDuration);
 
 	glm::vec4 ret(0.0f, g_fLightHeight, 0.0f, 1.0f);
 
@@ -339,6 +348,7 @@ void keyboard(unsigned char key, int x, int y)
 	case 'J': g_fLightRadius -= 0.05f; break;
 
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
+	case 'b': g_bRotateLight = !g_bRotateLight; break;
 	}
 
 	if(g_fLightRadius < 0.2f)
