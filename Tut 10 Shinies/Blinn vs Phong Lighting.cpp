@@ -279,61 +279,27 @@ public:
 
 	operator float() const
 	{
-		switch(g_eLightModel)
-		{
-		case LM_PHONG_SPECULAR:
-		case LM_PHONG_ONLY:
-			return m_fPhongExponent;
-			break;
-		case LM_BLINN_SPECULAR:
-		case LM_BLINN_ONLY:
-			return m_fBlinnExponent;
-			break;
-		default:
-			return 0.0f;
-		}
+		return GetSpecularValue();
 	}
 
 	MaterialParams &operator +=(float fValue)
 	{
-		switch(g_eLightModel)
-		{
-		case LM_PHONG_SPECULAR:
-		case LM_PHONG_ONLY:
-			m_fPhongExponent += fValue;
-			if(m_fPhongExponent < 0.0f)
-				m_fPhongExponent = 0.0f;
-			break;
+		float &theParam = GetSpecularValue();
+		theParam += fValue;
 
-		case LM_BLINN_SPECULAR:
-		case LM_BLINN_ONLY:
-			m_fBlinnExponent += fValue;
-			if(m_fBlinnExponent < 0.0f)
-				m_fBlinnExponent = 0.0f;
-			break;
-		}
+		if(theParam <= 0.0f)
+			theParam = 0.0001f;
 
 		return *this;
 	}
 
 	MaterialParams &operator -=(float fValue)
 	{
-		switch(g_eLightModel)
-		{
-		case LM_PHONG_SPECULAR:
-		case LM_PHONG_ONLY:
-			m_fPhongExponent -= fValue;
-			if(m_fPhongExponent < 0.0f)
-				m_fPhongExponent = 0.0f;
-			break;
+		float &theParam = GetSpecularValue();
+		theParam -= fValue;
 
-		case LM_BLINN_SPECULAR:
-		case LM_BLINN_ONLY:
-			m_fBlinnExponent -= fValue;
-			if(m_fBlinnExponent < 0.0f)
-				m_fBlinnExponent = 0.0f;
-			break;
-		}
+		if(theParam <= 0.0f)
+			theParam = 0.0001f;
 
 		return *this;
 	}
@@ -341,6 +307,38 @@ public:
 private:
 	float m_fPhongExponent;
 	float m_fBlinnExponent;
+
+	float &GetSpecularValue()
+	{
+		switch(g_eLightModel)
+		{
+		case LM_PHONG_SPECULAR:
+		case LM_PHONG_ONLY:
+			return m_fPhongExponent;
+		case LM_BLINN_SPECULAR:
+		case LM_BLINN_ONLY:
+			return m_fBlinnExponent;
+		}
+
+		static float fStopComplaint = 0.0f;
+		return fStopComplaint;
+	}
+
+	const float &GetSpecularValue() const
+	{
+		switch(g_eLightModel)
+		{
+		case LM_PHONG_SPECULAR:
+		case LM_PHONG_ONLY:
+			return m_fPhongExponent;
+		case LM_BLINN_SPECULAR:
+		case LM_BLINN_ONLY:
+			return m_fBlinnExponent;
+		}
+
+		static float fStopComplaint = 0.0f;
+		return fStopComplaint;
+	}
 };
 
 static MaterialParams g_matParams;

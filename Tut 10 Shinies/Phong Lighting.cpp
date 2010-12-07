@@ -488,8 +488,8 @@ void keyboard(unsigned char key, int x, int y)
 	if(g_fLightRadius < 0.2f)
 		g_fLightRadius = 0.2f;
 
-	if(g_fShininessFactor < 0.0f)
-		g_fShininessFactor = 0.0f;
+	if(g_fShininessFactor <= 0.0f)
+		g_fShininessFactor = 0.0001f;
 
 	if(bChangedShininess)
 		printf("Shiny: %f\n", g_fShininessFactor);
