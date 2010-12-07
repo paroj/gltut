@@ -58,19 +58,23 @@ struct UnlitProgData
 			glm::value_ptr(cameraToClip));
 		glUseProgram(0);
 	}
+
 };
 
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
-
-ProgramData g_WhiteNoPhong;
-ProgramData g_ColorNoPhong;
 
 ProgramData g_WhitePhong;
 ProgramData g_ColorPhong;
 
 ProgramData g_WhitePhongOnly;
 ProgramData g_ColorPhongOnly;
+
+ProgramData g_WhiteBlinn;
+ProgramData g_ColorBlinn;
+
+ProgramData g_WhiteBlinnOnly;
+ProgramData g_ColorBlinnOnly;
 
 UnlitProgData g_Unlit;
 
@@ -117,14 +121,17 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 
 void InitializePrograms()
 {
-	g_WhiteNoPhong = LoadLitProgram("PN.vert", "NoPhong.frag");
-	g_ColorNoPhong = LoadLitProgram("PCN.vert", "NoPhong.frag");
-
 	g_WhitePhong = LoadLitProgram("PN.vert", "PhongLighting.frag");
 	g_ColorPhong = LoadLitProgram("PCN.vert", "PhongLighting.frag");
 
 	g_WhitePhongOnly = LoadLitProgram("PN.vert", "PhongOnly.frag");
 	g_ColorPhongOnly = LoadLitProgram("PCN.vert", "PhongOnly.frag");
+
+	g_WhiteBlinn = LoadLitProgram("PN.vert", "BlinnLighting.frag");
+	g_ColorBlinn = LoadLitProgram("PCN.vert", "BlinnLighting.frag");
+
+	g_WhiteBlinnOnly = LoadLitProgram("PN.vert", "BlinnOnly.frag");
+	g_ColorBlinnOnly = LoadLitProgram("PCN.vert", "BlinnOnly.frag");
 
 	g_Unlit = LoadUnlitProgram("PosTransform.vert", "UniformColor.frag");
 }
@@ -190,19 +197,23 @@ void init()
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
 
-	glUseProgram(g_WhiteNoPhong.theProgram);
-	glUniform2f(g_WhiteNoPhong.depthRangeUnif,depthZNear, depthZFar);
 	glUseProgram(g_WhitePhong.theProgram);
 	glUniform2f(g_WhitePhong.depthRangeUnif,depthZNear, depthZFar);
+	glUseProgram(g_WhiteBlinn.theProgram);
+	glUniform2f(g_WhiteBlinn.depthRangeUnif,depthZNear, depthZFar);
 	glUseProgram(g_WhitePhongOnly.theProgram);
 	glUniform2f(g_WhitePhongOnly.depthRangeUnif,depthZNear, depthZFar);
+	glUseProgram(g_WhiteBlinnOnly.theProgram);
+	glUniform2f(g_WhiteBlinnOnly.depthRangeUnif,depthZNear, depthZFar);
 
-	glUseProgram(g_ColorNoPhong.theProgram);
-	glUniform2f(g_ColorNoPhong.depthRangeUnif,depthZNear, depthZFar);
 	glUseProgram(g_ColorPhong.theProgram);
 	glUniform2f(g_ColorPhong.depthRangeUnif,depthZNear, depthZFar);
+	glUseProgram(g_ColorBlinn.theProgram);
+	glUniform2f(g_ColorBlinn.depthRangeUnif,depthZNear, depthZFar);
 	glUseProgram(g_ColorPhongOnly.theProgram);
 	glUniform2f(g_ColorPhongOnly.depthRangeUnif,depthZNear, depthZFar);
+	glUseProgram(g_ColorBlinnOnly.theProgram);
+	glUniform2f(g_ColorBlinnOnly.depthRangeUnif,depthZNear, depthZFar);
 	glUseProgram(0);
 }
 
@@ -241,14 +252,15 @@ static float g_CylRoll = 0.0f;
 
 enum LightingModel
 {
-	LM_PURE_DIFFUSE = 0,
-	LM_DIFFUSE_AND_SPECULAR,
-	LM_SPECULAR_ONLY,
+	LM_PHONG_SPECULAR = 0,
+	LM_PHONG_ONLY,
+	LM_BLINN_SPECULAR,
+	LM_BLINN_ONLY,
 
 	LM_MAX_LIGHTING_MODEL,
 };
 
-static int g_eLightModel = LM_DIFFUSE_AND_SPECULAR;
+static int g_eLightModel = LM_PHONG_SPECULAR;
 
 static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;
@@ -256,7 +268,82 @@ static bool g_bDrawLight = false;
 static bool g_bScaleCyl = false;
 
 const float g_fLightAttenuation = 1.2f;
-static float g_fShininessFactor = 4.0f;
+
+class MaterialParams
+{
+public:
+	MaterialParams()
+		: m_fPhongExponent(4.0f)
+		, m_fBlinnExponent(4.0f)
+	{}
+
+	operator float() const
+	{
+		switch(g_eLightModel)
+		{
+		case LM_PHONG_SPECULAR:
+		case LM_PHONG_ONLY:
+			return m_fPhongExponent;
+			break;
+		case LM_BLINN_SPECULAR:
+		case LM_BLINN_ONLY:
+			return m_fBlinnExponent;
+			break;
+		default:
+			return 0.0f;
+		}
+	}
+
+	MaterialParams &operator +=(float fValue)
+	{
+		switch(g_eLightModel)
+		{
+		case LM_PHONG_SPECULAR:
+		case LM_PHONG_ONLY:
+			m_fPhongExponent += fValue;
+			if(m_fPhongExponent < 0.0f)
+				m_fPhongExponent = 0.0f;
+			break;
+
+		case LM_BLINN_SPECULAR:
+		case LM_BLINN_ONLY:
+			m_fBlinnExponent += fValue;
+			if(m_fBlinnExponent < 0.0f)
+				m_fBlinnExponent = 0.0f;
+			break;
+		}
+
+		return *this;
+	}
+
+	MaterialParams &operator -=(float fValue)
+	{
+		switch(g_eLightModel)
+		{
+		case LM_PHONG_SPECULAR:
+		case LM_PHONG_ONLY:
+			m_fPhongExponent -= fValue;
+			if(m_fPhongExponent < 0.0f)
+				m_fPhongExponent = 0.0f;
+			break;
+
+		case LM_BLINN_SPECULAR:
+		case LM_BLINN_ONLY:
+			m_fBlinnExponent -= fValue;
+			if(m_fBlinnExponent < 0.0f)
+				m_fBlinnExponent = 0.0f;
+			break;
+		}
+
+		return *this;
+	}
+
+private:
+	float m_fPhongExponent;
+	float m_fBlinnExponent;
+};
+
+static MaterialParams g_matParams;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -281,17 +368,21 @@ void display()
 
 		switch(g_eLightModel)
 		{
-		case LM_PURE_DIFFUSE:
-			pWhiteProg = &g_WhiteNoPhong;
-			pColorProg = &g_ColorNoPhong;
-			break;
-		case LM_DIFFUSE_AND_SPECULAR:
+		case LM_PHONG_SPECULAR:
 			pWhiteProg = &g_WhitePhong;
 			pColorProg = &g_ColorPhong;
 			break;
-		case LM_SPECULAR_ONLY:
+		case LM_PHONG_ONLY:
 			pWhiteProg = &g_WhitePhongOnly;
 			pColorProg = &g_ColorPhongOnly;
+			break;
+		case LM_BLINN_SPECULAR:
+			pWhiteProg = &g_WhiteBlinn;
+			pColorProg = &g_ColorBlinn;
+			break;
+		case LM_BLINN_ONLY:
+			pWhiteProg = &g_WhiteBlinnOnly;
+			pColorProg = &g_ColorBlinnOnly;
 			break;
 		}
 
@@ -300,14 +391,14 @@ void display()
 		glUniform4f(pWhiteProg->ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
 		glUniform3fv(pWhiteProg->cameraSpaceLightPosUnif,1, glm::value_ptr(lightPosCameraSpace));
 		glUniform1f(pWhiteProg->lightAttenuationUnif, g_fLightAttenuation);
-		glUniform1f(pWhiteProg->shininessFactorUnif, g_fShininessFactor);
+		glUniform1f(pWhiteProg->shininessFactorUnif, g_matParams);
 
 		glUseProgram(pColorProg->theProgram);
 		glUniform4f(pColorProg->lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
 		glUniform4f(pColorProg->ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
 		glUniform3fv(pColorProg->cameraSpaceLightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
 		glUniform1f(pColorProg->lightAttenuationUnif, g_fLightAttenuation);
-		glUniform1f(pColorProg->shininessFactorUnif, g_fShininessFactor);
+		glUniform1f(pColorProg->shininessFactorUnif, g_matParams);
 		glUseProgram(0);
 
 		{
@@ -383,6 +474,7 @@ void display()
 	glutSwapBuffers();
 }
 
+
 //Called whenever the window is resized. The new window size is given, in pixels.
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
@@ -391,12 +483,15 @@ void reshape (int w, int h)
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
 	const glm::mat4 &invMat = glm::inverse(persMatrix.Top());
 
-	g_WhiteNoPhong.SetWindowData(persMatrix.Top(), invMat, w, h);
-	g_ColorNoPhong.SetWindowData(persMatrix.Top(), invMat, w, h);
 	g_WhitePhong.SetWindowData(persMatrix.Top(), invMat, w, h);
-	g_ColorPhong.SetWindowData(persMatrix.Top(), invMat, w, h);
+	g_WhiteBlinn.SetWindowData(persMatrix.Top(), invMat, w, h);
 	g_WhitePhongOnly.SetWindowData(persMatrix.Top(), invMat, w, h);
+	g_WhiteBlinnOnly.SetWindowData(persMatrix.Top(), invMat, w, h);
+
+	g_ColorPhong.SetWindowData(persMatrix.Top(), invMat, w, h);
+	g_ColorBlinn.SetWindowData(persMatrix.Top(), invMat, w, h);
 	g_ColorPhongOnly.SetWindowData(persMatrix.Top(), invMat, w, h);
+	g_ColorBlinnOnly.SetWindowData(persMatrix.Top(), invMat, w, h);
 
 	g_Unlit.SetWindowData(persMatrix.Top());
 
@@ -406,9 +501,10 @@ void reshape (int w, int h)
 
 static const char *strLightModelNames[] =
 {
-	"Diffuse only.",
-	"Specular + diffuse.",
-	"Specular only.",
+	"Phong Specular.",
+	"Phong Only",
+	"Blinn Specular.",
+	"Blinn Only",
 };
 
 
@@ -455,32 +551,25 @@ void keyboard(unsigned char key, int x, int y)
 	case 'L': g_fLightRadius += 0.05f; break;
 	case 'J': g_fLightRadius -= 0.05f; break;
 
-	case 'o': g_fShininessFactor += 0.5f; bChangedShininess = true; break;
-	case 'u': g_fShininessFactor -= 0.5f; bChangedShininess = true; break;
-	case 'O': g_fShininessFactor += 0.1f; bChangedShininess = true; break;
-	case 'U': g_fShininessFactor -= 0.1f; bChangedShininess = true; break;
+	case 'o': g_matParams += 0.5f; bChangedShininess = true; break;
+	case 'u': g_matParams -= 0.5f; bChangedShininess = true; break;
+	case 'O': g_matParams += 0.1f; bChangedShininess = true; break;
+	case 'U': g_matParams -= 0.1f; bChangedShininess = true; break;
 
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
 	case 't': g_bScaleCyl = !g_bScaleCyl; break;
 	case 'b': g_bRotateLight = !g_bRotateLight; break;
 	case 'h':
-		g_eLightModel += 1;
+		g_eLightModel += 2;
 		g_eLightModel %= LM_MAX_LIGHTING_MODEL;
 		bChangedLightModel = true;
 		break;
 	case 'H':
-		switch(g_eLightModel)
-		{
-		case LM_DIFFUSE_AND_SPECULAR:
-			g_eLightModel = LM_PURE_DIFFUSE;
-			break;
-		case LM_PURE_DIFFUSE:
-			g_eLightModel = LM_DIFFUSE_AND_SPECULAR;
-			break;
-		case LM_SPECULAR_ONLY:
-			g_eLightModel = LM_PURE_DIFFUSE;
-			break;
-		}
+		if(g_eLightModel % 2)
+			g_eLightModel -= 1;
+		else
+			g_eLightModel += 1;
+		g_eLightModel %= LM_MAX_LIGHTING_MODEL;
 		bChangedLightModel = true;
 		break;
 	}
@@ -488,11 +577,8 @@ void keyboard(unsigned char key, int x, int y)
 	if(g_fLightRadius < 0.2f)
 		g_fLightRadius = 0.2f;
 
-	if(g_fShininessFactor < 0.0f)
-		g_fShininessFactor = 0.0f;
-
 	if(bChangedShininess)
-		printf("Shiny: %f\n", g_fShininessFactor);
+		printf("Shiny: %f\n", (float)g_matParams);
 
 	if(bChangedLightModel)
 		printf("%s\n", strLightModelNames[g_eLightModel]);

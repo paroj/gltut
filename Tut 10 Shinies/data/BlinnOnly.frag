@@ -51,17 +51,19 @@ void main()
 
 	vec3 lightDir = vec3(0.0);
 	float atten = CalcAttenuation(cameraSpacePosition, lightDir);
+	vec4 attenIntensity = atten * lightIntensity;
 	
 	vec3 surfaceNormal = normalize(vertexNormal);
 	
 	vec4 specularAttenIntensity = atten * specularIntensity;
 	vec3 viewDirection = normalize(-cameraSpacePosition);
-	vec3 reflectDir = reflect(-lightDir, surfaceNormal);
-	float phongTerm = dot(viewDirection, reflectDir);
-	phongTerm = clamp(phongTerm, 0, 1);
-	phongTerm = dot(reflectDir, surfaceNormal) > 0.0 ? phongTerm : 0.0;
-	phongTerm = pow(phongTerm, shininessFactor);
 	
-	outputColor = (specularColor * specularAttenIntensity * phongTerm) +
+	vec3 halfAngle = normalize(lightDir + viewDirection);
+	float blinnTerm = dot(surfaceNormal, halfAngle);
+	blinnTerm = clamp(blinnTerm, 0, 1);
+	blinnTerm = dot(surfaceNormal, lightDir) >= 0.0 ? blinnTerm : 0.0;
+	blinnTerm = pow(blinnTerm, shininessFactor);
+
+	outputColor = (specularColor * specularAttenIntensity * blinnTerm) +
 		(diffuseColor * ambientIntensity);
 }

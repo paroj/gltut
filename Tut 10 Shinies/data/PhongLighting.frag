@@ -8,7 +8,7 @@ out vec4 outputColor;
 uniform vec3 modelSpaceLightPos;
 
 uniform vec4 lightIntensity;
-const vec4 phongIntensity = vec4(0.25, 0.25, 0.25, 1.0);
+const vec4 specularIntensity = vec4(0.25, 0.25, 0.25, 1.0);
 uniform vec4 ambientIntensity;
 
 uniform vec3 cameraSpaceLightPos;
@@ -57,7 +57,7 @@ void main()
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
 	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
 	
-	vec4 phongAttenIntensity = atten * phongIntensity;
+	vec4 specularAttenIntensity = atten * specularIntensity;
 	vec3 viewDirection = normalize(-cameraSpacePosition);
 	vec3 reflectDir = reflect(-lightDir, surfaceNormal);
 	float phongTerm = dot(viewDirection, reflectDir);
@@ -67,6 +67,6 @@ void main()
 	
 
 	outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-		(specularColor * phongAttenIntensity * phongTerm) +
+		(specularColor * specularAttenIntensity * phongTerm) +
 		(diffuseColor * ambientIntensity);
 }
