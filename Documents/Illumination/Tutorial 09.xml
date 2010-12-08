@@ -120,9 +120,9 @@ void main()
         <para>Well, consider what we are doing. We are computing the lighting at every triangle's
                 <emphasis>vertex</emphasis>, and then interpolating the results across the surface
             of the triangle. The ground plane is made up of precisely four vertices: the four
-            corners. And those are all very far from the light position. Since none of the vertices
-            are close to the light, none of the colors that are interpolated across the surface are
-            bright.</para>
+            corners. And those are all very far from the light position and have a very angle of
+            incidence. Since none of them have a small angle of incidence, none of the colors that
+            are interpolated across the surface are bright.</para>
         <para>You can see this is evident by putting the light position next to the cylinder. If the
             light is at the top or bottom of the cylinder, then the area near the light will be
             bright. But if you move the light to the middle of the cylinder, far the top or bottom
@@ -131,12 +131,14 @@ void main()
         <para>This is not the only problem with doing per-vertex lighting. For example, run the
             tutorial again and don't move the light. Just watch how the light behaves on the
             cylinder's surface as it animates around. Unlike with directional lighting, you can very
-            easily see the triangles on the cylinder's surface. This has issues for similar reasons,
-            but it also introduces a new problem: interpolation artifacts.</para>
-        <para>If you move the light source farther away, you can see that the triangles smooth out.
-            But this is simply because, if the light source is far enough away, the results are
-            indistinguishable from a directional light. Each vertex's direction to the light is
-            almost the same as each other vertex's direction to the light.</para>
+            easily see the triangles on the cylinder's surface. Though the per-vertex computations
+            aren't helping matters, the main problem here has to do with interpolating the
+            values.</para>
+        <para>If you move the light source farther away, you can see that the triangles smooth out
+            and become indistinct from one another. But this is simply because, if the light source
+            is far enough away, the results are indistinguishable from a directional light. Each
+            vertex's direction to the light is almost the same as each other vertex's direction to
+            the light.</para>
         <para>Per-vertex lighting was reasonable when dealing with directional lights. But it simply
             is not a good idea for point lighting. The question arises: why was per-vertex lighting
             good with directional lights to begin with?</para>
@@ -184,7 +186,8 @@ void main()
             is called per-fragment lighting or just <glossterm>fragment lighting.</glossterm></para>
         <para>There is a problem that needs to be dealt with first. Normals do not interpolate well.
             Or rather, wildly different normals do not interpolate well. And light directions can be
-            very different.</para>
+            very different if the light source is close to the triangle relative to that triangle's
+            size.</para>
         <para>Consider the large plane we have. The direction toward the light will be very
             different at each vertex, so long as our light remains in relatively close proximity to
             the plane.</para>
@@ -197,13 +200,14 @@ void main()
             triangle. Which means that vertices near the diagonal will be basically doing a linear
             interpolation between the two values on either end of that diagonal. This is not the
             same thing as doing interpolation between all 4 values.</para>
-        <!--TODO: Show bilinear interpolation vs. triangular interpolation.-->
+        <!--TODO: Show bilinear interpolation vs. barycentric interpolation.-->
         <para>In our case, this means that for points along the main diagonal, the light direction
             will only be composed of the direction values from the two vertices on that diagonal.
             This is not good. This wouldn't be much of a problem if the light direction did not
             change much along the surface, but that is not the case here.</para>
         <para>Since we cannot interpolate the light direction very well, we need to interpolate
-            something else. Something that does exhibit the characteristics we need.</para>
+            something else. Something that does exhibit the characteristics we need when
+            interpolated.</para>
         <para>Positions interpolate linearly quite well. So instead of interpolating the light
             direction, we interpolate the components of the light direction. Namely, the two
             positions. The light position is a constant, so we only need to interpolate the vertex
@@ -373,8 +377,8 @@ void main()
                 </keycombo> key to move the light really close to the cylinder, but without putting
                 the light inside the cylinder. You should see something like this:</para>
             <!--TODO: Picture of the cylinder with a close light.-->
-            <para>This looks like the same problem we had before. Wasn't doing lighting at the
-                fragment level supposed to fix this?</para>
+            <para>This looks like the same interpolation problem we had before. Wasn't doing
+                lighting at the fragment level supposed to fix this?</para>
             <para>Actually, this is a completely different problem. And it is one that is
                 essentially impossible to solve. Well, not without changing our geometry.</para>
             <para>The source of the problem is this: the light finally caught us in our lie.
@@ -406,8 +410,9 @@ cylinder, and a normal. And show the corresponding point/normal.-->
                 solution is to add more vertices to the approximation of the cylinder. It should
                 also be noted that adding more triangles would also make per-vertex lighting look
                 more correct. Thus making the whole exercise in using per-fragment lighting somewhat
-                pointless; if the mesh is fine enough so that each vertex effectively becomes a
-                fragment, then there is no difference between them.</para>
+                pointless; if the mesh is finely-divided enough so that each vertex effectively
+                becomes a single fragment, then there is no difference between the two
+                techniques.</para>
             <para>For our simple case, adding triangles is easy, since a cylinder is a
                 mathematically defined object. For a complicated case like a human being, this is
                 usually rather more difficult. It also takes up more performance, since there are
@@ -478,8 +483,8 @@ cylinder, and a normal. And show the corresponding point/normal.-->
                 <para>The use of this reverse-transformation technique here should not be taken as a
                     suggestion to use it in all, or even most cases like this. In all likelihood, it
                     will be much slower than just passing the camera space position to the fragment
-                    shader. It is here primarily for demonstration purposes; it is useful for other
-                    techniques that we will see in the future.</para>
+                    shader. It is here primarily for demonstration purposes, though it is useful for
+                    other techniques that we will see in the future.</para>
             </note>
             <para>The sequence of transformations that take a position from camera space to window
                 space is as follows:</para>
@@ -616,9 +621,9 @@ uniform bool bUseRSquare;</programlisting>
                 outputs, or inputs and outputs.</para>
             <para>Parameters designated with <literal>in</literal> are input parameters. Functions
                 can change these values, but they will have no effect on the variable or expression
-                used in the function call. So any changes . This is much like the default in C/C++,
-                where parameter changes are local. Naturally, this is the default with GLSL
-                parameters if you do not specify a qualifier.</para>
+                used in the function call. This is much like the default in C/C++, where parameter
+                changes are local. Naturally, this is the default with GLSL parameters if you do not
+                specify a qualifier.</para>
             <para>Parameters designated with <literal>out</literal> can be written to, and its value
                 will be returned to the calling function. These are similar to non-const reference
                 parameter types in C++. And just as with reference parameters, the caller of a
@@ -629,19 +634,19 @@ uniform bool bUseRSquare;</programlisting>
                     <emphasis>not</emphasis> initialized from the calling function. This means that
                 the initial value is uninitialized and therefore undefined (ie: it could be
                 anything). Because of this, you can pass shader stage outputs as
-                    <literal>out</literal> parameters. Shader stage output variables can be written
-                to, but <emphasis>never</emphasis> read from.</para>
+                    <literal>out</literal> parameters. Recall that shader stage output variables can
+                be written to, but <emphasis>never</emphasis> read from.</para>
             <para>Parameters designated as <literal>inout</literal> will have its value initialized
                 by the caller and have the final value returned to the caller. These are exactly
                 like non-const reference parameters in C++. The main difference is that the value is
                 initialized with the one that the user passed in, which forbids the passing of
                 shader stage outputs as <literal>inout</literal> parameters.</para>
-            <para>This function is semi-complex, as an optimization. Previously, our functions
-                simply normalized the difference between the vertex position and the light position.
-                In computing the attenuation, we need the distance between the two. And the process
-                of normalization computes the distance. So instead of calling the GLSL function to
-                normalize the direction, we do it ourselves, so that the distance is not computed
-                twice (once in the GLSL function and once for us).</para>
+            <para>This particular function is semi-complex, as an optimization. Previously, our
+                functions simply normalized the difference between the vertex position and the light
+                position. In computing the attenuation, we need the distance between the two. And
+                the process of normalization computes the distance. So instead of calling the GLSL
+                function to normalize the direction, we do it ourselves, so that the distance is not
+                computed twice (once in the GLSL function and once for us).</para>
             <para>The second line performs a dot product with the same vector. Remember that the dot
                 product between two vectors is the cosine of the angle between them, multiplied by
                 each of the lengths of the vectors. Well, the angle between a vector and itself is
@@ -698,7 +703,7 @@ uniform bool bUseRSquare;</programlisting>
                     0, the light has full intensity. When the distance is beyond a given distance,
                     the maximum light range (which varies per-light), the intensity is 1.</para>
                 <para>Note that <quote>reasonably good</quote> depends on your needs. The closer you
-                    get in other way to providing physically accurate lighting, the closer you get
+                    get in other ways to providing physically accurate lighting, the closer you get
                     to photorealism, the less you can rely on less accurate phenomena. It does no
                     good to implement a complicated sub-surface scattering lighting model that
                     includes Fresnel factors and so forth, while simultaneously using a simple

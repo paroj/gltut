@@ -2478,6 +2478,7 @@
         <folder name="Illumination">
             <file name="Illumination/Tutorial%2008.xml"/>
             <file name="Illumination/Tutorial%2009.xml"/>
+            <file name="Illumination/Tutorial%2010.xml"/>
         </folder>
         <folder name="Positioning">
             <file name="Positioning/Tutorial%2003.xml"/>

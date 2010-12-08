@@ -150,10 +150,10 @@ color as the surface are reflected.-->
                 be interpolated across the surface of the triangle. This process is called
                     <glossterm>Gouraud shading.</glossterm></para>
             <para>Gouraud shading is a pretty decent approximation, when using the diffuse lighting
-                model. It usually looks OK, and was commonly used for a good decade or so.
-                Interpolation of vertex outputs is a very fast process, and not having to compute
-                lighting at every fragment generated from the triangle raises the performance
-                substantially.</para>
+                model. It usually looks OK so long as we remain using that lighting model, and was
+                commonly used for a good decade or so. Interpolation of vertex outputs is a very
+                fast process, and not having to compute lighting at every fragment generated from
+                the triangle raises the performance substantially.</para>
             <para>That being said, modern games have essentially abandoned this technique. Part of
                 that is because the per-fragment computation isn't as slow and limited as it used to
                 be. And part of it is simply that games tend to not use just diffuse lighting
@@ -447,9 +447,10 @@ void main()
             <title>Vector Dot Product</title>
             <para>We glossed over an important point in looking at the vertex shader. Namely, how
                 the cosine of the angle of incidence is computed.</para>
-            <para>Given two vectors, one can certainly compute the angle of incidence, then take the
-                cosine of it. But both of these computations are quite expensive. Instead, we elect
-                to use a vector math trick: the <glossterm>dot product.</glossterm></para>
+            <para>Given two vectors, one could certainly compute the angle of incidence, then take
+                the cosine of it. But both computing that angle and taking its cosine are quite
+                expensive. Instead, we elect to use a vector math trick: the <glossterm>vector dot
+                    product.</glossterm></para>
             <para>Geometrically, the vector dot product of two direction vectors represents the
                 length of the projection of one vector onto the other.</para>
             <!--TODO: Show two vectors, and the projection onto each other.-->
@@ -537,7 +538,7 @@ Also show an ellipse with proper normals.-->
             inverse is its transpose, and doing a transpose twice on a matrix doesn't change its
             value, the inverse-transpose of a rotation matrix is a no-op.</para>
         <para>Adding to that, since the values in pure-scale matrices are along the diagonal, a
-            transpose operation on scale matrices does nothing. With thee two facts in hand, we can
+            transpose operation on scale matrices does nothing. With these two facts in hand, we can
             re-express the matrix we want to compute as:</para>
         <!--TODO: Show (R1^T)^-1 (S^T)^-1 (R2^T)^-1-->
         <para>Using matrix algebra, we can factor the transposes out, but it requires reversing the
@@ -588,9 +589,11 @@ glUseProgram(0);</programlisting>
             actually somewhat rare to use this kind of scale factor. We do it in these tutorials, so
             that it is easier to build models from simple geometric components. But when you have an
             actual modeller creating objects for a specific purpose, non-uniform scales generally
-            are not used. It's better to just get the modeller to adjust the model as needed.</para>
-        <para>Uniform scales are commonly used. So you still need to normalize the normal after
-            transforming it with the model-to-camera matrix.</para>
+            are not used. At least, not in the output mesh. It's better to just get the modeller to
+            adjust the model as needed in their modelling application.</para>
+        <para>Uniform scales are more commonly used. So you still need to normalize the normal after
+            transforming it with the model-to-camera matrix, even if you aren't using the
+            inverse-transpose.</para>
     </section>
     <section>
         <?dbhtml filename="Tut08 Global Illumination.html" ?>
@@ -599,21 +602,22 @@ glUseProgram(0);</programlisting>
             example, take this image:</para>
         <!--TODO: Show an image of the cylinder with half lit and half unlit-->
         <para>The unlit portions of the cylinder are completely, 100% black. This almost never
-            happens in real life. The reason for this is somewhat complicated.</para>
+            happens in real life, even for objects we perceive as being <quote>black</quote> in
+            color. The reason for this is somewhat complicated.</para>
         <para>Consider a scene of the outdoors. In normal daylight, there is exactly one light
             source: the sun. Objects that are in direct sunlight appear to be bright, and objects
             that have some object between them and the sun are in shadow.</para>
         <para>But think about what those shadows look like. They're not 100% black. They're
             certainly darker than the surrounding area, but they still have some color. And
-            remember: we only see anything because our eyes detect light. This means, in order to
-            see an object in the shadow of a light source, that object must either be emitting light
-            directly or reflecting light that came from somewhere else. Grass is not known for
-            emitting light, so where does the light come from?</para>
+            remember: we only see anything because our eyes detect light. In order to see an object
+            in the shadow of a light source, that object must either be emitting light directly or
+            reflecting light that came from somewhere else. Grass is not known for its
+            light-emitting qualities, so where does the light come from?</para>
         <para>Think about it. We see because an object reflects light into our eyes. But our eyes
             are not special; the object does not reflect light <emphasis>only</emphasis> into our
-            eyes. It reflects light in all directions. Not necessarily at the same intensity, but
-            objects that reflect light tend to do so in all directions to some degree. What happens
-            when that light hits another surface?</para>
+            eyes. It reflects light in all directions. Not necessarily at the same intensity in each
+            direction, but objects that reflect light tend to do so in all directions to some
+            degree. What happens when that light hits another surface?</para>
         <para>The same thing that happens when light hits any surface: some of it is absorbed, and
             some is reflected in some way.</para>
         <para>The light being cast in shadows from the sun comes from many places. Part of it is an
@@ -631,10 +635,10 @@ glUseProgram(0);</programlisting>
             what we have been doing up until this point.</para>
         <para>As you might imagine, modelling global illumination is hard. <emphasis>Very</emphasis>
             hard. It is typically a subtle effect, but in many scenes, particularly outdoor scenes,
-            it is almost a necessity to some at least basic global illumination modelling in order
-            to achieve a decent degree of photorealism. Incidentally, this is a good part of the
-            reason why most games tend to avoid outdoor scenes or light outdoor scenes as though the
-            sky were cloudy or overcast. This neatly avoids needing to do complex global
+            it is almost a necessity to provide at least basic global illumination modelling in
+            order to achieve a decent degree of photorealism. Incidentally, this is a good part of
+            the reason why most games tend to avoid outdoor scenes or light outdoor scenes as though
+            the sky were cloudy or overcast. This neatly avoids needing to do complex global
             illumination modelling by damping down the brightness of the sun to levels when
             interreflection would be difficult to notice.</para>
         <para>Having this completely black area in our rendering looks incredibly fake. Since doing
@@ -642,8 +646,9 @@ glUseProgram(0);</programlisting>
             technique: <glossterm>ambient lighting.</glossterm></para>
         <para>The ambient lighting <quote>model</quote><footnote>
                 <para>I put model in quotations because ambient lighting is so divorced from
-                    anything in reality that it doesn't really deserve to be called a model. This
-                    doesn't mean that it isn't <emphasis>useful</emphasis>, however.</para>
+                    anything in reality that it doesn't really deserve to be called a model. Just
+                    because it does not actually model global illumination in any real way doesn't
+                    mean that it isn't <emphasis>useful</emphasis>, however.</para>
             </footnote> is quite simple. It assumes that, on every object in the scene, there is a
             light of a certain intensity that emanates from everywhere. It comes from all directions
             equally, so there is no angle of incidence in our diffuse calculation. It is simply the
@@ -730,8 +735,9 @@ else
     <section>
         <?dbhtml filename="Tut08 Intensity of Light.html" ?>
         <title>Intensity of Light</title>
-        <para>There are many, many things wrong with the primitive lighting model introduced here.
-            But one of the most important is the treatment of the lighting intensity.</para>
+        <para>There are many, many things wrong with the rather primitive lighting models introduced
+            thus far. But one of the most important is the treatment of the lighting
+            intensity.</para>
         <para>Thus far, we have used light intensity like a color. We clamp it to the range [0, 1].
             We even make sure that combined intensities from different lighting models always are
             within that range.</para>
@@ -741,10 +747,10 @@ else
             number on the range [0, 1] can only ever make a number smaller (or the same).</para>
         <para>This is of course not realistic. In reality, there is no such thing as a
                 <quote>maximum</quote> illumination or brightness. There is no such thing as a (1,
-            1, 1) light intensity. The actual range of light intensity per wavelength is [0, ∞).
-            This also means that the range of intensity for reflected light is [0, ∞); after all, if
-            you shine a really bright light on a surface, it will reflect a lot of it. A surface
-            that looks dark blue under dim light can appear light blue under very bright
+            1, 1) light intensity. The actual range of light intensity per wavelength is on the
+            range[0, ∞). This also means that the range of intensity for reflected light is [0, ∞);
+            after all, if you shine a really bright light on a surface, it will reflect a lot of it.
+            A surface that looks dark blue under dim light can appear light blue under very bright
             light.</para>
         <para>Of course in the real world, things tend to catch on fire if you shine <emphasis>too
                 much</emphasis> light at them, but that's not something we need to model.</para>
