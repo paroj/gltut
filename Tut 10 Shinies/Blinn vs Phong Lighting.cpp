@@ -25,21 +25,15 @@ struct ProgramData
 
 	GLuint normalModelToCameraMatrixUnif;
 	GLuint cameraSpaceLightPosUnif;
-	GLuint clipToCameraMatrixUnif;
-	GLuint windowSizeUnif;
-	GLuint depthRangeUnif;
 	GLuint lightAttenuationUnif;
 	GLuint shininessFactorUnif;
 	GLuint baseDiffuseColorUnif;
 
-	void SetWindowData(const glm::mat4 cameraToClip, const glm::mat4 clipToCamera, int w, int h)
+	void SetWindowData(const glm::mat4 cameraToClip)
 	{
 		glUseProgram(theProgram);
 		glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
 			glm::value_ptr(cameraToClip));
-		glUniform2i(windowSizeUnif, w, h);
-		glUniformMatrix4fv(clipToCameraMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(clipToCamera));
 		glUseProgram(0);
 	}
 };
@@ -131,9 +125,6 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
 	data.cameraSpaceLightPosUnif = glGetUniformLocation(data.theProgram, "cameraSpaceLightPos");
-	data.clipToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "clipToCameraMatrix");
-	data.windowSizeUnif = glGetUniformLocation(data.theProgram, "windowSize");
-	data.depthRangeUnif = glGetUniformLocation(data.theProgram, "depthRange");
 	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
 	data.shininessFactorUnif = glGetUniformLocation(data.theProgram, "shininessFactor");
 	data.baseDiffuseColorUnif = glGetUniformLocation(data.theProgram, "baseDiffuseColor");
@@ -214,14 +205,6 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
-
-	for(int iProg = 0; iProg < LM_MAX_LIGHTING_MODEL; iProg++)
-	{
-		glUseProgram(g_Programs[iProg].whiteProg.theProgram);
-		glUniform2f(g_Programs[iProg].whiteProg.depthRangeUnif,depthZNear, depthZFar);
-		glUseProgram(g_Programs[iProg].colorProg.theProgram);
-		glUniform2f(g_Programs[iProg].colorProg.depthRangeUnif,depthZNear, depthZFar);
-	}
 
 	glUseProgram(0);
 }
@@ -478,8 +461,8 @@ void reshape (int w, int h)
 
 	for(int iProg = 0; iProg < LM_MAX_LIGHTING_MODEL; iProg++)
 	{
-		g_Programs[iProg].whiteProg.SetWindowData(persMatrix.Top(), invMat, w, h);
-		g_Programs[iProg].colorProg.SetWindowData(persMatrix.Top(), invMat, w, h);
+		g_Programs[iProg].whiteProg.SetWindowData(persMatrix.Top());
+		g_Programs[iProg].colorProg.SetWindowData(persMatrix.Top());
 	}
 
 	g_Unlit.SetWindowData(persMatrix.Top());

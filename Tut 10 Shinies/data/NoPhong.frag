@@ -2,6 +2,7 @@
 
 in vec4 diffuseColor;
 in vec3 vertexNormal;
+in vec3 cameraSpacePosition;
 
 out vec4 outputColor;
 
@@ -12,24 +13,7 @@ uniform vec4 ambientIntensity;
 
 uniform vec3 cameraSpaceLightPos;
 
-uniform mat4 clipToCameraMatrix;
-uniform ivec2 windowSize;
-uniform vec2 depthRange;
-
 uniform float lightAttenuation;
-
-vec3 CalcCameraSpacePosition()
-{
-	vec3 ndcPos;
-	ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
-	ndcPos.z = 2.0 * (gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
-	
-	vec4 clipPos;
-	clipPos.w = 1.0f / gl_FragCoord.w;
-	clipPos.xyz = ndcPos.xyz * clipPos.w;
-	
-	return vec3(clipToCameraMatrix * clipPos);
-}
 
 vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
 {
@@ -42,8 +26,6 @@ vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
 
 void main()
 {
-	vec3 cameraSpacePosition = CalcCameraSpacePosition();
-
 	vec3 lightDir = vec3(0.0);
 	vec4 attenIntensity = ApplyLightIntensity(cameraSpacePosition, lightDir);
 
