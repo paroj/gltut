@@ -30,6 +30,7 @@ struct ProgramData
 	GLuint depthRangeUnif;
 	GLuint lightAttenuationUnif;
 	GLuint shininessFactorUnif;
+	GLuint baseDiffuseColorUnif;
 
 	void SetWindowData(const glm::mat4 cameraToClip, const glm::mat4 clipToCamera, int w, int h)
 	{
@@ -135,6 +136,7 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	data.depthRangeUnif = glGetUniformLocation(data.theProgram, "depthRange");
 	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
 	data.shininessFactorUnif = glGetUniformLocation(data.theProgram, "shininessFactor");
+	data.baseDiffuseColorUnif = glGetUniformLocation(data.theProgram, "baseDiffuseColor");
 
 	return data;
 }
@@ -261,10 +263,14 @@ static int g_eLightModel = LM_PHONG_SPECULAR;
 
 static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;
-static bool g_bDrawLight = false;
+static bool g_bDrawLightSource = false;
 static bool g_bScaleCyl = false;
+static bool g_bDrawDark = false;
 
 const float g_fLightAttenuation = 1.2f;
+
+const glm::vec4 g_darkColor(0.2f, 0.2f, 0.2f, 1.0f);
+const glm::vec4 g_lightColor(1.0f);
 
 class MaterialParams
 {
@@ -377,6 +383,8 @@ void display()
 		glUniform3fv(whiteProg.cameraSpaceLightPosUnif,1, glm::value_ptr(lightPosCameraSpace));
 		glUniform1f(whiteProg.lightAttenuationUnif, g_fLightAttenuation);
 		glUniform1f(whiteProg.shininessFactorUnif, g_matParams);
+		glUniform4fv(whiteProg.baseDiffuseColorUnif, 1,
+			g_bDrawDark ? glm::value_ptr(g_darkColor) : glm::value_ptr(g_lightColor));
 
 		glUseProgram(colorProg.theProgram);
 		glUniform4f(colorProg.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
@@ -439,7 +447,7 @@ void display()
 			}
 
 			//Render the light
-			if(g_bDrawLight)
+			if(g_bDrawLightSource)
 			{
 				Framework::MatrixStackPusher push(modelMatrix);
 
@@ -537,9 +545,10 @@ void keyboard(unsigned char key, int x, int y)
 	case 'O': g_matParams.Increment(false); bChangedShininess = true; break;
 	case 'U': g_matParams.Decrement(false); bChangedShininess = true; break;
 
-	case 'y': g_bDrawLight = !g_bDrawLight; break;
+	case 'y': g_bDrawLightSource = !g_bDrawLightSource; break;
 	case 't': g_bScaleCyl = !g_bScaleCyl; break;
 	case 'b': g_bRotateLight = !g_bRotateLight; break;
+	case 'g': g_bDrawDark = !g_bDrawDark; break;
 	case 'h':
 		g_eLightModel += 2;
 		g_eLightModel %= LM_MAX_LIGHTING_MODEL;

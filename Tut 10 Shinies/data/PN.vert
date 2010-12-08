@@ -8,6 +8,7 @@ out vec3 vertexNormal;
 
 uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
+uniform vec4 baseDiffuseColor;
 
 uniform mat3 normalModelToCameraMatrix;
 
@@ -16,5 +17,5 @@ void main()
 	gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
 
 	vertexNormal = normalModelToCameraMatrix * normal;
-	diffuseColor = vec4(1.0);
+	diffuseColor = baseDiffuseColor;
 }
