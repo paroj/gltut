@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <stack>
@@ -70,6 +71,8 @@ enum LightingModel
 	LM_PHONG_ONLY,
 	LM_BLINN_SPECULAR,
 	LM_BLINN_ONLY,
+	LM_GAUSSIAN_SPECULAR,
+	LM_GAUSSIAN_ONLY,
 
 	LM_MAX_LIGHTING_MODEL,
 };
@@ -94,6 +97,8 @@ ShaderPairs g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
 	{"PN.vert", "PCN.vert", "PhongOnly.frag"},
 	{"PN.vert", "PCN.vert", "BlinnLighting.frag"},
 	{"PN.vert", "PCN.vert", "BlinnOnly.frag"},
+	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
+	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
 };
 
 UnlitProgData g_Unlit;
@@ -196,8 +201,8 @@ void init()
 		printf(except.what());
 	}
 
-	glutMouseFunc(MouseButton);
-	glutMotionFunc(MouseMotion);
+ 	glutMouseFunc(MouseButton);
+ 	glutMotionFunc(MouseMotion);
 	glutMouseWheelFunc(MouseWheel);
 
 	glEnable(GL_CULL_FACE);
@@ -257,7 +262,12 @@ static float g_CylYaw = 0.0f;
 static float g_CylPitch = -90.0f;
 static float g_CylRoll = 0.0f;
 
-static int g_eLightModel = LM_PHONG_SPECULAR;
+static int g_eLightModel = LM_GAUSSIAN_ONLY;
+
+bool IsGuassianLightModel()
+{
+	return (g_eLightModel == LM_GAUSSIAN_ONLY || g_eLightModel == LM_GAUSSIAN_SPECULAR);
+}
 
 static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;
@@ -272,6 +282,7 @@ public:
 	MaterialParams()
 		: m_fPhongExponent(4.0f)
 		, m_fBlinnExponent(4.0f)
+		, m_fGaussianRoughness(0.5f)
 	{}
 
 	operator float() const
@@ -282,11 +293,20 @@ public:
 	void Increment(bool bIsLarge)
 	{
 		float &theParam = GetSpecularValue();
-
-		if(bIsLarge)
-			theParam += 0.5f;
+		if(IsGuassianLightModel())
+		{
+			if(bIsLarge)
+				theParam += 0.1f;
+			else
+				theParam += 0.01f;
+		}
 		else
-			theParam += 0.1f;
+		{
+			if(bIsLarge)
+				theParam += 0.5f;
+			else
+				theParam += 0.1f;
+		}
 
 		ClampParam();
 	}
@@ -294,11 +314,20 @@ public:
 	void Decrement(bool bIsLarge)
 	{
 		float &theParam = GetSpecularValue();
-
-		if(bIsLarge)
-			theParam -= 0.5f;
+		if(IsGuassianLightModel())
+		{
+			if(bIsLarge)
+				theParam -= 0.1f;
+			else
+				theParam -= 0.01f;
+		}
 		else
-			theParam -= 0.1f;
+		{
+			if(bIsLarge)
+				theParam -= 0.5f;
+			else
+				theParam -= 0.1f;
+		}
 
 		ClampParam();
 	}
@@ -306,6 +335,7 @@ public:
 private:
 	float m_fPhongExponent;
 	float m_fBlinnExponent;
+	float m_fGaussianRoughness;
 
 	float &GetSpecularValue()
 	{
@@ -317,6 +347,9 @@ private:
 		case LM_BLINN_SPECULAR:
 		case LM_BLINN_ONLY:
 			return m_fBlinnExponent;
+		case LM_GAUSSIAN_SPECULAR:
+		case LM_GAUSSIAN_ONLY:
+			return m_fGaussianRoughness;
 		}
 
 		static float fStopComplaint = 0.0f;
@@ -333,6 +366,9 @@ private:
 		case LM_BLINN_SPECULAR:
 		case LM_BLINN_ONLY:
 			return m_fBlinnExponent;
+		case LM_GAUSSIAN_SPECULAR:
+		case LM_GAUSSIAN_ONLY:
+			return m_fGaussianRoughness;
 		}
 
 		static float fStopComplaint = 0.0f;
@@ -343,8 +379,17 @@ private:
 	{
 		float &theParam = GetSpecularValue();
 
-		if(theParam <= 0.0f)
-			theParam = 0.0001f;
+		if(IsGuassianLightModel())
+		{
+			//Clamp to 0, 1.
+			theParam = std::max(0.0f, theParam);
+			theParam = std::min(1.0f, theParam);
+		}
+		else
+		{
+			if(theParam <= 0.0f)
+				theParam = 0.0001f;
+		}
 	}
 };
 
@@ -486,6 +531,8 @@ static const char *strLightModelNames[] =
 	"Phong Only",
 	"Blinn Specular.",
 	"Blinn Only",
+	"Gaussian Specular.",
+	"Gaussian Only",
 };
 
 
@@ -517,7 +564,7 @@ void keyboard(unsigned char key, int x, int y)
 	case 'A': g_CylRoll += 4.0f; break;
 	case 'E': g_CylYaw -= 4.0f; break;
 	case 'Q': g_CylYaw += 4.0f; break;
-
+		
 	case 32:
 		g_bDrawColoredCyl = !g_bDrawColoredCyl;
 		printf("Yaw: %f, Pitch: %f, Roll: %f\n", g_CylYaw, g_CylPitch, g_CylRoll);
