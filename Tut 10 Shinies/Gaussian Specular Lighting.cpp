@@ -368,8 +368,8 @@ private:
 
 		if(IsGuassianLightModel())
 		{
-			//Clamp to 0, 1.
-			theParam = std::max(0.0f, theParam);
+			//Clamp to (0, 1].
+			theParam = std::max(0.00001f, theParam);
 			theParam = std::min(1.0f, theParam);
 		}
 		else
