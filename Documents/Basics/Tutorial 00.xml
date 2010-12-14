@@ -7,10 +7,140 @@
     <?dbhtml filename="Introduction.html"?>
     <title>Introduction</title>
     <para>Unlike most sections of this text, there is no source code or project associated with this
-        section. Here, we will be discussing graphical rendering theory and OpenGL. This serves as a
-        primer to the rest of the tutorials.</para>
+        section. Here, we will be discussing vector math, graphical rendering theory, and OpenGL.
+        This serves as a primer to the rest of the tutorials.</para>
+    <section>
+        <title>Vector Math</title>
+        <para>This set of tutorials assumes that you are familiar with algebra and geometry, but not
+            necessarily with vector math. Later tutorials will bring you up to speed on more complex
+            subjects, but this will introduce the basics of vector math.</para>
+        <para>A <glossterm>vector</glossterm> can have many meanings, depending on whether we are
+            talking geometrically or numerically. In either case, vectors have dimensionality; this
+            represents the number of dimensions that the vector has. A two-dimensional vector is
+            restricted to a single plane, while a three-dimensional vector can point in any physical
+            space. Vectors can have higher dimensions, but generally we only deal with dimensions
+            between 2 and 4.</para>
+        <para>Technically, a vector can have only one dimension. Such a vector is called a
+                <glossterm>scalar.</glossterm></para>
+        <para>In terms of geometry, a vector can represent one of two concepts: a position or a
+            direction within a particular space. A vector <glossterm>position</glossterm> represents
+            a specific location in space. For example, on this graph, we have a vector position
+            A:</para>
+        <!--TODO: Show a graph with a position labeled A.-->
+        <para>A vector can also represent a <glossterm>direction</glossterm>. Direction vectors do
+            not have an origin; they simply specify a direction in space. These are all direction
+            vectors, but the vectors B and D are the same, even though they are drawn in different
+            locations:</para>
+        <!--TODO: Show a graph with several labeled vector directions.
+Directions B and D should be the same length and point in the same direction.-->
+        <para>That's all well and good for geometry, but vectors can also be described numerically.
+            A vector in this case is a sequence of numbers, one for each dimension. So a
+            two-dimensional vector has two numbers; a three-dimensional vector has three. And so
+            forth. Scalars, numerically speaking, are just a single number.</para>
+        <para>Each of the numbers within a vector is called a <glossterm>component</glossterm>. Each
+            component usually has a name. For our purposes, the first component of a vector is the X
+            component. The second component is the Y component, the third is the Z, and if there is
+            a fourth, it is called W.</para>
+        <para>When writing vectors in text, they are written with parenthesis. So a 3D vector could
+            be (0, 2, 4); the X component is 0, the Y component is 2, and the Z component is 4. When
+            writing them as part of an equation, they are written as follows:</para>
+        <!--TODO: Show a column vector.-->
+        <para>In math equations, vector variables are either bold or written with an arrow over
+            them.</para>
+        <para>When drawing vectors graphically, one makes a distinction between position vectors and
+            direction vectors. However, numerically there is <emphasis>no</emphasis> difference
+            between the two. The only difference is in how you use them, not how you represent them
+            with numbers. So you could consider a position a direction and then apply some vector
+            operation to them, and then consider the result a position again.</para>
+        <para>Though vectors have individual numerical components, a vector as a whole can have a
+            number of mathematical operations applied to them. We will show a few of them, with both
+            their geometric and numerical representations.</para>
+        <formalpara>
+            <title>Vector Addition</title>
+            <para>You can take two vectors and add them together. Graphically, this works as
+            follows:</para>
+            </formalpara>
+            <!--TODO: Show vectors A, B, and A+B, geometrically.-->
+            <para>Remember that vector directions can be shifted around without changing their
+                values. So if you put two vectors head to tail, the vector sum is simply the
+                direction from the tail of the first vector to the head of the last.</para>
+            <!--TODO: Show A+B again, with B moved to the tip of A.-->
+            <para>Numerically, the sum of two vectors is just the sum of the corresponding
+                components:</para>
+            <!--TODO: Show vector addition in equation form.-->
+            <para>Any operation where you perform an operation on each component of a vector is
+                called a <glossterm>component-wise operation</glossterm>. Vector addition is
+                component-wise. Any component-wise operation on two vectors requires that the two
+                vectors have the same dimensionality.</para>
+        <formalpara>
+            <title>Vector Negation and Subtraction</title>
+            <para>You can negate a vector. This reverses its direction:</para>
+        </formalpara>
+        <!--TODO: Show vectors A and -A.-->
+            <para>Numerically, this means negating each component of the vector.</para>
+            <!--TODO: Show negation in equation form.-->
+            <para>Just as with regular math, vector subtraction is the same as addition with the
+                negation of the second vector.</para>
+            <!--TODO: Geometrically show vector subtraction.-->
+        <formalpara>
+            <title>Vector Multiplication</title>
+            <para>Vector multiplication is one of the few vector operations that has no geometric
+                equivalent. Multiplying two vectors numerically is simply component-wise
+                multiplication, much like vector addition.</para>
+        </formalpara>
+        <!--TODO: Numerically show vector multiplication.-->
+        <formalpara>
+            <title>Vector/Scalar Operations</title>
+            <para>Vectors can be operated on by scalar values. Recall that scalars are just single
+                numbers. Vectors can be multiplied by scalars. This magnifies or shrinks the length
+                of the vector, depending on the scalar value.</para>
+        </formalpara>
+        <!--TODO: Graph of a vector, that vector times 3, and that vector times 0.5.-->
+        <para>Numerically, this is a component-wise multiplication, where each component of the
+            vector is multiplied with each component of the scalar.</para>
+        <!--TODO: Equation of vector-scalar multiplication.-->
+        <para>Scalars can also be added to scalars. This, like vector-to-vector multiplication, has
+            no geometric representation. It is a component-wise addition of the scalar with each
+            component of the vector.</para>
+        <!--TODO: Equation of vector-scalar addition.-->
+        <formalpara>
+            <title>Vector Algebra</title>
+            <para>It is useful to know a bit about the relationships between these kinds of vector
+                operations.</para>
+        </formalpara>
+        <para>Vector addition and multiplication follow the same rules for scalar addition and
+            multiplication. They are commutative, associative, and distributive.</para>
+        <!--TODO: Equation for commutative, associative, and distributive vector math.-->
+        <para>Scalar operations have similar properties.</para>
+        <formalpara>
+            <title>Length</title>
+            <para>Vectors have a length. The length of a vector is the distance from the starting
+                point to the ending point. Geometrically, this is as follows:</para>
+        </formalpara>
+        <!--TODO: Show a graph of a vector and its length.-->
+        <para>Numerically, computing the distance requires this equation:</para>
+        <!--TODO: Equation for distance computation.-->
+        <formalpara>
+            <title>Unit Vectors and Normalization</title>
+            <para>A vector that has a length of exactly one is called a <glossterm>unit
+                    vector.</glossterm> This represents a pure direction with a standard, unit
+                length. A unit vector variable in math equations is written with a ^ over the
+                variable name.</para>
+        </formalpara>
+        <para>A vector can be converted into a unit vector by <glossterm>normalizing</glossterm> it.
+            This is done by dividing the vector by its length. Or rather, multiplication by the
+            reciprocal of the length.</para>
+        <!--TODO: Equation for normalization of a vector.-->
+        <para>This is not all of the vector math that we will use in these tutorials. New vector
+            math operations will be introduced and explained as needed when they are first used. And
+            unlike the math operations introduced here, most of them are not component-wise
+            operations.</para>
+    </section>
     <section>
         <title>Graphics and Rendering</title>
+        <para>This is an overview of the process of rendering. Don't worry if you don't understand
+            everything right away; every step will be covered in lavish detail in later
+            tutorials.</para>
         <para>Everything you see on your computer's screen, even the text you are reading right now
             (assuming you are reading this on an electronic display device, rather than a printout)
             is simply a two-dimensional array of pixels. If you take a screenshot of something on
@@ -51,7 +181,7 @@
         <note>
             <para>Some rasterizers use planar quadrilaterals: four-sided objects, where all of the
                 lines lie in the same plane. One of the reasons that hardware-based rasterizers
-                always uses triangles is that all of the lines of triangles are guaranteed to be in
+                always use triangles is that all of the lines of a triangle are guaranteed to be in
                 the same plane. Knowing this makes the rasterization process less
                 complicated.</para>
         </note>
@@ -76,11 +206,12 @@
             useful for our purposes.</para>
         <formalpara>
             <title>Triangles and Vertices</title>
-            <para>Triangles consist of 3 vertices. A vertex consists of a collection of data. For
-                the sake of simplicity (we will expand upon this later), let us say that this data
-                must contain a point in three dimensional space. Any 3 points that are not on the
-                same line create a triangle, so the smallest information for a triangle consists of
-                3 three-dimensional points.</para>
+            <para>Triangles consist of 3 vertices. A <glossterm>vertex</glossterm> is of a
+                collection of arbitrary data. For the sake of simplicity (we will expand upon this
+                later), let us say that this data must contain a point in three dimensional space.
+                It may contain other data, but it must have at least this. Any 3 points that are not
+                on the same line create a triangle, so the smallest information for a triangle
+                consists of 3 three-dimensional points.</para>
         </formalpara>
         <para>A point in 3D space is defined by 3 numbers or coordinates. An X coordinate, a Y
             coordinate, and a Z coordinate. These are commonly written with parenthesis, as in (X,
@@ -304,8 +435,8 @@
             what it is that we are writing. What exactly is OpenGL?</para>
         <section>
             <title>OpenGL as an API</title>
-            <para>OpenGL is usually thought of as an Application Programming Interface
-                    (<acronym>API</acronym>). The OpenGL API has been exposed to a number of
+            <para><glossterm>OpenGL</glossterm> is usually thought of as an Application Programming
+                Interface (<acronym>API</acronym>). The OpenGL API has been exposed to a number of
                 languages. But the one that they all ultimately use at their lowest level is the C
                 API.</para>
             <para>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
@@ -369,7 +500,7 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 set or retrieve some state in OpenGL. The only functions that do not change state
                 are functions that use the currently set state to cause rendering to happen.</para>
             <para>You can think of the state machine as a very large struct with a great many
-                different fields. This struct is called the OpenGL <glossterm>context</glossterm>,
+                different fields. This struct is called the <glossterm>OpenGL context</glossterm>,
                 and each field in the context represents some information necessary for
                 rendering.</para>
             <para>Objects in OpenGL are thus defined as a list of fields in this struct that can be
@@ -382,9 +513,40 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 equivalent of a NULL pointer. Binding object 0 means to unbind the currently bound
                 object. This means that the original context state, the state that was in place
                 before the binding took place, now becomes the context state.</para>
-            <para>Do note that this is simply a model of OpenGL's <emphasis>behavior.</emphasis>
-                This is most certainly <emphasis>not</emphasis> how it is actually
-                implemented.</para>
+            <para>Let us say that this represents some part of an OpenGL context's state:</para>
+            <example>
+                <title>OpenGL Object State</title>
+                <programlisting language="cpp">struct Values
+{
+    int iValue1;
+    int iValue2;
+};
+
+struct OpenGL_Context
+{
+    ...
+    Values *pMainValues;
+    Values *pOtherValues;
+    ...
+};
+
+OpenGL_Context context;</programlisting>
+            </example>
+            <para>To create a <classname>Values</classname> object, you would call something like
+                    <function>glGenValues</function>. You could bind the
+                    <classname>Values</classname> object to one of two targets:
+                    <literal>GL_MAIN_VALUES</literal> which represents the pointer
+                    <varname>context.pMainValues</varname>, and <literal>GL_OTHER_VALUES</literal>
+                which represents the pointer <varname>context.pOtherValues</varname>. You would bind
+                the object with a call to <function>glBindValues</function>, passing one of the two
+                targets and the object. This would set that target's pointer to the object that you
+                created.</para>
+            <para>There would be a function to set values in a bound object. Say,
+                    <function>glValueParam</function>. It would take the target of the object, which
+                represents the pointer in the context. It would also take an enum representing which
+                value in the object to change. The value <literal>GL_VALUE_ONE</literal> would
+                represent <varname>iValue1</varname>, and <literal>GL_VALUE_TWO</literal> would
+                represent <varname>iValue2</varname>.</para>
         </section>
         <section>
             <title>The OpenGL Specification</title>
@@ -454,6 +616,62 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
         <title>Glossary</title>
         <glosslist>
             <glossentry>
+                <glossterm>vector</glossterm>
+                <glossdef>
+                    <para>A value composed of an ordered sequence of other values. The number of
+                        values stored in a vector is its dimensionality. Vectors can have math
+                        operations performed on them as a whole.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>scalar</glossterm>
+                <glossdef>
+                    <para>A single, non-vector value. A one-dimensional vector can be considered a
+                        scalar.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vector position</glossterm>
+                <glossdef>
+                    <para>A vector that represents a position.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vector direction</glossterm>
+                <glossdef>
+                    <para>A vector that represents a direction.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vector component</glossterm>
+                <glossdef>
+                    <para>One of the values within a vector.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>component-wise operation</glossterm>
+                <glossdef>
+                    <para>An operation on a vector that applies something to each component of the
+                        vector. The results of a component-wise operation is a vector of the same
+                        dimension as the input(s) to the operation. Many vector operations are
+                        component-wise.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>unit vector</glossterm>
+                <glossdef>
+                    <para>A vector who's length is exactly one. These represent pure directions with
+                        a unit length.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vector normalization</glossterm>
+                <glossdef>
+                    <para>The process of converting a vector into a unit vector that points in the
+                        same direction as the original.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>pixel</glossterm>
                 <glossdef>
                     <para>The smallest division of a digital image. A pixel has a particular color in a
@@ -464,14 +682,6 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 <glossterm>image</glossterm>
                 <glossdef>
                     <para>A two-dimensional array of pixels.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>colorspace</glossterm>
-                <glossdef>
-                    <para>The set of reference colors that define a way of representing a color in
-                        computer graphics. All colors are defined relative to a particular
-                        colorspace.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -577,6 +787,14 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 </glossdef>
             </glossentry>
             <glossentry>
+                <glossterm>colorspace</glossterm>
+                <glossdef>
+                    <para>The set of reference colors that define a way of representing a color in
+                        computer graphics. All colors are defined relative to a particular
+                        colorspace.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>shader</glossterm>
                 <glossdef>
                     <para>A program designed to be executed by a renderer, in order to perform some
@@ -586,8 +804,9 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
             <glossentry>
                 <glossterm>shader stage</glossterm>
                 <glossdef>
-                    <para>A particular place in a rendering pipeline where a shader can be executed to
-                        perform a computation.</para>
+                    <para>A particular place in a rendering pipeline where a shader can be executed
+                        to perform a computation. The results of this computation will be fed to the
+                        next stage in the rendering pipeline.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -595,6 +814,25 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 <glossdef>
                     <para>A specification that defines the effective behavior of a
                         rasterization-based rendering system.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>OpenGL context</glossterm>
+                <glossdef>
+                    <para>A specific set of state used for rendering. The OpenGL context is like a
+                        large C-style struct that contains a large number of fields that can be
+                        accessed. If you were to create multiple windows for rendering, each one
+                        would have its own OpenGL context.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>object binding</glossterm>
+                <glossdef>
+                    <para>Objects can be bound to a particular location in the OpenGL context. When
+                        this happens, the state within the object takes the place of a certain set
+                        of state in the context. There are multiple binding points for objects, and
+                        each kind of object can be bound to certain binding points. Which bind point
+                        an object is bound to determines what state the object overrides.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
