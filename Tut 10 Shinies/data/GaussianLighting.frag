@@ -46,7 +46,7 @@ void main()
 	exponent = -(exponent * exponent);
 	float gaussianTerm = exp(exponent);
 
-	gaussianTerm = dot(surfaceNormal, lightDir) >= 0.0 ? gaussianTerm : 0.0;
+	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
 
 	outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
 		(specularColor * attenIntensity * gaussianTerm) +

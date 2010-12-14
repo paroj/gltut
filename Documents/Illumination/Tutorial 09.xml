@@ -222,12 +222,12 @@ void main()
             space.</para>
         <para>The <phrase role="propername">Fragment Point Lighting</phrase> tutorial shows off how
             fragment lighting works.</para>
+        <!--TODO: Show a picture of the tutorial.-->
+        <para>Much better.</para>
         <para>This tutorial is controlled as before, with a few exceptions. Pressing the
                 <keycap>t</keycap> key will toggle a scale factor onto to be applied to the
             cylinder, and pressing the <keycap>h</keycap> key will toggle between per-fragment
             lighting and per-vertex lighting.</para>
-        <!--TODO: Show a picture of the tutorial.-->
-        <para>Much better.</para>
         <para>The rendering code has changed somewhat, considering the use of model space for
             lighting instead of camera space. The start of the rendering looks as follows:</para>
         <example>

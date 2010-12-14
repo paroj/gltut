@@ -817,6 +817,13 @@ else
             </itemizedlist>
         </section>
         <section>
+            <title>Further Research</title>
+            <para>Lambertian diffuse reflectance is a rather good model for diffuse reflectance for
+                many surfaces. Particularly rough surfaces however do not behave in a Lambertian
+                manor. If you are interested in modelling such surfaces, investigate the Oren-Nayar
+                reflectance model.</para>
+        </section>
+        <section>
             <title>GLSL Functions of Note</title>
             <funcsynopsis>
                 <funcprototype>
@@ -871,8 +878,9 @@ else
             <glossentry>
                 <glossterm>lighting model</glossterm>
                 <glossdef>
-                    <para>A mathematical model that defines light/surface interactions. This can
-                        attempt to model reality, but it does not have to.</para>
+                    <para>A mathematical model that defines how light is absorbed and reflected from
+                        a surface. This can attempt to model reality, but it does not have
+                        to.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

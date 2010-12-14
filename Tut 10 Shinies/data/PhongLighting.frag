@@ -42,7 +42,7 @@ void main()
 	vec3 reflectDir = reflect(-lightDir, surfaceNormal);
 	float phongTerm = dot(viewDirection, reflectDir);
 	phongTerm = clamp(phongTerm, 0, 1);
-	phongTerm = dot(reflectDir, surfaceNormal) > 0.0 ? phongTerm : 0.0;
+	phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
 	phongTerm = pow(phongTerm, shininessFactor);
 	
 

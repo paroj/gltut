@@ -242,7 +242,7 @@ static float g_CylYaw = 0.0f;
 static float g_CylPitch = -90.0f;
 static float g_CylRoll = 0.0f;
 
-static int g_eLightModel = LM_PHONG_SPECULAR;
+static int g_eLightModel = LM_BLINN_SPECULAR;
 
 static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;

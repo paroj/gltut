@@ -37,10 +37,10 @@ void main()
 	vec3 surfaceNormal = normalize(vertexNormal);
 	
 	vec3 viewDirection = normalize(-cameraSpacePosition);
-	vec3 reflectDir = reflect(-lightDir, surfaceNormal);
+	vec3 reflectDir = normalize(reflect(-lightDir, surfaceNormal));
 	float phongTerm = dot(viewDirection, reflectDir);
 	phongTerm = clamp(phongTerm, 0, 1);
-	phongTerm = dot(reflectDir, surfaceNormal) > 0.0 ? phongTerm : 0.0;
+	phongTerm = dot(surfaceNormal, lightDir) > 0.0 ? phongTerm : 0.0;
 	phongTerm = pow(phongTerm, shininessFactor);
 	
 	outputColor = (specularColor * attenIntensity * phongTerm) +
