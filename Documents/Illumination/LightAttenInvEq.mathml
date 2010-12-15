@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mtext>Attenuated Light</mtext>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <mi>I</mi>
+    </mrow>
+    <mrow>
+      <mfenced open="(" close=")" separators=",">
+        <mrow>
+          <mn>1.0</mn>
+          <mo>+</mo>
+          <mi>k</mi>
+          <mo>*</mo>
+          <mi>r</mi>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mfrac>
+</mrow>
+</math>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>f</mi>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mi>x</mi>
+            </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfrac>
+            <mrow>
+                <mn>1</mn>
+            </mrow>
+            <msqrt>
+                <mn>2</mn>
+                <mi>&#x03c0;</mi>
+                <mi>&#x03c3;</mi>
+            </msqrt>
+        </mfrac>
+        <msup>
+            <mi>&#x2147;</mi>
+            <mrow>
+                <mo>-</mo>
+                <mfrac>
+                    <mrow>
+                        <msup>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mi>x</mi>
+                                    <mo>-</mo>
+                                    <mi>&#x03bc;</mi>
+                                </mrow>
+                            </mfenced>
+                            <mn>2</mn>
+                        </msup>
+                    </mrow>
+                    <mrow>
+                        <mn>2</mn>
+                        <msup>
+                            <mi>&#x03c3;</mi>
+                            <mn>2</mn>
+                        </msup>
+                    </mrow>
+                </mfrac>
+            </mrow>
+        </msup>
+    </mrow>
+</math>

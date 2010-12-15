@@ -268,10 +268,10 @@ void main()
                 position, this shader simply copies it directly into the output.</para>
             <formalpara>
                 <title>Vertex Attributes</title>
+                <para>Shaders have inputs and outputs. Think of these like function parameters and
+                    function return values. If the shader is a function, then it is called with
+                    input values, and it is expected to return a number of output values.</para>
             </formalpara>
-            <para>Shaders have inputs and outputs. Think of these like function parameters and
-                function return values. If the shader is a function, then it is called with input
-                values, and it is expected to return a number of output values.</para>
             <para>Inputs to and outputs from a shader stage come from somewhere and go to somewhere.
                 Thus, the input <varname>position</varname> in the vertex shader must be filled in
                 with data somewhere. So where does that data come from? Inputs to a vertex shader

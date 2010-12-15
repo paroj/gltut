@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mi>k</mi>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <mn>1</mn>
+    </mrow>
+    <mrow>
+      <msup>
+            <mrow>
+              <msub>
+                      <mi>r</mi>
+                    <mi>&#x03bb;</mi>
+              </msub>
+            </mrow>
+            <mn>2</mn>
+      </msup>
+    </mrow>
+  </mfrac>
+</mrow>
+</math>

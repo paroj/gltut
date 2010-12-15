@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mfenced open="&#x2225;" close="&#x2225;" separators=",">
+    <mrow>
+      <mover>
+              <mi>a</mi>
+            <mo>&#x21C0;</mo>
+      </mover>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <msqrt>
+    <msup>
+          <mrow>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mrow>
+          <mn>2</mn>
+    </msup>
+    <mo>+</mo>
+    <msup>
+          <mrow>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mrow>
+          <mn>2</mn>
+    </msup>
+    <mo>+</mo>
+    <msup>
+          <mrow>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mrow>
+          <mn>2</mn>
+    </msup>
+  </msqrt>
+</mrow>
+</math>

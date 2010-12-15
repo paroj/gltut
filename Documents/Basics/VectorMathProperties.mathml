@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mtext>Commutative</mtext>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+        <mo>+</mo>
+        <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+        <mo>=</mo>
+        <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+        <mo>+</mo>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+        <mo>*</mo>
+        <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+        <mo>=</mo>
+        <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+        <mo>*</mo>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mtext>Associative</mtext>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+        <mo>+</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+            <mo>+</mo>
+            <mover><mi>c</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+            <mo>+</mo>
+            <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>+</mo>
+        <mover><mi>c</mi><mo>&#x21C0;</mo></mover>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+            <mo>*</mo>
+            <mover><mi>c</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+            <mo>*</mo>
+            <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>*</mo>
+        <mover><mi>c</mi><mo>&#x21C0;</mo></mover>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mtext>Distributive</mtext>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+            <mo>+</mo>
+            <mover><mi>c</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+            <mo>*</mo>
+            <mover><mi>b</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>+</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
+            <mo>*</mo>
+            <mover><mi>c</mi><mo>&#x21C0;</mo></mover>
+          </mrow>
+        </mfenced>
+      </mtd>
+      <mtd>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>

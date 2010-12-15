@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mtable>
+          <mtr>
+            <mtd>
+              <mi>R</mi>
+            </mtd>
+            <mtd>
+              <mo>&#x27f6;</mo>
+            </mtd>
+            <mtd>
+              <mtext>Reflected Color</mtext>
+            </mtd>
+            <mtd>
+              <mi>I</mi>
+            </mtd>
+            <mtd>
+              <mo>&#x27f6;</mo>
+            </mtd>
+            <mtd>
+              <mtext>Light Intensity</mtext>
+            </mtd>
+          </mtr>
+          <mtr>
+            <mtd>
+              <mi>D</mi>
+            </mtd>
+            <mtd>
+              <mo>&#x27f6;</mo>
+            </mtd>
+            <mtd>
+              <mtext>Diffuse Surface Absorption</mtext>
+            </mtd>
+            <mtd>
+              <mi>&#x03b8;</mi>
+            </mtd>
+            <mtd>
+              <mo>&#x27f6;</mo>
+            </mtd>
+            <mtd>
+              <mtext>Angle of Incidence</mtext>
+            </mtd>
+          </mtr>
+        </mtable>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mtable>
+          <mtr>
+            <mtd>
+              <mtext>Diffuse Lighting Equation</mtext>
+            </mtd>
+            <mtd>
+              <mi>R</mi>
+              <mo>=</mo>
+              <mi>D</mi>
+              <mo>*</mo>
+              <mi>I</mi>
+              <mo>*</mo>
+              <mi>cos</mi>
+              <mfenced open="(" close=")" separators=",">
+                <mrow>
+                  <mi>&#x03b8;</mi>
+                </mrow>
+              </mfenced>
+            </mtd>
+          </mtr>
+        </mtable>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>

@@ -788,6 +788,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 object, but to one of these uniform buffer binding points. This reference is just a
                 numerical index: 0, 1, 2, etc.</para>
             <para>A diagram should make it clearer:</para>
+            <!-- TODO: Image of the UBO context binding. One that WORKs. -->
 			<!--
             <figure>
                 <title>Uniform Buffer and Block Binding Points</title>

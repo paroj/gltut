@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <mi>&#x03b1;</mi>
+                    <mo>:</mo>
+                    <mtext>Angle between H and N</mtext>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>Gaussian Term</mi>
+                    <mo>=</mo>
+                    <msup>
+                        <mi>&#x2147;</mi>
+                        <mrow>
+                            <mo>-</mo>
+                            <msup>
+                                <mfenced open="(" close=")" separators=",">
+                                    <mfrac>
+                                        <mrow>
+                                            <mi>&#x03b1;</mi>
+                                        </mrow>
+                                        <mrow>
+                                            <mi>m</mi>
+                                        </mrow>
+                                    </mfrac>
+                                </mfenced>
+                                <mn>2</mn>
+                            </msup>
+                        </mrow>
+                    </msup>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>

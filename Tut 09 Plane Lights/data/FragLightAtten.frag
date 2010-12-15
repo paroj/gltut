@@ -21,13 +21,12 @@ uniform bool bUseRSquare;
 
 vec3 CalcCameraSpacePosition()
 {
-	vec3 ndcPos;
+	vec4 ndcPos;
 	ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
-	ndcPos.z = 2.0 * (gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+	ndcPos.z = (2.0 * gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+	ndcPos.w = 1.0;
 	
-	vec4 clipPos;
-	clipPos.w = 1.0f / gl_FragCoord.w;
-	clipPos.xyz = ndcPos.xyz * clipPos.w;
+	vec4 clipPos = ndcPos / gl_FragCoord.w;
 	
 	return vec3(clipToCameraMatrix * clipPos);
 }

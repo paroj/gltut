@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mi>&#x03b1;</mi>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                    <mo>&#xb7;</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>a</mi>
+                                        </msub>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                    <mi>+</mi>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mn>1</mn>
+                                    <mo>-</mo>
+                                    <mi>&#x03b1;</mi>
+                                </mrow>
+                            </mfenced>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                    <mo>&#xb7;</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>b</mi>
+                                        </msub>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                    <mo>&#xb7;</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>a</mi>
+                                        </msub>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                    <mi>&#x03b1;</mi>
+                    <mi>+</mi>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                    <mo>&#xb7;</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>b</mi>
+                                        </msub>
+                                        <mo>&#x5e;</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mn>1</mn>
+                            <mo>-</mo>
+                            <mi>&#x03b1;</mi>
+                        </mrow>
+                    </mfenced>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>

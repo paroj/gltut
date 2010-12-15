@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>Blinn term</mi>
+        <mo>=</mo>
+        <msup>
+            <mfenced open="(" close=")" separators=",">
+                <mrow>
+                    <mover>
+                        <mi>H</mi>
+                        <mo>&#x21C0;</mo>
+                    </mover>
+                    <mo>&#xb7;</mo>
+                    <mover>
+                        <mi>N</mi>
+                        <mo>&#x21C0;</mo>
+                    </mover>
+                </mrow>
+            </mfenced>
+            <mi>s</mi>
+        </msup>
+    </mrow>
+</math>

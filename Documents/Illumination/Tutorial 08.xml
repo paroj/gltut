@@ -106,7 +106,14 @@ color as the surface are reflected.-->
                     reflectance</glossterm> model of diffuse lighting. It represents the ideal case
                 shown above, where light is reflected in all directions equally. The equation for
                 this lighting model is quite simple:</para>
-            <!--TODO: Diffuse lighting equation. Reflected Color = Surface Color * light Intensity * cos(angle of incidence).-->
+            <equation>
+                <title>Diffuse Lighting Equation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="DiffuseLightingEquation.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
             <para>The cosine of the angle of incidence is used because it represents the perfect
                 hemisphere of light that would be reflected. When the angle of incidence is 0°, the
                 cosine of this angle will be 1.0. The lighting will be at its brightest. When the
@@ -454,19 +461,31 @@ void main()
             <para>Geometrically, the vector dot product of two direction vectors represents the
                 length of the projection of one vector onto the other.</para>
             <!--TODO: Show two vectors, and the projection onto each other.-->
-            <para>This effectively means that the dot product of two vectors yields this
-                equation:</para>
-            <!--TODO: Equation of vector dot product equalling the length of the vectors times the cosine of the angle.-->
-            <para>If both vectors have a length of one, and thus are <glossterm>unit
-                    vectors</glossterm>, then the result of a dot product is just the cosine of the
-                angle between the vectors.</para>
+            <para>This effectively means that the dot product of two vectors is as follows:</para>
+            <equation>
+                <title>Vector Dot Product Lengths</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="DotProductLength.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>If both vectors have a length of one, and thus are unit vectors, then the result
+                of a dot product is just the cosine of the angle between the vectors.</para>
             <para>This is also part of the reason why the light direction is the direction
                     <emphasis>towards</emphasis> the light rather than from the light. Otherwise we
                 would have to negate the vector before performing the dot product.</para>
-            <para>What makes this faster than doing the cosine of the angle directly is that, while
+            <para>What makes this faster than taking the cosine of the angle directly is that, while
                 the dot product is geometrically the cosine of the angle between the two vectors,
                 mathematically computing the dot product is very simple:</para>
-            <!--TODO: Equation for computing the dot product-->
+            <equation>
+                <title>Vector Dot Product Equation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="DotProductEquation.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
             <para>This doesn't require any messy cosine transcendental math computations. This
                 doesn't require using trigonometry to compute the angle between the two vectors.
                 Simple multiplications and additions; most graphics hardware can do billions of
@@ -513,39 +532,78 @@ Also show an ellipse with proper normals.-->
             inverse matrix, then compute the <glossterm>transpose</glossterm> of that matrix. The
             transpose of a matrix is simply the same matrix flipped along the diagonal. The columns
             of the original matrix are the rows of its transpose. That is:</para>
-        <!--TODO: Show the matrix transpose operation.-->
+        <equation>
+            <title>Matrix Transpose</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="MatrixTranspose.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>So how does this inverse transpose help us?</para>
-        <para>Remember, what we want is to invert the scales of our matrix without affecting the
-            rotational characteristics of our matrix. Given a 3x3 matrix M which is composed of only
-            rotation and scale transformations, we can express this matrix as follows:</para>
-        <!--TODO: Show M becoming R1 * S * R2.-->
+        <para>Remember: what we want is to invert the scales of our matrix without affecting the
+            rotational characteristics of our matrix. Given a 3x3 matrix M that is composed of only
+            rotation and scale transformations, we can re-express this matrix as follows:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="MatrixSVD.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>That is, the matrix can be expressed as doing a rotation into a space, followed by a
             single scale transformation, followed by another rotation.<footnote>
-                <para>We will skip over deriving how this is true. If you are interested, the
-                    Wikipedia entry on <quote><link
+                <para>We will skip over deriving how exactly this is true. If you are interested,
+                    search for <quote><link
                             xlink:href="http://en.wikipedia.org/wiki/Singular_value_decomposition"
-                            >Singular Value Decomposition</link></quote> is a good place to
-                    start.</para>
+                            >Singular Value Decomposition</link></quote>. But be warned: it is
+                    math-heavy.</para>
             </footnote></para>
         <para>Recall that what we want to do is invert the scales in our transformation. Where we
             scale by 0.4 in the original, we want to scale by 2.5 in the inverse. The inverse matrix
             of a pure scale matrix is a matrix with each of the scaling components inverted.
             Therefore, we can express the matrix that we actually want as this:</para>
-        <!--TODO: Show R1 * S-1 * R2 -->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="InvertedScale.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>An interesting fact about pure-rotation matrices: the inverse of any rotation matrix
-                <emphasis>is</emphasis> its transpose. Therefore, you can express any pure-rotation
-            matrix as the inverse transpose of itself, without affecting the outcome. Since the
-            inverse is its transpose, and doing a transpose twice on a matrix doesn't change its
-            value, the inverse-transpose of a rotation matrix is a no-op.</para>
-        <para>Adding to that, since the values in pure-scale matrices are along the diagonal, a
-            transpose operation on scale matrices does nothing. With these two facts in hand, we can
+                <emphasis>is</emphasis> its transpose. Also, taking the inverse of a matrix twice
+            results in the original matrix. Therefore, you can express any pure-rotation matrix as
+            the inverse transpose of itself, without affecting the matrix. Since the inverse is its
+            transpose, and doing a transpose twice on a matrix doesn't change its value, the
+            inverse-transpose of a rotation matrix is a no-op.</para>
+        <para>Also, since the values in pure-scale matrices are along the diagonal, a transpose
+            operation on scale matrices does nothing. With these two facts in hand, we can
             re-express the matrix we want to compute as:</para>
-        <!--TODO: Show (R1^T)^-1 (S^T)^-1 (R2^T)^-1-->
-        <para>Using matrix algebra, we can factor the transposes out, but it requires reversing the
-            order of the matrix multiplication:</para>
-        <!--TODO: Show (R2^-1 S^-1 R1^-1)^T-->
-        <para>Similar, we can factor out the inverse operations by reversing the order again:</para>
-        <!--TODO: Show ((R1 S1 R2)^-1)^T = (M^-1)^T-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="DeriveInvTrans_1.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Using matrix algebra, we can factor the transposes out, but doing so requires
+            reversing the order of the matrix multiplication:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="FactorOutTranspose_2.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Similar, we can factor out the inverse operations, but this requires reversing the
+            order again:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="FactorOutInverse_3.mathml"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>Thus, the inverse-transpose solves our problem. And both GLM and GLSL have nice
             functions that can do these operations for us. Though really, if you can avoid doing an
             inverse-transpose in GLSL, you are <emphasis>strongly</emphasis> advised to do so; this
@@ -645,10 +703,10 @@ glUseProgram(0);</programlisting>
             actual global illumination modelling is hard, we will instead use a time-tested
             technique: <glossterm>ambient lighting.</glossterm></para>
         <para>The ambient lighting <quote>model</quote><footnote>
-                <para>I put model in quotations because ambient lighting is so divorced from
-                    anything in reality that it doesn't really deserve to be called a model. Just
-                    because it does not actually model global illumination in any real way doesn't
-                    mean that it isn't <emphasis>useful</emphasis>, however.</para>
+                <para>I put the word model in quotations because ambient lighting is so divorced
+                    from anything in reality that it doesn't really deserve to be called a model.
+                    That being said, just because it does not actually model global illumination in
+                    any real way doesn't mean that it isn't <emphasis>useful</emphasis>.</para>
             </footnote> is quite simple. It assumes that, on every object in the scene, there is a
             light of a certain intensity that emanates from everywhere. It comes from all directions
             equally, so there is no angle of incidence in our diffuse calculation. It is simply the
@@ -945,14 +1003,8 @@ else
                 <glossterm>vector dot product</glossterm>
                 <glossdef>
                     <para>Computes the length of the projection of one vector onto another. If the
-                        two vectors are unit vectors, then the dot product is also the cosine of the
-                        angle between them.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>unit vector</glossterm>
-                <glossdef>
-                    <para>A vector direction who's length is 1.</para>
+                        two vectors are unit vectors, then the dot product is simply the cosine of
+                        the angle between them.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

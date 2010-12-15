@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <msub  mathvariant="bold">
+	<mi  mathvariant="bold">M</mi>
+	<mi>want</mi>
+  </msub>
+  <mo>=</mo>
+  <msup>
+      <mfenced open="(" close=")" separators=",">
+		  <msup>
+			  <msub  mathvariant="bold">
+					  <mi>R</mi>
+					<mn>1</mn>
+			  </msub>
+			  <mn>-1</mn>
+			  </msup>
+	  </mfenced>
+	  <mi>T</mi>
+  </msup>
+  <mo>*</mo>
+  <msup>
+      <mfenced open="(" close=")" separators=",">
+		  <msup>
+			  <mi  mathvariant="bold">S</mi>
+			  <mn>-1</mn>
+		  </msup>
+	  </mfenced>
+	  <mi>T</mi>
+  </msup>
+  <mo>*</mo>
+  <msup>
+      <mfenced open="(" close=")" separators=",">
+		  <msup>
+			  <msub  mathvariant="bold">
+					  <mi>R</mi>
+					<mn>2</mn>
+			  </msub>
+			  <mn>-1</mn>
+		  </msup>
+	  </mfenced>
+	  <mi>T</mi>
+  </msup>
+</mrow>
+</math>

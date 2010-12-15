@@ -93,7 +93,15 @@ Position A should be in view of the reflection at the point P, while position B 
         <para>The Phong model states that the light reflected in the direction of the viewer varies
             based on the angle between difference between the view direction and the direction of
             perfect reflection. Mathematically, the Phong model looks like this:</para>
-        <!--TODO: Show the phong equation. Phong term = cos(V, R) ^ s-->
+        <equation>
+            <title>Phong Specular Term</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="PhongTerm.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>The Phong term is multiplied by the light intensity in the lighting equation.</para>
         <para>The brightness of the specular highlight for a particular viewing direction is based
             on raising the cosine of the angle between the view direction and the reflection
             direction to a power. As previously stated, this model is not based on anything real. It
@@ -199,7 +207,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 light. This is why it is negated.</para>
             <para>Using the function is useful, but it is important to know how to compute the
                 reflection direction on your own. Here is the formula:</para>
-            <!--TODO: equation of the reflection direction computation.-->
+            <equation>
+                <title>Vector Reflection</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="ReflectionVector.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
             <para>Again, this equation assumes that L is the direction <emphasis>from</emphasis> the
                 light.</para>
             <para>From here, the Phong term is computed by taking the dot product of the reflection
@@ -291,7 +306,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 <glossterm>half-angle vector</glossterm>. The half-angle vector is the direction
             halfway between the view direction and the light position.</para>
         <!--TODO: Show a 2D representation of the half-angle vector.-->
-        <!--TODO: Equation for the half-angle vector.-->
+        <equation>
+            <title>Half-Angle Vector</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="HalfAngleVector.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>When the view direction is perfectly aligned with the reflected direction, the
             half-angle vector is perfectly aligned with the surface normal. To describe the
             half-angle vector another way, it is the direction the surface normal would need to be
@@ -301,7 +323,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <para>So instead of comparing the reflection vector to the view direction, the Blinn model
             compares the half-angle vector to the surface normal. It then raises this value to a
             power representing the shininess of the surface.</para>
-        <!--TODO: Equation of the Blinn term: cos(H, N) ^ s-->
+        <equation>
+            <title>Blinn Specular Term</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="BlinnTerm.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>The angle between the half-angle vector and the normal is always less than 90 degrees.
             So the Blinn specular model produces similar results to the Phong model, but without
             some of Phong's problems. This is demonstrated in the <phrase role="propername">Blinn vs
@@ -372,11 +401,18 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <para>The Gaussian distribution is the classic <quote>bell-shaped curve</quote>
             distribution. The mathematical function for computing the probability density of the
             Gaussian distribution at a particular point X is:</para>
-        <!--TODO: Equation for Gaussian distribution.-->
+        <equation>
+            <title>Gaussian Distribution Function</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="GaussianDistributionEq.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <!--TODO: Picture of Gaussian curve.-->
         <para>This represents the percentage of the items in the distribution that satisfy the
             property that the X in the distribution is trying to model. The <literal>e</literal> in
-            this equation is a common mathematical constant, equivalent to ~2.718.The value of
+            this equation is a common mathematical constant, equivalent to ~2.718. The value of
                 <varname>μ</varname> is the average. So the absolute value of X is not important;
             what matters is how far X is from the average.</para>
         <para>The value <varname>σ<superscript>2</superscript></varname> is the variance of the
@@ -394,7 +430,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <para>The equation we will be using for modelling the microfacet distribution with a
             Gaussian distribution is a slightly simplified form of the Gaussian distribution
             equation.</para>
-        <!--TODO: Equation for Guassian lighting distribution.-->
+        <equation>
+            <title>Gaussian Specular Term</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="GaussianTerm.mathml"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>This replaces our Phong and Blinn terms in our specular lighting equation and gives us
             the <glossterm>Gaussian specular model</glossterm>. The value <varname>m</varname>
             ranges from (0, 1], with larger values representing an increasingly rougher surface.
@@ -464,7 +507,13 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <para>The difference between Phong and Blinn is that Phong must compute the reflection
             vector, while Blinn computes the half-angle vector. The equation for computing the
             reflection vector is:</para>
-        <!--TODO: Show the reflection vector equation again-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ReflectionVector.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>This involves a vector dot product, a scalar multiply, a vector-scalar multiply, and a
             vector addition (subtraction). Computing the half-angle vector requires doing a vector
             addition and performing a normalize operation. Normalizing a vector requires a vector
@@ -541,7 +590,8 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 that is more physically based than a Gaussian distribution. It may be a bit more
                 computationally expensive than Gaussian (due to being able to avoid the
                     <function>acos</function>). The two do have a roughness factor that has the same
-                range, (0, 1].</para>
+                range, (0, 1], and the roughness has the same general meaning in both
+                distributions.</para>
             <para>If you want to go even farther, investigate the <quote>Cook-Torrance</quote> model
                 of specular reflection. It incorporates several terms. It uses a statistical
                 distribution to determine the number of microfacets oriented in a direction. This

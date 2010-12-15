@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mi>s</mi>
+  <mo>*</mo>
+  <mover>
+          <mi>a</mi>
+        <mo>&#x21C0;</mo>
+  </mover>
+  <mo>=</mo>
+  <mi>s</mi>
+  <mo>*</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>*</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>*</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>*</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>

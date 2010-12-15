@@ -150,25 +150,65 @@ void main()
             rendered pixel. To do that, we would have to interpolate the lighting parameters across
             the triangle, and perform the lighting computation in the fragment shader.</para>
         <para>Linear interpolation of vectors looks like this:</para>
-        <!--TODO: equation: Va& + Va(1-&)-->
-        <para>And our lighting equation is this:</para>
-        <!--TODO: eq: D * I * dot(L, N)-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="StandardLerp_1.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>The α in the equation is the factor of interpolation between the two values. When α is
+            one, we get V<subscript>a</subscript>, and when it is zero, we get
+                V<subscript>b</subscript>. The two values, V<subscript>a</subscript> and
+                V<subscript>b</subscript> can be scalars or vectors.</para>
+        <para>Our diffuse lighting equation is this:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="DiffuseLightEq_2.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>If the surface normal N is being interpolated, then at any particular point on the
             surface, we get this equation for a directional light (the light direction L does not
             change):</para>
-        <!--TODO: D * I * dot(L, Na& + Nb(1-&))-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_3.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>The dot product is distributive, like scalar multiplication. So we can distribute the
             L to both sides of the dot product term:</para>
-        <!--TODO: D * I * (dot(L, Na&) + dot(L, Nb(1-&)))-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_4.mathml"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>We can extract the linear terms from the dot product. Remember that the dot product is
             the cosine of the angle between two vectors, times the length of those vectors. The two
             scaling terms directly modify the length of the vectors. So they can be pulled out to
             give us:</para>
-        <!--TODO: D * I * (&dot(L, Na) + (1-&)dot(L, Nb))-->
-        <para>Vector multiplication happens to be distributive as well, so we get this:</para>
-        <!--TODO: (D * I * &dot(L, Na)) + (D * I * (1-&)dot(L, Nb))-->
-        <para>Or, rewritten to make things more clear:</para>
-        <!--TODO: (D * I * dot(L, Na))& + (D * I * dot(L, Nb))(1-&)-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_5.mathml"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Recall that vector/scalar multiplication is distributive. We can distribute the
+            multiplication by the diffuse color and light intensity to both terms. This gives
+            us:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_6.mathml"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>This means that if L is constant, linearly interpolating N is exactly equivalent to
             linearly interpolating the results of the lighting equation. And the addition of the
             ambient term doesn't change this, since it is a constant and would not be affected by
@@ -426,7 +466,7 @@ cylinder, and a normal. And show the corresponding point/normal.-->
         <para>There is another issue with our current example. Use the <keycap>i</keycap> key to
             raise the light up really high. Notice how bright all of the upwardly-facing surfaces
             get:</para>
-        <!--TODO: Show a picture of a high light's effect on the surface.-->
+        <!--TODO: Show a picture of a highlight's effect on the surface.-->
         <para>You probably have no experience with this in real life. Holding a light farther from
             the surface in reality does not make the light brighter. So obviously something is
             happening in reality that our simple lighting model is not accounting for.</para>
@@ -441,12 +481,26 @@ cylinder, and a normal. And show the corresponding point/normal.-->
             (atmospheric light scattering, etc), the light intensity varies with the inverse of the
             square of the distance. An object 2 units away from the light feels like with one-fourth
             the intensity. So our equation for light attenuation is as follows:</para>
-        <!--TODO: An equation for light attenuation. AttenLight = Light * (1 / (1.0 + k * r^2))-->
+        <equation>
+            <title>Physical Light Attenuation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LightAttenEq.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>There is a constant in the equation, which is used for unit correction. Of course, we
             can (and will) use it as a fudge factor to make things look right.</para>
-        <para>The constant can take on a physical meaning. If you want to specify a distance at
-            which half of the light intensity is lost, <varname>k</varname> simply becomes:</para>
-        <!--TODO: An equation for k = 1/khalf^2-->
+        <para>The constant can take on a physical meaning. The constant can mean the distance at
+            which half of the light intensity is lost. To compute such a constant, for a half-light
+            distance of r<subscript>λ</subscript>, use this equation:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="HalfLightAtten.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>However physically correct this equation is, it has certain drawbacks. And this brings
             us back to the light intensity problem we touched on earlier.</para>
         <para>Since our lights are clamped on the [0, 1] range, it doesn't take much distance from
@@ -455,7 +509,14 @@ cylinder, and a normal. And show the corresponding point/normal.-->
             values. But we're working with a clamped range.</para>
         <para>Therefore, a more common attenuation scheme is to use the inverse of just the distance
             instead of the inverse of the distance squared:</para>
-        <!--TODO: Light equation with 1/(1.0 + kr)-->
+        <equation>
+            <title>Light Attenuation Inverse</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LightAttenInvEq.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>It looks brighter for more distant lights. It isn't physically correct, but so much
             about our rendering is at this point that it won't be noticed much.</para>
         <section>
@@ -488,10 +549,98 @@ cylinder, and a normal. And show the corresponding point/normal.-->
             </note>
             <para>The sequence of transformations that take a position from camera space to window
                 space is as follows:</para>
-            <!--TODO: The sequence of transforms to get gl_FragCoord from camera space.-->
+            <table frame="all">
+                <title>Transform Legend</title>
+                <tgroup cols="2">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>
+                                <para>Field Name</para>
+                            </entry>
+                            <entry>
+                                <para>Meaning</para>
+                            </entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>
+                                <para>M</para>
+                            </entry>
+                            <entry>The camera-to-clip transformation matrix.</entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>P<subscript>camera</subscript></para>
+                            </entry>
+                            <entry>The camera-space vertex position.</entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>C</para>
+                            </entry>
+                            <entry>
+                                <para>The clip-space vertex position.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>N</para>
+                            </entry>
+                            <entry>
+                                <para>The normalized device coordinate position.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>V<subscript>xy</subscript></para>
+                            </entry>
+                            <entry>
+                                <para>The X and Y values passed to
+                                    <function>glViewport</function>.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>V<subscript>wh</subscript></para>
+                            </entry>
+                            <entry>
+                                <para>The width and height passed to
+                                    <function>glViewport</function>.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>D<subscript>nf</subscript></para>
+                            </entry>
+                            <entry>
+                                <para>The depth near and far values passed to
+                                        <function>glDepthRange</function>.</para>
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <equation>
+                <title>Camera to Window Transforms</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="CameraToWindowTrans.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
             <para>Therefore, given <varname>gl_FragCoord</varname>, we will need to perform the
                 reverse of these:</para>
-            <!--TODO: Invert the sequence and the functions.-->
+            <equation>
+                <title>Window to Camera Transforms</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="WindowToCameraTrans.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
             <para>In order for our fragment shader to perform this transformation, it must be given
                 the following values:</para>
             <itemizedlist>
@@ -582,7 +731,7 @@ uniform bool bUseRSquare;</programlisting>
 {
     vec3 ndcPos;
     ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
-    ndcPos.z = 2.0 * (gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+    ndcPos.z = (2.0 * gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
     
     vec4 clipPos;
     clipPos.w = 1.0f / gl_FragCoord.w;

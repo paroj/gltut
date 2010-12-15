@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+<mrow>
+  <mi  mathvariant="bold">M</mi>
+  <mo>=</mo>
+  <msub  mathvariant="bold">
+          <mi>R</mi>
+        <mn>1</mn>
+  </msub>
+  <mo>*</mo>
+  <mi  mathvariant="bold">S</mi>
+  <mo>*</mo>
+  <msub  mathvariant="bold">
+          <mi>R</mi>
+        <mn>2</mn>
+  </msub>
+</mrow>
+</math>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>D</mi>
+        <mo>*</mo>
+        <mi>I</mi>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>&#x5e;</mo>
+                        </mover>
+                        <mo>&#xb7;</mo>
+                        <mfenced open="(" close=")" separators=",">
+                            <mrow>
+                                <mover>
+                                    <msub>
+                                        <mi>N</mi>
+                                        <mi>a</mi>
+                                    </msub>
+                                    <mo>&#x5e;</mo>
+                                </mover>
+                                <mi>&#x03b1;</mi>
+                            </mrow>
+                        </mfenced>
+                    </mrow>
+                </mfenced>
+                <mi>+</mi>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>&#x5e;</mo>
+                        </mover>
+                        <mo>&#xb7;</mo>
+                        <mfenced open="(" close=")" separators=",">
+                            <mrow>
+                                <mover>
+                                    <msub>
+                                        <mi>N</mi>
+                                        <mi>b</mi>
+                                    </msub>
+                                    <mo>&#x5e;</mo>
+                                </mover>
+                                <mfenced open="(" close=")" separators=",">
+                                    <mrow>
+                                        <mn>1</mn>
+                                        <mo>-</mo>
+                                        <mi>&#x03b1;</mi>
+                                    </mrow>
+                                </mfenced>
+                            </mrow>
+                        </mfenced>
+                    </mrow>
+                </mfenced>
+            </mrow>
+        </mfenced>
+    </mrow>
+</math>
