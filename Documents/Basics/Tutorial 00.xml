@@ -26,13 +26,26 @@
             direction within a particular space. A vector <glossterm>position</glossterm> represents
             a specific location in space. For example, on this graph, we have a vector position
             A:</para>
-        <!--TODO: Show a graph with a position labeled A.-->
+        <figure>
+            <title>Position Vectors</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorPosition.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>A vector can also represent a <glossterm>direction</glossterm>. Direction vectors do
             not have an origin; they simply specify a direction in space. These are all direction
             vectors, but the vectors B and D are the same, even though they are drawn in different
             locations:</para>
-        <!--TODO: Show a graph with several labeled vector directions.
-Directions B and D should be the same length and point in the same direction.-->
+        <figure>
+            <title>Direction Vectors</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorDirections.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>That's all well and good for geometry, but vectors can also be described numerically.
             A vector in this case is a sequence of numbers, one for each dimension. So a
             two-dimensional vector has two numbers; a three-dimensional vector has three. And so
@@ -66,11 +79,25 @@ Directions B and D should be the same length and point in the same direction.-->
             <para>You can take two vectors and add them together. Graphically, this works as
             follows:</para>
             </formalpara>
-            <!--TODO: Show vectors A, B, and A+B, geometrically.-->
+        <figure>
+            <title>Vector Addition</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorAddition.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
             <para>Remember that vector directions can be shifted around without changing their
                 values. So if you put two vectors head to tail, the vector sum is simply the
                 direction from the tail of the first vector to the head of the last.</para>
-            <!--TODO: Show A+B again, with B moved to the tip of A.-->
+        <figure>
+            <title>Vector Addition Head-to-Tail</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorAdditionHeads.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
             <para>Numerically, the sum of two vectors is just the sum of the corresponding
                 components:</para>
         <equation>
@@ -89,7 +116,14 @@ Directions B and D should be the same length and point in the same direction.-->
             <title>Vector Negation and Subtraction</title>
             <para>You can negate a vector. This reverses its direction:</para>
         </formalpara>
-        <!--TODO: Show vectors A and -A.-->
+        <figure>
+            <title>Vector Negation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorNegation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
             <para>Numerically, this means negating each component of the vector.</para>
         <equation>
             <title>Vector Negation</title>
@@ -101,7 +135,14 @@ Directions B and D should be the same length and point in the same direction.-->
         </equation>
             <para>Just as with scalar math, vector subtraction is the same as addition with the
             negation of the second vector.</para>
-            <!--TODO: Geometrically show vector subtraction.-->
+        <figure>
+            <title>Vector Subtraction</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorSubtraction.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <formalpara>
             <title>Vector Multiplication</title>
             <para>Vector multiplication is one of the few vector operations that has no real
@@ -125,7 +166,14 @@ Directions B and D should be the same length and point in the same direction.-->
                 numbers. Vectors can be multiplied by scalars. This magnifies or shrinks the length
                 of the vector, depending on the scalar value.</para>
         </formalpara>
-        <!--TODO: Graph of a vector, that vector times 3, and that vector times 0.5.-->
+        <figure>
+            <title>Vector Scaling</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorScalarMult.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Numerically, this is a component-wise multiplication, where each component of the
             vector is multiplied with each component of the scalar.</para>
         <equation>
@@ -165,10 +213,9 @@ Directions B and D should be the same length and point in the same direction.-->
         <para>Vector/scalar operations have similar properties.</para>
         <formalpara>
             <title>Length</title>
-            <para>Vectors have a length. The length of a vector is the distance from the starting
-                point to the ending point. Geometrically, this is as follows:</para>
+            <para>Vectors have a length. The length of a vector direction is the distance from the
+                starting point to the ending point.</para>
         </formalpara>
-        <!--TODO: Show a graph of a vector and its length.-->
         <para>Numerically, computing the distance requires this equation:</para>
         <equation>
             <title>Vector Length</title>
@@ -178,6 +225,8 @@ Directions B and D should be the same length and point in the same direction.-->
                 </imageobject>
             </mediaobject>
         </equation>
+        <para>This uses the Pythagorean theorem to compute the length of the vector. This works for
+            vectors of arbitrary dimensions, not just two or three.</para>
         <formalpara>
             <title>Unit Vectors and Normalization</title>
             <para>A vector that has a length of exactly one is called a <glossterm>unit
