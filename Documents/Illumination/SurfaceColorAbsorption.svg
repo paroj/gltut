@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="500px" >
+	<style type="text/css" ><![CDATA[.ray-red
+{
+	stroke-width: 1px;
+	stroke: red;
+}
+
+.ray-seashell
+{
+	stroke-width: 1px;
+	stroke: seashell;
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.ray-orange
+{
+	stroke-width: 1px;
+	stroke: orange;
+}
+
+.ray-lightblue
+{
+	stroke-width: 1px;
+	stroke: lightblue;
+}
+
+.ray-blue
+{
+	stroke-width: 1px;
+	stroke: blue;
+}
+
+.ray-gainsboro
+{
+	stroke-width: 1px;
+	stroke: gainsboro;
+}
+
+.ray-blue
+{
+	stroke-width: 1px;
+	stroke: blue;
+}
+
+.ray-fuchsia
+{
+	stroke-width: 1px;
+	stroke: fuchsia;
+}
+
+.ray-darksalmon
+{
+	stroke-width: 1px;
+	stroke: darksalmon;
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.ray-lightblue
+{
+	stroke-width: 1px;
+	stroke: lightblue;
+}
+
+.ray-lightblue
+{
+	stroke-width: 1px;
+	stroke: lightblue;
+}
+
+.ray-lightblue
+{
+	stroke-width: 1px;
+	stroke: lightblue;
+}
+
+.ray-lightblue
+{
+	stroke-width: 1px;
+	stroke: lightblue;
+}
+
+.ray-violet
+{
+	stroke-width: 1px;
+	stroke: violet;
+}
+
+.ray-gold
+{
+	stroke-width: 1px;
+	stroke: gold;
+}
+
+.light
+{
+	fill: yellow;
+	stroke: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow-sum" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead-sum" />
+		</marker>
+	</defs>
+	<line x2="130" y2="240" y1="60" x1="40" class="ray-blue" />
+	<line x2="145" y2="240" y1="60" x1="40" class="ray-lightblue" />
+	<line x2="160" y2="240" y1="60" x1="40" class="ray-orange" />
+	<line x2="175" y2="240" y1="60" x1="40" class="ray-red" />
+	<line x2="190" y2="240" y1="60" x1="40" class="ray-blue" />
+	<line x2="205" y2="240" y1="60" x1="40" class="ray-lightblue" />
+	<line x2="220" y2="240" y1="60" x1="40" class="ray-violet" />
+	<line x2="235" y2="240" y1="60" x1="40" class="ray-gainsboro" />
+	<line x2="250" y2="240" y1="60" x1="40" class="ray-seashell" />
+	<line x2="265" y2="240" y1="60" x1="40" class="ray-lightblue" />
+	<line x2="280" y2="240" y1="60" x1="40" class="ray-fuchsia" />
+	<line x2="295" y2="240" y1="60" x1="40" class="ray-darksalmon" />
+	<line x2="310" y2="240" y1="60" x1="40" class="ray-lightblue" />
+	<line x2="325" y2="240" y1="60" x1="40" class="ray-gold" />
+	<line x2="340" y2="240" y1="60" x1="40" class="ray-lightblue" />
+	<line x2="145" y2="240" y1="60" x1="250" class="ray-lightblue" />
+	<line x2="205" y2="240" y1="60" x1="370" class="ray-lightblue" />
+	<line x2="265" y2="240" y1="60" x1="490" class="ray-lightblue" />
+	<line x2="310" y2="240" y1="60" x1="580" class="ray-lightblue" />
+	<line x2="340" y2="240" y1="60" x1="640" class="ray-lightblue" />
+	<rect y="240" x="0" height="90" width="500" class="surface" />
+	<circle r="20" cy="60" cx="40" class="light" />
+</svg>
