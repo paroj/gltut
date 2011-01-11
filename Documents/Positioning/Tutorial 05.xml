@@ -565,10 +565,10 @@ glUseProgram(0);</programlisting>
             camera).</para>
         <para>Depth sorting isn't going to cut it; clearly, we need something better.</para>
         <para>One solution might be to tag fragments with the distance from the viewer. Then, if a
-            fragment is about to be written has a farther distance (ie: the fragment
-            is behind what was already draw), we simply do not write that fragment. That way, if
-            you draw something behind something else, the fragments that were written by the higher
-            objects will prevent you from writing the farther away ones.</para>
+            fragment is about to be written has a farther distance (ie: the fragment is behind what
+            was already drawn), we simply do not write that fragment. That way, if you draw
+            something behind something else, the fragments that were written by the higher objects
+            will prevent you from writing the farther away ones.</para>
         <para>The <quote>tag</quote> is the window-space Z value. You may recall from <link
                 linkend="tut00_window_space">the introduction,</link> the window-space Z position of
             a fragment ranges from 0 to 1, where 0 is the closest and 1 is the farthest.</para>
@@ -594,15 +594,14 @@ glUseProgram(0);</programlisting>
             After activating testing, we need to call <function>glDepthFunc</function> to set the
             relation of the depth test. When the test is true, the incoming fragment is
             written.</para>
-        <para>The test functions can be <literal>GL_ALWAYS</literal> (same as turning off depth
-            test), <literal>GL_NEVER</literal> (no fragments are written),
-                <literal>GL_LESS</literal>, <literal>GL_GREATER</literal>,
-                <literal>GL_LEQUAL</literal> (&lt;=), <literal>GL_GEQUAL</literal> (>=),
-                <literal>GL_EQUAL</literal>, or <literal>GL_NOTEQUAL</literal>. The test function
-            puts the incoming fragment's depth on the left of the equation and on the right is the
-            depth from the depth buffer. So GL_LESS means that, when the incoming fragment's depth
-            is less than the depth from the depth buffer, the incoming fragment is not
-            written.</para>
+        <para>The test functions can be <literal>GL_ALWAYS</literal> (always write the fragment),
+                <literal>GL_NEVER</literal> (no fragments are written), <literal>GL_LESS</literal>,
+                <literal>GL_GREATER</literal>, <literal>GL_LEQUAL</literal> (&lt;=),
+                <literal>GL_GEQUAL</literal> (>=), <literal>GL_EQUAL</literal>, or
+                <literal>GL_NOTEQUAL</literal>. The test function puts the incoming fragment's depth
+            on the left of the equation and on the right is the depth from the depth buffer. So
+            GL_LESS means that, when the incoming fragment's depth is less than the depth from the
+            depth buffer, the incoming fragment is not written.</para>
         <para>With the fragment depth being something that is part of a fragment's output, you might
             imagine that this is something you have to compute in a fragment shader. You certainly
             can, but the fragment's depth is normally just the window-space Z coordinate of the
@@ -660,14 +659,16 @@ glDepthRange(0.0f, 1.0f);</programlisting>
                 different fragment shader. We'll look at those much, much later.</para>
             <para>The call to <function>glDepthMask</function> causes rendering to write the depth
                 value from the fragment to the depth buffer. The activation of depth testing alone
-                does not cause this. Because of that, it is possible to have depth testing for
-                objects where their <emphasis>own</emphasis> depth (the incoming fragment's depth)
-                is not written to the depth buffer.</para>
+                is not sufficient to actually write depth values. This allows us to have depth
+                testing for objects where their <emphasis>own</emphasis> depth (the incoming
+                fragment's depth) is not written to the depth buffer, even when their color outputs
+                are written. We don't use this here, but a special algorithm might need this
+                feature.</para>
             <note>
                 <para>Due to an odd quirk of OpenGL, writing to the depth buffer is always inactive
-                    if <literal>GL_DEPTH_TEST</literal> is disabled. If you just want to write to
-                    the depth buffer, without actually doing a test, you must enable
-                        <literal>GL_DEPTH_TEST</literal> and use the depth function of
+                    if <literal>GL_DEPTH_TEST</literal> is disabled, regardless of the depth mask.
+                    If you just want to write to the depth buffer, without actually doing a test,
+                    you must enable <literal>GL_DEPTH_TEST</literal> and use the depth function of
                         <literal>GL_ALWAYS.</literal></para>
             </note>
             <para>There is one more issue. We know what the depth value is in the depth buffer after

@@ -45,8 +45,9 @@ Top-level constructs:
     div.example-contents: Stores everything but the title of the example.
     br.example-break
     
-    div.note: A short notation.
     div.tip: A longer notation.
+    div.sidebar: A longer notation.
+        p.title: The sidebar's title.
     
 Syntax highlighting (all in spans)
     code-type: Types that hold values (ints, vec3, etc)
