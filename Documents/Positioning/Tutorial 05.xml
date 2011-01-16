@@ -41,8 +41,9 @@
                 for rendering: the <glossterm>Vertex Array Object</glossterm>
                     (<acronym>VAO</acronym>).</para>
             <para>VAOs are created with the <function>glGenVertexArray</function> function. This
-                works like <function>glGenBuffers</function> (and like most other OpenGL) objects;
-                you can create multiple objects with one call.</para>
+                works like <function>glGenBuffers</function> (and like most other OpenGL objects);
+                you can create multiple objects with one call. As before, the objects are
+                    <type>GLuint</type>s.</para>
             <para>VAOs are bound to the context with <function>glBindVertexArray</function>; this
                 function doesn't take a target the way that <function>glBindBuffer</function> does.
                 It only takes the VAO to bind to the context.</para>
@@ -51,8 +52,9 @@
                 of the prior tutorials have these lines in the initialization function:</para>
             <programlisting language="cpp"><![CDATA[glGenVertexArrays(1, &vao);
 glBindVertexArray(vao);]]></programlisting>
-            <para>This means that we have been changing the state of a single VAO in each tutorial.
-                We just didn't talk about it at the time.</para>
+            <para>This creates a single VAO, which contains the vertex array state that we have been
+                setting. This means that we have been changing the state of a VAO in all of the
+                tutorials. We just didn't talk about it at the time.</para>
             <para>The following functions change VAO state. Therefore, if no VAO is bound to the
                 context (if you call <function>glBindVertexArray(0)</function> or you do not bind a
                 VAO at all), all of these functions, except as noted, will fail.</para>
@@ -70,7 +72,8 @@ glBindVertexArray(vao);]]></programlisting>
                         Calling this without a VAO bound will not fail.</para>
                 </listitem>
             </itemizedlist>
-            <note>
+            <sidebar>
+                <title>Buffer Binding and Attribute Association</title>
                 <para>You may notice that
                         <function>glBindBuffer</function>(<literal>GL_ARRAY_BUFFER</literal>) is not
                     on that list, even though it is part of the attribute setup for rendering. The
@@ -80,12 +83,13 @@ glBindVertexArray(vao);]]></programlisting>
                         <function>glBindBuffer</function>(<literal>GL_ARRAY_BUFFER</literal>). This
                     association happens when you call
                     <function>glVertexAttribPointer</function>.</para>
-                <para>When you call this function, OpenGL takes whatever buffer is <emphasis>at the
-                        moment of this call</emphasis> bound to <literal>GL_ARRAY_BUFFER</literal>
-                    and associates it with the given vertex attribute. Think of the
-                        <literal>GL_ARRAY_BUFFER</literal> binding as a global pointer that
-                        <function>glVertexAttribPointer</function> reads. So you are free to bind
-                    whatever you want or nothing at all to <literal>GL_ARRAY_BUFFER</literal>
+                <para>When you call <function>glVertexAttribPointer</function>, OpenGL takes
+                    whatever buffer is <emphasis>at the moment of this call</emphasis> bound to
+                        <literal>GL_ARRAY_BUFFER</literal> and associates it with the given vertex
+                    attribute. Think of the <literal>GL_ARRAY_BUFFER</literal> binding as a global
+                    pointer that <function>glVertexAttribPointer</function> reads. So you are free
+                    to bind whatever you want or nothing at all to
+                        <literal>GL_ARRAY_BUFFER</literal>
                     <emphasis>after</emphasis> making a <function>glVertexAttribPointer</function>
                     call; it will affect <emphasis>nothing</emphasis> in the final rendering. So
                     VAOs do store which buffer objects are associated with which attributes; but
@@ -98,7 +102,7 @@ glBindVertexArray(vao);]]></programlisting>
                     depending on whether something was bound to <literal>GL_ARRAY_BUFFER</literal>
                     or not. Nowadays, since this function will fail if nothing is bound to
                         <literal>GL_ARRAY_BUFFER</literal>, it is simply an annoyance.</para>
-            </note>
+            </sidebar>
             <para>This allows you to setup a VAO early on, during initialization, and then simply
                 bind it and call a rendering function to draw your object. Be advised when using a
                 VAO in this way: VAOs are <emphasis>not</emphasis> immutable. Calling any of the
@@ -111,13 +115,13 @@ glBindVertexArray(vao);]]></programlisting>
                 To draw one face of the cube, we were required to have 6 vertices; the two shared
                 vertices (along the shared line between the two triangles) had to be in the buffer
                 object twice.</para>
-            <para>For a simple case like ours, this is a minor increase in the size of the vertex
-                data. The compact form of the vertex data could be 4 vertices per face, or 24
+            <para>For a simple case like ours, this is only a minor increase in the size of the
+                vertex data. The compact form of the vertex data could be 4 vertices per face, or 24
                 vertices total, while the expanded version we used took 36 total vertices. However,
-                when looking at real meshes, like characters and so forth that have thousands if not
-                millions of vertices, sharing vertices becomes a major benefit in both performance
-                and memory size. Removing duplicate data can shrink the size of the vertex data by
-                2x or greater in many cases.</para>
+                when looking at real meshes, like human-like characters and so forth that have
+                thousands if not millions of vertices, sharing vertices becomes a major benefit in
+                both performance and memory size. Removing duplicate data can shrink the size of the
+                vertex data by 2x or greater in many cases.</para>
             <para>In order to remove this extraneous data, we must perform <glossterm>indexed
                     drawing</glossterm>, rather than the <glossterm>array drawing</glossterm> we
                 have been doing up until now. In an earlier tutorial, we defined glDrawArrays
@@ -153,13 +157,13 @@ glBindVertexArray(vao);]]></programlisting>
   (Pos0, Clr0), (Pos2, Clr2), (Pos3, Clr3),
   (Pos0, Clr0), (Pos3, Clr3), (Pos1, Clr1),
   (Pos1, Clr1), (Pos2, Clr2), (Pos3, Clr3),</programlisting>
-            <para>12 vertices, which for 4 triangles.</para>
-            <note>
-                <para>Each attribute array for a vertex uses the <emphasis>same</emphasis> index.
-                    That is, there is only <emphasis>one</emphasis> element array, and the indices
-                    fetched from the array are used for <emphasis>all</emphasis> attributes of the
-                    vertex arrays. So you cannot have an element array for positions and a separate
-                    one for colors; they all have to use the same element array.</para>
+            <para>12 vertices, which generate 4 triangles.</para>
+            <sidebar>
+                <title>Multiple Attributes and Index Arrays</title>
+                <para>There is only <emphasis>one</emphasis> element array, and the indices fetched
+                    from the array are used for <emphasis>all</emphasis> attributes of the vertex
+                    arrays. So you cannot have an element array for positions and a separate one for
+                    colors; they all have to use the same element array.</para>
                 <para>This means that there can and often will be some duplication within a
                     particular attribute array. For example, in order to have solid face colors, we
                     will still have to replicate the color for every position of that triangle. And
@@ -171,7 +175,7 @@ glBindVertexArray(vao);]]></programlisting>
                     attributes for both triangles along the edges. The simple cubes and the like
                     that we use are one of the few cases where a per-attribute index would have a
                     significant benefit.</para>
-            </note>
+            </sidebar>
             <para>Now that we understand how indexed drawing works, we need to know how to set it up
                 in OpenGL. Indexed drawing requires two things: a properly-constructed element array
                 and using a new drawing command to do the indexed drawing.</para>
@@ -345,8 +349,8 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>The two objects are essentially flipped versions of the same one. One object
-                appears smaller than the other because it is farther away, in terms of its Z
+            <para>The two objects are essentially flipped versions of the same one, a wedge. One
+                object appears smaller than the other because it is farther away, in terms of its Z
                 distance to the camera. We are using a perspective transform, so it make sense that
                 more distant objects appear smaller. However, if the smaller object is behind the
                 larger one, why is it rendered on top of the one in front?</para>
@@ -414,8 +418,8 @@ GREY_COLOR,
 GREY_COLOR,</programlisting>
         </example>
         <para>Notice how the attribute array for object 2 immediately follows its corresponding
-            attribute array for object 1. This means you can conceptually think of it as one longer
-            attribute array for each attribute.</para>
+            attribute array for object 1. So really, instead of four attribute arrays, we really
+            have just two attribute arrays.</para>
         <para>If we were doing array drawing, we could simply have one VAO, which sets up the
             beginning of both combined attribute arrays. We would still need 2 separate draw calls,
             because there is a uniform that is different for each object. But our rendering code
@@ -466,9 +470,10 @@ glUseProgram(0);</programlisting>
         <para>I'm sure you'll be surprised to know that OpenGL offers such a mechanism, what with me
             bringing it up and all.</para>
         <para>The function <function>glDrawElementsBaseVertex</function> provides this
-            functionality. It has one extra parameter at the end which is the offset to be applied
-            to each index. The tutorial project <phrase role="propername">Base Vertex With
-                Overlap</phrase> demonstrates this.</para>
+            functionality. It works like <function>glDrawElements</function> has one extra parameter
+            at the end, which is the offset to be applied to each index. The tutorial project
+                <phrase role="propername">Base Vertex With Overlap</phrase> demonstrates
+            this.</para>
         <para>The initialization changes, building only one VAO.</para>
         <example>
             <title>Base Vertex Single VAO</title>
@@ -554,30 +559,34 @@ glUseProgram(0);</programlisting>
             most distant objects first. This is called <glossterm>depth sorting.</glossterm> As you might
             imagine, this <quote>solution</quote> scales incredibly poorly. Doing it for each
             triangle is prohibitive, particularly with scenes with millions of triangles.</para>
-        <para>And the worst part is that even if you put in all the effort, <emphasis>it doesn't
-                work</emphasis>. Well, not always. Many trivial cases can be solved via depth
-            sorting, but non-trivial cases have real problems. You can have an arrangement of 3
-            triangles where each overlaps the other, such that there simply is no order you can
-            render them in to achieve the right effect.</para>
+        <para>And the worst part is that even if you put in all the effort, it doesn't actually
+            work. Not all the time. Many trivial cases can be solved via depth sorting, but
+            non-trivial cases have real problems. You can have an arrangement of 3 triangles where
+            each overlaps the other, such that there simply is no order you can render them in to
+            achieve the right effect.</para>
 			<!--TODO: Show the 3 triangle arrangement.-->
         <para>Even worse, it does nothing for interpenetrating triangles; that is, triangles that
             pass through each other in 3D space (as opposed to just from the perspective of the
             camera).</para>
         <para>Depth sorting isn't going to cut it; clearly, we need something better.</para>
         <para>One solution might be to tag fragments with the distance from the viewer. Then, if a
-            fragment is about to be written has a farther distance (ie: the fragment is behind what
-            was already drawn), we simply do not write that fragment. That way, if you draw
-            something behind something else, the fragments that were written by the higher objects
-            will prevent you from writing the farther away ones.</para>
+            fragment that is about to be written has a farther distance (ie: the fragment is behind
+            what was already drawn), we simply do not write that fragment to the output image. That
+            way, if you draw a triangle behind other triangles, the fragment distances that were
+            already written will be closer to the camera than the fragment distances of the new
+            triangle. And thus, the particular fragments of that triangle will not be drawn. And
+            since this works at the fragment level, it will work just as well for intersecting
+            triangles or the 3 triangle arrangement depicted above.</para>
         <para>The <quote>tag</quote> is the window-space Z value. You may recall from <link
-                linkend="tut00_window_space">the introduction,</link> the window-space Z position of
-            a fragment ranges from 0 to 1, where 0 is the closest and 1 is the farthest.</para>
-        <para>Colors output from the fragment shader are output into the color image buffer. Therefore it
-            naturally follows that depth values would be stored in a <glossterm>depth
+                linkend="tut00_window_space">the introduction</link> that the window-space Z
+            position of a fragment ranges from 0 to 1, where 0 is the closest and 1 is the
+            farthest.</para>
+        <para>Colors output from the fragment shader are output into the color image buffer.
+            Therefore it naturally follows that depth values would be stored in a <glossterm>depth
                 buffer</glossterm> (also called a <glossterm>z buffer</glossterm>, because it stores
-            Z values). The depth buffer is an image, the same size as the main color buffer, that
-            stores depth values as pixels rather than colors. Where a color is a 4-component vector,
-            a depth is just a single floating-point value.</para>
+            Z values). The depth buffer is an image that is the same size as the main color buffer,
+            that stores depth values as pixels rather than colors. Where a color is a 4-component
+            vector, a depth is just a single floating-point value.</para>
         <para>Like the color buffer, the depth buffer for the main window is created automatically
             by OpenGL when OpenGL is initialized. OpenGL can even be created without a depth buffer.
             Since FreeGLUT takes care of initializing OpenGL for us, we tell it in the standard
@@ -589,11 +598,11 @@ glUseProgram(0);</programlisting>
             relation operator (greater than, less than, etc) will work fine. If the test passes,
             then the fragment's outputs (both color and depth) will be written to their appropriate
             buffer. If it fails, then they will not.</para>
-        <para>To activate depth testing, we must call <function>glEnable(GL_DEPTH_TEST)</function>;
-            the corresponding <function>glDisable</function> call will cause depth testing to cease.
-            After activating testing, we need to call <function>glDepthFunc</function> to set the
-            relation of the depth test. When the test is true, the incoming fragment is
-            written.</para>
+        <para>To activate depth testing, we must call
+                <function>glEnable</function>(<literal>GL_DEPTH_TEST</literal>); the corresponding
+                <function>glDisable</function> call will cause depth testing to cease. After
+            activating testing, we need to call <function>glDepthFunc</function> to set the relation
+            of the depth test. When the test is true, the incoming fragment is written.</para>
         <para>The test functions can be <literal>GL_ALWAYS</literal> (always write the fragment),
                 <literal>GL_NEVER</literal> (no fragments are written), <literal>GL_LESS</literal>,
                 <literal>GL_GREATER</literal>, <literal>GL_LEQUAL</literal> (&lt;=),
@@ -853,7 +862,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 </imageobject>
             </mediaobject>
         </figure>
-        <section>
+        <sidebar>
             <title>A Word on Clipping Performance</title>
             <para>We have phrased the discussion of clipping as a way to avoid dividing by zero for
                 good reason. The OpenGL specification states that clipping must be done against all
@@ -896,7 +905,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 eye plane (clip-space W &lt;= 0, or camera-space Z >= 0). You don't need to be
                 pedantic about it; long walls and the like are fine. But, particularly for low-end
                 hardware, a lot of clipping can really kill performance.</para>
-        </section>
+        </sidebar>
     </section>
     <section>
         <?dbhtml filename="Tut05 Depth Clamping.html" ?>
@@ -1341,7 +1350,10 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 <glossdef>
                     <para>The mapping from NDC-space Z coordinate [-1, 1] to window-space Z
                         coordinates [0, 1]. This mapping is set with the
-                            <function>glDepthRange</function> function.</para>
+                            <function>glDepthRange</function> function. These are specified in
+                        window-space coordinates. The -1 Z coordinate in NDC space maps to range
+                        zNear, and the 1 maps to range zFar. The range zNear does not have to be
+                        less than the range zFar.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
