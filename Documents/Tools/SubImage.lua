@@ -63,6 +63,10 @@ function ClassMembers:Transform(image, points)
 	return vmath.vec2(points) + offset;
 end
 
+--Returns the top-left position and a size, for the image in question.
+function ClassMembers:GetRect(image)
+	return self:Offset(image[1], image[2]), self.subImageSize;
+end
 
 
 function SubImage(subImagesX, subImagesY, subImageWidth, subImageHeight,

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="400px" >
+	<style type="text/css" ><![CDATA[.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.ray
+{
+	marker-end: url(#arrow);
+	stroke: darkblue;
+	stroke-dasharray: 3,3;
+	stroke-width: 1px;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.light
+{
+	fill: yellow;
+	stroke: none;
+}
+
+.facets
+{
+	fill: lightblue;
+	stroke: black;
+	stroke-width: 1px;
+	stroke-linejoin: round;
+}
+
+.circle
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.show_clip
+{
+	fill: none;
+	stroke: black;
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.arrowhead
+{
+	fill: darkblue;
+	stroke: darkblue;
+}
+
+.clip_to_area
+{
+	clip-path: url(#area_clip);
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+		<g id="g_surface" >
+			<rect y="0" x="325" height="150" width="75" class="surface" />
+		</g>
+		<g id="g_faceted_circle" >
+			<circle r="200" cy="250" cx="375" class="circle" />
+			<path d="M 375 50 L 218.63370350639 125.30203962825 L 180.01441756364 294.50418679126 L 288.22325217649 430.19377358048 L 461.77674782351 430.19377358048 L 569.98558243636 294.50418679126 L 531.36629649361 125.30203962825 Z" class="facets" />
+		</g>
+		<clipPath id="area_clip" >
+			<rect y="0" x="0" height="150" width="400" class="show_clip" />
+		</clipPath>
+	</defs>
+	<circle r="10" cy="75" cx="50" class="light" />
+	<circle r="10" cy="225" cx="225" class="light" />
+	<use xlink:href="#g_faceted_circle" y="0" x="0" height="150" width="400" class="clip_to_area" />
+	<use xlink:href="#g_faceted_circle" y="150" x="0" height="150" width="400" class="clip_to_area" />
+	<line x2="213.2410708021" y2="71.440997454968" y1="69.806226419516" x1="288.22325217649" class="ray" />
+	<line x2="221.91517993333" y2="83.811806536858" y1="87.651019814127" x1="296.8168517532" class="ray" />
+	<line x2="250.84915116786" y2="222.87649901276" y1="219.80622641952" x1="288.22325217649" class="ray" />
+	<line x2="259.88548610599" y2="231.14531220986" y1="237.65101981413" x1="296.8168517532" class="ray" />
+</svg>

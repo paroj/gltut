@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="301px" width="301px" >
+	<style type="text/css" ><![CDATA[.triangle
+{
+	fill: none;
+	stroke: black;
+}
+
+.triangle_top
+{
+	fill: url(#top_grad);
+	stroke: grey;
+	stroke-width: 2px;
+	stroke-linejoin: round;
+}
+
+.triangle_bottom
+{
+	fill: url(#bottom_grad);
+	stroke: grey;
+	stroke-width: 2px;
+	stroke-linejoin: round;
+}]]></style>
+	<defs >
+		<linearGradient y1="100%" x1="0%" x2="50%" y2="50%" id="top_grad" >
+			<stop offset="0%" stop-color="black" />
+			<stop offset="100%" stop-color="#0F0" />
+		</linearGradient>
+		<linearGradient y1="0%" x1="100%" x2="50%" y2="50%" id="bottom_grad" >
+			<stop offset="0%" stop-color="black" />
+			<stop offset="100%" stop-color="#0F0" />
+		</linearGradient>
+	</defs>
+	<polygon points="30,30 270,30 270,270" class="triangle_bottom" />
+	<polygon points="30,30 270,270 30,270" class="triangle_top" />
+</svg>

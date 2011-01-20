@@ -19,3 +19,9 @@ function WriteStandardArrowhead(writer, name, styles)
 		writer:Path(StandardArrowheadPath(), styles);
 	writer:EndMarker();
 end
+
+function WriteTipArrowhead(writer, name, styles)
+	writer:BeginMarker({10, 8}, {0, 4}, "auto", true, nil, name);
+		writer:Path(StandardArrowheadPath(), styles);
+	writer:EndMarker();
+end

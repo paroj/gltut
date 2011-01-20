@@ -68,7 +68,7 @@ end
 
 local worldPoints = vp:Transform(trianglePoints);
 
-local writer = SvgWriter.SvgWriter("TriangleFan.svg", {subImages:Size().x .."px", subImages:Size().y .. "px"});
+local writer = SvgWriter.SvgWriter(ConstructSVGName(arg[0]), {subImages:Size().x .."px", subImages:Size().y .. "px"});
 	writer:StyleLibrary(styleLib);
 	writer:BeginDefinitions();
 		writer:BeginGroup(nil, "g_point");

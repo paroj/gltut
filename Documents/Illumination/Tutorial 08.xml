@@ -211,10 +211,10 @@
                 </mediaobject>
             </figure>
             <para>If the light source is sufficiently distant, relative to the size of the scene
-                being rendered, then the direction towards the light is the same for every point on
-                every object you render. Since the direction is the same everywhere, the light can
-                be represented as just a single direction given to all of the objects. There is no
-                need to compute the direction based on the position of the point being
+                being rendered, then the direction towards the light is nearly the same for every
+                point on every object you render. Since the direction is the same everywhere, the
+                light can be represented as just a single direction given to all of the objects.
+                There is no need to compute the direction based on the position of the point being
                 illuminated.</para>
             <para>This situation is called a <glossterm>directional light source.</glossterm> Light
                 from such a source effectively comes from a particular direction as a wall of
@@ -277,7 +277,14 @@
                 source illuminating both objects. One of the nice things about a cylinder is that it
                 has both curved and flat surfaces, thus making an adequate demonstration of how
                 light interacts with a surface.</para>
-            <!--TODO: Show an image of the tutorial output.-->
+            <figure>
+                <title>Basic Lighting</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Basic%20Lighting.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>The light is at a fixed direction; the model and camera both can be
                 rotated.</para>
             <formalpara>
@@ -491,28 +498,26 @@ void main()
                 the cosine of it. But both computing that angle and taking its cosine are quite
                 expensive. Instead, we elect to use a vector math trick: the <glossterm>vector dot
                     product.</glossterm></para>
-            <para>Geometrically, the vector dot product of two direction vectors represents the
-                length of the projection of one vector onto the other.</para>
-            <!--TODO: Show two vectors, and the projection onto each other.-->
-            <para>This effectively means that the dot product of two vectors is as follows:</para>
+            <para>The vector dot product between two vectors can be mathematically computed as
+                follows:</para>
             <equation>
-                <title>Vector Dot Product Lengths</title>
+                <title>Dot Product</title>
                 <mediaobject>
                     <imageobject>
                         <imagedata format="SVG" fileref="DotProductLength.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
-            <para>If both vectors have a length of one, and thus are unit vectors, then the result
-                of a dot product is just the cosine of the angle between the vectors.</para>
+            <para>If both vectors have a length of one, if they are unit vectors, then the result of
+                a dot product is just the cosine of the angle between the vectors.</para>
             <para>This is also part of the reason why the light direction is the direction
                     <emphasis>towards</emphasis> the light rather than from the light. Otherwise we
                 would have to negate the vector before performing the dot product.</para>
             <para>What makes this faster than taking the cosine of the angle directly is that, while
-                the dot product is geometrically the cosine of the angle between the two vectors,
-                mathematically computing the dot product is very simple:</para>
+                the dot product is geometrically the cosine of the angle between the two unit
+                vectors, computing the dot product via vector math is very simple:</para>
             <equation>
-                <title>Vector Dot Product Equation</title>
+                <title>Dot Product from Vector Math</title>
                 <mediaobject>
                     <imageobject>
                         <imagedata format="SVG" fileref="DotProductEquation.svg"/>
@@ -539,15 +544,29 @@ void main()
             arbitrary matrix; there is no guarantee that this transformation will not apply scaling
             or other transformations to the vector that will result in a non-unit vector.</para>
         <para>Of course, it is easy enough to correct this. The GLSL function
-                <function>normalize</function> will return a vector that is of unit length.</para>
+                <function>normalize</function> will return a vector that is of unit length without
+            changing the direction of the input vector.</para>
         <para>And while mathematically this would function, geometrically, it would be nonsense. For
             example, consider a 2D circle. We can apply a non-uniform scale (different scales in
             different axes) to the positions on this circle that will transform it into an
             ellipse:</para>
-        <!--TODO: Show a circle, then show the squashed ellipse-->
+        <figure>
+            <title>Circle Scaling</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CircleScaling.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This is all well and good, but consider the normals in this transformation:</para>
-        <!--TODO: Show the circle with normals, then show the ellipse with squashed normals.
-Also show an ellipse with proper normals.-->
+        <figure>
+            <title>Circle Scaling with Normals</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CircleNormalScaling.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The ellipse in the middle has the normals that you would expect if you transformed the
             normals from the circle by the same matrix the circle was transformed by. They may be
             unit length, but they no longer reflect the <emphasis>shape</emphasis> of the ellipse.
@@ -674,7 +693,14 @@ g_pCylinderMesh->Render("tint");
 glUseProgram(0);</programlisting>
         </example>
         <para>It's pretty self-explanatory.</para>
-        <!--TODO: Show a picture of the tutorial, with scale applied.-->
+        <figure>
+            <title>Lighting and Scale</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Scale%20and%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>One more thing to note before we move on. Doing the inverse-transpose is only really
             necessary if you are using a <emphasis>non-uniform</emphasis> scale. In practice, it's
             actually somewhat rare to use this kind of scale factor. We do it in these tutorials, so
@@ -691,7 +717,14 @@ glUseProgram(0);</programlisting>
         <title>Global Illumination</title>
         <para>You may notice something very unrealistic about the results of this tutorial. For
             example, take this image:</para>
-        <!--TODO: Show an image of the cylinder with half lit and half unlit-->
+        <figure>
+            <title>Half Lit</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="No%20Ambient.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The unlit portions of the cylinder are completely, 100% black. This almost never
             happens in real life, even for objects we perceive as being <quote>black</quote> in
             color. The reason for this is somewhat complicated.</para>
@@ -748,7 +781,17 @@ glUseProgram(0);</programlisting>
             controls are the same as the last tutorial, except that the space bar swaps between the
             two cylinders (red and white), and that the <keycap>T</keycap> key toggles ambient
             lighting on and off (defaults to off).</para>
-        <!--TODO: Show a picture of the ambient lighting tutorial.-->
+        <figure>
+            <title>Ambient Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Ambient%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The detail seen in the dark portion of the cylinder only comes from the diffuse color.
+            And because the ambient is fairly weak, the diffuse color of the surface appears muted
+            in the dark areas.</para>
         <para>The rendering code now uses four of vertex shaders instead of two. Two of them are
             used for non-ambient lighting, and use the same shaders we have seen before, and the
             other two use ambient lighting.</para>

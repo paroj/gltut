@@ -36,7 +36,14 @@
         <para>We implement point lights per-vertex in the <phrase role="propername">Vertex Point
                 Lighting</phrase> tutorial. This tutorial has a moving point light that circles
             around the cylinder.</para>
-        <!--TODO: Show a picture of the tutorial.-->
+        <figure>
+            <title>Vertex Point Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Vertex%20Point%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>It controls as follows:</para>
         <!--TODO: Have a table explaining the tutorial's controls.-->
         <para>Most of the code is nothing we haven't seen elsewhere. The main changes are at the top
@@ -113,21 +120,29 @@ void main()
             position it near the ground plane. See anything wrong?</para>
         <para>If everything were working correctly, one would expect to see a bright area directly
             under the light. After all, geometrically, this situation looks like this:</para>
-        <!--TODO: Show a 2D diagram of a point light near a line surface.-->
-        <para>The area directly under the point should be very bright, but the area farther from the
-            point light should be darker. What we see is nothing of the sort. There is no bright
-            light directly under the light source. Why is that?</para>
+        <figure>
+            <title>Light Near Surface</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="LightNearSurface.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The surface normal for the areas directly under the light are almost the same as the
+            direction towards the light. This means that the angle of incidence is small, so the
+            cosine of this angle is close to 1. That should translate to having a bright area under
+            the light, but darker areas farther away. What we see is nothing of the sort. Why is
+            that?</para>
         <para>Well, consider what we are doing. We are computing the lighting at every triangle's
                 <emphasis>vertex</emphasis>, and then interpolating the results across the surface
             of the triangle. The ground plane is made up of precisely four vertices: the four
-            corners. And those are all very far from the light position and have a very angle of
-            incidence. Since none of them have a small angle of incidence, none of the colors that
-            are interpolated across the surface are bright.</para>
+            corners. And those are all very far from the light position and have a very large angle
+            of incidence. Since none of them have a small angle of incidence, none of the colors
+            that are interpolated across the surface are bright.</para>
         <para>You can see this is evident by putting the light position next to the cylinder. If the
             light is at the top or bottom of the cylinder, then the area near the light will be
             bright. But if you move the light to the middle of the cylinder, far the top or bottom
             vertices, then the illumination will be much dimmer.</para>
-        <!--TODO: Show this tutorial with the light at the middle of the cylinder.-->
         <para>This is not the only problem with doing per-vertex lighting. For example, run the
             tutorial again and don't move the light. Just watch how the light behaves on the
             cylinder's surface as it animates around. Unlike with directional lighting, you can very
@@ -146,9 +161,6 @@ void main()
             light and the surface normal. In directional lighting, the direction to the light is
             always the same. Therefore, the only value that changes over a triangle's surface is the
             surface normal.</para>
-        <para>The more physically correct method of lighting is to perform lighting at every
-            rendered pixel. To do that, we would have to interpolate the lighting parameters across
-            the triangle, and perform the lighting computation in the fragment shader.</para>
         <para>Linear interpolation of vectors looks like this:</para>
         <informalequation>
             <mediaobject>
@@ -217,6 +229,9 @@ void main()
             not yield the same results as linearly interpolating the two colors you get from the
             lighting equation. This is a big part of the reason why the cylinder doesn't look
             correct.</para>
+        <para>The more physically correct method of lighting is to perform lighting at every rendered
+            pixel. To do that, we would have to interpolate the lighting parameters across the
+            triangle, and perform the lighting computation in the fragment shader.</para>
     </section>
     <section>
         <?dbhtml filename="Tut09 Fragment Lighting.html" ?>
@@ -224,6 +239,11 @@ void main()
         <para>So, in order to deal with interpolation artifacts, we need to interpolate the actual
             light direction and normal, instead of just the results of the lighting equation. This
             is called per-fragment lighting or just <glossterm>fragment lighting.</glossterm></para>
+        <para>This is pretty simple, conceptually. We simply need to do the lighting computations in
+            the fragment shader. So the fragment shader needs the position of the fragment, the
+            light's position (or the direction to the light from that position), and the surface
+            normal of the fragment at that position. And all of these values need to be in the same
+            coordinate space.</para>
         <para>There is a problem that needs to be dealt with first. Normals do not interpolate well.
             Or rather, wildly different normals do not interpolate well. And light directions can be
             very different if the light source is close to the triangle relative to that triangle's
@@ -232,26 +252,79 @@ void main()
             different at each vertex, so long as our light remains in relatively close proximity to
             the plane.</para>
         <para>Part of the problem is with interpolating values along the diagonal of our triangle.
-            Using two triangles to form a square plane does not mean that the values at the four
-            vertices interpolate the way you would expect. The plane is actually made of these two
-            triangles:</para>
-        <!--TODO: Show a picture of the two triangles composing the plane.-->
-        <para>The interpolation always happens between the three vertices of the particular
-            triangle. Which means that vertices near the diagonal will be basically doing a linear
-            interpolation between the two values on either end of that diagonal. This is not the
-            same thing as doing interpolation between all 4 values.</para>
-        <!--TODO: Show bilinear interpolation vs. barycentric interpolation.-->
+            Interpolation within a triangle works like this. For any position within the area of the
+            triangle, that position can be expressed as a weighted sum of the positions of the three
+            vertices.</para>
+        <figure>
+            <title>Triangle Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="BarycentricTriangle.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <informalequation>
+            <mathphrase>P = αA + βB + γC, where α + β + γ = 1.0</mathphrase>
+        </informalequation>
+        <para>The α, β, and γ values are not the distances from their respective points to the point
+            of interest. In the above case, the point P is in the exact center of the triangle.
+            Thus, the three values are each ⅓.</para>
+        <para>If the point of interest is along an edge of the triangle, then the contribution of
+            the vertex not sharing that edge is zero.</para>
+        <figure>
+            <title>Triangle Edge Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="BarycentricTriangleEdge.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Here, point P is exactly halfway between points C and B. Therefore,  β, and γ are both
+            0.5, but α is 0.0. If point P is anywhere along the edge of a triangle, it gets none of
+            its final interpolated value from the third vertex. So along a triangle's edge, it acts
+            like the kind of linear interpolation we have seen before.</para>
+        <para>This is how OpenGL interpolates the vertex shader outputs. It takes the α, β, and γ
+            coordinates for the fragment's position and combines them with the vertex output value
+            for the three vertices in the same way it does for the fragment's position. There is
+            slightly more to it than that, but we will discuss that later.</para>
+        <para>The ground plane in our example is made of two large triangles. They look like
+            this:</para>
+        <figure>
+            <title>Two Triangle Quadrilateral</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TwoTriangleQuad.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>What happens if we put the color black on the top-right and bottom-left points, and
+            put the color green on the top-left and bottom-right points? If you interpolate these
+            across the surface, you would get this:</para>
+        <figure>
+            <title>Two Triangle Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TwoTriangleInterpolation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The color is pure green along the diagonal. That is because along a triangle's edge,
+            the value interpolated will only be the color of the two vertices along that edge. The
+            value is interpolated based only on each triangle individually, not on extra data from
+            another neighboring triangle.</para>
         <para>In our case, this means that for points along the main diagonal, the light direction
             will only be composed of the direction values from the two vertices on that diagonal.
             This is not good. This wouldn't be much of a problem if the light direction did not
-            change much along the surface, but that is not the case here.</para>
+            change much along the surface, but with large triangles (relative to how close the light
+            is to them), that is simply not the case.</para>
         <para>Since we cannot interpolate the light direction very well, we need to interpolate
             something else. Something that does exhibit the characteristics we need when
             interpolated.</para>
-        <para>Positions interpolate linearly quite well. So instead of interpolating the light
-            direction, we interpolate the components of the light direction. Namely, the two
-            positions. The light position is a constant, so we only need to interpolate the vertex
-            position.</para>
+        <para>Positions interpolate quite well. Interpolating the top-left position and bottom-right
+            positions gets an accurate position value along the diagonal. So instead of
+            interpolating the light direction, we interpolate the components of the light direction.
+            Namely, the two positions. The light position is a constant, so we only need to
+            interpolate the vertex position.</para>
         <para>Now, we could do this in any space. But for illustrative purposes, we will be doing
             this in model space. That is, both the light position and vertex position will be in
             model space.</para>
@@ -262,7 +335,14 @@ void main()
             space.</para>
         <para>The <phrase role="propername">Fragment Point Lighting</phrase> tutorial shows off how
             fragment lighting works.</para>
-        <!--TODO: Show a picture of the tutorial.-->
+        <figure>
+            <title>Fragment Point Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Fragment%20Point%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Much better.</para>
         <para>This tutorial is controlled as before, with a few exceptions. Pressing the
                 <keycap>t</keycap> key will toggle a scale factor onto to be applied to the
@@ -416,11 +496,20 @@ void main()
                     <keycap>J</keycap>
                 </keycombo> key to move the light really close to the cylinder, but without putting
                 the light inside the cylinder. You should see something like this:</para>
-            <!--TODO: Picture of the cylinder with a close light.-->
-            <para>This looks like the same interpolation problem we had before. Wasn't doing
-                lighting at the fragment level supposed to fix this?</para>
+            <figure>
+                <title>Close Lit Cylinder</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Cylinder%20Close%20Light.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Notice the vertical bands on the cylinder. This are reminiscent of the same
+                interpolation problem we had before. Wasn't doing lighting at the fragment level
+                supposed to fix this?</para>
             <para>Actually, this is a completely different problem. And it is one that is
-                essentially impossible to solve. Well, not without changing our geometry.</para>
+                essentially impossible to solve. Well, not without changing our rendered
+                mesh.</para>
             <para>The source of the problem is this: the light finally caught us in our lie.
                 Remember what we are actually doing. We are not rendering a true cylinder; we are
                 rendering a group of flat triangles that we attempt to make
@@ -431,16 +520,29 @@ void main()
                 light is very close, as it is here, it reveals our fakery for what it is.
                 Why?</para>
             <para>Let's take a top-down view of our cylinder approximation, but let's also draw what
-                the actual cylinder would look like:</para>
-            <!--TODO: Show a diagram of a faceted cylinder inscribed within a circle.-->
+                the actual cylinder would look like from the top down:</para>
+            <figure>
+                <title>Faceted Cylinder</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="FacetedCircle.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>Now, consider our lighting equation at a particular point on the fake
                 cylinder:</para>
-            <!--TODO: Extend the previous diagram with two lights, one close and one far. Also show a point on the fake
-cylinder, and a normal. And show the corresponding point/normal.-->
+            <figure>
+                <title>Light Directions on Faceted Cylinder</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="FacetedNearVsFar.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>The problem comes from the difference between the actual position being rendered
                 and the corresponding position on the circle that has the normal that we are
                 pretending our point has. When the light is somewhat distant, the difference between
-                the actual light direction we use, and the one we would use on a real cylinder is
+                the actual light direction we use and the one we would use on a real cylinder is
                 pretty small. But when the light is very close, the difference is
                 substantial.</para>
             <para>The lighting computations are correct for the vertices near the edges of a
@@ -449,10 +551,8 @@ cylinder, and a normal. And show the corresponding point/normal.-->
             <para>The key point is that there isn't much we can do about this problem. The only
                 solution is to add more vertices to the approximation of the cylinder. It should
                 also be noted that adding more triangles would also make per-vertex lighting look
-                more correct. Thus making the whole exercise in using per-fragment lighting somewhat
-                pointless; if the mesh is finely-divided enough so that each vertex effectively
-                becomes a single fragment, then there is no difference between the two
-                techniques.</para>
+                more correct. If you add infinitely many vertices to the cylinder, then the results
+                of per-vertex lighting are indistinguishable from per-fragment lighting.</para>
             <para>For our simple case, adding triangles is easy, since a cylinder is a
                 mathematically defined object. For a complicated case like a human being, this is
                 usually rather more difficult. It also takes up more performance, since there are
@@ -466,7 +566,14 @@ cylinder, and a normal. And show the corresponding point/normal.-->
         <para>There is another issue with our current example. Use the <keycap>i</keycap> key to
             raise the light up really high. Notice how bright all of the upwardly-facing surfaces
             get:</para>
-        <!--TODO: Show a picture of a highlight's effect on the surface.-->
+        <figure>
+            <title>High Light</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="High%20Light.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>You probably have no experience with this in real life. Holding a light farther from
             the surface in reality does not make the light brighter. So obviously something is
             happening in reality that our simple lighting model is not accounting for.</para>
@@ -659,7 +766,14 @@ cylinder, and a normal. And show the corresponding point/normal.-->
             <title>Applied Attenuation</title>
             <para>The <phrase role="propername">Fragment Attenuation</phrase> tutorial performs
                 per-fragment attenuation, both with linear and quadratic attenuation.</para>
-            <!--TODO: Show a picture of the tutorial.-->
+            <figure>
+                <title>Fragment Attenuation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Fragment%20Attenuation.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>This tutorial controls as before, with the following exceptions. The
                     <keycap>O</keycap> and <keycap>U</keycap> keys increase and decrease the
                 attenuation constant. However, remember that decreasing the constant makes the

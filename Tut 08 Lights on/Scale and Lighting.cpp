@@ -119,7 +119,7 @@ static float g_CylPitch = 0.0f;
 static float g_CylRoll = 0.0f;
 
 static bool g_bScaleCyl = false;
-static bool g_bDoInvTranspose = false; 
+static bool g_bDoInvTranspose = true; 
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.

@@ -29,26 +29,22 @@ function View:Transform(points)
 	end
 	
 	local point = points;
+
 	if(self.transform) then
 		point = self.transform:Matrix():Transform(point)
 	end;
-	
-	point = vmath.vec2(point);
-	point = point - self.vpOrigin;
-	point = point / self.vpSize;
-	point = point * vmath.vec2(1, -1);
-	point = point * self.pixelSize;
-	point = point + self.pxCenter;
-	
+
+	point = self.matrix:Transform(point);
+
 	return point;
 end
 
 --Takes points in viewport space, returns points in pixel space.
 --Does not apply the current transform
-function View:ViewportTransform(points)
+function View:ViewportTransform(...)
 	local transform = self.transform;
 	self.transform = nil;
-	local ret = self:Transform(points);
+	local ret = self:Transform(...);
 	self.transform = transform;
 	return ret;
 end
@@ -82,6 +78,15 @@ function Viewport(pixelSize, vpOrigin, vpSize)
 	viewport.pxCenter = viewport.pixelSize / 2;
 	if(type(vpSize) == "number") then vpSize = vmath.vec2(vpSize, vpSize) end;
 	viewport.vpSize = vmath.vec2(vpSize);
+	
+	local trans = Transform2D();
+	trans:Translate(viewport.pxCenter);
+	trans:Scale(viewport.pixelSize);
+	trans:Scale(vmath.vec2(1, -1));
+	trans:Scale(1.0 / viewport.vpSize);
+	trans:Translate(-viewport.vpOrigin);
+
+	viewport.matrix = trans;
 	
 	AddMembers(viewport, View);
 	return viewport;
