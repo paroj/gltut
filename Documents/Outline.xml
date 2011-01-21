@@ -542,6 +542,10 @@
                     <para>Multipass rendering of the lights.</para>
                 </listitem>
                 <listitem>
+                    <para>Create a reason to use different vertex shaders. Thus allowing us to
+                        introduce <quote>invariant</quote> and the invariance guarantee.</para>
+                </listitem>
+                <listitem>
                     <para>Precision problems with multipass.</para>
                 </listitem>
             </itemizedlist>
