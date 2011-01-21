@@ -370,6 +370,9 @@
                 <listitem>
                     <para>Using arrays in shaders and UBOs.</para>
                 </listitem>
+                <listitem>
+                    <para>Gamma correction.</para>
+                </listitem>
             </itemizedlist>
         </section>
         <section>
@@ -411,10 +414,6 @@
                         texture to a surface.</para>
                 </listitem>
                 <listitem>
-                    <para>Texture filtering. How OpenGL computes inbetween values for fragments when
-                        you sample a texture.</para>
-                </listitem>
-                <listitem>
                     <para>Sampler objects.</para>
                 </listitem>
                 <listitem>
@@ -428,6 +427,9 @@
                 <listitem>
                     <para>Using values from textures in lighting equations.</para>
                 </listitem>
+                <listitem>
+                    <para>Animated texture coordinates.</para>
+                </listitem>
             </itemizedlist>
         </section>
         <section>
@@ -440,6 +442,10 @@
                 <listitem>
                     <para>Texture wrapping. How normalized texture coordinates outside of the [0, 1]
                         range are interpreted.</para>
+                </listitem>
+                <listitem>
+                    <para>Texture filtering. How OpenGL computes inbetween values for fragments when
+                        you sample a texture.</para>
                 </listitem>
                 <listitem>
                     <para>Texture aliasing. Where it comes from, and how to solve it.</para>
@@ -470,10 +476,6 @@
                 <listitem>
                     <para>Vertex texture accessing. How it differs from fragment textures
                         (mipmapping and such).</para>
-                </listitem>
-                <listitem>
-                    <para>Using textures for non-color information. Also, scaling of the data that
-                        comes out of the image.</para>
                 </listitem>
                 <listitem>
                     <para>Constructing normals from the height field in the vertex shader.</para>
