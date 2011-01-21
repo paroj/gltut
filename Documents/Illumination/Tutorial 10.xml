@@ -32,28 +32,43 @@
             characteristics of the surface. If a surface was perfectly smooth, then the specular
             highlight from a point light would be infinitely small (since point lights themselves
             are infinitely small).</para>
-        <!--TODO: Show a perfectly smooth surface with reflection from a light source. Have several camera positions.
-Position A should be in view of the reflection at the point P, while position B should not.-->
+        <figure>
+            <title>Perfect Specular Reflection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="SpecularReflection.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Notice that the intensity of the reflected light depends not only on the angle of
             incidence, but only the direction to the viewer. This is called the <glossterm>angle of
                 view</glossterm> or <glossterm>viewing angle</glossterm>. Viewing position A detects
-            the light specularly reflected from the surface, but the viewing position B does
-            not.</para>
-        <para>Surfaces however are rarely perfectly smooth. Surfaces that seem smooth from far away
-            can be rough on closer examination. This is true at the microscopic level as well, even
-            for surfaces that look quite smooth. This roughness can be modelled by assuming that a
-            surface is composed of a number of <glossterm>microfacets.</glossterm></para>
+            the light specularly reflected from the surface at the point P, but the viewing position
+            B does not.</para>
+        <para>Surfaces however are rarely perfect specular reflectors (mirrors are the most common
+            perfect reflectors). Surfaces that seem smooth from far away can be rough on closer
+            examination. This is true at the microscopic level as well, even for surfaces that
+            appear quite smooth. This roughness can be modelled by assuming that a surface is
+            composed of a number of <glossterm>microfacets.</glossterm></para>
         <para>A microfacet is a flat plane that is oriented in a single direction. Each microfacet
-            reflects light perfectly in that direction. A surface with microfacets would look like
+            reflects light perfectly in that direction. Surfaces with microfacets would look like
             this:</para>
-        <!--TODO: show two 2D surface with microfacets, one relatively rough and one smooth.-->
+        <figure>
+            <title>Smooth and Rough Microfacets</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="MicrofacetRoughSmooth.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>It is part of the microfacet model's assumption that many microfacets on a surface
             will contribute to the light returned under a single pixel of the final image. So each
-            pixel in the rendered image is the result of an aggregate of the microfacets.</para>
+            pixel in the rendered image is the result of an aggregate of the microfacets that lie
+            under the area of that pixel on the surface.</para>
         <para>The average normal of the microfacets is the surface normal at that point. The
-            relative smoothness of a surface can be modeled as a statistical distribution of the
-            orientation of microfacets on the surface. A smooth surface has a distribution close to
-            the average, while a rough surface has a broader distribution.</para>
+            relative smoothness of a surface can therefore be modeled as a statistical distribution
+            of the orientation of microfacets on the surface. A smooth surface has a distribution
+            close to the average, while a rough surface has a broader distribution.</para>
         <para>Thus, a model of specular reflections includes a term that defines the overall
             smoothness of the source. This is a surface characteristic, representing the
             distribution of microfacets using whatever statistical distribution the particular
@@ -252,14 +267,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 reasonable.</para>
             <para>In particular, it is interesting to note what happens when you use a very dark
                 diffuse color. You can activate this by pressing the <keycap>G</keycap> key.</para>
-            <!--TODO: Show dark diffuse color.-->
+            <!--TODO: Show dark diffuse color from the tutorial.-->
             <para>If there was no specular term at all, you would a virtually scene. The specular
                 highlight, even with the fairly weak specular reflection of 0.25, is strong enough
                 to give some definition to the object when seen from various angles. This more
                 accurately shows what a black plastic object might look like.</para>
             <para>One thing you may notice is that, if you bring the light close to the surface, the
                 specular area tends to have very sharp edges.</para>
-            <!--TODO: Show a picture of the clipping.-->
+            <!--TODO: Show a picture of the Phong clipping.-->
             <para>This is part of the nature of specular reflections. If the light is almost
                 perpendicular to the surface, the specular reflection will shine brightest when the
                 light is almost eclipsed by the surface. This creates a strong discontinuity at the
@@ -295,17 +310,32 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             more than Phong.</para>
         <para>The main problem with Phong is that the angle between the view direction and the
             reflection direction has to be less than 90 degrees in order for the specular term to be
-            non-zero. So cases like this:</para>
-        <!--TODO: Show the Phong problem in 2D-->
-        <para>These are not modeled correctly. These could have microfacets that are oriented
-            towards the camera, but Phong cannot properly render this. The problem is that the dot
-            product between the view direction and reflection direction can be negative, which does
-            not lead to a reasonable result when passed through the rest of the equation.</para>
+            non-zero.</para>
+        <figure>
+            <title>Large View and Reflect Angle</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="PhongReflectDirTooGreat.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The angle between V and R is greater than 90 degrees. Cases like this are not modeled
+            correctly by Phong. There could be microfacets at the point which are oriented towards
+            the camera, but Phong cannot properly model this. The problem is that the dot product
+            between the view direction and reflection direction can be negative, which does not lead
+            to a reasonable result when passed through the rest of the equation.</para>
         <para>The Blinn model uses a different set of vectors for its computations, one that are
             less than 90 degrees in all valid cases. The Blinn model requires computing the
                 <glossterm>half-angle vector</glossterm>. The half-angle vector is the direction
             halfway between the view direction and the light position.</para>
-        <!--TODO: Show a 2D representation of the half-angle vector.-->
+        <figure>
+            <title>Geometric Half-Angle Vector</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="HalfangleVectorDiagram.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <equation>
             <title>Half-Angle Vector</title>
             <mediaobject>
@@ -315,11 +345,17 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             </mediaobject>
         </equation>
         <para>When the view direction is perfectly aligned with the reflected direction, the
-            half-angle vector is perfectly aligned with the surface normal. To describe the
-            half-angle vector another way, it is the direction the surface normal would need to be
-            oriented in in order for the viewer to see a specular reflection from the light
-            source.</para>
-        <!--TODO: Show the halfangle vector for a view direction equal to the reflection direction.-->
+            half-angle vector is perfectly aligned with the surface normal. Or to put it another
+            way, the half-angle is the direction the surface normal would need to be facing in order
+            for the viewer to see a specular reflection from the light source.</para>
+        <figure>
+            <title>Perfect Reflection Half-Angle Vector</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="HalfangleVectorPerfect.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>So instead of comparing the reflection vector to the view direction, the Blinn model
             compares the half-angle vector to the surface normal. It then raises this value to a
             power representing the shininess of the surface.</para>
@@ -524,7 +560,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             hardware however, taking the reciprocal square-root (1 / √X) is generally about as fast
             as doing a vector multiply. This puts Blinn as approximately equal in performance to
             Phong; on some hardware, it may even be faster. In general, the performance difference
-            between the two will be negligable.</para>
+            between the two will be negligible.</para>
         <para>Gaussian is a different story. It would be reasonable to expect the
                 <function>pow</function> function, taking <inlineequation>
                 <mathphrase>x<superscript>y</superscript></mathphrase>
@@ -533,14 +569,17 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 <mathphrase>e<superscript>x</superscript></mathphrase>
             </inlineequation>. They might have the same performance, but if one is going to be
             faster, it is more likely to be <function>exp</function> than <function>pow</function>.
-            However, Gaussian also uses the inverse cosine; that pretty much negates any possibility
-            of performance parity. The inverse cosine computation is certainly not built into the
-            hardware, and thus must be computed using the shader logic. And while this is likely
-            true of exponentiation and power functions, Gaussian has to do <emphasis>two</emphasis>
-            of these operations, compared to just one for Phong or Blinn.</para>
+            However, Gaussian also uses the inverse cosine to compute the angle between the normal
+            and half-angle vector; that pretty much negates any possibility of performance parity.
+            The inverse cosine computation is certainly not built into the hardware, and thus must
+            be computed using the shader logic. And while this is likely true of exponentiation and
+            power functions, Gaussian has to do <emphasis>two</emphasis> of these operations,
+            compared to just one for Phong or Blinn.</para>
         <para>One might consider using Gouraud shading with specular reflections as a method of
-            optimization. This is not for the best. Specular highlights do not interpolate linearly
-            at all, so unless the mesh is finely divided, it will generally look awful.</para>
+            optimization. That is, doing per-vertex specular reflections. Since there are fewer
+            vertices than fragments, this might sound like a good idea. However, this is not for the
+            best. Specular highlights do not interpolate linearly at all, so unless the mesh is
+            finely divided, it will generally look awful.</para>
     </section>
     <section>
         <?dbhtml filename="Tut10 In Review.html" ?>
