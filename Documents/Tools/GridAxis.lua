@@ -40,12 +40,13 @@ function ClassMembers:AddDefinitions(writer, name)
 	writer:EndDefinitions();
 end
 
-function GridAxis2D(vp, axisStyle, styleLib, bGrid, gridStyle)
+function GridAxis2D(vp, axisStyle, styleLib, bGrid, gridStyle, gridScale)
 	assert(styleLib);
 	assert(vp);
 	
 	axisStyle = axisStyle or SvgWriter.Style():stroke("black"):fill("none"):stroke_width("2px");
 	gridStyle = gridStyle or SvgWriter.Style():stroke("#CCC"):fill("none"):stroke_width("1px");
+	gridScale = gridScale or 1.0;
 	
 	local axisGridObj = {};
 	axisGridObj.axisIndex = axisIndex;
@@ -87,6 +88,8 @@ function GridAxis2D(vp, axisStyle, styleLib, bGrid, gridStyle)
 	arrowheadPath:M{10, 4}:L{0, 0}:L{0, 8}:Z();
 	axisGridObj.arrowheadPath = arrowheadPath;
 	
+	local viewportScale = vmath.vec2(vp:Size());
+	
 	--Create grid path, if needed.
 	if(bGrid) then
 		styleLib:AddStyle(nil, gridStyleName .. axisGridObj.axisIndex, gridStyle);
@@ -94,7 +97,7 @@ function GridAxis2D(vp, axisStyle, styleLib, bGrid, gridStyle)
 		local gridPath = SvgWriter.Path();
 
 		--Vertical lines.
-		for i = lowerBound[1], upperBound[1] do
+		for i = lowerBound[1], upperBound[1], gridScale do
 			local points =
 			{
 				vmath.vec2(i, lowerBound[2]);
@@ -106,7 +109,7 @@ function GridAxis2D(vp, axisStyle, styleLib, bGrid, gridStyle)
 		end
 
 		--Horizontal lines.
-		for i = lowerBound[2], upperBound[2] do
+		for i = lowerBound[2], upperBound[2], gridScale do
 			local points =
 			{
 				vmath.vec2(lowerBound[1], i);

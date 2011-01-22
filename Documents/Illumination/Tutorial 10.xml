@@ -152,7 +152,14 @@
             <title>Drawing Phong</title>
             <para>The <phrase role="propername">Phong Lighting</phrase> tutorial demonstrates the
                 Phong specular model.</para>
-            <!--TODO: Show a picture of the tutorial.-->
+            <figure>
+                <title>Phong Lighting</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Phong%20Lighting.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>The tutorial is controlled similarly to previous lighting tutorials. The
                     <keycap>W</keycap>, <keycap>A</keycap>, <keycap>S</keycap>, and
                     <keycap>D</keycap> keys control the orientation of the cylinder. Pressing the
@@ -267,14 +274,28 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 reasonable.</para>
             <para>In particular, it is interesting to note what happens when you use a very dark
                 diffuse color. You can activate this by pressing the <keycap>G</keycap> key.</para>
-            <!--TODO: Show dark diffuse color from the tutorial.-->
-            <para>If there was no specular term at all, you would a virtually scene. The specular
+            <figure>
+                <title>Phong with Dark Diffuse</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Phong%20Dark%20Diffuse.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>If there was no specular term at all, you would see very little.. The specular
                 highlight, even with the fairly weak specular reflection of 0.25, is strong enough
                 to give some definition to the object when seen from various angles. This more
                 accurately shows what a black plastic object might look like.</para>
             <para>One thing you may notice is that, if you bring the light close to the surface, the
                 specular area tends to have very sharp edges.</para>
-            <!--TODO: Show a picture of the Phong clipping.-->
+            <figure>
+                <title>Phong Clipping</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Phong%20Clipping.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>This is part of the nature of specular reflections. If the light is almost
                 perpendicular to the surface, the specular reflection will shine brightest when the
                 light is almost eclipsed by the surface. This creates a strong discontinuity at the
@@ -284,7 +305,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 having small exponents.</para>
             <para>If you drop the exponent down to the minimum value the code will allow, you will
                 see something like this:</para>
-            <!--TODO: show a picture of the Phong distortion.-->
+            <figure>
+                <title>Phong Distortion</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Phong%20Distortion.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>This ring area shows one of the main limitations of the Phong model. When trying
                 to depict a surface that is rough but still has specular highlights, the Phong model
                 starts to break down. It will not allow any specular contribution from areas outside
@@ -371,7 +399,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             So the Blinn specular model produces similar results to the Phong model, but without
             some of Phong's problems. This is demonstrated in the <phrase role="propername">Blinn vs
                 Phong Lighting</phrase> tutorial.</para>
-        <!--TODO: Show an image of Blinn from the tutorial.-->
+        <figure>
+            <title>Blinn Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Blinn%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The controls are similar to the last tutorial. Pressing the <keycap>H</keycap> key
             will switch between Blinn and Phong specular. Pressing <keycombo>
                 <keycap>Shift</keycap>
@@ -408,7 +443,15 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             view direction vectors. As before, we take the dot product between that and the surface
             normal, clamp, then raise the result to a power.</para>
         <para>Blinn specular solves the Phong problem with the reflection direction.</para>
-        <!--TODO: Picture comparing Phong and Blinn with same light positions and low shininess.-->
+        <figure>
+            <title>Blinn vs. Phong Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Blinn%20vs%20Phong%20Compare.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The Blinn version is on the left, with the Phong version on the right.</para>
         <para>The Blinn specular exponent does not mean quite the same thing as the Phong exponent.
             In general, to produce a highlight the same size as a Phong one, you will need a larger
             Blinn exponent. Play around with the different exponents, to get a feel for what Blinn
@@ -445,7 +488,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 </imageobject>
             </mediaobject>
         </equation>
-        <!--TODO: Picture of Gaussian curve.-->
+        <figure>
+            <title>Gaussian Probability Distribution Curves</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="GaussianPlot.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This represents the percentage of the items in the distribution that satisfy the
             property that the X in the distribution is trying to model. The <literal>e</literal> in
             this equation is a common mathematical constant, equivalent to ~2.718. The value of
@@ -526,7 +576,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <para>If you play around with the controls, you can see how much the Gaussian
                 distribution offers over Phong and Blinn. For example, set the Gaussian smoothness
                 value to 0.05.</para>
-            <!--TODO: Show a picture of a Gaussian highlight with smoothness at 0.05-->
+            <figure>
+                <title>Gaussian with Sharp Highlight</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Gaussian%20Small%20Highlight.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>It requires very large exponents, well in excess of 100, to match the small size
                 and focus of that specular highlight with Phong or Blinn. It takes even larger
                 exponents to match the Gaussian value of 0.02.</para>

@@ -76,7 +76,9 @@ function Viewport(pixelSize, vpOrigin, vpSize)
 	viewport.pixelSize = vmath.vec2(pixelSize);
 	viewport.vpOrigin = vmath.vec2(vpOrigin);
 	viewport.pxCenter = viewport.pixelSize / 2;
-	if(type(vpSize) == "number") then vpSize = vmath.vec2(vpSize, vpSize) end;
+	if(type(vpSize) == "number") then
+		vpSize = vmath.vec2(vpSize, vpSize * (pixelSize[2] / pixelSize[1]))
+	end;
 	viewport.vpSize = vmath.vec2(vpSize);
 	
 	local trans = Transform2D();
