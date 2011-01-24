@@ -3,7 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
-    <?dbhtml filename="Tutorial 09.html" ?>
+    <?dbhtml filename="Tutorial 10.html" ?>
     <title>Shinies</title>
     <para>The diffuse lighting model works reasonably well for a smooth, matte surface. Few objects
         in reality conform to this archetype. Therefore, in order to more accurately model real
@@ -27,6 +27,7 @@
     <para>Note that these models do not throw away diffuse lighting. They all act as supplements,
         adding their contribution into the overall result for the lighting equation.</para>
     <section>
+        <?dbhtml filename="Tut10 Microfacets.html" ?>
         <title>Microfacets</title>
         <para>All of these specular reflection models work based on an assumption about the
             characteristics of the surface. If a surface was perfectly smooth, then the specular
@@ -89,6 +90,7 @@
             different mode of light/surface interaction from diffuse reflection.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut10 Phong Model.html" ?>
         <title>Phong Model</title>
         <para>The simplest model of specular illumination is the <glossterm>Phong model</glossterm>.
             The distribution of microfacets is not determined by a real statistical distribution.
@@ -329,6 +331,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut10 BlinnPhong Model.html" ?>
         <title>Blinn-Phong Model</title>
         <para>The problem with Phong, with regard to the reflection and view directions being
             greater than 90 degrees, can be solved by changing the computation. This modified model
@@ -458,6 +461,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             and Phong can and cannot achieve.</para>
     </section>
     <section>
+        <?dbhtml filename="Tut10 Gaussian.html" ?>
         <title>Gaussian</title>
         <para>Phong and Blinn are nice toy heuristics that take relatively little computational
             power. But if you're truly serious about computing specular highlights, you need a model
@@ -593,6 +597,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut10 On Performance.html" ?>
         <title>On Performance</title>
         <para>The three specular highlight models seen here are obviously more computationally
             expensive than diffuse lighting. But which is ultimately more expensive than the
