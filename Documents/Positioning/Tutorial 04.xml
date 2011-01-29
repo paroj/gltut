@@ -192,11 +192,7 @@
             </mediaobject>
         </figure>
         <para>As you can see, the projection is radial, based on the location of a particular point.
-            That point is the eye of the projection.</para>
-			<!--TODO: Remove next paragraph-->
-        <para>From this point forward, we are going to make a simplifying assumption. The position
-            of the eye will be centered relative to the size of the surface of projection. This need
-            not always be the case, but it functions well enough for most of our needs.</para>
+            That point is the eye or camera of the projection.</para>
         <para>Just from the shape of the projection, we can see that the perspective projection
             causes a larger field of geometry to be projected onto the surface. An orthographic
             projection only captures the rectangular prism directly in front of the surface of
@@ -216,13 +212,20 @@
         <section>
             <title>Mathematical Perspective</title>
             <para>Now that we know what we want to do, we just need to know how to do it.</para>
-			<!--TODO: Reformat next paragraph into a list of assumptions.-->
-            <para>We will be making a few simplifying assumptions. In addition to the assumption
-                that the eye point is centered relative to the projection surface, we will also
-                assume that the plane of projection is axis aligned and is facing down the -Z axis.
-                Thus, -Z is farther away from the plane. The eye will be fixed at the origin, so the
-                eye position is always (0, 0, 0). The size of the plane of projection will be [-1,
-                1] in the X and Y.</para>
+            <para>We will be making a few simplifying assumptions:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>The plane of projection is axis-aligned and faces down the -Z axis. Thus,
+                        -Z is farther away from the plane of projection.</para>
+                </listitem>
+                <listitem>
+                    <para>The eye point is fixed at the origin (0, 0, 0).</para>
+                </listitem>
+                <listitem>
+                    <para>The size of the plane of projection will be [-1, 1]. All points that
+                        project outside of this range are not drawn.</para>
+                </listitem>
+            </itemizedlist>
             <para>Yes, this sounds somewhat like normalized device coordinate space. No, that's not
                 a coincidence. But let's not get ahead of ourselves.</para>
             <para>We know a few things about how the projection results will work. A perspective
@@ -233,7 +236,6 @@
                 direction.</para>
             <para>The problem is really just a simple geometry problem. Here is the equivalent form
                 in a 2D to 1D perspective projection.</para>
-				<!--TODO: This section is wrong. Pz needs to extend from E to P, not from P to the projection plane.-->
             <figure>
                 <title>2D to 1D Perspective Projection Diagram</title>
                 <mediaobject>
@@ -318,11 +320,11 @@
             <para>Now, we will make one more simplifying assumption: the location of the center of
                 the perspective plane is fixed at (0, 0, -1) in camera space. Therefore, since the
                 projection plane is pointing down the -Z axis, eye's location relative to the plane
-                of projection is (0, 0, -1). Thus, the offset from the projection plane to the eye
-                is always -1 in the Z. This means that our perspective term, when phrased as
-                division rather than multiplication, is simply P<subscript>z</subscript>/-1: the
-                negation of the camera-space Z coordinate.</para>
-				<!--TODO: Add an image showing the location of the projection plane in camera space. -->
+                of projection is (0, 0, -1). Thus, the E<subscript>z</subscript> value, the offset
+                from the projection plane to the eye, is always -1. This means that our perspective
+                term, when phrased as division rather than multiplication, is simply
+                    P<subscript>z</subscript>/-1: the negation of the camera-space Z
+                coordinate.</para>
             <para>Having a fixed eye position and projection plane makes it difficult to have
                 zoom-in/zoom-out style effects. This would normally be done by moving the plane
                 relative to the fixed eye point. There is a way to do this, however. All you need to
@@ -344,9 +346,10 @@
             <para>Do note that this diagram has the Z axis flipped from camera space and normalized
                 device coordinate (NDC) space. This is because camera space and NDC space have
                 different viewing directions. In camera space, the camera looks down the -Z axis;
-                more negative Z values are farther. In NDC space, the camera looks down the +Z axis;
-                more positive Z values are farther. The diagram flips the axis so that the viewing
-                direction can remain the same between the two images.</para>
+                more negative Z values are farther away. In NDC space, the camera looks down the +Z
+                axis; more positive Z values are farther away. The diagram flips the axis so that
+                the viewing direction can remain the same between the two images (up is
+                away).</para>
             <para>If you perform an orthographic projection from NDC space on the right (by dropping
                 the Z coordinate), then what you get is a perspective projection of the world on the
                 left. In effect, what we have done is transform objects into a three-dimensional

@@ -13,7 +13,7 @@
    height="400"
    id="svg2"
    version="1.1"
-   inkscape:version="0.47 r22583"
+   inkscape:version="0.48.0 r9654"
    sodipodi:docname="PerspDiagram.svg">
   <defs
      id="defs4">
@@ -74,16 +74,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="374.89524"
-     inkscape:cy="114.24471"
+     inkscape:zoom="1"
+     inkscape:cx="334.12327"
+     inkscape:cy="154.4739"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="1138"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -140,7 +140,7 @@
        transform="translate(0,652.36218)"
        sodipodi:nodetypes="cc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#00c000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 349.28571,877.60579 50,877.60579"
        id="path2828" />
     <path
@@ -267,27 +267,27 @@
          y="931.4101">{</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:115.85411072px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
-       x="153.92117"
-       y="809.42706"
+       style="font-size:212.82225037px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
+       x="86.053596"
+       y="770.25427"
        id="text2865-1"
        sodipodi:linespacing="125%"
-       transform="scale(0.96275886,1.0386817)"><tspan
+       transform="scale(0.81676513,1.2243422)"><tspan
          sodipodi:role="line"
          id="tspan2867-7"
-         x="153.92117"
-         y="809.42706">{</tspan></text>
+         x="86.053596"
+         y="770.25427">{</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
-       x="134.35028"
-       y="816.9967"
+       x="65.67514"
+       y="883.44574"
        id="text2894"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan2896"
-         x="134.35028"
-         y="816.9967">P</tspan></text>
+         x="65.67514"
+         y="883.44574">P</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:28px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
@@ -302,14 +302,14 @@
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
-       x="148.4975"
-       y="824.03223"
+       x="79.822357"
+       y="890.48126"
        id="text2906"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan2908"
-         x="148.4975"
-         y="824.03223">z</tspan></text>
+         x="79.822357"
+         y="890.48126">z</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Times New Roman;-inkscape-font-specification:Times New Roman"
