@@ -524,7 +524,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Gaussian Specular Term</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="GaussianTerm.mathml"/>
+                    <imagedata fileref="GaussianTerm.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
         </equation>

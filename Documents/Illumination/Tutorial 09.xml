@@ -196,7 +196,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_4.mathml"/>
+                    <imagedata format="SVG" fileref="LerpDiffuse_4.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -207,7 +207,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_5.mathml"/>
+                    <imagedata format="SVG" fileref="LerpDiffuse_5.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -217,7 +217,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_6.mathml"/>
+                    <imagedata format="SVG" fileref="LerpDiffuse_6.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>

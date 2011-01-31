@@ -604,7 +604,10 @@ void main()
             </mediaobject>
         </informalequation>
         <para>That is, the matrix can be expressed as doing a rotation into a space, followed by a
-            single scale transformation, followed by another rotation.<footnote>
+            single scale transformation, followed by another rotation. We can do this
+                <emphasis>regardless</emphasis> of how many scale and rotation matrices were used to
+            build M. That is, M could be the result of twenty rotation and scale matrices, but all
+            of those can be extracted into two rotations with a scale inbetween.<footnote>
                 <para>We will skip over deriving how exactly this is true. If you are interested,
                     search for <quote><link
                             xlink:href="http://en.wikipedia.org/wiki/Singular_value_decomposition"
@@ -652,7 +655,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="FactorOutInverse_3.mathml"/>
+                    <imagedata format="SVG" fileref="FactorOutInverse_3.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
