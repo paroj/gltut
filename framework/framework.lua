@@ -1,10 +1,14 @@
 
+local myPath = os.getcwd();
 
 function SetupSolution(slnName)
 	solution(slnName)
 		configurations {"Debug", "Release"}
 		defines {"_CRT_SECURE_NO_WARNINGS", "_CRT_SECURE_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS", "TIXML_USE_STL"}
 		defines {"FREEGLUT_STATIC", "WIN32"}
+		
+	local currPath = os.getcwd();
+	os.chdir(myPath);
 		
 	project "framework"
 		kind "StaticLib"
@@ -28,6 +32,8 @@ function SetupSolution(slnName)
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
 			targetname("framework")
+
+	os.chdir(currPath);
 end
 
 function SetupProject(projName, ...)
