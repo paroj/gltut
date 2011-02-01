@@ -117,11 +117,11 @@ glutSwapBuffers();</programlisting>
                 step is to allocate some memory that OpenGL <emphasis>can</emphasis> see, and fill
                 that memory with our data. This is done with something called a <glossterm>buffer
                     object.</glossterm></para>
-            <para>A buffer object is a linear array of memory allocated by OpenGL at the behest of
-                the user. The content of this memory is controlled by the user, but the user has
-                only indirect control over it. Think of a buffer object as an array of GPU memory.
-                The GPU can read this memory quickly, so storing data in it has performance
-                advantages.</para>
+            <para>A buffer object is a linear array of memory, managed and allocated by OpenGL at
+                the behest of the user. The content of this memory is controlled by the user, but
+                the user has only indirect control over it. Think of a buffer object as an array of
+                GPU memory. The GPU can read this memory quickly, so storing data in it has
+                performance advantages.</para>
             <para>The buffer object in the tutorial was created during initialization. Here is the
                 code responsible for creating the buffer object:</para>
             <example>
@@ -144,23 +144,34 @@ glutSwapBuffers();</programlisting>
                     <link linkend="OpenGLObjects">Tutorial 0</link>, objects in OpenGL usually have
                 to be bound to the context in order for them to do anything, and buffer objects are
                 no exception.</para>
-            <para>The <function>glBufferData</function> function allocates memory for the buffer
-                currently bound to <literal>GL_ARRAY_BUFFER</literal>, which is the one we just
-                created and bound. We already have some vertex data; the problem is that it is in
-                our memory rather than OpenGL's memory. This function allocates enough GPU memory to
-                store our vertex data. The third parameter is a pointer to the data to initialize
-                the buffer with; we give it our vertex data. The fourth parameter is something we
-                will look at in future tutorials.</para>
+            <para>The <function>glBufferData</function> function performs two operations. It
+                allocates memory for the buffer currently bound to
+                    <literal>GL_ARRAY_BUFFER</literal>, which is the one we just created and bound.
+                We already have some vertex data; the problem is that it is in our memory rather
+                than OpenGL's memory. The <literal>sizeof(vertexPositions)</literal> uses the C++
+                compiler to determine the byte size of the <varname>vertexPositions</varname> array.
+                We then pass this size to <function>glBufferData</function> as the size of memory to
+                allocate for this buffer object. Thus, we allocate enough GPU memory to store our
+                vertex data.</para>
+            <para>The other operation that <function>glBufferData</function> performs is copying
+                data from our memory array into the buffer object. The third parameter controls
+                this. If this value is not NULL, as in this case, <function>glBufferData</function>
+                will copy the data referenced by the pointer into the buffer object. After this
+                function call, the buffer object stores exactly what
+                    <varname>vertexPositions</varname> stores.</para>
+            <para>The fourth parameter is something we will look at in future tutorials.</para>
             <para>The second bind buffer call is simply cleanup. By binding the buffer object 0 to
                     <literal>GL_ARRAY_BUFFER</literal>, we cause the buffer object previously bound
-                to that target to become unbound from it. This was not strictly necessary, as any
-                later binds to this target will simply unbind what is already there. But unless you
-                have very strict control over your rendering, it is usually a good idea to unbind
-                the objects you bind.</para>
+                to that target to become unbound from it. Zero in this cases works a lot like the
+                NULL pointer. This was not strictly necessary, as any later binds to this target
+                will simply unbind what is already there. But unless you have very strict control
+                over your rendering, it is usually a good idea to unbind the objects you
+                bind.</para>
             <para>This is all just to get the vertex data in the GPU's memory. But buffer objects
-                are not formatted; as far as OpenGL is concerned, all we did was fill a buffer
-                object with random binary data. We now need to do something that tells OpenGL that
-                there is vertex data in this buffer object.</para>
+                are not formatted; as far as OpenGL is concerned, all we did was allocate a buffer
+                object and fill it with random binary data. We now need to do something that tells
+                OpenGL that there is vertex data in this buffer object and what form that vertex
+                data takes.</para>
             <para>We do this in the rendering code. That is the purpose of these lines:</para>
             <programlisting language="cpp">glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
 glEnableVertexAttribArray(0);
@@ -173,29 +184,45 @@ glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);</programlisting>
             <para>The third function is the real key. <function>glVertexAttribPointer</function>,
                 despite having the word <quote>Pointer</quote> in it, does not deal with pointers.
                 Instead, it deals with buffer objects.</para>
-            <para>This function tells OpenGL where a particular piece of vertex data is coming from.
-                The buffer that is bound to <literal>GL_ARRAY_BUFFER</literal> at the time that this
-                function is called is the buffer object that will be associated with this piece of
-                data.</para>
             <para>When rendering, OpenGL pulls vertex data from arrays stored in buffer objects. What
                 we need to tell OpenGL is what format our vertex array data in the buffer object is
                 stored in. That is, we need to tell OpenGL how to interpret the array of data stored
                 in the buffer.</para>
-            <para>In our case, the array of data contains 32-bit floating-point values. Every 4
-                floating-point values represents a position. And each piece of position data is
-                directly adjacent to the next; there are no gaps between positions in the array.
-                Lastly, our data was placed at the very beginning of the buffer object. OpenGL needs
-                to know where in the buffer object the array starts, as you can have data for many
-                objects in a single buffer.</para>
+            <para>In our case, our data is formatted as follows:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Our position data is stored in 32-bit floating point values using the
+                        C/C++ type <type>float</type>.</para>
+                </listitem>
+                <listitem>
+                    <para>Each position is composed of 4 of these values.</para>
+                </listitem>
+                <listitem>
+                    <para>There is no space between each set of 4 values. The values are tightly
+                        packed in the array.</para>
+                </listitem>
+                <listitem>
+                    <para>The first value in our array of data is at the beginning of the buffer
+                        object.</para>
+                </listitem>
+            </itemizedlist>
             <para>The <function>glVertexAttribPointer</function> function tells OpenGL all of this.
-                The third parameter tells OpenGL what the type of data is (floats, in this case).
-                The second parameter tells OpenGL how many of them compose a single piece of data;
-                there are 4 values to our position data.</para>
-            <para>The fifth parameter tells OpenGL how much space there is between elements; 0 means
-                that there is no space between array values. And the last parameter is the byte
-                offset from the beginning of the buffer object to the position of the first element
-                in our array of data. In this case, the data is at the beginning of the buffer, so
-                the offset is zero.</para>
+                The third parameter specifies the base type of a value. In this case, it is
+                    <literal>GL_FLOAT</literal>, which corresponds to a 32-bit floating-point value.
+                The second parameter specifies how many of these values represent a single piece of
+                data. In this case, that is 4. The fifth parameter specifies the spacing between
+                each set of values. In our case, there is no space between values, so this value is
+                0. And the sixth parameter specifies the byte offset from the  value in the buffer
+                object is at the front, which is 0 bytes from the beginning of the buffer
+                object.</para>
+            <para>The fourth parameter is something that we will look at in later tutorials. The
+                first parameter is something we will look at in the next section.</para>
+            <para>One thing that appears absent is specifying which buffer object this data comes
+                from. This is an implicit association rather than an explicit one.
+                    <function>glVertexAttribPointer</function> always refers to whatever buffer is
+                bound to <literal>GL_ARRAY_BUFFER</literal> at the time that this function is
+                called. Therefore it does not take a buffer object handle; it simply uses the handle
+                we bound previously.</para>
             <para>This function will be looked at in greater detail in later tutorials.</para>
             <para>Once OpenGL knows where to get its vertex data from, it can now use that vertex
                 data to render.</para>
@@ -290,10 +317,12 @@ void main()
                 statement:</para>
             <programlisting language="glsl">layout(location = 0) in vec4 position;</programlisting>
             <para>The layout location part assigns the attribute index of 0 to
-                    <varname>position</varname>. Attribute indices must be positive numbers, and
-                there is a hardware-based limit on the number of attribute indices that can be in
-                use at any one time (for virtually all hardware since the beginning of commercial
-                programmable hardware, this has been 16).</para>
+                    <varname>position</varname>. Attribute indices must be greater than or equal to
+                zero, and there is a hardware-based limit on the number of attribute indices that
+                can be in use at any one time<footnote>
+                    <para>For virtually all hardware since the beginning of commercial programmable
+                        hardware, this limit has been exactly 16. No more, no less.</para>
+                </footnote>.</para>
             <para>In code, when referring to attributes, they are <emphasis>always</emphasis>
                 referred to by attribute index. The functions
                     <function>glEnableVertexAttribArray</function>,
@@ -303,12 +332,15 @@ void main()
                 attribute to 0 in the vertex shader, so the call to
                     <function>glEnableVertexAttribArray(0)</function> enables the attribute index
                 for the <varname>position</varname> attribute.</para>
-            <para>Here is a diagram of the data flow through the vertex shader:</para>
-            <!--TODO: A diagram with the following. Show input attribute from
-glEnableVertexAttrib/glVertexAttribPointer going from the buffer object to the
-attribute. Then show the attribute going to the vertex shader's 'position' input.
-Then show the output gl_Position coming out of the vertex shader.
-Show 3 invocations of the shader.-->
+            <para>Here is a diagram of the data flow to the vertex shader:</para>
+            <figure>
+                <title>Data Flow to Vertex Shader</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="VertexShaderDataFlow.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>Without the call to <function>glEnableVertexAttribArray</function>, calling
                     <function>glVertexAttribPointer</function> on that attribute index would not
                 mean much. The enable call does not have to be called before the vertex attribute
@@ -353,10 +385,16 @@ Show 3 invocations of the shader.-->
                 OpenGL interprets vertex lists is given by the draw command:</para>
             <programlisting>glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
             <para>The enum <literal>GL_TRIANGLES</literal> tells OpenGL that every 3 vertices of the
-                list should be taken to be a triangle. Since we passed only 3 vertices, we get 1
+                list should be used to build a triangle. Since we passed only 3 vertices, we get 1
                 triangle.</para>
-            <!--TODO: Expand on the above diagram, showing the 3 vertex shader invocations and that the output
-data are composed into a single triangle, one triangle for every 3 vertices.-->
+            <figure>
+                <title>Data Flow to Rasterizer</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="RasterizerDataFlow.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>If we rendered 6 vertices, then we would get 2 triangles.</para>
         </section>
         <section>

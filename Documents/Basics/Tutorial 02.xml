@@ -187,9 +187,9 @@ void main()
             </example>
             <para>Since we have two pieces of data, we have two vertex attributes. For each
                 attribute, we must call <function>glEnableVertexAttribArray</function> to enable
-                that particular attribute. The parameter is the attribute location we query from the
-                shader program (we'll get to that in the next section) that refers to that
-                particular attribute.</para>
+                that particular attribute. The parameter is the attribute location set by the
+                    <literal>layout(location)</literal> field for that attribute in the vertex
+                shader.</para>
             <para>Then, we call <function>glVertexAttribPointer</function> for each of the attribute
                 arrays we want to use. The only difference in the two calls are which attribute
                 location to attach this to and the last parameter. The last parameter, if you
@@ -200,8 +200,8 @@ void main()
                 <para>If you're wondering why it is <literal>(void*)48</literal> and not just 48,
                     that is because of some legacy API cruft. The reason why the function name is
                         glVertexAttrib<quote>Pointer</quote> is because the last parameter is
-                    technically a pointer to client memory. Or at least, it could be in the
-                    past.</para>
+                    technically a pointer to client memory. Or at least, it could be in the past. So
+                    we must explicitly cast the integer value 48 to a pointer type.</para>
             </note>
             <para>After this, we use <function>glDrawArrays</function> to render, then disable the
                 arrays with <function>glDisableVertexAttribArray.</function></para>
