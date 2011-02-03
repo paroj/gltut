@@ -8,6 +8,7 @@
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
+#include "../framework/ObjectPole.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -93,25 +94,31 @@ Framework::Mesh *g_pPlaneMesh = NULL;
 Framework::Mesh *g_pCubeMesh = NULL;
 
 Framework::RadiusDef radiusDef = {5.0f, 3.0f, 200.0f, 1.5f, 0.5f};
-Framework::MousePole g_mousePole(glm::vec3(0.0f, 0.5f, 0.0f), radiusDef);
+glm::vec3 objectCenter = glm::vec3(0.0f, 0.5f, 0.0f);
+
+Framework::MousePole g_mousePole(objectCenter, radiusDef);
+Framework::ObjectPole g_objectPole(objectCenter, &g_mousePole);
 
 namespace
 {
 	void MouseMotion(int x, int y)
 	{
 		g_mousePole.GLUTMouseMove(glm::ivec2(x, y));
+		g_objectPole.GLUTMouseMove(glm::ivec2(x, y));
 		glutPostRedisplay();
 	}
 
 	void MouseButton(int button, int state, int x, int y)
 	{
 		g_mousePole.GLUTMouseButton(button, state, glm::ivec2(x, y));
+		g_objectPole.GLUTMouseButton(button, state, glm::ivec2(x, y));
 		glutPostRedisplay();
 	}
 
 	void MouseWheel(int wheel, int direction, int x, int y)
 	{
 		g_mousePole.GLUTMouseWheel(direction, glm::ivec2(x, y));
+		g_objectPole.GLUTMouseWheel(direction, glm::ivec2(x, y));
 		glutPostRedisplay();
 	}
 }
@@ -175,10 +182,6 @@ glm::vec4 CalcLightPosition()
 
 	return ret;
 }
-
-static float g_CylYaw = 0.0f;
-static float g_CylPitch = 0.0f;
-static float g_CylRoll = 0.0f;
 
 static bool g_bUseFragmentLighting = true;
 static bool g_bDrawColoredCyl = false;
@@ -249,11 +252,7 @@ void display()
 			{
 				Framework::MatrixStackPusher push(modelMatrix);
 
-				modelMatrix.Translate(0.0f, 0.5f, 0.0f);
-
-				modelMatrix.RotateX(g_CylPitch);
-				modelMatrix.RotateY(g_CylYaw);
-				modelMatrix.RotateZ(g_CylRoll);
+				modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
 
 				if(g_bScaleCyl)
 					modelMatrix.Scale(1.0f, 1.0f, 0.2f);
@@ -347,22 +346,9 @@ void keyboard(unsigned char key, int x, int y)
 		delete g_pCubeMesh;
 		glutLeaveMainLoop();
 		break;
-	case 'w': g_CylPitch -= 11.25f; break;
-	case 's': g_CylPitch += 11.25f; break;
-	case 'd': g_CylRoll -= 11.25f; break;
-	case 'a': g_CylRoll += 11.25f; break;
-	case 'e': g_CylYaw -= 11.25f; break;
-	case 'q': g_CylYaw += 11.25f; break;
-	case 'W': g_CylPitch -= 4.0f; break;
-	case 'S': g_CylPitch += 4.0f; break;
-	case 'D': g_CylRoll -= 4.0f; break;
-	case 'A': g_CylRoll += 4.0f; break;
-	case 'E': g_CylYaw -= 4.0f; break;
-	case 'Q': g_CylYaw += 4.0f; break;
 		
 	case 32:
 		g_bDrawColoredCyl = !g_bDrawColoredCyl;
-		printf("Yaw: %f, Pitch: %f, Roll: %f\n", g_CylYaw, g_CylPitch, g_CylRoll);
 		break;
 
 	case 'i': g_fLightHeight += 0.2f; break;

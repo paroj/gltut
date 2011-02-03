@@ -46,18 +46,11 @@
         <para>This is made more complicated by the fact that light itself is not one thing. There is
             no such thing as <quote>white light.</quote> Virtually all light is made up of a number
             of different wavelengths. Each wavelength (in the visible spectrum) represents a color.
-            The rainbow effect of light scattering, easily seen in a prism, breaks white light into
-            its constituents.</para>
-        <!--TODO: Show a prism defraction of light.-->
-        <note>
-            <para>Developing a lighting model that can actually diffract white light into this
-                pattern is very, <emphasis>very</emphasis> difficult. We won't even come close to
-                such a thing in this book.</para>
-        </note>
-        <para>Colored light simply has fewer wavelengths in it than pure white light. Surfaces
-            interact with light of different wavelengths in different ways. As a simplification of
-            this complex interaction, a surface can do one of two things: absorb that wavelength of
-            light or reflect it.</para>
+            White light is made of many wavelengths (colors) of light. Colored light simply has
+            fewer wavelengths in it than pure white light.</para>
+        <para>Surfaces interact with light of different wavelengths in different ways. As a
+            simplification of this complex interaction, we will assume that a surface can do one of
+            two things: absorb that wavelength of light or reflect it.</para>
         <para>A surface looks blue under white light because the surface absorbs all non-blue parts
             of the light and only reflects the blue parts. If one were to shine a red light on the
             surface, the surface would appear very dark, as the surface absorbs non-blue light, and

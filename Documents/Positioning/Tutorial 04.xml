@@ -610,18 +610,20 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
                 </imageobject>
             </mediaobject>
         </equation>
-        <para>This expresses each clip space position as the sum of factors of
-                <emphasis>all</emphasis> of the camera space position components. Most of the terms
-            are zero, of course, so they don't contribute to the output. But they do contribute to
-            being able to re-express the entire transformation as a single operation.</para>
+        <para>What we have here is what is known as a linear system of equations. The equations can
+            be specified as a series of coefficients (the numbers being multiplied by the XYZW
+            values) which are multiplied by the input values (XYZW) to produce the single output.
+            Each individual output value is a linear combination of all of the input values. In our
+            case, there just happen to be a lot of zero coefficients, so the output values in this
+            particular case only depend on a few input values.</para>
         <para>You may be wondering at the multiplication of the additive term of
                 Z<subscript>clip</subscript>'s value by the camera space W. Well, our input camera
             space position's W coordinate is always 1. So performing the multiplication is valid, so
             long as this continues to be the case. Being able to do what we are about to do is part
             of the reason why the W coordinate exists in our camera-space position values (the perspective divide is the other).</para>
-			<!--TODO: Talk about a linear system of equations. -->
-        <para>Let us now re-express this again, using the coefficients of the equation above. You
-            may recognize this reformulation, depending on your knowledge of linear algebra:</para>
+        <para>We can re-express any linear system of equations using a special kind of formulation.
+            You may recognize this reformulation, depending on your knowledge of linear
+            algebra:</para>
         <equation>
             <title>Camera to Clip Matrix Transformation</title>
             <mediaobject>
@@ -633,8 +635,8 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
         </equation>
         <para>The two long vertical columns of XYZW labeled <quote>clip</quote> and
                 <quote>camera</quote> are 4-dimensional vectors; namely the clip and camera space
-            vectors. The larger block of numbers is a matrix. You probably are not familiar with
-            matrix math. If not, it will be explained presently.</para>
+            position vectors. The larger block of numbers is a matrix. You probably are not familiar
+            with matrix math. If not, it will be explained presently.</para>
         <para>Generically speaking, a <glossterm>matrix</glossterm> is a two dimensional block of
             numbers (matrices with more than 2 dimensions are called <quote>tensors</quote>).
             Matrices are very common in computer graphics. Thus far, we have been able to get along
@@ -654,13 +656,23 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             the matrix, the values of each component of the column are multiplied by the
             corresponding values in the rows of the vector. These values are then added together;
             that becomes the single value for the row of the output vector.</para>
+        <equation>
+            <title>Vector Matrix Multiplication</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="VectorMatrixMultiplication.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>This results ultimately in performing 16 floating-point multiplications and 12
             floating-point additions. That's quite a lot, particularly compared with our current
             version. Fortunately, graphics hardware is designed to make these operations very fast.
-            Because each of the multiplications are independent of each other, they can all be done
-            simultaneously, which is exactly the kind of thing graphics hardware does fast.
+            Because each of the multiplications are independent of each other, they could all be
+            done simultaneously, which is exactly the kind of thing graphics hardware does fast.
             Similarly, the addition operations are partially independent; each row's summation
-            doesn't depend on the values from any other row.</para>
+            doesn't depend on the values from any other row. Ultimately, vector-matrix
+            multiplication usually generates only 4 instructions in the GPU's machine
+            language.</para>
         <para>We can re-implement the above perspective projection using matrix math rather than
             explicit math. The <phrase role="propername">MatrixPerspective</phrase> tutorial does
             this.</para>
@@ -890,7 +902,8 @@ glUseProgram(0);]]></programlisting>
             </listitem>
             <listitem>
                 <para>The perspective transformation can be performed as a matrix multiplication
-                    operation.</para>
+                    operation. Matrix/vector multiplication is a way to compute multiple linear
+                    equations in a single operation.</para>
             </listitem>
             <listitem>
                 <para>The proper aspect ratio for a display image can be maintained by scaling the X

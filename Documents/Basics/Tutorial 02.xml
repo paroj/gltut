@@ -128,6 +128,31 @@ void main()
      0.0f,    0.0f, 1.0f, 1.0f,
 };]]></programlisting>
             </example>
+            <para>First, we need to understand what arrays of data look like at the lowest level. A
+                single byte is the smallest addressible data in C/C++. A byte represents 8 bits (a
+                bit can be 0 or 1), and it is a number on the range [0, 255]. A value of type
+                    <type>float</type> requires 4 bytes worth of storage. Any <type>float</type>
+                value is stored in 4 consecutive bytes of memory.</para>
+            <para>A sequence of 4 floats, in GLSL parlance a <type>vec4</type>, is exactly that: a
+                sequence of four floating-point values. Therefore, a <literal>vec4</literal> takes
+                up 16 bytes, 4 <type>float</type>s times the size of a <type>float</type>.</para>
+            <para>The <varname>vertexData</varname> variable is one large array of floats. The way
+                we want to use it however is as two arrays. Each 4 floats is a single
+                    <type>vec4</type>, and the first three <type>vec4</type>s represents the
+                positions. The next 3 are the colors for the corresponding vertices.</para>
+            <para>In memory, the <varname>vertexData</varname> array looks like this:</para>
+            <figure>
+                <title>Vertex Array Memory Map</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="MemoryDiagram.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The top two show the layout of the basic data types, and each box is a byte. The
+                bottom diagram shows the layout of the entire array, and each box is a
+                    <type>float</type>. The left half of the box represents the positions and the
+                right half represents the colors.</para>
             <para>The first 3 sets of values are the three positions of the triangle, and the next 3
                 sets of values are the three colors at these vertices. What we really have is two
                 arrays that just happen to be adjacent to one another in memory. One starts at the
@@ -157,8 +182,8 @@ void main()
                 length) centered at the origin.</para>
             <para>Recall from above that we are sending two pieces of data per-vertex: a position
                 and a color. We have two arrays, one for each piece of data. They may happen to be
-                adjacent to one another, but this changes nothing; there are two arrays of data. We
-                need to tell OpenGL how to get each of these pieces of data.</para>
+                adjacent to one another in memory, but this changes nothing; there are two arrays of
+                data. We need to tell OpenGL how to get each of these pieces of data.</para>
             <para>This is done as follows:</para>
             <example>
                 <title>Rendering the Scene</title>
@@ -187,21 +212,23 @@ void main()
             </example>
             <para>Since we have two pieces of data, we have two vertex attributes. For each
                 attribute, we must call <function>glEnableVertexAttribArray</function> to enable
-                that particular attribute. The parameter is the attribute location set by the
+                that particular attribute. The first parameter is the attribute location set by the
                     <literal>layout(location)</literal> field for that attribute in the vertex
                 shader.</para>
             <para>Then, we call <function>glVertexAttribPointer</function> for each of the attribute
                 arrays we want to use. The only difference in the two calls are which attribute
-                location to attach this to and the last parameter. The last parameter, if you
-                recall, is the byte offset into the buffer of where the data for this attribute
-                starts. This offset, in this case, is 4 (the size of a float) * 12 (the number of
-                floats in the position data).</para>
+                location to send the data to and the last parameter. The last parameter is the byte
+                offset into the buffer of where the data for this attribute starts. This offset, in
+                this case, is 4 (the size of a <type>float</type>) * 4 (the number of
+                    <type>float</type>s in a <type>vec4</type> * 3 (the number of
+                <type>vec4</type>'s in the position data).</para>
             <note>
-                <para>If you're wondering why it is <literal>(void*)48</literal> and not just 48,
-                    that is because of some legacy API cruft. The reason why the function name is
-                        glVertexAttrib<quote>Pointer</quote> is because the last parameter is
-                    technically a pointer to client memory. Or at least, it could be in the past. So
-                    we must explicitly cast the integer value 48 to a pointer type.</para>
+                <para>If you're wondering why it is <literal>(void*)48</literal> and not just
+                        <literal>48</literal>, that is because of some legacy API cruft. The reason
+                    why the function name is glVertexAttrib<quote>Pointer</quote> is because the
+                    last parameter is technically a pointer to client memory. Or at least, it could
+                    be in the past. So we must explicitly cast the integer value 48 to a pointer
+                    type.</para>
             </note>
             <para>After this, we use <function>glDrawArrays</function> to render, then disable the
                 arrays with <function>glDisableVertexAttribArray.</function></para>
@@ -232,10 +259,6 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                     last parameter of <function>glVertexAttribPointer</function>.</para>
                 <para>The same goes for <varname>colorAttribArray</varname>, except for the offset
                     value, which is 48 bytes.</para>
-                <para>This is a diagram of the memory for this buffer.</para>
-                <!--TODO: Show a diagram of this memory structure. Show how the float value takes up 4 bytes, then
-show that each 4 floats is a vec4, then show how each vec4 is a single attribute with no space between.
-Also show the offset to the beginning of the color data.-->
                 <para>Using the above pseudo-code representation of the vertex array data,
                         <function>glDrawArrays</function> would be implemented as follows:</para>
                 <example>
@@ -261,6 +284,7 @@ Also show the offset to the beginning of the color data.-->
                     now:</para>
                 <!--TODO: show two data chunks from the buffer becoming a single set of attribute data. Then show these
 data sets going to vertex shader invocations. Show at least 3 vertex shaders.-->
+                <para>As before, every 3 vertices process is transformed into a triangle.</para>
             </section>
         </section>
         <section>
@@ -411,6 +435,10 @@ void main()
         <title>In Review</title>
         <para>In this tutorial, you have learned the following:</para>
         <itemizedlist>
+            <listitem>
+                <para>Data is passed to vertex shaders via buffer objects and attribute arrays. This
+                    data is processed into triangles.</para>
+            </listitem>
             <listitem>
                 <para>The <varname>gl_FragCoord</varname> built-in GLSL variable can be used in
                     fragment shaders to get the window-space coordinates of the current

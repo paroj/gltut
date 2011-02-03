@@ -19,15 +19,23 @@ glm::vec3 g_UnitZ(0.0f, 0.0f, 1.0f);
 
 namespace Framework
 {
-	MousePole::MousePole(glm::vec3 target, const RadiusDef &radiusDef)
+	MousePole::MousePole(const glm::vec3 &target, const RadiusDef &radiusDef, ActionButtons eButton)
 		: m_lookAt(target)
 		, m_radCurrXZAngle(0.0)
 		, m_radCurrYAngle(-PI_2 / 2.0f)
 		, m_radCurrSpin(0.0f)
 		, m_fRadius(20.0f)
 		, m_radius(radiusDef)
+		, m_glutActionButton(0)
 		, m_bIsDragging(false)
-	{}
+	{
+		switch(eButton)
+		{
+		case AB_LEFT_MOUSE: m_glutActionButton = GLUT_LEFT_BUTTON; break;
+		case AB_MIDDLE_MOUSE: m_glutActionButton = GLUT_MIDDLE_BUTTON; break;
+		case AB_RIGHT_MOUSE: m_glutActionButton = GLUT_RIGHT_BUTTON; break;
+		}
+	}
 
 	MousePole::~MousePole()
 	{
@@ -122,6 +130,12 @@ namespace Framework
 			ProcessXChange(iDiff.x);
 			ProcessYChange(iDiff.y);
 			break;
+		case RM_BIAXIAL_ROTATE:
+			if(abs(iDiff.x) > abs(iDiff.y))
+				ProcessXChange(iDiff.x, true);
+			else
+				ProcessYChange(iDiff.y, true);
+			break;
 		case RM_XZ_AXIS_ROTATE:
 			ProcessXChange(iDiff.x);
 			break;
@@ -140,14 +154,18 @@ namespace Framework
 	const float Y_CONVERSION_FACTOR = PI_2 / SCALE_FACTOR;
 	const float SPIN_CONV_FACTOR = PI_2 / SCALE_FACTOR;
 
-	void MousePole::ProcessXChange(int iXDiff)
+	void MousePole::ProcessXChange( int iXDiff, bool bClearY )
 	{
 		m_radCurrXZAngle = (iXDiff * X_CONVERSION_FACTOR) + m_radInitXZAngle;
+		if(bClearY)
+			m_radCurrYAngle = m_radInitYAngle;
 	}
 
-	void MousePole::ProcessYChange(int iYDiff)
+	void MousePole::ProcessYChange( int iYDiff, bool bClearXZ )
 	{
 		m_radCurrYAngle = (-iYDiff * Y_CONVERSION_FACTOR) + m_radInitYAngle;
+		if(bClearXZ)
+			m_radCurrXZAngle = m_radInitXZAngle;
 	}
 
 	void MousePole::ProcessSpinAxis(int iXDiff, int iYDiff)
@@ -171,7 +189,7 @@ namespace Framework
 		m_bIsDragging = false;
 	}
 
-	void MousePole::MoveCloser( bool bLargeStep /*= true*/ )
+	void MousePole::MoveCloser( bool bLargeStep )
 	{
 		if(bLargeStep)
 			m_radius.fCurrRadius -= m_radius.fLargeDelta;
@@ -206,22 +224,14 @@ namespace Framework
 			//Ignore all other button presses when dragging.
 			if(!m_bIsDragging)
 			{
-				switch(button)
+				if(button == m_glutActionButton)
 				{
-				case GLUT_LEFT_BUTTON:
 					if(glutGetModifiers() & GLUT_ACTIVE_CTRL)
-						this->BeginDragRotate(position, MousePole::RM_XZ_AXIS_ROTATE);
+						this->BeginDragRotate(position, MousePole::RM_BIAXIAL_ROTATE);
+					else if(glutGetModifiers() & GLUT_ACTIVE_ALT)
+						this->BeginDragRotate(position, MousePole::RM_SPIN_VIEW_AXIS);
 					else
 						this->BeginDragRotate(position, MousePole::RM_DUAL_AXIS_ROTATE);
-					break;
-				case GLUT_MIDDLE_BUTTON:
-					this->BeginDragRotate(position, MousePole::RM_SPIN_VIEW_AXIS);
-					break;
-				case GLUT_RIGHT_BUTTON:
-					this->BeginDragRotate(position, MousePole::RM_Y_AXIS_ROTATE);
-					break;
-				default:
-					break;
 				}
 			}
 		}
@@ -230,23 +240,12 @@ namespace Framework
 			//Ignore all other button releases when not dragging
 			if(m_bIsDragging)
 			{
-				switch(button)
+				if(button == m_glutActionButton)
 				{
-				case GLUT_LEFT_BUTTON:
-					if(m_RotateMode == MousePole::RM_XZ_AXIS_ROTATE ||
-						m_RotateMode == MousePole::RM_DUAL_AXIS_ROTATE)
+					if(m_RotateMode == MousePole::RM_DUAL_AXIS_ROTATE ||
+						m_RotateMode == MousePole::RM_SPIN_VIEW_AXIS ||
+						m_RotateMode == MousePole::RM_BIAXIAL_ROTATE)
 						this->EndDragRotate(position);
-					break;
-				case GLUT_MIDDLE_BUTTON:
-					if(m_RotateMode == MousePole::RM_SPIN_VIEW_AXIS)
-						this->EndDragRotate(position);
-					break;
-				case GLUT_RIGHT_BUTTON:
-					if(m_RotateMode == MousePole::RM_Y_AXIS_ROTATE)
-						this->EndDragRotate(position);
-					break;
-				default:
-					break;
 				}
 			}
 		}

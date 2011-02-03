@@ -13,7 +13,7 @@
         <para>Throughout this series of tutorials, we have discussed a number of different spaces.
             We have seen OpenGL-defined spaces like normalized device coordinate (NDC) space,
             clip-space, and window space. And we have seen user-defined spaces like camera space.
-            But we have yet to really discuss about what a space actually is.</para>
+            But we have yet to formally discuss about what a space actually is.</para>
         <para>A <glossterm>space</glossterm> is a shorthand term for a <glossterm>coordinate
                 system.</glossterm> For the purposes of this conversation, a coordinate system or
             space consists of the following:</para>
@@ -52,10 +52,10 @@
         </figure>
         <para>These are two different coordinate systems. The same coordinate, in this case (2, 2)
             (each basis vector is added twice) can have two very different positions, from the point
-            of view of a neutral observer. What is interesting to note is that (2, 2) is the same in
-            their own coordinate system. This means that a coordinate itself is not enough
-            information to know what it means; one must also know what coordinate system it is
-            in.</para>
+            of view of a neutral observer. What is interesting to note is that (2, 2) is the same
+            value in their own coordinate system. This means that a coordinate itself is not enough
+            information to know what it means; one must also know what coordinate system it is in
+            before you can know anything about it.</para>
         <para>The numerical version of the coordinate system equation is as follows:</para>
         <equation>
             <title>Coordinate System</title>
@@ -89,7 +89,7 @@
                 changed; all that has changed is the coordinate system that this coordinate is
                 relative to.</para>
             <para>We have seen a number of coordinate system transformations. OpenGL implements the
-                transformation from clip-space to NDC space, and the transformation from NDC to
+                transformation from clip-space to NDC space and the transformation from NDC to
                 window space. Our shaders implement the transformation from camera space to
                 clip-space, and this was done using a matrix. Perspective projection (and
                 orthographic, for that matter) are simply a special kind of transformation.</para>
@@ -120,7 +120,7 @@
         <title>Translation</title>
         <para>The simplest space transformation operation is translation. Indeed, we have not only
             seen this transform before, it has been used in all of the tutorials with a perspective
-            projection. Remember this line from the vertex shaders:</para>
+            projection. Recall this line from the vertex shaders:</para>
         <programlisting language="glsl">vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);</programlisting>
         <para>This is a <glossterm>translation</glossterm> transformation: it is used to position
             the origin point of the initial space relative to the destination space. Since all of
@@ -128,12 +128,6 @@
             translation needs to do is add a vector to all of the coordinates in that space. The
             vector added to these values is the location of where the user wants the origin point
             relative to the destination coordinate system.</para>
-        <para>Here is a more concrete example. Let us say that an object which in its model space is
-            near its origin. This means that, if we want to see that object in front of the camera,
-            we must position the origin of the model in front of the camera. If the extent of the
-            model is only [-1, 1] in model space, we can ensure that the object is visible by adding
-            this vector to all of the model space coordinates: (0, 0, -3). This puts the origin of
-            the model at that position in camera space.</para>
         <figure>
             <title>Coordinate System Translation in 2D</title>
             <mediaobject>
@@ -142,6 +136,12 @@
                 </imageobject>
             </mediaobject>
         </figure>
+        <para>Here is a more concrete example. Let us say that an object which in its model space is
+            near its origin. This means that, if we want to see that object in front of the camera,
+            we must position the origin of the model in front of the camera. If the extent of the
+            model is only [-1, 1] in model space, we can ensure that the object is visible by adding
+            this vector to all of the model space coordinates: (0, 0, -3). This puts the origin of
+            the model at that position in camera space.</para>
         <para>Translation is ultimately just that simple. So let's make it needlessly complex. And
             the best tool for doing that: matrices. Oh, we could just use a 3D uniform vector to
             pass an offset to do the transformation. But matrices have hidden benefits we will
@@ -220,9 +220,10 @@
     glUseProgram(0);
 }</programlisting>
         </example>
-        <para>GLM takes a unique approach, for a vector/matrix math library. It attempts to emulate
+        <para>GLM takes a unique approach for a vector/matrix math library. It attempts to emulate
             GLSL's approach to vector operations where possible. It uses C++ operator overloading to
-            effectively emulate GLSL. In most cases, GLM-based code would compile in GLSL.</para>
+            effectively emulate GLSL. In many cases, GLM-based expressions would compile in
+            GLSL.</para>
         <para>The matrix <varname>cameraToClipMatrix</varname> is defined as a
                 <type>glm::mat4</type>, which has the same properties as a GLSL <type>mat4.</type>
             Array indexing of a <type>mat4</type>, whether GLM or GLSL, returns the zero-based
@@ -299,8 +300,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             </mediaobject>
         </figure>
         <para>Scaling can be uniform, which means each basis vector is scaled by the same value. A
-            non-uniform scale means that each basis can get a different scale, or none at
-            all.</para>
+            non-uniform scale means that each basis can get a different scale or none at all.</para>
         <para>Uniform scales are used to allow objects in model space to have different units from
             the units used in camera space. For example, a modeller may have generated the model in
             inches, but the world uses centimeters. This will require applying a uniform scale to
@@ -327,9 +327,10 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 </imageobject>
             </mediaobject>
         </informalequation>
-        <para>Since multiplication is both associative and commutative, we can multiply the scales
-            directly into the coordinate values to achieve the same effect. So a scaled space can be
-            reexpressed as simply multiplying the coordinate values.</para>
+        <para>Since scalar-vector multiplication is both associative and commutative, we can
+            multiply the scales directly into the coordinate values to achieve the same effect. So a
+            scaled space can be reexpressed as simply multiplying the input coordinate
+            values.</para>
         <para>This is easy enough to do in GLSL, if you pass a vector uniform containing the scale
             values. But that's just not complicated enough. Obviously, we need to get matrices
             involved, but how?</para>
@@ -344,9 +345,9 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </informalequation>
         <para>This matrix selects each coordinate in turn from the vector it is being multiplied
             into. Each row is multiplied with the column of the vector; all of the zeros remove the
-            components of the vector that we do not want. The one multiplies into the component we
-            do want, thus selecting it. This produces the identity result: the vector we started
-            with.</para>
+            components of the vector that we do not want. The 1 value of each row multiplies into
+            the component we do want, thus selecting it. This produces the identity result: the
+            vector we started with.</para>
         <para>We can see that, if the ones were some other value, we would get a scaled version of
             the original vector, depending on which ones were changed. Thus, a scaling
             transformation matrix looks like this:</para>
@@ -395,7 +396,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             fixed value. We will discuss the ramifications of applying multiple transforms later;
             suffice it to say, this currently works.</para>
         <para>Scaling is only slightly more complicated than translation.</para>
-        <section>
+        <sidebar>
             <title>Perspective and Scaling</title>
             <para>The way we construct a scale transformation matrix may seem familiar to you. Back
                 in Tutorial 4, the perspective transformation involved a frustum scale value. This
@@ -408,14 +409,14 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 and Y positions. When we constructed the perspective matrix, we used the frustum
                 scale as a uniform scaling in the X and Y dimensions. The aspect ratio compensation
                 code was nothing more than applying a <emphasis>non</emphasis>uniform scale.</para>
-        </section>
+        </sidebar>
         <section>
             <title>Inversion and Winding Order</title>
             <para>Scales can be theoretically negative, or even 0. A scale of 0 causes the basis
                 vector in that direction to become 0 entirely. An basis vector with no length means
                 that a dimension has effectively been lost. The resulting transform squashes
-                everthing in that direction down to the origin. A 3D space becomes a 2D space (or 1D
-                or 0D, depending on how many axes were scaled).</para>
+                everything in that direction down to the origin. A 3D space becomes a 2D space (or
+                1D or 0D, depending on how many axes were scaled).</para>
             <para>A negative scale changes the direction of an axis. This causes vertices
                 transformed with this scale to flip across the origin in that axis's direction. This
                 is called an <glossterm>inversion</glossterm>. This can have certain unintended
@@ -447,11 +448,11 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>Rotations are usually considered the most complex of transformations, primarily
-            because of the math involved in computing the transformation matrix. Generally,
-            rotations are looked at as an operation, such as rotating around a particular basis or
-            some such. The prior part of the tutorial laid down some of the groundwork that will
-            make this much simpler.</para>
+        <para>Rotations are usually considered the most complex of the basic transformations,
+            primarily because of the math involved in computing the transformation matrix.
+            Generally, rotations are looked at as an operation, such as rotating around a particular
+            basis or some such. The prior part of the tutorial laid down some of the groundwork that
+            will make this much simpler.</para>
         <para>First, let's look back at our equation for determining what the position of a
             coordinate is relative to certain coordinate space:</para>
         <informalequation>
@@ -463,14 +464,13 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </informalequation>
         <para>Doesn't this look a bit familiar? No? Maybe this look at vector-matrix multiplication
             will jog your memory:</para>
-        <equation>
-            <title>Vector Matrix Multiplication</title>
+        <informalequation>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="VectorMatrixMultiplication.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
-        </equation>
+        </informalequation>
         <para>Still nothing? Perhaps an alternate look would help:</para>
         <equation>
             <title>Vectorized Matrix Multiplication</title>
@@ -482,8 +482,9 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </equation>
         <para>Does it look familiar <emphasis>now</emphasis>?</para>
         <para>What this tells us is that the columns of our transformation matrices are, and have
-            always been, nothing more than the axes of a coordinate system. Except for the fourth
-            column: because the position has a 1 in the W, it acts as an offset.</para>
+                <emphasis>always</emphasis> been, nothing more than the axes of a coordinate system.
+            Except for the fourth column: because the input position has a 1 in the W, it acts as an
+            offset.</para>
         <para>Transformation ultimately means this: taking the basis vectors and origin point from
             the original coordinate system and re-expressing them relative to the destination
             coordinate system.</para>
@@ -498,8 +499,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             relative to another space. Remember this, and you will avoid many pitfalls when you
             start dealing with more complex transformations.</para>
         <para>For any two spaces, the orientation transformation between then can be expressed as
-            rotating the source space by some angle around a particular axis (also in the initial
-            space). This is true for any change of orientation.</para>
+            rotating the source space by some angle around a particular axis (specified in the
+            initial space). This is true for any change of orientation.</para>
         <para>A common rotation question is to compute a rotation around an arbitrary axis. Or to put it more
             correctly, to determine the orientation of a space if it is rotated around an arbitrary
             axis. The axis of rotation is expressed in terms of the
@@ -519,8 +520,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 </imageobject>
             </mediaobject>
         </equation>
-        <para>When using the C library <function>sin</function> and <function>cos</function>
-            functions, the angles must be in radians.</para>
+        <para>When using the standard C/C++ library <function>sin</function> and
+                <function>cos</function> functions, the angles must be in radians.</para>
         <para>As useful as these are, the more generic equation for rotation by an angle about an
             arbitrary axis is as follows.</para>
         <equation>
@@ -532,8 +533,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             </mediaobject>
         </equation>
         <para>All of these matrices are such that, from the point of view of an observer looking
-            down the axis of rotation (the direction of the axis is pointed into the eye of the
-            observer), the object rotates counter-clockwise with positive angles.</para>
+            down the axis of rotation (the positive direction of the axis is pointed into the eye of
+            the observer), the object rotates counter-clockwise with positive angles.</para>
         <para>The <phrase role="propername">Rotations</phrase> tutorial shows off each of these
             rotation matrix functions. Similar to how the others work, there are multiple instances
             rendered based on functions.</para>
@@ -570,10 +571,11 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             primarily so that we could see everything properly.</para>
         <para>But these are not the only combinations of transformations that can be performed.
             Indeed, any combination of transformation operations is possible, though it may not be
-                <emphasis>meaningful.</emphasis></para>
+            meaningful.</para>
         <para>Successive transformations can be seen as doing successive multiplication operations.
             For example, if S is a pure scale matrix, T is a pure translation matrix, and R is a
-            pure scale matrix, then one can easily do the following in a shader:</para>
+            pure scale matrix, then the shader can compute the result of a transformation as
+            follows:</para>
         <programlisting language="glsl">vec4 temp;
 temp = T * position;
 temp = R * temp;
@@ -653,13 +655,13 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 Remember: a matrix, even a translation matrix, defines a full-fledged coordinate
                 system.</para>
             <para>So S now acts on the T-space position of the vertices. T-space has an origin,
-                which in T-space is (0, 0, 0), but in model space is the translation part of the
-                matrix T. A scaling transformation matrix performs scaling based on the origin point
-                in the space of the vertices being scaled. So the scaling matrix S will scale the
-                points away from the origin point in T-space. Since what you (probably) actually
-                wanted was to scale the points away from the origin point in <emphasis>model
-                    space</emphasis>, S needs to come first.</para>
-            <para>Rotation (orientation) matrices have the same issue. The orientation is always
+                which in T-space is (0, 0, 0). However, this origin back in model space is the
+                translation part of the matrix T. A scaling transformation matrix performs scaling
+                based on the origin point in the space of the vertices being scaled. So the scaling
+                matrix S will scale the points away from the origin point in T-space. Since what you
+                (probably) actually wanted was to scale the points away from the origin point in
+                    <emphasis>model space</emphasis>, S needs to come first.</para>
+            <para>Orientation (rotation) matrices have the same issue. The orientation is always
                 local to the origin in the current space of the positions. So a rotation matrix must
                 happen before the translation matrix. Scales generally should happen before
                 orientation; if they happen afterwards, then the scale will be relative to the
@@ -691,32 +693,34 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 matrix to get into that space, then undo the rotation after applying the
                 scale.</para>
             <para>The general form of this sequence is as follows. Suppose you have a transformation
-                T, that you wish to apply in the space M. The transformation matrix T in the space
-                of M is <inlineequation>
+                matrix T, which operates on points in a space called F. We have some positions in
+                the space P. What we want is to create a matrix that applies T's transformation
+                operation, except that it needs to operate on points in the space of P. Given a
+                matrix M that transforms from P space to F space, that matrix is <inlineequation>
                     <mathphrase>M<superscript>-1</superscript>TM</mathphrase>
                 </inlineequation>.</para>
             <para>The matrix M<superscript>-1</superscript> is the <glossterm>inverse
                     matrix</glossterm> of M. The symbol <superscript>-1</superscript> does not
-                (strictly) mean to raise the matrix to the -1 power. It simply means to invert
-                it.</para>
-            <para>The inverse matrix of M is the matrix N such that <inlineequation>
+                (strictly) mean to raise the matrix to the -1 power. It means to invert it.</para>
+            <para>The inverse of a matrix M is the matrix N such that <inlineequation>
                     <mathphrase>MN = I</mathphrase>
                 </inlineequation>, where I is the identity matrix. This can be analogized to the
                 scalar multiplicative inverse (ie: reciprocal). The scalar multiplicative inverse of
                 X is the number Y such that <inlineequation>
                     <mathphrase>XY = 1</mathphrase>
                 </inlineequation>.</para>
-            <para>In the case of the scalar inverse, this is very easy to compute: <inlineequation>
+            <para>In the case of the scalar inverse, this is very easy to solve for: <inlineequation>
                     <mathphrase>Y = 1/X</mathphrase>
                 </inlineequation>. Even in this case, there are values of X for which there is no
-                multiplicative inverse. OK, there's <emphasis>one</emphasis> value of X: 0.</para>
+                multiplicative inverse. OK, there's <emphasis>one</emphasis> such value of X:
+                0.</para>
             <para>The case of the inverse matrix is much more complicated. Just as with the scalar
                 inverse, there are matrices that have no inverse. Unlike the scalar case, there are
                 a <emphasis>lot</emphasis> of matrices with no inverse. Also, computing the inverse
                 matrix is a <emphasis>lot</emphasis> more complicated than simply taking the
                 reciprocal of a value.</para>
-            <para>Most common transformation matrices <emphasis>do</emphasis> have an inverse. And
-                for the simplest of matrices, the inverse matrix is very easy to compute. For a pure
+            <para>Most common transformation matrices do have an inverse. And for the basic
+                transformation matrices, the inverse matrix is very easy to compute. For a pure
                 rotation matrix, simply compute a new rotation matrix by negating the angle that the
                 old one was generated with. For a translation matrix, negate the origin value in the
                 matrix. For a scale matrix, take the reciprocal of the scale along each axis.</para>
@@ -731,7 +735,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
         </section>
         <section>
             <title>Hierarchical Models</title>
-            <para>In more complex scenes, it is often desireable to specify the transform of one
+            <para>In more complex scenes, it is often desirable to specify the transform of one
                 model relative to the model space transform of another model. This is useful if you
                 want one object (object B) to pick up another object (object A). The object that
                 gets picked up needs to follow the transform of the object that picked it up. So it
@@ -965,7 +969,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 difference between the child functions and the root one is that this function has a
                 push/pop wrapper around the entire thing. Though since the root creates a
                 MatrixStack to begin with, this could be considered the equivalent.</para>
-            <note>
+            <sidebar>
+                <title>Matrix Stack Conventions</title>
                 <para>There are two possible conventions for matrix stack behavior. The caller could
                     be responsible for pushing and popping the matrix, or the callee (the function
                     being called) could be responsible for this. These are called caller-save and
@@ -985,15 +990,15 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                     object as a non-const reference), so it will have to do a push/pop. Whereas with
                     callee-save, you only push/pop as you explicitly need: at the cite where you are
                     modifying the matrix stack. It groups the code together better.</para>
-            </note>
+            </sidebar>
         </section>
     </section>
     <section>
         <?dbhtml filename="Tut06 Gimbal Lock.html" ?>
         <title>Gimbal Lock</title>
-        <para>Remember back when we said that an rotation matrix isn't a rotation matrix at all,
-            that it is an orientation matrix? We also said that forgetting this can come back to
-            bite you. Well, here's likely the most common way.</para>
+        <para>Remember back when we said that n rotation matrix isn't a rotation matrix at all, that
+            it is an orientation matrix? We also said that forgetting this can come back to bite
+            you. Well, here's likely the most common way.</para>
         <para>Normally, when dealing with orienting an object like a plane or spaceship in 3D space,
             you want to orient it based on 3 rotations about the 3 axes. The obvious way to do this
             is with a series of 3 rotations. This means that the program stores 3 angles, and you
@@ -1022,7 +1027,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             anytime you compute a final rotation from a series of 3 rotations about axes
             perpendicular to each other.</para>
         <para>The tutorial project <phrase role="propername">Gimbal Lock</phrase> illustrates this
-            problem. Because the problem was first diagnosed with a device called a <link
+            problem. Because the problem was first diagnosed with a physical device called a <link
                 xlink:href="http://en.wikipedia.org/wiki/Gimbal">gimbal</link>, the problem has
             become known as <glossterm>gimbal lock.</glossterm></para>
         <para>A gimbal is a pivoted support that provides the ability to rotate in one axis. A
@@ -1052,16 +1057,16 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>Now, the purpose of the three gimbals is to be able to adjust one of the three angles
-            and orient the object in a particular direction. In a flight-simulation game, the player
-            would have controls that would change their yaw, pitch, and roll. However, look at this
-            picture.</para>
-        <para>The player's theoretical ship is pointed in the direction of the red gimbal's plane.
-            Given the controls you have here, can you cause the red gimbal to rotate around the axis
-            that it is facing? No. You can't even do this somewhat; you can only rotate it in two
-            directions. But we have three gimbals, which means we should have three axes of
-            rotation. Why can't we rotate the red gimbal in the Z (forward) axis?</para>
-        <para>Because the blue and red gimbals are now rotating about the <emphasis>same
+        <para>Recall that the purpose of the three gimbals is to be able to adjust one of the three
+            angles and orient the object in a particular direction. In a flight-simulation game, the
+            player would have controls that would change their yaw, pitch, and roll. However, look
+            at this picture.</para>
+        <para>The player's theoretical ship is pointed in the direction of the center gimbal's
+            plane. Given the controls you have here, can you cause the center gimbal to rotate
+            around the axis that it is facing? No. You can't even do this somewhat; you can only
+            rotate it in two directions. But we have three gimbals, which means we should have three
+            axes of rotation. Why can't we rotate the red gimbal in the Z (forward) axis?</para>
+        <para>Because the outer and inner gimbals are now rotating about the <emphasis>same
                 axis</emphasis>. Which means you really only have two gimbals to manipulate in order
             to orient the red gimbal. And 3D orientation cannot be fully controlled with only 2
             axial rotations, with only 2 gimbals.</para>

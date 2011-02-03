@@ -560,12 +560,19 @@ glUseProgram(0);</programlisting>
             imagine, this <quote>solution</quote> scales incredibly poorly. Doing it for each
             triangle is prohibitive, particularly with scenes with millions of triangles.</para>
         <para>And the worst part is that even if you put in all the effort, it doesn't actually
-            work. Not all the time. Many trivial cases can be solved via depth sorting, but
-            non-trivial cases have real problems. You can have an arrangement of 3 triangles where
-            each overlaps the other, such that there simply is no order you can render them in to
-            achieve the right effect.</para>
-			<!--TODO: Show the 3 triangle arrangement.-->
-        <para>Even worse, it does nothing for interpenetrating triangles; that is, triangles that
+            work. Not all the time at any rate. Many trivial cases can be solved via depth sorting,
+            but non-trivial cases have real problems. You can have an arrangement of 3 triangles
+            where each overlaps the other, such that there simply is no order you can render them in
+            to achieve the right effect.</para>
+        <figure>
+            <title>Three Overlapping Triangles</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ThreeTriangleOverlap.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Even worse, it does nothing for inter-penetrating triangles; that is, triangles that
             pass through each other in 3D space (as opposed to just from the perspective of the
             camera).</para>
         <para>Depth sorting isn't going to cut it; clearly, we need something better.</para>

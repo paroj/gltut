@@ -17,7 +17,15 @@ namespace Framework
 	class MousePole  
 	{
 	public:
-		MousePole(glm::vec3 target, const RadiusDef &radiusDef);
+		enum ActionButtons
+		{
+			AB_LEFT_MOUSE,
+			AB_MIDDLE_MOUSE,
+			AB_RIGHT_MOUSE,
+		};
+
+		MousePole(const glm::vec3 &target, const RadiusDef &radiusDef,
+			ActionButtons eButton = AB_LEFT_MOUSE);
 		virtual ~MousePole();
 
 		void GetCurrVectors(glm::vec3 &pos, glm::vec3 &lookAt, glm::vec3 &upVec);
@@ -26,6 +34,7 @@ namespace Framework
 		enum RotateMode
 		{
 			RM_DUAL_AXIS_ROTATE,
+			RM_BIAXIAL_ROTATE,
 			RM_XZ_AXIS_ROTATE,
 			RM_Y_AXIS_ROTATE,
 			RM_SPIN_VIEW_AXIS,
@@ -34,6 +43,8 @@ namespace Framework
 		void GLUTMouseMove(const glm::ivec2 &position);
 		void GLUTMouseButton(int button, int btnState, const glm::ivec2 &position);
 		void GLUTMouseWheel(int direction, const glm::ivec2 &position);
+
+		bool IsDragging() const {return m_bIsDragging;}
 
 	protected:
 		glm::vec3 m_lookAt;
@@ -44,6 +55,7 @@ namespace Framework
 		float m_fRadius;		//Camera distance
 		RadiusDef m_radius;
 
+		int m_glutActionButton;
 
 		//Used when rotating.
 		RotateMode m_RotateMode;
@@ -55,8 +67,8 @@ namespace Framework
 		float m_radInitYAngle;
 		float m_radInitSpin;
 
-		void ProcessXChange(int iXDiff);
-		void ProcessYChange(int iYDiff);
+		void ProcessXChange(int iXDiff, bool bClearY = false);
+		void ProcessYChange(int iYDiff, bool bClearXZ = false);
 		void ProcessSpinAxis(int iXDiff, int iYDiff);
 
 		void BeginDragRotate(const glm::ivec2 &ptStart, RotateMode rotMode = RM_DUAL_AXIS_ROTATE);
