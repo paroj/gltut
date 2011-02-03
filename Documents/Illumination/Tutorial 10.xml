@@ -4,644 +4,978 @@
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 10.html" ?>
-    <title>Shinies</title>
-    <para>The diffuse lighting model works reasonably well for a smooth, matte surface. Few objects
-        in reality conform to this archetype. Therefore, in order to more accurately model real
-        objects, we need to improve upon this. Let us focus on making objects appear shiny.</para>
-    <para>Shiny materials tend to reflect light more strongly in the opposite direction from the
-        angle of incidence (the angle between the surface normal and the incoming light direction).
-        This kind of reflection is called a <glossterm>specular reflection.</glossterm> A perfect
-        specular reflector would be a mirror.</para>
-    <para>One way to show that an object is shiny is to model <glossterm>specular
-            highlights.</glossterm> A specular highlight is a bright highlight on an object caused
-        by direct illumination from a light source. The position of the highlight changes with the
-        view direction as well as the light direction.</para>
-    <para>Modelling true specular reflection would require reflecting all light from objects in the
-        scene, whether direct or indirect. However for many objects, like shiny plastics and the
-        like, indirect specular reflections are very weak. Thus, by modeling direct specular
-        reflections, we can make an object appear shiny without having to do too much work.</para>
-    <para>We will look at several models for specular highlights and reflection. The Lambertian
-        diffuse reflectance model was reasonably good for modelling diffuse lighting, but there are
-        several models for specular reflection that should be considered. They vary in quality and
-        performance.</para>
-    <para>Note that these models do not throw away diffuse lighting. They all act as supplements,
-        adding their contribution into the overall result for the lighting equation.</para>
+    <title>Plane Lights</title>
+    <para>Directional lights are useful for representing light sources like the sun and so forth.
+        But most light sources are more likely to be represented as point lights.</para>
+    <para>A <glossterm>point light</glossterm> is a light source that has a position in the world
+        and shines with equal intensity in all directions. Our simple diffuse lighting equation is a
+        function of these properties:</para>
+    <itemizedlist>
+        <listitem>
+            <para>The surface normal at that point.</para>
+        </listitem>
+        <listitem>
+            <para>The direction from the point on the surface to the light.</para>
+        </listitem>
+    </itemizedlist>
+    <para>The direction to the light source from the point is a constant when dealing with
+        directional light. It is a parameter for lighting, but it is a constant value for all points
+        in the scene. The difference between directional lighting and point lights is only that this
+        direction must be computed for each position in the scene.</para>
+    <para>Computing this is quite simple. At the point of interest, we take the difference between
+        the point on the surface and the light's position. We normalize the result to produce a unit
+        vector direction to the light. Then we use the light direction as we did before. The surface
+        point, light position, and surface normal must all be in the same space for this equation to
+        make sense.</para>
     <section>
-        <?dbhtml filename="Tut10 Microfacets.html" ?>
-        <title>Microfacets</title>
-        <para>All of these specular reflection models work based on an assumption about the
-            characteristics of the surface. If a surface was perfectly smooth, then the specular
-            highlight from a point light would be infinitely small (since point lights themselves
-            are infinitely small).</para>
+        <?dbhtml filename="Tut10 Vertex Point Lighting.html" ?>
+        <title>Vertex Point Lighting</title>
+        <para>Thus far, we have computed the lighting equation at each vertex and interpolated the
+            results across the surface of the triangle. We will continue to do so for point lights.
+            For the moment, at least.</para>
+        <para>We implement point lights per-vertex in the <phrase role="propername">Vertex Point
+                Lighting</phrase> tutorial. This tutorial has a moving point light that circles
+            around the cylinder.</para>
         <figure>
-            <title>Perfect Specular Reflection</title>
+            <title>Vertex Point Lighting</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="SpecularReflection.svg" format="SVG"/>
+                    <imagedata fileref="Vertex%20Point%20Lighting.png"/>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>Notice that the intensity of the reflected light depends not only on the angle of
-            incidence, but only the direction to the viewer. This is called the <glossterm>angle of
-                view</glossterm> or <glossterm>viewing angle</glossterm>. Viewing position A detects
-            the light specularly reflected from the surface at the point P, but the viewing position
-            B does not.</para>
-        <para>Surfaces however are rarely perfect specular reflectors (mirrors are the most common
-            perfect reflectors). Surfaces that seem smooth from far away can be rough on closer
-            examination. This is true at the microscopic level as well, even for surfaces that
-            appear quite smooth. This roughness can be modelled by assuming that a surface is
-            composed of a number of <glossterm>microfacets.</glossterm></para>
-        <para>A microfacet is a flat plane that is oriented in a single direction. Each microfacet
-            reflects light perfectly in that direction. Surfaces with microfacets would look like
-            this:</para>
-        <figure>
-            <title>Smooth and Rough Microfacets</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="MicrofacetRoughSmooth.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>It is part of the microfacet model's assumption that many microfacets on a surface
-            will contribute to the light returned under a single pixel of the final image. So each
-            pixel in the rendered image is the result of an aggregate of the microfacets that lie
-            under the area of that pixel on the surface.</para>
-        <para>The average normal of the microfacets is the surface normal at that point. The
-            relative smoothness of a surface can therefore be modeled as a statistical distribution
-            of the orientation of microfacets on the surface. A smooth surface has a distribution
-            close to the average, while a rough surface has a broader distribution.</para>
-        <para>Thus, a model of specular reflections includes a term that defines the overall
-            smoothness of the source. This is a surface characteristic, representing the
-            distribution of microfacets using whatever statistical distribution the particular
-            specular model is using. One of the main differences between specular models is the kind
-            of statistical distribution that they use.</para>
-        <para>Specular highlights are formed because, even though the surface normal may not be
-            oriented to directly reflect light from the light source to the viewer, some microfacets
-            may still be oriented to reflect a portion of that light. A microfacet distribution
-            model determines the proportion of microfacets that happen to be oriented to reflect
-            light towards the viewer.</para>
-        <para>Smooth surfaces, those who's microfacets do not deviate much from the surface normal,
-            will have a small, bright highlight. Rough surfaces, who's microfacets are oriented in
-            wildly divergent directions, will have a much dimmer, but larger specular highlight.
-            These highlights will have positions and shapes based on the angle of incidence and the
-            angle of view.</para>
-        <para>Note that specular reflectance models do not become diffuse reflectance models when
-            taken to the extreme case of maximum roughness. Specular reflection represents a
-            different mode of light/surface interaction from diffuse reflection.</para>
-    </section>
-    <section>
-        <?dbhtml filename="Tut10 Phong Model.html" ?>
-        <title>Phong Model</title>
-        <para>The simplest model of specular illumination is the <glossterm>Phong model</glossterm>.
-            The distribution of microfacets is not determined by a real statistical distribution.
-            Instead it is determined by... making things up.</para>
-        <sidebar>
-            <title>On Phong and Nomenclature</title>
-            <para>The term <glossterm>Phong shading</glossterm> was once commonly used to refer to
-                what we now know as per-fragment (or per-pixel) lighting. That is, evaluating the
-                lighting equation at every fragment over a surface. This term should not be confused
-                with the Phong specular lighting model. Because of this, the term <quote>Phong
-                    shading</quote> has fallen out of common usage.</para>
-        </sidebar>
-        <para>The Phong model is not really based on anything real. It doesn't deal in microfacet
-            distributions at all. What the Phong model is is something that looks decent enough and
-            is cheap to compute. It approximates a statistical distribution of microfacets, but it
-            is not really based on anything real.</para>
-        <para>The Phong model states that the light reflected in the direction of the viewer varies
-            based on the angle between difference between the view direction and the direction of
-            perfect reflection. Mathematically, the Phong model looks like this:</para>
-        <equation>
-            <title>Phong Specular Term</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="PhongTerm.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <para>The Phong term is multiplied by the light intensity in the lighting equation.</para>
-        <para>The brightness of the specular highlight for a particular viewing direction is based
-            on raising the cosine of the angle between the view direction and the reflection
-            direction to a power. As previously stated, this model is not based on anything real. It
-            simply creates a bright somewhat-circular area on the surface. This area gets dimmer as
-            the viewer is farther from the direction of perfect reflection.</para>
-        <para>The <varname>s</varname> term in the equation represents the roughness of the surface.
-            A smooth surface, which should have a smaller highlight, has a large
-                <varname>s</varname>. Since the cosine of the angle is a number on [0, 1], taking it
-            to a power greater than 1.0 will make the number smaller. Therefore, a large
-                <varname>s</varname> exponent will make for a small highlight.</para>
-        <para>The specular exponent can range from (0, ∞). A small exponent makes for a rougher
-            appearance, while a large exponent suggests a shiny surface.</para>
-        <section>
-            <title>Specular Absorption</title>
-            <para>The Phong term computed above is then multiplied with the light intensity. This
-                represents the maximum light reflected along the view direction.</para>
-            <para>However, just as with diffuse lighting, surfaces can absorb some quantity of the
-                light that would be specularly reflected. We could use the diffuse color here,
-                multiplying it by the specular term. But this would not be physically correct for
-                many kinds of objects.</para>
-            <para>Many surfaces, particularly certain man-made pigments and plastics, have multiple
-                layers to them. The top layer will specularly reflect some portion of the light.
-                However, it will also let some portion of that light reach lower layers. These
-                layers have stronger diffuse reflectance. So the specular absorption on the surface
-                has different characteristics than the diffuse absorption in the lower layers.
-                Usually, the specular layer reflects equally on all wavelenths, so the specular
-                highlight tends to be the color of the light itself.</para>
-            <para>Notably, metals do not do this. Their diffuse absorption tends to be the same as
-                their specular absorption. So while blue plastic under white light has a white
-                specular highlight, gold metal under white light has a gold highlight.</para>
-        </section>
-        <section>
-            <title>Drawing Phong</title>
-            <para>The <phrase role="propername">Phong Lighting</phrase> tutorial demonstrates the
-                Phong specular model.</para>
-            <figure>
-                <title>Phong Lighting</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Phong%20Lighting.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>The tutorial is controlled similarly to previous lighting tutorials. The
-                    <keycap>W</keycap>, <keycap>A</keycap>, <keycap>S</keycap>, and
-                    <keycap>D</keycap> keys control the orientation of the cylinder. Pressing the
-                    <keycap>T</keycap> key will swap between the scaled and unscaled cylinder. The
-                    <keycap>Y</keycap> key toggles the drawing of the light source. The
-                    <keycap>B</keycap> key will toggle the light's rotation on/off. Pressing the
-                    <keycap>Space Bar</keycap> toggles between drawing the uncolored cylinder and
-                the colored one.</para>
-            <para>The light's position is mostly controlled as before, with the
-                    <keycap>I</keycap>,<keycap>J</keycap>, <keycap>K</keycap>, and
-                    <keycap>L</keycap> keys. The specular value is controlled by the
-                    <keycap>U</keycap> and <keycap>O</keycap> keys. They raise and low the specular
-                exponent. Using <keycap>Shift</keycap> in combination with them will raise/lower the
-                exponent by smaller amounts.</para>
-            <para>The <keycap>G</keycap> key toggles between a diffuse color of (1, 1, 1) and a
-                darker diffuse color of (0.2, 0.2, 0.2). This is useful for seeing what the specular
-                would look like on a darker surface color.</para>
-            <para>The <keycap>H</keycap> key selects between specular and diffuse, just specular and
-                just diffuse. The ambient term is always used. Pressing <keycombo>
-                    <keycap>Shift</keycap>
-                    <keycap>H</keycap>
-                </keycombo> will toggle between diffuse only and diffuse+specular.</para>
-            <para>The rendering code is nothing you have not seen in earlier tutorials. It loads 6
-                programs, and uses the various controls to select which to use to render.</para>
-            <para>There are two vertex shaders in use. One that takes the position and normal
-                attributes, and one that takes them plus a per-vertex color. Both of them output the
-                camera-space vertex normal (computed with a normal matrix), the camera-space vertex
-                position, and the diffuse color. In the case of the shader that does not take a
-                per-vertex color, the diffuse color output is taken from a uniform set by the
-                code.</para>
-            <para>The fragment shaders are more interesting. They do lighting in camera space, so
-                there is no need for the reverse-transform trick we used previously. The shaders
-                also use light attenuation, but it only varies with the inverse of the distance,
-                rather than the inverse squared.</para>
-            <para>The main portion of the specular+diffuse fragment shader is as follows:</para>
-            <example>
-                <title>Phong Lighting Shader</title>
-                <programlisting language="glsl">vec3 lightDir = vec3(0.0);
-float atten = CalcAttenuation(cameraSpacePosition, lightDir);
-vec4 attenIntensity = atten * lightIntensity;
-
-vec3 surfaceNormal = normalize(vertexNormal);
-float cosAngIncidence = dot(surfaceNormal, lightDir);
-cosAngIncidence = clamp(cosAngIncidence, 0, 1);
-
-vec3 viewDirection = normalize(-cameraSpacePosition);
-vec3 reflectDir = reflect(-lightDir, surfaceNormal);
-float phongTerm = dot(viewDirection, reflectDir);
-phongTerm = clamp(phongTerm, 0, 1);
-phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
-phongTerm = pow(phongTerm, shininessFactor);
-
-outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-    (specularColor * attenIntensity * phongTerm) +
-    (diffuseColor * ambientIntensity);</programlisting>
-            </example>
-            <para>The initial section of code should be familiar. The Phong specular computations
-                start with computing the direction to the camera. Since we are working in camera
-                space, we know that the camera is at the origin (0, 0, 0). The direction from point
-                A to point B is the normalization of B - A. Since the destination point is at the
-                origin, that becomes simply -A, normalized.</para>
-            <para>The next line computes the direction of perfect reflection, given the light
-                direction and the surface normal. The function here, <function>reflect</function>,
-                is a standard GLSL function used for precisely this purpose. Notice that the
-                function in question requires the that the light direction is the direction
-                    <emphasis>from</emphasis> the light. Our light direction is the direction to the
-                light. This is why it is negated.</para>
-            <para>Using the function is useful, but it is important to know how to compute the
-                reflection direction on your own. Here is the formula:</para>
-            <equation>
-                <title>Vector Reflection</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="ReflectionVector.svg" format="SVG"/>
-                    </imageobject>
-                </mediaobject>
-            </equation>
-            <para>Again, this equation assumes that L is the direction <emphasis>from</emphasis> the
-                light.</para>
-            <para>From here, the Phong term is computed by taking the dot product of the reflection
-                direction and the view direction, clamping it to 0, 1. The next line, where we use
-                the angle of incidence, is very important. What this line does is prevent us from
-                having a specular term when the surface normal is oriented away from the light. If
-                this line were not here, it would be possible to have specular highlights appear to
-                shine <emphasis>through</emphasis> a surface. Which is not particularly
-                realistic.</para>
-            <para>The GLSL standard function <function>pow</function> is next used to raise the
-                Phong term to the power. This function seems generally useful, but it has a large
-                number of limitations. The <function>pow</function> function computes <inlineequation>
-                    <mathphrase>X<superscript>Y</superscript></mathphrase>
-                </inlineequation>, where X is the first parameter and Y is the second.</para>
-            <para>This function only works for values of X that are greater than or equal to 0; it
-                returns undefined values (ie: anything) otherwise. Clamping the Phong term ensures
-                this. Also, if X is exactly 0.0, then Y must be strictly greater than zero;
-                undefined values are returned otherwise. These limitations exist to make computing
-                the power function much faster.</para>
-            <para>And for Phong specular computations, the limitations almost never come into play.
-                The cosine of the angle is clamped, and the specular exponent is not allowed to be
-                zero.</para>
-            <para>Notice that the specular term is added into the diffuse and ambient terms. This
-                has meaning for the intensity issue we have seen before. If the diffuse and specular
-                colors are too large, and the light attenuation is quite small, then the resulting
-                values from the lighting equations can be larger than 1.0 in magnitude. Since OpenGL
-                automatically clamps the colors to 1.0, this can cause unpleasant effects, where
-                there appears to be a very bright, white area on a surface.</para>
-        </section>
-        <section>
-            <title>Visual Specular</title>
-            <para>Having even a weak specular term can make a significant, if subtle, difference. In
-                our case, the specular color of the material is a fairly weak (0.25, 0.25, 0.25).
-                But even with a rough specular highlight, the surface looks more physically
-                reasonable.</para>
-            <para>In particular, it is interesting to note what happens when you use a very dark
-                diffuse color. You can activate this by pressing the <keycap>G</keycap> key.</para>
-            <figure>
-                <title>Phong with Dark Diffuse</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Phong%20Dark%20Diffuse.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>If there was no specular term at all, you would see very little.. The specular
-                highlight, even with the fairly weak specular reflection of 0.25, is strong enough
-                to give some definition to the object when seen from various angles. This more
-                accurately shows what a black plastic object might look like.</para>
-            <para>One thing you may notice is that, if you bring the light close to the surface, the
-                specular area tends to have very sharp edges.</para>
-            <figure>
-                <title>Phong Clipping</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Phong%20Clipping.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>This is part of the nature of specular reflections. If the light is almost
-                perpendicular to the surface, the specular reflection will shine brightest when the
-                light is almost eclipsed by the surface. This creates a strong discontinuity at the
-                point where the light is no longer in view.</para>
-            <para>You generally see this most with rough surfaces (small exponents). With smoother
-                surfaces, this is rarely seen. But this is not the only visual oddity with Phong and
-                having small exponents.</para>
-            <para>If you drop the exponent down to the minimum value the code will allow, you will
-                see something like this:</para>
-            <figure>
-                <title>Phong Distortion</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Phong%20Distortion.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>This ring area shows one of the main limitations of the Phong model. When trying
-                to depict a surface that is rough but still has specular highlights, the Phong model
-                starts to break down. It will not allow any specular contribution from areas outside
-                of a certain region.</para>
-            <para>This region comes from the angle between the reflection direction and the view
-                direction. This area is the region where the reflection direction and view direction
-                are more than 90 degrees apart.</para>
-            <para>Under the microfacet model, there is still some chance that some microfacets are
-                oriented towards the camera, even if reflection direction is pointed sharply away.
-                Thus, there should be at least some specular contribution from those areas. The
-                Phong model cannot allow this, due to how it is computed.</para>
-            <para>What all this tells us is that Phong works best with larger exponents. Small
-                exponents show its problems and limitations.</para>
-        </section>
-    </section>
-    <section>
-        <?dbhtml filename="Tut10 BlinnPhong Model.html" ?>
-        <title>Blinn-Phong Model</title>
-        <para>The problem with Phong, with regard to the reflection and view directions being
-            greater than 90 degrees, can be solved by changing the computation. This modified model
-            is called the <glossterm>Blinn-Phong specular model</glossterm> or just the
-                <glossterm>Blinn specular model.</glossterm></para>
-        <para>It is no more physically correct than the Phong model. But it does tend to account for
-            more than Phong.</para>
-        <para>The main problem with Phong is that the angle between the view direction and the
-            reflection direction has to be less than 90 degrees in order for the specular term to be
-            non-zero.</para>
-        <figure>
-            <title>Large View and Reflect Angle</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="PhongReflectDirTooGreat.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The angle between V and R is greater than 90 degrees. Cases like this are not modeled
-            correctly by Phong. There could be microfacets at the point which are oriented towards
-            the camera, but Phong cannot properly model this. The problem is that the dot product
-            between the view direction and reflection direction can be negative, which does not lead
-            to a reasonable result when passed through the rest of the equation.</para>
-        <para>The Blinn model uses a different set of vectors for its computations, one that are
-            less than 90 degrees in all valid cases. The Blinn model requires computing the
-                <glossterm>half-angle vector</glossterm>. The half-angle vector is the direction
-            halfway between the view direction and the light position.</para>
-        <figure>
-            <title>Geometric Half-Angle Vector</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="HalfangleVectorDiagram.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <equation>
-            <title>Half-Angle Vector</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="HalfAngleVector.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <para>When the view direction is perfectly aligned with the reflected direction, the
-            half-angle vector is perfectly aligned with the surface normal. Or to put it another
-            way, the half-angle is the direction the surface normal would need to be facing in order
-            for the viewer to see a specular reflection from the light source.</para>
-        <figure>
-            <title>Perfect Reflection Half-Angle Vector</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="HalfangleVectorPerfect.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>So instead of comparing the reflection vector to the view direction, the Blinn model
-            compares the half-angle vector to the surface normal. It then raises this value to a
-            power representing the shininess of the surface.</para>
-        <equation>
-            <title>Blinn Specular Term</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="BlinnTerm.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <para>The angle between the half-angle vector and the normal is always less than 90 degrees.
-            So the Blinn specular model produces similar results to the Phong model, but without
-            some of Phong's problems. This is demonstrated in the <phrase role="propername">Blinn vs
-                Phong Lighting</phrase> tutorial.</para>
-        <figure>
-            <title>Blinn Lighting</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="Blinn%20Lighting.png"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The controls are similar to the last tutorial. Pressing the <keycap>H</keycap> key
-            will switch between Blinn and Phong specular. Pressing <keycombo>
-                <keycap>Shift</keycap>
-                <keycap>H</keycap>
-            </keycombo> will switch between diffuse+specular and specular only. Because the specular
-            exponents have different meanings between the two lighting models, each model has a
-            separate exponent. The keys for changing the exponent values will only change the value
-            for the lighting model currently being viewed.</para>
-        <para>The real work here is, as before, in the shader computations. Here is the main code
-            for computing the diffuse + Blinn illumination.</para>
+        <para>To toggle an indicator of the light's position, press the <keycap>y</keycap> key. The
+                <keycap>b</keycap> key will toggle rotation of the light. The <keycap>i</keycap> and
+                <keycap>k</keycap> keys move the light up and down respectively, while the
+                <keycap>j</keycap> and <keycap>l</keycap> will decrease and increase the light's
+            radius. Holding shift with these keys will move in smaller increments.</para>
+        <para>Most of the code is nothing we haven't seen elsewhere. The main changes are at the top
+            of the rendering function.</para>
         <example>
-            <title>Blinn-Phong Lighting Shader</title>
-            <programlisting language="glsl">vec3 lightDir = vec3(0.0);
-    float atten = CalcAttenuation(cameraSpacePosition, lightDir);
-    vec4 attenIntensity = atten * lightIntensity;
+            <title>Per-Vertex Point Light Rendering</title>
+            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+
+const glm::vec4 &amp;worldLightPos = CalcLightPosition();
+
+glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
+
+glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
+glUniform3fv(g_WhiteAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
+glUseProgram(g_VertexAmbDiffuseColor.theProgram);
+glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));</programlisting>
+        </example>
+        <para>The light is computed initially in world space, then transformed into camera space.
+            The camera-space light position is given to both of the shaders. Rendering proceeds
+            normally from there.</para>
+        <para>Our vertex shader has had a few changes:</para>
+        <example>
+            <title>Per-Vertex Point Light Vertex Shader</title>
+            <programlisting>#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 diffuseColor;
+layout(location = 2) in vec3 normal;
+
+smooth out vec4 interpColor;
+
+uniform vec3 lightPos;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+uniform mat3 normalModelToCameraMatrix;
+
+void main()
+{
+    vec4 cameraPosition = (modelToCameraMatrix * vec4(position, 1.0));
+    gl_Position = cameraToClipMatrix * cameraPosition;
     
-    vec3 surfaceNormal = normalize(vertexNormal);
-    float cosAngIncidence = dot(surfaceNormal, lightDir);
+    vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
+    
+    vec3 dirToLight = normalize(lightPos - vec3(cameraPosition));
+    
+    float cosAngIncidence = dot(normCamSpace, dirToLight);
     cosAngIncidence = clamp(cosAngIncidence, 0, 1);
     
-    vec3 viewDirection = normalize(-cameraSpacePosition);
-    
-    vec3 halfAngle = normalize(lightDir + viewDirection);
-    float blinnTerm = dot(surfaceNormal, halfAngle);
-    blinnTerm = clamp(blinnTerm, 0, 1);
-    blinnTerm = cosAngIncidence != 0.0 ? blinnTerm : 0.0;
-    blinnTerm = pow(blinnTerm, shininessFactor);
-    
-    outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-        (specularColor * attenIntensity * blinnTerm) +
-        (diffuseColor * ambientIntensity);</programlisting>
+    interpColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
         </example>
-        <para>The half-angle vector is computed by normalizing the sum of the light direction and
-            view direction vectors. As before, we take the dot product between that and the surface
-            normal, clamp, then raise the result to a power.</para>
-        <para>Blinn specular solves the Phong problem with the reflection direction.</para>
+        <para>The vertex shader takes a camera-space light position instead of a camera-space light
+            direction. It also stores the camera-space vertex position in a temporary in the first
+            line of <function>main</function>. This is used to compute the direction to the light.
+            From there, the computation proceeds normally.</para>
+        <para>Note the order of operations in computing <varname>dirToLight.</varname> The
+                <varname>lightPos</varname> is on the left and the <varname>cameraPosition</varname>
+            is on the right. Geometrically, this is correct. If you have two points, and you want to
+            find the direction from point A to point B, you compute B - A. The
+                <function>normalize</function> call is just to convert it into a unit vector.</para>
+    </section>
+    <section>
+        <?dbhtml filename="Tut10 Interpolation.html" ?>
+        <title>Interpolation</title>
+        <para>As you can see, doing point lighting is quite simple. Unfortunately, the visual
+            results are not.</para>
+        <para>For example, use the controls to display the position of the point light source, then
+            position it near the ground plane. See anything wrong?</para>
+        <para>If everything were working correctly, one would expect to see a bright area directly
+            under the light. After all, geometrically, this situation looks like this:</para>
         <figure>
-            <title>Blinn vs. Phong Lighting</title>
+            <title>Light Near Surface</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="Blinn%20vs%20Phong%20Compare.png"/>
+                    <imagedata fileref="LightNearSurface.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>The Blinn version is on the left, with the Phong version on the right.</para>
-        <para>The Blinn specular exponent does not mean quite the same thing as the Phong exponent.
-            In general, to produce a highlight the same size as a Phong one, you will need a larger
-            Blinn exponent. Play around with the different exponents, to get a feel for what Blinn
-            and Phong can and cannot achieve.</para>
-    </section>
-    <section>
-        <?dbhtml filename="Tut10 Gaussian.html" ?>
-        <title>Gaussian</title>
-        <para>Phong and Blinn are nice toy heuristics that take relatively little computational
-            power. But if you're truly serious about computing specular highlights, you need a model
-            that actually <emphasis>models</emphasis> microfacets.</para>
-        <para>Real microfacet models are primarily based on the answer to the question <quote>What
-                proportion of the microfacets of this surface are oriented in such a way as to
-                specularly reflect light towards the viewer?</quote> The greater the proportion of
-            properly oriented microfacets, the stronger the reflected light. This question is
-            ultimately one of statistics.</para>
-        <para>Thus it makes sense to model this as a probability distribution. We know that the
-            average microfacet orientation is the surface normal. So it's just a matter of
-            developing a probability distribution function that says what portion of the surface's
-            microfacets are oriented to provide specular reflections given the light direction and
-            the view direction.</para>
-        <para>In statistics, the very first place you go for modelling anything with a probability
-            distribution is to the <glossterm>normal distribtuion</glossterm> or <glossterm>Gaussian
-                distribution.</glossterm> It may not be the correct distribution that physically
-            models what the microfacet distribution of a surface looks like, but it's usually a good
-            starting point.</para>
-        <para>The Gaussian distribution is the classic <quote>bell-shaped curve</quote>
-            distribution. The mathematical function for computing the probability density of the
-            Gaussian distribution at a particular point X is:</para>
-        <equation>
-            <title>Gaussian Distribution Function</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="GaussianDistributionEq.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <figure>
-            <title>Gaussian Probability Distribution Curves</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="GaussianPlot.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>This represents the percentage of the items in the distribution that satisfy the
-            property that the X in the distribution is trying to model. The <literal>e</literal> in
-            this equation is a common mathematical constant, equivalent to ~2.718. The value of
-                <varname>μ</varname> is the average. So the absolute value of X is not important;
-            what matters is how far X is from the average.</para>
-        <para>The value <varname>σ<superscript>2</superscript></varname> is the variance of the
-            Gaussian distribution. Without getting too technical, the larger this value becomes, the
-            flatter and wider the distribution is. The variance specifies how far from the average
-            you can get to achieve a certain probability density. The area of the distribution that
-            is positive and negative <varname>σ</varname> away from the average takes up ~68% of the
-            possible values. The area that is 2<varname>σ</varname> away represents ~95% of the
-            possible values.</para>
-        <para>We know what the average is for us: the surface normal. We can incorporate what we
-            learned from Blinn, by measuring the distance from perfect reflection by comparing the
-            surface normal to the half-angle vector. Thus, the X values represents the angle between
-            the surface normal and half-angle vector. The value <varname>μ</varname>, the average,
-            is zero.</para>
-        <para>The equation we will be using for modelling the microfacet distribution with a
-            Gaussian distribution is a slightly simplified form of the Gaussian distribution
-            equation.</para>
-        <equation>
-            <title>Gaussian Specular Term</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="GaussianTerm.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <para>This replaces our Phong and Blinn terms in our specular lighting equation and gives us
-            the <glossterm>Gaussian specular model</glossterm>. The value <varname>m</varname>
-            ranges from (0, 1], with larger values representing an increasingly rougher surface.
-            Technically, you can use values larger than 1, but the results begin looking
-            increasingly less useful. A value of 1 is plenty rough enough for specular reflection;
-            properly modelling extremely rough surfaces requires additional computations besides
-            determining the distribution of microfacets.</para>
-        <para>The <phrase>Gaussian Specular Lighting</phrase> tutorial shows an implementation of
-            Gaussian specular. It allows a comparison between Phong, Blinn, and Gaussian. It
-            controls the same as the previous tutorial, with the <keycap>H</keycap> key switching
-            between the three specular computations, and the <keycombo>
-                <keycap>Shift</keycap>
-                <keycap>H</keycap>
-            </keycombo> switching between diffuse+specular and specular only.</para>
-        <para>Here is the fragment shader for doing Gaussian lighting.</para>
-        <example>
-            <title>Gaussian Lighting Shader</title>
-            <programlisting language="glsl">vec3 lightDir = vec3(0.0);
-float atten = CalcAttenuation(cameraSpacePosition, lightDir);
-vec4 attenIntensity = atten * lightIntensity;
-
-vec3 surfaceNormal = normalize(vertexNormal);
-float cosAngIncidence = dot(surfaceNormal, lightDir);
-cosAngIncidence = clamp(cosAngIncidence, 0, 1);
-
-vec3 viewDirection = normalize(-cameraSpacePosition);
-
-vec3 halfAngle = normalize(lightDir + viewDirection);
-float angleNormalHalf = acos(dot(halfAngle, surfaceNormal));
-float exponent = angleNormalHalf / shininessFactor;
-exponent = -(exponent * exponent);
-float gaussianTerm = exp(exponent);
-
-gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
-
-outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-    (specularColor * attenIntensity * gaussianTerm) +
-    (diffuseColor * ambientIntensity);</programlisting>
-        </example>
-        <para>Computing the angle between the half-angle vector and the surface normal requires the
-            use of the <function>acos</function> function. We use the dot-product to compute the
-            cosine of the angle, so we need a function to undo the cosine operation. The
-                <glossterm>arc cosine</glossterm> or <glossterm>inverse cosine</glossterm> function
-            takes the result of a cosine and returns the angle that produced that value.</para>
-        <para>To do the exponentiation, we use the <function>exp</function> function. This function
-            raises the constant <literal>e</literal> to the power of the argument. Everything else
-            proceeds as expected.</para>
-        <section>
-            <title>What Gaussian Offers</title>
-            <para>If you play around with the controls, you can see how much the Gaussian
-                distribution offers over Phong and Blinn. For example, set the Gaussian smoothness
-                value to 0.05.</para>
-            <figure>
-                <title>Gaussian with Sharp Highlight</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Gaussian%20Small%20Highlight.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>It requires very large exponents, well in excess of 100, to match the small size
-                and focus of that specular highlight with Phong or Blinn. It takes even larger
-                exponents to match the Gaussian value of 0.02.</para>
-            <para>Otherwise the differences between Gaussian and Blinn are fairly subtle. For rough
-                surfaces, there is little substantive difference. But Gaussian tends to have a
-                sharper, more distinct highlight for shiny surfaces.</para>
-        </section>
-    </section>
-    <section>
-        <?dbhtml filename="Tut10 On Performance.html" ?>
-        <title>On Performance</title>
-        <para>The three specular highlight models seen here are obviously more computationally
-            expensive than diffuse lighting. But which is ultimately more expensive than the
-            others?</para>
-        <para>The difference between Phong and Blinn is that Phong must compute the reflection
-            vector, while Blinn computes the half-angle vector. The equation for computing the
-            reflection vector is:</para>
+        <para>The surface normal for the areas directly under the light are almost the same as the
+            direction towards the light. This means that the angle of incidence is small, so the
+            cosine of this angle is close to 1. That should translate to having a bright area under
+            the light, but darker areas farther away. What we see is nothing of the sort. Why is
+            that?</para>
+        <para>Well, consider what we are doing. We are computing the lighting at every triangle's
+                <emphasis>vertex</emphasis>, and then interpolating the results across the surface
+            of the triangle. The ground plane is made up of precisely four vertices: the four
+            corners. And those are all very far from the light position and have a very large angle
+            of incidence. Since none of them have a small angle of incidence, none of the colors
+            that are interpolated across the surface are bright.</para>
+        <para>You can see this is evident by putting the light position next to the cylinder. If the
+            light is at the top or bottom of the cylinder, then the area near the light will be
+            bright. But if you move the light to the middle of the cylinder, far the top or bottom
+            vertices, then the illumination will be much dimmer.</para>
+        <para>This is not the only problem with doing per-vertex lighting. For example, run the
+            tutorial again and don't move the light. Just watch how the light behaves on the
+            cylinder's surface as it animates around. Unlike with directional lighting, you can very
+            easily see the triangles on the cylinder's surface. Though the per-vertex computations
+            aren't helping matters, the main problem here has to do with interpolating the
+            values.</para>
+        <para>If you move the light source farther away, you can see that the triangles smooth out
+            and become indistinct from one another. But this is simply because, if the light source
+            is far enough away, the results are indistinguishable from a directional light. Each
+            vertex's direction to the light is almost the same as each other vertex's direction to
+            the light.</para>
+        <para>Per-vertex lighting was reasonable when dealing with directional lights. But it simply
+            is not a good idea for point lighting. The question arises: why was per-vertex lighting
+            good with directional lights to begin with?</para>
+        <para>Remember that our diffuse lighting equation has two parameters: the direction to the
+            light and the surface normal. In directional lighting, the direction to the light is
+            always the same. Therefore, the only value that changes over a triangle's surface is the
+            surface normal.</para>
+        <para>Linear interpolation of vectors looks like this:</para>
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="ReflectionVector.svg" format="SVG"/>
+                    <imagedata format="SVG" fileref="StandardLerp_1.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
-        <para>This involves a vector dot product, a scalar multiply, a vector-scalar multiply, and a
-            vector addition (subtraction). Computing the half-angle vector requires doing a vector
-            addition and performing a normalize operation. Normalizing a vector requires a vector
-            dot product (dotting the vector with itself), taking the square-root of that value, and
-            then a vector-scalar divide by that value.</para>
-        <para>Time once was that it was easy to know what was faster. The presence of a square-root
-            operation alone would have condemned Blinn as the slower method. On modern 3D graphics
-            hardware however, taking the reciprocal square-root (1 / √X) is generally about as fast
-            as doing a vector multiply. This puts Blinn as approximately equal in performance to
-            Phong; on some hardware, it may even be faster. In general, the performance difference
-            between the two will be negligible.</para>
-        <para>Gaussian is a different story. It would be reasonable to expect the
-                <function>pow</function> function, taking <inlineequation>
-                <mathphrase>x<superscript>y</superscript></mathphrase>
-            </inlineequation> for arbitrary values, to be slower than executing
-                <function>exp</function>, <inlineequation>
-                <mathphrase>e<superscript>x</superscript></mathphrase>
-            </inlineequation>. They might have the same performance, but if one is going to be
-            faster, it is more likely to be <function>exp</function> than <function>pow</function>.
-            However, Gaussian also uses the inverse cosine to compute the angle between the normal
-            and half-angle vector; that pretty much negates any possibility of performance parity.
-            The inverse cosine computation is certainly not built into the hardware, and thus must
-            be computed using the shader logic. And while this is likely true of exponentiation and
-            power functions, Gaussian has to do <emphasis>two</emphasis> of these operations,
-            compared to just one for Phong or Blinn.</para>
-        <para>One might consider using Gouraud shading with specular reflections as a method of
-            optimization. That is, doing per-vertex specular reflections. Since there are fewer
-            vertices than fragments, this might sound like a good idea. However, this is not for the
-            best. Specular highlights do not interpolate linearly at all, so unless the mesh is
-            finely divided, it will generally look awful.</para>
+        <para>The α in the equation is the factor of interpolation between the two values. When α is
+            one, we get V<subscript>a</subscript>, and when it is zero, we get
+                V<subscript>b</subscript>. The two values, V<subscript>a</subscript> and
+                V<subscript>b</subscript> can be scalars or vectors.</para>
+        <para>Our diffuse lighting equation is this:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="DiffuseLightEq_2.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>If the surface normal N is being interpolated, then at any particular point on the
+            surface, we get this equation for a directional light (the light direction L does not
+            change):</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_3.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>The dot product is distributive, like scalar multiplication. So we can distribute the
+            L to both sides of the dot product term:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_4.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>We can extract the linear terms from the dot product. Remember that the dot product is
+            the cosine of the angle between two vectors, times the length of those vectors. The two
+            scaling terms directly modify the length of the vectors. So they can be pulled out to
+            give us:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_5.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Recall that vector/scalar multiplication is distributive. We can distribute the
+            multiplication by the diffuse color and light intensity to both terms. This gives
+            us:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LerpDiffuse_6.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>This means that if L is constant, linearly interpolating N is exactly equivalent to
+            linearly interpolating the results of the lighting equation. And the addition of the
+            ambient term doesn't change this, since it is a constant and would not be affected by
+            linear interpolation.</para>
+        <para>When doing point lighting, you would have to interpolate both N and L. And that does
+            not yield the same results as linearly interpolating the two colors you get from the
+            lighting equation. This is a big part of the reason why the cylinder doesn't look
+            correct.</para>
+        <para>The more physically correct method of lighting is to perform lighting at every rendered
+            pixel. To do that, we would have to interpolate the lighting parameters across the
+            triangle, and perform the lighting computation in the fragment shader.</para>
+    </section>
+    <section>
+        <?dbhtml filename="Tut10 Fragment Lighting.html" ?>
+        <title>Fragment Lighting</title>
+        <para>So, in order to deal with interpolation artifacts, we need to interpolate the actual
+            light direction and normal, instead of just the results of the lighting equation. This
+            is called per-fragment lighting or just <glossterm>fragment lighting.</glossterm></para>
+        <para>This is pretty simple, conceptually. We simply need to do the lighting computations in
+            the fragment shader. So the fragment shader needs the position of the fragment, the
+            light's position (or the direction to the light from that position), and the surface
+            normal of the fragment at that position. And all of these values need to be in the same
+            coordinate space.</para>
+        <para>There is a problem that needs to be dealt with first. Normals do not interpolate well.
+            Or rather, wildly different normals do not interpolate well. And light directions can be
+            very different if the light source is close to the triangle relative to that triangle's
+            size.</para>
+        <para>Consider the large plane we have. The direction toward the light will be very
+            different at each vertex, so long as our light remains in relatively close proximity to
+            the plane.</para>
+        <para>Part of the problem is with interpolating values along the diagonal of our triangle.
+            Interpolation within a triangle works like this. For any position within the area of the
+            triangle, that position can be expressed as a weighted sum of the positions of the three
+            vertices.</para>
+        <figure>
+            <title>Triangle Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="BarycentricTriangle.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <informalequation>
+            <mathphrase>P = αA + βB + γC, where α + β + γ = 1.0</mathphrase>
+        </informalequation>
+        <para>The α, β, and γ values are not the distances from their respective points to the point
+            of interest. In the above case, the point P is in the exact center of the triangle.
+            Thus, the three values are each ⅓.</para>
+        <para>If the point of interest is along an edge of the triangle, then the contribution of
+            the vertex not sharing that edge is zero.</para>
+        <figure>
+            <title>Triangle Edge Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="BarycentricTriangleEdge.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Here, point P is exactly halfway between points C and B. Therefore,  β, and γ are both
+            0.5, but α is 0.0. If point P is anywhere along the edge of a triangle, it gets none of
+            its final interpolated value from the third vertex. So along a triangle's edge, it acts
+            like the kind of linear interpolation we have seen before.</para>
+        <para>This is how OpenGL interpolates the vertex shader outputs. It takes the α, β, and γ
+            coordinates for the fragment's position and combines them with the vertex output value
+            for the three vertices in the same way it does for the fragment's position. There is
+            slightly more to it than that, but we will discuss that later.</para>
+        <para>The ground plane in our example is made of two large triangles. They look like
+            this:</para>
+        <figure>
+            <title>Two Triangle Quadrilateral</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TwoTriangleQuad.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>What happens if we put the color black on the top-right and bottom-left points, and
+            put the color green on the top-left and bottom-right points? If you interpolate these
+            across the surface, you would get this:</para>
+        <figure>
+            <title>Two Triangle Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="TwoTriangleInterpolation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The color is pure green along the diagonal. That is because along a triangle's edge,
+            the value interpolated will only be the color of the two vertices along that edge. The
+            value is interpolated based only on each triangle individually, not on extra data from
+            another neighboring triangle.</para>
+        <para>In our case, this means that for points along the main diagonal, the light direction
+            will only be composed of the direction values from the two vertices on that diagonal.
+            This is not good. This wouldn't be much of a problem if the light direction did not
+            change much along the surface, but with large triangles (relative to how close the light
+            is to them), that is simply not the case.</para>
+        <para>Since we cannot interpolate the light direction very well, we need to interpolate
+            something else. Something that does exhibit the characteristics we need when
+            interpolated.</para>
+        <para>Positions interpolate quite well. Interpolating the top-left position and bottom-right
+            positions gets an accurate position value along the diagonal. So instead of
+            interpolating the light direction, we interpolate the components of the light direction.
+            Namely, the two positions. The light position is a constant, so we only need to
+            interpolate the vertex position.</para>
+        <para>Now, we could do this in any space. But for illustrative purposes, we will be doing
+            this in model space. That is, both the light position and vertex position will be in
+            model space.</para>
+        <para>One of the advantages of doing things in model space is that it gets rid of that pesky
+            matrix inverse/transpose we had to do to transform normals correctly. Indeed, normals
+            are not transformed at all. One of the disadvantages is that it requires computing an
+            inverse matrix for our light position, so that we can go from world space to model
+            space.</para>
+        <para>The <phrase role="propername">Fragment Point Lighting</phrase> tutorial shows off how
+            fragment lighting works.</para>
+        <figure>
+            <title>Fragment Point Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Fragment%20Point%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Much better.</para>
+        <para>This tutorial is controlled as before, with a few exceptions. Pressing the
+                <keycap>t</keycap> key will toggle a scale factor onto to be applied to the
+            cylinder, and pressing the <keycap>h</keycap> key will toggle between per-fragment
+            lighting and per-vertex lighting.</para>
+        <para>The rendering code has changed somewhat, considering the use of model space for
+            lighting instead of camera space. The start of the rendering looks as follows:</para>
+        <example>
+            <title>Initial Per-Fragment Rendering</title>
+            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+
+const glm::vec4 &amp;worldLightPos = CalcLightPosition();
+
+glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;</programlisting>
+        </example>
+        <para>The new code is the last line, where we transform the world-space light into camera
+            space. This is done to make the math much easier. Since our matrix stack is building up
+            the transform from model to camera space, the inverse of this matrix would be a
+            transform from camera space to model space. So we need to put our light position into
+            camera space before we transform it by the inverse.</para>
+        <para>After doing that, it uses a variable to switch between per-vertex and per-fragment
+            lighting. This just selects which shaders to use; both sets of shaders take the same
+            uniform values, even though they use them in different program stages.</para>
+        <para>The ground plane is rendered with this code:</para>
+        <example>
+            <title>Ground Plane Per-Fragment Rendering</title>
+            <programlisting language="cpp">glUseProgram(pWhiteProgram->theProgram);
+glUniformMatrix4fv(pWhiteProgram->modelToCameraMatrixUnif, 1, GL_FALSE,
+    glm::value_ptr(modelMatrix.Top()));
+
+glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
+glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
+glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
+
+g_pPlaneMesh->Render();
+glUseProgram(0);</programlisting>
+        </example>
+        <para>We compute the inverse matrix using <function>glm::inverse</function> and store it.
+            Then we use that to compute the model space light position and pass that to the shader.
+            Then the plane is rendered.</para>
+        <para>The cylinder is rendered using similar code. It simply does a few transformations to
+            the model matrix before computing the inverse and rendering.</para>
+        <para>The shaders are where the real action is. As with previous lighting tutorials, there
+            are two sets of shaders: one that take a per-vertex color, and one that uses a constant
+            white color. The vertex shaders that do per-vertex lighting computations should be
+            familiar:</para>
+        <example>
+            <title>Model Space Per-Vertex Lighting Vertex Shader</title>
+            <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 inDiffuseColor;
+layout(location = 2) in vec3 normal;
+
+out vec4 interpColor;
+
+uniform vec3 modelSpaceLightPos;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    vec3 dirToLight = normalize(modelSpaceLightPos - position);
+    
+    float cosAngIncidence = dot( normal, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = (lightIntensity * cosAngIncidence * inDiffuseColor) +
+        (ambientIntensity * inDiffuseColor);
+}</programlisting>
+        </example>
+        <para>The main differences between this version and the previous version are simply what one
+            would expect from the change from camera-space lighting to model space lighting. The
+            per-vertex inputs are used directly, rather than being transformed into camera space.
+            There is a second version that omits the <varname>inDiffuseColor</varname> input.</para>
+        <para>With per-vertex lighting, we have two vertex shaders:
+                <filename>ModelPosVertexLighting_PCN.vert</filename> and
+                <filename>ModelPosVertexLighting_PN.vert</filename>. With per-fragment lighting, we
+            also have two shaders: <filename>FragmentLighting_PCN.vert</filename> and
+                <filename>FragmentLighting_PN.vert</filename>. They are disappointingly
+            simple:</para>
+        <example>
+            <title>Model Space Per-Fragment Lighting Vertex Shader</title>
+            <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 inDiffuseColor;
+layout(location = 2) in vec3 normal;
+
+out vec4 diffuseColor;
+out vec3 vertexNormal;
+out vec3 modelSpacePosition;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    modelSpacePosition = position;
+    vertexNormal = normal;
+    diffuseColor = inDiffuseColor;
+}</programlisting>
+        </example>
+        <para>Since our lighting is done in the fragment shader, there isn't much to do except pass
+            variables through and set the output clip-space position. The version that takes no
+            diffuse color just passes a <type>vec4</type> containing just 1.0.</para>
+        <para>The fragment shader is much more interesting:</para>
+        <example>
+            <title>Per-Fragment Lighting Fragment Shader</title>
+            <programlisting language="glsl">#version 330
+
+in vec4 diffuseColor;
+in vec3 vertexNormal;
+in vec3 modelSpacePosition;
+
+out vec4 outputColor;
+
+uniform vec3 modelSpaceLightPos;
+
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+void main()
+{
+    vec3 lightDir = normalize(modelSpaceLightPos - modelSpacePosition);
+    
+    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    outputColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
+        </example>
+        <para>The math is essentially identical between the per-vertex and per-fragment case. The
+            main difference is the normalization of <varname>vertexNormal</varname>. This is
+            necessary because interpolating between two unit vectors does not mean you will get a
+            unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
+            you will not get a unit vector.</para>
+        <section>
+            <title>Caught in a Lie</title>
+            <para>While this may look perfect, there is still one problem. Use the <keycombo>
+                    <keycap>Shift</keycap>
+                    <keycap>J</keycap>
+                </keycombo> key to move the light really close to the cylinder, but without putting
+                the light inside the cylinder. You should see something like this:</para>
+            <figure>
+                <title>Close Lit Cylinder</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Cylinder%20Close%20Light.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Notice the vertical bands on the cylinder. This are reminiscent of the same
+                interpolation problem we had before. Wasn't doing lighting at the fragment level
+                supposed to fix this?</para>
+            <para>Actually, this is a completely different problem. And it is one that is
+                essentially impossible to solve. Well, not without changing our rendered
+                mesh.</para>
+            <para>The source of the problem is this: the light finally caught us in our lie.
+                Remember what we are actually doing. We are not rendering a true cylinder; we are
+                rendering a group of flat triangles that we attempt to make
+                    <emphasis>appear</emphasis> to be a round cylinder. We are rendering a polygonal
+                approximation of a cylinder, then using our lighting computations to make it seem
+                like the faceted shape is really round.</para>
+            <para>This works quite well when the light is fairly far from the surface. But when the
+                light is very close, as it is here, it reveals our fakery for what it is.
+                Why?</para>
+            <para>Let's take a top-down view of our cylinder approximation, but let's also draw what
+                the actual cylinder would look like from the top down:</para>
+            <figure>
+                <title>Faceted Cylinder</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="FacetedCircle.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>Now, consider our lighting equation at a particular point on the fake
+                cylinder:</para>
+            <figure>
+                <title>Light Directions on Faceted Cylinder</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="FacetedNearVsFar.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The problem comes from the difference between the actual position being rendered
+                and the corresponding position on the circle that has the normal that we are
+                pretending our point has. When the light is somewhat distant, the difference between
+                the actual light direction we use and the one we would use on a real cylinder is
+                pretty small. But when the light is very close, the difference is
+                substantial.</para>
+            <para>The lighting computations are correct for the vertices near the edges of a
+                triangle. But the farther from the edges you get, the more incorrect it
+                becomes.</para>
+            <para>The key point is that there isn't much we can do about this problem. The only
+                solution is to add more vertices to the approximation of the cylinder. It should
+                also be noted that adding more triangles would also make per-vertex lighting look
+                more correct. If you add infinitely many vertices to the cylinder, then the results
+                of per-vertex lighting are indistinguishable from per-fragment lighting.</para>
+            <para>For our simple case, adding triangles is easy, since a cylinder is a
+                mathematically defined object. For a complicated case like a human being, this is
+                usually rather more difficult. It also takes up more performance, since there are
+                more vertices, more executions of our (admittedly simple) vertex shader, and more
+                triangles rasterized or discarded for being back-facing.</para>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut10 Distant Points of Light.html" ?>
+        <title>Distant Points of Light</title>
+        <para>There is another issue with our current example. Use the <keycap>i</keycap> key to
+            raise the light up really high. Notice how bright all of the upwardly-facing surfaces
+            get:</para>
+        <figure>
+            <title>High Light</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="High%20Light.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>You probably have no experience with this in real life. Holding a light farther from
+            the surface in reality does not make the light brighter. So obviously something is
+            happening in reality that our simple lighting model is not accounting for.</para>
+        <para>In reality, lights emit a certain quantity of light per unit time. For a point-like
+            light such as a light bulb, it emits this light radially, in all directions. The farther
+            from the light source one gets, the more area that this must ultimately cover.</para>
+        <para>Light is essentially a wave. The farther away from the source of the wave, the less
+            intense the wave is. For light, this is called <glossterm>light
+            attenuation.</glossterm></para>
+        <para>Our model does not include light attenuation, so let's fix that.</para>
+        <para>Attenuation is a well-understood physical phenomenon. In the absence of other factors
+            (atmospheric light scattering, etc), the light intensity varies with the inverse of the
+            square of the distance. An object 2 units away from the light feels like with one-fourth
+            the intensity. So our equation for light attenuation is as follows:</para>
+        <equation>
+            <title>Physical Light Attenuation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LightAttenEq.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>There is a constant in the equation, which is used for unit correction. Of course, we
+            can (and will) use it as a fudge factor to make things look right.</para>
+        <para>The constant can take on a physical meaning. The constant can mean the distance at
+            which half of the light intensity is lost. To compute such a constant, for a half-light
+            distance of r<subscript>λ</subscript>, use this equation:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="HalfLightAtten.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>However physically correct this equation is, it has certain drawbacks. And this brings
+            us back to the light intensity problem we touched on earlier.</para>
+        <para>Since our lights are clamped on the [0, 1] range, it doesn't take much distance from
+            the light before the contribution from a light to become effectively nil. In reality,
+            with an unclamped range, we could just pump the light's intensity up to realistic
+            values. But we're working with a clamped range.</para>
+        <para>Therefore, a more common attenuation scheme is to use the inverse of just the distance
+            instead of the inverse of the distance squared:</para>
+        <equation>
+            <title>Light Attenuation Inverse</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="LightAttenInvEq.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>It looks brighter for more distant lights. It isn't physically correct, but so much
+            about our rendering is at this point that it won't be noticed much.</para>
+        <section>
+            <title>Reverse of the Transform</title>
+            <para>However, there is a problem. We previously did per-fragment lighting in model
+                space. And while this is a perfectly useful space to do lighting in, model space is
+                not world space.</para>
+            <para>We want to specify the attenuation constant factor in terms of world space
+                distances. But we aren't dealing in world space; we are in model space. And model
+                space distances are, naturally, in model space, which may well be scaled relative to
+                world space. Here, any kind of scale in the model-to-world transform is a problem,
+                not just non-uniform scales. Although if there was a uniform scale, we could apply
+                theoretically apply the scale to the attenuation constant.</para>
+            <para>So now we cannot use model space. Fortunately, camera space is a space that has
+                the same scale as world space, just with a rotation/translation applied to it. So we
+                can do our lighting in that space.</para>
+            <para>Doing it in camera space requires computing a camera space position and passing it
+                to the fragment shader to be interpolated. And while we could do this, that's not
+                clever enough. Isn't there some way to get around that?</para>
+            <para>Yes, there is. Recall <varname>gl_FragCoord</varname>, an intrinsic value given to
+                every fragment shader. It represents the location of the fragment in window space.
+                So instead of transforming from model space to camera space, we will transform from
+                window space to camera space.</para>
+            <note>
+                <para>The use of this reverse-transformation technique here should not be taken as a
+                    suggestion to use it in all, or even most cases like this. In all likelihood, it
+                    will be much slower than just passing the camera space position to the fragment
+                    shader. It is here primarily for demonstration purposes, though it is useful for
+                    other techniques that we will see in the future.</para>
+            </note>
+            <para>The sequence of transformations that take a position from camera space to window
+                space is as follows:</para>
+            <table frame="all">
+                <title>Transform Legend</title>
+                <tgroup cols="2">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>
+                                <para>Field Name</para>
+                            </entry>
+                            <entry>
+                                <para>Meaning</para>
+                            </entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>
+                                <para>M</para>
+                            </entry>
+                            <entry>The camera-to-clip transformation matrix.</entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>P<subscript>camera</subscript></para>
+                            </entry>
+                            <entry>The camera-space vertex position.</entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>C</para>
+                            </entry>
+                            <entry>
+                                <para>The clip-space vertex position.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>N</para>
+                            </entry>
+                            <entry>
+                                <para>The normalized device coordinate position.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>V<subscript>xy</subscript></para>
+                            </entry>
+                            <entry>
+                                <para>The X and Y values passed to
+                                    <function>glViewport</function>.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>V<subscript>wh</subscript></para>
+                            </entry>
+                            <entry>
+                                <para>The width and height passed to
+                                    <function>glViewport</function>.</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>D<subscript>nf</subscript></para>
+                            </entry>
+                            <entry>
+                                <para>The depth near and far values passed to
+                                        <function>glDepthRange</function>.</para>
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <equation>
+                <title>Camera to Window Transforms</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="CameraToWindowTrans.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>Therefore, given <varname>gl_FragCoord</varname>, we will need to perform the
+                reverse of these:</para>
+            <equation>
+                <title>Window to Camera Transforms</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="WindowToCameraTrans.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>In order for our fragment shader to perform this transformation, it must be given
+                the following values:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>The inverse projection matrix.</para>
+                </listitem>
+                <listitem>
+                    <para>The viewport width/height.</para>
+                </listitem>
+                <listitem>
+                    <para>The depth range.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Applied Attenuation</title>
+            <para>The <phrase role="propername">Fragment Attenuation</phrase> tutorial performs
+                per-fragment attenuation, both with linear and quadratic attenuation.</para>
+            <figure>
+                <title>Fragment Attenuation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Fragment%20Attenuation.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>This tutorial controls as before, with the following exceptions. The
+                    <keycap>O</keycap> and <keycap>U</keycap> keys increase and decrease the
+                attenuation constant. However, remember that decreasing the constant makes the
+                attenuation less, which makes the light appear <emphasis>brighter</emphasis> at a
+                particular distance. Using the shift key in combination with them will
+                increase/decrease the attenuation by smaller increments. The <keycap>H</keycap> key
+                swaps between the linear and quadratic interpolation functions.</para>
+            <para>The drawing code is mostly the same as we saw in the per-vertex point light
+                tutorial, since both this and that one perform lighting in camera space. The vertex
+                shader is also nothing new; passes the vertex normal and color to the fragment
+                shader. The vertex normal is multiplied by the normal matrix, which allows us to use
+                non-uniform scaling.</para>
+        </section>
+        <section>
+            <title>New Uniform Types</title>
+            <para>The more interesting part is the fragment shader. The definitions are not much
+                changed from the last one, but there have been some additions:</para>
+            <example>
+                <title>Light Attenuation Fragment Shader Definitions</title>
+                <programlisting language="glsl">uniform mat4 clipToCameraMatrix;
+uniform ivec2 windowSize;
+uniform vec2 depthRange;
+
+uniform float lightAttenuation;
+uniform bool bUseRSquare;</programlisting>
+            </example>
+            <para>The first three lines are the information we need to perform the
+                previously-discussed reverse-transformation, so that we can turn
+                    <varname>gl_FragCoord</varname> into a camera-space position. Notice that the
+                    <varname>windowSize</varname> uses a new type: <type>ivec2</type>. This is a
+                2-dimensional vector of integers.</para>
+            <para>Thus far, we have only modified uniforms of floating-point type. All of the vector
+                uploading functions we have used have been of the forms
+                    <function>glUniform#f</function> or <function>glUniform#fv</function>, where the
+                # is a number 1-4. The <quote>v</quote> represents a vector version, which takes a
+                pointer instead of 1-4 parameters.</para>
+            <para>Uploading to an integer uniform uses functions of the form
+                    <function>glUniform#i</function> and <function>glUniform#iv</function>. So the
+                code we use to set the window size uniform is this:</para>
+            <programlisting language="cpp">glUniform2i(g_FragWhiteDiffuseColor.windowSizeUnif, w, h);</programlisting>
+            <para>The <varname>w</varname> and <varname>h</varname> values are the width and height
+                passed to the <function>reshape</function> function. That is where this line of code
+                is, and that is where we set both the clip-to-camera matrix and the window size. The
+                    <varname>depthRange</varname> is set in the initialization code, since it never
+                changes.</para>
+            <para>The <varname>lightAttenuation</varname> uniform is just a float, but
+                    <varname>bUseRSquare</varname> uses a new type: boolean.</para>
+            <para>GLSL has the <type>bool</type> type just like C++ does. The
+                    <literal>true</literal> and <literal>false</literal> values work just like C++'s
+                equivalents. Where they differ is that GLSL also has vectors of bools, called
+                    <type>bvec#</type>, where the # can be 2, 3, or 4. We don't use that here, but
+                it is important to note.</para>
+            <para>OpenGL's API, however, is still a C API. And C (at least, pre-C99) has no
+                    <type>bool</type> type. Uploading a boolean value to a shader looks like
+                this:</para>
+            <programlisting language="cpp">glUniform1i(g_FragWhiteDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);</programlisting>
+            <para>The integer form of uniform uploading is used, but the floating-point form could
+                be allowed as well. The number 0 represents false, and any other number is
+                true.</para>
+        </section>
+        <section>
+            <title>Functions in GLSL</title>
+            <para>For the first time, we have a shader complex enough that splitting it into
+                different functions makes sense. So we do that. The first function is one that
+                computes the camera-space position:</para>
+            <example>
+                <title>Window to Camera Space Function</title>
+                <programlisting language="glsl">vec3 CalcCameraSpacePosition()
+{
+    vec3 ndcPos;
+    ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
+    ndcPos.z = (2.0 * gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+    
+    vec4 clipPos;
+    clipPos.w = 1.0f / gl_FragCoord.w;
+    clipPos.xyz = ndcPos.xyz * clipPos.w;
+    
+    return vec3(clipToCameraMatrix * clipPos);
+}</programlisting>
+            </example>
+            <para>Not unsurprisingly, GLSL functions are defined much like C and C++
+                functions.</para>
+            <para>The first three lines compute the position in normalized device coordinates.
+                Notice that the computation of the X and Y coordinates is simplified from the
+                original function. This is because our viewport always sets the lower-left position
+                of the viewport to (0, 0). This is what you get when you plug zeros into that
+                equation.</para>
+            <para>From there, the clip-space position is computed as previously shown. Then the
+                result is multiplied through the clip-to-camera matrix, and that vector is returned
+                to the caller.</para>
+            <para>This is a simple function that uses only uniforms to compute a value. It takes no
+                inputs and outputs. The second function is not quite as simple.</para>
+            <example>
+                <title>Light Intensity Application Function</title>
+                <programlisting language="glsl">vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
+{
+    vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
+    float lightDistanceSqr = dot(lightDifference, lightDifference);
+    lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
+    
+    float distFactor = bUseRSquare ? lightDistanceSqr : sqrt(lightDistanceSqr);
+    
+    return lightIntensity * (1 / ( 1.0 + lightAttenuation * distFactor));
+}</programlisting>
+            </example>
+            <para>The function header looks rather different from the standard C/C++ function
+                definition syntax. Parameters to GLSL functions are designated as being inputs,
+                outputs, or inputs and outputs.</para>
+            <para>Parameters designated with <literal>in</literal> are input parameters. Functions
+                can change these values, but they will have no effect on the variable or expression
+                used in the function call. This is much like the default in C/C++, where parameter
+                changes are local. Naturally, this is the default with GLSL parameters if you do not
+                specify a qualifier.</para>
+            <para>Parameters designated with <literal>out</literal> can be written to, and its value
+                will be returned to the calling function. These are similar to non-const reference
+                parameter types in C++. And just as with reference parameters, the caller of a
+                function must call it with a real variable (called an <quote>l-value</quote>). And
+                this variable must be a variable that can be <emphasis>changed</emphasis>, so you
+                cannot pass a uniform or shader stage input value as this parameter.</para>
+            <para>However, the initial value of parameters declared as outputs is
+                    <emphasis>not</emphasis> initialized from the calling function. This means that
+                the initial value is uninitialized and therefore undefined (ie: it could be
+                anything). Because of this, you can pass shader stage outputs as
+                    <literal>out</literal> parameters. Recall that shader stage output variables can
+                be written to, but <emphasis>never</emphasis> read from.</para>
+            <para>Parameters designated as <literal>inout</literal> will have its value initialized
+                by the caller and have the final value returned to the caller. These are exactly
+                like non-const reference parameters in C++. The main difference is that the value is
+                initialized with the one that the user passed in, which forbids the passing of
+                shader stage outputs as <literal>inout</literal> parameters.</para>
+            <para>This particular function is semi-complex, as an optimization. Previously, our
+                functions simply normalized the difference between the vertex position and the light
+                position. In computing the attenuation, we need the distance between the two. And
+                the process of normalization computes the distance. So instead of calling the GLSL
+                function to normalize the direction, we do it ourselves, so that the distance is not
+                computed twice (once in the GLSL function and once for us).</para>
+            <para>The second line performs a dot product with the same vector. Remember that the dot
+                product between two vectors is the cosine of the angle between them, multiplied by
+                each of the lengths of the vectors. Well, the angle between a vector and itself is
+                zero, and the cosine of zero is always one. So what you get is just the length of
+                the two vectors times one another. And since the vectors are the same, the lengths
+                are the same. Thus, the dot product of a vector with itself is the square of its
+                length.</para>
+            <para>To normalize a vector, we must divide the vector by it's length. And the length of
+                    <varname>lightDifference</varname> is the square root of
+                    <varname>lightDistanceSqr</varname>. The <function>inversesqrt</function>
+                computes 1 / the square root of the given value, so all we need to do is multiply
+                this with the <varname>lightDifference</varname> to get the light direction as a
+                normalized vector. This value is written to our output variable.</para>
+            <para>The next line computes our lighting term. Notice the use of the ?: operator. This
+                works just like in C/C++. If we are using the square of the distance, that's what we
+                store. Otherwise we get the square-root and store that.</para>
+            <note>
+                <para>The assumption in using ?: here is that only one or the other of the two
+                    expressions will be evaluated. That's why the expensive call to
+                        <function>sqrt</function> is done here. However, this may not be the case.
+                    It is entirely possible (and quite likely) that the shader will always evaluate
+                        <emphasis>both</emphasis> expressions and simply store one value or the
+                    other as needed. So do not rely on such conditional logic to save
+                    performance.</para>
+            </note>
+            <para>After that, things proceed as expected.</para>
+            <para>Making these separate functions makes the main function look almost identical to
+                prior versions:</para>
+            <example>
+                <title>Main Light Attenuation</title>
+                <programlisting language="glsl">void main()
+{
+    vec3 cameraSpacePosition = CalcCameraSpacePosition();
+    
+    vec3 lightDir = vec3(0.0);
+    vec4 attenIntensity = ApplyLightIntensity(cameraSpacePosition, lightDir);
+    
+    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</programlisting>
+            </example>
+            <para>Function calls appear very similar to C/C++, with the exceptions about parameters
+                noted before. The camera-space position is determined. Then the light intensity,
+                modified by attenuation, is computed. From there, things proceed as before.</para>
+            <sidebar>
+                <title>Alternative Attenuation</title>
+                <para>As nice as these somewhat-realistic attenuation schemes are, it is often
+                    useful to model light attenuation in a very different way. This is in no way
+                    physically accurate, but it can look reasonably good.</para>
+                <para>We simply do linear interpolation based on the distance. When the distance is
+                    0, the light has full intensity. When the distance is beyond a given distance,
+                    the maximum light range (which varies per-light), the intensity is 1.</para>
+                <para>Note that <quote>reasonably good</quote> depends on your needs. The closer you
+                    get in other ways to providing physically accurate lighting, the closer you get
+                    to photorealism, the less you can rely on less accurate phenomena. It does no
+                    good to implement a complicated sub-surface scattering lighting model that
+                    includes Fresnel factors and so forth, while simultaneously using a simple
+                    interpolation lighting attenuation model.</para>
+            </sidebar>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut10 In Review.html" ?>
@@ -649,24 +983,35 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <para>In this tutorial, you have learned the following:</para>
         <itemizedlist>
             <listitem>
-                <para>Specular lighting represents direct, mirror-like reflections from a surface.
-                    Specular highlights are mirror-like reflections directly from a light source.
-                    Adding weak specular highlights to even rough surfaces can increase visual
-                    realism.</para>
+                <para>Point lights are lights that have a position within the world, radiating light
+                    equally in all directions. The light direction at a particular point on the
+                    surface must be computed using the position at that point and the position of
+                    the light.</para>
             </listitem>
             <listitem>
-                <para>The microfacet model of specular reflection means that, for a given surface
-                    area, there are many mirror-like surfaces. Each microfacet reflects perfectly in
-                    its direction. The average of the microfacets </para>
+                <para>Attempting to perform per-vertex lighting computations with point lights leads
+                    to artifacts.</para>
             </listitem>
             <listitem>
-                <para>The Phong and Blinn models of specular reflection use a power function based
-                    on how close the viewer is to perfect reflection to approximate a microfacet
-                    distribution.</para>
+                <para>Lighting can be computed per-fragment by passing the fragment's position in an
+                    appropriate space.</para>
             </listitem>
             <listitem>
-                <para>A Gaussian statistical distribution can be used to more accurately model the
-                    distributions of microfacets on a surface.</para>
+                <para>Lighting can be computed in model space.</para>
+            </listitem>
+            <listitem>
+                <para>Point lights have a falloff with distance, called attenuation. Not performing
+                    this can cause odd effects, where a light appears to be brighter when it moves
+                    farther from a surface. Light attenuation varies with the inverse of the square
+                    of the distance, but other attenuation models can be used.</para>
+            </listitem>
+            <listitem>
+                <para>Fragment shaders can compute the camera space position of the fragment in
+                    question by using <varname>gl_FragCoord</varname> and a few uniform variables
+                    holding information about the camera to window space transform.</para>
+            </listitem>
+            <listitem>
+                <para>GLSL can have integer vectors, boolean values, and functions.</para>
             </listitem>
         </itemizedlist>
         <section>
@@ -674,78 +1019,49 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
-                    <para>Change the shaders to use the diffuse color as the specular color. You may
-                        need to drop the specular color somewhat to keep from over-brightening the
-                        scene. How this all looks will be particularly evident with the colored
-                        cylinder.</para>
+                    <para>When we used model space-based lighting computations, we had to perform an
+                        inverse on our matrix from the matrix stack to transform the light position
+                        from camera space to model space. However, it would be entirely possible to
+                        simply build an inverse matrix at the same time we build a regular matrix on
+                        our matrix stack. The inverse of a rotation matrix is just the rotation
+                        matrix with a negated angle; the inverse of a scale is just the
+                        multiplicative inverse of the scales, and the inverse of the translation is
+                        the negation of the translation vector.</para>
+                    <para>To do this, you will need to modify the <classname>MatrixStack</classname>
+                        class in a number of ways. It must store a second matrix representing the
+                        accumulated inverse matrix. When a transformation command is given to the
+                        stack, it must also generate the inverse matrix for this transform and
+                            <emphasis>left multiply</emphasis> this into the accumulated inverse.
+                        The push/pop will have to push/pop the inverse matrix as well. It can use
+                        the same stack, so long as the pop function puts the two matrices in the
+                        proper places.</para>
+                </listitem>
+                <listitem>
+                    <para>Implement the alternative attenuation described at the end of the section
+                        on attenuation.</para>
                 </listitem>
             </itemizedlist>
-        </section>
-        <section>
-            <title>Further Research</title>
-            <para>As you might guess, this is far from the end on specular reflections and specular
-                highlights. Accurately modelling specular reflection is very difficult; doing so
-                while maintaining high performance is even moreso.</para>
-            <para>If you are interested in more accurate models of specular highlights, there is the
-                Beckmann distribution. This is a particular statistical distribution of microfacets
-                that is more physically based than a Gaussian distribution. It may be a bit more
-                computationally expensive than Gaussian (due to being able to avoid the
-                    <function>acos</function>). The two do have a roughness factor that has the same
-                range, (0, 1], and the roughness has the same general meaning in both
-                distributions.</para>
-            <para>If you want to go even farther, investigate the <quote>Cook-Torrance</quote> model
-                of specular reflection. It incorporates several terms. It uses a statistical
-                distribution to determine the number of microfacets oriented in a direction. This
-                distribution can be Gaussian, Beckmann, or some other distribution. It modifies this
-                result based on a geometric component that models microfacet self-shadowing and the
-                possibility for multiple interreflections among a microfaceted surface. And it adds
-                a term to compensate for the Fresnel effect: an effect where specular reflection
-                from a surface is more intense when viewed edge-on than directly top-down.</para>
         </section>
         <section>
             <title>GLSL Functions of Note</title>
             <funcsynopsis>
                 <funcprototype>
-                    <funcdef>vec <function>reflect</function></funcdef>
-                    <paramdef>vec <parameter>I</parameter></paramdef>
-                    <paramdef>vec <parameter>N</parameter></paramdef>
+                    <funcdef>vec <function>inversesqrt</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
                 </funcprototype>
             </funcsynopsis>
-            <para>Computes the vector that would be reflected across the normal <varname>N</varname>
-                from an incident vector <varname>I</varname>. The vector result will be normalized
-                if the input vectors are normalized. Note that <varname>I</varname> vector is the
-                vector <emphasis>towards</emphasis> the surface.</para>
+            <para>This function computes 1 / the square root of <varname>x</varname>. This is a
+                component-wise computation, so vectors may be used. The return value will have the
+                same type as <varname>x</varname>.</para>
             <funcsynopsis>
                 <funcprototype>
-                    <funcdef>vec <function>pow</function></funcdef>
-                    <paramdef>vec <parameter>X</parameter></paramdef>
-                    <paramdef>vec <parameter>Y</parameter></paramdef>
+                    <funcdef>vec <function>sqrt</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
                 </funcprototype>
             </funcsynopsis>
-            <para>Raises <varname>X</varname> to the power of <varname>Y</varname>, component-wise.
-                If a component of <varname>X</varname> is less than 0, then the resulting value is
-                undefined. If <varname>X</varname> is exactly zero, and <varname>Y</varname> is less
-                than or equal to 0, then the resulting value is undefined.</para>
-            <funcsynopsis>
-                <funcprototype>
-                    <funcdef>vec <function>acos</function></funcdef>
-                    <paramdef>vec <parameter>X</parameter></paramdef>
-                </funcprototype>
-            </funcsynopsis>
-            <para>Returns the inverse cosine of <varname>X</varname>, component-wise. This returns
-                the angle in radians, which is on the range [0, π]. If any component of
-                    <varname>X</varname> is outside of the [-1, 1] range, then that component of the
-                result will be undefined. This is because the cosine of a value is always on [-1,
-                1], so the inverse-cosine function cannot take values outside of this range.</para>
-            <funcsynopsis>
-                <funcprototype>
-                    <funcdef>vec <function>exp</function></funcdef>
-                    <paramdef>vec <parameter>exponent</parameter></paramdef>
-                </funcprototype>
-            </funcsynopsis>
-            <para>Returns the value of <inlineequation>
-                    <mathphrase>e<superscript>exponent</superscript></mathphrase>
-                </inlineequation>, component-wise.</para>
+            <para>This function computes the square root of <varname>x</varname>. This is a
+                component-wise computation, so vectors may be used. The return value will have the
+                same type as <varname>x</varname>.</para>
         </section>
     </section>
     <section>
@@ -753,101 +1069,29 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <title>Glossary</title>
         <glosslist>
             <glossentry>
-                <glossterm>specular reflection</glossterm>
+                <glossterm>point light source</glossterm>
                 <glossdef>
-                    <para>A mirror-like reflection of light from a surface. Specular reflections
-                        reflect light; thus, the color the viewer sees is strongly based on the view
-                        angle relative to the light. Specular reflections often do not affect the
-                        color of the incoming light.</para>
+                    <para>A light source that emits light from a particular location in the world.
+                        The light is emitted in all directions evenly.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>specular highlights</glossterm>
+                <glossterm>fragment lighting</glossterm>
                 <glossdef>
-                    <para>Mirror-like reflections directly from light sources. Since light sources
-                        are brighter than light reflected by other objects, modelling only specular
-                        highlights can provide useful realism without having to model reflections
-                        from light produced by other objects in the scene.</para>
+                    <para>Evaluating the lighting equation at every fragment.</para>
+                    <para>This is also called Phong shading, in contrast with Goroud shading, but
+                        this name has fallen out of favor due to similarities with names for other
+                        lighting models.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>angle of view, viewing angle</glossterm>
+                <glossterm>light attenuation</glossterm>
                 <glossdef>
-                    <para>The angle between the surface normal and the direction to the
-                        viewer/camera.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>microfacet model</glossterm>
-                <glossdef>
-                    <para>Describes a surface as a number of flat planes called microfacets. Each
-                        microfacet reflects light using a simple lighting model. The light from a
-                        portion of the surface is simply the aggregate of the light from all of the
-                        microfacets of the surface. The statistical distribution of microfacet
-                        directions on a surface becomes an integral part of the lighting equation.
-                        The normal of a surface at a point is the average normal of the microfacets
-                        of that part of the surface.</para>
-                    <para>The microfacet model can be used to model the reflectance characteristics
-                        of rough surfaces.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>Phong specular model</glossterm>
-                <glossdef>
-                    <para>A simple model for creating specular highlights. It uses a power function
-                        to determine the distribution of microfacets of the surface. The base of the
-                        power function is the cosine of the angle between the view direction and the
-                        direction of perfect reflection along the surface normal. The exponent is an
-                        arbitrary value on the range (0, ∞); large values describe increasingly
-                        shiny surfaces, while small values are for rough surfaces.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>half-angle vector</glossterm>
-                <glossdef>
-                    <para>The vector halfway between the direction towards the light and the view
-                        direction. When the half-angle vector is oriented exactly with the surface
-                        normal, then the view direction is oriented along the reflection
-                        direction.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>Blinn-Phong specular model</glossterm>
-                <glossdef>
-                    <para>A simple model for creating specular highlights. Like standard Phong, it
-                        uses a power function to model the distribution of microfacets. The base of
-                        the power function is the cosine of the angle between the half-angle vector
-                        and the surface normal. The exponent is an arbitrary value on the range (0,
-                        ∞); large values describe increasingly shiny surfaces, while small values
-                        are for rough surfaces.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>Gaussian distribution, normal distribution</glossterm>
-                <glossdef>
-                    <para>A common statistical distribution. It defines the familiar
-                            <quote>bell-shaped curve,</quote> with the average value at the highest
-                        point of the distribution.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>Gaussian specular model</glossterm>
-                <glossdef>
-                    <para>A model for creating specular highlights. It uses the Gaussian
-                        distribution to model the distribution of microfacets on a surface. It uses
-                        a value to control the distribution; this value ranges on (0, 1], where
-                        small numbers are smooth surfaces and large numbers are rough
-                        surfaces.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>inverse cosine, arc cosine</glossterm>
-                <glossdef>
-                    <para>Performs the opposite of the cosine function. The cosine function takes
-                        angles and returns a value on the range (-1, 1). The inverse cosine takes
-                        values on the range (-1, 1) and returns an angle in radians.</para>
+                    <para>The decrease of the intensity of light with distance from the source of
+                        that light.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
     </section>
+    
 </chapter>

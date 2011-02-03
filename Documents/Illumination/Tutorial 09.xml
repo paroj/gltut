@@ -4,74 +4,434 @@
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 09.html" ?>
-    <title>Plane Lights</title>
-    <para>Directional lights are useful for representing light sources like the sun and so forth.
-        But most light sources are more likely to be represented as point lights.</para>
-    <para>A <glossterm>point light</glossterm> is a light source that has a position in the world
-        and shines with equal intensity in all directions. Our simple diffuse lighting equation is a
-        function of these properties:</para>
-    <itemizedlist>
-        <listitem>
-            <para>The surface normal at that point.</para>
-        </listitem>
-        <listitem>
-            <para>The direction from the point on the surface to the light.</para>
-        </listitem>
-    </itemizedlist>
-    <para>The direction to the light source from the point is a constant when dealing with
-        directional light. It is a parameter for lighting, but it is a constant value for all points
-        in the scene. The difference between directional lighting and point lights is only that this
-        direction must be computed for each position in the scene.</para>
-    <para>Computing this is quite simple. At the point of interest, we take the difference between
-        the point on the surface and the light's position. We normalize the result to produce a unit
-        vector direction to the light. Then we use the light direction as we did before. The surface
-        point, light position, and surface normal must all be in the same space for this equation to
-        make sense.</para>
+    <title>Lights On</title>
+    <para>It is always best to start simply. And since lighting is a big topic, we will begin with
+        the simplest possible scenario.</para>
     <section>
-        <?dbhtml filename="Tut09 Vertex Point Lighting.html" ?>
-        <title>Vertex Point Lighting</title>
-        <para>Thus far, we have computed the lighting equation at each vertex and interpolated the
-            results across the surface of the triangle. We will continue to do so for point lights.
-            For the moment, at least.</para>
-        <para>We implement point lights per-vertex in the <phrase role="propername">Vertex Point
-                Lighting</phrase> tutorial. This tutorial has a moving point light that circles
-            around the cylinder.</para>
+        <?dbhtml filename="Tut09 Modelling Lights.html" ?>
+        <title>Modelling Lights</title>
+        <para>Lighting is complicated. Very complicated. The interaction between a surface and a
+            light is mostly well understood in terms of the physics. But actually doing the
+            computations for full light/surface interaction as it is currently understood is
+            prohibitively expensive.</para>
+        <para>As such, all lighting in any real-time application is some form of approximation of
+            the real world. How accurate that approximation is generally determines how close to
+                <glossterm>photorealism</glossterm> one gets. Photorealism is the ability to render
+            a scene that is indistinguishable from a photograph of reality.</para>
+        <note>
+            <title>Non-Photorealistic Rendering</title>
+            <para>There are lighting models that do not attempt to model reality. These are, as a
+                group, called non-photorealistic rendering (<acronym>NPR</acronym>) techniques.
+                These lighting models and rendering techniques can attempt to model cartoon styles
+                (typically called <quote>cel shading</quote>), paintbrush effects, pencil-sketch, or
+                other similar things. NPR techniques including lighting models, but they also do
+                other, non-lighting things, like drawing object silhouettes in an dark, ink
+                color.</para>
+            <para>Developing good NPR techniques is at least as difficult as developing good
+                photorealistic lighting models. For the most part, in this book, we will focus on
+                approximating photorealism.</para>
+        </note>
+        <para>A <glossterm>lighting model</glossterm> is an algorithm, a mathematical function, that
+            determines how a surface interacts with light.</para>
+        <para>In the real world, our eyes see by detecting light that hits them. The structure of
+            our iris and lenses use a number of photorecepters (light-sensitive cells) to resolve a
+            pair of images. The light we see can have one of two sources. A light emitting object
+            like the sun or a lamp can emit light that is directly captured by our eyes. Or a
+            surface can reflect light from another source that is captured by our eyes. Light
+            emitting objects are called <glossterm>light sources.</glossterm></para>
+        <para>The interaction between a light and a surface is the most important part of a lighting
+            model. It is also the most difficult to get right. The way light interacts with atoms on
+            a surface alone involves complicated quantum mechanics to understand. And even that does
+            not get into the fact that surfaces are not perfectly smooth or perfectly opaque.</para>
+        <para>This is made more complicated by the fact that light itself is not one thing. There is
+            no such thing as <quote>white light.</quote> Virtually all light is made up of a number
+            of different wavelengths. Each wavelength (in the visible spectrum) represents a color.
+            White light is made of many wavelengths (colors) of light. Colored light simply has
+            fewer wavelengths in it than pure white light.</para>
+        <para>Surfaces interact with light of different wavelengths in different ways. As a
+            simplification of this complex interaction, we will assume that a surface can do one of
+            two things: absorb that wavelength of light or reflect it.</para>
+        <para>A surface looks blue under white light because the surface absorbs all non-blue parts
+            of the light and only reflects the blue parts. If one were to shine a red light on the
+            surface, the surface would appear very dark, as the surface absorbs non-blue light, and
+            the red light doesn't have much non-blue light in it.</para>
         <figure>
-            <title>Vertex Point Lighting</title>
+            <title>Surface Light Absorption</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="Vertex%20Point%20Lighting.png"/>
+                    <imagedata fileref="SurfaceColorAbsorption.svg" format="SVG"/>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>To toggle an indicator of the light's position, press the <keycap>y</keycap> key. The
-                <keycap>b</keycap> key will toggle rotation of the light. The <keycap>i</keycap> and
-                <keycap>k</keycap> keys move the light up and down respectively, while the
-                <keycap>j</keycap> and <keycap>l</keycap> will decrease and increase the light's
-            radius. Holding shift with these keys will move in smaller increments.</para>
-        <para>Most of the code is nothing we haven't seen elsewhere. The main changes are at the top
-            of the rendering function.</para>
-        <example>
-            <title>Per-Vertex Point Light Rendering</title>
-            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
+        <para>Therefore, the apparent color of a surface is a combination of the absorbing
+            characteristics of the surface (which wavelengths are absorbed or reflected) and the
+            wavelengths of light shone upon that surface.</para>
+        <para>The very first approximation that is made is that not all of these wavelengths matter.
+            Instead of tracking millions of wavelengths in the visible spectrum, we will instead
+            track 3. Red, green, and blue.</para>
+        <para>The RGB intensity of light reflected from a surface at a particular point is a
+            combination of the RGB light absorbing characteristics of the surface at that point and
+            the RGB <glossterm>light intensity</glossterm> shone on that point on the surface. All
+            of these, the reflected light, the source light, and the surface absorption, can be
+            described as RGB colors, on the range [0, 1].</para>
+        <para>The intensity of light shone upon a surface depends on (at least) two things. First,
+            it depends on the intensity of light that reaches the surface from a light source. And
+            second, it depends on the angle between the surface and the light.</para>
+        <para>Consider a perfectly flat surface. If you shine a column of light with a known
+            intensity directly onto that surface, the intensity of that light at each point under
+            the surface will be a known value, based on the intensity of the light divided by the
+            area projected on the surface.</para>
+        <figure>
+            <title>Perpendicular Light</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="DirectLightColumn.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>If the light is shone instead at an angle, the area on the surface is much wider. This
+            spreads the same light intensity over a larger area of the surface; as a result, each
+            point under the light <quote>sees</quote> the light less intensely.</para>
+        <figure>
+            <title>Light at an Angle</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="AngleLightColumn.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Therefore, the intensity of the light cast upon a surface is a function of the
+            original light's intensity and the angle between the surface and the light source. This
+            angle is called the <glossterm>angle of incidence</glossterm> of the light.</para>
+        <para>A lighting model is a function of all of these parameters. This is far from a
+            comprehensive list of lighting parameters; this list will be expanded considerably in
+            future discussions.</para>
+        <section>
+            <title>Standard Diffuse Lighting</title>
+            <para><glossterm>Diffuse lighting</glossterm> refers to a particular kind of
+                light/surface interaction, where the light from the light source reflects from the
+                surface at many angles, instead of as a perfect mirror.</para>
+            <figure>
+                <title>Diffuse Reflectance</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="DiffuseReflection.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>An ideal diffuse material will reflect light evenly in all directions, as shown in
+                the picture above. No actual surfaces are ideal diffuse materials, but this is a
+                good starting point and looks pretty decent.</para>
+            <para>For this tutorial, we will be using the <glossterm>Lambertian
+                    reflectance</glossterm> model of diffuse lighting. It represents the ideal case
+                shown above, where light is reflected in all directions equally. The equation for
+                this lighting model is quite simple:</para>
+            <equation>
+                <title>Diffuse Lighting Equation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="DiffuseLightingEquation.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>The cosine of the angle of incidence is used because it represents the perfect
+                hemisphere of light that would be reflected. When the angle of incidence is 0°, the
+                cosine of this angle will be 1.0. The lighting will be at its brightest. When the
+                angle of incidence is 90°, the cosine of this angle will be 0.0, so the lighting
+                will be 0. Values less than 0 are clamped to 0.</para>
+        </section>
+        <section>
+            <title>Surface Orientation</title>
+            <para>Now that we know what we need to compute, the question becomes how to compute it.
+                Specifically, this means how to compute the angle of incidence for the light, but it
+                also means where to perform the lighting computations.</para>
+            <para>Since our mesh geometry is made of triangles, each individual triangle is flat.
+                Therefore, much like the plane above, each triangle faces a single direction. This
+                direction is called the <glossterm>surface normal</glossterm> or
+                    <glossterm>normal.</glossterm> It is the direction that the surface is facing at
+                the location of interest.</para>
+            <para>Every point along the surface of a single triangle has the same geometric surface
+                normal. That's all well and good, for actual triangles. But polygonal models are
+                usually supposed to be approximations of real, curved surfaces. If we use the actual
+                triangle's surface normal for all of the points on a triangle, the object would look
+                very faceted. This would certainly be an accurate representation of the actual
+                triangular mesh, but it reveals the surface to be exactly what it is: a triangular
+                mesh approximation of a curved surface. If we want to create the illusion that the
+                surface really is curved, we need to do something else.</para>
+            <para>Instead of using the triangle's normal, we can assign to each vertex the normal
+                that it <emphasis>would</emphasis> have had on the surface it is approximating. That
+                is, while the mesh is an approximating, the normal for a vertex is the actual normal
+                for that surface. This actually works out surprisingly well.</para>
+            <para>This means that we must add to the vertex's information. In past tutorials, we
+                have had a position and sometimes a color. To that information, we add a normal. So
+                we will need a vertex attribute that represents the normal.</para>
+        </section>
+        <section>
+            <title>Gouraud Shading</title>
+            <para>So each vertex has a normal. That is useful, but it is not sufficient, for one
+                simple reason. We don't draw the vertices of triangles; we draw the interior of a
+                triangle through rasterization.</para>
+            <para>There are several ways to go about computing lighting across the surface of a
+                triangle. The simplest to code, and most efficient for rendering, is to perform the
+                lighting computations at every vertex, and then let the result of this computation
+                be interpolated across the surface of the triangle. This process is called
+                    <glossterm>Gouraud shading.</glossterm></para>
+            <para>Gouraud shading is a pretty decent approximation, when using the diffuse lighting
+                model. It usually looks OK so long as we remain using that lighting model, and was
+                commonly used for a good decade or so. Interpolation of vertex outputs is a very
+                fast process, and not having to compute lighting at every fragment generated from
+                the triangle raises the performance substantially.</para>
+            <para>That being said, modern games have essentially abandoned this technique. Part of
+                that is because the per-fragment computation isn't as slow and limited as it used to
+                be. And part of it is simply that games tend to not use just diffuse lighting
+                anymore, so the Gouraud approximation is more noticeably inaccurate.</para>
+        </section>
+        <section>
+            <title>Directional Light Source</title>
+            <para>The angle of incidence is the angle between the surface normal and the direction
+                towards the light. Computing the direction from the point in question to the light
+                can be done in a couple of ways.</para>
+            <para>If you have a light source that is very close to an object, then the direction
+                towards the light can change dramatically over the surface of that object. As the
+                light source is moved farther and farther away, the direction towards the light
+                varies less and less over the surface of the object.</para>
+            <figure>
+                <title>Near and Far Lights</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="NearVsFarLight.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>If the light source is sufficiently distant, relative to the size of the scene
+                being rendered, then the direction towards the light is nearly the same for every
+                point on every object you render. Since the direction is the same everywhere, the
+                light can be represented as just a single direction given to all of the objects.
+                There is no need to compute the direction based on the position of the point being
+                illuminated.</para>
+            <para>This situation is called a <glossterm>directional light source.</glossterm> Light
+                from such a source effectively comes from a particular direction as a wall of
+                intensity, evenly distributed over the scene.</para>
+            <para>Direction light sources are a good model for lights like the sun relative to a
+                small region of the Earth. It would not be a good model for the sun relative to the
+                rest of the solar system. So scale is important.</para>
+            <para>Light sources do not have to be physical objects rendered in the scene. All we
+                need to use a directional light is to provide a direction to our lighting model when
+                rendering the surface we want to see. However, having light appear from seemingly
+                nothing hurts verisimilitude; this should be avoided where possible.</para>
+            <para>Alternatives to directional lights will be discussed a bit later.</para>
+        </section>
+        <section>
+            <title>Normals and Space</title>
+            <para>Normals have many properties that positions do. Normals are vector directions, so
+                like position vectors, they exist in a certain coordinate system. It is usually a
+                good idea to have the normals for your vertices be in the same coordinate system as
+                the positions in those vertices. So that means mesh space.</para>
+            <para>This also means that normals must be transformed from mesh space to another space.
+                That other space needs to be the same space that the lighting direction is in;
+                otherwise, the two vectors cannot be compared. One might think that world space is a
+                fine choice. After all, the light direction is already defined in world
+                space.</para>
+            <para>You certainly could use world space to do lighting. However, for our purposes, we
+                will use camera space. The reason for this is partially illustrative: in later
+                tutorials, we are going to do lighting in some rather unusual spaces. By using
+                camera space, it gets us in the habit of transforming both our light direction and
+                the surface normals into different spaces.</para>
+            <para>We will talk more in later sections about exactly how we transform the normal. For
+                now, we will just transform it with the regular transformation matrix.</para>
+        </section>
+        <section>
+            <title>Drawing with Lighting</title>
+            <para>The full lighting model for computing the diffuse reflectance from directional
+                light sources, using per-vertex normals and Gouraud shading, is as follows. The
+                light will be represented by a direction and a light intensity (color). The light
+                direction passed to our shader is expected to be in camera space already, so the
+                shader is not responsible for this transformation. For each vertex (in addition to
+                the normal position transform), we:</para>
+            <orderedlist>
+                <listitem>
+                    <para>Transform the normal from mesh space to camera space using the
+                        model-to-camera transformation matrix.</para>
+                </listitem>
+                <listitem>
+                    <para>Compute the cosine of the angle of incidence.</para>
+                </listitem>
+                <listitem>
+                    <para>Multiply the light intensity by the cosine of the angle of incidence, and
+                        multiply that by the diffuse surface color.</para>
+                </listitem>
+                <listitem>
+                    <para>Pass this value as a vertex shader output, which will be written to the
+                        screen by the fragment shader.</para>
+                </listitem>
+            </orderedlist>
+            <para>This is what we do in the <phrase role="propername">Basic Lighting</phrase>
+                tutorial. It renders a cylinder above a flat plane, with a single directional light
+                source illuminating both objects. One of the nice things about a cylinder is that it
+                has both curved and flat surfaces, thus making an adequate demonstration of how
+                light interacts with a surface.</para>
+            <figure>
+                <title>Basic Lighting</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Basic%20Lighting.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The light is at a fixed direction; the model and camera both can be
+                rotated.</para>
+            <sidebar>
+                <title>Mouse Movement</title>
+                <para>This is the first tutorial that uses mouse movement to orient objects and the
+                    camera. These controls will be used throughout the rest of this book.</para>
+                <para>The camera can be oriented with the left mouse button. Left-clicking and
+                    dragging will rotate the camera around the target point. This will rotate both
+                    horizontally and vertically. Think of the world as a sphere. Starting to drag
+                    means placing your finger on the sphere. Moving your mouse is like moving your
+                    finger; the sphere rotates along with your finger's movement. If you hold
+                        <keycap>Ctrl</keycap> when you left-click, you can rotate either
+                    horizontally or vertically, depending on the direction you move the mouse.
+                    Whichever direction is farthest from the original location clicked will be the
+                    axis that is rotated.</para>
+                <para>The camera's up direction can be changed as well. To do this, left-click while
+                    holding <keycap>Alt</keycap>. Only horizontal movements of the mouse will spin
+                    the view. Moving left spins counter-clockwise, while moving right spins
+                    clockwise.</para>
+                <para>The camera can be moved closer to it's target point and farther away. To do
+                    this, scroll the mouse wheel up and down. Up scrolls move closer, while down
+                    moves farther away.</para>
+                <para>The object can be controlled by the mouse as well. The object can be oriented
+                    with the right-mouse button. Right-clicking and dragging will rotate the object
+                    horizontally and vertically, relative to the current camera view. As with camera
+                    controls, holding <keycap>Ctrl</keycap> when you right-click will allow you to
+                    rotate horizontally or vertically only.</para>
+                <para>The object can be spun by right-clicking while holding <keycap>Alt</keycap>.
+                    As with the other object movements, the spin is relative to the current
+                    direction of the camera.</para>
+                <para>The code for these are contained in the framework objects
+                        <type>MousePole</type> and <type>ObjectPole</type>. The source code in them
+                    is, outside of how FreeGLUT handles mouse input, nothing that hasn't been seen
+                    previously.</para>
+            </sidebar>
+            <para>Pressing the <keycap>Spacebar</keycap> will switch between a cylinder that has a
+                varying diffuse color and one that is pure white. This demonstrates the effect of
+                lighting on a changing diffuse color.</para>
+            <para>The initialization code does the usual: loads the shaders, gets uniforms from
+                them, and loads a number of meshes. In this case, it loads a mesh for the ground
+                plane and a mesh for the cylinder. Both of these meshes have normals at each vertex;
+                we'll look at the mesh data a bit later.</para>
+            <para>The display code has gone through a few changes. The vertex shader uses only two
+                matrices: one for model-to-camera, and one for camera-to-clip-space. So our matrix
+                stack will have the camera matrix at the very bottom.</para>
+            <example>
+                <title>Display Camera Code</title>
+                <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
+
+Framework::MatrixStack modelMatrix;
 modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
 
-const glm::vec4 &amp;worldLightPos = CalcLightPosition();
+glm::vec4 lightDirCameraSpace = modelMatrix.Top() * g_lightDirection;
 
-glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
+glUseProgram(g_WhiteDiffuseColor.theProgram);
+glUniform3fv(g_WhiteDiffuseColor.dirToLightUnif, 1, glm::value_ptr(lightDirCameraSpace));
+glUseProgram(g_VertexDiffuseColor.theProgram);
+glUniform3fv(g_VertexDiffuseColor.dirToLightUnif, 1, glm::value_ptr(lightDirCameraSpace));
+glUseProgram(0);</programlisting>
+            </example>
+            <para>Since our vertex shader will be doing all of its lighting computations in camera
+                space, we need to move the <varname>g_lightDirection</varname> from world space to
+                camera space. So we multiply it by the camera matrix. Notice that the camera matrix
+                now comes from the MousePole object.</para>
+            <para>Now, we need to talk a bit about vector transforms with matrices. When
+                transforming positions, the fourth component was 1.0; this was used so that the
+                translation component of the matrix transformation would be added to each
+                position.</para>
+            <para>Vectors represent directions, not absolute positions. And while rotating or
+                scaling a direction is a reasonable operation, translating it is not. Now, we could
+                just adjust the matrix to remove all translations before transforming our light into
+                camera space. But that's highly unnecessary; we can simply put 0.0 in the fourth
+                component of the direction. This will do the same job, only we don't have to mess
+                with the matrix to do so.</para>
+            <para>This also allows us to use the same transformation matrix for vectors as for
+                positions.</para>
+            <para>We upload the camera-space light direction to the two programs.</para>
+            <para>To render the ground plane, we run this code:</para>
+            <example>
+                <title>Ground Plane Lighting</title>
+                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
 
-glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
-glUniform3fv(g_WhiteAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-glUseProgram(g_VertexAmbDiffuseColor.theProgram);
-glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));</programlisting>
-        </example>
-        <para>The light is computed initially in world space, then transformed into camera space.
-            The camera-space light position is given to both of the shaders. Rendering proceeds
-            normally from there.</para>
-        <para>Our vertex shader has had a few changes:</para>
-        <example>
-            <title>Per-Vertex Point Light Vertex Shader</title>
-            <programlisting>#version 330
+glUseProgram(g_WhiteDiffuseColor.theProgram);
+glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glm::mat3 normMatrix(modelMatrix.Top());
+glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+g_pPlaneMesh->Render();
+glUseProgram(0);</programlisting>
+            </example>
+            <para>We upload two matrices. One of these is used for normals, and the other is used
+                for positions. The normal matrix is only 3x3 instead of the usual 4x4. This is
+                because normals do not use the translation component. We could have used the trick
+                we used earlier, where we use a 0.0 as the W component of a 4 component normal. But
+                instead, we just extract the top-left 3x3 area of the model-to-camera matrix and
+                send that.</para>
+            <para>Of course, the matrix is the same as the model-to-camera, except for the lack of
+                translation. The reason for having separate matrices will come into play
+                later.</para>
+            <para>We also upload the intensity of the light, as a pure-white light at full
+                brightness. Then we render the mesh.</para>
+            <para>To render the cylinder, we run this code:</para>
+            <example>
+                <title>Cylinder Lighting</title>
+                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+
+modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
+
+if(g_bDrawColoredCyl)
+{
+    glUseProgram(g_VertexDiffuseColor.theProgram);
+    glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+    glm::mat3 normMatrix(modelMatrix.Top());
+    glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+    glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    g_pCylinderMesh->Render("tint");
+}
+else
+{
+    glUseProgram(g_WhiteDiffuseColor.theProgram);
+    glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+    glm::mat3 normMatrix(modelMatrix.Top());
+    glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+    glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    g_pCylinderMesh->Render("flat");
+}
+glUseProgram(0);</programlisting>
+            </example>
+            <para>The cylinder is not scaled at all. It is one unit from top to bottom, and the
+                diameter of the cylinder is also 1. Translating it up by 0.5 simply moves it to
+                being on top of the ground plane. Then we apply a rotation to it, based on user
+                inputs.</para>
+            <para>We actually draw two different kinds of cylinders, based on user input. The
+                colored cylinder is tinted red and is the initial cylinder. The white cylinder uses
+                a vertex program that doesn't use per-vertex colors for the diffuse color; instead,
+                it uses a hard-coded color of full white. These both come from the same mesh file,
+                but have special names to differentiate between them.</para>
+            <para>What changes is that the <quote>flat</quote> mesh doesn't pass the color vertex
+                attribute and the <quote>tint</quote> mesh does.</para>
+            <para>Other than which program is used to render them and what mesh name they use, they
+                are both rendered similarly.</para>
+            <para>The camera-to-clip matrix is uploaded to the programs in the
+                    <function>reshape</function> function, as previous tutorials have
+                demonstrated.</para>
+        </section>
+        <section>
+            <title>Vertex Lighting</title>
+            <para>There are two vertex shaders used in this tutorial. One of them uses a color
+                vertex attribute as the diffuse color, and the other assumes the diffuse color is
+                (1, 1, 1, 1). Here is the vertex shader that uses the color attribute,
+                    <filename>DirVertexLighting_PCN</filename>:</para>
+            <example>
+                <title>Lighting Vertex Shader</title>
+                <programlisting>#version 330
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec4 diffuseColor;
@@ -79,7 +439,378 @@ layout(location = 2) in vec3 normal;
 
 smooth out vec4 interpColor;
 
-uniform vec3 lightPos;
+uniform vec3 dirToLight;
+uniform vec4 lightIntensity;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 modelToCameraMatrix;
+
+uniform mat3 normalModelToCameraMatrix;
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+	vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
+    
+    float cosAngIncidence = dot(normCamSpace, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = lightIntensity * diffuseColor * cosAngIncidence;
+}</programlisting>
+            </example>
+            <para>We define a single output variable, <varname>interpColor</varname>, which will be
+                interpolated across the surface of the triangle. We have a uniform for the
+                camera-space lighting direction <varname>dirToLight</varname>. Notice the name: it
+                is the direction from the surface <emphasis>towards</emphasis> the light. It is not
+                the direction <emphasis>from</emphasis> the light.</para>
+            <para>We also have a light intensity uniform value, as well as two matrices for
+                positions and a separate one for normals.</para>
+            <para>The first line of <function>main</function> simply does the position transforms we
+                need to position our vertices, as we have seen before. We don't need to store the
+                camera-space position, so we can do the entire transformation in a single
+                step.</para>
+            <para>The next line takes our normal and transforms it by the model-to-camera matrix
+                specifically for normals. As noted earlier, the contents of this matrix are
+                identical to the contents of <varname>modelToCameraMatrix.</varname> The
+                    <function>normalize</function> function takes the result of the transform and
+                ensures that the normal has a length of one. The need for this will be explained
+                later.</para>
+            <para>We then compute the cosine of the angle of incidence. We'll explain how this math
+                computes this shortly. Do note that after computing the cosine of the angle of
+                incidence, we then clamp the value to between 0 and 1 using the GLSL built-in
+                function <function>clamp.</function></para>
+            <para>This is important, because the cosine of the angle of incidence can be negative.
+                This is for values which are pointed directly away from the light, such as the
+                underside of the ground plane, or any part of the cylinder that is facing away from
+                the light. The lighting computations don't make sense with this value being
+                negative, so the clamping is necessary.</para>
+            <para>After computing that value, we multiply it by the light intensity and diffuse
+                color. This result is then passed to the interpolated output color. The fragment
+                shader is a simple passthrough shader that writes the interpolated color
+                directly.</para>
+            <para>The version of the vertex shader without the per-vertex color attribute simply
+                omits the multiplication with the <varname>diffuseColor</varname> (as well as the
+                definition of that input variable). This is the same as doing a multiply with a
+                color vector of all 1.0.</para>
+        </section>
+        <section>
+            <title>Vector Dot Product</title>
+            <para>We glossed over an important point in looking at the vertex shader. Namely, how
+                the cosine of the angle of incidence is computed.</para>
+            <para>Given two vectors, one could certainly compute the angle of incidence, then take
+                the cosine of it. But both computing that angle and taking its cosine are quite
+                expensive. Instead, we elect to use a vector math trick: the <glossterm>vector dot
+                    product.</glossterm></para>
+            <para>The vector dot product between two vectors can be mathematically computed as
+                follows:</para>
+            <equation>
+                <title>Dot Product</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="DotProductLength.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>If both vectors have a length of one, if they are unit vectors, then the result of
+                a dot product is just the cosine of the angle between the vectors.</para>
+            <para>This is also part of the reason why the light direction is the direction
+                    <emphasis>towards</emphasis> the light rather than from the light. Otherwise we
+                would have to negate the vector before performing the dot product.</para>
+            <para>What makes this faster than taking the cosine of the angle directly is that, while
+                the dot product is geometrically the cosine of the angle between the two unit
+                vectors, computing the dot product via vector math is very simple:</para>
+            <equation>
+                <title>Dot Product from Vector Math</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata format="SVG" fileref="DotProductEquation.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </equation>
+            <para>This doesn't require any messy cosine transcendental math computations. This
+                doesn't require using trigonometry to compute the angle between the two vectors.
+                Simple multiplications and additions; most graphics hardware can do billions of
+                these a second.</para>
+            <para>Obviously, the GLSL function <function>dot</function> computes the vector dot
+                product of its arguments.</para>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut09 Normal Transformation.html" ?>
+        <title>Normal Transformation</title>
+        <para>In the last section, we saw that our computation of the cosine of the angle of
+            incidence has certain requirements. Namely, that the two vectors involved, the surface
+            normal and the light direction, are of unit length. The light direction can be assumed
+            to be of unit length, since it is passed directly as a uniform.</para>
+        <para>The surface normal can also be assumed to be of unit length.
+                <emphasis>Initially.</emphasis> However, the normal undergoes a transformation by an
+            arbitrary matrix; there is no guarantee that this transformation will not apply scaling
+            or other transformations to the vector that will result in a non-unit vector.</para>
+        <para>Of course, it is easy enough to correct this. The GLSL function
+                <function>normalize</function> will return a vector that is of unit length without
+            changing the direction of the input vector.</para>
+        <para>And while mathematically this would function, geometrically, it would be nonsense. For
+            example, consider a 2D circle. We can apply a non-uniform scale (different scales in
+            different axes) to the positions on this circle that will transform it into an
+            ellipse:</para>
+        <figure>
+            <title>Circle Scaling</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CircleScaling.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>This is all well and good, but consider the normals in this transformation:</para>
+        <figure>
+            <title>Circle Scaling with Normals</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CircleNormalScaling.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The ellipse in the middle has the normals that you would expect if you transformed the
+            normals from the circle by the same matrix the circle was transformed by. They may be
+            unit length, but they no longer reflect the <emphasis>shape</emphasis> of the ellipse.
+            The ellipse on the right has normals that reflect the actual shape.</para>
+        <para>It turns out that, what you really want to do is transform the normals with the same
+            rotations as the positions, but invert the scales. That is, a scale of 0.5 along the X
+            axis will shrink positions in that axis by half. For the surface normals, you want to
+                <emphasis>double</emphasis> the X value of the normals, then normalize the
+            result.</para>
+        <para>This is easy if you have a simple matrix. But more complicated matrices, composed from
+            multiple successive rotations, scales, and other operations, are not so easy to
+            compute.</para>
+        <para>Instead, what we must do is compute something called the <glossterm>inverse
+                transpose</glossterm> of the matrix in question. This means we first compute the
+            inverse matrix, then compute the <glossterm>transpose</glossterm> of that matrix. The
+            transpose of a matrix is simply the same matrix flipped along the diagonal. The columns
+            of the original matrix are the rows of its transpose. That is:</para>
+        <equation>
+            <title>Matrix Transpose</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="MatrixTranspose.svg"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>So how does this inverse transpose help us?</para>
+        <para>Remember: what we want is to invert the scales of our matrix without affecting the
+            rotational characteristics of our matrix. Given a 3x3 matrix M that is composed of only
+            rotation and scale transformations, we can re-express this matrix as follows:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="MatrixSVD.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>That is, the matrix can be expressed as doing a rotation into a space, followed by a
+            single scale transformation, followed by another rotation. We can do this
+                <emphasis>regardless</emphasis> of how many scale and rotation matrices were used to
+            build M. That is, M could be the result of twenty rotation and scale matrices, but all
+            of those can be extracted into two rotations with a scale inbetween.<footnote>
+                <para>We will skip over deriving how exactly this is true. If you are interested,
+                    search for <quote><link
+                            xlink:href="http://en.wikipedia.org/wiki/Singular_value_decomposition"
+                            >Singular Value Decomposition</link></quote>. But be warned: it is
+                    math-heavy.</para>
+            </footnote></para>
+        <para>Recall that what we want to do is invert the scales in our transformation. Where we
+            scale by 0.4 in the original, we want to scale by 2.5 in the inverse. The inverse matrix
+            of a pure scale matrix is a matrix with each of the scaling components inverted.
+            Therefore, we can express the matrix that we actually want as this:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="InvertedScale.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>An interesting fact about pure-rotation matrices: the inverse of any rotation matrix
+                <emphasis>is</emphasis> its transpose. Also, taking the inverse of a matrix twice
+            results in the original matrix. Therefore, you can express any pure-rotation matrix as
+            the inverse transpose of itself, without affecting the matrix. Since the inverse is its
+            transpose, and doing a transpose twice on a matrix doesn't change its value, the
+            inverse-transpose of a rotation matrix is a no-op.</para>
+        <para>Also, since the values in pure-scale matrices are along the diagonal, a transpose
+            operation on scale matrices does nothing. With these two facts in hand, we can
+            re-express the matrix we want to compute as:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="DeriveInvTrans_1.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Using matrix algebra, we can factor the transposes out, but doing so requires
+            reversing the order of the matrix multiplication:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="FactorOutTranspose_2.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Similar, we can factor out the inverse operations, but this requires reversing the
+            order again:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata format="SVG" fileref="FactorOutInverse_3.svg"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
+        <para>Thus, the inverse-transpose solves our problem. And both GLM and GLSL have nice
+            functions that can do these operations for us. Though really, if you can avoid doing an
+            inverse-transpose in GLSL, you are <emphasis>strongly</emphasis> advised to do so; this
+            is not a trivial computation.</para>
+        <para>We do this in the <phrase role="propername">Scale and Lighting</phrase> tutorial. It
+            controls mostly the same as the previous tutorial, with a few exceptions. Pressing the
+            space bar will toggle between a regular cylinder and a scaled one. The <quote>T</quote>
+            key will toggle between properly using the inverse-transpose (the default) and not using
+            the inverse transpose. The rendering code for the cylinder is as follows:</para>
+        <example>
+            <title>Lighting with Proper Normal Transform</title>
+            <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+
+modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
+
+if(g_bScaleCyl)
+{
+    modelMatrix.Scale(1.0f, 1.0f, 0.2f);
+}
+
+glUseProgram(g_VertexDiffuseColor.theProgram);
+glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glm::mat3 normMatrix(modelMatrix.Top());
+if(g_bDoInvTranspose)
+{
+    normMatrix = glm::transpose(glm::inverse(normMatrix));
+}
+glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+g_pCylinderMesh->Render("tint");
+glUseProgram(0);</programlisting>
+        </example>
+        <para>It's pretty self-explanatory.</para>
+        <figure>
+            <title>Lighting and Scale</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Scale%20and%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>One more thing to note before we move on. Doing the inverse-transpose is only really
+            necessary if you are using a <emphasis>non-uniform</emphasis> scale. In practice, it's
+            actually somewhat rare to use this kind of scale factor. We do it in these tutorials, so
+            that it is easier to build models from simple geometric components. But when you have an
+            actual modeller creating objects for a specific purpose, non-uniform scales generally
+            are not used. At least, not in the output mesh. It's better to just get the modeller to
+            adjust the model as needed in their modelling application.</para>
+        <para>Uniform scales are more commonly used. So you still need to normalize the normal after
+            transforming it with the model-to-camera matrix, even if you aren't using the
+            inverse-transpose.</para>
+    </section>
+    <section>
+        <?dbhtml filename="Tut09 Global Illumination.html" ?>
+        <title>Global Illumination</title>
+        <para>You may notice something very unrealistic about the results of this tutorial. For
+            example, take this image:</para>
+        <figure>
+            <title>Half Lit</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="No%20Ambient.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The unlit portions of the cylinder are completely, 100% black. This almost never
+            happens in real life, even for objects we perceive as being <quote>black</quote> in
+            color. The reason for this is somewhat complicated.</para>
+        <para>Consider a scene of the outdoors. In normal daylight, there is exactly one light
+            source: the sun. Objects that are in direct sunlight appear to be bright, and objects
+            that have some object between them and the sun are in shadow.</para>
+        <para>But think about what those shadows look like. They're not 100% black. They're
+            certainly darker than the surrounding area, but they still have some color. And
+            remember: we only see anything because our eyes detect light. In order to see an object
+            in the shadow of a light source, that object must either be emitting light directly or
+            reflecting light that came from somewhere else. Grass is not known for its
+            light-emitting qualities, so where does the light come from?</para>
+        <para>Think about it. We see because an object reflects light into our eyes. But our eyes
+            are not special; the object does not reflect light <emphasis>only</emphasis> into our
+            eyes. It reflects light in all directions. Not necessarily at the same intensity in each
+            direction, but objects that reflect light tend to do so in all directions to some
+            degree. What happens when that light hits another surface?</para>
+        <para>The same thing that happens when light hits any surface: some of it is absorbed, and
+            some is reflected in some way.</para>
+        <para>The light being cast in shadows from the sun comes from many places. Part of it is an
+            atmospheric effect; the sun is so bright that the weakly reflective atmosphere reflects
+            enough light to shine a color. Typically, this is a pale blue. Part of the light comes
+            from other objects. The sun gives off so much light that the light reflected from other
+            objects is bright enough to be a substantial contributer to the overall lighting in a
+            scene.</para>
+        <para>This phenomenon is called <glossterm>interreflection.</glossterm> A lighting model
+            that handles interreflection is said to handle <glossterm>global
+                illumination.</glossterm> It represents light that bounces from object to object
+            before hitting the eye's of the person viewing the scene. Modelling only lighting
+            directly from a light-emitting surface is called <glossterm>local
+                illumination</glossterm> or <glossterm>direct illumination,</glossterm> and it is
+            what we have been doing up until this point.</para>
+        <para>As you might imagine, modelling global illumination is hard. <emphasis>Very</emphasis>
+            hard. It is typically a subtle effect, but in many scenes, particularly outdoor scenes,
+            it is almost a necessity to provide at least basic global illumination modelling in
+            order to achieve a decent degree of photorealism. Incidentally, this is a good part of
+            the reason why most games tend to avoid outdoor scenes or light outdoor scenes as though
+            the sky were cloudy or overcast. This neatly avoids needing to do complex global
+            illumination modelling by damping down the brightness of the sun to levels when
+            interreflection would be difficult to notice.</para>
+        <para>Having this completely black area in our rendering looks incredibly fake. Since doing
+            actual global illumination modelling is hard, we will instead use a time-tested
+            technique: <glossterm>ambient lighting.</glossterm></para>
+        <para>The ambient lighting <quote>model</quote><footnote>
+                <para>I put the word model in quotations because ambient lighting is so divorced
+                    from anything in reality that it doesn't really deserve to be called a model.
+                    That being said, just because it does not actually model global illumination in
+                    any real way doesn't mean that it isn't <emphasis>useful</emphasis>.</para>
+            </footnote> is quite simple. It assumes that, on every object in the scene, there is a
+            light of a certain intensity that emanates from everywhere. It comes from all directions
+            equally, so there is no angle of incidence in our diffuse calculation. It is simply the
+            ambient light intensity * the diffuse surface color.</para>
+        <para>We do this in the <phrase role="propername">Ambient Lighting</phrase> tutorial. The
+            controls are the same as the last tutorial, except that the space bar swaps between the
+            two cylinders (red and white), and that the <keycap>T</keycap> key toggles ambient
+            lighting on and off (defaults to off).</para>
+        <figure>
+            <title>Ambient Lighting</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Ambient%20Lighting.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The detail seen in the dark portion of the cylinder only comes from the diffuse color.
+            And because the ambient is fairly weak, the diffuse color of the surface appears muted
+            in the dark areas.</para>
+        <para>The rendering code now uses four of vertex shaders instead of two. Two of them are
+            used for non-ambient lighting, and use the same shaders we have seen before, and the
+            other two use ambient lighting.</para>
+        <para>The ambient vertex shader that uses per-vertex colors is called
+                <filename>DirAmbVertexLighting_PCN.vert</filename> and reads as follows:</para>
+        <example>
+            <title>Ambient Vertex Lighting</title>
+            <programlisting language="glsl">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 diffuseColor;
+layout(location = 2) in vec3 normal;
+
+smooth out vec4 interpColor;
+
+uniform vec3 dirToLight;
 uniform vec4 lightIntensity;
 uniform vec4 ambientIntensity;
 
@@ -90,12 +821,9 @@ uniform mat3 normalModelToCameraMatrix;
 
 void main()
 {
-    vec4 cameraPosition = (modelToCameraMatrix * vec4(position, 1.0));
-    gl_Position = cameraToClipMatrix * cameraPosition;
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
     
     vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
-    
-    vec3 dirToLight = normalize(lightPos - vec3(cameraPosition));
     
     float cosAngIncidence = dot(normCamSpace, dirToLight);
     cosAngIncidence = clamp(cosAngIncidence, 0, 1);
@@ -104,878 +832,86 @@ void main()
         (diffuseColor * ambientIntensity);
 }</programlisting>
         </example>
-        <para>The vertex shader takes a camera-space light position instead of a camera-space light
-            direction. It also stores the camera-space vertex position in a temporary in the first
-            line of <function>main</function>. This is used to compute the direction to the light.
-            From there, the computation proceeds normally.</para>
-        <para>Note the order of operations in computing <varname>dirToLight.</varname> The
-                <varname>lightPos</varname> is on the left and the <varname>cameraPosition</varname>
-            is on the right. Geometrically, this is correct. If you have two points, and you want to
-            find the direction from point A to point B, you compute B - A. The
-                <function>normalize</function> call is just to convert it into a unit vector.</para>
+        <para>It takes two uniforms that specify lighting intensity. One specifies the intensity for
+            the diffuse lighting, and the other for the ambient lighting. The only other change is
+            to the last line in the shader. The usual diffuse lighting result has its value added to
+            the ambient lighting computation. Also, note that the contribution from two lighting
+            models is added together.</para>
+        <para>Of particular note is the difference between the lighting intensities in the
+            pure-diffuse case and the diffuse+ambient case:</para>
+        <example>
+            <title>Lighting Intensity Settings</title>
+            <programlisting language="cpp">if(g_bShowAmbient)
+{
+    glUseProgram(whiteDiffuse.theProgram);
+    glUniform4f(whiteDiffuse.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+    glUniform4f(whiteDiffuse.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+    glUseProgram(vertexDiffuse.theProgram);
+    glUniform4f(vertexDiffuse.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+    glUniform4f(vertexDiffuse.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+}
+else
+{
+    glUseProgram(whiteDiffuse.theProgram);
+    glUniform4f(whiteDiffuse.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    glUseProgram(vertexDiffuse.theProgram);
+    glUniform4f(vertexDiffuse.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+}</programlisting>
+        </example>
+        <para>In the pure-diffuse case, the light intensity is full white. But in the ambient case,
+            we deliberately set the diffuse intensity to less than full white. This is very
+            intensional.</para>
+        <para>We will talk more about this issue in the next future, but it is very critical that
+            light intensity values not exceed 1.0. This includes <emphasis>combined</emphasis>
+            lighting intensity values. OpenGL clamps colors that it writes to the output image to
+            the range [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined
+            with other lights, can cause unpleasant visual effects.</para>
+        <para>There are ways around this, and those ways will be discussed in the eventual
+            future.</para>
     </section>
     <section>
-        <?dbhtml filename="Tut09 Interpolation.html" ?>
-        <title>Interpolation</title>
-        <para>As you can see, doing point lighting is quite simple. Unfortunately, the visual
-            results are not.</para>
-        <para>For example, use the controls to display the position of the point light source, then
-            position it near the ground plane. See anything wrong?</para>
-        <para>If everything were working correctly, one would expect to see a bright area directly
-            under the light. After all, geometrically, this situation looks like this:</para>
-        <figure>
-            <title>Light Near Surface</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="LightNearSurface.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The surface normal for the areas directly under the light are almost the same as the
-            direction towards the light. This means that the angle of incidence is small, so the
-            cosine of this angle is close to 1. That should translate to having a bright area under
-            the light, but darker areas farther away. What we see is nothing of the sort. Why is
-            that?</para>
-        <para>Well, consider what we are doing. We are computing the lighting at every triangle's
-                <emphasis>vertex</emphasis>, and then interpolating the results across the surface
-            of the triangle. The ground plane is made up of precisely four vertices: the four
-            corners. And those are all very far from the light position and have a very large angle
-            of incidence. Since none of them have a small angle of incidence, none of the colors
-            that are interpolated across the surface are bright.</para>
-        <para>You can see this is evident by putting the light position next to the cylinder. If the
-            light is at the top or bottom of the cylinder, then the area near the light will be
-            bright. But if you move the light to the middle of the cylinder, far the top or bottom
-            vertices, then the illumination will be much dimmer.</para>
-        <para>This is not the only problem with doing per-vertex lighting. For example, run the
-            tutorial again and don't move the light. Just watch how the light behaves on the
-            cylinder's surface as it animates around. Unlike with directional lighting, you can very
-            easily see the triangles on the cylinder's surface. Though the per-vertex computations
-            aren't helping matters, the main problem here has to do with interpolating the
-            values.</para>
-        <para>If you move the light source farther away, you can see that the triangles smooth out
-            and become indistinct from one another. But this is simply because, if the light source
-            is far enough away, the results are indistinguishable from a directional light. Each
-            vertex's direction to the light is almost the same as each other vertex's direction to
-            the light.</para>
-        <para>Per-vertex lighting was reasonable when dealing with directional lights. But it simply
-            is not a good idea for point lighting. The question arises: why was per-vertex lighting
-            good with directional lights to begin with?</para>
-        <para>Remember that our diffuse lighting equation has two parameters: the direction to the
-            light and the surface normal. In directional lighting, the direction to the light is
-            always the same. Therefore, the only value that changes over a triangle's surface is the
-            surface normal.</para>
-        <para>Linear interpolation of vectors looks like this:</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="StandardLerp_1.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>The α in the equation is the factor of interpolation between the two values. When α is
-            one, we get V<subscript>a</subscript>, and when it is zero, we get
-                V<subscript>b</subscript>. The two values, V<subscript>a</subscript> and
-                V<subscript>b</subscript> can be scalars or vectors.</para>
-        <para>Our diffuse lighting equation is this:</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="DiffuseLightEq_2.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>If the surface normal N is being interpolated, then at any particular point on the
-            surface, we get this equation for a directional light (the light direction L does not
-            change):</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_3.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>The dot product is distributive, like scalar multiplication. So we can distribute the
-            L to both sides of the dot product term:</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_4.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>We can extract the linear terms from the dot product. Remember that the dot product is
-            the cosine of the angle between two vectors, times the length of those vectors. The two
-            scaling terms directly modify the length of the vectors. So they can be pulled out to
-            give us:</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_5.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>Recall that vector/scalar multiplication is distributive. We can distribute the
-            multiplication by the diffuse color and light intensity to both terms. This gives
-            us:</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_6.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>This means that if L is constant, linearly interpolating N is exactly equivalent to
-            linearly interpolating the results of the lighting equation. And the addition of the
-            ambient term doesn't change this, since it is a constant and would not be affected by
-            linear interpolation.</para>
-        <para>When doing point lighting, you would have to interpolate both N and L. And that does
-            not yield the same results as linearly interpolating the two colors you get from the
-            lighting equation. This is a big part of the reason why the cylinder doesn't look
-            correct.</para>
-        <para>The more physically correct method of lighting is to perform lighting at every rendered
-            pixel. To do that, we would have to interpolate the lighting parameters across the
-            triangle, and perform the lighting computation in the fragment shader.</para>
-    </section>
-    <section>
-        <?dbhtml filename="Tut09 Fragment Lighting.html" ?>
-        <title>Fragment Lighting</title>
-        <para>So, in order to deal with interpolation artifacts, we need to interpolate the actual
-            light direction and normal, instead of just the results of the lighting equation. This
-            is called per-fragment lighting or just <glossterm>fragment lighting.</glossterm></para>
-        <para>This is pretty simple, conceptually. We simply need to do the lighting computations in
-            the fragment shader. So the fragment shader needs the position of the fragment, the
-            light's position (or the direction to the light from that position), and the surface
-            normal of the fragment at that position. And all of these values need to be in the same
-            coordinate space.</para>
-        <para>There is a problem that needs to be dealt with first. Normals do not interpolate well.
-            Or rather, wildly different normals do not interpolate well. And light directions can be
-            very different if the light source is close to the triangle relative to that triangle's
-            size.</para>
-        <para>Consider the large plane we have. The direction toward the light will be very
-            different at each vertex, so long as our light remains in relatively close proximity to
-            the plane.</para>
-        <para>Part of the problem is with interpolating values along the diagonal of our triangle.
-            Interpolation within a triangle works like this. For any position within the area of the
-            triangle, that position can be expressed as a weighted sum of the positions of the three
-            vertices.</para>
-        <figure>
-            <title>Triangle Interpolation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="BarycentricTriangle.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <informalequation>
-            <mathphrase>P = αA + βB + γC, where α + β + γ = 1.0</mathphrase>
-        </informalequation>
-        <para>The α, β, and γ values are not the distances from their respective points to the point
-            of interest. In the above case, the point P is in the exact center of the triangle.
-            Thus, the three values are each ⅓.</para>
-        <para>If the point of interest is along an edge of the triangle, then the contribution of
-            the vertex not sharing that edge is zero.</para>
-        <figure>
-            <title>Triangle Edge Interpolation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="BarycentricTriangleEdge.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>Here, point P is exactly halfway between points C and B. Therefore,  β, and γ are both
-            0.5, but α is 0.0. If point P is anywhere along the edge of a triangle, it gets none of
-            its final interpolated value from the third vertex. So along a triangle's edge, it acts
-            like the kind of linear interpolation we have seen before.</para>
-        <para>This is how OpenGL interpolates the vertex shader outputs. It takes the α, β, and γ
-            coordinates for the fragment's position and combines them with the vertex output value
-            for the three vertices in the same way it does for the fragment's position. There is
-            slightly more to it than that, but we will discuss that later.</para>
-        <para>The ground plane in our example is made of two large triangles. They look like
-            this:</para>
-        <figure>
-            <title>Two Triangle Quadrilateral</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="TwoTriangleQuad.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>What happens if we put the color black on the top-right and bottom-left points, and
-            put the color green on the top-left and bottom-right points? If you interpolate these
-            across the surface, you would get this:</para>
-        <figure>
-            <title>Two Triangle Interpolation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="TwoTriangleInterpolation.svg" format="SVG"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The color is pure green along the diagonal. That is because along a triangle's edge,
-            the value interpolated will only be the color of the two vertices along that edge. The
-            value is interpolated based only on each triangle individually, not on extra data from
-            another neighboring triangle.</para>
-        <para>In our case, this means that for points along the main diagonal, the light direction
-            will only be composed of the direction values from the two vertices on that diagonal.
-            This is not good. This wouldn't be much of a problem if the light direction did not
-            change much along the surface, but with large triangles (relative to how close the light
-            is to them), that is simply not the case.</para>
-        <para>Since we cannot interpolate the light direction very well, we need to interpolate
-            something else. Something that does exhibit the characteristics we need when
-            interpolated.</para>
-        <para>Positions interpolate quite well. Interpolating the top-left position and bottom-right
-            positions gets an accurate position value along the diagonal. So instead of
-            interpolating the light direction, we interpolate the components of the light direction.
-            Namely, the two positions. The light position is a constant, so we only need to
-            interpolate the vertex position.</para>
-        <para>Now, we could do this in any space. But for illustrative purposes, we will be doing
-            this in model space. That is, both the light position and vertex position will be in
-            model space.</para>
-        <para>One of the advantages of doing things in model space is that it gets rid of that pesky
-            matrix inverse/transpose we had to do to transform normals correctly. Indeed, normals
-            are not transformed at all. One of the disadvantages is that it requires computing an
-            inverse matrix for our light position, so that we can go from world space to model
-            space.</para>
-        <para>The <phrase role="propername">Fragment Point Lighting</phrase> tutorial shows off how
-            fragment lighting works.</para>
-        <figure>
-            <title>Fragment Point Lighting</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="Fragment%20Point%20Lighting.png"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>Much better.</para>
-        <para>This tutorial is controlled as before, with a few exceptions. Pressing the
-                <keycap>t</keycap> key will toggle a scale factor onto to be applied to the
-            cylinder, and pressing the <keycap>h</keycap> key will toggle between per-fragment
-            lighting and per-vertex lighting.</para>
-        <para>The rendering code has changed somewhat, considering the use of model space for
-            lighting instead of camera space. The start of the rendering looks as follows:</para>
-        <example>
-            <title>Initial Per-Fragment Rendering</title>
-            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
-modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
-
-const glm::vec4 &amp;worldLightPos = CalcLightPosition();
-
-glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;</programlisting>
-        </example>
-        <para>The new code is the last line, where we transform the world-space light into camera
-            space. This is done to make the math much easier. Since our matrix stack is building up
-            the transform from model to camera space, the inverse of this matrix would be a
-            transform from camera space to model space. So we need to put our light position into
-            camera space before we transform it by the inverse.</para>
-        <para>After doing that, it uses a variable to switch between per-vertex and per-fragment
-            lighting. This just selects which shaders to use; both sets of shaders take the same
-            uniform values, even though they use them in different program stages.</para>
-        <para>The ground plane is rendered with this code:</para>
-        <example>
-            <title>Ground Plane Per-Fragment Rendering</title>
-            <programlisting language="cpp">glUseProgram(pWhiteProgram->theProgram);
-glUniformMatrix4fv(pWhiteProgram->modelToCameraMatrixUnif, 1, GL_FALSE,
-    glm::value_ptr(modelMatrix.Top()));
-
-glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
-glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
-glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
-
-g_pPlaneMesh->Render();
-glUseProgram(0);</programlisting>
-        </example>
-        <para>We compute the inverse matrix using <function>glm::inverse</function> and store it.
-            Then we use that to compute the model space light position and pass that to the shader.
-            Then the plane is rendered.</para>
-        <para>The cylinder is rendered using similar code. It simply does a few transformations to
-            the model matrix before computing the inverse and rendering.</para>
-        <para>The shaders are where the real action is. As with previous lighting tutorials, there
-            are two sets of shaders: one that take a per-vertex color, and one that uses a constant
-            white color. The vertex shaders that do per-vertex lighting computations should be
-            familiar:</para>
-        <example>
-            <title>Model Space Per-Vertex Lighting Vertex Shader</title>
-            <programlisting language="glsl">#version 330
-
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec4 inDiffuseColor;
-layout(location = 2) in vec3 normal;
-
-out vec4 interpColor;
-
-uniform vec3 modelSpaceLightPos;
-uniform vec4 lightIntensity;
-uniform vec4 ambientIntensity;
-
-uniform mat4 cameraToClipMatrix;
-uniform mat4 modelToCameraMatrix;
-
-void main()
-{
-    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
-    
-    vec3 dirToLight = normalize(modelSpaceLightPos - position);
-    
-    float cosAngIncidence = dot( normal, dirToLight);
-    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
-    
-    interpColor = (lightIntensity * cosAngIncidence * inDiffuseColor) +
-        (ambientIntensity * inDiffuseColor);
-}</programlisting>
-        </example>
-        <para>The main differences between this version and the previous version are simply what one
-            would expect from the change from camera-space lighting to model space lighting. The
-            per-vertex inputs are used directly, rather than being transformed into camera space.
-            There is a second version that omits the <varname>inDiffuseColor</varname> input.</para>
-        <para>With per-vertex lighting, we have two vertex shaders:
-                <filename>ModelPosVertexLighting_PCN.vert</filename> and
-                <filename>ModelPosVertexLighting_PN.vert</filename>. With per-fragment lighting, we
-            also have two shaders: <filename>FragmentLighting_PCN.vert</filename> and
-                <filename>FragmentLighting_PN.vert</filename>. They are disappointingly
-            simple:</para>
-        <example>
-            <title>Model Space Per-Fragment Lighting Vertex Shader</title>
-            <programlisting language="glsl">#version 330
-
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec4 inDiffuseColor;
-layout(location = 2) in vec3 normal;
-
-out vec4 diffuseColor;
-out vec3 vertexNormal;
-out vec3 modelSpacePosition;
-
-uniform mat4 cameraToClipMatrix;
-uniform mat4 modelToCameraMatrix;
-
-void main()
-{
-    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
-    
-    modelSpacePosition = position;
-    vertexNormal = normal;
-    diffuseColor = inDiffuseColor;
-}</programlisting>
-        </example>
-        <para>Since our lighting is done in the fragment shader, there isn't much to do except pass
-            variables through and set the output clip-space position. The version that takes no
-            diffuse color just passes a <type>vec4</type> containing just 1.0.</para>
-        <para>The fragment shader is much more interesting:</para>
-        <example>
-            <title>Per-Fragment Lighting Fragment Shader</title>
-            <programlisting language="glsl">#version 330
-
-in vec4 diffuseColor;
-in vec3 vertexNormal;
-in vec3 modelSpacePosition;
-
-out vec4 outputColor;
-
-uniform vec3 modelSpaceLightPos;
-
-uniform vec4 lightIntensity;
-uniform vec4 ambientIntensity;
-
-void main()
-{
-    vec3 lightDir = normalize(modelSpaceLightPos - modelSpacePosition);
-    
-    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
-    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
-    
-    outputColor = (diffuseColor * lightIntensity * cosAngIncidence) +
-        (diffuseColor * ambientIntensity);
-}</programlisting>
-        </example>
-        <para>The math is essentially identical between the per-vertex and per-fragment case. The
-            main difference is the normalization of <varname>vertexNormal</varname>. This is
-            necessary because interpolating between two unit vectors does not mean you will get a
-            unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
-            you will not get a unit vector.</para>
-        <section>
-            <title>Caught in a Lie</title>
-            <para>While this may look perfect, there is still one problem. Use the <keycombo>
-                    <keycap>Shift</keycap>
-                    <keycap>J</keycap>
-                </keycombo> key to move the light really close to the cylinder, but without putting
-                the light inside the cylinder. You should see something like this:</para>
-            <figure>
-                <title>Close Lit Cylinder</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Cylinder%20Close%20Light.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>Notice the vertical bands on the cylinder. This are reminiscent of the same
-                interpolation problem we had before. Wasn't doing lighting at the fragment level
-                supposed to fix this?</para>
-            <para>Actually, this is a completely different problem. And it is one that is
-                essentially impossible to solve. Well, not without changing our rendered
-                mesh.</para>
-            <para>The source of the problem is this: the light finally caught us in our lie.
-                Remember what we are actually doing. We are not rendering a true cylinder; we are
-                rendering a group of flat triangles that we attempt to make
-                    <emphasis>appear</emphasis> to be a round cylinder. We are rendering a polygonal
-                approximation of a cylinder, then using our lighting computations to make it seem
-                like the faceted shape is really round.</para>
-            <para>This works quite well when the light is fairly far from the surface. But when the
-                light is very close, as it is here, it reveals our fakery for what it is.
-                Why?</para>
-            <para>Let's take a top-down view of our cylinder approximation, but let's also draw what
-                the actual cylinder would look like from the top down:</para>
-            <figure>
-                <title>Faceted Cylinder</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="FacetedCircle.svg" format="SVG"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>Now, consider our lighting equation at a particular point on the fake
-                cylinder:</para>
-            <figure>
-                <title>Light Directions on Faceted Cylinder</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="FacetedNearVsFar.svg" format="SVG"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>The problem comes from the difference between the actual position being rendered
-                and the corresponding position on the circle that has the normal that we are
-                pretending our point has. When the light is somewhat distant, the difference between
-                the actual light direction we use and the one we would use on a real cylinder is
-                pretty small. But when the light is very close, the difference is
-                substantial.</para>
-            <para>The lighting computations are correct for the vertices near the edges of a
-                triangle. But the farther from the edges you get, the more incorrect it
-                becomes.</para>
-            <para>The key point is that there isn't much we can do about this problem. The only
-                solution is to add more vertices to the approximation of the cylinder. It should
-                also be noted that adding more triangles would also make per-vertex lighting look
-                more correct. If you add infinitely many vertices to the cylinder, then the results
-                of per-vertex lighting are indistinguishable from per-fragment lighting.</para>
-            <para>For our simple case, adding triangles is easy, since a cylinder is a
-                mathematically defined object. For a complicated case like a human being, this is
-                usually rather more difficult. It also takes up more performance, since there are
-                more vertices, more executions of our (admittedly simple) vertex shader, and more
-                triangles rasterized or discarded for being back-facing.</para>
-        </section>
-    </section>
-    <section>
-        <?dbhtml filename="Tut09 Distant Points of Light.html" ?>
-        <title>Distant Points of Light</title>
-        <para>There is another issue with our current example. Use the <keycap>i</keycap> key to
-            raise the light up really high. Notice how bright all of the upwardly-facing surfaces
-            get:</para>
-        <figure>
-            <title>High Light</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="High%20Light.png"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>You probably have no experience with this in real life. Holding a light farther from
-            the surface in reality does not make the light brighter. So obviously something is
-            happening in reality that our simple lighting model is not accounting for.</para>
-        <para>In reality, lights emit a certain quantity of light per unit time. For a point-like
-            light such as a light bulb, it emits this light radially, in all directions. The farther
-            from the light source one gets, the more area that this must ultimately cover.</para>
-        <para>Light is essentially a wave. The farther away from the source of the wave, the less
-            intense the wave is. For light, this is called <glossterm>light
-            attenuation.</glossterm></para>
-        <para>Our model does not include light attenuation, so let's fix that.</para>
-        <para>Attenuation is a well-understood physical phenomenon. In the absence of other factors
-            (atmospheric light scattering, etc), the light intensity varies with the inverse of the
-            square of the distance. An object 2 units away from the light feels like with one-fourth
-            the intensity. So our equation for light attenuation is as follows:</para>
-        <equation>
-            <title>Physical Light Attenuation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="LightAttenEq.svg"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <para>There is a constant in the equation, which is used for unit correction. Of course, we
-            can (and will) use it as a fudge factor to make things look right.</para>
-        <para>The constant can take on a physical meaning. The constant can mean the distance at
-            which half of the light intensity is lost. To compute such a constant, for a half-light
-            distance of r<subscript>λ</subscript>, use this equation:</para>
-        <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="HalfLightAtten.svg"/>
-                </imageobject>
-            </mediaobject>
-        </informalequation>
-        <para>However physically correct this equation is, it has certain drawbacks. And this brings
-            us back to the light intensity problem we touched on earlier.</para>
-        <para>Since our lights are clamped on the [0, 1] range, it doesn't take much distance from
-            the light before the contribution from a light to become effectively nil. In reality,
-            with an unclamped range, we could just pump the light's intensity up to realistic
-            values. But we're working with a clamped range.</para>
-        <para>Therefore, a more common attenuation scheme is to use the inverse of just the distance
-            instead of the inverse of the distance squared:</para>
-        <equation>
-            <title>Light Attenuation Inverse</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata format="SVG" fileref="LightAttenInvEq.svg"/>
-                </imageobject>
-            </mediaobject>
-        </equation>
-        <para>It looks brighter for more distant lights. It isn't physically correct, but so much
-            about our rendering is at this point that it won't be noticed much.</para>
-        <section>
-            <title>Reverse of the Transform</title>
-            <para>However, there is a problem. We previously did per-fragment lighting in model
-                space. And while this is a perfectly useful space to do lighting in, model space is
-                not world space.</para>
-            <para>We want to specify the attenuation constant factor in terms of world space
-                distances. But we aren't dealing in world space; we are in model space. And model
-                space distances are, naturally, in model space, which may well be scaled relative to
-                world space. Here, any kind of scale in the model-to-world transform is a problem,
-                not just non-uniform scales. Although if there was a uniform scale, we could apply
-                theoretically apply the scale to the attenuation constant.</para>
-            <para>So now we cannot use model space. Fortunately, camera space is a space that has
-                the same scale as world space, just with a rotation/translation applied to it. So we
-                can do our lighting in that space.</para>
-            <para>Doing it in camera space requires computing a camera space position and passing it
-                to the fragment shader to be interpolated. And while we could do this, that's not
-                clever enough. Isn't there some way to get around that?</para>
-            <para>Yes, there is. Recall <varname>gl_FragCoord</varname>, an intrinsic value given to
-                every fragment shader. It represents the location of the fragment in window space.
-                So instead of transforming from model space to camera space, we will transform from
-                window space to camera space.</para>
-            <note>
-                <para>The use of this reverse-transformation technique here should not be taken as a
-                    suggestion to use it in all, or even most cases like this. In all likelihood, it
-                    will be much slower than just passing the camera space position to the fragment
-                    shader. It is here primarily for demonstration purposes, though it is useful for
-                    other techniques that we will see in the future.</para>
-            </note>
-            <para>The sequence of transformations that take a position from camera space to window
-                space is as follows:</para>
-            <table frame="all">
-                <title>Transform Legend</title>
-                <tgroup cols="2">
-                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
-                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
-                    <thead>
-                        <row>
-                            <entry>
-                                <para>Field Name</para>
-                            </entry>
-                            <entry>
-                                <para>Meaning</para>
-                            </entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry>
-                                <para>M</para>
-                            </entry>
-                            <entry>The camera-to-clip transformation matrix.</entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <para>P<subscript>camera</subscript></para>
-                            </entry>
-                            <entry>The camera-space vertex position.</entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <para>C</para>
-                            </entry>
-                            <entry>
-                                <para>The clip-space vertex position.</para>
-                            </entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <para>N</para>
-                            </entry>
-                            <entry>
-                                <para>The normalized device coordinate position.</para>
-                            </entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <para>V<subscript>xy</subscript></para>
-                            </entry>
-                            <entry>
-                                <para>The X and Y values passed to
-                                    <function>glViewport</function>.</para>
-                            </entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <para>V<subscript>wh</subscript></para>
-                            </entry>
-                            <entry>
-                                <para>The width and height passed to
-                                    <function>glViewport</function>.</para>
-                            </entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <para>D<subscript>nf</subscript></para>
-                            </entry>
-                            <entry>
-                                <para>The depth near and far values passed to
-                                        <function>glDepthRange</function>.</para>
-                            </entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
-            <equation>
-                <title>Camera to Window Transforms</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata format="SVG" fileref="CameraToWindowTrans.svg"/>
-                    </imageobject>
-                </mediaobject>
-            </equation>
-            <para>Therefore, given <varname>gl_FragCoord</varname>, we will need to perform the
-                reverse of these:</para>
-            <equation>
-                <title>Window to Camera Transforms</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata format="SVG" fileref="WindowToCameraTrans.svg"/>
-                    </imageobject>
-                </mediaobject>
-            </equation>
-            <para>In order for our fragment shader to perform this transformation, it must be given
-                the following values:</para>
-            <itemizedlist>
-                <listitem>
-                    <para>The inverse projection matrix.</para>
-                </listitem>
-                <listitem>
-                    <para>The viewport width/height.</para>
-                </listitem>
-                <listitem>
-                    <para>The depth range.</para>
-                </listitem>
-            </itemizedlist>
-        </section>
-        <section>
-            <title>Applied Attenuation</title>
-            <para>The <phrase role="propername">Fragment Attenuation</phrase> tutorial performs
-                per-fragment attenuation, both with linear and quadratic attenuation.</para>
-            <figure>
-                <title>Fragment Attenuation</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="Fragment%20Attenuation.png"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <para>This tutorial controls as before, with the following exceptions. The
-                    <keycap>O</keycap> and <keycap>U</keycap> keys increase and decrease the
-                attenuation constant. However, remember that decreasing the constant makes the
-                attenuation less, which makes the light appear <emphasis>brighter</emphasis> at a
-                particular distance. Using the shift key in combination with them will
-                increase/decrease the attenuation by smaller increments. The <keycap>H</keycap> key
-                swaps between the linear and quadratic interpolation functions.</para>
-            <para>The drawing code is mostly the same as we saw in the per-vertex point light
-                tutorial, since both this and that one perform lighting in camera space. The vertex
-                shader is also nothing new; passes the vertex normal and color to the fragment
-                shader. The vertex normal is multiplied by the normal matrix, which allows us to use
-                non-uniform scaling.</para>
-        </section>
-        <section>
-            <title>New Uniform Types</title>
-            <para>The more interesting part is the fragment shader. The definitions are not much
-                changed from the last one, but there have been some additions:</para>
-            <example>
-                <title>Light Attenuation Fragment Shader Definitions</title>
-                <programlisting language="glsl">uniform mat4 clipToCameraMatrix;
-uniform ivec2 windowSize;
-uniform vec2 depthRange;
-
-uniform float lightAttenuation;
-uniform bool bUseRSquare;</programlisting>
-            </example>
-            <para>The first three lines are the information we need to perform the
-                previously-discussed reverse-transformation, so that we can turn
-                    <varname>gl_FragCoord</varname> into a camera-space position. Notice that the
-                    <varname>windowSize</varname> uses a new type: <type>ivec2</type>. This is a
-                2-dimensional vector of integers.</para>
-            <para>Thus far, we have only modified uniforms of floating-point type. All of the vector
-                uploading functions we have used have been of the forms
-                    <function>glUniform#f</function> or <function>glUniform#fv</function>, where the
-                # is a number 1-4. The <quote>v</quote> represents a vector version, which takes a
-                pointer instead of 1-4 parameters.</para>
-            <para>Uploading to an integer uniform uses functions of the form
-                    <function>glUniform#i</function> and <function>glUniform#iv</function>. So the
-                code we use to set the window size uniform is this:</para>
-            <programlisting language="cpp">glUniform2i(g_FragWhiteDiffuseColor.windowSizeUnif, w, h);</programlisting>
-            <para>The <varname>w</varname> and <varname>h</varname> values are the width and height
-                passed to the <function>reshape</function> function. That is where this line of code
-                is, and that is where we set both the clip-to-camera matrix and the window size. The
-                    <varname>depthRange</varname> is set in the initialization code, since it never
-                changes.</para>
-            <para>The <varname>lightAttenuation</varname> uniform is just a float, but
-                    <varname>bUseRSquare</varname> uses a new type: boolean.</para>
-            <para>GLSL has the <type>bool</type> type just like C++ does. The
-                    <literal>true</literal> and <literal>false</literal> values work just like C++'s
-                equivalents. Where they differ is that GLSL also has vectors of bools, called
-                    <type>bvec#</type>, where the # can be 2, 3, or 4. We don't use that here, but
-                it is important to note.</para>
-            <para>OpenGL's API, however, is still a C API. And C (at least, pre-C99) has no
-                    <type>bool</type> type. Uploading a boolean value to a shader looks like
-                this:</para>
-            <programlisting language="cpp">glUniform1i(g_FragWhiteDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);</programlisting>
-            <para>The integer form of uniform uploading is used, but the floating-point form could
-                be allowed as well. The number 0 represents false, and any other number is
-                true.</para>
-        </section>
-        <section>
-            <title>Functions in GLSL</title>
-            <para>For the first time, we have a shader complex enough that splitting it into
-                different functions makes sense. So we do that. The first function is one that
-                computes the camera-space position:</para>
-            <example>
-                <title>Window to Camera Space Function</title>
-                <programlisting language="glsl">vec3 CalcCameraSpacePosition()
-{
-    vec3 ndcPos;
-    ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
-    ndcPos.z = (2.0 * gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
-    
-    vec4 clipPos;
-    clipPos.w = 1.0f / gl_FragCoord.w;
-    clipPos.xyz = ndcPos.xyz * clipPos.w;
-    
-    return vec3(clipToCameraMatrix * clipPos);
-}</programlisting>
-            </example>
-            <para>Not unsurprisingly, GLSL functions are defined much like C and C++
-                functions.</para>
-            <para>The first three lines compute the position in normalized device coordinates.
-                Notice that the computation of the X and Y coordinates is simplified from the
-                original function. This is because our viewport always sets the lower-left position
-                of the viewport to (0, 0). This is what you get when you plug zeros into that
-                equation.</para>
-            <para>From there, the clip-space position is computed as previously shown. Then the
-                result is multiplied through the clip-to-camera matrix, and that vector is returned
-                to the caller.</para>
-            <para>This is a simple function that uses only uniforms to compute a value. It takes no
-                inputs and outputs. The second function is not quite as simple.</para>
-            <example>
-                <title>Light Intensity Application Function</title>
-                <programlisting language="glsl">vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
-{
-    vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
-    float lightDistanceSqr = dot(lightDifference, lightDifference);
-    lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
-    
-    float distFactor = bUseRSquare ? lightDistanceSqr : sqrt(lightDistanceSqr);
-    
-    return lightIntensity * (1 / ( 1.0 + lightAttenuation * distFactor));
-}</programlisting>
-            </example>
-            <para>The function header looks rather different from the standard C/C++ function
-                definition syntax. Parameters to GLSL functions are designated as being inputs,
-                outputs, or inputs and outputs.</para>
-            <para>Parameters designated with <literal>in</literal> are input parameters. Functions
-                can change these values, but they will have no effect on the variable or expression
-                used in the function call. This is much like the default in C/C++, where parameter
-                changes are local. Naturally, this is the default with GLSL parameters if you do not
-                specify a qualifier.</para>
-            <para>Parameters designated with <literal>out</literal> can be written to, and its value
-                will be returned to the calling function. These are similar to non-const reference
-                parameter types in C++. And just as with reference parameters, the caller of a
-                function must call it with a real variable (called an <quote>l-value</quote>). And
-                this variable must be a variable that can be <emphasis>changed</emphasis>, so you
-                cannot pass a uniform or shader stage input value as this parameter.</para>
-            <para>However, the initial value of parameters declared as outputs is
-                    <emphasis>not</emphasis> initialized from the calling function. This means that
-                the initial value is uninitialized and therefore undefined (ie: it could be
-                anything). Because of this, you can pass shader stage outputs as
-                    <literal>out</literal> parameters. Recall that shader stage output variables can
-                be written to, but <emphasis>never</emphasis> read from.</para>
-            <para>Parameters designated as <literal>inout</literal> will have its value initialized
-                by the caller and have the final value returned to the caller. These are exactly
-                like non-const reference parameters in C++. The main difference is that the value is
-                initialized with the one that the user passed in, which forbids the passing of
-                shader stage outputs as <literal>inout</literal> parameters.</para>
-            <para>This particular function is semi-complex, as an optimization. Previously, our
-                functions simply normalized the difference between the vertex position and the light
-                position. In computing the attenuation, we need the distance between the two. And
-                the process of normalization computes the distance. So instead of calling the GLSL
-                function to normalize the direction, we do it ourselves, so that the distance is not
-                computed twice (once in the GLSL function and once for us).</para>
-            <para>The second line performs a dot product with the same vector. Remember that the dot
-                product between two vectors is the cosine of the angle between them, multiplied by
-                each of the lengths of the vectors. Well, the angle between a vector and itself is
-                zero, and the cosine of zero is always one. So what you get is just the length of
-                the two vectors times one another. And since the vectors are the same, the lengths
-                are the same. Thus, the dot product of a vector with itself is the square of its
-                length.</para>
-            <para>To normalize a vector, we must divide the vector by it's length. And the length of
-                    <varname>lightDifference</varname> is the square root of
-                    <varname>lightDistanceSqr</varname>. The <function>inversesqrt</function>
-                computes 1 / the square root of the given value, so all we need to do is multiply
-                this with the <varname>lightDifference</varname> to get the light direction as a
-                normalized vector. This value is written to our output variable.</para>
-            <para>The next line computes our lighting term. Notice the use of the ?: operator. This
-                works just like in C/C++. If we are using the square of the distance, that's what we
-                store. Otherwise we get the square-root and store that.</para>
-            <note>
-                <para>The assumption in using ?: here is that only one or the other of the two
-                    expressions will be evaluated. That's why the expensive call to
-                        <function>sqrt</function> is done here. However, this may not be the case.
-                    It is entirely possible (and quite likely) that the shader will always evaluate
-                        <emphasis>both</emphasis> expressions and simply store one value or the
-                    other as needed. So do not rely on such conditional logic to save
-                    performance.</para>
-            </note>
-            <para>After that, things proceed as expected.</para>
-            <para>Making these separate functions makes the main function look almost identical to
-                prior versions:</para>
-            <example>
-                <title>Main Light Attenuation</title>
-                <programlisting language="glsl">void main()
-{
-    vec3 cameraSpacePosition = CalcCameraSpacePosition();
-    
-    vec3 lightDir = vec3(0.0);
-    vec4 attenIntensity = ApplyLightIntensity(cameraSpacePosition, lightDir);
-    
-    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
-    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
-    
-    outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-        (diffuseColor * ambientIntensity);
-}</programlisting>
-            </example>
-            <para>Function calls appear very similar to C/C++, with the exceptions about parameters
-                noted before. The camera-space position is determined. Then the light intensity,
-                modified by attenuation, is computed. From there, things proceed as before.</para>
-            <sidebar>
-                <title>Alternative Attenuation</title>
-                <para>As nice as these somewhat-realistic attenuation schemes are, it is often
-                    useful to model light attenuation in a very different way. This is in no way
-                    physically accurate, but it can look reasonably good.</para>
-                <para>We simply do linear interpolation based on the distance. When the distance is
-                    0, the light has full intensity. When the distance is beyond a given distance,
-                    the maximum light range (which varies per-light), the intensity is 1.</para>
-                <para>Note that <quote>reasonably good</quote> depends on your needs. The closer you
-                    get in other ways to providing physically accurate lighting, the closer you get
-                    to photorealism, the less you can rely on less accurate phenomena. It does no
-                    good to implement a complicated sub-surface scattering lighting model that
-                    includes Fresnel factors and so forth, while simultaneously using a simple
-                    interpolation lighting attenuation model.</para>
-            </sidebar>
-        </section>
+        <?dbhtml filename="Tut09 Intensity of Light.html" ?>
+        <title>Intensity of Light</title>
+        <para>There are many, many things wrong with the rather primitive lighting models introduced
+            thus far. But one of the most important is the treatment of the lighting
+            intensity.</para>
+        <para>Thus far, we have used light intensity like a color. We clamp it to the range [0, 1].
+            We even make sure that combined intensities from different lighting models always are
+            within that range.</para>
+        <para>What this effectively means is that the light doesn't brighten the scene. The scene
+            without the light is fully lit; our lights simply <emphasis>darken</emphasis> parts of
+            the scene. They take the diffuse color and make it smaller, because multiplying with a
+            number on the range [0, 1] can only ever make a number smaller (or the same).</para>
+        <para>This is of course not realistic. In reality, there is no such thing as a
+                <quote>maximum</quote> illumination or brightness. There is no such thing as a (1,
+            1, 1) light intensity. The actual range of light intensity per wavelength is on the
+            range[0, ∞). This also means that the range of intensity for reflected light is [0, ∞);
+            after all, if you shine a really bright light on a surface, it will reflect a lot of it.
+            A surface that looks dark blue under dim light can appear light blue under very bright
+            light.</para>
+        <para>Of course in the real world, things tend to catch on fire if you shine <emphasis>too
+                much</emphasis> light at them, but that's not something we need to model.</para>
+        <para>The concept of lighting darkening a scene was common for a long time in real-time
+            applications. It is another part of the reason why, for so many years, 3D games tended
+            to avoid the bright outdoors, preferring corridors with darker lighting. The sun is a
+            powerful light source; binding lighting intensity to the [0, 1] range doesn't lead to a
+            realistic vision of the outdoors.</para>
+        <para>One obvious way to correct this is to take all of the diffuse colors and divide them by
+            a value like 2. Then increase your light intensity range from [0, 1] to [0, 2]. This is
+            a workable solution, to some extent. Lights can be brighter than 1.0, and lighting can
+            serve to increase the brightness of the diffuse color as well as decrease it. Of course,
+            2 is just as far from infinity as 1 is, so it isn't technically any closer to proper
+            lighting. But it is an improvement.</para>
+        <para>This technique does have its flaws. As we will see in later tutorials, you often will
+            want to render the same object multiple times and combine the results. This method
+            doesn't work when adding contributions from multiple light sources this way, unless you
+            limit the sum total of all lights to the same value. Just as we did for diffuse when
+            combining it with an ambient term.</para>
+        <para>It is certainly possible on modern hardware to model light intensity correctly. And we
+            will eventually do that. But these more primitive lighting models do still have their
+            uses in some cases. And it is illustrative to see what an improvement having proper
+            lighting intensity can make on the result. The lighting computations themselves don't
+            change; what changes are the numbers fed into them.</para>
     </section>
     <section>
         <?dbhtml filename="Tut09 In Review.html" ?>
@@ -983,35 +919,22 @@ uniform bool bUseRSquare;</programlisting>
         <para>In this tutorial, you have learned the following:</para>
         <itemizedlist>
             <listitem>
-                <para>Point lights are lights that have a position within the world, radiating light
-                    equally in all directions. The light direction at a particular point on the
-                    surface must be computed using the position at that point and the position of
-                    the light.</para>
+                <para>Diffuse lighting is a simple lighting model based on the angle between the
+                    light source and the surface normal.</para>
             </listitem>
             <listitem>
-                <para>Attempting to perform per-vertex lighting computations with point lights leads
-                    to artifacts.</para>
+                <para>Surface normals are values used, per-vertex, to define the direction of the
+                    surface at a particular location. They do not have to mirror the actual normal
+                    of the mesh geometry.</para>
             </listitem>
             <listitem>
-                <para>Lighting can be computed per-fragment by passing the fragment's position in an
-                    appropriate space.</para>
+                <para>Surface normals must be transformed by the inverse-transpose of the
+                    model-to-camera matrix, if that matrix can involve a non-uniform scale
+                    operation.</para>
             </listitem>
             <listitem>
-                <para>Lighting can be computed in model space.</para>
-            </listitem>
-            <listitem>
-                <para>Point lights have a falloff with distance, called attenuation. Not performing
-                    this can cause odd effects, where a light appears to be brighter when it moves
-                    farther from a surface. Light attenuation varies with the inverse of the square
-                    of the distance, but other attenuation models can be used.</para>
-            </listitem>
-            <listitem>
-                <para>Fragment shaders can compute the camera space position of the fragment in
-                    question by using <varname>gl_FragCoord</varname> and a few uniform variables
-                    holding information about the camera to window space transform.</para>
-            </listitem>
-            <listitem>
-                <para>GLSL can have integer vectors, boolean values, and functions.</para>
+                <para>Light interreflection can be approximated by adding a single light that has no
+                    direction.</para>
             </listitem>
         </itemizedlist>
         <section>
@@ -1019,49 +942,63 @@ uniform bool bUseRSquare;</programlisting>
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
-                    <para>When we used model space-based lighting computations, we had to perform an
-                        inverse on our matrix from the matrix stack to transform the light position
-                        from camera space to model space. However, it would be entirely possible to
-                        simply build an inverse matrix at the same time we build a regular matrix on
-                        our matrix stack. The inverse of a rotation matrix is just the rotation
-                        matrix with a negated angle; the inverse of a scale is just the
-                        multiplicative inverse of the scales, and the inverse of the translation is
-                        the negation of the translation vector.</para>
-                    <para>To do this, you will need to modify the <classname>MatrixStack</classname>
-                        class in a number of ways. It must store a second matrix representing the
-                        accumulated inverse matrix. When a transformation command is given to the
-                        stack, it must also generate the inverse matrix for this transform and
-                            <emphasis>left multiply</emphasis> this into the accumulated inverse.
-                        The push/pop will have to push/pop the inverse matrix as well. It can use
-                        the same stack, so long as the pop function puts the two matrices in the
-                        proper places.</para>
+                    <para>Modify the ambient lighting tutorial, bumping the diffuse light intensity
+                        up to 1.0. See how this effects the results.</para>
                 </listitem>
                 <listitem>
-                    <para>Implement the alternative attenuation described at the end of the section
-                        on attenuation.</para>
+                    <para>Change the shaders in the ambient lighting tutorial to use the lighting
+                        intensity correction mentioned above. Divide the diffuse color by a value,
+                        then pass larger lighting intensities to the shader. Notice how this changes
+                        the quality of the lighting.</para>
                 </listitem>
             </itemizedlist>
+        </section>
+        <section>
+            <title>Further Research</title>
+            <para>Lambertian diffuse reflectance is a rather good model for diffuse reflectance for
+                many surfaces. Particularly rough surfaces however do not behave in a Lambertian
+                manor. If you are interested in modelling such surfaces, investigate the Oren-Nayar
+                reflectance model.</para>
         </section>
         <section>
             <title>GLSL Functions of Note</title>
             <funcsynopsis>
                 <funcprototype>
-                    <funcdef>vec <function>inversesqrt</function></funcdef>
-                    <paramdef>vec <parameter>x</parameter></paramdef>
+                    <funcdef>vec <function>clamp</function></funcdef>
+                    <paramdef>vec <parameter>val</parameter></paramdef>
+                    <paramdef>vec <parameter>minVal</parameter></paramdef>
+                    <paramdef>vec <parameter>maxVal</parameter></paramdef>
                 </funcprototype>
             </funcsynopsis>
-            <para>This function computes 1 / the square root of <varname>x</varname>. This is a
-                component-wise computation, so vectors may be used. The return value will have the
-                same type as <varname>x</varname>.</para>
+            <para>This function does a clamping operation of each component of
+                    <parameter>val</parameter>. All of the parameters must scalars or vectors of the
+                same dimensionality. This function will work with any scalar or vector type. It
+                returns a scalar or vector of the same dimensionality as the parameters, where each
+                component of <parameter>val</parameter> will be clamped to the closed range
+                    [<parameter>minVal</parameter>, <parameter>maxVal</parameter>]. This is useful
+                for ensuring that values are in a certain range.</para>
+            <para>All components of <parameter>minVal</parameter>
+                <emphasis>must</emphasis> be smaller than the corresponding components of
+                    <parameter>maxVal</parameter>.</para>
             <funcsynopsis>
                 <funcprototype>
-                    <funcdef>vec <function>sqrt</function></funcdef>
+                    <funcdef>float <function>dot</function></funcdef>
+                    <paramdef>vec <parameter>x</parameter></paramdef>
+                    <paramdef>vec <parameter>y</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>This function performs a vector dot product on <parameter>x</parameter> and
+                    <parameter>y</parameter>. This always results in a scalar value. The two
+                parameters must have the same dimensionality and must be vectors.</para>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec <function>normalize</function></funcdef>
                     <paramdef>vec <parameter>x</parameter></paramdef>
                 </funcprototype>
             </funcsynopsis>
-            <para>This function computes the square root of <varname>x</varname>. This is a
-                component-wise computation, so vectors may be used. The return value will have the
-                same type as <varname>x</varname>.</para>
+            <para>This function returns a vector in the same direction as <parameter>x</parameter>,
+                but with a length of 1. <parameter>x</parameter> must have a length greater than 0
+                (that is, it cannot be a vector with all zeros).</para>
         </section>
     </section>
     <section>
@@ -1069,29 +1006,128 @@ uniform bool bUseRSquare;</programlisting>
         <title>Glossary</title>
         <glosslist>
             <glossentry>
-                <glossterm>point light source</glossterm>
+                <glossterm>photorealism</glossterm>
                 <glossdef>
-                    <para>A light source that emits light from a particular location in the world.
-                        The light is emitted in all directions evenly.</para>
+                    <para>A rendering system has achieved photorealism when it can render a still
+                        image that is essentially indistinguishable from a real photograph.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>fragment lighting</glossterm>
+                <glossterm>lighting model</glossterm>
                 <glossdef>
-                    <para>Evaluating the lighting equation at every fragment.</para>
-                    <para>This is also called Phong shading, in contrast with Goroud shading, but
-                        this name has fallen out of favor due to similarities with names for other
-                        lighting models.</para>
+                    <para>A mathematical model that defines how light is absorbed and reflected from
+                        a surface. This can attempt to model reality, but it does not have
+                        to.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>light attenuation</glossterm>
+                <glossterm>light source</glossterm>
                 <glossdef>
-                    <para>The decrease of the intensity of light with distance from the source of
-                        that light.</para>
+                    <para>Mathematically, this is something that produces light and adds it to a
+                        scene. It does not have to be an actual object shown in the world.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>light intensity</glossterm>
+                <glossdef>
+                    <para>The intensity, measured in RGB, of light emitted from a light-casting
+                        source.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>angle of incidence</glossterm>
+                <glossdef>
+                    <para>The angle between the surface normal and the direction towards the
+                        light.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>diffuse lighting</glossterm>
+                <glossdef>
+                    <para>A lighting model that assumes light is reflected from a surface in many
+                        directions, as opposed to a flat mirror that reflects light in one
+                        direction.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Lambertian reflectance</glossterm>
+                <glossdef>
+                    <para>A particular diffuse lighting model that represents the ideal diffuse
+                        case: lighting is reflected evenly in all directions.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>surface normal, normal</glossterm>
+                <glossdef>
+                    <para>The direction that a particular point on a surface faces.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>Gouraud shading</glossterm>
+                <glossdef>
+                    <para>Computing lighting computations at every vertex, and interpolating the
+                        results of these computations across the surface of the triangle.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>directional light source</glossterm>
+                <glossdef>
+                    <para>A light source that emits light along a particular direction. Every point
+                        in the scene to be rendered receives light from the same direction. This
+                        models a very distant light source that lights the scene evenly from a
+                        single direction.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>vector dot product</glossterm>
+                <glossdef>
+                    <para>Computes the length of the projection of one vector onto another. If the
+                        two vectors are unit vectors, then the dot product is simply the cosine of
+                        the angle between them.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>transpose</glossterm>
+                <glossdef>
+                    <para>A matrix operation that flips the matrix along the main diagonal. The
+                        columns of the original matrix become the rows of the transpose.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>inverse transpose</glossterm>
+                <glossdef>
+                    <para>A matrix operation, where a matrix is inverted and then transposed.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>interreflection</glossterm>
+                <glossdef>
+                    <para>Light that reflects off of multiple surfaces before reaching the
+                        viewer.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>global illumination</glossterm>
+                <glossdef>
+                    <para>A category of lighting models that take into account lighting
+                        contributions from interreflection.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>local illumination, direct illumination</glossterm>
+                <glossdef>
+                    <para>Lighting computations made only from light sources that cast light
+                        directly onto the surface.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>ambient lighting</glossterm>
+                <glossdef>
+                    <para>A lighting model that models all contributions from interreflection as a
+                        single light intensity that does not originate from any particular
+                        direction.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
     </section>
-    
 </chapter>

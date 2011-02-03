@@ -2476,9 +2476,9 @@
             <file name="standard.css"/>
         </folder>
         <folder name="Illumination">
-            <file name="Illumination/Tutorial%2008.xml"/>
             <file name="Illumination/Tutorial%2009.xml"/>
             <file name="Illumination/Tutorial%2010.xml"/>
+            <file name="Illumination/Tutorial%2011.xml"/>
         </folder>
         <folder name="Positioning">
             <file name="Positioning/Tutorial%2003.xml"/>
@@ -2486,6 +2486,7 @@
             <file name="Positioning/Tutorial%2005.xml"/>
             <file name="Positioning/Tutorial%2006.xml"/>
             <file name="Positioning/Tutorial%2007.xml"/>
+            <file name="Positioning/Tutorial%2008.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>

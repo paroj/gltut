@@ -37,6 +37,7 @@
         <xi:include href="Positioning/tutorial 05.xml"/>
         <xi:include href="Positioning/tutorial 06.xml"/>
         <xi:include href="Positioning/tutorial 07.xml"/>
+        <xi:include href="Positioning/tutorial 08.xml"/>
     </part>
     <part>
         <?dbhtml filename="Illumination.html" dir="Illumination" ?>
@@ -60,9 +61,9 @@
                 section will introduce some light/surface models and explain how to implement
                 them.</para>
         </partintro>
-        <xi:include href="Illumination/tutorial 08.xml"/>
         <xi:include href="Illumination/tutorial 09.xml"/>
         <xi:include href="Illumination/tutorial 10.xml"/>
+        <xi:include href="Illumination/tutorial 11.xml"/>
     </part>
     <part>
         <?dbhtml filename="Texturing.html" dir="Texturing" ?>
