@@ -280,27 +280,42 @@
             </figure>
             <para>The light is at a fixed direction; the model and camera both can be
                 rotated.</para>
-            <formalpara>
-                <title>Mouse Pole</title>
-                <para>This is the first tutorial that uses the Mouse Pole interface for controlling
-                    camera orientation. As the name suggests, this is a mouse-based interface for
-                    controlling the camera. Most of the rest of the tutorials also use this
-                    interface. The source code can be found in
-                        <filename>framework/MousePole.h</filename> and
-                        <filename>framework/MousePole.cpp</filename>.</para>
-            </formalpara>
-            <para>Left-clicking and dragging will rotate the camera around the target point. This
-                will rotate both horizontally and vertically around the object. Think of the world
-                as a sphere. Starting to drag means placing your finger on the sphere. Moving your
-                mouse is like moving your finger; the sphere rotates along with your finger's
-                movement. If you hold <keycap>Ctrl</keycap> when you left-click, then you can only
-                rotate horizontally. If you right-click and drag, you will only rotate
-                vertically.</para>
-            <para>None of these operations can change what is considered the vertical axis. To do
-                that, middle-click and drag; this is conceptually like seizing the sphere and
-                turning it clockwise or counter-clockwise, relative to the view direction.</para>
-            <para>The controls for the non-camera controls are as follows:</para>
-            <!--TODO: A table of the controls.-->
+            <sidebar>
+                <title>Mouse Movement</title>
+                <para>This is the first tutorial that uses mouse movement to orient objects and the
+                    camera. These controls will be used throughout the rest of this book.</para>
+                <para>The camera can be oriented with the left mouse button. Left-clicking and
+                    dragging will rotate the camera around the target point. This will rotate both
+                    horizontally and vertically. Think of the world as a sphere. Starting to drag
+                    means placing your finger on the sphere. Moving your mouse is like moving your
+                    finger; the sphere rotates along with your finger's movement. If you hold
+                        <keycap>Ctrl</keycap> when you left-click, you can rotate either
+                    horizontally or vertically, depending on the direction you move the mouse.
+                    Whichever direction is farthest from the original location clicked will be the
+                    axis that is rotated.</para>
+                <para>The camera's up direction can be changed as well. To do this, left-click while
+                    holding <keycap>Alt</keycap>. Only horizontal movements of the mouse will spin
+                    the view. Moving left spins counter-clockwise, while moving right spins
+                    clockwise.</para>
+                <para>The camera can be moved closer to it's target point and farther away. To do
+                    this, scroll the mouse wheel up and down. Up scrolls move closer, while down
+                    moves farther away.</para>
+                <para>The object can be controlled by the mouse as well. The object can be oriented
+                    with the right-mouse button. Right-clicking and dragging will rotate the object
+                    horizontally and vertically, relative to the current camera view. As with camera
+                    controls, holding <keycap>Ctrl</keycap> when you right-click will allow you to
+                    rotate horizontally or vertically only.</para>
+                <para>The object can be spun by right-clicking while holding <keycap>Alt</keycap>.
+                    As with the other object movements, the spin is relative to the current
+                    direction of the camera.</para>
+                <para>The code for these are contained in the framework objects
+                        <type>MousePole</type> and <type>ObjectPole</type>. The source code in them
+                    is, outside of how FreeGLUT handles mouse input, nothing that hasn't been seen
+                    previously.</para>
+            </sidebar>
+            <para>Pressing the <keycap>Spacebar</keycap> will switch between a cylinder that has a
+                varying diffuse color and one that is pure white. This demonstrates the effect of
+                lighting on a changing diffuse color.</para>
             <para>The initialization code does the usual: loads the shaders, gets uniforms from
                 them, and loads a number of meshes. In this case, it loads a mesh for the ground
                 plane and a mesh for the cylinder. Both of these meshes have normals at each vertex;
@@ -369,11 +384,7 @@ glUseProgram(0);</programlisting>
                 <title>Cylinder Lighting</title>
                 <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
 
-modelMatrix.Translate(0.0f, 0.5f, 0.0f);
-
-modelMatrix.RotateX(g_CylPitch);
-modelMatrix.RotateY(g_CylYaw);
-modelMatrix.RotateZ(g_CylRoll);
+modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
 
 if(g_bDrawColoredCyl)
 {
@@ -665,11 +676,7 @@ void main()
             <title>Lighting with Proper Normal Transform</title>
             <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
 
-modelMatrix.Translate(0.0f, 0.5f, 0.0f);
-
-modelMatrix.RotateX(g_CylPitch);
-modelMatrix.RotateY(g_CylYaw);
-modelMatrix.RotateZ(g_CylRoll);
+modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
 
 if(g_bScaleCyl)
 {
