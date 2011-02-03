@@ -3,18 +3,387 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
-    <?dbhtml filename="Tutorial 07.html" ?>
+    <?dbhtml filename="Tutorial 08.html" ?>
     <title>Getting Oriented</title>
-    <para>G</para>
+    <para>In this tutorial, we will investigate specific problems with regard to orienting
+        objects.</para>
     <section>
-        <?dbhtml filename="Tut07 In Review.html" ?>
+        <?dbhtml filename="Tut08 Gimbal Lock.html"?>
+        <title>Gimbal Lock</title>
+        <para>Remember back when we said that n rotation matrix isn't a rotation matrix at all, that
+            it is an orientation matrix? We also said that forgetting this can come back to bite
+            you. Well, here's likely the most common way.</para>
+        <para>Normally, when dealing with orienting an object like a plane or spaceship in 3D space,
+            you want to orient it based on 3 rotations about the 3 axes. The obvious way to do this
+            is with a series of 3 rotations. This means that the program stores 3 angles, and you
+            generate a rotation matrix by creating 3 rotation matrices based on these angles and
+            concatenating them. Indeed, the 3 angles often have special names, based on common
+            flight terminology: yaw, pitch, and roll.</para>
+        <para>Pitch is the rotation that raises or lowers the front of the object. Yaw is the
+            rotation that turns the object left and right. Roll is the rotation that spins it around
+            the direction of motion. These terms neatly duck the question of what the axes
+            technically are; they are defined in terms of semantic axes (front, left, direction of
+            motion, etc), rather than a specific model space. So in one model space, roll might be a
+            rotation about the X axis, but in another, it might be a rotation about the Z
+            axis.</para>
+        <para>One of the first problems you will note is that the order you apply these rotations
+            matter. As previously stated, a rotation matrix is an <emphasis>orientation</emphasis>
+            transform. Each transform defines a new coordinate system, and the next transform is
+            based on an object in the <emphasis>new</emphasis> space. For example, if we apply the
+            roll first, we have now changed what the axis for the subsequent yaw is.</para>
+        <para>You can use any order that you like, so long as you understand what these angles mean.
+            If you apply the roll first, your yaw and pitch must be in terms of the new roll
+            coordinate system, and not the original coordinate system. That is, a change that is
+            intended to only affect the roll of the final space may need yaw or pitch changes to
+            allow it to have the same apparent orientation (except for the new roll, of
+            course).</para>
+        <para>But there is a far more insidious problem lurking in here. And this problem happens
+            anytime you compute a final rotation from a series of 3 rotations about axes
+            perpendicular to each other.</para>
+        <para>The tutorial project <phrase role="propername">Gimbal Lock</phrase> illustrates this
+            problem. Because the problem was first diagnosed with a physical device called a <link
+                xlink:href="http://en.wikipedia.org/wiki/Gimbal">gimbal</link>, the problem has
+            become known as <glossterm>gimbal lock.</glossterm></para>
+        <para>A gimbal is a pivoted support that provides the ability to rotate in one axis. A
+            gimbal can be mounted within another gimbal. The Gimbal Lock project has a set of 3
+            square gimbals, each with a pivot axis that is perpendicular to the other two. This
+            effectively mimics the common yaw/pitch/roll angle setup.</para>
+        <figure>
+            <title>Gimbal Lock Project</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Three%20Gimbal%20Array.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>You can control the orientation of each gimbal separately. The <keycap>w</keycap> and
+                <keycap>s</keycap> keys control the blue gimbal, the <keycap>a</keycap> and
+                <keycap>d</keycap> keys control the green gimbal, and the <keycap>q</keycap> and
+                <keycap>e</keycap> keys control the red gimbal.</para>
+        <para>With these three gimbals, you can cause the innermost gimbal (the red one) to have any
+            arbitrary orientation. That isn't the problem. The problem happens when two of the
+            gimbals are parallel with one another:</para>
+        <figure>
+            <title>Parallel Gimbals</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="In%20Gimbal%20Lock.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Recall that the purpose of the three gimbals is to be able to adjust one of the three
+            angles and orient the object in a particular direction. In a flight-simulation game, the
+            player would have controls that would change their yaw, pitch, and roll. However, look
+            at this picture.</para>
+        <para>The player's theoretical ship is pointed in the direction of the center gimbal's
+            plane. Given the controls you have here, can you cause the center gimbal to rotate
+            around the axis that it is facing? No. You can't even do this somewhat; you can only
+            rotate it in two directions. But we have three gimbals, which means we should have three
+            axes of rotation. Why can't we rotate the red gimbal in the Z (forward) axis?</para>
+        <para>Because the outer and inner gimbals are now rotating about the <emphasis>same
+                axis</emphasis>. Which means you really only have two gimbals to manipulate in order
+            to orient the red gimbal. And 3D orientation cannot be fully controlled with only 2
+            axial rotations, with only 2 gimbals.</para>
+        <para>When gimbals are in such a position, you have what is known as <glossterm>gimbal
+                lock</glossterm>; you have locked one of the gimbals to another, and now both cause
+            the same effect.</para>
+        <para>How do you fix this problem? There are several possible solutions to the
+            problem.</para>
+        <para>Perhaps the most optimal solution is to simply not use gimbals. After all, if you
+            don't have gimbals, you can't gimbal lock. Instead of storing the orientation as a
+            series of rotations, store the orientation as an <emphasis>orientation.</emphasis> That
+            is, maintain the current orientation as a matrix. When you need to modify the
+            orientation, you apply a transformation to this matrix, storing the result as the new
+            current orientation.</para>
+        <para>This means that every yaw, pitch, and roll applied to the current orientation will be
+            relative to that current orientation. Which is usually exactly what you want. If the
+            user applies a positive yaw, you want that yaw to rotate them relative to where they are
+            current pointing.</para>
+        <para>A downside of this approach, besides the size penalty of having to store a 4x4 matrix
+            rather than 3 floating-point angles, is that floating-point math can lead to errors. If
+            you keep accumulating successive transformations of an object, once every 1/30th of a
+            second for a period of several minutes or hours, these floating-point errors start
+            accumulating. Eventually, the orientation stops being a pure rotation and starts
+            incorporating scale and skewing characteristics.</para>
+        <para>The solution here is to re-orthonormalize the matrix after applying each transform. A
+            transform (space) is said to be <glossterm>orthonormal</glossterm> if the basis vectors
+            are of unit length (no scale) and each axis is perpendicular to all of the
+            others.</para>
+        <para>Unfortunately, re-orthonormalizing a matrix is not a simple operation. You could try
+            to normalize each of the axis vectors with typical vector normalization, but that
+            wouldn't ensure that the matrix was orthonormal. It would remove scaling, but the axes
+            wouldn't be guaranteed to be perpendicular.</para>
+        <para>The proper solution is to use <link
+                xlink:href="http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">unit
+                quaternions</link> to store orientations, which can be orthonormalized much more
+            easily. This is beyond the scope of this tutorial, but the Wikipedia article on the
+            subject is a good place to start.</para>
+        <section>
+            <title>Complex Mesh Space</title>
+            <para>The way this tutorial renders each gimbal serves as an object lesson in the use of
+                mesh space. The gimbals are composed of 6 pieces, each of which ultimately derives
+                from a simple 3D cube who's sides are of unit length. The cube is scaled and
+                translated to form the rectangular prisms used to build each the gimbal.</para>
+            <para>The <function>DrawGimbal</function> function takes a matrix stack, an axis (one of
+                the three kinds of gimbals), a size for the gimbal, and a color. The width and
+                height of a gimbal are the same, so this code only takes a single size.</para>
+            <para>There is ultimately only one gimbal <quote>mesh</quote>: the difference between
+                them is what their base orientation is. That is computed in this function:</para>
+            <example>
+                <title>DrawGimbal Function</title>
+                <programlisting language="cpp">void DrawGimbal(MatrixStack &amp;currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
+{
+    currMatrix.Push();
+    
+    switch(eAxis)
+    {
+    case GIMBAL_X_AXIS:
+        break;
+    case GIMBAL_Y_AXIS:
+        currMatrix.RotateZ(90.0f);
+        currMatrix.RotateX(90.0f);
+        break;
+    case GIMBAL_Z_AXIS:
+        currMatrix.RotateY(90.0f);
+        currMatrix.RotateX(90.0f);
+        break;
+    }
+    
+    DrawBaseGimbal(currMatrix, fSize, baseColor);
+    currMatrix.Pop();
+}</programlisting>
+            </example>
+            <para>The rotation matrices change the orientation of the gimbal to its neutral
+                position. These matrices are chosen to allow the full array of 3 gimbals to connect
+                properly.</para>
+            <para>The <function>DrawBaseGimbal</function> function performs the basic computations
+                necessary to draw the pieces. It delegates the actual drawing to other
+                functions.</para>
+            <example>
+                <title>DrawBaseGimbal Function</title>
+                <programlisting language="cpp">void DrawBaseGimbal(MatrixStack &amp;currMatrix, float fSize, glm::vec4 baseColor)
+{
+    //A Gimbal can only be 4 units in size or more.
+    assert(fSize > 4.0f);
+    
+    glUseProgram(theProgram);
+    //Set the base color for this object.
+    glUniform4fv(baseColorUnif, 1, glm::value_ptr(baseColor));
+    glBindVertexArray(vao);
+    
+    float fGimbalSidesOffset = (fSize / 2.0f) - 1.5f;
+    float fGimbalSidesScale = fSize - 2.0f;
+    
+    DrawGimbalSides(currMatrix, fGimbalSidesOffset, fGimbalSidesScale);
+    
+    float fGimbalAttachOffset = (fSize / 2.0f) - 0.5f;
+    
+    DrawGimbalAttachments(currMatrix, fGimbalAttachOffset);
+    
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
+</programlisting>
+            </example>
+            <para>The color is stored into a uniform in the program. The fragment shader uses this
+                color along with the interpolated per-vertex color to compute the final output
+                color.</para>
+            <example>
+                <title>ColorMultUniform Fragment Shader</title>
+                <programlisting language="glsl">#version 330
+
+smooth in vec4 theColor;
+uniform vec4 baseColor;
+
+out vec4 outputColor;
+
+void main()
+{
+    outputColor = theColor * baseColor;
+}</programlisting>
+            </example>
+            <para>The interpolated per-vertex color is multiplied with the base color. The colors
+                from the mesh are not really colors in this case; they serve only to darken certain
+                faces. The front and back faces use full white (1.0, 1.0, 1.0, 1.0); multiplying
+                this by <varname>baseColor</varname> will simply return
+                <varname>baseColor</varname>. Thus the front and back faces of the object are the
+                intended color. The top and bottom sides use (0.75, 0.75, 0.75, 1.0), which serves
+                to make <varname>baseColor</varname> closer to zero, but not by a lot. The left and
+                right sides use a smaller value (0.5, 0.5, 0.5, 1.0), which makes the resulting
+                color even smaller.</para>
+            <para>The <function>DrawBaseGimbal</function> function computes the length and
+                positional offset for each of the main pieces of the ring of the gimbal. Since the
+                gimbal is square, it only needs a single length and offset. The
+                    <function>DrawGimbalSides</function> draws the gimbal's square ring.</para>
+            <para>The two attachment points are rendered with ; the sizes for these are fixed, so
+                they don't vary with the size of the gimbal. The <emphasis>location</emphasis> of
+                these do vary, so <function>DrawBaseGimbal</function> must compute that
+                offset.</para>
+            <para>All of this code uses multiple spaces in multiple different places. The most
+                important thing that it shows is how each layer in the hierarchy of functions
+                doesn't care what the space in the matrix stack currently is. DrawBaseGimbal draws
+                the gimbal in a certain space; it is up to whatever happens to be on the matrix
+                stack as to how it gets transformed into the final space.</para>
+            <para>Furthermore, the lower parts of the code don't care about how the gimbal drawing
+                gets done. The <function>display</function> function that ultimately calls
+                    <function>DrawGimbal</function> doesn't care if it is drawing multiple meshes,
+                or a single scaled mesh, or whatever. It simply says to draw the Y-axis gimbal of a
+                certain size in a certain color at a transform given by the matrix stack. Similarly,
+                    <function>DrawGimbal</function> only expects <function>DrawBaseGimbal</function>
+                to draw a X-oriented gimbal; that this requires 6 rendering calls and some matrix
+                stack work is not something <function>DrawGimbal</function> is concerned
+                with.</para>
+            <para>This is the ideal for dealing with complex objects that are positioned via various
+                transforms. The higher level code should be insulated from the fact that low level
+                code may be performing complex transformations, and low-level code should be
+                insulated from the specific uses of that particular object. Look at how simple the
+                display function is:</para>
+            <example>
+                <title>Gimbal Lock's Display Function</title>
+                <programlisting language="cpp">void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    MatrixStack currMatrix;
+    currMatrix.Translate(glm::vec3(0.0f, 0.0f, -60.0f));
+    currMatrix.RotateX(g_angles.fAngleX);
+    DrawGimbal(currMatrix, GIMBAL_X_AXIS, 30.0f, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
+    currMatrix.RotateY(g_angles.fAngleY);
+    DrawGimbal(currMatrix, GIMBAL_Y_AXIS, 26.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    currMatrix.RotateZ(g_angles.fAngleZ);
+    DrawGimbal(currMatrix, GIMBAL_Z_AXIS, 22.0f, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</programlisting>
+            </example>
+            <para>It performs a translation, so that the gimbal is positioned in front of the
+                camera. Then it performs the 3 successive rotations, drawing each gimbal after each
+                one. So long as <function>DrawGimbal</function> is doing the job that
+                    <function>display</function> expects, everything works out fine.</para>
+        </section>
+    </section>
+    <section>
+        <title>Quaternions</title>
+        <para/>
+    </section>
+    <section>
+        <title>Camera-Relative Orientation</title>
+        <para/>
+        <section>
+            <title>Transformation Spaces</title>
+            <para>Our scaling transform is interesting, but it does have certain flaws. The most
+                important problem is that it causes a scale based on the X, Y and Z axes of the
+                initial coordinate system. So what do you do if you want to scale something along
+                different axes?</para>
+            <para>This is quite simple, really: you use successive transforms. First, you transform
+                into a space where the <quote>different axes</quote>
+                <emphasis>are</emphasis> the X, Y and Z axes. Then you do your scaling transform.
+                After that, you transform back to the original space.</para>
+            <para>If the different axes represent an orientation change, you can use a rotation
+                matrix. Simply rotate, apply the scale, and rotate back. The last part is done by
+                generating the rotation matrix using the same axis, but negating the angle.</para>
+            <para>Transforming into a space that is convenient for another transform, applying that
+                transform, and then undoing the first transform is a general-purpose operation. The
+                matrix that results from this is a transformation in a different space. In the
+                scaling case, we want to do the scaling in a different space, so we apply a rotation
+                matrix to get into that space, then undo the rotation after applying the
+                scale.</para>
+            <para>The general form of this sequence is as follows. Suppose you have a transformation
+                matrix T, which operates on points in a space called F. We have some positions in
+                the space P. What we want is to create a matrix that applies T's transformation
+                operation, except that it needs to operate on points in the space of P. Given a
+                matrix M that transforms from P space to F space, that matrix is <inlineequation>
+                    <mathphrase>M<superscript>-1</superscript>TM</mathphrase>
+                </inlineequation>.</para>
+            <para>The matrix M<superscript>-1</superscript> is the <glossterm>inverse
+                    matrix</glossterm> of M. The symbol <superscript>-1</superscript> does not
+                (strictly) mean to raise the matrix to the -1 power. It means to invert it.</para>
+            <para>The inverse of a matrix M is the matrix N such that <inlineequation>
+                    <mathphrase>MN = I</mathphrase>
+                </inlineequation>, where I is the identity matrix. This can be analogized to the
+                scalar multiplicative inverse (ie: reciprocal). The scalar multiplicative inverse of
+                X is the number Y such that <inlineequation>
+                    <mathphrase>XY = 1</mathphrase>
+                </inlineequation>.</para>
+            <para>In the case of the scalar inverse, this is very easy to solve for: <inlineequation>
+                    <mathphrase>Y = 1/X</mathphrase>
+                </inlineequation>. Even in this case, there are values of X for which there is no
+                multiplicative inverse. OK, there's <emphasis>one</emphasis> such value of X:
+                0.</para>
+            <para>The case of the inverse matrix is much more complicated. Just as with the scalar
+                inverse, there are matrices that have no inverse. Unlike the scalar case, there are
+                a <emphasis>lot</emphasis> of matrices with no inverse. Also, computing the inverse
+                matrix is a <emphasis>lot</emphasis> more complicated than simply taking the
+                reciprocal of a value.</para>
+            <para>Most common transformation matrices do have an inverse. And for the basic
+                transformation matrices, the inverse matrix is very easy to compute. For a pure
+                rotation matrix, simply compute a new rotation matrix by negating the angle that the
+                old one was generated with. For a translation matrix, negate the origin value in the
+                matrix. For a scale matrix, take the reciprocal of the scale along each axis.</para>
+            <para>To take the inverse of a sequence of matrices, you can take the inverse of each of
+                the component matrices. But you have to do the matrix multiplication in
+                    <emphasis>reverse</emphasis> order. So if we have <inlineequation>
+                    <mathphrase>M = TRS</mathphrase>
+                </inlineequation>, then M<superscript>-1</superscript> is <inlineequation>
+                    <mathphrase>M<superscript>-1</superscript> =
+                            S<superscript>-1</superscript>R<superscript>-1</superscript>T<superscript>-1</superscript></mathphrase>
+                </inlineequation>.</para>
+        </section>
+    </section>
+    
+    <section>
+        <?dbhtml filename="Tut08 In Review.html" ?>
         <title>In Review</title>
         <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>A fixed sequence of successive rotations can prevent other rotations from
+                    contributing to the object's orientation.</para>
+            </listitem>
+            <listitem>
+                <para>Quaternions are 4-dimensional vectors that can encode an orientation. They can
+                    be used for successively applying small rotations to an orientation. Matrices
+                    fail at this because of the difficulty of orthonormalizing them to avoid
+                    floating-point error accumulation.</para>
+            </listitem>
+            <listitem>
+                <para>Quaternions work almost identically to matrices, in so far as they specify
+                    orientations. They can be constructed directly from an angle/axis
+                    rotation.</para>
+            </listitem>
+            <listitem>
+                <para>One can transform a matrix, or a quaternion with another matrix or quaternion,
+                    such that the resulting transform is specified in a different space. This is
+                    useful for applying rotations to an object's orientation that are in
+                    camera-space,, while the object's orientation remains a model-to-world
+                    transform.</para>
+            </listitem>
+        </itemizedlist>
     </section>
     <section>
         <?dbhtml filename="Tut08 Glossary.html" ?>
         <title>Glossary</title>
         <glosslist>
+            <glossentry>
+                <glossterm>gimbal lock</glossterm>
+                <glossdef>
+                    <para>When applying 3 or more successive rotations about axes that are
+                        orthogonal to each other, gimbal lock occurs when a degree of rotational
+                        freedom is lost due to two or more axes that cause the same effective
+                        rotation.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>orthonormal</glossterm>
+                <glossdef>
+                    <para>A transform has the property of being orthonormal if the three basis axes
+                        are all orthogonal and the three axes are normal (have a length of
+                        1).</para>
+                </glossdef>
+            </glossentry>
         </glosslist>
     </section>
 </chapter>

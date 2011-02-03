@@ -205,10 +205,10 @@ void main()
     gl_Position = cameraToClipMatrix * temp;
 }</programlisting>
             </example>
-            <note>
+            <sidebar>
                 <title>Mismatched Attributes and Programs</title>
                 <para>You may be wondering what happens if there is a mis-match between the
-                    attributes provided by a VAO and the vertex shader inputs. For example, if we
+                    attributes provided by a VAO and the vertex shader inputs. For example, we could
                     use the position-only vertex shader, which takes attribute 0) with a mesh that
                     provides attributes 0 and 1, with 0 being the position and 1 being the
                     color.</para>
@@ -228,7 +228,7 @@ void main()
                     as it can be. If the reverse is true, if the VAO doesn't provide enough
                     components of the vector, then the unfilled values are always filled in from the
                     (0, 0, 0, 1) vector.</para>
-            </note>
+            </sidebar>
         </section>
         <section>
             <title>Camera of the World</title>
