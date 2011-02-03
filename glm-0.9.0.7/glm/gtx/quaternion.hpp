@@ -184,6 +184,11 @@ namespace glm
 		detail::tquat<valType> toQuat(
 			detail::tmat4x4<valType> const & x){return gtc::quaternion::quat_cast(x);}
 
+		template <typename valType>
+		detail::tquat<valType> multiply(
+			const detail::tquat<valType> &lhs, const detail::tquat<valType> &rhs);
+
+
     }//namespace quaternion
     }//namespace gtx
 } //namespace glm

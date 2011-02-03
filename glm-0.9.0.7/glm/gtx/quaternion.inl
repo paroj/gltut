@@ -246,6 +246,20 @@ namespace quaternion
         return detail::tvec3<valType>(pitch(x), yaw(x), roll(x));
     }
 
+	template <typename valType>
+	inline detail::tquat<valType> multiply(
+		const detail::tquat<valType> &lhs, const detail::tquat<valType> &rhs)
+	{
+		detail::tquat<valType> ret;
+		ret.w = lhs.w*rhs.w - (lhs.x*rhs.x) - (lhs.y*rhs.y) - (lhs.z*rhs.z);
+		ret.x = lhs.w*rhs.x + lhs.x*rhs.w + lhs.y*rhs.z - lhs.z*rhs.y;
+		ret.y = lhs.w*rhs.y + lhs.y*rhs.w + lhs.z*rhs.x - lhs.x*rhs.z;
+		ret.z = lhs.w*rhs.z + lhs.z*rhs.w + lhs.x*rhs.y - lhs.y*rhs.x;
+
+		return ret;
+	}
+
+
 }//namespace quaternion
 }//namespace gtx
 }//namespace glm

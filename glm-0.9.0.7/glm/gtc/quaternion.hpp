@@ -111,6 +111,10 @@ namespace glm
 			detail::tquat<T> const & q, 
 			typename detail::tquat<T>::value_type const & s);
 
+		template <typename valType>
+		detail::tquat<valType> operator *(
+			const detail::tquat<valType> &lhs, const detail::tquat<valType> &rhs);
+
 	} //namespace detail
 
 	namespace gtc{
@@ -210,6 +214,7 @@ namespace glm
 		//! Quaternion of double-precision floating-point numbers. 
 		//! From GLM_GTC_quaternion extension.
 		typedef detail::tquat<double>	dquat;
+
 
     }//namespace quaternion
     }//namespace gtc
