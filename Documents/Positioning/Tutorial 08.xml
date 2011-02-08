@@ -10,9 +10,9 @@
     <section>
         <?dbhtml filename="Tut08 Gimbal Lock.html"?>
         <title>Gimbal Lock</title>
-        <para>Remember back when we said that n rotation matrix isn't a rotation matrix at all, that
-            it is an orientation matrix? We also said that forgetting this can come back to bite
-            you. Well, here's likely the most common way.</para>
+        <para>Remember a few tutorials back, when we said that a rotation matrix isn't a rotation
+            matrix at all, that it is an orientation matrix? We also said that forgetting this can
+            come back to bite you. Well, here's likely the most common way.</para>
         <para>Normally, when dealing with orienting an object like a plane or spaceship in 3D space,
             you want to orient it based on 3 rotations about the 3 axes. The obvious way to do this
             is with a series of 3 rotations. This means that the program stores 3 angles, and you
@@ -87,37 +87,6 @@
         <para>When gimbals are in such a position, you have what is known as <glossterm>gimbal
                 lock</glossterm>; you have locked one of the gimbals to another, and now both cause
             the same effect.</para>
-        <para>How do you fix this problem? There are several possible solutions to the
-            problem.</para>
-        <para>Perhaps the most optimal solution is to simply not use gimbals. After all, if you
-            don't have gimbals, you can't gimbal lock. Instead of storing the orientation as a
-            series of rotations, store the orientation as an <emphasis>orientation.</emphasis> That
-            is, maintain the current orientation as a matrix. When you need to modify the
-            orientation, you apply a transformation to this matrix, storing the result as the new
-            current orientation.</para>
-        <para>This means that every yaw, pitch, and roll applied to the current orientation will be
-            relative to that current orientation. Which is usually exactly what you want. If the
-            user applies a positive yaw, you want that yaw to rotate them relative to where they are
-            current pointing.</para>
-        <para>A downside of this approach, besides the size penalty of having to store a 4x4 matrix
-            rather than 3 floating-point angles, is that floating-point math can lead to errors. If
-            you keep accumulating successive transformations of an object, once every 1/30th of a
-            second for a period of several minutes or hours, these floating-point errors start
-            accumulating. Eventually, the orientation stops being a pure rotation and starts
-            incorporating scale and skewing characteristics.</para>
-        <para>The solution here is to re-orthonormalize the matrix after applying each transform. A
-            transform (space) is said to be <glossterm>orthonormal</glossterm> if the basis vectors
-            are of unit length (no scale) and each axis is perpendicular to all of the
-            others.</para>
-        <para>Unfortunately, re-orthonormalizing a matrix is not a simple operation. You could try
-            to normalize each of the axis vectors with typical vector normalization, but that
-            wouldn't ensure that the matrix was orthonormal. It would remove scaling, but the axes
-            wouldn't be guaranteed to be perpendicular.</para>
-        <para>The proper solution is to use <link
-                xlink:href="http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation">unit
-                quaternions</link> to store orientations, which can be orthonormalized much more
-            easily. This is beyond the scope of this tutorial, but the Wikipedia article on the
-            subject is a good place to start.</para>
         <section>
             <title>Complex Mesh Space</title>
             <para>The way this tutorial renders each gimbal serves as an object lesson in the use of
@@ -267,7 +236,79 @@ void main()
     </section>
     <section>
         <title>Quaternions</title>
-        <para/>
+        <para>How do you fix this problem? There are several possible solutions to the
+            problem.</para>
+        <para>Perhaps the most optimal solution is to simply not use gimbals. After all, if you
+            don't have gimbals, you can't gimbal lock. Instead of storing the orientation as a
+            series of rotations, store the orientation as an <emphasis>orientation.</emphasis> That
+            is, maintain the current orientation as a matrix. When you need to modify the
+            orientation, you apply a transformation to this matrix, storing the result as the new
+            current orientation.</para>
+        <para>This means that every yaw, pitch, and roll applied to the current orientation will be
+            relative to that current orientation. Which is usually exactly what you want. If the
+            user applies a positive yaw, you want that yaw to rotate them relative to where they are
+            current pointing.</para>
+        <para>A downside of this approach, besides the size penalty of having to store a 4x4 matrix
+            rather than 3 floating-point angles, is that floating-point math can lead to errors. If
+            you keep accumulating successive transformations of an object, once every 1/30th of a
+            second for a period of several minutes or hours, these floating-point errors start
+            accumulating. Eventually, the orientation stops being a pure rotation and starts
+            incorporating scale and skewing characteristics.</para>
+        <para>The solution here is to re-orthonormalize the matrix after applying each transform. A
+            transform (space) is said to be <glossterm>orthonormal</glossterm> if the basis vectors
+            are of unit length (no scale) and each axis is perpendicular to all of the
+            others.</para>
+        <para>Unfortunately, re-orthonormalizing a matrix is not a simple operation. You could try
+            to normalize each of the axis vectors with typical vector normalization, but that
+            wouldn't ensure that the matrix was orthonormal. It would remove scaling, but the axes
+            wouldn't be guaranteed to be perpendicular.</para>
+        <para>So instead, we need to use a different way of storing an orientation. To do this, we
+            use something called a <glossterm>quaternion.</glossterm></para>
+        <para>A quaternion is (for the purposes of this conversation) a 4-dimensional vector that is
+            treated in a special way. Any change of orientation from one coordinate system to
+            another can be represented by a rotation about some axis by some angle. A quaternion is
+            a way of encoding this angle/axis rotation:</para>
+        <!--TODO: Equation: build XYZW of a quaternion from an angle/axis rotation.-->
+        <para>This will produce a <glossterm>unit quaternion.</glossterm> That is, a quaternion with
+            a length of 1.</para>
+        <section>
+            <title>Quaternion Math</title>
+            <para>Quaternions are equivalent to orientation matrices. You can compose two
+                orientation quaternions using a special operation called <glossterm>quaternion
+                    multiplication</glossterm>.</para>
+            <!--TODO: Equation: two quaternions and the multiplication of them.-->
+            <para>If the two quaternions being multiplied represent orientations, then the product
+                of them is a composite orientation. Just as with matrix multiplication, only
+                specifically for orientations. Like matrix multiplication, quaternion multiplication
+                is associative (<informalequation>
+                    <mathphrase>(a*b) * c = a * (b*c)</mathphrase>
+                </informalequation>), but not commutative (<informalequation>
+                    <mathphrase>a*b != b*a</mathphrase>
+                </informalequation>).</para>
+            <para>The main difference that helps us solve the Gimbal lock problem is that it is easy
+                to keep a quaternion normalized. Simply perform a vector normalization on it after
+                every few multiplications. This enables us to add numerous small rotations together
+                without numerical precision problems showing up.</para>
+            <para>There is one more thing we need to be able to do: convert a quaternion into a
+                rotation matrix. While we could convert a unit quaternion back into angle/axis
+                rotations, it's much preferable to do it directly:</para>
+            <!--TODO: Equation: compute rotation matrix from a quaternion.-->
+        </section>
+        <section>
+            <title>Composition Type</title>
+            <para>So our goal is to compose successive rotations into a final orientation. When we
+                want to increase the pitch, for example, we will take the current orientation and
+                multiply into it a quaternion that represents a pitch rotation of a few degrees. The
+                result becomes the new orientation.</para>
+            <para>But which side do we do the multiplication on? Quaternion multiplication is not
+                commutative, so this will have an affect on the output. Well, it works exactly like
+                matrix math.</para>
+            <para>If you multiply the pitch increase on the left side, then it changes the pitch
+                relative to the current orientation. If you multiply the pitch on the right side, it
+                changes the pitch relative to the initial space of the vertices. Which is usually
+                model space. Since the yaw, pitch, and roll are usually defined relative to the
+                current orientation, that is what we need to do.</para>
+        </section>
     </section>
     <section>
         <title>Camera-Relative Orientation</title>
@@ -332,6 +373,10 @@ void main()
                             S<superscript>-1</superscript>R<superscript>-1</superscript>T<superscript>-1</superscript></mathphrase>
                 </inlineequation>.</para>
         </section>
+    </section>
+    <section>
+        <title>Interpolation</title>
+        <para>One other trick you can do with quaternions is this.</para>
     </section>
     
     <section>

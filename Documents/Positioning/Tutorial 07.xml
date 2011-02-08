@@ -279,7 +279,8 @@ glUseProgram(0);</programlisting>
                 the target moves, the camera will follow it perfectly.</para>
             <para>To do this, we use a special coordinate system trick. Instead of storing the
                 relative position of the camera in a normal coordinate system, we instead use a
-                    <glossterm>spherical coordinate system.</glossterm></para>
+                    <glossterm>spherical coordinate system</glossterm>, also known as
+                    <glossterm>polar coordinates</glossterm>.</para>
             <para>Previously, we said that a coordinate system was defined by a series of vectors
                 and an origin point. This was a useful simplification of the possibilities; this is
                 true of any coordinate system that follows the rules of <glossterm>Euclidean
@@ -1038,7 +1039,7 @@ void main()
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>spherical coordinate system</glossterm>
+                <glossterm>spherical coordinate system, polar coordinates</glossterm>
                 <glossdef>
                     <para>A three dimensional coordinate system where the three coordinates are not
                         defined by 3 values multiplied by vectors, but by two angles and a radius.

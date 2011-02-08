@@ -57,7 +57,7 @@ namespace Framework
 	class MatrixStackPusher
 	{
 	public:
-		MatrixStackPusher(MatrixStack &matrixStack)
+		explicit MatrixStackPusher(MatrixStack &matrixStack)
 			: m_stack(matrixStack)
 		{
 			m_stack.Push();
