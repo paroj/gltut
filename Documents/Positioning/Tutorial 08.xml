@@ -377,6 +377,7 @@ void main()
     <section>
         <title>Interpolation</title>
         <para>One other trick you can do with quaternions is this.</para>
+        <para/>
     </section>
     
     <section>

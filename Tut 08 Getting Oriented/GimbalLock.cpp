@@ -75,8 +75,13 @@ const char *g_strGimbalNames[3] =
 	"SmallGimbal.xml",
 };
 
+bool g_bDrawGimbals = true;
+
 void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
 {
+	if(!g_bDrawGimbals)
+		return;
+
 	Framework::MatrixStackPusher pusher(currMatrix);
 
 	switch(eAxis)
@@ -103,6 +108,8 @@ void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, float fSiz
 	glUseProgram(0);
 }
 
+Framework::Mesh *g_pObject = NULL;
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -114,6 +121,8 @@ void init()
 		{
 			g_Gimbals[iLoop] = new Framework::Mesh(g_strGimbalNames[iLoop]);
 		}
+
+		g_pObject = new Framework::Mesh("test.xml");
 	}
 	catch(std::exception &except)
 	{
@@ -164,6 +173,17 @@ void display()
 	currMatrix.RotateZ(g_angles.fAngleZ);
 	DrawGimbal(currMatrix, GIMBAL_Z_AXIS, 22.0f, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
 
+	glUseProgram(theProgram);
+	currMatrix.Scale(3.0, 3.0, 3.0);
+	currMatrix.RotateX(-90);
+	//Set the base color for this object.
+	glUniform4f(baseColorUnif, 1.0, 1.0, 1.0, 1.0);
+	glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
+
+	g_pObject->Render("tint");
+
+	glUseProgram(0);
+
 	glutSwapBuffers();
 	glutPostRedisplay();
 }
@@ -204,6 +224,10 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'q': g_angles.fAngleZ += SMALL_ANGLE_INCREMENT; break;
 	case 'e': g_angles.fAngleZ -= SMALL_ANGLE_INCREMENT; break;
+
+	case 32:
+		g_bDrawGimbals = !g_bDrawGimbals;
+		break;
 	}
 }
 

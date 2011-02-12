@@ -487,6 +487,7 @@ namespace Framework
 	{
 		std::vector<Attribute> attribs;
 		attribs.reserve(16);
+		std::map<GLuint, int> attribIndexMap;	//Maps from attribute indices to 'attribs' indices.
 
 		std::vector<IndexData> indexData;
 
@@ -510,6 +511,7 @@ namespace Framework
 			while(pProcNode->ValueStr() == "attribute")
 			{
 				attribs.push_back(Attribute(pProcNode));
+				attribIndexMap[attribs.back().iAttribIx] = attribs.size() - 1;
 				pProcNode = pProcNode->NextSiblingElement();
 			}
 
@@ -581,8 +583,18 @@ namespace Framework
 			for(size_t iAttribIx = 0; iAttribIx < namedVao.second.size(); iAttribIx++)
 			{
 				GLuint iAttrib = namedVao.second[iAttribIx];
-				const Attribute &attrib = attribs[iAttrib];
-				attrib.SetupAttributeArray(attribStartLocs[iAttrib]);
+				int iAttribOffset = -1;
+				for(size_t iCount = 0; iCount < attribs.size(); iCount++)
+				{
+					if(attribs[iCount].iAttribIx == iAttrib)
+					{
+						iAttribOffset = iCount;
+						break;
+					}
+				}
+
+				const Attribute &attrib = attribs[iAttribOffset];
+				attrib.SetupAttributeArray(attribStartLocs[iAttribOffset]);
 			}
 
 			m_pData->namedVAOs[namedVao.first] = vao;
