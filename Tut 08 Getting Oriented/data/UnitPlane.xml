@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/meshFormat.rnc" type="compact"?>
+
+<mesh xmlns="http://www.arcsynthesis.com/gltut/mesh" >
+	<attribute index="0" type="float" size="3" > 
+        0.5 0 -0.5
+        0.5 0 0.5
+        -0.5 0 0.5
+        -0.5 0 -0.5</attribute>
+	<attribute index="1" type="float" size="4" > 
+        1 1 1 1
+        1 1 1 1
+        1 1 1 1
+        1 1 1 1</attribute>
+	<indices cmd="triangles" type="ushort" > 
+        0 1 2
+        0 2 1
+        2 3 0
+        2 0 3</indices>
+</mesh>

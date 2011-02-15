@@ -9,6 +9,7 @@
 #include "../framework/MatrixStack.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
@@ -60,55 +61,7 @@ void InitializeProgram()
 	glUseProgram(0);
 }
 
-enum GimbalAxis
-{
-	GIMBAL_X_AXIS,
-	GIMBAL_Y_AXIS,
-	GIMBAL_Z_AXIS,
-};
-
-Framework::Mesh *g_Gimbals[3] = {NULL, NULL, NULL};
-const char *g_strGimbalNames[3] =
-{
-	"LargeGimbal.xml",
-	"MediumGimbal.xml",
-	"SmallGimbal.xml",
-};
-
-bool g_bDrawGimbals = true;
-
-void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
-{
-	if(!g_bDrawGimbals)
-		return;
-
-	Framework::MatrixStackPusher pusher(currMatrix);
-
-	switch(eAxis)
-	{
-	case GIMBAL_X_AXIS:
-		break;
-	case GIMBAL_Y_AXIS:
-		currMatrix.RotateZ(90.0f);
-		currMatrix.RotateX(90.0f);
-		break;
-	case GIMBAL_Z_AXIS:
-		currMatrix.RotateY(90.0f);
-		currMatrix.RotateX(90.0f);
-		break;
-	}
-
-	glUseProgram(theProgram);
-	//Set the base color for this object.
-	glUniform4fv(baseColorUnif, 1, glm::value_ptr(baseColor));
-	glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
-
-	g_Gimbals[eAxis]->Render();
-
-	glUseProgram(0);
-}
-
-Framework::Mesh *g_pObject = NULL;
+Framework::Mesh *g_pShip = NULL;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -117,12 +70,7 @@ void init()
 
 	try
 	{
-		for(int iLoop = 0; iLoop < 3; iLoop++)
-		{
-			g_Gimbals[iLoop] = new Framework::Mesh(g_strGimbalNames[iLoop]);
-		}
-
-		g_pObject = new Framework::Mesh("Ship.xml");
+		g_pShip = new Framework::Mesh("Ship.xml");
 	}
 	catch(std::exception &except)
 	{
@@ -154,6 +102,7 @@ struct GimbalAngles
 };
 
 GimbalAngles g_angles;
+glm::fquat g_orientation(1.0f, 0.0f, 0.0f, 0.0f);
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -166,12 +115,7 @@ void display()
 
 	Framework::MatrixStack currMatrix;
 	currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
-	currMatrix.RotateX(g_angles.fAngleX);
-	DrawGimbal(currMatrix, GIMBAL_X_AXIS, 30.0f, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
-	currMatrix.RotateY(g_angles.fAngleY);
-	DrawGimbal(currMatrix, GIMBAL_Y_AXIS, 26.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	currMatrix.RotateZ(g_angles.fAngleZ);
-	DrawGimbal(currMatrix, GIMBAL_Z_AXIS, 22.0f, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+	currMatrix.ApplyMatrix(glm::mat4_cast(g_orientation));
 
 	glUseProgram(theProgram);
 	currMatrix.Scale(3.0, 3.0, 3.0);
@@ -180,7 +124,7 @@ void display()
 	glUniform4f(baseColorUnif, 1.0, 1.0, 1.0, 1.0);
 	glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
 
-	g_pObject->Render("tint");
+	g_pShip->Render("tint");
 
 	glUseProgram(0);
 
@@ -202,8 +146,29 @@ void reshape (int w, int h)
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
 
-#define STANDARD_ANGLE_INCREMENT 11.25f
 #define SMALL_ANGLE_INCREMENT 9.0f
+
+static bool g_bPreMultiply = true;
+
+void OffsetOrientation(const glm::vec3 &_axis, float fAngDeg)
+{
+	float fAngRad = Framework::DegToRad(fAngDeg);
+
+	glm::vec3 axis = glm::normalize(_axis);
+
+	axis = axis * sinf(fAngRad / 2.0f);
+	float scalar = cosf(fAngRad / 2.0f);
+
+	glm::fquat offset(scalar, axis.x, axis.y, axis.z);
+
+	if(g_bPreMultiply)
+		g_orientation = g_orientation * offset;
+	else
+		g_orientation = offset * g_orientation;
+
+	g_orientation = glm::normalize(g_orientation);
+}
+
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
@@ -216,17 +181,17 @@ void keyboard(unsigned char key, int x, int y)
 	case 27:
 		glutLeaveMainLoop();
 		break;
-	case 'w': g_angles.fAngleX += SMALL_ANGLE_INCREMENT; break;
-	case 's': g_angles.fAngleX -= SMALL_ANGLE_INCREMENT; break;
+	case 'w': OffsetOrientation(glm::vec3(1.0f, 0.0f, 0.0f), SMALL_ANGLE_INCREMENT); break;
+	case 's': OffsetOrientation(glm::vec3(1.0f, 0.0f, 0.0f), -SMALL_ANGLE_INCREMENT); break;
 
-	case 'a': g_angles.fAngleY += SMALL_ANGLE_INCREMENT; break;
-	case 'd': g_angles.fAngleY -= SMALL_ANGLE_INCREMENT; break;
+	case 'a': OffsetOrientation(glm::vec3(0.0f, 0.0f, 1.0f), SMALL_ANGLE_INCREMENT); break;
+	case 'd': OffsetOrientation(glm::vec3(0.0f, 0.0f, 1.0f), -SMALL_ANGLE_INCREMENT); break;
 
-	case 'q': g_angles.fAngleZ += SMALL_ANGLE_INCREMENT; break;
-	case 'e': g_angles.fAngleZ -= SMALL_ANGLE_INCREMENT; break;
-
+	case 'q': OffsetOrientation(glm::vec3(0.0f, 1.0f, 0.0f), SMALL_ANGLE_INCREMENT); break;
+	case 'e': OffsetOrientation(glm::vec3(0.0f, 1.0f, 0.0f), -SMALL_ANGLE_INCREMENT); break;
 	case 32:
-		g_bDrawGimbals = !g_bDrawGimbals;
+		g_bPreMultiply = !g_bPreMultiply;
+		printf(g_bPreMultiply ? "Pre-multiply\n" : "Post-multiply\n");
 		break;
 	}
 }

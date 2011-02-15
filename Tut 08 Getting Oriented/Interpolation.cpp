@@ -7,8 +7,10 @@
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
+#include "../framework/Timer.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
@@ -60,55 +62,27 @@ void InitializeProgram()
 	glUseProgram(0);
 }
 
-enum GimbalAxis
+Framework::Mesh *g_pShip = NULL;
+
+static glm::fquat g_Orients[] =
 {
-	GIMBAL_X_AXIS,
-	GIMBAL_Y_AXIS,
-	GIMBAL_Z_AXIS,
+	glm::fquat(0.7071f, 0.7071f, 0.0f, 0.0f),
+	glm::fquat(0.5f, 0.5f, -0.5f, 0.5f),
+	glm::fquat(0.5537f, 0.5208f, 0.6483f, 0.0410f),
+	glm::fquat(-0.4895f, -0.7892f, -0.3700f, -0.02514f),
+	glm::fquat(0.0f, 0.0f, 1.0f, 0.0f),
+	glm::fquat(0.3840f, -0.1591f, -0.7991f, -0.4344f),
 };
 
-Framework::Mesh *g_Gimbals[3] = {NULL, NULL, NULL};
-const char *g_strGimbalNames[3] =
+static char g_OrientKeys[] =
 {
-	"LargeGimbal.xml",
-	"MediumGimbal.xml",
-	"SmallGimbal.xml",
+	'z',
+	'x',
+	'c',
+	'v',
+	'b',
+	'n',
 };
-
-bool g_bDrawGimbals = true;
-
-void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
-{
-	if(!g_bDrawGimbals)
-		return;
-
-	Framework::MatrixStackPusher pusher(currMatrix);
-
-	switch(eAxis)
-	{
-	case GIMBAL_X_AXIS:
-		break;
-	case GIMBAL_Y_AXIS:
-		currMatrix.RotateZ(90.0f);
-		currMatrix.RotateX(90.0f);
-		break;
-	case GIMBAL_Z_AXIS:
-		currMatrix.RotateY(90.0f);
-		currMatrix.RotateX(90.0f);
-		break;
-	}
-
-	glUseProgram(theProgram);
-	//Set the base color for this object.
-	glUniform4fv(baseColorUnif, 1, glm::value_ptr(baseColor));
-	glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
-
-	g_Gimbals[eAxis]->Render();
-
-	glUseProgram(0);
-}
-
-Framework::Mesh *g_pObject = NULL;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -117,18 +91,12 @@ void init()
 
 	try
 	{
-		for(int iLoop = 0; iLoop < 3; iLoop++)
-		{
-			g_Gimbals[iLoop] = new Framework::Mesh(g_strGimbalNames[iLoop]);
-		}
-
-		g_pObject = new Framework::Mesh("Ship.xml");
+		g_pShip = new Framework::Mesh("Ship.xml");
 	}
 	catch(std::exception &except)
 	{
 		printf(except.what());
 	}
-
 
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
@@ -140,38 +108,137 @@ void init()
 	glDepthRange(0.0f, 1.0f);
 }
 
-struct GimbalAngles
+glm::vec4 Vectorize(const glm::fquat theQuat)
 {
-	GimbalAngles()
-		: fAngleX(0.0f)
-		, fAngleY(0.0f)
-		, fAngleZ(0.0f)
+	glm::vec4 ret;
+
+	ret.x = theQuat.x;
+	ret.y = theQuat.y;
+	ret.z = theQuat.z;
+	ret.w = theQuat.w;
+
+	return ret;
+}
+
+class Orientation
+{
+public:
+	Orientation()
+		: m_bIsAnimating(false)
+		, m_ixCurrOrient(0)
+		, m_bSlerp(false)
 	{}
 
-	float fAngleX;
-	float fAngleY;
-	float fAngleZ;
+	bool ToggleSlerp()
+	{
+		m_bSlerp = !m_bSlerp;
+		return m_bSlerp;
+	}
+
+	glm::fquat GetOrient() const
+	{
+		if(m_bIsAnimating)
+			return m_anim.GetOrient(g_Orients[m_ixCurrOrient], m_bSlerp);
+		else
+			return g_Orients[m_ixCurrOrient];
+	}
+
+	bool IsAnimating() const {return m_bIsAnimating;}
+
+	void UpdateTime()
+	{
+		if(m_bIsAnimating)
+		{
+			bool bIsFinished = m_anim.UpdateTime();
+			if(bIsFinished)
+			{
+				m_bIsAnimating = false;
+				m_ixCurrOrient = m_anim.GetFinalIx();
+			}
+		}
+	}
+
+	void AnimateToOrient(int ixDestination)
+	{
+		if(m_ixCurrOrient == ixDestination)
+			return;
+
+		m_anim.StartAnimation(ixDestination, 1.0f);
+		m_bIsAnimating = true;
+	}
+
+private:
+	class Animation
+	{
+	public:
+		//Returns true if the animation is over.
+		bool UpdateTime()
+		{
+			return m_currTimer.Update();
+		}
+
+		glm::fquat GetOrient(const glm::fquat &initial, bool bSlerp) const
+		{
+			if(bSlerp)
+			{
+				return glm::mix(initial, g_Orients[m_ixFinalOrient], m_currTimer.GetAlpha());
+			}
+			else
+			{
+				glm::vec4 start = Vectorize(initial);
+				glm::vec4 end = Vectorize(g_Orients[m_ixFinalOrient]);
+				glm::vec4 interp = glm::mix(start, end, m_currTimer.GetAlpha());
+				interp = glm::normalize(interp);
+				return glm::fquat(interp.w, interp.x, interp.y, interp.z);
+			}
+
+			return initial;
+		}
+
+		void StartAnimation(int ixDestination, float fDuration)
+		{
+			m_ixFinalOrient = ixDestination;
+			m_currTimer = Framework::Timer(Framework::Timer::TT_SINGLE, fDuration);
+		}
+
+		int GetFinalIx() const {return m_ixFinalOrient;}
+
+	private:
+		int m_ixFinalOrient;
+		Framework::Timer m_currTimer;
+	};
+
+	bool m_bIsAnimating;
+	int m_ixCurrOrient;
+	bool m_bSlerp;
+
+	Animation m_anim;
 };
 
-GimbalAngles g_angles;
+Orientation g_orient;
+
+class Animation
+{
+public:
+
+private:
+	glm::fquat m_finalOrient;
+};
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
 void display()
 {
+	g_orient.UpdateTime();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Framework::MatrixStack currMatrix;
 	currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
-	currMatrix.RotateX(g_angles.fAngleX);
-	DrawGimbal(currMatrix, GIMBAL_X_AXIS, 30.0f, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
-	currMatrix.RotateY(g_angles.fAngleY);
-	DrawGimbal(currMatrix, GIMBAL_Y_AXIS, 26.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-	currMatrix.RotateZ(g_angles.fAngleZ);
-	DrawGimbal(currMatrix, GIMBAL_Z_AXIS, 22.0f, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+	currMatrix.ApplyMatrix(glm::mat4_cast(g_orient.GetOrient()));
 
 	glUseProgram(theProgram);
 	currMatrix.Scale(3.0, 3.0, 3.0);
@@ -180,7 +247,7 @@ void display()
 	glUniform4f(baseColorUnif, 1.0, 1.0, 1.0, 1.0);
 	glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
 
-	g_pObject->Render("tint");
+	g_pShip->Render("tint");
 
 	glUseProgram(0);
 
@@ -202,8 +269,12 @@ void reshape (int w, int h)
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 }
 
-#define STANDARD_ANGLE_INCREMENT 11.25f
-#define SMALL_ANGLE_INCREMENT 9.0f
+void ApplyOrientation(int iIndex)
+{
+	if(!g_orient.IsAnimating())
+		g_orient.AnimateToOrient(iIndex);
+}
+
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
@@ -216,18 +287,18 @@ void keyboard(unsigned char key, int x, int y)
 	case 27:
 		glutLeaveMainLoop();
 		break;
-	case 'w': g_angles.fAngleX += SMALL_ANGLE_INCREMENT; break;
-	case 's': g_angles.fAngleX -= SMALL_ANGLE_INCREMENT; break;
-
-	case 'a': g_angles.fAngleY += SMALL_ANGLE_INCREMENT; break;
-	case 'd': g_angles.fAngleY -= SMALL_ANGLE_INCREMENT; break;
-
-	case 'q': g_angles.fAngleZ += SMALL_ANGLE_INCREMENT; break;
-	case 'e': g_angles.fAngleZ -= SMALL_ANGLE_INCREMENT; break;
-
 	case 32:
-		g_bDrawGimbals = !g_bDrawGimbals;
+		{
+			bool bSlerp = g_orient.ToggleSlerp();
+			printf(bSlerp ? "Slerp\n" : "Lerp\n");
+		}
 		break;
+	}
+
+	for(int iOrient = 0; iOrient < ARRAY_COUNT(g_OrientKeys); iOrient++)
+	{
+		if(key == g_OrientKeys[iOrient])
+			ApplyOrientation(iOrient);
 	}
 }
 
