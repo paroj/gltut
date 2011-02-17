@@ -2,32 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="301px" width="301px" >
-	<style type="text/css" ><![CDATA[.vertex
-{
-	fill: black;
-	stroke: black;
-}
-
-.label
-{
-	font-family: monospace;
-	stroke-width: 1px;
-	stroke: black;
-	text-anchor: middle;
-	font-size: 25px;
-}
-
-.vertex_label
-{
-	font-family: monospace;
-	stroke-width: 1px;
-	font-weight: bold;
-	stroke: black;
-	text-anchor: middle;
-	font-size: 25px;
-}
-
-.baryPts
+	<style type="text/css" ><![CDATA[.baryPts
 {
 	stroke-opacity: 0.5;
 	stroke: violet;
@@ -39,6 +14,31 @@
 {
 	fill: none;
 	stroke: black;
+}
+
+.vertex
+{
+	fill: black;
+	stroke: black;
+}
+
+.label
+{
+	font-family: monospace;
+	font-size: 25px;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}
+
+.vertex_label
+{
+	font-family: monospace;
+	font-size: 25px;
+	font-weight: bold;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
 }]]></style>
 	<defs >
 		<g id="g_point" >

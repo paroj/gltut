@@ -1,42 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
 	<mrow>
-		<mfenced open="[" close="]" separators=",">
-			<mtable>
-				<mtr>
-					<mtd>
-						<msub>
-							<mi>A</mi>
-							<mi>x</mi>
-						</msub>
-					</mtd>
-				</mtr>
-				<mtr>
-					<mtd>
-						<msub>
-							<mi>A</mi>
-							<mi>y</mi>
-						</msub>
-					</mtd>
-				</mtr>
-				<mtr>
-					<mtd>
-						<msub>
-							<mi>A</mi>
-							<mi>z</mi>
-						</msub>
-					</mtd>
-				</mtr>
-			</mtable>
-		</mfenced>
 		<mi>X</mi>
-		<mo>+</mo>
 		<mfenced open="[" close="]" separators=",">
 			<mtable>
 				<mtr>
 					<mtd>
 						<msub>
-							<mi>B</mi>
+							<mi>A</mi>
 							<mi>x</mi>
 						</msub>
 					</mtd>
@@ -44,7 +15,7 @@
 				<mtr>
 					<mtd>
 						<msub>
-							<mi>B</mi>
+							<mi>A</mi>
 							<mi>y</mi>
 						</msub>
 					</mtd>
@@ -52,15 +23,45 @@
 				<mtr>
 					<mtd>
 						<msub>
-							<mi>B</mi>
+							<mi>A</mi>
 							<mi>z</mi>
 						</msub>
 					</mtd>
 				</mtr>
 			</mtable>
 		</mfenced>
+		<mo>+</mo>
 		<mi>Y</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
 		<mo>+</mo>
+		<mi>Z</mi>
 		<mfenced open="[" close="]" separators=",">
 			<mtable>
 				<mtr>
@@ -89,7 +90,6 @@
 				</mtr>
 			</mtable>
 		</mfenced>
-		<mi>Z</mi>
 		<mo>+</mo>
 		<mfenced open="[" close="]" separators=",">
 			<mtable>

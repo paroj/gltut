@@ -31,11 +31,11 @@ styleLib:AddStyle(nil, "vertex",
 	SvgWriter.Style():stroke("black"):fill("black"));
 	
 styleLib:AddStyle(nil, "label",
-	SvgWriter.Style():stroke("black"):stroke_width("1px"):font_size(textSize .. "px")
+	SvgWriter.Style():stroke("none"):fill("black"):font_size(textSize .. "px")
 		:font_family("monospace"):text_anchor("middle"));
 
 styleLib:AddStyle(nil, "vertex_label",
-	SvgWriter.Style():stroke("black"):stroke_width("1px"):font_size(textSize .. "px")
+	SvgWriter.Style():stroke("none"):fill("black"):font_size(textSize .. "px")
 		:font_family("monospace"):font_weight("bold"):text_anchor("middle"));
 
 local function Output(convertName, barycoords)

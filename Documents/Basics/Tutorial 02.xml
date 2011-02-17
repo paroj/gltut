@@ -282,8 +282,14 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                         sizeof(float))]</literal>. And so on.</para>
                 <para>The data flow from the buffer object to the vertex shaders looks like this
                     now:</para>
-                <!--TODO: show two data chunks from the buffer becoming a single set of attribute data. Then show these
-data sets going to vertex shader invocations. Show at least 3 vertex shaders.-->
+                <figure>
+                    <title>Multiple Vertex Attributes</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="VertexShaderTwoAttributes.svg" format="SVG"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
                 <para>As before, every 3 vertices process is transformed into a triangle.</para>
             </section>
         </section>

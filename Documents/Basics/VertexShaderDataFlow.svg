@@ -38,17 +38,17 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1138"
+     inkscape:window-width="1768"
+     inkscape:window-height="1050"
      id="namedview32"
      showgrid="false"
      inkscape:zoom="1"
-     inkscape:cx="530.00943"
-     inkscape:cy="121.49248"
-     inkscape:window-x="-4"
+     inkscape:cx="238.00943"
+     inkscape:cy="235.49248"
+     inkscape:window-x="148"
      inkscape:window-y="-4"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showguides="true"
      inkscape:guide-bbox="true">
     <sodipodi:guide
@@ -179,7 +179,7 @@
            id="tspan4028">Index 2</tspan></tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#00745e;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
        x="260.72702"
        y="70.344383"
        id="text4060"
@@ -190,10 +190,11 @@
          id="tspan4062"><tspan
            x="260.72702"
            y="70.344383"
-           id="tspan4064">in vec3 position</tspan></tspan></text>
+           id="tspan4064"
+           style="fill:#00745e;fill-opacity:1">in vec4 position</tspan></tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#00745e;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
        x="260.72702"
        y="169.97955"
        id="text4054"
@@ -204,10 +205,11 @@
          id="tspan4056"><tspan
            x="260.72702"
            y="169.97955"
-           id="tspan4058">in vec3 position</tspan></tspan></text>
+           id="tspan4058"
+           style="fill:#00745e;fill-opacity:1">in vec4 position</tspan></tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
+       style="font-size:20px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;writing-mode:lr-tb;text-anchor:start;fill:#00745e;fill-opacity:1;stroke:none;font-family:Serif;-inkscape-font-specification:Serif"
        x="260.72702"
        y="265.97955"
        id="text4048"
@@ -218,21 +220,22 @@
          id="tspan4050"><tspan
            x="260.72702"
            y="265.97955"
-           id="tspan4052">in vec3 position</tspan></tspan></text>
+           id="tspan4052"
+           style="fill:#00745e;fill-opacity:1">in vec4 position</tspan></tspan></text>
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#00745e;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 106,68 c 20.53861,0 28.07937,-13.597416 41.30057,-13.597416 18.59259,0.516592 46.78578,7.078799 65.43463,7.362217 C 231.83848,62.055125 239.29894,65 258,65"
        id="path3912"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccsc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#00745e;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 106.5,102.5 c 29.39782,0 58.60756,14.24592 77.6668,30.75 34.14983,29.57157 30.02055,31.10355 73.8332,30.75"
        id="path3914"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="csc" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:none;stroke:#00745e;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 106.06602,138.47278 c 38.18376,-1.06066 49.49747,12.72792 64.34672,51.97235 14.84924,39.24442 40.9774,70.71068 85.91347,70.71068"
        id="path3916"
        inkscape:connector-curvature="0"

@@ -589,7 +589,14 @@
                 does not affect its orientation.</para>
             <para>While the two quaternions represent the same orientation, they aren't the same as
                 far as interpolation is concerned. Consider a two-dimensional case:</para>
-            <!--TODO: Picture of a vector q1, a vector q2, and -q1. The angle between -q1 and q2 should be less than 90 degrees.-->
+            <figure>
+                <title>Interpolation Directions</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="InterpolateDirection.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>If the angle between the two quaternions is greater than 90°, then the
                 interpolation between them will take the <quote>long path</quote> between the two
                 orientations. Which is what we see in the <keycap>Q</keycap> to <keycap>E</keycap>
