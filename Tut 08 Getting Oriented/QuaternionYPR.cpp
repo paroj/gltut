@@ -129,7 +129,6 @@ void display()
 	glUseProgram(0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.
@@ -148,7 +147,7 @@ void reshape (int w, int h)
 
 #define SMALL_ANGLE_INCREMENT 9.0f
 
-static bool g_bPreMultiply = true;
+static bool g_bRightMultiply = true;
 
 void OffsetOrientation(const glm::vec3 &_axis, float fAngDeg)
 {
@@ -161,7 +160,7 @@ void OffsetOrientation(const glm::vec3 &_axis, float fAngDeg)
 
 	glm::fquat offset(scalar, axis.x, axis.y, axis.z);
 
-	if(g_bPreMultiply)
+	if(g_bRightMultiply)
 		g_orientation = g_orientation * offset;
 	else
 		g_orientation = offset * g_orientation;
@@ -190,10 +189,12 @@ void keyboard(unsigned char key, int x, int y)
 	case 'q': OffsetOrientation(glm::vec3(0.0f, 1.0f, 0.0f), SMALL_ANGLE_INCREMENT); break;
 	case 'e': OffsetOrientation(glm::vec3(0.0f, 1.0f, 0.0f), -SMALL_ANGLE_INCREMENT); break;
 	case 32:
-		g_bPreMultiply = !g_bPreMultiply;
-		printf(g_bPreMultiply ? "Pre-multiply\n" : "Post-multiply\n");
+		g_bRightMultiply = !g_bRightMultiply;
+		printf(g_bRightMultiply ? "Right-multiply\n" : "Left-multiply\n");
 		break;
 	}
+
+	glutPostRedisplay();
 }
 
 

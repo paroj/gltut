@@ -156,6 +156,28 @@ namespace detail{
 		return detail::tquat<T>(-q.w, -q.x, -q.y, -q.z);
 	}
 
+	template <typename T> 
+	detail::tquat<T> operator- (
+		detail::tquat<T> const &lhs, detail::tquat<T> const &rhs)
+	{
+		return tquat<T>(lhs.w - rhs.w,
+			lhs.x - rhs.x,
+			lhs.y - rhs.y,
+			lhs.z - rhs.z);
+	}
+
+	template <typename T> 
+	detail::tquat<T> operator+ (
+		detail::tquat<T> const &lhs, detail::tquat<T> const &rhs)
+	{
+		return tquat<T>(lhs.w + rhs.w,
+			lhs.x + rhs.x,
+			lhs.y + rhs.y,
+			lhs.z + rhs.z);
+	}
+
+
+
 	// Transformation
 	template <typename T>
 	inline detail::tvec3<T> operator* 

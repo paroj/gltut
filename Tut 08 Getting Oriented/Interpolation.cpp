@@ -68,20 +68,24 @@ static glm::fquat g_Orients[] =
 {
 	glm::fquat(0.7071f, 0.7071f, 0.0f, 0.0f),
 	glm::fquat(0.5f, 0.5f, -0.5f, 0.5f),
-	glm::fquat(0.5537f, 0.5208f, 0.6483f, 0.0410f),
 	glm::fquat(-0.4895f, -0.7892f, -0.3700f, -0.02514f),
-	glm::fquat(0.0f, 0.0f, 1.0f, 0.0f),
+	glm::fquat(0.4895f, 0.7892f, 0.3700f, 0.02514f),
+
 	glm::fquat(0.3840f, -0.1591f, -0.7991f, -0.4344f),
+	glm::fquat(0.5537f, 0.5208f, 0.6483f, 0.0410f),
+	glm::fquat(0.0f, 0.0f, 1.0f, 0.0f),
 };
 
 static char g_OrientKeys[] =
 {
-	'z',
-	'x',
-	'c',
-	'v',
-	'b',
-	'n',
+	'q',
+	'w',
+	'e',
+	'r',
+
+	't',
+	'y',
+	'u',
 };
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
@@ -118,6 +122,36 @@ glm::vec4 Vectorize(const glm::fquat theQuat)
 	ret.w = theQuat.w;
 
 	return ret;
+}
+
+glm::fquat Lerp(const glm::fquat &v0, const glm::fquat &v1, float alpha)
+{
+	glm::vec4 start = Vectorize(v0);
+	glm::vec4 end = Vectorize(v1);
+	glm::vec4 interp = glm::mix(start, end, alpha);
+
+	printf("alpha: %f, (%f, %f, %f, %f)\n", alpha, interp.w, interp.x, interp.y, interp.z);
+
+	interp = glm::normalize(interp);
+	return glm::fquat(interp.w, interp.x, interp.y, interp.z);
+}
+
+glm::fquat Slerp(const glm::fquat &v0, const glm::fquat &v1, float alpha)
+{
+	float dot = glm::dot(v0, v1);
+
+	const float DOT_THRESHOLD = 0.9995f;
+	if (dot > DOT_THRESHOLD)
+		return Lerp(v0, v1, alpha);
+
+	glm::clamp(dot, -1.0f, 1.0f);
+	float theta_0 = acosf(dot);
+	float theta = theta_0*alpha;
+
+	glm::fquat v2 = v1 - v0*dot;
+	v2 = glm::normalize(v2);
+
+	return v0*cos(theta) + v2*sin(theta);
 }
 
 class Orientation
@@ -181,15 +215,11 @@ private:
 		{
 			if(bSlerp)
 			{
-				return glm::mix(initial, g_Orients[m_ixFinalOrient], m_currTimer.GetAlpha());
+				return Slerp(initial, g_Orients[m_ixFinalOrient], m_currTimer.GetAlpha());
 			}
 			else
 			{
-				glm::vec4 start = Vectorize(initial);
-				glm::vec4 end = Vectorize(g_Orients[m_ixFinalOrient]);
-				glm::vec4 interp = glm::mix(start, end, m_currTimer.GetAlpha());
-				interp = glm::normalize(interp);
-				return glm::fquat(interp.w, interp.x, interp.y, interp.z);
+				return Lerp(initial, g_Orients[m_ixFinalOrient], m_currTimer.GetAlpha());
 			}
 
 			return initial;

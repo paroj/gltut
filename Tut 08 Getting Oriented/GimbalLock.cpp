@@ -77,7 +77,7 @@ const char *g_strGimbalNames[3] =
 
 bool g_bDrawGimbals = true;
 
-void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, float fSize, glm::vec4 baseColor)
+void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, glm::vec4 baseColor)
 {
 	if(!g_bDrawGimbals)
 		return;
@@ -167,11 +167,11 @@ void display()
 	Framework::MatrixStack currMatrix;
 	currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
 	currMatrix.RotateX(g_angles.fAngleX);
-	DrawGimbal(currMatrix, GIMBAL_X_AXIS, 30.0f, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
+	DrawGimbal(currMatrix, GIMBAL_X_AXIS, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
 	currMatrix.RotateY(g_angles.fAngleY);
-	DrawGimbal(currMatrix, GIMBAL_Y_AXIS, 26.0f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+	DrawGimbal(currMatrix, GIMBAL_Y_AXIS, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 	currMatrix.RotateZ(g_angles.fAngleZ);
-	DrawGimbal(currMatrix, GIMBAL_Z_AXIS, 22.0f, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+	DrawGimbal(currMatrix, GIMBAL_Z_AXIS, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
 
 	glUseProgram(theProgram);
 	currMatrix.Scale(3.0, 3.0, 3.0);
@@ -185,7 +185,6 @@ void display()
 	glUseProgram(0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.
@@ -229,6 +228,8 @@ void keyboard(unsigned char key, int x, int y)
 		g_bDrawGimbals = !g_bDrawGimbals;
 		break;
 	}
+
+	glutPostRedisplay();
 }
 
 

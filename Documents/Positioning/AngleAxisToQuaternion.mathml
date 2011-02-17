@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <mtable>
+                        <mtr>
+                            <mtd>
+                                <mtext>Axis</mtext>
+                                <mo>=</mo>
+                                <mfenced open="(" close=")" separators=",">
+                                    <mrow>
+                                        <mi>x</mi>
+                                    </mrow>
+                                    <mrow>
+                                        <mi>y</mi>
+                                    </mrow>
+                                    <mrow>
+                                        <mi>z</mi>
+                                    </mrow>
+                                </mfenced>
+                            </mtd>
+                            <mtd>
+                                <mtext>Angle</mtext>
+                                <mo>=</mo>
+                                <mi>&#x03B8;</mi>
+                            </mtd>
+                        </mtr>
+                    </mtable>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mtext>Quaternion</mtext>
+                    <mo>=</mo>
+                    <mfenced open="[" close="]" separators=",">
+                        <mtable>
+                            <mtr>
+                                <mtd>
+                                    <mi>x</mi>
+                                    <mo>*</mo>
+                                    <mi>sin</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>&#x03B8;</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                            <mtr>
+                                <mtd>
+                                    <mi>y</mi>
+                                    <mo>*</mo>
+                                    <mi>sin</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>&#x03B8;</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                            <mtr>
+                                <mtd>
+                                    <mi>z</mi>
+                                    <mo>*</mo>
+                                    <mi>sin</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>&#x03B8;</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                            <mtr>
+                                <mtd>
+                                    <mi>cos</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>&#x03B8;</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                        </mtable>
+                    </mfenced>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>

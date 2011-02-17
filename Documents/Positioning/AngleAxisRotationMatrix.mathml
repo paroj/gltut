@@ -24,7 +24,7 @@
             <mtd>
               <mtext>Angle</mtext>
               <mo>=</mo>
-              <mi>&#x03D1;</mi>
+              <mi>&#x03B8;</mi>
             </mtd>
           </mtr>
           <mtr>
@@ -34,7 +34,7 @@
               <mi>cos</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&#x03D1;</mi>
+                  <mi>&#x03B8;</mi>
                 </mrow>
               </mfenced>
             </mtd>
@@ -44,7 +44,7 @@
               <mi>sin</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&#x03D1;</mi>
+                  <mi>&#x03B8;</mi>
                 </mrow>
               </mfenced>
             </mtd>
@@ -58,7 +58,7 @@
               <mi>cos</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&#x03D1;</mi>
+                  <mi>&#x03B8;</mi>
                 </mrow>
               </mfenced>
             </mtd>
@@ -70,7 +70,7 @@
               <mi>sin</mi><mo>&#x2061;</mo>
               <mfenced open="(" close=")" separators=",">
                 <mrow>
-                  <mi>&#x03D1;</mi>
+                  <mi>&#x03B8;</mi>
                 </mrow>
               </mfenced>
             </mtd>

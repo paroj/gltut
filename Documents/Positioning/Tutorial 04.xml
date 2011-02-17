@@ -8,25 +8,6 @@
     <para>Thus far, we have seen very flat things. Namely, a single triangle. Maybe the triangle
         moved around or had some colors.</para>
     <para>This tutorial is all about how to create a realistic world of objects.</para>
-    <note>
-        <title>Incoming Wall of Text</title>
-        <para>This tutorial, even moreso than some of the previous ones, is very heavy on text and
-            light on code. The actual new code introduced in this tutorial is not that much. What is
-            important here is why this is the correct code to do what we need to do. And that
-            requires a lot of text.</para>
-        <para>It also requires a lot of math and geometry. The tutorial will explain everything
-            step-by-step and in-depth, but understanding everything will exercise your math skills.
-            Even worse, the code that we deal with here is usually boilerplate code. It's the kind
-            of code that you write once and then use forever without having to go change it or
-            usually understand how it works.</para>
-        <para>These facts will tempt you to simply skip this tutorial and move on to the next.
-            However, I strongly advise you to resist that temptation. I understand that math isn't
-            the most interesting thing to most people (though to be honest, if math really bores or
-            confuses you, you may want to re-think your desire to write graphics code). But
-            understanding the concepts introduced in this tutorial is very important for
-            understanding how the most fundamental part of triangle-based scan conversion
-            works.</para>
-    </note>
     <section>
         <title>The Unreal World</title>
         <para>The <phrase role="propername">Orthographic Cube</phrase> tutorial renders a

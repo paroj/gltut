@@ -483,7 +483,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Does it look familiar <emphasis>now</emphasis>?</para>
         <para>What this tells us is that the columns of our transformation matrices are, and have
                 <emphasis>always</emphasis> been, nothing more than the axes of a coordinate system.
-            Except for the fourth column: because the input position has a 1 in the W, it acts as an
+            Except for the fourth column; because the input position has a 1 in the W, it acts as an
             offset.</para>
         <para>Transformation ultimately means this: taking the basis vectors and origin point from
             the original coordinate system and re-expressing them relative to the destination
@@ -609,9 +609,10 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             OpenGL. And since we're already uploading a matrix to OpenGL for each object we render,
             this changes nothing about the overall performance characteristics of the rendering (for
             the graphics hardware).</para>
-        <para><emphasis>This</emphasis> is one of the main reasons matrices are used. You can have a
-            transformation sequence with dozens of component transformations, and yet all it takes
-            for the GPU to process this is a single vector/matrix multiplication.</para>
+        <para><emphasis>This</emphasis> is one of the main reasons matrices are used. You can build
+            an incredibly complex transformation sequence with dozens of component transformations.
+            And yet, all it takes for the GPU to use this to transform positions is a single
+            vector/matrix multiplication.</para>
         <section>
             <title>Order of Transforms</title>
             <para>As previously stated, matrix multiplication is not commutative. This means that
@@ -1089,16 +1090,6 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                         are not pointed in the same direction, but the angle between the axis
                         vectors stay the same. This cause a reorientation of objects as they are
                         transformed from the initial space to the destination space.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>inverse matrix</glossterm>
-                <glossdef>
-                    <para>The inverse matrix of the matrix M is the matrix B for which the following
-                        equation is true: <inlineequation>
-                            <mathphrase>MB = I</mathphrase>
-                        </inlineequation>, where I is the identity matrix. The inverse of M is
-                        usually denoted as M<superscript>-1</superscript>.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

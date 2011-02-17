@@ -77,6 +77,14 @@ namespace glm
 			detail::tquat<T> const & q);
 
 		template <typename T> 
+		detail::tquat<T> operator- (
+			detail::tquat<T> const &lhs, detail::tquat<T> const &rhs);
+
+		template <typename T> 
+		detail::tquat<T> operator+ (
+			detail::tquat<T> const &lhs, detail::tquat<T> const &rhs);		
+
+		template <typename T> 
 		detail::tvec3<T> operator* (
 			detail::tquat<T> const & q, 
 			detail::tvec3<T> const & v);
