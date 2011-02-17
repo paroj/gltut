@@ -66,7 +66,7 @@ end
 --Copy the .css file to all directories in the destination.
 for dir in lfs.dir(outputDir) do
 	if(lfs.attributes(outputDir .. dir, "mode") == "directory" and dir ~= "." and dir ~= "..") then
-		command = string.format([[copy %s%s "%s"]], outputDir, cssFilename, outputDir .. dir);
+		command = string.format([[copy "%s%s" "%s"]], mainDir, cssFilename, outputDir .. dir);
 		print(command);
 		os.execute(command);
 	end
