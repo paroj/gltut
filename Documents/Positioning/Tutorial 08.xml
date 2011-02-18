@@ -147,6 +147,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Quaternions.html"?>
         <title>Quaternions</title>
         <para>So gimbals, 3 accumulated axial rotations, don't really work very well for orienting
             an object. How do we fix this problem?</para>
@@ -342,6 +343,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Camera Relative Orientation.html"?>
         <title>Camera-Relative Orientation</title>
         <para>As useful as model and world space offsetting is, there is one more space that it
             might be useful to orient from. Camera-space.</para>
@@ -550,6 +552,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Tut08 Interpolation.html"?>
         <title>Interpolation</title>
         <para>A quaternion represents an orientation; it defines a coordinate system relative to
             another. If we have two orientations, we can consider the orientation of the same object
@@ -690,7 +693,6 @@
             </sidebar>
         </section>
     </section>
-    
     <section>
         <?dbhtml filename="Tut08 In Review.html" ?>
         <title>In Review</title>
