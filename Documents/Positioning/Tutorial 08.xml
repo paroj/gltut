@@ -213,11 +213,11 @@
             <para>If the two quaternions being multiplied represent orientations, then the product
                 of them is a composite orientation. This works like matrix multiplication, except
                 only for orientations. Like matrix multiplication, quaternion multiplication is
-                associative (<informalequation>
+                associative (<inlineequation>
                     <mathphrase>(a*b) * c = a * (b*c)</mathphrase>
-                </informalequation>), but not commutative (<informalequation>
+                </inlineequation>), but not commutative (<inlineequation>
                     <mathphrase>a*b != b*a</mathphrase>
-                </informalequation>).</para>
+                </inlineequation>).</para>
             <para>The main difference between matrices and quaternions that matters for our needs is
                 that it is easy to keep a quaternion normalized. Simply perform a vector
                 normalization on it after every few multiplications. This enables us to add numerous

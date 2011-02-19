@@ -756,7 +756,7 @@ glUseProgram(0);</programlisting>
         <para>This phenomenon is called <glossterm>interreflection.</glossterm> A lighting model
             that handles interreflection is said to handle <glossterm>global
                 illumination.</glossterm> It represents light that bounces from object to object
-            before hitting the eye's of the person viewing the scene. Modelling only lighting
+            before hitting the eyes of the person viewing the scene. Modelling only lighting
             directly from a light-emitting surface is called <glossterm>local
                 illumination</glossterm> or <glossterm>direct illumination,</glossterm> and it is
             what we have been doing up until this point.</para>
@@ -885,7 +885,7 @@ else
         <para>This is of course not realistic. In reality, there is no such thing as a
                 <quote>maximum</quote> illumination or brightness. There is no such thing as a (1,
             1, 1) light intensity. The actual range of light intensity per wavelength is on the
-            range[0, ∞). This also means that the range of intensity for reflected light is [0, ∞);
+            range [0, ∞). This also means that the range of intensity for reflected light is [0, ∞);
             after all, if you shine a really bright light on a surface, it will reflect a lot of it.
             A surface that looks dark blue under dim light can appear light blue under very bright
             light.</para>

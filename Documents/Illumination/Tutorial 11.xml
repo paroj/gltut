@@ -229,8 +229,8 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 function in question requires the that the light direction is the direction
                     <emphasis>from</emphasis> the light. Our light direction is the direction to the
                 light. This is why it is negated.</para>
-            <para>Using the function is useful, but it is important to know how to compute the
-                reflection direction on your own. Here is the formula:</para>
+            <para>This function is useful, but it is important to know how to compute the reflection
+                direction on your own. Here is the formula:</para>
             <equation>
                 <title>Vector Reflection</title>
                 <mediaobject>
@@ -239,8 +239,8 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                     </imageobject>
                 </mediaobject>
             </equation>
-            <para>Again, this equation assumes that L is the direction <emphasis>from</emphasis> the
-                light.</para>
+            <para>The L vector is the direction to the light, so negating it produces the vector
+                    <emphasis>from</emphasis> the light.</para>
             <para>From here, the Phong term is computed by taking the dot product of the reflection
                 direction and the view direction, clamping it to 0, 1. The next line, where we use
                 the angle of incidence, is very important. What this line does is prevent us from
@@ -688,9 +688,9 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 while maintaining high performance is even moreso.</para>
             <para>If you are interested in more accurate models of specular highlights, there is the
                 Beckmann distribution. This is a particular statistical distribution of microfacets
-                that is more physically based than a Gaussian distribution. It may be a bit more
-                computationally expensive than Gaussian (due to being able to avoid the
-                    <function>acos</function>). The two do have a roughness factor that has the same
+                that is more physically based than a Gaussian distribution. It may or may not be a
+                bit more computationally expensive than Gaussian; Beckmann lacks the inverse cosine,
+                but has more other math to it. The two do have a roughness factor that has the same
                 range, (0, 1], and the roughness has the same general meaning in both
                 distributions.</para>
             <para>If you want to go even farther, investigate the <quote>Cook-Torrance</quote> model
@@ -807,8 +807,10 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 <glossdef>
                     <para>The vector halfway between the direction towards the light and the view
                         direction. When the half-angle vector is oriented exactly with the surface
-                        normal, then the view direction is oriented along the reflection
-                        direction.</para>
+                        normal, then the view direction is oriented along the reflection direction.
+                        For a given light and view direction, it is the direction that the surface
+                        normal would need to be facing for a direct light reflection to go from the
+                        light source to the viewer.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

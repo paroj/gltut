@@ -589,8 +589,8 @@ void main()
         <para>Our model does not include light attenuation, so let's fix that.</para>
         <para>Attenuation is a well-understood physical phenomenon. In the absence of other factors
             (atmospheric light scattering, etc), the light intensity varies with the inverse of the
-            square of the distance. An object 2 units away from the light feels like with one-fourth
-            the intensity. So our equation for light attenuation is as follows:</para>
+            square of the distance. An object 2 units away from the light feels the light with
+            one-fourth the intensity. So our equation for light attenuation is as follows:</para>
         <equation>
             <title>Physical Light Attenuation</title>
             <mediaobject>
@@ -654,8 +654,8 @@ void main()
                 <para>The use of this reverse-transformation technique here should not be taken as a
                     suggestion to use it in all, or even most cases like this. In all likelihood, it
                     will be much slower than just passing the camera space position to the fragment
-                    shader. It is here primarily for demonstration purposes, though it is useful for
-                    other techniques that we will see in the future.</para>
+                    shader. It is here primarily for demonstration purposes, and because it will be
+                    useful in the future.</para>
             </note>
             <para>The sequence of transformations that take a position from camera space to window
                 space is as follows:</para>
