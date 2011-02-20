@@ -374,7 +374,7 @@ local function ParseDataType(xSource)
 	
 	stride = tonumber(stride);
 	
-	return retType, stride, "([%+%-]?[%d%.]+)", valueElem:GetChildren();
+	return retType, stride, "([%+%-]?[%d%.]+e?[%+%-]?[%d%.]*)", valueElem:GetChildren();
 end
 
 local function WriteTextForArray(writer, valueArray, stride, indexList, indexOffset)
@@ -385,10 +385,9 @@ local function WriteTextForArray(writer, valueArray, stride, indexList, indexOff
 		local indexIx = i + indexOffset;
 		local index = indexList[indexIx];
 		index = index * stride;
-		index = index + 1; --Convert to one-base index.
 		for j=1, stride do
+			index = index + 1;	--One-base index.
 			writer:AddText(valueArray[index], " ");
-			index = index + 1;
 		end
 		writer:AddText("\n");
 	end
@@ -431,10 +430,12 @@ for semantic, source in pairs(outputMap) do
 		writer:AddAttribute("size", tostring(stride));
 		
 		local valueArray = {};
+		local numberArray = {};
 		for value in valueText:GetContent():gmatch(pttrn) do
 			valueArray[#valueArray + 1] = value;
+			numberArray[#numberArray + 1] = tostring(tonumber(value));
 		end
-		
+
 		WriteTextForArray(writer, valueArray, stride, indexList, outputIndexOffset[semantic]);
 	writer:PopElement();
 end

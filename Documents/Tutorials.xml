@@ -65,17 +65,7 @@
         <xi:include href="Illumination/tutorial 10.xml"/>
         <xi:include href="Illumination/tutorial 11.xml"/>
     </part>
-    <part>
-        <?dbhtml filename="Texturing.html" dir="Texturing" ?>
-        <info>
-            <title>Texturing</title>
-        </info>
-        <partintro>
-            <para>Lookup tables in rendering are usually called textures. This is due to the fact
-                that the main use for them is to modify the appearance of a surface. Even so,
-                textures have many uses.</para>
-        </partintro>
-    </part>
+    <xi:include href="Texturing.xml"/>
     <part>
         <?dbhtml filename="Framebuffer.html" dir="Framebuffer" ?>
         <title>Framebuffer</title>

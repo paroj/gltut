@@ -7,10 +7,9 @@
     <title>Building the Tutorials</title>
     <para>These tutorials require a number of external libraries in order to function. The specific
         version of these libraries that the tutorials use are distributed with the tutorials. The
-        tutorial source distribution can be found <link
-            xlink:href="http://bitbucket.org/alfonse/gltut/downloads">here</link>. This section will
-        describe each of the external libraries, how to build them, and how to build the tutorials
-        themselves.</para>
+        tutorial <link xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source
+            distribution</link> can be found online. This section will describe each of the external
+        libraries, how to build them, and how to build the tutorials themselves.</para>
     <para>You will need minimal familiarity with using the command line in order to build these
         tutorials. Also, any mention of directories is always relative to where you unzipped this
         distribution.</para>
@@ -122,6 +121,6 @@
                 <filename>framwork/framework.cpp</filename>; it and all of the other source files in
             the <filename>framework</filename> directory is shared by every tutorial. It does the
             basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source
-            files to contain the useful OpenGL-specific code.</para>
+            files to focus on the useful OpenGL-specific code.</para>
     </simplesect>
 </article>

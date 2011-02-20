@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<part xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Texturing.html" dir="Texturing" ?>
+    <info>
+        <title>Texturing</title>
+    </info>
+    <partintro>
+        <para>If you are at all familiar with 3D graphics, you have probably heard the term
+                <quote>texture</quote> before. And if you look at virtually any instruction material
+            on 3D graphics, they will introduce textures in the earliest parts of the work.
+            Typically, this happens well before lighting is introduced.</para>
+        <para>This book is approximately halfway over and only now do we introduce textures. There
+            is a good reason for this.</para>
+        <para>Consider everything you have learned up until now. You have learned how to transfer
+            arbitrary data to vertex shaders, how to pass them to fragment shaders, and how to
+            compute colors from them. You have learned how to transform positions of triangles and
+            use this ability to provide a perspective projection of a world as well as to position
+            objects and have a mobile camera. You have learned how lighting works and how to
+            generate a lighting model. In the very last tutorial, we were able to convincingly
+            render a mathematically perfect representation of a sphere simply by rendering two
+            triangles.</para>
+        <para>All without textures. Thus, the first lesson this book has to teach you about textures
+            is that they aren't <emphasis>that</emphasis> important. What you have learned is how to
+            think about solving graphics problems without textures.</para>
+        <para>Many graphics texts overemphasize the importance of textures. This is mostly a legacy
+            of the past. In the older days, before real programmable hardware, you needed textures
+            to do anything of real importance in graphics rendering. Textures were used to simulate
+            lighting and various other effects. If you wanted to do anything like per-fragment
+            lighting, you had to use textures to do it.</para>
+        <para>Yes, textures are important for creating details in rendered images. They are
+            important for being able to vary material parameters over a polygonal surface. And they
+            have value in other areas as well. But there is so much more to rendering than textures,
+            and this is especially true with programmable hardware.</para>
+        <para>A texture is a look-up table; an array. There is a lot of bits of minutiae about
+            accessing them, but at their core, a texture is just a large array of some
+            dimensionality that you can access from a shader. Perhaps the most important lesson you
+            could learn is that textures are tools. Use them where appropriate, but do not let them
+            become your primary solution to any rendering problem.</para>
+    </partintro>
+</part>

@@ -249,10 +249,25 @@
             math operations will be introduced and explained as needed when they are first used. And
             unlike the math operations introduced here, most of them are not component-wise
             operations.</para>
+        <formalpara>
+            <title>Range Notation</title>
+            <para>This book will frequently use standard notation to specify that a value must be
+                within a certain range.</para>
+        </formalpara>
+        <para>If a value is constrained between 0 and 1, and it may actually have the values 0 and
+            1, then it is said to be <quote>on the range</quote> [0, 1]. The square brackets mean
+            that the range includes the value next to it.</para>
+        <para>If a value is constrained between 0 and 1, but it may not actually have a value of 0,
+            then it is said to be on the range (0, 1]. The parenthesis means that the range does not
+            include that value.</para>
+        <para>If a value is constrained to 0 or any number greater than zero, then the infinity
+            notation will be used. This range is represented by [0, ∞). Note that infinity can never
+            be reached, so it is always exclusive. A constraint to any number less than zero, but
+            not including zero would be on the range (-∞, 0).</para>
     </section>
     <section>
         <title>Graphics and Rendering</title>
-        <para>This is an overview of the process of rendering. Don't worry if you don't understand
+        <para>This is an overview of the process of rendering. Do not worry if you don't understand
             everything right away; every step will be covered in lavish detail in later
             tutorials.</para>
         <para>Everything you see on your computer's screen, even the text you are reading right now
@@ -300,8 +315,8 @@
                 complicated.</para>
         </note>
         <para>An object is made out of a series of adjacent triangles that define the outer surface
-            of the object. Such serieses of triangles are often called
-                <glossterm>geometry</glossterm>, a <glossterm>model</glossterm> or a
+            of the object. Such series of triangles are often called
+            <glossterm>geometry</glossterm>, a <glossterm>model</glossterm> or a
                 <glossterm>mesh</glossterm>. These terms are used interchangeably.</para>
         <para>The process of rasterization has several phases. These phases are ordered into a
             pipeline, where triangles enter from the top and a 2D image is filled in at the bottom.
@@ -448,7 +463,7 @@
                 </mediaobject>
             </figure>
             <para>To make it easier to use this, OpenGL also offers the guarantee that if you pass
-                the same input vertex data through same vertex processor, you will get identical
+                the same input vertex data through the same vertex processor, you will get identical
                 output; this is called the <glossterm>invariance guarantee</glossterm>. So the onus
                 is on the user to use the same input vertices in order to ensure gap-less scan
                 conversion.</para>
@@ -534,8 +549,8 @@
             <para>Shaders for OpenGL are run on the actual rendering hardware. This can often free
                 up valuable CPU time for other tasks, or simply perform operations that would be
                 difficult if not impossible without the flexibility of executing arbitrary code. A
-                downside of this is that they must live within certain limits, some of them quite
-                il-defined, that CPU code does not have to.</para>
+                downside of this is that they must live within certain limits that CPU code would
+                not have to.</para>
             <para>There are a number of shading languages available to various APIs. The one used in
                 this tutorial is the primary shading language of OpenGL. It is called,
                 unimaginatively, the OpenGL Shading Language, or <acronym>GLSL</acronym>. for short.
@@ -555,7 +570,8 @@
                 API.</para>
             <para>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
                 functions. The typedefs define basic GL types like <type>GLint</type>,
-                    <type>GLfloat</type> and so forth.</para>
+                    <type>GLfloat</type> and so forth. These are defined to have a specific bit
+                depth.</para>
             <para xml:id="OpenGLObjects">Complex aggregates like structs are never directly exposed
                 in OpenGL. Any such constructs are hidden behind the API. This makes it easier to
                 expose the OpenGL API to non-C languages without having a complex conversion
@@ -666,8 +682,8 @@ OpenGL_Context context;</programlisting>
             <title>The OpenGL Specification</title>
             <para>To be technical about it, OpenGL is not an API; it is a specification. A document.
                 The C API is merely one way to implement the spec. The specification defines the
-                initial OpenGL state, what each function does, and what is supposed to happen when
-                you call a rendering function.</para>
+                initial OpenGL state, what each function does to change or retrieve that state, and
+                what is supposed to happen when you call a rendering function.</para>
             <para>The specification is written by the OpenGL <glossterm>Architectural Review
                     Board</glossterm> (<acronym>ARB</acronym>), a group of representatives from
                 companies like Apple, NVIDIA, and AMD (the ATI part), among others. The ARB is part
@@ -678,7 +694,8 @@ OpenGL_Context context;</programlisting>
                 implementation. Just because the spec says that X will happen does not mean that it
                 actually does. What it means is that the user should not be able to tell the
                 difference. If a piece of hardware can provide the same behavior in a different way,
-                then the specification allows this, so long as the user can never tell.</para>
+                then the specification allows this, so long as the user can never tell the
+                difference.</para>
             <formalpara>
                 <title>OpenGL Implementations</title>
                 <para>While the OpenGL ARB does control the specification, it does not control
@@ -715,7 +732,7 @@ OpenGL_Context context;</programlisting>
                     <para>Deprecation only means marking those functions as to be removed in later
                         functions. They are still available for use in 3.0.</para>
                 </footnote>. This also divided the specification into 2 variations (called
-                profiles): core and compatibility. The compatibility profile has all of the
+                profiles): core and compatibility. The compatibility profile retains all of the
                 functions removed in 3.1, while the core profile does not. Theoretically, OpenGL
                 implementations could implement just the core profile; this would leave software
                 that relies on the compatibility profile non-functional on that

@@ -1,6 +1,6 @@
 
 dofile("../framework/framework.lua")
 
-SetupSolution("Tutorial10")
+SetupSolution("Tutorial11")
 
 dofile("tutorials.lua")
