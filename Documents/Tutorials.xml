@@ -84,4 +84,5 @@
                 from Phong lighting to reflections to HDR and blooming.</para>
         </partintro>
     </part>
+    <xi:include href="History of Graphics Hardware.xml"></xi:include>
 </book>

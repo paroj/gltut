@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="History of Graphics Hardware.html" ?>
+    <info>
+        <title>History of PC Graphics Hardware</title>
+        <subtitle>A Programmer's View</subtitle>
+    </info>
+    <para>For those of you had the fortune of not being graphics programmers during the formative
+        years of the development of consumer graphics hardware, what follows is a brief history.
+        Hopefully, it will give you some perspective on what has changed in the last 15 years or so,
+        and how grateful you should be that you never had to live through the early days.</para>
+    <section>
+        <title>Voodoo Magic</title>
+        <para>In the years 1995 and 1996, a number of graphics cards were release. Graphics
+            processing via specialized hardware on PC platforms was nothing new. What was new about
+            these cards was their ability to do 3D rendering.</para>
+        <para>The most popular of these for that era was the Voodoo Graphics card from 3Dfx
+            Interactive. It was fast, powerful for its day, provided high quality rendering (again,
+            for its day).</para>
+        <para>The functionality of this card was quite bare-bones from a modern perspective.
+            Obviously there was no concept of shaders of any kind. Indeed, it did not even have
+            vertex transformation; the Voodoo Graphics pipeline begins with clip-space values. This
+            required the CPU to do vertex transformations. This hardware was effectively just a
+            triangle rasterizer.</para>
+        <para>That being said, it was quite good for its day. As inputs to its rasterization
+            pipeline, it took vertex inputs of a 4-dimensional clip-space position (though the
+            actual space was not necessarily the same as OpenGL's clip-space), a single RGBA color,
+            and a single three-dimensional texture coordinate. The hardware did not support 3D
+            textures; the extra component was for projective texturing.</para>
+        <para>The texture coordinate was used to map into a single texture. The texture coordinate
+            interpolation was perspective-correct; in those days, that was a significant selling
+            point. The venerable Playstation 1 could not do perspective-correct texturing.</para>
+        <para>The value fetched from the texture could be combined with the interpolated color using
+            one of three math functions: additions, multiplication, or linear interpolation based on
+            the texture's alpha value. The alpha of the output was controlled with a separate math
+            function, thus allowing the user to generate the alpha with different math than the RGB
+            portion of the output color. This was the sum total of its fragment processing.</para>
+        <para>It even had framebuffer blending support. Its framebuffer could even support a
+            destination alpha value, though you had to give up a depth buffer to get it. Probably
+            not a good tradeoff. Except for the lack of a destination alpha, it's blending support
+            was superior even to OpenGL 1.1. It could use different source and destination factors
+            for the alpha component than the RGB component; the old GL 1.1 forced the RGB and A to
+            be blended with the same factors.</para>
+        <para>The blending was even performed with full 24-bit color precision and then downsampled
+            to the 16-bit precision of the output upon writing.</para>
+        <para>From a modern perspective, spoiled with our full programmability, this all looks
+            incredibly primitive. And, to some degree, it is. But compared to the pure CPU solutions
+            to 3D rendering of the day, the Voodoo Graphics card was a monster.</para>
+        <para>It's interesting to note that the simplicity of the fragment processing stage owes as
+            much to the lack of inputs as anything else. When the only values you have to work with
+            are the color from a texture lookup and the per-vertex interpolated color, there really
+            isn't all that much you could do with them. Indeed, as we will see in the next phases of
+            hardware, increases in the complexity of the fragment processor was a reaction to
+            increasing the number of inputs to the fragment processor.</para>
+    </section>
+    <section>
+        <title>Dynamite Combiners</title>
+        <para>The next phase of hardware came, not from 3Dfx, but from a new company, NVIDIA. While
+            3Dfx's Voodoo II was much more popular than NVIDIA's competitor, the NVIDIA Riva TNT
+            (released in 1998) was more interesting in terms of what it brought to the table for
+            programmers. Voodoo II was purely a performance improvement; TNT was the next step in
+            the evolution of graphics hardware.</para>
+        <para>Like other graphics cards of the day, the TNT hardware had no vertex processing.
+            Vertex data was in clip-space, as normal, so the CPU had to do all of the transformation
+            and lighting. Where the TNT shone was in what its fragment processing could do.</para>
+        <para>The power of the TNT is in it's name; TNT stands for
+                <acronym>T</acronym>wi<acronym>N</acronym>
+            <acronym>T</acronym>exel. Where other graphics cards could only allow a single triangle
+            to use one texture, the TNT allowed it to use two.</para>
+        <para>This meant that its vertex input data was expanded. Two textures meant two texture
+            coordinates, since each texture coordinate was directly bound to a particular texture.
+            While they were allowing two of things, they also allowed for two per-vertex colors. The
+            idea here has to do with lighting equations.</para>
+        <para>For regular diffuse lighting, the CPU-computed color would simply be dot(N, L),
+            possibly with attenuation applied. Indeed, it could be any complicated diffuse lighting
+            function. This would be multiplied by the texture, which represented the diffuse
+            absorption of the surface at that point.</para>
+        <para>This becomes less useful if you want to add a specular term. The specular absorption
+            and diffuse absorption are not necessarily the same, after all. And while you may not
+            need to have a specular texture, you don't want to add the specular component to the
+            diffuse component <emphasis>before</emphasis> you multiply them. You want to do the
+            addition afterwards.</para>
+        <para>This is simply not possible if you have only one per-vertex color. But it becomes
+            possible if you have two. One color is the diffuse lighting value. The other color is
+            the specular component. We multiply the first color by the diffuse color from the
+            texture, then add the second color as the specular reflectance.</para>
+        <para>Which brings us nicely to fragment processing. The TNT's fragment processor had 5
+            inputs: 2 colors sampled from textures, 2 colors interpolated from vertices, and a
+            single <quote>constant</quote> color. The latter, in modern parlance, is a shader
+            uniform value.</para>
+        <para>That's a lot of potential inputs. The solution NVIDIA came up with to produce a final
+            color was a bit of fixed functionality that we will call the texture environment. It is
+            directly analogous to the OpenGL 1.1 fixed-function pipeline, but with extensions for
+            multiple textures and some TNT-specific features.</para>
+        <para>The idea is that each texture has an environment. The environment is a specific math
+            function, such as addition, subtraction, multiplication, and linear interpolation. The
+            operands to this function could be taken from the colors of either texture, either of
+            the two per-vertex colors, the uniform color, or a constant zero color value.</para>
+        <para>It can also use the result from the previous environment as one of its arguments.
+            Textures and environments are numbered, from zero to one (two textures, two
+            environments). The first one executes, followed by the second. The previous result for
+            the first environment is the same as the primary color (color number 0).</para>
+        <para>If you look at it from a hardware perspective, what you have is a two-opcode assembly
+            language. The available registers for the language are two vertex colors, a single
+            uniform color, two texture colors, and a zero register. There is also a single temporary
+            register to hold the output from the first opcode.</para>
+        <para>Graphics programmers, by this point, had gotten used to multipass-based algorithms.
+            After all, until TNT, that was the only way to apply multiple textures. And even with
+            TNT, it had a pretty confining limit of two textures and two opcodes.</para>
+        <para>This was powerful, but quite limited. Two opcodes really wasn't enough.</para>
+        <para>The TNT cards also provided something else: 32-bit framebuffers and depth buffers.
+            While the Voodoo cards used high-precision math internally, they still wrote to 16-bit
+            framebuffers, using a technique called dithering to make them look like higher
+            precision. But dithering was nothing compared to actually high precision framebuffers.
+            And it did nothing for the depth buffer artifacts that a 16-bit depth buffer gave
+            you.</para>
+        <para>While the original TNT could do 32-bit, it lacked the memory and overall performance
+            to really show it off. That had to wait for the TNT2. Combined with product delays and
+            some poor strategic moves by 3Dfx, NVIDIA became one of the dominant players in the
+            consumer PC graphics card market. And that was cemented by their next card, which had
+            real power behind it.</para>
+        <sidebar>
+            <title>Tile-Based Rendering</title>
+            <para>While all of this was going on, a small company called PowerVR released its Series
+                2 graphics chip. PowerVR's approach to rendering was fundamentally different from
+                the standard rendering pipeline.</para>
+            <para>They used what they called a <quote>deferred, tile-based renderer.</quote> The
+                idea is that they store all of the clip-space triangles in a buffer. Then, they sort
+                this buffer based on which triangles cover which area. The output screen is divided
+                into a number of tiles of a fixed size. Say, 8x8 in size.</para>
+            <para>For each tile, the hardware finds the triangles that are within that tile's area.
+                Then it does all the usual scan conversion tricks and so forth. It even does
+                per-pixel depth sorting for blending, which remains something of a selling point.
+                After rendering that tile, it moves on to the next. These operations can of course
+                be executed in parallel; you can have multiple tiles being rasterized at the same
+                time.</para>
+            <para>The idea behind this to avoid having large image buffers. You only need a few 8x8
+                depth buffer, so you can use very fast, on-chip memory for it. Rather than having to
+                deal with caches, DRAM, and large bandwidth memory channels, you just have a small
+                block of memory where you do all of your logic. You still need memory for textures
+                and the output image, but your bandwidth needs can be devoted solely to
+                textures.</para>
+            <para>For a time, these cards were competitive with the other graphics chip makers.
+                However, the tile-based approach simply did not scale well with resolution or
+                geometry complexity. Also, they missed the geometry processing bandwagon, which
+                really hurt their standing. They fell farther and farther behind the other major
+                players, until they stopped making desktop parts altogether.</para>
+            <para>However, they may ultimately have the last laugh; unlike 3Dfx and so many others,
+                PowerVR still exists. They provided the GPU for the Sega Dreamcast console. And
+                while that console was a market failure, it did show where PowerVR's true strength
+                lay: embedded platforms.</para>
+            <para>Embedded platforms tend to play to their tile-based renderer's strengths. Memory,
+                particularly high-bandwidth memory, eats up power; having less memory means
+                longer-lasting mobile devices. Embedded devices tend to use smaller resolutions,
+                which their platform excels at. And with low resolutions, you aren't trying to push
+                nearly as much geometry.</para>
+            <para>Thanks to these facts, PowerVR graphics chips power the vast majority of mobile
+                platforms that have any 3D rendering in them. Just about every iPhone, Droid, iPad,
+                or similar device is running PowerVR technology. And that's a growth market these
+                days.</para>
+        </sidebar>
+    </section>
+    <section>
+        <title>Vertices and Registers</title>
+        <para>The next stage in the evolution of graphics hardware again came from NVIDIA. While
+            3Dfx released competing cards, they were again behind the curve. The NVIDIA GeForce 256
+            (not to be confused with the GeForce GT250, a much more modern card), released in 1999,
+            provided something truly new: a vertex processing pipeline.</para>
+        <para>The OpenGL API has always defined a vertex processing pipeline (it was fixed-function
+            in those days rather than shader-based). And NVIDIA implemented it in their TNT-era
+            drivers on the CPU. But only with the GeForce 256 was this actually implemented in
+            hardware. And NVIDIA essentially built the entire OpenGL fixed-function vertex
+            processing pipeline directly into the GeForce hardware.</para>
+        <para>This was primarily a performance win. While it was important for the progress of
+            hardware, a less-well-known improvement of the early GeForce hardware was more important
+            to its future.</para>
+        <para>In the fragment processing pipeline, the texture environment stages were removed. In
+            their place was a more powerful mechanism, what NVIDIA called <quote>register
+                combiners.</quote></para>
+        <para>The GeForce 256 provided 2 regular combiner stages. Each of these stages represented
+            up to four independent opcodes that operated over the register set. The opcodes could
+            result in multiple outputs, which could be written to two temporary registers.</para>
+        <para>What is interesting is that the register values are no longer limited to color values.
+            Instead, they are signed values, on the range [-1, 1]; they have 9 bits of precision or
+            so. While the initial color or texture values are on [0, 1], the actual opcodes
+            themselves can perform operations that generate negative values. Opcodes can even
+            scale/bias their inputs, which allow them to turn unsigned colors into signed
+            values.</para>
+        <para>Because of this, the GeForce 256 was the first hardware to be able to do functional
+            bump mapping, without hacks or tricks. A single register combiner stage could do 2
+            3-vector dot-products at a time. Textures could store normals by compressing them to a
+            [0, 1] range. The light direction could either be a constant or interpolated per-vertex
+            in texture space.</para>
+        <para>Now granted, this was a primitive form of bump mapping. There was no way to correct
+            for texture-space values with binormals and tangents. But this was at least something.
+            And it really was the first step towards programmability; it showed that textures could
+            truly represent values other than colors.</para>
+        <para>There was also a single final combiner stage. This was a much more limited stage than
+            the regular combiner stages. It could do a linear interpolation operation and an
+            addition; this was designed specifically to implement OpenGL's fixed-function fog and
+            specular computations.</para>
+        <para>The register file consisted of two temporary registers, two per-vertex colors, two
+            texture colors, two uniform values, the zero register, and a few other values used for
+            OpenGL fixed-function fog operations. The color and texture registers were even
+            writeable.</para>
+        <para>There were a few other sundry additions to the hardware. Cube textures first came onto
+            the scene. Combined with the right texture coordinate computations (now in hardware),
+            you could have reflective surfaces much more easily. Anisotropic filtering and
+            multisampling also appeared at this time. The limits were relatively small; anisotropic
+            filtering was limited to 4x, while the maximum number of samples was restricted to two.
+            Compressed texture formats also appeared on the scene.</para>
+        <para>What we see thus far as we take steps towards true programmability is that increased
+            complexity in fragment processing starts pushing for other needs. The addition of a dot
+            product allows lighting computations to take place per-fragment. But you can't have full
+            texture-space bump mapping because of the lack of a normal/binormal/tangent matrix to
+            transform vectors to texture space. Cubemaps allow you to do arbitrary reflections, but
+            computing reflection directions per-vertex requires interpolating reflection normals,
+            which doesn't work very well over large polygons.</para>
+        <para>This also saw the introduction of something called a rectangle texture. This was
+            something of an odd duck, that still remains in current day. It was a way of creating a
+            texture of arbitrary size; until then, textures were limited to powers of two in size
+            (though the sizes did not have to be the same). The texture coordinates were not
+            normalized either; they were in texture space values.</para>
+        <sidebar>
+            <title>The GPU Divide</title>
+            <para>When NVIDIA released the GeForce 256, they coined the term <quote>Geometry
+                    Processing Unit</quote> or <acronym>GPU</acronym>. Until this point, graphics
+                chips were called exactly that: graphics chips. The term GPU was intended by NVIDIA
+                to differentiate the GeForce from all of its competition, including the final cards
+                from 3Dfx.</para>
+            <para>Because the term was so reminiscent to CPUs, the term took over. Every graphics
+                chip is a GPU now, even ones released before the term came to exist.</para>
+            <para>In truth, the term GPU never really made much sense until the next stage, where
+                the first cards with actual programmability came onto the scene.</para>
+        </sidebar>
+    </section>
+    <section>
+        <title>Programming at Last</title>
+        <para>How do you define a demarcation between non-programmable graphics chips and
+            programmable ones? We have seen that, even in the humble TNT days, there were a couple
+            of user-defined opcodes with several possible input values.</para>
+        <para>One way is to consider what programming is. Programming is not simply a mathematical
+            operation; programming needs conditional logic. Therefore, it is not unreasonable to say
+            that something is not truly programmable until there is the possibility of some form of
+            conditional logic.</para>
+        <para>And it is at this point where that first truly appears. It appears first in the
+                <emphasis>vertex</emphasis> pipeline rather than the fragment pipeline. This seems
+            odd until one realizes how crucial fragment operations are to overall performance. It
+            therefore makes sense to introduce heavy programmability in the less
+            performance-critical areas of hardware first.</para>
+        <para>The GeForce 3, released in 2001 (a mere 3 years after the TNT), was the first hardware
+            to provide this level of programmability. While GeForce 3 hardware did indeed have the
+            fixed-function vertex pipeline, it also had very flexible programmable pipeline. The
+            retaining of the fixed-function code was a performance need; the vertex shader was not
+            as fast as the fixed-function one. It should be noted that the original X-Box's GPU,
+            designed in tandem with the GeForce 3, eschewed the fixed-functionality altogether in
+            favor of having multiple vertex shaders that could compute several vertices at a
+            time.</para>
+        <para>Vertex shaders were pretty powerful, even in their first incarnation. While there was
+            no conditional branching, there was conditional logic, the equivalent of the ?:
+            operator. These vertex shaders exposed up to 128 <type>vec4</type> uniforms, up to 16
+            inputs (still the modern limit), and could output 6 <type>vec4</type> outputs. Two of
+            the outputs, intended for colors, were lower precisions than the others. There was a
+            hard limit of 128 opcodes. These vertex shaders brought full swizzling support and a
+            plethora of math operations.</para>
+        <para>The GeForce 3 also added up to two more textures, for a total of four textures per
+            triangle. They were hooked directly into certain per-vertex outputs, because the
+            per-fragment pipeline did not have real programmability yet.</para>
+        <para>At this point, the holy grail of programmability at the fragment level was dependent
+            texture access. That is, being able to access a texture, do some arbitrary computations
+            on it, and then access another texture with the result. The GeForce 3 had some
+            facilities for that, but they weren't very good ones.</para>
+        <para>The GeForce 3 used 8 register combiner stages instead of the 2 that the earlier cards
+            used. Their register files were extended to support two extra texture colors and a few
+            more tricks. But the main change was something that, in OpenGL terminology, would be
+            called <quote>texture shaders.</quote></para>
+        <para>What texture shaders did was allow the user to, instead of accessing a texture,
+            perform a computation on that texture's texture unit. This was much like the old texture
+            environment functionality, except only for texture coordinates. The textures were
+            arranged in a sequence. And instead of accessing a texture, you could perform a
+            computation between that texture unit's coordinate and possibly the coordinate from the
+            previous texture shader operation, if there was one.</para>
+        <para>It was not very flexible functionality. It did allow for full texture-space bump
+            mapping, though. While the 8 register combiners were enough to do a full matrix
+            multiply, they were not powerful enough to normalize the resulting vector. However, you
+            could normalize a vector by accessing a special cubemap. The values of this cubemap
+            represented a normalized vector in the direction of the cubemap's given texture
+            coordinate.</para>
+        <para>But using that required spending a total of 3 texture shader stages. Which meant you
+            get a bump map and a normalization cubemap only; there was no room for a diffuse map in
+            that pass. It also didn't perform very well; the texture shader functions were quite
+            expensive.</para>
+        <para>True programmability came to the fragment shader from ATI, with the Radeon 8500,
+            released in late 2001.</para>
+        <para>The 8500's fragment shader architecture was pretty straightforward, and in terms of
+            programming, it is not too dissimilar to modern shader systems. Texture coordinates
+            would come in. They could either be used to fetch from a texture or be given directly as
+            inputs. Up to 6 textures could be used at once. Then, up to 8 opcodes, including a
+            conditional operation, could be used. After that, the hardware would repeat the process
+            using registers written by the opcodes. Those registers could feed texture accesses from
+            the same group of textures used in the first pass. And then another 8 opcodes would
+            generate the output color.</para>
+        <para>It also had strong, but not full, swizzling support in the fragment shader. Register
+            combiners had very little support for swizzling.</para>
+        <para>This era of hardware was also the first to allow 3D textures. Though that was as much
+            a memory concern as anything else, since 3D textures take up lots of memory which was
+            not available on earlier cards. Depth comparison texturing was also made
+            available.</para>
+        <para>While the 8500 was a technological marvel, it was a flop in the market compared to the
+            GeForce 3 &amp; 4. Indeed, this is a recurring theme of these eras: the card with the
+            more programmable hardware often tends to lose in its first iteration.</para>
+        <sidebar>
+            <title>API Hell</title>
+            <para>This era is notable in what it did to graphics APIs. Consider the hardware
+                differences between the 8500 and the GeForce 3/4 in terms of fragment
+                processing.</para>
+            <para>On the Direct3D front, things were not the best. Direct3D 8 promised a unified
+                shader development pipeline. That is, you could write a shader according to their
+                specifications and it would work on any D3D 8 hardware. And this was effectively
+                true. For vertex shaders, at least.</para>
+            <para>However, the D3D 8.0 pixel shader pipeline was nothing more than NVIDIA's register
+                combiners and texture shaders. There was no real abstraction of capabilities; the
+                D3D 8.0 pixel shaders simply took NVIDIA's hardware and made a shader language out
+                of it.</para>
+            <para>To provide support for the 8500's expanded fragment processing feature-set, there
+                was D3D 8.1. This version altered the pixel shader pipeline to match the
+                capabilities of the Radeon 8500. Fortunately, the 8500 would accept 8.0 shaders just
+                fine, since it was capable of doing everything the GeForce 3 could do. But no one
+                would mistake either shader specification for any kind of real abstraction.</para>
+            <para>Things were much worse on the OpenGL front. At least in D3D, you used the same
+                basic C++ API to provide shaders; the shaders themselves may have been different,
+                but the base API was the same. Not so in OpenGL land.</para>
+            <para>NVIDIA and ATI released entirely separate proprietary extensions for specifying
+                fragment shaders. NVIDIA's extensions built on the register combiner extension they
+                released with the GeForce 256. They were completely incompatible. And worse, they
+                weren't even string-based.</para>
+            <para>Imagine having to call a C++ function to write every opcode of a shader. That's
+                what using those APIs was like.</para>
+            <para>Things were better on vertex shaders. NVIDIA initially released a vertex shader
+                extension, as did ATI. NVIDIA's was string-based, but ATI's version was like their
+                fragment shader. Fortunately, this state of affairs did not last long; the OpenGL
+                ARB came along with their own vertex shader extension. This was not GLSL, but an
+                assembly like language based on NVIDIA's extension.</para>
+            <para>It would take much longer for the fragment shader disparity to be worked
+                out.</para>
+        </sidebar>
+    </section>
+    <section>
+        <title>Dependency</title>
+        <para>The Radeon 9700 was the 8500's successor. It improved on the 8500 somewhat. The vertex
+            shader gained real conditional branching logic. Some of the limits were also relaxed;
+            the number of available outputs and uniforms increased. The fragment shader's
+            architecture remained effectively the same; the 9700 simply increased the limits. There
+            were 8 textures available and 16 opcodes, and it could perform 4 passes over this
+            set.</para>
+        <para>The GeForce FX, released in 2003, was a substantial improvement, both over the GeForce
+            3/4 and over the 9700 in terms of fragment processing. NVIDIA took a different approach
+            to their fragment shaders; their fragment processor worked not entirely unlike modern
+            shader processors do.</para>
+        <para>It read an instruction, which could be a math operation, conditional branch (they had
+            actual branches in fragment shading), or texture lookup instruction. It then executed
+            that instruction. The texture lookup could be from a set of 8 textures. And then it
+            repeated this process on the next instruction. It was doing math computations in a way
+            not entirely unlike a traditional CPU.</para>
+        <para>There was no real concept of a dependent texture access for the GeForce FX. The inputs
+            to the fragment pipeline were simply the texture coordinates and colors from the vertex
+            stage. If you used a texture coordinate to access a texture, it was fine with that. If
+            you did some computations with them and then accessed a texture, it was just as fine
+            with that. It was completely generic.</para>
+        <para>It also failed in the marketplace. This was due primarily to its lateness and its poor
+            performance in high-precision computation operations. The FX was optimized for doing
+            16-bit math computations in its fragment shader; while it could do 32-bit math, it was
+            half as fast at this. But Direct3D 9's shaders did not allow the user to specify the
+            precision of computations; the specification required at least 24-bits of precision. To
+            match this, NVIDIA had no choice but to force 32-bit math on all D3D 9 applications,
+            making them run much slower than their ATI counterparts (the 9700 always used 24-bit
+            precision math).</para>
+        <para>Things were no better in OpenGL land. The two competing unified fragment processing
+            APIs, GLSL and an assembly-like fragment shader, didn't have precision specifications
+            either. Only NVIDIA's proprietary extension for fragment shaders provided that, and
+            developers were less likely to use it. Especially with the head start that the 9700
+            gained in the market by the FX being released late.</para>
+        <para>It performs so poorly in the market that NVIDIA dropped the FX name for the next
+            hardware revision. The GeForce 6 improved its 32-bit performance to the point where it
+            was competitive with the ATI equivalents.</para>
+        <para>This level of hardware saw the gaining of a number of different features. sRGB
+            textures and framebuffers appeared, as did floating-point textures. Blending support for
+            floating-point framebuffers was somewhat spotty; some hardware could do it only for
+            16-bit floating-point, some couldn't do it at all. The restrictions of power-of-two
+            texture sizes was also lifted, to varying degrees. None of ATI's hardware of this era
+            fully supported this when used with mipmapping, but NVIDIA's hardware from the GeForce 6
+            and above did.</para>
+        <para>The ability to access textures from vertex shaders was also introduced in this series
+            of hardware. Vertex texture accesses uses a separate list of textures from those bound
+            for fragment shaders. Only four textures could be accessed from a vertex shader, while 8
+            textures was normal for fragment shaders.</para>
+        <para>Render to texture also became generally available at this time, though this was more
+            of an API issue (neither OpenGL nor Direct3D allowed textures to be used as render
+            targets before this point) than hardware functionality. That is not to say that hardware
+            had no role to play. Textures are often not stored as linear arrays of memory the way
+            they are loaded with <function>glTexImage</function>. They are usually stored in a
+            swizzled format, where 2D or 3D blocks of texture data are stored sequentially. Thus,
+            rendering to a texture required either the ability to render directly to swizzled
+            formats or the ability to read textures that are stored in unswizzled formats.</para>
+        <para>More than just render to texture was introduced. What was also introduced was the
+            ability to render to multiple textures or buffers at one time. The number of renderable
+            buffers was generally limited to 4 across all hardware platforms.</para>
+        <sidebar>
+            <title>Rise of the Compilers</title>
+            <para>Microsoft put their foot down after the fiasco with D3D 8's fragment shaders. They
+                wanted a single standard that all hardware makers would support. While this lead to
+                the FX's performance failings, it also meant that compilers were becoming very
+                important to shader performance.</para>
+            <para>In order to have a real abstraction, you need compilers that are able to take the
+                abstract language and map it to very different kinds of hardware. With Direct3D and
+                OpenGL providing standards for shading languages, compiler quality started to become
+                vital for performance.</para>
+            <para>OpenGL moved whole-heartedly, and perhaps incautiously, into the realm of
+                compilers when the OpenGL ARB embraced GLSL, a C-style language. They worked on this
+                language to the exclusion of all others.</para>
+            <para>In Direct3D land, Microsoft developed the High-Level Shading Language, HLSL. But
+                the base shading languages used by Direct3D 9 were still the assembly-like shading
+                languages. HLSL was compiled by a Microsoft-developed compiler into the assembly
+                languages, which were fed to Direct3D.</para>
+            <para>With compilers and semi-real languages with actual logic constructs, a new field
+                started to arise: General Programming GPU or <acronym>GPGPU</acronym>. This is a
+                field were people try to use a GPU for non-rendering tasks. It started around this
+                era, but the applications were limited due to the nature of hardware. Only fairly
+                recently, with the advent of special languages and APIs (OpenCL, for example) that
+                are designed for GPGPU tasks, has GPGPU started to really move into its own. Indeed,
+                in the most recent hardware era, hardware makers have added features to GPUs that
+                have somewhat... dubious uses in the field of graphics, but substantial uses in
+                GPGPU tasks.</para>
+        </sidebar>
+    </section>
+    <section>
+        <title>Modern Unification</title>
+        <para>Welcome to the modern era. All of the examples in this book are designed on and for
+            this era of hardware, though some of them could run on older ones. The release of the
+            Radeon HD 2000 and GeForce 8000 series cards in 2006 represented unification in more
+            ways than one.</para>
+        <para>With the prior generations, fragment hardware had certain platform-specific
+            peculiarities. While the API kinks were mostly ironed out with the development of proper
+            shading languages, there were still differences in the behavior of hardware. While 4
+            dependent texture accesses were sufficient for most applications, naive use of shading
+            languages could get you in trouble on ATI hardware.</para>
+        <para>With this generation, neither side really offered any real functionality difference.
+            There are still differences between the hardware lines, and certainly in terms of
+            performance. But the functionality differences have never been more blurred than they
+            were with this revision.</para>
+        <para>Another form of unification was that both NVIDIA and ATI moved to a unified shader
+            architecture. In all prior generations, fragment shaders and vertex shaders were
+            fundamentally different hardware. Even when they started doing the same kinds of things,
+            such as accessing textures, they were both using different physical hardware to do so.
+            This led to some inefficiencies.</para>
+        <para>Deferred rendering probably gives the most explicit illustration of the problem. The
+            first pass, the creation of the g-buffers, is a very vertex-shader-intensive activity.
+            While the fragment shader can be somewhat complex, doing several texture fetches to
+            compute various material parameters, the vertex shader is where much of the real work is
+            done. Lots of vertices come through the shader, and if there are any complex
+            transformations, they will happen here.</para>
+        <para>The second pass is a <emphasis>very</emphasis> fragment shader intensive pass. Each
+            light layer is comprised of exactly 4 vertices. Vertices that can be provided directly
+            in clip-space. From then on, the fragment shader is what is being worked. It performs
+            all of the complex lighting calculations necessary for the various rendering techniques.
+            Four vertices generate literally millions of fragments, depending on the rendering
+            resolution.</para>
+        <para>In prior hardware generations, in the first pass, there would be fragment shaders
+            going to waste, as they would process fragments faster than the vertex shaders could
+            deliver triangles. In the second pass, the reverse happens, only even moreso. Four
+            vertex shader executions, and then all of those vertex shaders would be completely
+            useless. All of those parallel computational units would go to waste.</para>
+        <para>Both NVIDIA and ATI devised hardware such that the computational elements were
+            separated from their particular kind of computations. All shader hardware could be used
+            for vertices, fragments, or geometry shaders (new in this generation). This would be
+            changed on demand, based on the resource load. This makes deferred rendering in
+            particular much more efficient; the second pass is able to use almost all of the
+            available shader resources for lighting operations.</para>
+        <para>This unified shader approach also means that every shader stage has essentially the
+            same capabilities. The standard for the maximum texture count is 16, which is plenty
+            enough for doing just about anything. This is applied equally to all shader types, so
+            vertex shaders have the same number of textures available as fragment shaders.</para>
+        <para>This smoothed out a great many things. Shaders gained quite a few new features.
+            Uniform buffers became available. Shaders could perform computations directly on integer
+            values. Unlike every generation before, all of these features were parceled out to all
+            types of shaders equally.</para>
+        <para>Geometry shaders also first appeared in this generation.</para>
+        <para>Along with unified shaders came a long list of various and sundry improvements to
+            non-shader hardware. These include, but are not limited to:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Floating-point blending was worked out fully. Hardware of this era supports
+                    full 32-bit floating point blending, though for performance reasons you're still
+                    advised to use the lowest precision you can get away with.</para>
+            </listitem>
+            <listitem>
+                <para>Arbitrary texture swizzling as a direct part of texture sampling parameters,
+                    rather than in the shader itself.</para>
+            </listitem>
+            <listitem>
+                <para>Integer texture formats, to compliment the shader's ability to use integer
+                    values.</para>
+            </listitem>
+            <listitem>
+                <para>Array textures.</para>
+            </listitem>
+        </itemizedlist>
+        <para>Various other limitations were expanded as well.</para>
+        <sidebar>
+            <title>Tessellation</title>
+            <para>This was not the end of hardware evolution; there has been hardware released in
+                recent years  The Radeon HD 5000 and GeForce GT 400 series and above have increased
+                rendering features. They're just not as big of a difference compared to what came
+                before.</para>
+            <para>The biggest new feature in this hardware is tessellation, the ability to take
+                triangles output from a vertex shader and split them into new triangles based on
+                arbitrary (mostly) shader logic. This sounds like what geometry shaders can do, but
+                it is different.</para>
+            <para>Tessellation is actually something that ATI toyed around with for years. The
+                Radeon 9700 had tessellation support with something they called PN triangles. This
+                was very automated and not particularly useful. The entire Radeon HD 2000-4000 cards
+                included tessellation features as well. These were pre-vertex shader, while the
+                cross-platform tessellation comes post-vertex shader.</para>
+            <para>In the older form, the vertex shader would serve double duty. An incoming triangle
+                would be broken down into many triangles. The vertex shader would then have to
+                compute the per-vertex attributes for each of the new triangles, based on the old
+                attributes and which vertex in the new series of vertices is being computed. Then it
+                would do its normal transformation and other operations on those attributes.</para>
+            <para>The current form introduces two new shader stages. The first, immediately after
+                the vertex shader, controls how much tessellation happens on a particular primitive.
+                The tessellation happens, splitting the single primitive into multiple primitives.
+                The next stage determines how to compute the new positions, normals, etc of the
+                primitive, based on the values of the primitive being tessellated. The geometry
+                shader still exists; it is executed after the final tessellation shader
+                stage.</para>
+            <para>Tessellation is not covered in this book for a few reasons. First, there isn't
+                that much hardware out there that supports it. Sticking to OpenGL 3.3 meant casting
+                a wider net; requiring OpenGL 4.1 (which includes tessellation) would have meant
+                fewer people could run those tutorials.</para>
+            <para>Second, tessellation isn't that important. That's not to say that it isn't
+                important or a worthwhile feature. But it really isn't something that matters a
+                great deal.</para>
+        </sidebar>
+    </section>
+</appendix>

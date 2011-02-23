@@ -28,7 +28,7 @@
         <para>There are downsides to this approach. First, much of what is learned with this
             approach must be inevitably abandoned when the user encounters a graphics problem that
             must be solved with programmability. Programmability wipes out almost all of the fixed
-            function pipeline, so knowledge does not easily transfer.</para>
+            function pipeline, so the knowledge does not easily transfer.</para>
         <para>A more insidious problem is that the fixed function pipeline can give the
                 <emphasis>illusion</emphasis> of knowledge. A user can think they understand what
             they are doing, but they're really just copy-and-pasting code around. Programming thus
@@ -46,8 +46,8 @@
         <para>Another problem is that, even if you truly understand the fixed function pipeline, it
             limits how you think about solving problems. Because of its inflexibility, it focuses
             your mind along certain problem solving possibilities and away from others. It
-            encourages you to think of textures as images, vertex data as texture coordinates,
-            colors, or positions, and the like. By its very nature, it limits creativity and problem
+            encourages you to think of textures as pictures; vertex data as texture coordinates,
+            colors, or positions; and the like. By its very nature, it limits creativity and problem
             solving.</para>
         <para>Lastly, even on mobile systems, fixed functionality is generally not available in the
             graphics hardware. Programmability is the order of the day for most graphics hardware,

@@ -72,8 +72,8 @@
             images.</para>
         <para>To build FreeImage for Win32, go to the <filename>FreeImage</filename> directory and
             open the <filename>FreeImage.2008.sln</filename> file. Unlike the last library, you want
-            to build <emphasis>all</emphasis> of the projects in this solution. Build them for both
-            debug and release.</para>
+            to build all of the projects in this solution. Build them for both debug and
+            release.</para>
     </simplesect>
     <simplesect>
         <title>TinyXML</title>
@@ -118,8 +118,8 @@
             build.</para>
         <para>If you look at any of the tutorial source files, you will not find the
                 <function>main</function> function defined anywhere. This function is defined in
-                <filename>framwork/framework.cpp</filename>; it and all of the other source files in
-            the <filename>framework</filename> directory is shared by every tutorial. It does the
+                <filename>framework/framework.cpp</filename>; it and all of the other source files
+            in the <filename>framework</filename> directory is shared by every tutorial. It does the
             basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source
             files to focus on the useful OpenGL-specific code.</para>
     </simplesect>

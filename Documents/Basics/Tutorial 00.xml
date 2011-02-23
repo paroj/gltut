@@ -791,15 +791,15 @@ OpenGL_Context context;</programlisting>
             <glossentry>
                 <glossterm>unit vector</glossterm>
                 <glossdef>
-                    <para>A vector who's length is exactly one. These represent pure directions with
-                        a unit length.</para>
+                    <para>A vector who's length is exactly one. These represent purely directional
+                        vectors.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>vector normalization</glossterm>
                 <glossdef>
                     <para>The process of converting a vector into a unit vector that points in the
-                        same direction as the original.</para>
+                        same direction as the original vector.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -913,8 +913,7 @@ OpenGL_Context context;</programlisting>
                 <glossdef>
                     <para>A guarantee provided by OpenGL, such that if you provide binary-identical
                         inputs to the vertex processing, while all other state remains exactly
-                        identical, then the exact same vertex in clip-space will produce the exact same
-                        output.</para>
+                        identical, then the exact same vertex in clip-space will be output.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

@@ -3,7 +3,11 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include <glloader/gl_3_2_comp.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
@@ -138,7 +142,7 @@ void init()
 	glDepthRange(0.0f, 1.0f);
 }
 
-volatile float fTemp = 2700.0f;
+float fStart = 2534.0f;
 float fDelta = 0.0f;
 
 float CalcZOFfset()
@@ -150,11 +154,13 @@ float CalcZOFfset()
 
 	float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
 
-	float fRet = cosf(fCurrTimeThroughLoop * fScale) * 500.0f - 2700.0f;
-	fRet = fDelta - 2700.0f;
+	//float fRet = cosf(fCurrTimeThroughLoop * fScale) * 500.0f - fStart;
+	float fRet = fDelta - fStart;
 
 	return fRet;
 }
+
+volatile bool bReadBuffer = false;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -168,14 +174,82 @@ void display()
 	glUseProgram(theProgram);
 	glBindVertexArray(vao);
 
-	glUniform3f(offsetUniform, 0.0f, 0.0f, CalcZOFfset());
+	float fZOffset = CalcZOFfset();
+	glUniform3f(offsetUniform, 0.0f, 0.0f, fZOffset);
 	glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
 
 	glBindVertexArray(0);
 	glUseProgram(0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
+
+	//Read the backbuffer.
+	if(bReadBuffer)
+	{
+		bReadBuffer = false;
+
+		GLuint *pBuffer = new GLuint[500*500];
+		glReadPixels(0, 0, 500, 500, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, pBuffer);
+
+		GLuint error = glGetError();
+
+		std::string strOutput;
+		strOutput.reserve(500*500*2 + (500));
+
+		std::map<GLuint, char> charMap;
+
+		GLuint *pBufferLoc = pBuffer;
+		for(int y = 0; y < 500; y++)
+		{
+			for(int x = 0; x < 500; x++)
+			{
+				GLuint iValue = *pBufferLoc >> 8;
+				iValue = iValue & 0x00FFFFFF;
+
+				if(charMap.find(iValue) == charMap.end())
+				{
+					if(charMap.size())
+						charMap[iValue] = static_cast<char>(65 + charMap.size() - 1);
+					else
+						charMap[iValue] = '.';
+				}
+
+				strOutput.push_back(charMap[iValue]);
+				strOutput.push_back(' ');
+
+				++pBufferLoc;
+			}
+
+			strOutput.push_back('\n');
+		}
+
+		delete[] pBuffer;
+
+		{
+			static int iFile = 0;
+			std::ostringstream temp;
+			temp << "test" << iFile << ".txt";
+			std::string strFilename = temp.str();
+
+			std::ofstream shaderFile(strFilename.c_str());
+			shaderFile << "Offset: " << fZOffset << std::endl;
+			for(std::map<GLuint, char>::const_iterator startIt = charMap.begin();
+				startIt != charMap.end();
+				++startIt)
+			{
+				shaderFile << startIt->first << "->\'" << startIt->second << "\'" << std::endl;
+			}
+
+			shaderFile << strOutput;
+
+			printf("finished\n");
+
+			iFile++;
+		}
+
+
+//		printf(strOutput.c_str());
+	}
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.
@@ -203,12 +277,12 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 32:
 		{
 			float fValue = CalcZOFfset();
 			printf("%f\n", fValue);
-//			bReadDepthBuffer = true;
+			bReadBuffer = true;
 		}
 		break;
 		//Hundreds
@@ -263,5 +337,6 @@ void keyboard(unsigned char key, int x, int y)
 	}
 
 	printf("%f\n", fDelta);
+	glutPostRedisplay();
 }
 
