@@ -11,15 +11,15 @@
     <para>For those of you had the fortune of not being graphics programmers during the formative
         years of the development of consumer graphics hardware, what follows is a brief history.
         Hopefully, it will give you some perspective on what has changed in the last 15 years or so,
-        and how grateful you should be that you never had to live through the early days.</para>
+        and how grateful you should be that you never had to suffer through the early days.</para>
     <section>
         <title>Voodoo Magic</title>
         <para>In the years 1995 and 1996, a number of graphics cards were release. Graphics
             processing via specialized hardware on PC platforms was nothing new. What was new about
             these cards was their ability to do 3D rendering.</para>
         <para>The most popular of these for that era was the Voodoo Graphics card from 3Dfx
-            Interactive. It was fast, powerful for its day, provided high quality rendering (again,
-            for its day).</para>
+            Interactive. It was fast, powerful for its day, and provided high quality rendering
+            (again, for its day).</para>
         <para>The functionality of this card was quite bare-bones from a modern perspective.
             Obviously there was no concept of shaders of any kind. Indeed, it did not even have
             vertex transformation; the Voodoo Graphics pipeline begins with clip-space values. This
@@ -39,11 +39,11 @@
             function, thus allowing the user to generate the alpha with different math than the RGB
             portion of the output color. This was the sum total of its fragment processing.</para>
         <para>It even had framebuffer blending support. Its framebuffer could even support a
-            destination alpha value, though you had to give up a depth buffer to get it. Probably
-            not a good tradeoff. Except for the lack of a destination alpha, it's blending support
-            was superior even to OpenGL 1.1. It could use different source and destination factors
-            for the alpha component than the RGB component; the old GL 1.1 forced the RGB and A to
-            be blended with the same factors.</para>
+            destination alpha value, though you had to give up having a depth buffer to get it.
+            Probably not a good tradeoff. Except for the lack of a destination alpha, it's blending
+            support was superior even to OpenGL 1.1. It could use different source and destination
+            factors for the alpha component than the RGB component; the old GL 1.1 forced the RGB
+            and A to be blended with the same factors.</para>
         <para>The blending was even performed with full 24-bit color precision and then downsampled
             to the 16-bit precision of the output upon writing.</para>
         <para>From a modern perspective, spoiled with our full programmability, this all looks
@@ -59,7 +59,7 @@
     <section>
         <title>Dynamite Combiners</title>
         <para>The next phase of hardware came, not from 3Dfx, but from a new company, NVIDIA. While
-            3Dfx's Voodoo II was much more popular than NVIDIA's competitor, the NVIDIA Riva TNT
+            3Dfx's Voodoo II was much more popular than NVIDIA's product, the NVIDIA Riva TNT
             (released in 1998) was more interesting in terms of what it brought to the table for
             programmers. Voodoo II was purely a performance improvement; TNT was the next step in
             the evolution of graphics hardware.</para>
@@ -81,8 +81,8 @@
         <para>This becomes less useful if you want to add a specular term. The specular absorption
             and diffuse absorption are not necessarily the same, after all. And while you may not
             need to have a specular texture, you don't want to add the specular component to the
-            diffuse component <emphasis>before</emphasis> you multiply them. You want to do the
-            addition afterwards.</para>
+            diffuse component <emphasis>before</emphasis> you multiply by their respective colors.
+            You want to do the addition afterwards.</para>
         <para>This is simply not possible if you have only one per-vertex color. But it becomes
             possible if you have two. One color is the diffuse lighting value. The other color is
             the specular component. We multiply the first color by the diffuse color from the
@@ -108,8 +108,9 @@
             uniform color, two texture colors, and a zero register. There is also a single temporary
             register to hold the output from the first opcode.</para>
         <para>Graphics programmers, by this point, had gotten used to multipass-based algorithms.
-            After all, until TNT, that was the only way to apply multiple textures. And even with
-            TNT, it had a pretty confining limit of two textures and two opcodes.</para>
+            After all, until TNT, that was the only way to apply multiple textures to a single
+            surface. And even with TNT, it had a pretty confining limit of two textures and two
+            opcodes.</para>
         <para>This was powerful, but quite limited. Two opcodes really wasn't enough.</para>
         <para>The TNT cards also provided something else: 32-bit framebuffers and depth buffers.
             While the Voodoo cards used high-precision math internally, they still wrote to 16-bit
@@ -132,11 +133,11 @@
                 this buffer based on which triangles cover which area. The output screen is divided
                 into a number of tiles of a fixed size. Say, 8x8 in size.</para>
             <para>For each tile, the hardware finds the triangles that are within that tile's area.
-                Then it does all the usual scan conversion tricks and so forth. It even does
-                per-pixel depth sorting for blending, which remains something of a selling point.
-                After rendering that tile, it moves on to the next. These operations can of course
-                be executed in parallel; you can have multiple tiles being rasterized at the same
-                time.</para>
+                Then it does all the usual scan conversion tricks and so forth. It even
+                automatically does per-pixel depth sorting for blending, which remains something of
+                a selling point (no more having to manually sort blended objects). After rendering
+                that tile, it moves on to the next. These operations can of course be executed in
+                parallel; you can have multiple tiles being rasterized at the same time.</para>
             <para>The idea behind this to avoid having large image buffers. You only need a few 8x8
                 depth buffer, so you can use very fast, on-chip memory for it. Rather than having to
                 deal with caches, DRAM, and large bandwidth memory channels, you just have a small

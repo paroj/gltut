@@ -3,7 +3,7 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <preface xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
-    <?dbhtml filename="About these Tutorials.html" ?>
+    <?dbhtml filename="About this Book.html" ?>
     <title>About this Book</title>
     <para>Three dimensional graphics hardware is fast becoming, not merely a staple of computer
         systems, but an indispensable component. Many operating systems directly use and even
