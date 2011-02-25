@@ -56,7 +56,7 @@
             advanced concept. It teaches programmable rendering for beginning graphics programmers,
             from the ground up.</para>
         <para>This book also covers some important material that is often neglected or otherwise
-            relegated to <quote>advanced</quote> concepts. These concepts are not really advanced,
+            relegated to <quote>advanced</quote> concepts. These concepts are not truly advanced,
             but they are often ignored by most introductory material because they do not work with
             the fixed function pipeline.</para>
         <para>This book is first and foremost about learning how to be a graphics programmer.
@@ -73,6 +73,21 @@
             lessons that this book teaches. If you already know graphics and are in need of a book
             that teaches modern OpenGL programming, this is not it. It may be useful to you in that
             capacity, but that is not this book's main thrust.</para>
+        <para>This book is intended to teach you how to be a graphics programmer. It is not aimed any
+            any particular graphics field; it is designed to cover most of the basics of 3D
+            rendering. So if you want to be a game developer, a CAD program designer, do some
+            computer visualization, or any number of things, this book can still be an asset for
+            you.</para>
+        <para>This does not mean that it covers everything there is about 3D graphics. Hardly. It
+            tries to provide a sound foundation for your further exploration in whatever field of 3D
+            graphics you are interested in.</para>
+        <para>One topic this book does not cover in depth is optimization. The reason for this is
+            simply that serious optimization is an advanced topic. Optimizations can often be
+            platform-specific, different for different kinds of hardware. They can also be
+            API-specific, as some APIs have different optimization needs. Optimizations may be
+            mentioned here and there, but it is simply too complex of a subject for a beginning
+            graphics programmer. There is a chapter in the appendix covering optimization
+            opportunities, but it only provides a fairly high-level look.</para>
     </section>
     <section>
         <title>What You Need</title>

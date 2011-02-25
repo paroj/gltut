@@ -2463,6 +2463,10 @@
         </options>
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
+        <folder name="Appendices">
+            <file name="History%20of%20Graphics%20Hardware.xml"/>
+            <file name="Optimization.xml"/>
+        </folder>
         <folder name="Basics">
             <file name="Basics/Tutorial%2000.xml"/>
             <file name="Basics/Tutorial%2001.xml"/>
@@ -2490,7 +2494,6 @@
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>
-        <file name="History%20of%20Graphics%20Hardware.xml"/>
         <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
         <file name="preface.xml"/>
