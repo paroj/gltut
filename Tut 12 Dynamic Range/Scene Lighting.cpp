@@ -85,8 +85,8 @@ struct ShaderPairs
 ProgramPairs g_Programs[LM_MAX_LIGHTING_MODEL];
 ShaderPairs g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
 {
-	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
-	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
+	{"PN.vert", "PCN.vert", "ShowLighting.frag"},
+	{"PN.vert", "PCN.vert", "ShowNormals.frag"},
 };
 
 UnlitProgData g_Unlit;
