@@ -89,10 +89,10 @@ struct ShaderPairs
 ProgramPairs g_Programs[LM_MAX_LIGHTING_MODEL];
 ShaderPairs g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
 {
-	{"PN.vert", "PCN.vert", "PhongLighting.frag"},
-	{"PN.vert", "PCN.vert", "PhongOnly.frag"},
-	{"PN.vert", "PCN.vert", "BlinnLighting.frag"},
-	{"PN.vert", "PCN.vert", "BlinnOnly.frag"},
+	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
+	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
+	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
+	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
 	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
 	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
 };
@@ -191,7 +191,7 @@ void init()
 
 	try
 	{
-		g_pTerrainMesh = new Framework::Mesh("Ground.xml");
+		g_pTerrainMesh = new Framework::Mesh("UnitSphere.xml");
 		g_pLightMesh = new Framework::Mesh("UnitCube.xml");
 	}
 	catch(std::exception &except)
@@ -218,7 +218,7 @@ void init()
 }
 
 static float g_fLightHeight = 1.5f;
-static float g_fLightRadius = 100.0f;
+static float g_fLightRadius = 40.0f;
 static bool g_bRotateLight = true;
 
 static float g_fRotateTime = 0.0f;
@@ -428,6 +428,7 @@ void display()
 			{
 				Framework::MatrixStackPusher push(modelMatrix);
 				modelMatrix.RotateX(-90);
+				modelMatrix.Scale(20.0f, 20.0f, 20.0f);
 
 				glm::mat3 normMatrix(modelMatrix.Top());
 				normMatrix = glm::transpose(glm::inverse(normMatrix));
@@ -438,7 +439,7 @@ void display()
 
 				glUniformMatrix3fv(colorProg.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 					glm::value_ptr(normMatrix));
-				g_pTerrainMesh->Render();
+				g_pTerrainMesh->Render("tint");
 				glUseProgram(0);
 			}
 
@@ -515,14 +516,14 @@ void keyboard(unsigned char key, int x, int y)
 		g_bDrawColoredCyl = !g_bDrawColoredCyl;
 		break;
 
-	case 'i': g_fLightHeight += 0.2f; break;
-	case 'k': g_fLightHeight -= 0.2f; break;
-	case 'l': g_fLightRadius += 0.2f; break;
-	case 'j': g_fLightRadius -= 0.2f; break;
-	case 'I': g_fLightHeight += 0.05f; break;
-	case 'K': g_fLightHeight -= 0.05f; break;
-	case 'L': g_fLightRadius += 0.05f; break;
-	case 'J': g_fLightRadius -= 0.05f; break;
+	case 'i': g_fLightHeight += 2.f; break;
+	case 'k': g_fLightHeight -= 2.f; break;
+	case 'l': g_fLightRadius += 2.f; break;
+	case 'j': g_fLightRadius -= 2.f; break;
+	case 'I': g_fLightHeight += 0.5f; break;
+	case 'K': g_fLightHeight -= 0.5f; break;
+	case 'L': g_fLightRadius += 0.5f; break;
+	case 'J': g_fLightRadius -= 0.5f; break;
 
 	case 'o': g_matParams.Increment(true); bChangedShininess = true; break;
 	case 'u': g_matParams.Decrement(true); bChangedShininess = true; break;
