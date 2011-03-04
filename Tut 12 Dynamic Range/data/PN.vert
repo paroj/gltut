@@ -19,7 +19,7 @@ void main()
 	vec4 tempCamPosition = (modelToCameraMatrix * vec4(position, 1.0));
 	gl_Position = cameraToClipMatrix * tempCamPosition;
 
-	vertexNormal = normalModelToCameraMatrix * normal;
+	vertexNormal = normalize(normalModelToCameraMatrix * normal);
 	modelSpaceNormal = normalize(normal);
 	diffuseColor = baseDiffuseColor;
 	cameraSpacePosition = vec3(tempCamPosition);

@@ -63,11 +63,7 @@ float g_fzFar = 1000.0f;
 
 enum LightingModel
 {
-	LM_PHONG_SPECULAR = 0,
-	LM_PHONG_ONLY,
-	LM_BLINN_SPECULAR,
-	LM_BLINN_ONLY,
-	LM_GAUSSIAN_SPECULAR,
+	LM_GAUSSIAN_SPECULAR = 0,
 	LM_GAUSSIAN_ONLY,
 
 	LM_MAX_LIGHTING_MODEL,
@@ -89,10 +85,6 @@ struct ShaderPairs
 ProgramPairs g_Programs[LM_MAX_LIGHTING_MODEL];
 ShaderPairs g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
 {
-	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
-	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
-	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
-	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
 	{"PN.vert", "PCN.vert", "GaussianLighting.frag"},
 	{"PN.vert", "PCN.vert", "GaussianOnly.frag"},
 };
@@ -329,12 +321,6 @@ private:
 	{
 		switch(g_eLightModel)
 		{
-		case LM_PHONG_SPECULAR:
-		case LM_PHONG_ONLY:
-			return m_fPhongExponent;
-		case LM_BLINN_SPECULAR:
-		case LM_BLINN_ONLY:
-			return m_fBlinnExponent;
 		case LM_GAUSSIAN_SPECULAR:
 		case LM_GAUSSIAN_ONLY:
 			return m_fGaussianRoughness;
@@ -348,12 +334,6 @@ private:
 	{
 		switch(g_eLightModel)
 		{
-		case LM_PHONG_SPECULAR:
-		case LM_PHONG_ONLY:
-			return m_fPhongExponent;
-		case LM_BLINN_SPECULAR:
-		case LM_BLINN_ONLY:
-			return m_fBlinnExponent;
 		case LM_GAUSSIAN_SPECULAR:
 		case LM_GAUSSIAN_ONLY:
 			return m_fGaussianRoughness;
@@ -487,10 +467,6 @@ void reshape (int w, int h)
 
 static const char *strLightModelNames[] =
 {
-	"Phong Specular.",
-	"Phong Only",
-	"Blinn Specular.",
-	"Blinn Only",
 	"Gaussian Specular.",
 	"Gaussian Only",
 };
@@ -535,11 +511,6 @@ void keyboard(unsigned char key, int x, int y)
 	case 'b': g_bRotateLight = !g_bRotateLight; break;
 	case 'g': g_bDrawDark = !g_bDrawDark; break;
 	case 'h':
-		g_eLightModel += 2;
-		g_eLightModel %= LM_MAX_LIGHTING_MODEL;
-		bChangedLightModel = true;
-		break;
-	case 'H':
 		if(g_eLightModel % 2)
 			g_eLightModel -= 1;
 		else
