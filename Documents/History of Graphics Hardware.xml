@@ -57,6 +57,7 @@
             increasing the number of inputs to the fragment processor.</para>
     </section>
     <section>
+        <?dbhtml filename="History TNT.html" ?>
         <title>Dynamite Combiners</title>
         <para>The next phase of hardware came, not from 3Dfx, but from a new company, NVIDIA. While
             3Dfx's Voodoo II was much more popular than NVIDIA's product, the NVIDIA Riva TNT
@@ -165,6 +166,7 @@
         </sidebar>
     </section>
     <section>
+        <?dbhtml filename="History GeForce.html" ?>
         <title>Vertices and Registers</title>
         <para>The next stage in the evolution of graphics hardware again came from NVIDIA. While
             3Dfx released competing cards, they were again behind the curve. The NVIDIA GeForce 256
@@ -239,6 +241,7 @@
         </sidebar>
     </section>
     <section>
+        <?dbhtml filename="History Radeon8500.html" ?>
         <title>Programming at Last</title>
         <para>How do you define a demarcation between non-programmable graphics chips and
             programmable ones? We have seen that, even in the humble TNT days, there were a couple
@@ -350,6 +353,7 @@
         </sidebar>
     </section>
     <section>
+        <?dbhtml filename="History GeForceFX.html" ?>
         <title>Dependency</title>
         <para>The Radeon 9700 was the 8500's successor. It improved on the 8500 somewhat. The vertex
             shader gained real conditional branching logic. Some of the limits were also relaxed;
@@ -438,6 +442,7 @@
         </sidebar>
     </section>
     <section>
+        <?dbhtml filename="History Unified.html" ?>
         <title>Modern Unification</title>
         <para>Welcome to the modern era. All of the examples in this book are designed on and for
             this era of hardware, though some of them could run on older ones. The release of the

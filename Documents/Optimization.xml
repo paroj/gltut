@@ -123,6 +123,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Optimize Core.html" ?>
         <title>Core Optimizations</title>
         <para/>
         <section>
@@ -237,6 +238,7 @@
         </section>
     </section>
     <section>
+        <?dbhtml filename="Optimize Vertex Format.html" ?>
         <title>Vertex Format</title>
         <para>Vertex attributes stored in buffer objects can be of a surprisingly large number of
             formats. These tutorials generally used 32-bit floating-point data, but that is far from
@@ -344,14 +346,17 @@ glVertexAttribPointer(3, 3, GLushort, GLtrue, 20, 16);</programlisting>
         </section>
     </section>
     <section>
+        <?dbhtml filename="Optimize Vertex Cache.html" ?>
         <title>Vertex Caching</title>
         <para/>
     </section>
     <section>
+        <?dbhtml filename="Optimize Shaders.html" ?>
         <title>Shaders and Performance</title>
         <para/>
     </section>
     <section>
+        <?dbhtml filename="Optimize Sync.html" ?>
         <title>Synchronization</title>
         <para>GPUs gain quite a bit of their performance because, by and large, once you tell them
             what to do, they go do their stuff without further intervention. As the programmer, you

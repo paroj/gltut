@@ -90,6 +90,7 @@
             opportunities, but it only provides a fairly high-level look.</para>
     </section>
     <section>
+        <?dbhtml filename="About Need.html" ?>
         <title>What You Need</title>
         <para>This is a book for beginning graphics programmers; it can also serve as a book for
             those familiar with fixed functionality who want to understand programmable rendering
@@ -117,6 +118,7 @@
             their advanced features through OpenGL.</para>
     </section>
     <section>
+        <?dbhtml filename="About Organization.html" ?>
         <title>Organization of This Book</title>
         <para>This book is broken down into a number of general subjects. Each subject contains
             several numbered chapters called tutorials. Each tutorial describes several related
@@ -139,6 +141,7 @@
         </note>
     </section>
     <section>
+        <?dbhtml filename="About Conventions.html" ?>
         <title>Conventions used in This Book</title>
         <!--TODO: Have a list of conventions.-->
         <para/>
