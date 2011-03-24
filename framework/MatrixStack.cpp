@@ -2,8 +2,7 @@
 #include <glloader/gl_3_2_comp.h>
 #include "framework.h"
 #include "MatrixStack.h"
-
-
+#include <glm/gtc/matrix_projection.hpp>
 
 namespace Framework
 {
@@ -105,19 +104,7 @@ namespace Framework
 
 	void MatrixStack::Perspective( float fDegFOV, float fAspectRatio, float fZNear, float fZFar )
 	{
-		glm::mat4 persMat(0.0f);
-
-		const float degToRad = 3.14159f * 2.0f / 360.0f;
-		float fFovRad = fDegFOV * degToRad;
-		float fFrustumScale = 1.0f / tan(fFovRad / 2.0f);
-
-		persMat[0].x = fFrustumScale * fAspectRatio;
-		persMat[1].y = fFrustumScale;
-		persMat[2].z = (fZFar + fZNear) / (fZNear - fZFar);
-		persMat[2].w = -1.0f;
-		persMat[3].z = (2 * fZFar * fZNear) / (fZNear - fZFar);
-
-		m_currMat *= persMat;
+		m_currMat *= glm::perspective(fDegFOV, 1.0f / fAspectRatio, fZNear, fZFar);
 	}
 
 	void MatrixStack::SetMatrix( const glm::mat4 &theMatrix )

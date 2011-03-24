@@ -64,7 +64,7 @@ namespace Framework
 		switch(m_eType)
 		{
 		case TT_LOOP:
-			return fmodf(m_fAccumTime, m_fDuration);
+			return fmodf(m_fAccumTime, m_fDuration) / m_fDuration;
 		case TT_SINGLE:
 			return glm::clamp(m_fAccumTime / m_fDuration, 0.0f, 1.0f);
 		}

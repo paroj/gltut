@@ -5,7 +5,6 @@ layout(location = 2) in vec3 normal;
 
 out vec4 diffuseColor;
 out vec3 vertexNormal;
-out vec3 modelSpaceNormal;
 out vec3 cameraSpacePosition;
 
 uniform mat4 cameraToClipMatrix;
@@ -20,7 +19,6 @@ void main()
 	gl_Position = cameraToClipMatrix * tempCamPosition;
 
 	vertexNormal = normalize(normalModelToCameraMatrix * normal);
-	modelSpaceNormal = normalize(normal);
 	diffuseColor = baseDiffuseColor;
 	cameraSpacePosition = vec3(tempCamPosition);
 }

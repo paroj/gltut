@@ -1,9 +1,11 @@
 #version 330
 
 in vec4 diffuseColor;
-smooth in vec3 vertexNormal;
+in vec3 vertexNormal;
 in vec3 modelSpaceNormal;
 in vec3 cameraSpacePosition;
+
+smooth in vec4 passthrough;
 
 out vec4 outputColor;
 
@@ -22,5 +24,5 @@ uniform float shininessFactor;
 
 void main()
 {
-	outputColor = vec4(normalize(modelSpaceNormal), 1.0);
+	outputColor = passthrough;
 }

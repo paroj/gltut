@@ -23,6 +23,8 @@ namespace Framework
 		through a loop, or the time in seconds until the timer expires.
 
 		INFINITE timers ignore the duration.
+
+		It is legal to create these statically.
 		**/
 		Timer(Type eType = TT_INFINITE, float fDuration = 1.0f);
 

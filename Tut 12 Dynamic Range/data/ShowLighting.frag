@@ -1,7 +1,7 @@
 #version 330
 
 in vec4 diffuseColor;
-in vec3 vertexNormal;
+smooth in vec3 vertexNormal;
 in vec3 modelSpaceNormal;
 in vec3 cameraSpacePosition;
 

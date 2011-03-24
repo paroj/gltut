@@ -47,8 +47,7 @@ for iRing = 1, iRingCount do
 		local point = vmath.vec3(sinTheta * cosRho, cosTheta, sinTheta * sinRho);
 		positions[#positions + 1] = 0.5 * point;
 		normals[#normals + 1] = vmath.vec3(sinTheta * cosRho, cosTheta, sinTheta * sinRho);
-		colors[#colors + 1] = vmath.vec4(
-			vmath.vec3(sinTheta * cosRho, cosTheta, sinTheta * sinRho), 1.0);
+		colors[#colors + 1] = vmath.vec4(1.0, 1.0, 1.0, 1.0);
 	end
 end
 
