@@ -46,7 +46,7 @@
             <title>Two 2D Coordinate Systems</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CoordSys2D.svg" format="SVG"/>
+                    <imagedata fileref="CoordSys2D.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -61,7 +61,7 @@
             <title>Coordinate System</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="FullCoordinateEquation.svg" format="SVG"/>
+                    <imagedata fileref="FullCoordinateEquation.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -132,7 +132,7 @@
             <title>Coordinate System Translation in 2D</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="TranslationTransform.svg" format="SVG"/>
+                    <imagedata fileref="TranslationTransform.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -163,7 +163,7 @@
             <title>Identity Matrix</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="IdentityMatrix.svg" format="SVG"/>
+                    <imagedata fileref="IdentityMatrix.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -173,7 +173,7 @@
             <title>Translation Matrix</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="TranslationMatrix.svg" format="SVG"/>
+                    <imagedata fileref="TranslationMatrix.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -295,7 +295,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             <title>Coordinate System Scaling in 2D</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="ScaleTransform.svg" format="SVG"/>
+                    <imagedata fileref="ScaleTransform.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -313,7 +313,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CoordinateEquation.svg" format="SVG"/>
+                    <imagedata fileref="CoordinateEquation.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -323,7 +323,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="ScaledCoordEquation.svg" format="SVG"/>
+                    <imagedata fileref="ScaledCoordEquation.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -339,7 +339,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="IdentityMatrix.svg" format="SVG"/>
+                    <imagedata fileref="IdentityMatrix.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -355,7 +355,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             <title>Scaling Transformation Matrix</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="ScaleMatrix.svg"/>
+                    <imagedata  fileref="ScaleMatrix.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -444,7 +444,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             <title>Coordinate Rotation in 2D</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RotationTransform.svg" format="SVG"/>
+                    <imagedata fileref="RotationTransform.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -458,7 +458,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CoordinateEquation.svg" format="SVG"/>
+                    <imagedata fileref="CoordinateEquation.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -467,7 +467,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorMatrixMultiplication.svg" format="SVG"/>
+                    <imagedata fileref="VectorMatrixMultiplication.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -476,7 +476,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             <title>Vectorized Matrix Multiplication</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CoordSysMatrixMultiply.svg" format="SVG"/>
+                    <imagedata fileref="CoordSysMatrixMultiply.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -516,7 +516,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             <title>Axial Rotation Matrices</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="AxialRotationMatrices.svg" format="SVG"/>
+                    <imagedata fileref="AxialRotationMatrices.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -528,7 +528,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
 			<title>Angle/Axis Rotation Matrix</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="AngleAxisRotationMatrix.svg" format="SVG"/>
+                    <imagedata fileref="AngleAxisRotationMatrix.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -626,7 +626,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 <title>Order of Transformation</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="TransformOrder.svg" format="SVG"/>
+                        <imagedata fileref="TransformOrder.svg" />
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -640,7 +640,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 <title>Transform Order Diagram</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="TransOrderGeom.svg" format="SVG"/>
+                        <imagedata fileref="TransOrderGeom.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>
