@@ -154,8 +154,7 @@
             that is <emphasis>before</emphasis> rendering. Clearly there must be a better way; games
             can't possibly do this every frame and still hold decent framerates.</para>
         <para>Actually for quite some time, they did. In the pre-GeForce 256 days, that was how all
-            games worked. Graphics hardware just took a list of vertices in normalized device
-            coordinate space and rasterized them into fragments and pixels. Granted, in those days,
+            games worked. Graphics hardware just took a list of vertices in clip space and rasterized them into fragments and pixels. Granted, in those days,
             we were talking about maybe 10,000 triangles per frame. And while CPUs have come a long
             way since then, they haven't scaled with the complexity of graphics scenes.</para>
         <para>The GeForce 256 (note: not a GT 2xx card, but the very first GeForce card) was the

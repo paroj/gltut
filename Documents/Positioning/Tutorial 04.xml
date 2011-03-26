@@ -296,7 +296,7 @@
                 positive Z is away.</para>
             <para>Our perspective projection transform will be specific to this space. As previously
                 stated, the projection plane shall be a region [-1, 1] in the X and Y axes, and at a
-                Z value of 0. The projection will be from vertices in the -Z direction onto this
+                Z value of -1. The projection will be from vertices in the -Z direction onto this
                 plane; vertices that have a positive Z value are behind the projection plane.</para>
             <para>Now, we will make one more simplifying assumption: the location of the center of
                 the perspective plane is fixed at (0, 0, -1) in camera space. Therefore, since the
