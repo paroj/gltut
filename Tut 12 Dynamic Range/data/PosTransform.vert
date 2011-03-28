@@ -2,7 +2,11 @@
 
 layout(location = 0) in vec3 position;
 
-uniform mat4 cameraToClipMatrix;
+uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
+
 uniform mat4 modelToCameraMatrix;
 
 void main()

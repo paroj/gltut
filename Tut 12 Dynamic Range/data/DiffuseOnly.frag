@@ -6,38 +6,51 @@ in vec3 cameraSpacePosition;
 
 out vec4 outputColor;
 
-uniform vec3 modelSpaceLightPos;
+layout(std140) uniform;
 
-uniform vec4 lightIntensity;
-uniform vec4 ambientIntensity;
+uniform Material
+{
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float specularShininess;
+} Mtl;
 
-uniform vec3 cameraSpaceLightPos;
+struct PerLight
+{
+	vec3 cameraSpaceLightPos;
+	vec4 lightIntensity;
+};
 
-uniform float lightAttenuation;
+uniform Light
+{
+	vec4 ambientIntensity;
+	float lightAttenuation;
+	PerLight lights;
+} Lgt;
 
-const vec4 specularColor = vec4(0.25, 0.25, 0.25, 1.0);
-uniform float shininessFactor;
 
-
-float CalcAttenuation(in vec3 cameraSpacePosition, out vec3 lightDirection)
+float CalcAttenuation(in vec3 cameraSpacePosition,
+	in vec3 cameraSpaceLightPos,
+	out vec3 lightDirection)
 {
 	vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
 	float lightDistanceSqr = dot(lightDifference, lightDifference);
 	lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
 	
-	return (1 / ( 1.0 + lightAttenuation * sqrt(lightDistanceSqr)));
+	return (1 / ( 1.0 + Lgt.lightAttenuation * sqrt(lightDistanceSqr)));
 }
 
 void main()
 {
 	vec3 lightDir = vec3(0.0);
-	float atten = CalcAttenuation(cameraSpacePosition, lightDir);
-	vec4 attenIntensity = atten * lightIntensity;
+	float atten = CalcAttenuation(cameraSpacePosition,
+		Lgt.lights.cameraSpaceLightPos, lightDir);
+	vec4 attenIntensity = atten * Lgt.lights.lightIntensity;
 	
 	vec3 surfaceNormal = normalize(vertexNormal);
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
 	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
 	
 	outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-		(diffuseColor * ambientIntensity);
+		(diffuseColor * Lgt.ambientIntensity);
 }

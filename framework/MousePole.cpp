@@ -8,6 +8,7 @@
 #include "MatrixStack.h"
 
 #include <math.h>
+#include <glm/gtx/quaternion.hpp>
 
 #ifndef M_PI
 #define M_PI 3.14159265f
@@ -257,6 +258,36 @@ namespace Framework
 			this->MoveCloser(!(glutGetModifiers() & GLUT_ACTIVE_SHIFT));
 		else
 			this->MoveAway(!(glutGetModifiers() & GLUT_ACTIVE_SHIFT));
+	}
+
+	namespace
+	{
+		glm::vec3 g_offsets[] =
+		{
+			glm::vec3( 0.0f,  1.0f,  0.0f),
+			glm::vec3( 0.0f, -1.0f,  0.0f),
+			glm::vec3( 0.0f,  0.0f, -1.0f),
+			glm::vec3( 0.0f,  0.0f,  1.0f),
+			glm::vec3( 1.0f,  0.0f,  0.0f),
+			glm::vec3(-1.0f,  0.0f,  0.0f),
+		};
+	}
+
+	void MousePole::OffsetTargetPos( TargetOffsetDir eDir, float worldDistance )
+	{
+		glm::vec3 offsetDir = g_offsets[eDir];
+		OffsetTargetPos(offsetDir * worldDistance);
+	}
+
+	void MousePole::OffsetTargetPos( const glm::vec3 &cameraOffset )
+	{
+		glm::mat4 currMat = CalcMatrix();
+		glm::fquat orientation = glm::quat_cast(currMat);
+
+		glm::fquat invOrient = glm::conjugate(orientation);
+		glm::vec3 worldOffset = invOrient * cameraOffset;
+
+		m_lookAt += worldOffset;
 	}
 }
 

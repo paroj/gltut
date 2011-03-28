@@ -85,6 +85,10 @@ Shaders g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
 
 UnlitProgData g_Unlit;
 
+const int g_iMaterialBlockIndex = 0;
+const int g_iLightBlockIndex = 1;
+const int g_iProjectionBlockIndex = 2;
+
 UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
 	std::vector<GLuint> shaderList;
@@ -97,6 +101,9 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
 	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_iProjectionBlockIndex);
 
 	return data;
 }
@@ -112,14 +119,16 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
 	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
-	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
-	data.ambientIntensityUnif = glGetUniformLocation(data.theProgram, "ambientIntensity");
 
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
-	data.cameraSpaceLightPosUnif = glGetUniformLocation(data.theProgram, "cameraSpaceLightPos");
-	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
-	data.shininessFactorUnif = glGetUniformLocation(data.theProgram, "shininessFactor");
-	data.baseDiffuseColorUnif = glGetUniformLocation(data.theProgram, "baseDiffuseColor");
+
+	GLuint materialBlock = glGetUniformBlockIndex(data.theProgram, "Material");
+	GLuint lightBlock = glGetUniformBlockIndex(data.theProgram, "Light");
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+
+	glUniformBlockBinding(data.theProgram, materialBlock, g_iMaterialBlockIndex);
+	glUniformBlockBinding(data.theProgram, lightBlock, g_iLightBlockIndex);
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_iProjectionBlockIndex);
 
 	return data;
 }
@@ -135,8 +144,25 @@ void InitializePrograms()
 	g_Unlit = LoadUnlitProgram("PosTransform.vert", "UniformColor.frag");
 }
 
-Framework::RadiusDef radiusDef = {150.0f, 3.0f, 500.0f, 6.0f, 2.0f};
-glm::vec3 objectCenter = glm::vec3(0.0f, 0.0f, 0.0f);
+class TimeKeeper
+{
+public:
+	TimeKeeper()
+		: keyLightTimer(Framework::Timer::TT_LOOP, 5.0f)
+	{}
+
+	void Update()
+	{
+		keyLightTimer.Update();
+	}
+
+	Framework::Timer keyLightTimer;
+};
+
+TimeKeeper g_time;
+
+Framework::RadiusDef radiusDef = {50.0f, 3.0f, 80.0f, 4.0f, 1.0f};
+glm::vec3 objectCenter = glm::vec3(-50.0f, 0.0f, 50.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
 
@@ -163,6 +189,40 @@ namespace
 
 Framework::Mesh *g_pTerrainMesh = NULL;
 Framework::Mesh *g_pLightMesh = NULL;
+
+struct MaterialBlock
+{
+	glm::vec4 diffuseColor;
+	glm::vec4 specularColor;
+	float specularShininess;
+	float padding[3];
+};
+
+struct PerLight
+{
+	glm::vec3 cameraSpaceLightPos;
+	float padding;
+	glm::vec4 lightIntensity;
+};
+
+struct LightBlock
+{
+	glm::vec4 ambientIntensity;
+	float lightAttenuation;
+	float padding[3];
+	PerLight lights;
+};
+
+struct ProjectionBlock
+{
+	glm::mat4 cameraToClipMatrix;
+};
+
+LightBlock g_lightData;
+
+GLuint g_lightUniformBuffer;
+GLuint g_materialUniformBuffer;
+GLuint g_projectionUniformBuffer;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -195,24 +255,48 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
+
+
+	glGenBuffers(1, &g_lightUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), NULL, GL_DYNAMIC_DRAW);
+
+	glGenBuffers(1, &g_projectionUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
+
+	MaterialBlock mtlData;
+	mtlData.diffuseColor = glm::vec4(1.0f);
+	mtlData.specularColor = glm::vec4(0.05f, 0.05f, 0.05f, 1.0f);
+	mtlData.specularShininess = 0.6f;
+
+	glGenBuffers(1, &g_materialUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_materialUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialBlock), &mtlData, GL_STATIC_DRAW);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_iLightBlockIndex, g_lightUniformBuffer,
+		0, sizeof(LightBlock));
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_iProjectionBlockIndex, g_projectionUniformBuffer,
+		0, sizeof(LightBlock));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 static float g_fLightHeight = 1.5f;
 static float g_fLightRadius = 70.0f;
 
-Framework::Timer g_lightTimer(Framework::Timer::TT_LOOP, 5.0f);
-
 static float g_fRotateTime = 0.0f;
 static float g_fPrevTime = 0.0f;
 
+bool g_bDrawCameraPos = false;
+
 glm::vec4 CalcLightPosition()
 {
-	g_lightTimer.Update();
-
 	const float fLoopDuration = 5.0f;
 	const float fScale = 3.14159f * 2.0f;
 
-	float timeThroughLoop = g_lightTimer.GetAlpha();
+	float timeThroughLoop = g_time.keyLightTimer.GetAlpha();
 
 	glm::vec4 ret(0.0f, g_fLightHeight, 0.0f, 1.0f);
 
@@ -233,6 +317,8 @@ const glm::vec4 g_lightColor(1.0f);
 
 void display()
 {
+	g_time.Update();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -245,21 +331,26 @@ void display()
 		const glm::vec4 &worldLightPos = CalcLightPosition();
 		const glm::vec4 &lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
 
-		ProgramData &prog = g_Programs[LM_VERT_COLOR_DIFFUSE];
+		ProgramData &prog = g_Programs[LM_VERT_COLOR_DIFFUSE_SPECULAR];
 
-		glUseProgram(prog.theProgram);
-		glUniform4f(prog.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
-		glUniform4f(prog.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
-		glUniform3fv(prog.cameraSpaceLightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-		glUniform1f(prog.lightAttenuationUnif, g_fLightAttenuation);
-		glUniform1f(prog.shininessFactorUnif, 0.5f);
-		glUseProgram(0);
+		LightBlock lightData;
+		lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		lightData.lightAttenuation = g_fLightAttenuation;
+		lightData.lights.cameraSpaceLightPos = glm::vec3(lightPosCameraSpace);
+		lightData.lights.lightIntensity = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+
+		glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		{
 			Framework::MatrixStackPusher push(modelMatrix);
 
 			//Render the ground plane.
 			{
+				glBindBufferRange(GL_UNIFORM_BUFFER, g_iMaterialBlockIndex, g_materialUniformBuffer,
+					0, sizeof(MaterialBlock));
+
 				Framework::MatrixStackPusher push(modelMatrix);
 				modelMatrix.RotateX(-90);
 
@@ -274,6 +365,8 @@ void display()
 					glm::value_ptr(normMatrix));
 				g_pTerrainMesh->Render();
 				glUseProgram(0);
+
+				glBindBufferRange(GL_UNIFORM_BUFFER, g_iMaterialBlockIndex, 0, 0, 0);
 			}
 
 			//Render the light
@@ -287,6 +380,26 @@ void display()
 				glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
 					glm::value_ptr(modelMatrix.Top()));
 				glUniform4f(g_Unlit.objectColorUnif, 0.8078f, 0.8706f, 0.9922f, 1.0f);
+				g_pLightMesh->Render("flat");
+			}
+
+			if(g_bDrawCameraPos)
+			{
+				Framework::MatrixStackPusher push(modelMatrix);
+
+				modelMatrix.SetIdentity();
+				modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_mousePole.GetLookAtDistance()));
+
+				glDisable(GL_DEPTH_TEST);
+				glDepthMask(GL_FALSE);
+				glUseProgram(g_Unlit.theProgram);
+				glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+					glm::value_ptr(modelMatrix.Top()));
+				glUniform4f(g_Unlit.objectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
+				g_pLightMesh->Render("flat");
+				glDepthMask(GL_TRUE);
+				glEnable(GL_DEPTH_TEST);
+				glUniform4f(g_Unlit.objectColorUnif, 1.0f, 1.0f, 1.0f, 1.0f);
 				g_pLightMesh->Render("flat");
 			}
 		}
@@ -304,12 +417,12 @@ void reshape (int w, int h)
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
 
-	for(int iProg = 0; iProg < LM_MAX_LIGHTING_MODEL; iProg++)
-	{
-		g_Programs[iProg].SetWindowData(persMatrix.Top());
-	}
+	ProjectionBlock projData;
+	projData.cameraToClipMatrix = persMatrix.Top();
 
-	g_Unlit.SetWindowData(persMatrix.Top());
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
@@ -341,7 +454,15 @@ void keyboard(unsigned char key, int x, int y)
 	case 'L': g_fLightRadius += 0.5f; break;
 	case 'J': g_fLightRadius -= 0.5f; break;
 
-	case 'b': g_lightTimer.TogglePause(); break;
+	case 'b': g_time.keyLightTimer.TogglePause(); break;
+	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
+
+	case 'w': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_FORWARD, 5.0f); break;
+	case 's': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_BACKWARD, 5.0f); break;
+	case 'd': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_RIGHT, 5.0f); break;
+	case 'a': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_LEFT, 5.0f); break;
+	case 'e': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_UP, 5.0f); break;
+	case 'q': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_DOWN, 5.0f); break;
 	}
 
 	if(g_fLightRadius < 0.2f)
