@@ -38,8 +38,13 @@ public:
 	glm::vec3 GetWorldLightPosition(int iLightIx) const;
 
 private:
-	Framework::Timer keyLightTimer;
-	Framework::LinearInterpolator<glm::vec4> ambientInterpolator;
+	typedef Framework::ConstVelLinearInterpolator<glm::vec3> LightInterpolator;
+
+	Framework::Timer m_keyLightTimer;
+	Framework::LinearInterpolator<glm::vec4> m_ambientInterpolator;
+
+	std::vector<LightInterpolator> m_lightPos;
+	std::vector<Framework::Timer> m_lightTimers;
 
 };
 

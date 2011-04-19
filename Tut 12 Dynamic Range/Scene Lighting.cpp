@@ -22,7 +22,6 @@ struct ProgramData
 {
 	GLuint theProgram;
 
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
 
 	GLuint lightIntensityUnif;
@@ -33,14 +32,6 @@ struct ProgramData
 	GLuint lightAttenuationUnif;
 	GLuint shininessFactorUnif;
 	GLuint baseDiffuseColorUnif;
-
-	void SetWindowData(const glm::mat4 cameraToClip)
-	{
-		glUseProgram(theProgram);
-		glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(cameraToClip));
-		glUseProgram(0);
-	}
 };
 
 struct UnlitProgData
@@ -100,7 +91,6 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	UnlitProgData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
 
 	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
@@ -119,7 +109,6 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
 
@@ -262,7 +251,7 @@ void init()
 		0, sizeof(LightBlock));
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, g_iProjectionBlockIndex, g_projectionUniformBuffer,
-		0, sizeof(LightBlock));
+		0, sizeof(ProjectionBlock));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
