@@ -17,15 +17,17 @@ uniform Material
 
 struct PerLight
 {
-	vec3 cameraSpaceLightPos;
+	vec4 cameraSpaceLightPos;
 	vec4 lightIntensity;
 };
+
+const int numberOfLights = 4;
 
 uniform Light
 {
 	vec4 ambientIntensity;
 	float lightAttenuation;
-	PerLight lights;
+	PerLight lights[numberOfLights];
 } Lgt;
 
 
@@ -37,15 +39,25 @@ float CalcAttenuation(in vec3 cameraSpacePosition,
 	float lightDistanceSqr = dot(lightDifference, lightDifference);
 	lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
 	
-	return (1 / ( 1.0 + Lgt.lightAttenuation * sqrt(lightDistanceSqr)));
+	return (1 / ( 1.0 + Lgt.lightAttenuation * Lgt.lightAttenuation
+		* sqrt(lightDistanceSqr)));
 }
 
-void main()
+vec4 ComputeLighting(in PerLight lightData)
 {
 	vec3 lightDir;
-	float atten = CalcAttenuation(cameraSpacePosition,
-		Lgt.lights.cameraSpaceLightPos, lightDir);
-	vec4 attenIntensity = atten * Lgt.lights.lightIntensity;
+	vec4 lightIntensity;
+	if(lightData.cameraSpaceLightPos.w == 0.0)
+	{
+		lightDir = vec3(lightData.cameraSpaceLightPos);
+		lightIntensity = lightData.lightIntensity;
+	}
+	else
+	{
+		float atten = CalcAttenuation(cameraSpacePosition,
+			lightData.cameraSpaceLightPos.xyz, lightDir);
+		lightIntensity = atten * lightData.lightIntensity;
+	}
 	
 	vec3 surfaceNormal = normalize(vertexNormal);
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
@@ -60,8 +72,20 @@ void main()
 	float gaussianTerm = exp(exponent);
 
 	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
+	
+	vec4 lighting = diffuseColor * lightIntensity * cosAngIncidence;
+	lighting += Mtl.specularColor * lightIntensity * gaussianTerm;
+	
+	return lighting;
+}
 
-	outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
-		(Mtl.specularColor * attenIntensity * gaussianTerm) +
-		(diffuseColor * Lgt.ambientIntensity);
+void main()
+{
+	vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
+	for(int light = 0; light < numberOfLights; light++)
+	{
+		accumLighting += ComputeLighting(Lgt.lights[light]);
+	}
+	
+	outputColor = accumLighting;
 }

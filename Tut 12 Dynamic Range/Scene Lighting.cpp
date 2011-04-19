@@ -14,6 +14,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Lights.h"
+
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
 struct ProgramData
@@ -56,7 +58,6 @@ struct UnlitProgData
 			glm::value_ptr(cameraToClip));
 		glUseProgram(0);
 	}
-
 };
 
 float g_fzNear = 1.0f;
@@ -159,7 +160,7 @@ public:
 	Framework::Timer keyLightTimer;
 };
 
-TimeKeeper g_time;
+LightManager g_lights;
 
 Framework::RadiusDef radiusDef = {50.0f, 3.0f, 80.0f, 4.0f, 1.0f};
 glm::vec3 objectCenter = glm::vec3(-50.0f, 0.0f, 50.0f);
@@ -198,27 +199,10 @@ struct MaterialBlock
 	float padding[3];
 };
 
-struct PerLight
-{
-	glm::vec3 cameraSpaceLightPos;
-	float padding;
-	glm::vec4 lightIntensity;
-};
-
-struct LightBlock
-{
-	glm::vec4 ambientIntensity;
-	float lightAttenuation;
-	float padding[3];
-	PerLight lights;
-};
-
 struct ProjectionBlock
 {
 	glm::mat4 cameraToClipMatrix;
 };
-
-LightBlock g_lightData;
 
 GLuint g_lightUniformBuffer;
 GLuint g_materialUniformBuffer;
@@ -256,7 +240,7 @@ void init()
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
 
-
+	//Setup our Uniform Buffers
 	glGenBuffers(1, &g_lightUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), NULL, GL_DYNAMIC_DRAW);
@@ -283,41 +267,14 @@ void init()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-static float g_fLightHeight = 1.5f;
-static float g_fLightRadius = 70.0f;
-
-static float g_fRotateTime = 0.0f;
-static float g_fPrevTime = 0.0f;
-
 bool g_bDrawCameraPos = false;
-
-glm::vec4 CalcLightPosition()
-{
-	const float fLoopDuration = 5.0f;
-	const float fScale = 3.14159f * 2.0f;
-
-	float timeThroughLoop = g_time.keyLightTimer.GetAlpha();
-
-	glm::vec4 ret(0.0f, g_fLightHeight, 0.0f, 1.0f);
-
-	ret.x = cosf(timeThroughLoop * fScale) * g_fLightRadius;
-	ret.z = sinf(timeThroughLoop * fScale) * g_fLightRadius;
-
-	return ret;
-}
-
-const float g_fLightAttenuation = 1.0f / (50.0f * 50.0f);
-
-const glm::vec4 g_darkColor(0.2f, 0.2f, 0.2f, 1.0f);
-const glm::vec4 g_lightColor(1.0f);
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
-
 void display()
 {
-	g_time.Update();
+	g_lights.UpdateTime();
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
@@ -328,16 +285,10 @@ void display()
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
 
-		const glm::vec4 &worldLightPos = CalcLightPosition();
-		const glm::vec4 &lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
-
 		ProgramData &prog = g_Programs[LM_VERT_COLOR_DIFFUSE_SPECULAR];
 
-		LightBlock lightData;
-		lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		lightData.lightAttenuation = g_fLightAttenuation;
-		lightData.lights.cameraSpaceLightPos = glm::vec3(lightPosCameraSpace);
-		lightData.lights.lightIntensity = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+		const glm::mat4 &worldToCamMat = modelMatrix.Top();
+		LightBlock lightData = g_lights.GetLightPositions(worldToCamMat);
 
 		glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
@@ -370,11 +321,11 @@ void display()
 			}
 
 			//Render the light
+			for(int light = 0; light < g_lights.GetNumberOfPointLights(); light++)
 			{
 				Framework::MatrixStackPusher push(modelMatrix);
 
-				modelMatrix.Translate(glm::vec3(worldLightPos));
-				modelMatrix.Scale(1.f, 1.f, 1.f);
+				modelMatrix.Translate(g_lights.GetWorldLightPosition(light));
 
 				glUseProgram(g_Unlit.theProgram);
 				glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
@@ -445,16 +396,7 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		break;
 		
-	case 'i': g_fLightHeight += 2.f; break;
-	case 'k': g_fLightHeight -= 2.f; break;
-	case 'l': g_fLightRadius += 2.f; break;
-	case 'j': g_fLightRadius -= 2.f; break;
-	case 'I': g_fLightHeight += 0.5f; break;
-	case 'K': g_fLightHeight -= 0.5f; break;
-	case 'L': g_fLightRadius += 0.5f; break;
-	case 'J': g_fLightRadius -= 0.5f; break;
-
-	case 'b': g_time.keyLightTimer.TogglePause(); break;
+	case 'b': g_lights.TogglePause(); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 
 	case 'w': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_FORWARD, 5.0f); break;
@@ -464,9 +406,6 @@ void keyboard(unsigned char key, int x, int y)
 	case 'e': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_UP, 5.0f); break;
 	case 'q': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_DOWN, 5.0f); break;
 	}
-
-	if(g_fLightRadius < 0.2f)
-		g_fLightRadius = 0.2f;
 
 	glutPostRedisplay();
 }

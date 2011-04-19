@@ -31,7 +31,7 @@ namespace Framework
 		//Resets the timer, as though the user just created the object with the original parameters.
 		void Reset();
 
-		//Pauses/unpauses. Returns true if the timer is paused.
+		//Pauses/unpauses. Returns true if the timer is paused after the toggling.
 		bool TogglePause();
 
 		//Updates the time for the timer. Returns true if the timer has reached the end.

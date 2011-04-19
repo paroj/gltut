@@ -1,5 +1,7 @@
 
 SetupProject("Tut 12 Scene Lighting", "Scene Lighting.cpp",
-	"PNC.vert", "PN.vert", "DiffuseSpecular.frag", "DiffuseOnly.frag"
+	"Lights.h", "Lights.cpp",
+	"data/PNC.vert", "data/PN.vert",
+	"data/DiffuseSpecular.frag", "data/DiffuseOnly.frag"
 )
 
