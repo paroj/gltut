@@ -15,79 +15,95 @@ local colors = {};
 local normals = {};
 local topFan = {};
 local botFan = {};
-local strips = {};
-local restartIndex = 65535;
+local cylStrip = {};
 
-local iSegCount, iColorRepeatCount, iRingCount = ...;
-iSegCount = iSegCount or 15;
+local iSegCount, iColorRepeatCount = ...;
+iSegCount = iSegCount or 30;
 iColorRepeatCount = iColorRepeatCount or 3;
-iRingCount = iRingCount or 8;
 
-local rhoAngle = math.pi * 2.0 / iSegCount;
-local thetaAngle = math.pi / (iRingCount + 1);
-local iColorCycleAngle = math.pi * 2.0 / iColorRepeatCount;
+local iAngle = 3.14159 * 2.0 / iSegCount;
+local iColorCycleAngle = 3.14159 * 2.0 / iColorRepeatCount;
 local highColor = vmath.vec4(0.9, 0.5, 0.5, 1.0);
 local lowColor = vmath.vec4(0.5, 0.1, 0.1, 1.0)
 
---Compute vertex attributes
+--Compute caps
 positions[#positions + 1] = vmath.vec3(0.0, 0.5, 0.0);
 colors[#colors + 1] = vmath.vec4(1.0, 1.0, 1.0, 1.0);
 normals[#normals + 1] = vmath.vec3(0.0, 1.0, 0.0);
+topFan[#topFan + 1] = 0;
+botFan[#botFan + 1] = (iSegCount * 2) + 1;
 
 local firstSideIx = #positions;
 
-for iRing = 1, iRingCount do
-	local theta = (thetaAngle * iRing)
-	local sinTheta, cosTheta = math.sin(theta), math.cos(theta);
+for iSeg = 0, (iSegCount - 1), 1 do
+	local iCurrAngle = iSeg * iAngle;
 
-	for iSeg = 0, (iSegCount - 1) do
-		local rho = rhoAngle * iSeg;
-		local sinRho, cosRho = math.sin(rho), math.cos(rho);
+	positions[#positions + 1] =
+		vmath.vec3(0.5 * math.cos(iCurrAngle), 0.5, 0.5 * math.sin(iCurrAngle));
+	positions[#positions + 1] =
+		vmath.vec3(0.5 * math.cos(iCurrAngle), -0.5, 0.5 * math.sin(iCurrAngle));
+
+	normals[#normals + 1] = vmath.vec3(0.0, 1.0, 0.0);
+	normals[#normals + 1] = vmath.vec3(0.0, -1.0, 0.0);
 		
-		local point = vmath.vec3(sinTheta * cosRho, cosTheta, sinTheta * sinRho);
-		positions[#positions + 1] = 0.5 * point;
-		normals[#normals + 1] = vmath.vec3(sinTheta * cosRho, cosTheta, sinTheta * sinRho);
-		colors[#colors + 1] = vmath.vec4(
-			vmath.vec3(sinTheta * cosRho, cosTheta, sinTheta * sinRho), 1.0);
+	local clrDist = math.mod(iCurrAngle, iColorCycleAngle) / iColorCycleAngle;
+	if(clrDist > 0.5) then
+		local interp = (clrDist - 0.5) * 2;
+		colors[#colors + 1] = (interp * highColor) +
+			((1 - interp) * lowColor);
+	else
+		local interp = clrDist * 2;
+		colors[#colors + 1] = (interp * lowColor) +
+			((1 - interp) * highColor);
 	end
+	
+	colors[#colors + 1] = colors[#colors];
+
+	topFan[#topFan + 1] = 1 + (iSeg * 2);
+	botFan[#botFan + 1] = 1 + (((iSegCount - iSeg) * 2) - 1);
 end
+
+topFan[#topFan + 1] = topFan[2];
+botFan[#botFan + 1] = botFan[2];
 
 positions[#positions + 1] = vmath.vec3(0.0, -0.5, 0.0);
 colors[#colors + 1] = vmath.vec4(1.0, 1.0, 1.0, 1.0);
 normals[#normals + 1] = vmath.vec3(0.0, -1.0, 0.0);
 
---Compute cap fans.
-topFan[#topFan + 1] = 0;
-botFan[#botFan + 1] = #positions - 1;
+--Compute sides.
+for iSeg = 0, (iSegCount - 1), 1 do
+	local iCurrAngle = iSeg * iAngle;
 
-for iSeg = 1, iSegCount do
-	topFan[#topFan + 1] = iSeg;
-	botFan[#botFan + 1] = (#positions - 1) - iSeg;
-end
+	positions[#positions + 1] =
+		vmath.vec3(0.5 * math.cos(iCurrAngle), 0.5, 0.5 * math.sin(iCurrAngle));
+	positions[#positions + 1] =
+		vmath.vec3(0.5 * math.cos(iCurrAngle), -0.5, 0.5 * math.sin(iCurrAngle));
 
-topFan[#topFan + 1] = 1;
-botFan[#botFan + 1] = (#positions - 2);
-
---Compute the strips.
-
-for iRing = 1, iRingCount - 1 do
-	local topRingStart = 1 + ((iRing - 1) * iSegCount);
-	local botRingStart = 1 + (iRing * iSegCount);
-	local strip = {};
-	strips[#strips + 1] = strip;
-	
-	for iSeg = 0, (iSegCount - 1) do
-		strip[#strip + 1] = topRingStart + iSeg;
-		strip[#strip + 1] = botRingStart + iSeg;
+	normals[#normals + 1] = vmath.vec3(math.cos(iCurrAngle), 0, math.sin(iCurrAngle));
+	normals[#normals + 1] = normals[#normals];
+		
+	local clrDist = math.mod(iCurrAngle, iColorCycleAngle) / iColorCycleAngle;
+	if(clrDist > 0.5) then
+		local interp = (clrDist - 0.5) * 2;
+		colors[#colors + 1] = (interp * highColor) +
+			((1 - interp) * lowColor);
+	else
+		local interp = clrDist * 2;
+		colors[#colors + 1] = (interp * lowColor) +
+			((1 - interp) * highColor);
 	end
+	
+	colors[#colors + 1] = colors[#colors];
 
-	strip[#strip + 1] = topRingStart;
-	strip[#strip + 1] = botRingStart;
+	cylStrip[#cylStrip + 1] = #positions - 2;
+	cylStrip[#cylStrip + 1] = #positions - 1;
 end
 
+cylStrip[#cylStrip + 1] = cylStrip[1];
+cylStrip[#cylStrip + 1] = cylStrip[2];
 
 do
-	local writer = XmlWriter.XmlWriter("UnitSphere.xml");
+	local writer = XmlWriter.XmlWriter("UnitCylinder.xml");
 	writer:AddPI("oxygen", [[RNGSchema="../../Documents/meshFormat.rnc" type="compact"]]);
 	writer:PushElement("mesh", "http://www.arcsynthesis.com/gltut/mesh");
 		writer:PushElement("attribute");
@@ -134,13 +150,11 @@ do
 			writer:AddAttribute("type", "ushort");
 			writer:AddText(table.concat(botFan, " "));
 		writer:PopElement();
-		for i, strip in ipairs(strips) do
-			writer:PushElement("indices");
-				writer:AddAttribute("cmd", "tri-strip");
-				writer:AddAttribute("type", "ushort");
-				writer:AddText(table.concat(strip, " "));
-			writer:PopElement();
-		end
+		writer:PushElement("indices");
+			writer:AddAttribute("cmd", "tri-strip");
+			writer:AddAttribute("type", "ushort");
+			writer:AddText(table.concat(cylStrip, " "));
+		writer:PopElement();
 	writer:PopElement();
 	writer:Close();
 end

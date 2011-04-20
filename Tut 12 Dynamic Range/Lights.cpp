@@ -78,21 +78,31 @@ LightManager::LightManager()
 	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 15.0f));
 }
 
+struct UpdateTimer
+{
+	void operator()(Framework::Timer &timer) {timer.Update();}
+	void operator()(std::pair<const std::string, Framework::Timer> &timeData)
+	{timeData.second.Update();}
+};
+
+struct PauseTimer
+{
+	void operator()(Framework::Timer &timer) {timer.TogglePause();}
+	void operator()(std::pair<const std::string, Framework::Timer> &timeData)
+	{timeData.second.TogglePause();}
+};
+
 void LightManager::UpdateTime()
 {
 	m_keyLightTimer.Update();
-	for(size_t loop = 0; loop < m_lightTimers.size(); loop++)
-	{
-		m_lightTimers[loop].Update();
-	}
+	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), UpdateTimer());
+	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), UpdateTimer());
 }
 
 bool LightManager::TogglePause()
 {
-	for(size_t loop = 0; loop < m_lightTimers.size(); loop++)
-	{
-		m_lightTimers[loop].TogglePause();
-	}
+	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), PauseTimer());
+	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), PauseTimer());
 
 	return m_keyLightTimer.TogglePause();
 }
@@ -105,7 +115,7 @@ LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) 
 	lightData.lightAttenuation = g_fLightAttenuation;
 
 	lightData.lights[0].cameraSpaceLightPos =
-		worldToCameraMat * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+		worldToCameraMat * glm::vec4(0.0f, 0.981f, 0.196f, 0.0f);
 
 	lightData.lights[0].lightIntensity = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
 
@@ -116,7 +126,7 @@ LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) 
 		glm::vec4 lightPosCameraSpace = worldToCameraMat * worldLightPos;
 
 		lightData.lights[light].cameraSpaceLightPos = lightPosCameraSpace;
-		lightData.lights[light].lightIntensity = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+		lightData.lights[light].lightIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	}
 
 	return lightData;
@@ -131,3 +141,20 @@ glm::vec3 LightManager::GetWorldLightPosition( int lightIx ) const
 {
 	return m_lightPos[lightIx].Interpolate(m_lightTimers[lightIx].GetAlpha());
 }
+
+void LightManager::CreateTimer( const std::string &timerName,
+							   Framework::Timer::Type eType, float fDuration )
+{
+	m_extraTimers[timerName] = Framework::Timer(eType, fDuration);
+}
+
+float LightManager::GetTimerValue( const std::string &timerName ) const
+{
+	ExtraTimerMap::const_iterator loc = m_extraTimers.find(timerName);
+
+	if(loc == m_extraTimers.end())
+		return -1.0f;
+
+	return loc->second.GetAlpha();
+}
+

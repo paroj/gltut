@@ -2,6 +2,7 @@
 #ifndef LIGHTS_H
 #define LIGHTS_H
 
+#include <map>
 #include "../framework/Timer.h"
 #include <glm/glm.hpp>
 #include "../framework/Interpolators.h"
@@ -37,15 +38,19 @@ public:
 	int GetNumberOfPointLights() const;
 	glm::vec3 GetWorldLightPosition(int iLightIx) const;
 
+	void CreateTimer(const std::string &timerName, Framework::Timer::Type eType, float fDuration);
+	float GetTimerValue(const std::string &timerName) const;
+
 private:
 	typedef Framework::ConstVelLinearInterpolator<glm::vec3> LightInterpolator;
+	typedef std::map<std::string, Framework::Timer> ExtraTimerMap;
 
 	Framework::Timer m_keyLightTimer;
 	Framework::LinearInterpolator<glm::vec4> m_ambientInterpolator;
 
 	std::vector<LightInterpolator> m_lightPos;
 	std::vector<Framework::Timer> m_lightTimers;
-
+	ExtraTimerMap m_extraTimers;
 };
 
 #endif //LIGHTS_H

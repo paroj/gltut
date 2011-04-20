@@ -666,7 +666,7 @@ namespace Framework
 		delete m_pData;
 	}
 
-	void Mesh::Render()
+	void Mesh::Render() const
 	{
 		if(!m_pData->oVAO)
 			return;
@@ -677,9 +677,9 @@ namespace Framework
 		glBindVertexArray(0);
 	}
 
-	void Mesh::Render( const std::string &strMeshName )
+	void Mesh::Render( const std::string &strMeshName ) const
 	{
-		VAOMap::iterator theIt = m_pData->namedVAOs.find(strMeshName);
+		VAOMap::const_iterator theIt = m_pData->namedVAOs.find(strMeshName);
 		if(theIt == m_pData->namedVAOs.end())
 			return;
 
