@@ -38,6 +38,9 @@ namespace Framework
 		//Will only return true for SINGLE timers that have reached their duration.
 		bool Update();
 
+		//Subtracts secRewind from the current time and continues from there.
+		void Rewind(float secRewind);
+
 		//Returns a number [0, 1], representing progress through the duration. Only used
 		//for SINGLE and LOOP timers.
 		float GetAlpha() const;
@@ -52,13 +55,13 @@ namespace Framework
 
 	private:
 		Type m_eType;
-		float m_fDuration;
+		float m_secDuration;
 
-		bool m_bHasUpdated;
-		bool m_bIsPaused;
+		bool m_hasUpdated;
+		bool m_isPaused;
 
 		float m_absPrevTime;
-		float m_fAccumTime;
+		float m_secAccumTime;
 	};
 }
 

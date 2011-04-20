@@ -543,6 +543,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 		
 	case 'b': g_lights.TogglePause(); break;
+	case 'g': g_lights.RewindTime(1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 
 	case 'w': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_FORWARD, 5.0f); break;

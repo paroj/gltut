@@ -92,6 +92,17 @@ struct PauseTimer
 	{timeData.second.TogglePause();}
 };
 
+struct RewindTimer
+{
+	RewindTimer(float _secRewind) : secRewind(_secRewind) {}
+
+	void operator()(Framework::Timer &timer) {timer.Rewind(secRewind);}
+	void operator()(std::pair<const std::string, Framework::Timer> &timeData)
+	{timeData.second.Rewind(secRewind);}
+
+	float secRewind;
+};
+
 void LightManager::UpdateTime()
 {
 	m_keyLightTimer.Update();
@@ -105,6 +116,13 @@ bool LightManager::TogglePause()
 	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), PauseTimer());
 
 	return m_keyLightTimer.TogglePause();
+}
+
+void LightManager::RewindTime( float secRewind )
+{
+	m_keyLightTimer.Rewind(secRewind);
+	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), RewindTimer(secRewind));
+	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), RewindTimer(secRewind));
 }
 
 LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) const

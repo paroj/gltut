@@ -30,8 +30,8 @@ public:
 	LightManager();
 
 	void UpdateTime();
-
 	bool TogglePause();
+	void RewindTime(float secRewind);
 
 	LightBlock GetLightPositions(const glm::mat4 &worldToCameraMat) const;
 
