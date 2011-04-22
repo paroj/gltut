@@ -261,6 +261,23 @@ void GenerateMaterialBuffer()
 	glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
 }
 
+void SetupLighting()
+{
+	SunlightValue values[] =
+	{
+		{0.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec4(0.9f, 0.9f, 1.0f, 1.0f)},
+		{0.25f, glm::vec4(0.1f, 0.05f, 0.05f, 1.0f), glm::vec4(0.2f, 0.0f, 0.0f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+		{0.5f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},
+		{0.75f, glm::vec4(0.1f, 0.05f, 0.05f, 1.0f), glm::vec4(0.2f, 0.0f, 0.0f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+	};
+
+	g_lights.SetSunlightValues(values, 4);
+
+	g_lights.SetPointLightIntensity(0, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.3f, 1.0f));
+	g_lights.SetPointLightIntensity(2, glm::vec4(0.3f, 0.0f, 0.0f, 1.0f));
+}
+
 Framework::Mesh *g_pTerrainMesh = NULL;
 Framework::Mesh *g_pCubeMesh = NULL;
 Framework::Mesh *g_pTetraMesh = NULL;
@@ -286,9 +303,11 @@ void init()
 		throw;
 	}
 
+	SetupLighting();
+
 	g_lights.CreateTimer("tetra", Framework::Timer::TT_LOOP, 2.5f);
 
- 	glutMouseFunc(MouseButton);
+	glutMouseFunc(MouseButton);
  	glutMotionFunc(MouseMotion);
 	glutMouseWheelFunc(MouseWheel);
 
@@ -380,7 +399,9 @@ void display()
 {
 	g_lights.UpdateTime();
 
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glm::vec4 bkg = g_lights.GetBackgroundColor();
+
+	glClearColor(bkg[0], bkg[1], bkg[2], bkg[3]);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -474,7 +495,9 @@ void display()
 			glUseProgram(g_Unlit.theProgram);
 			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
 				glm::value_ptr(modelMatrix.Top()));
-			glUniform4f(g_Unlit.objectColorUnif, 0.8078f, 0.8706f, 0.9922f, 1.0f);
+
+			glm::vec4 lightColor = g_lights.GetPointLightIntensity(light);
+			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
 			g_pCubeMesh->Render("flat");
 		}
 
@@ -543,20 +566,17 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 		
 	case 'b': g_lights.TogglePause(); break;
+	case 'B': g_lights.ToggleSunPause(); break;
 	case 'g': g_lights.RewindTime(1.0f); break;
+	case 'G': g_lights.FastForwardTime(1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
-
-	case 'w': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_FORWARD, 5.0f); break;
-	case 's': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_BACKWARD, 5.0f); break;
-	case 'd': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_RIGHT, 5.0f); break;
-	case 'a': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_LEFT, 5.0f); break;
-	case 'e': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_UP, 5.0f); break;
-	case 'q': g_mousePole.OffsetTargetPos(Framework::MousePole::DIR_DOWN, 5.0f); break;
 
 	case 32:
 		printf("%f\n", 360.0f * g_lights.GetTimerValue("tetra"));
 		break;
 	}
+
+	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
 
 	glutPostRedisplay();
 }

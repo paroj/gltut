@@ -260,6 +260,26 @@ namespace Framework
 			this->MoveAway(!(glutGetModifiers() & GLUT_ACTIVE_SHIFT));
 	}
 
+	void MousePole::GLUTKeyOffset( int key, float largeIncrement, float smallIncrement )
+	{
+		switch(key)
+		{
+		case 'w': OffsetTargetPos(Framework::MousePole::DIR_FORWARD, largeIncrement); break;
+		case 's': OffsetTargetPos(Framework::MousePole::DIR_BACKWARD, largeIncrement); break;
+		case 'd': OffsetTargetPos(Framework::MousePole::DIR_RIGHT, largeIncrement); break;
+		case 'a': OffsetTargetPos(Framework::MousePole::DIR_LEFT, largeIncrement); break;
+		case 'e': OffsetTargetPos(Framework::MousePole::DIR_UP, largeIncrement); break;
+		case 'q': OffsetTargetPos(Framework::MousePole::DIR_DOWN, largeIncrement); break;
+
+		case 'W': OffsetTargetPos(Framework::MousePole::DIR_FORWARD, smallIncrement); break;
+		case 'S': OffsetTargetPos(Framework::MousePole::DIR_BACKWARD, smallIncrement); break;
+		case 'D': OffsetTargetPos(Framework::MousePole::DIR_RIGHT, smallIncrement); break;
+		case 'A': OffsetTargetPos(Framework::MousePole::DIR_LEFT, smallIncrement); break;
+		case 'E': OffsetTargetPos(Framework::MousePole::DIR_UP, smallIncrement); break;
+		case 'Q': OffsetTargetPos(Framework::MousePole::DIR_DOWN, smallIncrement); break;
+		}
+	}
+
 	namespace
 	{
 		glm::vec3 g_offsets[] =

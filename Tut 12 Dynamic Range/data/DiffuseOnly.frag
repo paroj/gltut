@@ -61,7 +61,7 @@ vec4 ComputeLighting(in PerLight lightData)
 	
 	vec3 surfaceNormal = normalize(vertexNormal);
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
-	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+	cosAngIncidence = cosAngIncidence < 0.0001 ? 0.0 : cosAngIncidence;
 	
 	vec4 lighting = diffuseColor * lightIntensity * cosAngIncidence;
 	

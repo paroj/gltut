@@ -62,6 +62,13 @@ namespace Framework
 	void Timer::Rewind( float secRewind )
 	{
 		m_secAccumTime -= secRewind;
+		if(m_secAccumTime < 0.0f)
+			m_secAccumTime = 0.0f;
+	}
+
+	void Timer::Fastforward( float secFF )
+	{
+		m_secAccumTime += secFF;
 	}
 
 	float Timer::GetAlpha() const

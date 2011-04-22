@@ -37,6 +37,7 @@ namespace Framework
 		void GLUTMouseMove(const glm::ivec2 &position);
 		void GLUTMouseButton(int button, int btnState, const glm::ivec2 &position);
 		void GLUTMouseWheel(int direction, const glm::ivec2 &position);
+		void GLUTKeyOffset(int key, float largeIncrement, float smallIncrement);
 
 		bool IsDragging() const {return m_bIsDragging;}
 

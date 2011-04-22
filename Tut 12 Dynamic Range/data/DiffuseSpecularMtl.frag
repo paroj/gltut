@@ -60,7 +60,7 @@ vec4 ComputeLighting(in PerLight lightData)
 	
 	vec3 surfaceNormal = normalize(vertexNormal);
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
-	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+	cosAngIncidence = cosAngIncidence < 0.0001 ? 0.0 : cosAngIncidence;
 	
 	vec3 viewDirection = normalize(-cameraSpacePosition);
 	
@@ -70,7 +70,7 @@ vec4 ComputeLighting(in PerLight lightData)
 	exponent = -(exponent * exponent);
 	float gaussianTerm = exp(exponent);
 
-	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
+	gaussianTerm = cosAngIncidence != 0.0001 ? gaussianTerm : 0.0;
 	
 	vec4 lighting = Mtl.diffuseColor * lightIntensity * cosAngIncidence;
 	lighting += Mtl.specularColor * lightIntensity * gaussianTerm;

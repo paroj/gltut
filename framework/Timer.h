@@ -41,6 +41,9 @@ namespace Framework
 		//Subtracts secRewind from the current time and continues from there.
 		void Rewind(float secRewind);
 
+		//Adds secRewind to the current time and continues from there.
+		void Fastforward(float secFF);
+
 		//Returns a number [0, 1], representing progress through the duration. Only used
 		//for SINGLE and LOOP timers.
 		float GetAlpha() const;
