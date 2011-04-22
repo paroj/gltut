@@ -34,7 +34,7 @@ float distance(const glm::vec3 &lhs, const glm::vec3 &rhs)
 }
 
 LightManager::LightManager()
-	: m_sunTimer(Framework::Timer::TT_LOOP, 5.0f)
+	: m_sunTimer(Framework::Timer::TT_LOOP, 30.0f)
 	, m_ambientInterpolator()
 {
 	m_lightTimers.reserve(NUMBER_OF_POINT_LIGHTS);
@@ -258,4 +258,9 @@ float LightManager::GetTimerValue( const std::string &timerName ) const
 glm::vec4 LightManager::GetBackgroundColor() const
 {
 	return m_backgroundInterpolator.Interpolate(m_sunTimer.GetAlpha());
+}
+
+float LightManager::GetSunTime() const
+{
+	return m_sunTimer.GetAlpha();
 }

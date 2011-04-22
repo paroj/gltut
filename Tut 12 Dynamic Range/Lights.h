@@ -58,6 +58,7 @@ public:
 
 	void CreateTimer(const std::string &timerName, Framework::Timer::Type eType, float fDuration);
 	float GetTimerValue(const std::string &timerName) const;
+	float GetSunTime() const;
 
 private:
 	typedef Framework::ConstVelLinearInterpolator<glm::vec3> LightInterpolator;

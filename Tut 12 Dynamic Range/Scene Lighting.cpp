@@ -201,29 +201,29 @@ void GetMaterials(std::vector<MaterialBlock> &materials)
 	materials[0].specularShininess = 0.6f;
 
 	//Tetrahedron
-	materials[1].diffuseColor = glm::vec4(1.0f);
+	materials[1].diffuseColor = glm::vec4(0.5f);
 	materials[1].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	materials[1].specularShininess = 0.05f;
 
 	//Monolith
-	materials[2].diffuseColor = glm::vec4(1.0f);
-	materials[2].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	materials[2].specularShininess = 0.6f;
+	materials[2].diffuseColor = glm::vec4(0.05f);
+	materials[2].specularColor = glm::vec4(0.95f, 0.95f, 0.95f, 1.0f);
+	materials[2].specularShininess = 0.4f;
 
 	//Cube
-	materials[3].diffuseColor = glm::vec4(1.0f);
-	materials[3].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	materials[3].specularShininess = 0.6f;
+	materials[3].diffuseColor = glm::vec4(0.5f);
+	materials[3].specularColor = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
+	materials[3].specularShininess = 0.1f;
 
 	//Cylinder
-	materials[4].diffuseColor = glm::vec4(1.0f);
-	materials[4].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	materials[4].diffuseColor = glm::vec4(0.5f);
+	materials[4].specularColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	materials[4].specularShininess = 0.6f;
 
-	//Sphere
-	materials[5].diffuseColor = glm::vec4(1.0f);
-	materials[5].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	materials[5].specularShininess = 0.6f;
+	//Sphere 85/80/02
+	materials[5].diffuseColor = glm::vec4(0.63f, 0.60f, 0.02f, 1.0f);
+	materials[5].specularColor = glm::vec4(0.22f, 0.20f, 0.0f, 1.0f);
+	materials[5].specularShininess = 0.3f;
 }
 
 GLuint g_lightUniformBuffer;
@@ -261,8 +261,36 @@ void GenerateMaterialBuffer()
 	glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
 }
 
-void SetupLighting()
+bool g_daytimeLighting = false;
+
+const glm::vec4 g_skyDaylightColor = glm::vec4(0.65f, 0.65f, 1.0f, 1.0f);
+
+void SetupDaytimeLighting()
 {
+	g_daytimeLighting = true;
+
+	SunlightValue values[] =
+	{
+		{ 0.0f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
+		{ 4.5f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
+		{ 6.5f/24.0f, glm::vec4(0.15f, 0.05f, 0.05f, 1.0f), glm::vec4(0.3f, 0.1f, 0.10f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+		{ 8.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},
+		{18.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},
+		{19.5f/24.0f, glm::vec4(0.15f, 0.05f, 0.05f, 1.0f), glm::vec4(0.3f, 0.1f, 0.1f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+		{20.5f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
+	};
+
+	g_lights.SetSunlightValues(values, 7);
+
+	g_lights.SetPointLightIntensity(0, glm::vec4(0.05f, 0.05f, 0.05f, 1.0f));
+	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.1f, 1.0f));
+	g_lights.SetPointLightIntensity(2, glm::vec4(0.1f, 0.0f, 0.0f, 1.0f));
+}
+
+void SetupNighttimeLighting()
+{
+	g_daytimeLighting = false;
+
 	SunlightValue values[] =
 	{
 		{0.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec4(0.9f, 0.9f, 1.0f, 1.0f)},
@@ -303,7 +331,7 @@ void init()
 		throw;
 	}
 
-	SetupLighting();
+	SetupDaytimeLighting();
 
 	g_lights.CreateTimer("tetra", Framework::Timer::TT_LOOP, 2.5f);
 
@@ -567,12 +595,19 @@ void keyboard(unsigned char key, int x, int y)
 		
 	case 'b': g_lights.TogglePause(); break;
 	case 'B': g_lights.ToggleSunPause(); break;
-	case 'g': g_lights.RewindTime(1.0f); break;
-	case 'G': g_lights.FastForwardTime(1.0f); break;
+	case '-': g_lights.RewindTime(1.0f); break;
+	case '=': g_lights.FastForwardTime(1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 
+	case 'l':
+		if(g_daytimeLighting)
+			SetupNighttimeLighting();
+		else
+			SetupDaytimeLighting();
+		break;
+
 	case 32:
-		printf("%f\n", 360.0f * g_lights.GetTimerValue("tetra"));
+		printf("%f\n", g_lights.GetSunTime());
 		break;
 	}
 
