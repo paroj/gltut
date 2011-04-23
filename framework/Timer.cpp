@@ -34,6 +34,16 @@ namespace Framework
 		return m_isPaused;
 	}
 
+	bool Timer::IsPaused() const
+	{
+		return m_isPaused;
+	}
+
+	void Timer::SetPause( bool pause )
+	{
+		m_isPaused = pause;
+	}
+
 	bool Timer::Update()
 	{
 		float absCurrTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;

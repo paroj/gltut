@@ -33,6 +33,14 @@ struct SunlightValue
 	glm::vec4 backgroundColor;
 };
 
+enum TimerTypes
+{
+	TIMER_SUN,
+	TIMER_LIGHTS,
+	TIMER_ALL,
+	NUM_TIMER_TYPES,
+};
+
 class LightManager
 {
 public:
@@ -42,14 +50,18 @@ public:
 	void SetSunlightValues(SunlightValue *pValues, int iSize);
 
 	void UpdateTime();
-	bool TogglePause();
-	bool ToggleSunPause();
+	void TogglePause(TimerTypes eTimer);
+	void SetPause(TimerTypes eTimer, bool pause = true);
+	bool IsPaused(TimerTypes eTimer) const;
 
-	void RewindTime(float secRewind);
-	void FastForwardTime(float secRewind);
+	void RewindTime(TimerTypes eTimer, float secRewind);
+	void FastForwardTime(TimerTypes eTimer, float secRewind);
 
 	LightBlock GetLightPositions(const glm::mat4 &worldToCameraMat) const;
 	glm::vec4 GetBackgroundColor() const;
+
+	glm::vec4 GetSunlightDirection() const;
+	glm::vec4 GetSunlightIntensity() const;
 
 	int GetNumberOfPointLights() const;
 	glm::vec3 GetWorldLightPosition(int iLightIx) const;

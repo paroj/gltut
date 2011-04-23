@@ -384,6 +384,9 @@
 		<source attrib="0" />
 		<source attrib="1" />
 	</vao>
+	<vao name="flat" >
+		<source attrib="0" />
+	</vao>
 	<indices cmd="tri-fan" type="ushort" >0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 1</indices>
 	<indices cmd="tri-fan" type="ushort" >121 120 119 118 117 116 115 114 113 112 111 110 109 108 107 106 120</indices>
 	<indices cmd="tri-strip" type="ushort" >1 16 2 17 3 18 4 19 5 20 6 21 7 22 8 23 9 24 10 25 11 26 12 27 13 28 14 29 15 30 1 16</indices>

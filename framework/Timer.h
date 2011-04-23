@@ -34,6 +34,12 @@ namespace Framework
 		//Pauses/unpauses. Returns true if the timer is paused after the toggling.
 		bool TogglePause();
 
+		//Sets the pause state to the given value.
+		void SetPause(bool pause = true);
+
+		//Returns true if the timer is paused.
+		bool IsPaused() const;
+
 		//Updates the time for the timer. Returns true if the timer has reached the end.
 		//Will only return true for SINGLE timers that have reached their duration.
 		bool Update();

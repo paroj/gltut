@@ -26,7 +26,8 @@ glm::vec4 CalcLightPosition(const Framework::Timer &timer, float alphaOffset)
 	return ret;
 }
 
-const float g_fLightAttenuation = 1.0f / (15.0f * 15.0f);
+const float g_fHalfLightDistance = 70.0f;
+const float g_fLightAttenuation = 1.0f / (g_fHalfLightDistance * g_fHalfLightDistance);
 
 float distance(const glm::vec3 &lhs, const glm::vec3 &rhs)
 {
@@ -46,7 +47,7 @@ LightManager::LightManager()
 	m_lightIntensity.resize(NUMBER_OF_POINT_LIGHTS, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 
 	std::vector<glm::vec3> posValues;
-	posValues.reserve(20);
+	posValues.reserve(60);
 
 	posValues.push_back(glm::vec3(-50.0f, 30.0f, 70.0f));
 	posValues.push_back(glm::vec3(-70.0f, 30.0f, 50.0f));
@@ -59,19 +60,55 @@ LightManager::LightManager()
 	m_lightPos[0].SetValues(posValues);
 	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 15.0f));
 
+	//Right-side light.
 	posValues.clear();
-	posValues.push_back(glm::vec3(80.0f, 30.0f, -70.0f));
-	posValues.push_back(glm::vec3(70.0f, 25.0f, 70.0f));
-	m_lightPos[1].SetValues(posValues);
-	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 15.0f));
+	posValues.push_back(glm::vec3(100.0f, 6.0f, 75.0f));
+	posValues.push_back(glm::vec3(90.0f, 8.0f, 90.0f));
+	posValues.push_back(glm::vec3(75.0f, 10.0f, 100.0f));
+	posValues.push_back(glm::vec3(60.0f, 12.0f, 90.0f));
+	posValues.push_back(glm::vec3(50.0f, 14.0f, 75.0f));
+	posValues.push_back(glm::vec3(60.0f, 16.0f, 60.0f));
+	posValues.push_back(glm::vec3(75.0f, 18.0f, 50.0f));
+	posValues.push_back(glm::vec3(90.0f, 20.0f, 60.0f));
+	posValues.push_back(glm::vec3(100.0f, 22.0f, 75.0f));
+	posValues.push_back(glm::vec3(90.0f, 24.0f, 90.0f));
+	posValues.push_back(glm::vec3(75.0f, 26.0f, 100.0f));
+	posValues.push_back(glm::vec3(60.0f, 28.0f, 90.0f));
+	posValues.push_back(glm::vec3(50.0f, 30.0f, 75.0f));
 
+	posValues.push_back(glm::vec3(105.0f, 9.0f, -70.0f));
+	posValues.push_back(glm::vec3(105.0f, 10.0f, -90.0f));
+	posValues.push_back(glm::vec3(72.0f, 20.0f, -90.0f));
+	posValues.push_back(glm::vec3(72.0f, 22.0f, -70.0f));
+	posValues.push_back(glm::vec3(105.0f, 32.0f, -70.0f));
+	posValues.push_back(glm::vec3(105.0f, 34.0f, -90.0f));
+	posValues.push_back(glm::vec3(72.0f, 44.0f, -90.0f));
+
+	m_lightPos[1].SetValues(posValues);
+	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 25.0f));
+
+	//Left-side light. -7.0f, 30.0f, -14.0f
 	posValues.clear();
-	posValues.push_back(glm::vec3(-70.0f, 25.0f, -75.0f));
-	posValues.push_back(glm::vec3(-70.0f, 5.0f, 0.0f));
-	posValues.push_back(glm::vec3(-70.0f, 25.0f, 70.0f));
-	posValues.push_back(glm::vec3(0.0f, 50.0f, 0.0f));
+/*
+	posValues.push_back(glm::vec3(-7.0f, 35.0f, 1.0f));
+	posValues.push_back(glm::vec3(8.0f, 40.0f, -14.0f));
+	posValues.push_back(glm::vec3(-7.0f, 45.0f, -29.0f));
+	posValues.push_back(glm::vec3(-22.0f, 50.0f, -14.0f));
+	posValues.push_back(glm::vec3(-7.0f, 55.0f, 1.0f));
+	posValues.push_back(glm::vec3(8.0f, 60.0f, -14.0f));
+	posValues.push_back(glm::vec3(-7.0f, 65.0f, -29.0f));
+*/
+
+	//-83.0f, 14.0f, -77.0f
+	posValues.push_back(glm::vec3(-100.0f, 30.0f, -94.0f));
+	posValues.push_back(glm::vec3(-83.0f, 30.0f, -94.0f));
+	posValues.push_back(glm::vec3(-66.0f, 30.0f, -94.0f));
+	posValues.push_back(glm::vec3(-83.0f, 30.0f, -94.0f));
+	posValues.push_back(glm::vec3(-100.0f, 14.0f, -94.0f));
+
+
 	m_lightPos[2].SetValues(posValues);
-	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 15.0f));
+	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 5.0f));
 }
 
 typedef std::pair<glm::vec4, float> LightVectorData;
@@ -125,9 +162,12 @@ struct UpdateTimer
 
 struct PauseTimer
 {
-	void operator()(Framework::Timer &timer) {timer.TogglePause();}
+	PauseTimer(bool _pause) : pause(_pause) {}
+	void operator()(Framework::Timer &timer) {timer.SetPause(pause);}
 	void operator()(std::pair<const std::string, Framework::Timer> &timeData)
-	{timeData.second.TogglePause();}
+	{timeData.second.SetPause(pause);}
+
+	bool pause;
 };
 
 struct RewindTimer
@@ -159,31 +199,53 @@ void LightManager::UpdateTime()
 	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), UpdateTimer());
 }
 
-bool LightManager::TogglePause()
+void LightManager::SetPause(TimerTypes eTimer, bool pause)
 {
-	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), PauseTimer());
-	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), PauseTimer());
+	if(eTimer == TIMER_ALL || eTimer == TIMER_LIGHTS)
+	{
+		std::for_each(m_lightTimers.begin(), m_lightTimers.end(), PauseTimer(pause));
+		std::for_each(m_extraTimers.begin(), m_extraTimers.end(), PauseTimer(pause));
+	}
 
-	return m_sunTimer.TogglePause();
+	if(eTimer == TIMER_ALL || eTimer == TIMER_SUN)
+		m_sunTimer.TogglePause();
 }
 
-bool LightManager::ToggleSunPause()
+void LightManager::TogglePause( TimerTypes eTimer )
 {
-	return m_sunTimer.TogglePause();
+	SetPause(eTimer, !IsPaused(eTimer));
 }
 
-void LightManager::RewindTime( float secRewind )
+bool LightManager::IsPaused( TimerTypes eTimer ) const
 {
-	m_sunTimer.Rewind(secRewind);
-	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), RewindTimer(secRewind));
-	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), RewindTimer(secRewind));
+	if(eTimer == TIMER_ALL || eTimer == TIMER_SUN)
+		return m_sunTimer.IsPaused();
+
+	return m_lightTimers.front().IsPaused();
 }
 
-void LightManager::FastForwardTime( float secFF )
+void LightManager::RewindTime(TimerTypes eTimer, float secRewind )
 {
-	m_sunTimer.Fastforward(secFF);
-	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), FFTimer(secFF));
-	std::for_each(m_extraTimers.begin(), m_extraTimers.end(), FFTimer(secFF));
+	if(eTimer == TIMER_ALL || eTimer == TIMER_SUN)
+		m_sunTimer.Rewind(secRewind);
+
+	if(eTimer == TIMER_ALL || eTimer == TIMER_LIGHTS)
+	{
+		std::for_each(m_lightTimers.begin(), m_lightTimers.end(), RewindTimer(secRewind));
+		std::for_each(m_extraTimers.begin(), m_extraTimers.end(), RewindTimer(secRewind));
+	}
+}
+
+void LightManager::FastForwardTime(TimerTypes eTimer,  float secFF )
+{
+	if(eTimer == TIMER_ALL || eTimer == TIMER_SUN)
+		m_sunTimer.Fastforward(secFF);
+
+	if(eTimer == TIMER_ALL || eTimer == TIMER_LIGHTS)
+	{
+		std::for_each(m_lightTimers.begin(), m_lightTimers.end(), FFTimer(secFF));
+		std::for_each(m_extraTimers.begin(), m_extraTimers.end(), FFTimer(secFF));
+	}
 }
 
 LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) const
@@ -193,17 +255,8 @@ LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) 
 	lightData.ambientIntensity = m_ambientInterpolator.Interpolate(m_sunTimer.GetAlpha());
 	lightData.lightAttenuation = g_fLightAttenuation;
 
-	float angle = 2.0f * 3.14159f * m_sunTimer.GetAlpha();
-	glm::vec4 sunDirection(0.0f);
-	sunDirection[0] = sinf(angle);
-	sunDirection[1] = cosf(angle);
-
-	//Keep the sun from being perfectly centered overhead.
-	sunDirection = glm::rotate(glm::mat4(1.0f), 5.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * sunDirection;
-
 	lightData.lights[0].cameraSpaceLightPos =
-		worldToCameraMat * sunDirection;
-
+		worldToCameraMat * GetSunlightDirection();
 	lightData.lights[0].lightIntensity = m_sunlightInterpolator.Interpolate(m_sunTimer.GetAlpha());
 
 	for(int light = 0; light < NUMBER_OF_POINT_LIGHTS; light++)
@@ -217,6 +270,24 @@ LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) 
 	}
 
 	return lightData;
+}
+
+glm::vec4 LightManager::GetSunlightDirection() const
+{
+	float angle = 2.0f * 3.14159f * m_sunTimer.GetAlpha();
+	glm::vec4 sunDirection(0.0f);
+	sunDirection[0] = sinf(angle);
+	sunDirection[1] = cosf(angle);
+
+	//Keep the sun from being perfectly centered overhead.
+	sunDirection = glm::rotate(glm::mat4(1.0f), 5.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * sunDirection;
+
+	return sunDirection;
+}
+
+glm::vec4 LightManager::GetSunlightIntensity() const
+{
+	return m_sunlightInterpolator.Interpolate(m_sunTimer.GetAlpha());
 }
 
 int LightManager::GetNumberOfPointLights() const

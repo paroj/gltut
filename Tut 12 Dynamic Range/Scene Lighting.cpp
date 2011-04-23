@@ -220,7 +220,7 @@ void GetMaterials(std::vector<MaterialBlock> &materials)
 	materials[4].specularColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	materials[4].specularShininess = 0.6f;
 
-	//Sphere 85/80/02
+	//Sphere
 	materials[5].diffuseColor = glm::vec4(0.63f, 0.60f, 0.02f, 1.0f);
 	materials[5].specularColor = glm::vec4(0.22f, 0.20f, 0.0f, 1.0f);
 	materials[5].specularShininess = 0.3f;
@@ -261,14 +261,10 @@ void GenerateMaterialBuffer()
 	glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
 }
 
-bool g_daytimeLighting = false;
-
 const glm::vec4 g_skyDaylightColor = glm::vec4(0.65f, 0.65f, 1.0f, 1.0f);
 
 void SetupDaytimeLighting()
 {
-	g_daytimeLighting = true;
-
 	SunlightValue values[] =
 	{
 		{ 0.0f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
@@ -282,28 +278,29 @@ void SetupDaytimeLighting()
 
 	g_lights.SetSunlightValues(values, 7);
 
-	g_lights.SetPointLightIntensity(0, glm::vec4(0.05f, 0.05f, 0.05f, 1.0f));
-	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.1f, 1.0f));
-	g_lights.SetPointLightIntensity(2, glm::vec4(0.1f, 0.0f, 0.0f, 1.0f));
+	g_lights.SetPointLightIntensity(0, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.3f, 1.0f));
+	g_lights.SetPointLightIntensity(2, glm::vec4(0.3f, 0.0f, 0.0f, 1.0f));
 }
 
 void SetupNighttimeLighting()
 {
-	g_daytimeLighting = false;
-
 	SunlightValue values[] =
 	{
-		{0.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.4f, 0.4f, 0.4f, 1.0f), glm::vec4(0.9f, 0.9f, 1.0f, 1.0f)},
-		{0.25f, glm::vec4(0.1f, 0.05f, 0.05f, 1.0f), glm::vec4(0.2f, 0.0f, 0.0f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
-		{0.5f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},
-		{0.75f, glm::vec4(0.1f, 0.05f, 0.05f, 1.0f), glm::vec4(0.2f, 0.0f, 0.0f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+		{ 0.0f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
+		{ 4.5f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
+		{ 6.5f/24.0f, glm::vec4(0.15f, 0.05f, 0.05f, 1.0f), glm::vec4(0.3f, 0.1f, 0.10f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+		{ 8.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},
+		{18.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)},
+		{19.5f/24.0f, glm::vec4(0.15f, 0.05f, 0.05f, 1.0f), glm::vec4(0.3f, 0.1f, 0.1f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f)},
+		{20.5f/24.0f, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f), glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), g_skyDaylightColor},
 	};
 
-	g_lights.SetSunlightValues(values, 4);
+	g_lights.SetSunlightValues(values, 7);
 
-	g_lights.SetPointLightIntensity(0, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
-	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.3f, 1.0f));
-	g_lights.SetPointLightIntensity(2, glm::vec4(0.3f, 0.0f, 0.0f, 1.0f));
+	g_lights.SetPointLightIntensity(0, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.7f, 1.0f));
+	g_lights.SetPointLightIntensity(2, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
 }
 
 Framework::Mesh *g_pTerrainMesh = NULL;
@@ -513,6 +510,23 @@ void display()
 				5, modelMatrix);
 		}
 
+		//Render the sun
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
+
+			glm::vec3 sunlightDir(g_lights.GetSunlightDirection());
+			modelMatrix.Translate(sunlightDir * 500.0f);
+			modelMatrix.Scale(30.0f, 30.0f, 30.0f);
+
+			glUseProgram(g_Unlit.theProgram);
+			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+
+			glm::vec4 lightColor = g_lights.GetSunlightIntensity();
+			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
+			g_pSphereMesh->Render("flat");
+		}
+
 		//Render the light
 		for(int light = 0; light < g_lights.GetNumberOfPointLights(); light++)
 		{
@@ -574,6 +588,8 @@ void reshape (int w, int h)
 }
 
 
+TimerTypes g_eTimerMode = TIMER_ALL;
+
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
 //It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
@@ -593,18 +609,16 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		break;
 		
-	case 'b': g_lights.TogglePause(); break;
-	case 'B': g_lights.ToggleSunPause(); break;
-	case '-': g_lights.RewindTime(1.0f); break;
-	case '=': g_lights.FastForwardTime(1.0f); break;
+	case 'b': g_lights.TogglePause(g_eTimerMode); break;
+	case '-': g_lights.RewindTime(g_eTimerMode, 1.0f); break;
+	case '=': g_lights.FastForwardTime(g_eTimerMode, 1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
+	case 'y': g_eTimerMode = TIMER_ALL; printf("All\n"); break;
+	case 'h': g_eTimerMode = TIMER_SUN; printf("Sun\n"); break;
+	case 'n': g_eTimerMode = TIMER_LIGHTS; printf("Lights\n"); break;
 
-	case 'l':
-		if(g_daytimeLighting)
-			SetupNighttimeLighting();
-		else
-			SetupDaytimeLighting();
-		break;
+	case 'l': SetupDaytimeLighting(); break;
+	case 'L': SetupNighttimeLighting(); break;
 
 	case 32:
 		printf("%f\n", g_lights.GetSunTime());

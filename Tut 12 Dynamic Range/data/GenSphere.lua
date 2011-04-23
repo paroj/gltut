@@ -124,6 +124,10 @@ do
 			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
 			writer:PushElement("source"); writer:AddAttribute("attrib", "1"); writer:PopElement();
 		writer:PopElement();
+		writer:PushElement("vao");
+			writer:AddAttribute("name", "flat");
+			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
+		writer:PopElement();
 		writer:PushElement("indices");
 			writer:AddAttribute("cmd", "tri-fan");
 			writer:AddAttribute("type", "ushort");

@@ -39,8 +39,7 @@ float CalcAttenuation(in vec3 cameraSpacePosition,
 	float lightDistanceSqr = dot(lightDifference, lightDifference);
 	lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
 	
-	return (1 / ( 1.0 + Lgt.lightAttenuation * Lgt.lightAttenuation
-		* sqrt(lightDistanceSqr)));
+	return (1 / ( 1.0 + Lgt.lightAttenuation * lightDistanceSqr));
 }
 
 vec4 ComputeLighting(in PerLight lightData)
