@@ -150,7 +150,7 @@ public:
 LightManager g_lights;
 
 Framework::RadiusDef radiusDef = {50.0f, 3.0f, 80.0f, 4.0f, 1.0f};
-glm::vec3 objectCenter = glm::vec3(0.0f, 50.0f, 0.0f);
+glm::vec3 objectCenter = glm::vec3(-59.5f, 4.0f, 65.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
 
@@ -372,6 +372,7 @@ void init()
 }
 
 bool g_bDrawCameraPos = false;
+bool g_bDrawLights = true;
 
 void DrawObject(const Framework::Mesh *pMesh, 
 				const ProgramData &prog, int mtlIx,
@@ -527,20 +528,23 @@ void display()
 			g_pSphereMesh->Render("flat");
 		}
 
-		//Render the light
-		for(int light = 0; light < g_lights.GetNumberOfPointLights(); light++)
+		//Render the lights
+		if(g_bDrawLights)
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			for(int light = 0; light < g_lights.GetNumberOfPointLights(); light++)
+			{
+				Framework::MatrixStackPusher push(modelMatrix);
 
-			modelMatrix.Translate(g_lights.GetWorldLightPosition(light));
+				modelMatrix.Translate(g_lights.GetWorldLightPosition(light));
 
-			glUseProgram(g_Unlit.theProgram);
-			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
-				glm::value_ptr(modelMatrix.Top()));
+				glUseProgram(g_Unlit.theProgram);
+				glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+					glm::value_ptr(modelMatrix.Top()));
 
-			glm::vec4 lightColor = g_lights.GetPointLightIntensity(light);
-			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
-			g_pCubeMesh->Render("flat");
+				glm::vec4 lightColor = g_lights.GetPointLightIntensity(light);
+				glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
+				g_pCubeMesh->Render("flat");
+			}
 		}
 
 		if(g_bDrawCameraPos)
@@ -606,6 +610,11 @@ void keyboard(unsigned char key, int x, int y)
 		delete g_pTetraMesh;
 		delete g_pCylMesh;
 		delete g_pSphereMesh;
+		g_pTerrainMesh = NULL;
+		g_pCubeMesh = NULL;
+		g_pTetraMesh = NULL;
+		g_pCylMesh = NULL;
+		g_pSphereMesh = NULL;
 		glutLeaveMainLoop();
 		break;
 		
@@ -626,8 +635,6 @@ void keyboard(unsigned char key, int x, int y)
 	}
 
 	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
-
-	glutPostRedisplay();
 }
 
 

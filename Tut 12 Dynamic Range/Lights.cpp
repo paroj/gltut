@@ -87,9 +87,8 @@ LightManager::LightManager()
 	m_lightPos[1].SetValues(posValues);
 	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 25.0f));
 
-	//Left-side light. -7.0f, 30.0f, -14.0f
+	//Left-side light.
 	posValues.clear();
-/*
 	posValues.push_back(glm::vec3(-7.0f, 35.0f, 1.0f));
 	posValues.push_back(glm::vec3(8.0f, 40.0f, -14.0f));
 	posValues.push_back(glm::vec3(-7.0f, 45.0f, -29.0f));
@@ -97,14 +96,22 @@ LightManager::LightManager()
 	posValues.push_back(glm::vec3(-7.0f, 55.0f, 1.0f));
 	posValues.push_back(glm::vec3(8.0f, 60.0f, -14.0f));
 	posValues.push_back(glm::vec3(-7.0f, 65.0f, -29.0f));
-*/
 
-	//-83.0f, 14.0f, -77.0f
-	posValues.push_back(glm::vec3(-100.0f, 30.0f, -94.0f));
-	posValues.push_back(glm::vec3(-83.0f, 30.0f, -94.0f));
-	posValues.push_back(glm::vec3(-66.0f, 30.0f, -94.0f));
-	posValues.push_back(glm::vec3(-83.0f, 30.0f, -94.0f));
-	posValues.push_back(glm::vec3(-100.0f, 14.0f, -94.0f));
+	posValues.push_back(glm::vec3(-83.0f, 30.0f, -92.0f));
+	posValues.push_back(glm::vec3(-98.0f, 27.0f, -77.0f));
+	posValues.push_back(glm::vec3(-83.0f, 24.0f, -62.0f));
+	posValues.push_back(glm::vec3(-68.0f, 21.0f, -77.0f));
+	posValues.push_back(glm::vec3(-83.0f, 18.0f, -92.0f));
+	posValues.push_back(glm::vec3(-98.0f, 15.0f, -77.0f));
+
+	posValues.push_back(glm::vec3(-50.0f, 8.0f, 25.0f));
+	posValues.push_back(glm::vec3(-59.5f, 4.0f, 65.0f));
+	posValues.push_back(glm::vec3(-59.5f, 4.0f, 78.0f));
+	posValues.push_back(glm::vec3(-45.0f, 4.0f, 82.0f));
+	posValues.push_back(glm::vec3(-40.0f, 4.0f, 50.0f));
+	posValues.push_back(glm::vec3(-70.0f, 20.0f, 40.0f));
+	posValues.push_back(glm::vec3(-60.0f, 20.0f, 90.0f));
+	posValues.push_back(glm::vec3(-40.0f, 25.0f, 90.0f));
 
 
 	m_lightPos[2].SetValues(posValues);
