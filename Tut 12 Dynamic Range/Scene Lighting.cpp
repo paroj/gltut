@@ -3,7 +3,7 @@
 #include <vector>
 #include <stack>
 #include <math.h>
-#include <glloader/gl_3_2_comp.h>
+#include <glloader/gl_3_3_comp.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -15,16 +15,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Lights.h"
+#include "Scene.h"
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
-
-struct ProgramData
-{
-	GLuint theProgram;
-
-	GLuint modelToCameraMatrixUnif;
-	GLuint normalModelToCameraMatrixUnif;
-};
 
 struct UnlitProgData
 {
@@ -46,25 +39,14 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-enum LightingModels
-{
-	LM_VERT_COLOR_DIFFUSE_SPECULAR = 0,
-	LM_VERT_COLOR_DIFFUSE,
-
-	LM_DIFFUSE_SPECULAR,
-	LM_DIFFUSE,
-
-	LM_MAX_LIGHTING_MODEL,
-};
-
 struct Shaders
 {
 	const char *fileVertexShader;
 	const char *fileFragmentShader;
 };
 
-ProgramData g_Programs[LM_MAX_LIGHTING_MODEL];
-Shaders g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
+ProgramData g_Programs[LP_MAX_LIGHTING_PROGRAM_TYPES];
+Shaders g_ShaderFiles[LP_MAX_LIGHTING_PROGRAM_TYPES] =
 {
 	{"PCN.vert", "DiffuseSpecular.frag"},
 	{"PCN.vert", "DiffuseOnly.frag"},
@@ -75,9 +57,9 @@ Shaders g_ShaderFiles[LM_MAX_LIGHTING_MODEL] =
 
 UnlitProgData g_Unlit;
 
-const int g_iMaterialBlockIndex = 0;
-const int g_iLightBlockIndex = 1;
-const int g_iProjectionBlockIndex = 2;
+const int g_materialBlockIndex = 0;
+const int g_lightBlockIndex = 1;
+const int g_projectionBlockIndex = 2;
 
 UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
@@ -92,7 +74,7 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
 
 	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
-	glUniformBlockBinding(data.theProgram, projectionBlock, g_iProjectionBlockIndex);
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
@@ -114,16 +96,16 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	GLuint lightBlock = glGetUniformBlockIndex(data.theProgram, "Light");
 	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
 
-	glUniformBlockBinding(data.theProgram, materialBlock, g_iMaterialBlockIndex);
-	glUniformBlockBinding(data.theProgram, lightBlock, g_iLightBlockIndex);
-	glUniformBlockBinding(data.theProgram, projectionBlock, g_iProjectionBlockIndex);
+	glUniformBlockBinding(data.theProgram, materialBlock, g_materialBlockIndex);
+	glUniformBlockBinding(data.theProgram, lightBlock, g_lightBlockIndex);
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
 
 void InitializePrograms()
 {
-	for(int iProg = 0; iProg < LM_MAX_LIGHTING_MODEL; iProg++)
+	for(int iProg = 0; iProg < LP_MAX_LIGHTING_PROGRAM_TYPES; iProg++)
 	{
 		g_Programs[iProg] = LoadLitProgram(
 			g_ShaderFiles[iProg].fileVertexShader, g_ShaderFiles[iProg].fileFragmentShader);
@@ -132,20 +114,11 @@ void InitializePrograms()
 	g_Unlit = LoadUnlitProgram("PosTransform.vert", "UniformColor.frag");
 }
 
-class TimeKeeper
+const ProgramData &GetProgram(LightingProgramTypes eType)
 {
-public:
-	TimeKeeper()
-		: keyLightTimer(Framework::Timer::TT_LOOP, 5.0f)
-	{}
+	return g_Programs[eType];
+}
 
-	void Update()
-	{
-		keyLightTimer.Update();
-	}
-
-	Framework::Timer keyLightTimer;
-};
 
 LightManager g_lights;
 
@@ -175,91 +148,14 @@ namespace
 	}
 }
 
-struct MaterialBlock
-{
-	glm::vec4 diffuseColor;
-	glm::vec4 specularColor;
-	float specularShininess;
-	float padding[3];
-};
-
 struct ProjectionBlock
 {
 	glm::mat4 cameraToClipMatrix;
 };
 
-//One for the ground, and one for each of the 5 objects.
-const int MATERIAL_COUNT = 6;
-
-void GetMaterials(std::vector<MaterialBlock> &materials)
-{
-	materials.resize(MATERIAL_COUNT);
-
-	//Ground
-	materials[0].diffuseColor = glm::vec4(1.0f);
-	materials[0].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	materials[0].specularShininess = 0.6f;
-
-	//Tetrahedron
-	materials[1].diffuseColor = glm::vec4(0.5f);
-	materials[1].specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
-	materials[1].specularShininess = 0.05f;
-
-	//Monolith
-	materials[2].diffuseColor = glm::vec4(0.05f);
-	materials[2].specularColor = glm::vec4(0.95f, 0.95f, 0.95f, 1.0f);
-	materials[2].specularShininess = 0.4f;
-
-	//Cube
-	materials[3].diffuseColor = glm::vec4(0.5f);
-	materials[3].specularColor = glm::vec4(0.3f, 0.3f, 0.3f, 1.0f);
-	materials[3].specularShininess = 0.1f;
-
-	//Cylinder
-	materials[4].diffuseColor = glm::vec4(0.5f);
-	materials[4].specularColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-	materials[4].specularShininess = 0.6f;
-
-	//Sphere
-	materials[5].diffuseColor = glm::vec4(0.63f, 0.60f, 0.02f, 1.0f);
-	materials[5].specularColor = glm::vec4(0.22f, 0.20f, 0.0f, 1.0f);
-	materials[5].specularShininess = 0.3f;
-}
-
 GLuint g_lightUniformBuffer;
 GLuint g_materialUniformBuffer;
 GLuint g_projectionUniformBuffer;
-
-GLuint g_sizeMaterialBlock = 0;
-
-void GenerateMaterialBuffer()
-{
-	//Align the size of each MaterialBlock to the uniform buffer alignment.
-	int uniformBufferAlignSize = 0;
-	glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &uniformBufferAlignSize);
-
-	g_sizeMaterialBlock = sizeof(MaterialBlock);
-	g_sizeMaterialBlock += uniformBufferAlignSize -
-		(g_sizeMaterialBlock % uniformBufferAlignSize);
-
-	int sizeMaterialUniformBuffer = g_sizeMaterialBlock * MATERIAL_COUNT;
-
-	std::vector<MaterialBlock> materials;
-	GetMaterials(materials);
-	assert(materials.size() == MATERIAL_COUNT);
-
-	std::vector<GLubyte> mtlBuffer;
-	mtlBuffer.resize(sizeMaterialUniformBuffer, 0);
-
-	GLubyte *bufferPtr = &mtlBuffer[0];
-
-	for(size_t mtl = 0; mtl < materials.size(); ++mtl)
-		memcpy(bufferPtr + (mtl * g_sizeMaterialBlock), &materials[mtl], sizeof(MaterialBlock));
-
-	glGenBuffers(1, &g_materialUniformBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, g_materialUniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
-}
 
 const glm::vec4 g_skyDaylightColor = glm::vec4(0.65f, 0.65f, 1.0f, 1.0f);
 
@@ -303,11 +199,7 @@ void SetupNighttimeLighting()
 	g_lights.SetPointLightIntensity(2, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
 }
 
-Framework::Mesh *g_pTerrainMesh = NULL;
-Framework::Mesh *g_pCubeMesh = NULL;
-Framework::Mesh *g_pTetraMesh = NULL;
-Framework::Mesh *g_pCylMesh = NULL;
-Framework::Mesh *g_pSphereMesh = NULL;
+Scene *g_pScene = NULL;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -316,11 +208,7 @@ void init()
 
 	try
 	{
-		g_pTerrainMesh = new Framework::Mesh("Ground.xml");
-		g_pCubeMesh = new Framework::Mesh("UnitCube.xml");
-		g_pTetraMesh = new Framework::Mesh("UnitTetrahedron.xml");
-		g_pCylMesh = new Framework::Mesh("UnitCylinder.xml");
-		g_pSphereMesh = new Framework::Mesh("UnitSphere.xml");
+		g_pScene = new Scene();
 	}
 	catch(std::exception &except)
 	{
@@ -359,64 +247,17 @@ void init()
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
 
 	//Bind the static buffers.
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_iLightBlockIndex, g_lightUniformBuffer,
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_lightBlockIndex, g_lightUniformBuffer,
 		0, sizeof(LightBlock));
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_iProjectionBlockIndex, g_projectionUniformBuffer,
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
 		0, sizeof(ProjectionBlock));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	GenerateMaterialBuffer();
-
 }
 
 bool g_bDrawCameraPos = false;
 bool g_bDrawLights = true;
-
-void DrawObject(const Framework::Mesh *pMesh, 
-				const ProgramData &prog, int mtlIx,
-				const Framework::MatrixStack &modelMatrix)
-{
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_iMaterialBlockIndex, g_materialUniformBuffer,
-		mtlIx * g_sizeMaterialBlock, sizeof(MaterialBlock));
-
-	glm::mat3 normMatrix(modelMatrix.Top());
-	normMatrix = glm::transpose(glm::inverse(normMatrix));
-
-	glUseProgram(prog.theProgram);
-	glUniformMatrix4fv(prog.modelToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(modelMatrix.Top()));
-
-	glUniformMatrix3fv(prog.normalModelToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(normMatrix));
-	pMesh->Render();
-	glUseProgram(0);
-
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_iMaterialBlockIndex, 0, 0, 0);
-}
-
-void DrawObject(const Framework::Mesh *pMesh, const std::string &meshName, 
-				const ProgramData &prog, int mtlIx,
-				const Framework::MatrixStack &modelMatrix)
-{
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_iMaterialBlockIndex, g_materialUniformBuffer,
-		mtlIx * g_sizeMaterialBlock, sizeof(MaterialBlock));
-
-	glm::mat3 normMatrix(modelMatrix.Top());
-	normMatrix = glm::transpose(glm::inverse(normMatrix));
-
-	glUseProgram(prog.theProgram);
-	glUniformMatrix4fv(prog.modelToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(modelMatrix.Top()));
-
-	glUniformMatrix3fv(prog.normalModelToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(normMatrix));
-	pMesh->Render(meshName);
-	glUseProgram(0);
-
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_iMaterialBlockIndex, 0, 0, 0);
-}
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -441,76 +282,15 @@ void display()
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	if(g_pScene)
 	{
 		Framework::MatrixStackPusher push(modelMatrix);
 
-		//Render the ground plane.
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
-			modelMatrix.RotateX(-90);
+		g_pScene->Draw(modelMatrix, g_materialBlockIndex, g_lights.GetTimerValue("tetra"));
+	}
 
-			DrawObject(g_pTerrainMesh, g_Programs[LM_VERT_COLOR_DIFFUSE], 0,
-				modelMatrix);
-		}
-
-		//Render the tetrahedron object.
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
-			modelMatrix.Translate(75.0f, 5.0f, 75.0f);
-			modelMatrix.RotateY(360.0f * g_lights.GetTimerValue("tetra"));
-			modelMatrix.Scale(10.0f, 10.0f, 10.0f);
-			modelMatrix.Translate(0.0f, sqrtf(2.0f), 0.0f);
-			modelMatrix.Rotate(glm::vec3(-0.707f, 0.0f, -0.707f), 54.735f);
-
-			DrawObject(g_pTetraMesh, "lit-color", g_Programs[LM_VERT_COLOR_DIFFUSE_SPECULAR],
-				1, modelMatrix);
-		}
-
-		//Render the monolith object.
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
-			modelMatrix.Translate(88.0f, 5.0f, -80.0f);
-			modelMatrix.Scale(4.0f, 4.0f, 4.0f);
-			modelMatrix.Scale(4.0f, 9.0f, 1.0f);
-			modelMatrix.Translate(0.0f, 0.5f, 0.0f);
-
-			DrawObject(g_pCubeMesh, "lit", g_Programs[LM_DIFFUSE_SPECULAR],
-				2, modelMatrix);
-		}
-
-		//Render the cube object.
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
-			modelMatrix.Translate(-52.5f, 14.0f, 65.0f);
-			modelMatrix.RotateZ(50.0f);
-			modelMatrix.RotateY(-10.0f);
-			modelMatrix.Scale(20.0f, 20.0f, 20.0f);
-
-			DrawObject(g_pCubeMesh, "lit-color", g_Programs[LM_VERT_COLOR_DIFFUSE_SPECULAR],
-				3, modelMatrix);
-		}
-
-		//Render the cylinder.
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
-			modelMatrix.Translate(-7.0f, 30.0f, -14.0f);
-			modelMatrix.Scale(15.0f, 55.0f, 15.0f);
-			modelMatrix.Translate(0.0f, 0.5f, 0.0f);
-
-			DrawObject(g_pCylMesh, "lit-color", g_Programs[LM_VERT_COLOR_DIFFUSE_SPECULAR],
-				4, modelMatrix);
-		}
-
-		//Render the sphere.
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
-			modelMatrix.Translate(-83.0f, 14.0f, -77.0f);
-			modelMatrix.Scale(20.0f, 20.0f, 20.0f);
-
-			DrawObject(g_pSphereMesh, "lit", g_Programs[LM_DIFFUSE_SPECULAR],
-				5, modelMatrix);
-		}
-
+	{
+		Framework::MatrixStackPusher push(modelMatrix);
 		//Render the sun
 		{
 			Framework::MatrixStackPusher push(modelMatrix);
@@ -525,7 +305,7 @@ void display()
 
 			glm::vec4 lightColor = g_lights.GetSunlightIntensity();
 			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
-			g_pSphereMesh->Render("flat");
+			g_pScene->GetSphereMesh()->Render("flat");
 		}
 
 		//Render the lights
@@ -543,7 +323,7 @@ void display()
 
 				glm::vec4 lightColor = g_lights.GetPointLightIntensity(light);
 				glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
-				g_pCubeMesh->Render("flat");
+				g_pScene->GetCubeMesh()->Render("flat");
 			}
 		}
 
@@ -560,11 +340,11 @@ void display()
 			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
 				glm::value_ptr(modelMatrix.Top()));
 			glUniform4f(g_Unlit.objectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
-			g_pCubeMesh->Render("flat");
+			g_pScene->GetCubeMesh()->Render("flat");
 			glDepthMask(GL_TRUE);
 			glEnable(GL_DEPTH_TEST);
 			glUniform4f(g_Unlit.objectColorUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-			g_pCubeMesh->Render("flat");
+			g_pScene->GetCubeMesh()->Render("flat");
 		}
 	}
 
@@ -605,26 +385,18 @@ void keyboard(unsigned char key, int x, int y)
 	switch (key)
 	{
 	case 27:
-		delete g_pTerrainMesh;
-		delete g_pCubeMesh;
-		delete g_pTetraMesh;
-		delete g_pCylMesh;
-		delete g_pSphereMesh;
-		g_pTerrainMesh = NULL;
-		g_pCubeMesh = NULL;
-		g_pTetraMesh = NULL;
-		g_pCylMesh = NULL;
-		g_pSphereMesh = NULL;
+		delete g_pScene;
+		g_pScene = NULL;
 		glutLeaveMainLoop();
 		break;
 		
-	case 'b': g_lights.TogglePause(g_eTimerMode); break;
+	case 'p': g_lights.TogglePause(g_eTimerMode); break;
 	case '-': g_lights.RewindTime(g_eTimerMode, 1.0f); break;
 	case '=': g_lights.FastForwardTime(g_eTimerMode, 1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
-	case 'y': g_eTimerMode = TIMER_ALL; printf("All\n"); break;
-	case 'h': g_eTimerMode = TIMER_SUN; printf("Sun\n"); break;
-	case 'n': g_eTimerMode = TIMER_LIGHTS; printf("Lights\n"); break;
+	case '1': g_eTimerMode = TIMER_ALL; printf("All\n"); break;
+	case '2': g_eTimerMode = TIMER_SUN; printf("Sun\n"); break;
+	case '3': g_eTimerMode = TIMER_LIGHTS; printf("Lights\n"); break;
 
 	case 'l': SetupDaytimeLighting(); break;
 	case 'L': SetupNighttimeLighting(); break;
