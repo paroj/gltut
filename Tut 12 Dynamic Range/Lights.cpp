@@ -113,40 +113,25 @@ LightManager::LightManager()
 	posValues.push_back(glm::vec3(-60.0f, 20.0f, 90.0f));
 	posValues.push_back(glm::vec3(-40.0f, 25.0f, 90.0f));
 
-
 	m_lightPos[2].SetValues(posValues);
-	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 5.0f));
+	m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, 15.0f));
 }
 
+typedef std::pair<float, float> MaxIntensityData;
+typedef std::vector<MaxIntensityData> MaxIntensityVector;
 typedef std::pair<glm::vec4, float> LightVectorData;
-typedef std::vector<LightVectorData> LightVectors;
+typedef std::vector<LightVectorData> LightVector;
 
 glm::vec4 GetValue(const LightVectorData &data) {return data.first;}
 float GetTime(const LightVectorData &data) {return data.second;}
-
-void LightManager::SetSunlightValues( const std::vector<SunlightValue> &values )
-{
-	LightVectors ambient;
-	LightVectors light;
-	LightVectors background;
-
-	for(size_t valIx = 0; valIx < values.size(); ++valIx)
-	{
-		ambient.push_back(LightVectorData(values[valIx].ambient, values[valIx].normTime));
-		light.push_back(LightVectorData(values[valIx].sunlightIntensity, values[valIx].normTime));
-		background.push_back(LightVectorData(values[valIx].backgroundColor, values[valIx].normTime));
-	}
-
-	m_ambientInterpolator.SetValues(ambient);
-	m_sunlightInterpolator.SetValues(light);
-	m_backgroundInterpolator.SetValues(background);
-}
+float GetValue(const MaxIntensityData &data) {return data.first;}
+float GetTime(const MaxIntensityData &data) {return data.second;}
 
 void LightManager::SetSunlightValues( SunlightValue *pValues, int iSize )
 {
-	LightVectors ambient;
-	LightVectors light;
-	LightVectors background;
+	LightVector ambient;
+	LightVector light;
+	LightVector background;
 
 	for(int valIx = 0; valIx < iSize; ++valIx)
 	{
@@ -158,6 +143,31 @@ void LightManager::SetSunlightValues( SunlightValue *pValues, int iSize )
 	m_ambientInterpolator.SetValues(ambient);
 	m_sunlightInterpolator.SetValues(light);
 	m_backgroundInterpolator.SetValues(background);
+
+	MaxIntensityVector maxIntensity;
+	maxIntensity.push_back(MaxIntensityData(1.0f, 0.0f));
+	m_maxIntensityInterpolator.SetValues(maxIntensity, false);
+}
+
+void LightManager::SetSunlightValues( SunlightValueHDR *pValues, int iSize )
+{
+	LightVector ambient;
+	LightVector light;
+	LightVector background;
+	MaxIntensityVector maxIntensity;
+
+	for(int valIx = 0; valIx < iSize; ++valIx)
+	{
+		ambient.push_back(LightVectorData(pValues[valIx].ambient, pValues[valIx].normTime));
+		light.push_back(LightVectorData(pValues[valIx].sunlightIntensity, pValues[valIx].normTime));
+		background.push_back(LightVectorData(pValues[valIx].backgroundColor, pValues[valIx].normTime));
+		maxIntensity.push_back(MaxIntensityData(pValues[valIx].maxIntensity, pValues[valIx].normTime));
+	}
+
+	m_ambientInterpolator.SetValues(ambient);
+	m_sunlightInterpolator.SetValues(light);
+	m_backgroundInterpolator.SetValues(background);
+	m_maxIntensityInterpolator.SetValues(maxIntensity);
 }
 
 struct UpdateTimer
@@ -255,12 +265,38 @@ void LightManager::FastForwardTime(TimerTypes eTimer,  float secFF )
 	}
 }
 
-LightBlock LightManager::GetLightPositions( const glm::mat4 &worldToCameraMat ) const
+LightBlock LightManager::GetLightInformation( const glm::mat4 &worldToCameraMat ) const
 {
 	LightBlock lightData;
 
 	lightData.ambientIntensity = m_ambientInterpolator.Interpolate(m_sunTimer.GetAlpha());
 	lightData.lightAttenuation = g_fLightAttenuation;
+
+	lightData.lights[0].cameraSpaceLightPos =
+		worldToCameraMat * GetSunlightDirection();
+	lightData.lights[0].lightIntensity = m_sunlightInterpolator.Interpolate(m_sunTimer.GetAlpha());
+
+	for(int light = 0; light < NUMBER_OF_POINT_LIGHTS; light++)
+	{
+		glm::vec4 worldLightPos =
+			glm::vec4(m_lightPos[light].Interpolate(m_lightTimers[light].GetAlpha()), 1.0f);
+		glm::vec4 lightPosCameraSpace = worldToCameraMat * worldLightPos;
+
+		lightData.lights[light + 1].cameraSpaceLightPos = lightPosCameraSpace;
+		lightData.lights[light + 1].lightIntensity = m_lightIntensity[light];
+	}
+
+	return lightData;
+}
+
+
+LightBlockHDR LightManager::GetLightInformationHDR( const glm::mat4 &worldToCameraMat ) const
+{
+	LightBlockHDR lightData;
+
+	lightData.ambientIntensity = m_ambientInterpolator.Interpolate(m_sunTimer.GetAlpha());
+	lightData.lightAttenuation = g_fLightAttenuation;
+	lightData.maxIntensity = m_maxIntensityInterpolator.Interpolate(m_sunTimer.GetAlpha());
 
 	lightData.lights[0].cameraSpaceLightPos =
 		worldToCameraMat * GetSunlightDirection();
@@ -336,6 +372,11 @@ float LightManager::GetTimerValue( const std::string &timerName ) const
 glm::vec4 LightManager::GetBackgroundColor() const
 {
 	return m_backgroundInterpolator.Interpolate(m_sunTimer.GetAlpha());
+}
+
+float LightManager::GetMaxIntensity() const
+{
+	return m_maxIntensityInterpolator.Interpolate(m_sunTimer.GetAlpha());
 }
 
 float LightManager::GetSunTime() const

@@ -48,11 +48,11 @@ struct Shaders
 ProgramData g_Programs[LP_MAX_LIGHTING_PROGRAM_TYPES];
 Shaders g_ShaderFiles[LP_MAX_LIGHTING_PROGRAM_TYPES] =
 {
-	{"PCN.vert", "DiffuseSpecular.frag"},
-	{"PCN.vert", "DiffuseOnly.frag"},
+	{"PCN.vert", "DiffuseSpecularHDR.frag"},
+	{"PCN.vert", "DiffuseOnlyHDR.frag"},
 
-	{"PN.vert", "DiffuseSpecularMtl.frag"},
-	{"PN.vert", "DiffuseOnlyMtl.frag"},
+	{"PN.vert", "DiffuseSpecularMtlHDR.frag"},
+	{"PN.vert", "DiffuseOnlyMtlHDR.frag"},
 };
 
 UnlitProgData g_Unlit;
@@ -199,6 +199,26 @@ void SetupNighttimeLighting()
 	g_lights.SetPointLightIntensity(2, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
 }
 
+void SetupHDRLighting()
+{
+	SunlightValueHDR values[] =
+	{
+		{ 0.0f/24.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), glm::vec4(1.8f, 1.8f, 1.8f, 1.0f), g_skyDaylightColor, 3.0f},
+		{ 4.5f/24.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), glm::vec4(1.8f, 1.8f, 1.8f, 1.0f), g_skyDaylightColor, 3.0f},
+		{ 6.5f/24.0f, glm::vec4(0.225f, 0.075f, 0.075f, 1.0f), glm::vec4(0.45f, 0.15f, 0.15f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f), 1.5f},
+		{ 8.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 1.0f},
+		{18.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 1.0f},
+		{19.5f/24.0f, glm::vec4(0.225f, 0.075f, 0.075f, 1.0f), glm::vec4(0.45f, 0.15f, 0.15f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f), 1.5f},
+		{20.5f/24.0f, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f), glm::vec4(1.8f, 1.8f, 1.8f, 1.0f), g_skyDaylightColor, 3.0f},
+	};
+
+	g_lights.SetSunlightValues(values, 7);
+
+	g_lights.SetPointLightIntensity(0, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.7f, 1.0f));
+	g_lights.SetPointLightIntensity(2, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
+}
+
 Scene *g_pScene = NULL;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
@@ -276,7 +296,7 @@ void display()
 	modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
 
 	const glm::mat4 &worldToCamMat = modelMatrix.Top();
-	LightBlock lightData = g_lights.GetLightInformation(worldToCamMat);
+	LightBlockHDR lightData = g_lights.GetLightInformationHDR(worldToCamMat);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
@@ -400,6 +420,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'l': SetupDaytimeLighting(); break;
 	case 'L': SetupNighttimeLighting(); break;
+	case 'k': SetupHDRLighting(); break;
 
 	case 32:
 		{

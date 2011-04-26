@@ -25,12 +25,30 @@ struct LightBlock
 	PerLight lights[NUMBER_OF_LIGHTS];
 };
 
+struct LightBlockHDR
+{
+	glm::vec4 ambientIntensity;
+	float lightAttenuation;
+	float maxIntensity;
+	float padding[2];
+	PerLight lights[NUMBER_OF_LIGHTS];
+};
+
 struct SunlightValue
 {
 	float normTime;
 	glm::vec4 ambient;
 	glm::vec4 sunlightIntensity;
 	glm::vec4 backgroundColor;
+};
+
+struct SunlightValueHDR
+{
+	float normTime;
+	glm::vec4 ambient;
+	glm::vec4 sunlightIntensity;
+	glm::vec4 backgroundColor;
+	float maxIntensity;
 };
 
 enum TimerTypes
@@ -46,8 +64,8 @@ class LightManager
 public:
 	LightManager();
 
-	void SetSunlightValues(const std::vector<SunlightValue> &values);
 	void SetSunlightValues(SunlightValue *pValues, int iSize);
+	void SetSunlightValues(SunlightValueHDR *pValues, int iSize);
 
 	void UpdateTime();
 	void TogglePause(TimerTypes eTimer);
@@ -57,8 +75,11 @@ public:
 	void RewindTime(TimerTypes eTimer, float secRewind);
 	void FastForwardTime(TimerTypes eTimer, float secRewind);
 
-	LightBlock GetLightPositions(const glm::mat4 &worldToCameraMat) const;
+	LightBlock GetLightInformation(const glm::mat4 &worldToCameraMat) const;
+	LightBlockHDR GetLightInformationHDR(const glm::mat4 &worldToCameraMat) const;
+
 	glm::vec4 GetBackgroundColor() const;
+	float GetMaxIntensity() const;
 
 	glm::vec4 GetSunlightDirection() const;
 	glm::vec4 GetSunlightIntensity() const;
@@ -80,6 +101,7 @@ private:
 	Framework::TimedLinearInterpolator<glm::vec4> m_ambientInterpolator;
 	Framework::TimedLinearInterpolator<glm::vec4> m_backgroundInterpolator;
 	Framework::TimedLinearInterpolator<glm::vec4> m_sunlightInterpolator;
+	Framework::TimedLinearInterpolator<float> m_maxIntensityInterpolator;
 
 	std::vector<LightInterpolator> m_lightPos;
 	std::vector<glm::vec4> m_lightIntensity;
