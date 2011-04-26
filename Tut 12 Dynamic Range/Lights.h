@@ -34,6 +34,16 @@ struct LightBlockHDR
 	PerLight lights[NUMBER_OF_LIGHTS];
 };
 
+struct LightBlockGamma
+{
+	glm::vec4 ambientIntensity;
+	float lightAttenuation;
+	float maxIntensity;
+	float gamma;
+	float padding;
+	PerLight lights[NUMBER_OF_LIGHTS];
+};
+
 struct SunlightValue
 {
 	float normTime;
@@ -77,6 +87,7 @@ public:
 
 	LightBlock GetLightInformation(const glm::mat4 &worldToCameraMat) const;
 	LightBlockHDR GetLightInformationHDR(const glm::mat4 &worldToCameraMat) const;
+	LightBlockGamma GetLightInformationGamma(const glm::mat4 &worldToCameraMat) const;
 
 	glm::vec4 GetBackgroundColor() const;
 	float GetMaxIntensity() const;

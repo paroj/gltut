@@ -315,6 +315,16 @@ LightBlockHDR LightManager::GetLightInformationHDR( const glm::mat4 &worldToCame
 	return lightData;
 }
 
+LightBlockGamma LightManager::GetLightInformationGamma( const glm::mat4 &worldToCameraMat ) const
+{
+	LightBlockHDR lightDataHdr = GetLightInformationHDR(worldToCameraMat);
+	LightBlockGamma lightData;
+
+	memcpy(&lightData, &lightDataHdr, sizeof(LightBlockGamma));
+
+	return lightData;
+}
+
 glm::vec4 LightManager::GetSunlightDirection() const
 {
 	float angle = 2.0f * 3.14159f * m_sunTimer.GetAlpha();
