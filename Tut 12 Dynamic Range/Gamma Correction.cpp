@@ -179,6 +179,29 @@ void SetupHDRLighting()
 	g_lights.SetPointLightIntensity(2, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
 }
 
+void SetupGammaLighting()
+{
+	glm::vec4 sunlight(6.5f, 6.5f, 6.5f, 1.0f);
+	glm::vec4 brightAmbient(0.4f, 0.4f, 0.4f, 1.0f);
+
+	SunlightValueHDR values[] =
+	{
+		{ 0.0f/24.0f, brightAmbient, sunlight, glm::vec4(0.65f, 0.65f, 1.0f, 1.0f), 10.0f},
+		{ 4.5f/24.0f, brightAmbient, sunlight, g_skyDaylightColor, 10.0f},
+		{ 6.5f/24.0f, glm::vec4(0.01f, 0.025f, 0.025f, 1.0f), glm::vec4(2.5f, 0.2f, 0.2f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f), 5.0f},
+		{ 8.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f},
+		{18.0f/24.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), 3.0f},
+		{19.5f/24.0f, glm::vec4(0.01f, 0.025f, 0.025f, 1.0f), glm::vec4(2.5f, 0.2f, 0.2f, 1.0f), glm::vec4(0.5f, 0.1f, 0.1f, 1.0f), 5.0f},
+		{20.5f/24.0f, brightAmbient, sunlight, g_skyDaylightColor, 10.0f},
+	};
+
+	g_lights.SetSunlightValues(values, 7);
+
+	g_lights.SetPointLightIntensity(0, glm::vec4(0.6f, 0.6f, 0.6f, 1.0f));
+	g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.7f, 1.0f));
+	g_lights.SetPointLightIntensity(2, glm::vec4(0.7f, 0.0f, 0.0f, 1.0f));
+}
+
 Scene *g_pScene = NULL;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
@@ -395,12 +418,26 @@ void keyboard(unsigned char key, int x, int y)
 	case '2': g_eTimerMode = TIMER_SUN; printf("Sun\n"); break;
 	case '3': g_eTimerMode = TIMER_LIGHTS; printf("Lights\n"); break;
 
-	case 'l':
+	case 'l': SetupHDRLighting(); break;
+	case 'L': SetupGammaLighting(); break;
+
+	case 'k':
 		g_isGammaCorrect = !g_isGammaCorrect;
 		if(g_isGammaCorrect)
 			printf("Gamma on!\n");
 		else
 			printf("Gamma off!\n");
+		break;
+
+	case 'y':
+		g_gammaValue += 0.1f;
+		printf("Gamma: %f\n", g_gammaValue);
+		break;
+	case 'h':
+		g_gammaValue -= 0.1f;
+		if(g_gammaValue < 1.0f)
+			g_gammaValue = 1.0f;
+		printf("Gamma: %f\n", g_gammaValue);
 		break;
 
 	case 32:
