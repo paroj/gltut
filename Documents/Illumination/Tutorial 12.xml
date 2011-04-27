@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 12.html" ?>
+    <title>Dynamic Range</title>
+    <para>Thus far, our lighting examples have been fairly prosaic. A single light source
+        illuminating a simple object hovering above flat terrain. This tutorial will demonstrate how
+        to use multiple lights among a larger piece of terrain in a dynamic lighting environment. We
+        will demonstrate how to properly light a scene. This is less about the artistic qualities of
+        how a scene should look and more about how to make a scene look a certain way if that is how
+        you desire it to look.</para>
+    <section>
+        <?dbhtml filename="Tut12 Setting the Scene.html" ?>
+        <title>Setting the Scene</title>
+        <para>The intent for this scene is to be dynamic. The terrain will be large and hilly,
+            unlike the flat plain we've seen in previous tutorials. It will use vertex colors where
+            appropriate to give it terrain-like qualities. There will also be a variety of objects
+            on the terrain, each with its own set of reflective characteristics. This will help show
+            off the dynamic nature of the scene.</para>
+        <para>The very first step in lighting a scene is to explicitly detail what you want; without
+            that, you're probably not going to find your way there. In this case, the scene is
+            intended to be outdoors, so there will be a single massive directional light shining
+            down. There will also be a number of smaller, weaker lights. All of these lights will
+            have animated movement.</para>
+        <para>The biggest thing here is that we want the scene to dynamically change lighting
+            levels. Specifically, we want a full day/night cycle. The sun will sink, gradually
+            losing intensity until it has none. There, it will remain until the dawn of the next
+            day, where it will gain strength until fill and rise again. The other lights should be
+            much weaker in overall intensity than the sun.</para>
+        <para>One thing that this requires is a dynamic ambient lighting range. Remember that the
+            ambient light is an attempt to resolve the global illumination problem: that light
+            bounces around in a scene and can therefore come from many sources. When the sun is at
+            full intensity, the ambient lighting of the scene should be bright as well. This will
+            mean that surfaces facing away from the sunlight will still be relatively bright, which
+            is the case we see outside. When it is night, the ambient light should be virtually nil.
+            Only surfaces directly facing one of the lights should be illuminated.</para>
+        <para>The <phrase role="propername">Scene Lighting</phrase> tutorial demonstrates the first
+            version of attempting to replicate this scene.</para>
+        <!--TODO: Image of the tutorial.-->
+        <para>The camera is rotated and zoomed as in prior tutorials. Where this one differs is that
+            the camera's target point can be moved. The <keycap>W</keycap>, <keycap>A</keycap>,
+                <keycap>S</keycap>, and <keycap>D</keycap> keys move the cameras forward/backwards
+            and left/right, relative to the camera's current orientation. The <keycap>Q</keycap> and
+                <keycap>E</keycap> keys raise and lower the camera, again relative to its current
+            orientation. Holding <keycap>Shift</keycap> with these keys will move in smaller
+            increments. You can toggle viewing of the current target point by pressing
+                <keycap>T</keycap>.</para>
+        <para>Because the lighting in this tutorial is very time based, there are specialized
+            controls for playing with time. There are two sets of timers: one that controls the
+            sun's position (as well as attributes associated with this, like the sun's intensity,
+            ambient intensity, etc), and another set of timers that control the positions of other
+            lights in the scene. Commands that affect timers can affect the sun only, the other
+            lights only, or both at the same time.</para>
+        <para>To have timer commands affect only the sun, press <keycap>2</keycap>. To have timer
+            commands affect only the other lights, press <keycap>3</keycap>. To have timer commands
+            affect both, press <keycap>1</keycap>.</para>
+        <para>To rewind time by one second (of real-time), press the <keycap>-</keycap> key. To jump
+            forward one second, press the <keycap>=</keycap> key. To toggle pausing, press the
+                <keycap>p</keycap> key. These commands only affect the currently selected timers.
+            Also, pressing the <keycap>SpaceBar</keycap> will print out the current sun-based time,
+            in 24-hour notation.</para>
+        <section>
+            <title>Materials and UBOs</title>
+            <para>The source code for this tutorial is much more complicated than prior ones. Due to
+                this complexity, it is spread over several files. All of the tutorial projects for
+                this tutorial share the <filename>Scene.h/cpp</filename> and
+                    <filename>Lights.h/cpp</filename> files. The Scene files set up the objects in
+                the scene and render them. This file contains the surface properties of the
+                objects.</para>
+            <para>A lighting function requires two specific sets of parameters: values that
+                represent the light, and values that represent the surface. Surface properties are
+                often called <glossterm>material properties</glossterm>. Each object has its own
+                material properties, as defined in <filename>Scene.cpp</filename>.</para>
+            <para>The scene has 6 objects: the terrain, a tall cylinder in the middle, a
+                multicolored cube, a sphere, a spinning tetrahedron, and a mysterious black obelisk.
+                Each object has its own material properties defined by the
+                    <function>GetMaterials</function> function.</para>
+            <para>These properties are all stored in a uniform buffer object. We have seen these
+                before for data that is shared among several programs; here, we use it to quickly
+                change sets of values. These material properties do not change with time; we set
+                them once and don't change them ever again. This is primarily for demonstration
+                purposes, but it could have a practical effect.</para>
+            <para>Each object's material data is defined as the following struct:</para>
+            <example>
+                <title>Material Uniform Block</title>
+                <programlisting language="glsl">//GLSL
+layout(std140) uniform;
+
+uniform Material
+{
+    vec4 diffuseColor;
+    vec4 specularColor;
+    float specularShininess;
+} Mtl;</programlisting>
+                <programlisting language="cpp">//C++
+struct MaterialBlock
+{
+    glm::vec4 diffuseColor;
+    glm::vec4 specularColor;
+    float specularShininess;
+    float padding[3];
+};</programlisting>
+            </example>
+            <para>The <varname>padding</varname> variable in the C++ definition represents the fact
+                that the GLSL definition of this uniform block will be padded out to a size of 12
+                floats. This is due to the nature of <quote>std140</quote> layout (feel free to read
+                the appropriate section in the OpenGL specification to see why). Note the global
+                definition of <quote>std140</quote> layout; this sets all uniform blocks to use
+                    <quote>std140</quote> layout unless they specifically override it. That way, we
+                don't have to write <quote>layout(std140)</quote> for each of the three uniform
+                blocks we use in each shader file.</para>
+            <para>Also, note the use of <literal>Mtl</literal> at the foot of the uniform block
+                definition. When nothing is placed there, then the names in the uniform block are
+                global. If an identifier is placed there, then that name must be used to qualify
+                access to the names within that block. This allows us to have the <literal>in vec4
+                    diffuseColor</literal> be separate from the material definition's
+                    <varname>Mtl.diffuseColor</varname>.</para>
+            <para>What we want to do is put 6 material blocks in a single uniform buffer. One might
+                naively think that one could simply allocate a buffer object 6 times the
+                    <literal>sizeof(MaterialBlock)</literal>, and simply store the data as a C++
+                array. Sadly, this will not work due to a UBO limitation.</para>
+            <para>When you use <function>glBindBufferRange</function> to bind a UBO, OpenGL requires
+                that the offset parameter, the parameter that tells where the beginning of the
+                uniform block's data is within the buffer object, be aligned to a specific value.
+                What value, you may ask?</para>
+            <para>Welcome to the world of implementation-dependent values. This means that it can
+                (and most certainly will) change depending on what platform you're running on. This
+                code was tested on two different hardware platforms; one has a minimum alignment of
+                64, the other an alignment of 256.</para>
+            <para>To retrieve the implementation-dependent value, we must use a previously-unseen
+                function: <function>glGetIntegerv</function>. This is a function that does one
+                simple thing: gets integer values from OpenGL. However, the meaning of the value
+                retrieved depends on the enumerator passed as the first parameter. Basically, it's a
+                way to have state retrieval functions that can easily be extended by adding new
+                enumerators rather than new function entrypoints.</para>
+            <para>The code that builds the material uniform buffer is as follows:</para>
+            <example>
+                <title>Material UBO Construction</title>
+                <programlisting>int uniformBufferAlignSize = 0;
+glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &amp;uniformBufferAlignSize);
+
+m_sizeMaterialBlock = sizeof(MaterialBlock);
+m_sizeMaterialBlock += uniformBufferAlignSize -
+	(m_sizeMaterialBlock % uniformBufferAlignSize);
+
+int sizeMaterialUniformBuffer = m_sizeMaterialBlock * MATERIAL_COUNT;
+
+std::vector&lt;MaterialBlock> materials;
+GetMaterials(materials);
+assert(materials.size() == MATERIAL_COUNT);
+
+std::vector&lt;GLubyte> mtlBuffer;
+mtlBuffer.resize(sizeMaterialUniformBuffer, 0);
+
+GLubyte *bufferPtr = &amp;mtlBuffer[0];
+
+for(size_t mtl = 0; mtl &lt; materials.size(); ++mtl)
+	memcpy(bufferPtr + (mtl * m_sizeMaterialBlock), &amp;materials[mtl], sizeof(MaterialBlock));
+
+glGenBuffers(1, &amp;m_materialUniformBuffer);
+glBindBuffer(GL_UNIFORM_BUFFER, m_materialUniformBuffer);
+glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
+glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
+            </example>
+            <para>We use <function>glGetIntegerv</function> to retrieve the alignment requirement.
+                Then we compute the size of a material block, plus enough padding to satisfy the
+                alignment requirements. From there, it's fairly straightforward. The
+                    <varname>mtlBuffer</varname> is just a clever way to allocate a block of memory
+                without having to directly use new/delete. And yes, that is perfectly valid and
+                legal C++.</para>
+            <para>When the scene is rendered, it uses <function>glBindBufferRange</function> to bind
+                the proper region within the buffer object for rendering.</para>
+        </section>
+        <section>
+            <title>Lighting</title>
+            <para>The code for lighting is rather more complicated. It uses two aspects of the
+                framework library to do its job: interpolators and timers.
+                    <classname>Framework::Timer</classname> is a generally useful class that can
+                keep track of a looped range of time, converting it into a [0, 1) range. The
+                interpolators are used to convert a [0, 1) range to a particular value based on a
+                series of possible values. Exactly how they work is beyond the scope of this
+                discussion, but some basic information will be presented.</para>
+            <para>The <classname>LightManager</classname> class controls all timers. It has all of
+                the fast-forwarding, rewinding, and so forth controls built into it. It's basic
+                functionality is to compute all of the lighting values for a particular time. It
+                does this based on information given to it by the main tutorial source file,
+                    <filename>Scene Lighting.cpp</filename>. The important values are sent in the
+                    <function>SetupDaytimeLighting</function> function.</para>
+            <example>
+                <title>Daytime Lighting</title>
+                <programlisting language="cpp">SunlightValue values[] =
+{
+    { 0.0f/24.0f, /*...*/},
+    { 4.5f/24.0f, /*...*/},
+    { 6.5f/24.0f, /*...*/},
+    { 8.0f/24.0f, /*...*/},
+    {18.0f/24.0f, /*...*/},
+    {19.5f/24.0f, /*...*/},
+    {20.5f/24.0f, /*...*/},
+};
+
+g_lights.SetSunlightValues(values, 7);
+
+g_lights.SetPointLightIntensity(0, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.3f, 1.0f));
+g_lights.SetPointLightIntensity(2, glm::vec4(0.3f, 0.0f, 0.0f, 1.0f));</programlisting>
+            </example>
+            <para>For the sake of clarity, the actual lighting parameters were removed from the main
+                table. The <classname>SunlightValue</classname> struct defines the parameters that
+                vary based on the sun's position. Namely, the ambient intensity, the sun's light
+                intensity, and the background color. The first parameter of the struct is the time,
+                on the [0, 1) range, when the parameters should have this value. A time of 0
+                represents noon, and a time of 0.5 represents midnight. For clarity's sake, I used
+                24-hour notation (where 0 is noon rather than midnight).</para>
+            <para>We will discuss the actual lighting values later.</para>
+            <para>The main purpose of the <classname>LightManager</classname> is to retrieve the
+                light parameters. This is done by the function
+                    <function>GetLightInformation</function>, which takes a matrix (to transform the
+                light positions and directions into camera space) and returns a
+                    <classname>LightBlock</classname> object. This is an object that represents a
+                uniform block defined by the shaders:</para>
+            <example>
+                <title>Light Uniform Block</title>
+                <programlisting language="glsl">struct PerLight
+{
+    vec4 cameraSpaceLightPos;
+    vec4 lightIntensity;
+};
+
+const int numberOfLights = 4;
+
+uniform Light
+{
+    vec4 ambientIntensity;
+    float lightAttenuation;
+    PerLight lights[numberOfLights];
+} Lgt;</programlisting>
+                <programlisting language="cpp">struct PerLight
+{
+    glm::vec4 cameraSpaceLightPos;
+    glm::vec4 lightIntensity;
+};
+
+const int NUMBER_OF_LIGHTS = 4;
+
+struct LightBlock
+{
+    glm::vec4 ambientIntensity;
+    float lightAttenuation;
+    float padding[3];
+    PerLight lights[NUMBER_OF_LIGHTS];
+};</programlisting>
+            </example>
+            <para>Again, there is the need for a bit of padding in the C++ version of the struct.
+                Also, you might notice that we have both arrays and structs in GLSL for the first
+                time. They work pretty much like C/C++ structs and arrays (outside of pointer logic,
+                since GLSL doesn't have pointers), though arrays have certain caveats.</para>
+        </section>
+        <section>
+            <title>Many Lights Shader</title>
+            <para>In this tutorial, we use 4 shaders. Two of these take their diffuse color from
+                values passed by the vertex shader. The other two use the material's diffuse color.
+                The other difference is that two do specular reflection computations, and the others
+                do not. This represents the variety of our materials.</para>
+            <para>Overall, the code is nothing you haven't seen before. We use Gaussian specular and
+                an inverse-squared attenuation, in order to be as physically correct as we currently
+                can be. One of the big differences is in the <function>main</function>
+                function.</para>
+            <example>
+                <title>Many Lights Main Function</title>
+                <programlisting language="glsl">void main()
+{
+    vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
+    for(int light = 0; light &lt; numberOfLights; light++)
+    {
+        accumLighting += ComputeLighting(Lgt.lights[light]);
+    }
+    
+    outputColor = accumLighting;
+}</programlisting>
+            </example>
+            <para>Here, we compute the lighting due to the ambient correction. Then we loop over
+                each light and compute the lighting for it, adding it into our accumulated value.
+                Loops and arrays are generally fine.</para>
+            <para>The other trick is how we deal with positional and directional lights. The
+                    <classname>PerLight</classname> structure doesn't explicitly say whether a light
+                is positional or directional. However, the W component of the
+                    <varname>cameraSpaceLightPos</varname> is what we use to differentiate them;
+                this is a time-honored technique. If the W component is 0.0, then it is a
+                directional light; otherwise, it is a point light.</para>
+            <para>The only difference between directional and point lights in the lighting function
+                are attenuation (directional lights don't use attenuation) and how the light
+                direction is computed. So we simply compute these based on the W component:</para>
+            <programlisting>vec3 lightDir;
+vec4 lightIntensity;
+if(lightData.cameraSpaceLightPos.w == 0.0)
+{
+    lightDir = vec3(lightData.cameraSpaceLightPos);
+    lightIntensity = lightData.lightIntensity;
+}
+else
+{
+    float atten = CalcAttenuation(cameraSpacePosition,
+        lightData.cameraSpaceLightPos.xyz, lightDir);
+    lightIntensity = atten * lightData.lightIntensity;
+}</programlisting>
+        </section>
+        <section>
+            <title>Lighting Problems</title>
+            <para>There are a few problems with our current lighting setup. It looks (mostly) fine
+                in daylight. The moving point lights have a small visual effect, but mostly they're
+                not very visible. And this is what one would expect in broad daylight; flashlights
+                don't make much impact in the day.</para>
+            <para>But at night, everything is exceedingly dark. The point lights, the only active
+                source of illumination, are all too dim to be very visible. The terrain almost
+                completely blends into the black background.</para>
+            <para>There is an alternative set of light parameters that corrects this problem. Press <keycombo>
+                    <keycap>Shift</keycap>
+                    <keycap>L</keycap>
+                </keycombo>; that switches to a night-time optimized version (press
+                    <keycap>L</keycap> to switch back to day-optimized lighting). Here, the point
+                lights provide reasonable lighting at night. The ground is still dark when facing
+                away from the lights, but we can reasonably see things.</para>
+            <!--TODO: Picture of the dark tutorial, night-optimized vs day-optimized.-->
+            <para>The problem is that, in daylight, the point lights are too powerful. They are very
+                visible and have very strong effects on the scene.</para>
+            <para>The obvious solution to our lighting problem is to simply change the point light
+                intensity based on the time of day. However, this is not realistic; flashlights
+                don't actually get brighter at night. So if we have to do something that
+                antithetical to reality, then there's probably some aspect of reality that we aren't
+                properly modelling.</para>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut12 High Dynamic Range.html" ?>
+        <title>High Dynamic Range</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut12 Monitors and Gamma.html" ?>
+        <title>Monitors and Gamma</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut12 In Review.html" ?>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>How to build and light a scene containing multiple objects and multiple light
+                    sources.</para>
+            </listitem>
+            <listitem>
+                <para>High dynamic range lighting means using a maximum illumination that can vary
+                    from frame to frame, rather than a single, fixed value.</para>
+            </listitem>
+            <listitem>
+                <para>Color values have a space, just like positions or normals. Lighting equations
+                    work in a linear colorspace, where twice the brightness of a value is achieved
+                    by multiplying its value times two. It is vital for proper imaging results to
+                    make sure that the final result of lighting is in the colorspace that the output
+                    display expects. This process is generally called gamma correction.</para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Add a fifth light, a directional light representing the moon, to the
+                        gamma-correct scene. This will require creating another set of interpolators
+                        and expanding the SunlightValues structure to hold the lighting intensity of
+                        the moon. It also means expanding the number of lights the shaders use from
+                        4 to 5 (or removing one of the point lights). The moon should be much less
+                        bright than the sun, but it should still have a noticeable effect on
+                        brightness.</para>
+                </listitem>
+                <listitem>
+                    <para>Play with the ambient lighting intensity in the gamma-correct scene,
+                        particularly in the daytime. A little ambient, even with a high dynamic
+                        range value like 10, goes a long way to bringing up the level of brightness
+                        in a scene.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glGetIntegerv</glossterm>
+                    <glossdef>
+                        <para>Retrieves implementation-dependent integer values and a number of
+                            context state integer values. There are also
+                                <function>glGetFloatv</function>,
+                            <function>glGetBooleanv</function>, and various other typed
+                                <function>glGet*</function> functions. The number of values this
+                            retrieves depends on the enumerator passed to it.</para>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut12 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>material properties</glossterm>
+                <glossdef>
+                    <para>The set of inputs to the lighting equation that represent the
+                        characteristics of a surface. This includes the surface's normal, diffuse
+                        reflectance, specular reflectance, any specular power values, and so forth.
+                        The source of these values can come from many sources: uniform values for an
+                        object, fragment-shader inputs, or potentially other sources.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm/>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+        
+    </section>
+</chapter>

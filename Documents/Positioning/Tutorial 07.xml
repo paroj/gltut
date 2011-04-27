@@ -1017,7 +1017,7 @@ void main()
                     <glossterm>glBindBufferRange</glossterm>
                     <glossdef>
                         <para>Binds a buffer object to a particular indexed location, as well as
-                            binding it to a target. When used with GL_UNIFORM_BUFFER, it binds the
+                            binding it to the given. When used with GL_UNIFORM_BUFFER, it binds the
                             buffer object to a particular uniform buffer binding point. It has range
                             parameters that can be used to effectively bind part of the buffer
                             object to an indexed location.</para>

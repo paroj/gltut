@@ -72,6 +72,7 @@ Scene::Scene()
 	glGenBuffers(1, &m_materialUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_materialUniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, float alphaTetra )
