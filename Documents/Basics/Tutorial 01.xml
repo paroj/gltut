@@ -520,10 +520,11 @@ void main()
         <para>An OpenGL shader object is, as the name suggests, an object. So the first step is to
             create the object with <function>glCreateShader</function>. This function creates a
             shader of a particular type (vertex or fragment), so it takes a parameter that tells
-            what kind of object it creates. Since each state has certain syntax rules and
-            pre-defined variables and constants, the </para>
+            what kind of object it creates. Since each shader stage has certain syntax rules and
+            pre-defined variables and constants (thus making different shader stages different
+            dialects of GLSL), the compiler must be told what shader stage is being compiled.</para>
         <note>
-            <para>Shader and program objects are objects in OpenGL. But they were rather differently
+            <para>Shader and program objects are objects in OpenGL. But they work rather differently
                 from other kinds of OpenGL objects. For example, creating buffer objects, as shown
                 above, uses a function of the form <quote>glGen*</quote> where * is
                     <quote>Buffer</quote>. It takes a number of objects to create and a list to put

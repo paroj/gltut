@@ -44,8 +44,8 @@
             which is what we need to create a periodically repeating pattern.</para>
         <para>The <function>cosf</function> and <function>sinf</function> functions compute the
             cosine and sine respectively. It isn't important to know exactly how these functions
-            work, but they effectively compute a circle of radius 2. By multiplying by 0.5f, it
-            shrinks the circle down to a radius of 1.</para>
+            work, but they effectively compute a circle of diameter 2. By multiplying by 0.5f, it
+            shrinks the circle down to a circle with a diameter of 1.</para>
         <para>Once the offsets are computed, the offsets have to be added to the vertex data. This
             is done with the <function>AdjustVertexData</function> function:</para>
         <example>

@@ -254,7 +254,7 @@
                 so simple that it has been built into graphics hardware since the days of the
                 earliest 3Dfx card and even prior graphics hardware.</para>
             <para>You might notice that the scaling can be expressed as a division operation
-                (dividing by the reciprocal). And you may recall that the difference between clip
+                (multiplying by the reciprocal). And you may recall that the difference between clip
                 space and normalized device coordinate space is a division by the W coordinate. So
                 instead of doing the divide in the shader, we can simply set the W coordinate of
                 each vertex correctly and let the hardware handle it.</para>
@@ -580,7 +580,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
                 </imageobject>
             </mediaobject>
         </equation>
-        <para>The odd spacing is intensional. For laughs, let's add a bunch of meaningless terms
+        <para>The odd spacing is intentional. For laughs, let's add a bunch of meaningless terms
             that don't change the equation, but starts to develop an interesting pattern:</para>
         <equation>
             <title>Camera to Clip Expanded Equations</title>
@@ -726,7 +726,8 @@ glUseProgram(0);]]></programlisting>
         </example>
         <para>A 4x4 matrix contains 16 values. So we start by creating an array of 16 floating-point
             numbers called <varname>theMatrix</varname>. Since most of the values are zero, we can
-            just set the whole thing to zero.</para>
+            just set the whole thing to zero. This works because IEEE 32-bit floating-point numbers
+            represent a zero as 4 bytes that all contain zero.</para>
         <para>The next few functions set the particular values of interest into the matrix. Before
             we can understand what's going on here, we need to talk a bit about ordering.</para>
         <para>A 4x4 matrix is technically 16 values, so a 16-entry array can store a matrix. But
@@ -1074,7 +1075,7 @@ glUseProgram(0);]]></programlisting>
                         vector. Swizzle operations look like this:</para>
                     <programlisting>vec2 firstVec;
 vec4 secondVec = firstVec.xyxx;
-vec3 thirdVec = secondVec.wzyx;</programlisting>
+vec3 thirdVec = secondVec.wzy;</programlisting>
                     <para>Swizzle selection is, in graphics hardware, considered an operation so
                         fast as to be instantaneous. That is, graphics hardware is built with
                         swizzle selection in mind.</para>

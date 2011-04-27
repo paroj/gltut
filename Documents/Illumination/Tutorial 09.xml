@@ -54,7 +54,7 @@
         <para>A surface looks blue under white light because the surface absorbs all non-blue parts
             of the light and only reflects the blue parts. If one were to shine a red light on the
             surface, the surface would appear very dark, as the surface absorbs non-blue light, and
-            the red light doesn't have much non-blue light in it.</para>
+            the red light doesn't have much blue light in it.</para>
         <figure>
             <title>Surface Light Absorption</title>
             <mediaobject>

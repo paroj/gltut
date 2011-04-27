@@ -693,14 +693,14 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 but has more other math to it. The two do have a roughness factor that has the same
                 range, (0, 1], and the roughness has the same general meaning in both
                 distributions.</para>
-            <para>If you want to go even farther, investigate the <quote>Cook-Torrance</quote> model
-                of specular reflection. It incorporates several terms. It uses a statistical
-                distribution to determine the number of microfacets oriented in a direction. This
-                distribution can be Gaussian, Beckmann, or some other distribution. It modifies this
-                result based on a geometric component that models microfacet self-shadowing and the
-                possibility for multiple interreflections among a microfaceted surface. And it adds
-                a term to compensate for the Fresnel effect: an effect where specular reflection
-                from a surface is more intense when viewed edge-on than directly top-down.</para>
+            <para>If you want to go even farther, investigate the Cook-Torrance model of specular
+                reflection. It incorporates several terms. It uses a statistical distribution to
+                determine the number of microfacets oriented in a direction. This distribution can
+                be Gaussian, Beckmann, or some other distribution. It modifies this result based on
+                a geometric component that models microfacet self-shadowing and the possibility for
+                multiple interreflections among a microfaceted surface. And it adds a term to
+                compensate for the Fresnel effect: an effect where specular reflection from a
+                surface is more intense when viewed edge-on than directly top-down.</para>
         </section>
         <section>
             <title>GLSL Functions of Note</title>
