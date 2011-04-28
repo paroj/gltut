@@ -920,7 +920,8 @@ OpenGL_Context context;</programlisting>
                 <glossterm>colorspace</glossterm>
                 <glossdef>
                     <para>The set of reference colors that define a way of representing a color in
-                        computer graphics. All colors are defined relative to a particular
+                        computer graphics, and the function mapping between those reference colors
+                        and the actual colors. All colors are defined relative to a particular
                         colorspace.</para>
                 </glossdef>
             </glossentry>

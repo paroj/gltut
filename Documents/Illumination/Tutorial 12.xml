@@ -325,7 +325,14 @@ else
                 away from the lights, but we can reasonably see things.</para>
             <!--TODO: Picture of the dark tutorial, night-optimized vs day-optimized.-->
             <para>The problem is that, in daylight, the point lights are too powerful. They are very
-                visible and have very strong effects on the scene.</para>
+                visible and have very strong effects on the scene. Also, they cause some light
+                problems when one of the point lights is in the right position.</para>
+            <!--TODO: Picture of the night-optimized clipping problem.-->
+            <para>Notice the patch of iridescent green. This is <glossterm>light
+                    clipping</glossterm> or light clamping, and it is usually a very undesirable
+                outcome. It happens when the computed light intensity falls outside of the [0, 1]
+                range, usually in the positive direction (like in this case). The object can't be
+                shown to be brighter, so it becomes a solid color that loses all detail.</para>
             <para>The obvious solution to our lighting problem is to simply change the point light
                 intensity based on the time of day. However, this is not realistic; flashlights
                 don't actually get brighter at night. So if we have to do something that
@@ -336,12 +343,397 @@ else
     <section>
         <?dbhtml filename="Tut12 High Dynamic Range.html" ?>
         <title>High Dynamic Range</title>
-        <para/>
+        <para>In order to answer this question, we must first determine why flashlights appear
+            brighter at night than in the daytime? Much of the answer has to do with our
+            eyes.</para>
+        <para>The pupil is the hole in our eyes that allows light to pass through it; cameras call
+            this hole the aperture. The hole is small, relative to the world, which helps with
+            resolving an image. However, the quantity of light that passes through the hole depends
+            on how large it is. Our iris's can expand and contract to control the size of the pupil.
+            When the pupil is large, more light is allowed to enter the eye; when the pupil is
+            small, less light can enter.</para>
+        <para>The iris contracts automatically in the presence of bright light, since too much like
+            can damage the retina (the surface of the eye that detects light). However, in the
+            absence of light, the iris slowly relaxes, expanding the pupil. This has the effect of
+            allowing more light to enter the eye, which adds to the apparent brightness of the
+            scene.</para>
+        <para>So what we need is not to change the overall light levels, but instead apply the
+            equivalent of an iris to the final lighting computations of a scene. That is, we
+            determine the overall illumination at a point, but we then filter out some of this light
+            based on a global setting. In dark scenes, we filter less light, and in bright scenes,
+            we filter more light.</para>
+        <para>This overall process is called <glossterm>high dynamic range lighting</glossterm>
+                (<acronym>HDR</acronym>). It is fairly simple and requires very few additional math
+            computations compared to our current model.</para>
+        <note>
+            <para>You may have heard this term in conjunction with pictures where bright objects
+                seem to glow. While HDR is typically associated with that glowing effect, that is a
+                different effect called bloom. It is a woefully over-used effect, and we will
+                discuss how to implement it later. HDR and bloom do interact, but you can use one
+                without the other.</para>
+        </note>
+        <para>The first step is to end the myth that lights themselves have a global maximum
+            brightness. That is, light intensity is no longer on the range [0, 1]; lights can now
+            have any positive intensity value.</para>
+        <para>This also means that our accumulated lighting intensity, the value we originally wrote
+            to the fragment shader output, is no longer on the [0, 1] range. And that poses a
+            problem. We can perform lighting computations with a high dynamic range, but monitors
+            can only display colors on the [0, 1] range. We therefore must map from the HDR to the
+            low dynamic range (<acronym>LDR</acronym>).</para>
+        <para>This part of HDR rendering is called <glossterm>tone mapping.</glossterm> There are
+            many possible tone mapping functions, but we will use one that simulates a flexible
+            aperture. It's quite a simple function, really. First, we pick a maximum intensity value
+            for the scene; intensity values above this will be clamped. Then, we just divide the HDR
+            value by the maximum intensity to get the LDR value.</para>
+        <!--TODO: Equation of LDR = HDR/max.-->
+        <para>It is the maximum intensity that we will vary. As the sun goes down, the intensity
+            will go down with it. This will allow the sun to be much brighter in the day than the
+            lights, thus overwhelming their contributions to the scene's illumination. But at night,
+            when the maximum intensity is much lower, the other lights will have an apparently
+            higher brightness.</para>
+        <para>This is implemented in the <phrase role="propername">HDR Lighting</phrase>
+            tutorial.</para>
+        <para>This tutorial controls as the previous one, except that the <keycap>K</keycap> key
+            will activate HDR lighting. Pressing <keycap>L</keycap> or <keycombo>
+                <keycap>Shift</keycap>
+                <keycap>L</keycap>
+            </keycombo> will go back to day or night-time LDR lighting from the last tutorial,
+            respectively.</para>
+        <!--TODO: Image of HDR lighting tutorial.-->
+        <para>The code is quite straightforward. We add a floating-point field to the
+                <classname>Light</classname> uniform block and the <classname>LightBlock</classname>
+            struct in C++. Technically, we just steal one of the padding floats, so the size remains
+            the same:</para>
+        <example>
+            <title>HDR LightBlock</title>
+            <programlisting language="cpp">struct LightBlockHDR
+{
+    glm::vec4 ambientIntensity;
+    float lightAttenuation;
+    float maxIntensity;
+    float padding[2];
+    PerLight lights[NUMBER_OF_LIGHTS];
+};</programlisting>
+        </example>
+        <para>We also add a new field to <classname>SunlightValue</classname>: the maximum light
+            intensity. There is also a new function in the <classname>LightManager</classname> that
+            computes the HDR-version of the light block:
+            <function>GetLightInformationHDR</function>. Technically, all of this code was already
+            in <filename>Light.h/cpp</filename>, since these files are shared among all of the
+            tutorials here.</para>
+        <section>
+            <title>Scene Lighting in HDR</title>
+            <para>Lighting a scene in HDR is a different process from LDR. Having a varying maximum
+                intensity value, as well as the ability to use light intensities greater than 1.0
+                change much about how you set up a scene.</para>
+            <para>In this case, everything in the lighting was designed to match up to the daytime
+                version of LDR in the day, and the nighttime version of LDR at night. Once the
+                division by the maximum intensity was taken into account.</para>
+            <table frame="none">
+                <title>Scene Lighting Values</title>
+                <tgroup cols="11">
+                    <colspec colname="c1" colnum="1" colwidth="3.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c3" colnum="3" colwidth="1.0*"/>
+                    <colspec colname="c4" colnum="4" colwidth="1.0*"/>
+                    <colspec colname="c5" colnum="5" colwidth="1.0*"/>
+                    <colspec colname="c6" colnum="6" colwidth="1.0*"/>
+                    <colspec colname="c7" colnum="7" colwidth="1.0*"/>
+                    <colspec colname="c8" colnum="8" colwidth="1.0*"/>
+                    <colspec colname="c9" colnum="9" colwidth="1.0*"/>
+                    <colspec colname="c10" colnum="10" colwidth="1.0*"/>
+                    <colspec colname="c11" colnum="11" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry/>
+                            <entry namest="c2" nameend="c5" align="center">
+                                <para>HDR</para>
+                            </entry>
+                            <entry namest="c6" nameend="c8" align="center">
+                                <para>LDR Day-optimized</para>
+                            </entry>
+                            <entry namest="c9" nameend="c11" align="center">
+                                <para>LDR Night-optimized</para>
+                            </entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>Noon Sun Intensity</entry>
+                            <entry>1.8</entry>
+                            <entry>1.8</entry>
+                            <entry>1.8</entry>
+                            <entry>(3.0)</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                        </row>
+                        <row>
+                            <entry>Noon Ambient Intensity</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry/>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                        </row>
+                        <row>
+                            <entry>Evening Sun Intensity</entry>
+                            <entry>0.45</entry>
+                            <entry>0.15</entry>
+                            <entry>0.15</entry>
+                            <entry>(1.5)</entry>
+                            <entry>0.3</entry>
+                            <entry>0.1</entry>
+                            <entry>0.1</entry>
+                            <entry>0.3</entry>
+                            <entry>0.1</entry>
+                            <entry>0.1</entry>
+                        </row>
+                        <row>
+                            <entry>Evening Ambient Intensity</entry>
+                            <entry>0.225</entry>
+                            <entry>0.075</entry>
+                            <entry>0.075</entry>
+                            <entry/>
+                            <entry>0.15</entry>
+                            <entry>0.05</entry>
+                            <entry>0.05</entry>
+                            <entry>0.15</entry>
+                            <entry>0.05</entry>
+                            <entry>0.05</entry>
+                        </row>
+                        <row>
+                            <entry>Circular Light Intensity</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry/>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                            <entry>0.2</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                            <entry>0.6</entry>
+                        </row>
+                        <row>
+                            <entry>Red Light Intensity</entry>
+                            <entry>0.7</entry>
+                            <entry>0.0</entry>
+                            <entry>0.0</entry>
+                            <entry/>
+                            <entry>0.3</entry>
+                            <entry>0.0</entry>
+                            <entry>0.0</entry>
+                            <entry>0.7</entry>
+                            <entry>0.0</entry>
+                            <entry>0.0</entry>
+                        </row>
+                        <row>
+                            <entry>Blue Light Intensity</entry>
+                            <entry>0.0</entry>
+                            <entry>0.0</entry>
+                            <entry>0.7</entry>
+                            <entry/>
+                            <entry>0.0</entry>
+                            <entry>0.0</entry>
+                            <entry>0.3</entry>
+                            <entry>0.0</entry>
+                            <entry>0.0</entry>
+                            <entry>0.7</entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <para>The numbers in parenthesis represents the max intensity at that time.</para>
+            <para>In order to keep the daytime lighting the same, we simply multiplied the LDR day's
+                sun and ambient intensities by the ratio between the sun intensity and the intensity
+                of one of the lights. This ratio is 3:1, so the sun and ambient intensity is
+                increased by a magnitude of 3.</para>
+            <para>The maximum intensity was derived similarly. In the LDR case, the difference
+                between the max intensity (1.0) and the sum of the sun and ambient intensities is
+                0.2 (1.0 - (0.6 + 0.2)). To maintain this, we set the max intensity to the sum of
+                the ambient and sun intensities, plus 3 times the original ratio.</para>
+            <para>This effectively means that the light, as far as the sun and ambient are
+                concerned, works the same way in HDR daytime as in the LDR day-optimized settings.
+                To get the other lights to work at night, we simply kept their values the same as
+                the LDR night-optimized case.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut12 Monitors and Gamma.html" ?>
         <title>Monitors and Gamma</title>
-        <para/>
+        <para>There is one major issue left, and it is one that has been glossed over since the
+            beginning of our look at lighting: your screen.</para>
+        <para>The fundamental assumption underlying all of our lighting equations is the idea that
+            the surface colors and light intensities are all in a linear
+                <glossterm>colorspace</glossterm>. A colorspace defines how we translate from a set
+            of numerical values to actual, real colors that you can see. A colorspace is a
+                <glossterm>linear colorspace</glossterm> if doubling any value in that colorspace
+            results in a color that is twice as bright. The linearity refers to the relationship
+            between values and overall brightness of the resulting color.</para>
+        <para>This assumption can be taken as a given for our data thus far. All of our diffuse and
+            specular color values were given by us, so we can know that they represent values in a
+            linear RGB colorspace. The light intensities are likewise in a linear colorspace. When
+            we multiplied the sun and ambient intensities by 3 in the last section, we were
+            increasing the brightness by 3x. Multiplying the maximum intensity by 3 had the effect
+            of reducing the overall brightness by 3x.</para>
+        <para>There's just one problem. Your screen doesn't work that way. Time for a short history
+            of television/monitors.</para>
+        <para>The original televisions used an electron gun fired at a phosphor surface to generate
+            light and images; this is called a <acronym>CRT</acronym> display (cathode ray tube).
+            The strength of the electron beam determined the brightness of that part of the image.
+            However, the strength of the beam did not vary linearly with the brightness of the
+            image.</para>
+        <para>The easiest way to deal with that in the earliest days of TV was to simply modify the
+            incoming image at the source. TV broadcasts sent image data that was non-linear in the
+            opposite direction of the CRT's normal non-linearity. This resulted in a color
+            reproduction in a linear colorspace.</para>
+        <para>The term for this process, de-linearizing an image to compensate for a non-linear
+            display, is <glossterm>gamma correction</glossterm>.</para>
+        <para>You may be wondering why this matters. After all, odds are, you don't have a CRT-based
+            monitor; you probably have some form of LCD, plasma, LED, or similar technology. So what
+            does the vagaries of CRT monitors matter to you?</para>
+        <para>Because gamma correction is everywhere. It's in DVDs, video-tapes, and Blu-Ray discs.
+            Every digital camera does it. And this is how it has been for a long time. Because of
+            that, you couldn't sell an LCD monitor that tried to do linear color reproduction;
+            nobody would buy it because all media for it (including your OS) was designed and
+            written expecting CRT-style non-linear displays.</para>
+        <para>This means that every non-CRT display must mimic the CRT's non-linearity; this is
+            built into the basic video processing logic of every display device.</para>
+        <para>So for twelve tutorials now, we have been outputting linear RGB values to a display
+            device that expects gamma-corrected non-linear RGB values. But before we started doing
+            lighting, we were just picking nice-looking colors, so it didn't matter. Now that we're
+            doing something vaguely realistic, we need to perform gamma-correction. This will let us
+            see what we've <emphasis>actually</emphasis> been rendering, instead of what our
+            monitor's gamma-correction circuitry has been mangling.</para>
+        <section>
+            <title>Gamma Functions</title>
+            <para>A <glossterm>gamma function</glossterm> is the function mapping linear RGB space
+                to non-linear RGB space. The gamma function for CRT displays was fairly standard,
+                and all non-CRT displays mimic this standard. It is ultimately based on a math
+                function of CRT displays. The strength of the electron beam is controlled by the
+                voltage passed through it. This correlates with the light intensity as
+                follows:</para>
+            <!--TODO: Equation of linearRGB varies with voltage^γ-->
+            <para>This is called a gamma function due to the Greek letter γ (gamma). The input
+                signal directly controls the voltage, so the input signal needed to be corrected for
+                the power of gamma.</para>
+            <para>Modern displays usually have gamma adjustments that allow the user to set the
+                display's gamma. The default is usually a gamma of around 2.2; this is a useful
+                compromise value and an excellent default for our gamma-correction code.</para>
+            <para>So, given the gamma function above, we need to output values from our shader that
+                will result in our original linear values after the gamma function is applied. This
+                is gamma correction, and the function for that is straightforward.</para>
+            <!--TODO: Equation of gammaRGB = linearRGB^(1/γ)-->
+            <para>It would be interesting to see a graph of these functions, to speculate about what
+                we will see in our gamma-correct images.</para>
+            <!--TODO: Picture, recreating the Wikipedia article's gamma function.-->
+            <para>Without gamma correction, our linearRGB colors (the diagonal line in the graph)
+                would become the CRT gamma curve at the bottom. This means that what we have been
+                seeing is a <emphasis>severely</emphasis> darkened version of our colors. A
+                linearRGB value of 0.5 drops to an intensity of 0.218; that's more than half of the
+                brightness gone.</para>
+            <para>With proper gamma correction, we can expect to see our scene become much
+                brighter.</para>
+        </section>
+        <section>
+            <title>Gamma in Action</title>
+            <para>Gamma correction is implemented in the <phrase role="propername">Gamma
+                    Correction</phrase> tutorial.</para>
+            <para>The <keycap>K</keycap> key toggles gamma correction. The default gamma value is
+                2.2, but it can be raised and lowered with the <keycap>Y</keycap> and
+                    <keycap>H</keycap> keys respectively.</para>
+            <!--TODO: Picture of the gamma correction, with HDR lighting.-->
+            <para>That is very bright; it uses the same HDR-based lighting environment from the
+                previous tutorials. Let's look at some code.</para>
+            <para>The gamma value is an odd kind of value. Conceptually, it has nothing to do with
+                lighting, per-se. It is a global value across many shaders, so it should be in a UBO
+                somewhere. But it isn't a material parameter; it doesn't change from object to
+                object. In this tutorial, we stick it in the <classname>Light</classname> uniform
+                block and the <classname>LightBlockGamma</classname> struct. Again, we steal a float
+                from the padding:</para>
+            <example>
+                <title>Gamma LightBlock</title>
+                <programlisting language="cpp">struct LightBlockGamma
+{
+    glm::vec4 ambientIntensity;
+    float lightAttenuation;
+    float maxIntensity;
+    float gamma;
+    float padding;
+    PerLight lights[NUMBER_OF_LIGHTS];
+};</programlisting>
+            </example>
+            <para>For the sake of clarity in this tutorial, we send the actual gamma value. For
+                performance's sake, we should send 1/gamma, so that we don't have to do it in every
+                fragment.</para>
+            <para>The gamma is applied in the fragment shader as follows:</para>
+            <example>
+                <title>Fragment Gamma Correction</title>
+                <programlisting language="glsl">accumLighting = accumLighting / Lgt.maxIntensity;
+vec4 gamma = vec4(1.0 / Lgt.gamma);
+gamma.w = 1.0;
+outputColor = pow(accumLighting, gamma);</programlisting>
+            </example>
+            <para>Otherwise, the code is mostly unchanged from the HDR tutorial. Speaking of which,
+                gamma correction does not require HDR per se, but both are necessary for quality
+                lighting results.</para>
+        </section>
+        <section>
+            <title>Gamma Correct Lighting</title>
+            <para>This is what happens when you apply HDR lighting to a scene who's light properties
+                were defined <emphasis>without</emphasis> gamma correction. Look at the scene at
+                night; the point lights are extremely bright, and their lighting effects seem to go
+                farther than before. This last point bears investigating.</para>
+            <para>When we first talked about light attenuation, we said that the correct attenuation
+                function for a point light was an inverse-square relationship with respect to the
+                distance to the light. We also said that this usually looked wrong, so people often
+                used a plain inverse attenuation function.</para>
+            <para>Gamma is the reason for this. Or rather, lack of gamma correction is the reason.
+                Without correcting for the display's gamma function, the attenuation of <inlineequation>
+                    <mathphrase>1/r<superscript>2</superscript></mathphrase>
+                </inlineequation> becomes <inlineequation>
+                    <mathphrase>(1/r<superscript>2</superscript>)<superscript>2.2</superscript></mathphrase>
+                </inlineequation>, which is <inlineequation>
+                    <mathphrase>1/r<superscript>4.4</superscript></mathphrase>
+                </inlineequation>. The lack of proper gamma correction magnifies the effective
+                attenuation of lights. A simple <inlineequation>
+                    <mathphrase>1/r</mathphrase>
+                </inlineequation> relationship looks better without gamma correction because the
+                display's gamma function turns it into something that is much closer to being
+                physically correct: <inlineequation>
+                    <mathphrase>1/r<superscript>2.2</superscript></mathphrase>
+                </inlineequation>.</para>
+            <para>Since this lighting was not designed while looking at gamma correct results, let's
+                look at some scene lighting that was developed that way. Turn on gamma correction
+                and set the gamma value to 2.2 (the default if you did not change it). The press <keycombo>
+                    <keycap>Shift</keycap>
+                    <keycap>L</keycap>
+                </keycombo>:</para>
+            <!--TODO: Picture of the gamma correction, with Gamma lighting.-->
+            <para>This is more like it.</para>
+            <para>If there is one point you should learn from this exercise, it is this: make sure
+                that you implement gamma correction and HDR <emphasis>before</emphasis> trying to
+                light your scenes. If you don't, then you may have to adjust all of the lighting
+                parameters again. In this case, it wasn't even possible to use simple math to make
+                the lighting work right. This lighting environment was developed from
+                scratch.</para>
+            <para>One thing we can notice when looking at the gamma correct lighting is that proper
+                gamma correction improves shadow details substantially. And looking at the function,
+                this makes sense. Without proper gamma correction, fully half of the linearRGB range
+                is shoved into the bottom one-fifth of the available light intensity. That doesn't
+                leave much room for areas that are dark, but not too dark to see anything.</para>
+            <para>As such, gamma correction is a key process for producing color-accurate rendered
+                images.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut12 In Review.html" ?>
@@ -361,7 +753,7 @@ else
                     work in a linear colorspace, where twice the brightness of a value is achieved
                     by multiplying its value times two. It is vital for proper imaging results to
                     make sure that the final result of lighting is in the colorspace that the output
-                    display expects. This process is generally called gamma correction.</para>
+                    display expects. This process is called gamma correction.</para>
             </listitem>
         </itemizedlist>
         <section>
@@ -379,11 +771,31 @@ else
                 </listitem>
                 <listitem>
                     <para>Play with the ambient lighting intensity in the gamma-correct scene,
-                        particularly in the daytime. A little ambient, even with a high dynamic
-                        range value like 10, goes a long way to bringing up the level of brightness
+                        particularly in the daytime. A little ambient, even with a maximum intensity
+                        as high as 10, really goes a long way to bringing up the level of brightness
                         in a scene.</para>
                 </listitem>
             </itemizedlist>
+        </section>
+        <section>
+            <title>Further Research</title>
+            <para>HDR is a pretty large field. This tutorial covered perhaps the simplest form of
+                tone mapping, but there are many equations one can use. There are tone mapping
+                functions that map the full [0, ∞) range to [0, 1]. This wouldn't be useful for a
+                scene that needs a dynamic aperture size, but if the aperture is static, it does
+                allow the use of a large range of lighting values.</para>
+            <para>When doing tone mapping with some form of variable aperture setting, computing the
+                proper maximum intensity value can be difficult. Having a hard-coded value, even one
+                that varies, works well enough for some scenes. But for scenes where the user can
+                control where the camera faces, it can be inappropriate. In many modern games, they
+                actually read portions of the rendered image back to the CPU and do some
+                computational analysis to determine what the maximum intensity should be for the
+                next frame. This is delayed, of course, but it allows for an aperture that varies
+                based on what the player is currently looking at, rather than hard-coded
+                values.</para>
+            <para>Just remember: pick your HDR and tone mapping algorithms
+                    <emphasis>before</emphasis> you start putting the scene together. If you try to
+                change them mid-stream, you will have to redo a lot of work.</para>
         </section>
         <section>
             <title>OpenGL Functions of Note</title>
@@ -417,9 +829,52 @@ else
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm/>
+                <glossterm>light clipping</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Light values drawn to the screen are clamped to the range [0, 1]. When
+                        lighting produces values outside of this range, the light is said to be
+                        clipped by the range. This produces a very bright, flat section that loses
+                        all detail and distinction in the image. It is something best
+                        avoided.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>high dynamic range lighting</glossterm>
+                <glossdef>
+                    <para>Lighting that uses values outside of the [0, 1] range. This allows for the
+                        use of a full range of lighting intensities.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>tone mapping</glossterm>
+                <glossdef>
+                    <para>The process of mapping HDR values to a [0, 1] range. This may or may not
+                        be a linear mapping.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>colorspace</glossterm>
+                <glossdef>
+                    <para>The set of reference colors that define a way of representing a color in
+                        computer graphics, and the function mapping between those reference colors
+                        and the actual colors. All colors are defined relative to a particular
+                        colorspace.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>linear colorspace</glossterm>
+                <glossdef>
+                    <para>A colorspace where the brightness of a color varies linearly with its
+                        values. Doubling the value of a color doubles its brightness.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>gamma correction</glossterm>
+                <glossdef>
+                    <para>The process of converting from a linear colorspace to a non-linear
+                        colorspace that a display device expects, usually through the use of a power
+                        function. This process ensures that the display produces an image that is
+                        linear.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
