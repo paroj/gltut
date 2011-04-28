@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+   <mi mathvariant="italic">LinearRGB</mi>
+   <mo stretchy="false">∝</mo>
+   <msup>
+    <mi mathvariant="italic">Voltage</mi>
+	<mi>γ</mi>
+   </msup>
+  </mrow>
+</math>

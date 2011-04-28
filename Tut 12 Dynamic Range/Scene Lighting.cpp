@@ -123,7 +123,7 @@ const ProgramData &GetProgram(LightingProgramTypes eType)
 LightManager g_lights;
 
 Framework::RadiusDef radiusDef = {50.0f, 3.0f, 80.0f, 4.0f, 1.0f};
-glm::vec3 objectCenter = glm::vec3(-59.5f, 4.0f, 65.0f);
+glm::vec3 objectCenter = glm::vec3(-59.5f, 44.0f, 95.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
 
