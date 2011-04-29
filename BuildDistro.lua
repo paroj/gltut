@@ -73,6 +73,8 @@ of the Kindle 2.
 The source of the documentation is found in the Documents directory. This
 source documentation is in the DocBook 5 format. All other formats were
 generated automatically from these source files.
+
+The License.txt file contains the licensing information for the materials distributed in these tutorials.
 ]===], versionNum))
 readme:close()
 
