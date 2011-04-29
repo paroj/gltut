@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="600px" width="600px" >
+	<style type="text/css" ><![CDATA[.pointer-arrow-label
+{
+	font-family: sans-serif;
+	font-size: 20px;
+	font-weight: bold;
+	stroke: none;
+	text-anchor: end;
+	fill: darksalmon;
+}
+
+.gamma-correct-dash
+{
+	stroke-dasharray: 21,6;
+}
+
+.text-right-justified
+{
+	text-anchor: end;
+}
+
+.pointer-arrow-dash
+{
+	stroke-dasharray: 14,5;
+}
+
+.pointer-arrow-marker
+{
+	stroke: none;
+	fill: darksalmon;
+}
+
+.grid-border
+{
+	stroke: grey;
+	fill: none;
+}
+
+.grid-background
+{
+	stroke: none;
+	fill: whitesmoke;
+}
+
+.grid-axis
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.grid-axis-label-y
+{
+	text-anchor: end;
+}
+
+.gamma-func
+{
+	stroke: red;
+	stroke-width: 4px;
+	clip-path: url(#graph-clip);
+	fill: none;
+}
+
+.grid-axis-label
+{
+	font-family: sans-serif;
+	stroke: none;
+	font-size: 15;
+	fill: black;
+}
+
+.grid-axis-label-x
+{
+	text-anchor: middle;
+}
+
+.text-left-justified
+{
+	text-anchor: start;
+}
+
+.curve-label
+{
+	font-family: sans-serif;
+	font-weight: bold;
+	stroke: none;
+	font-size: 30px;
+	fill: darkred;
+}
+
+.grid-line
+{
+	stroke: lightgrey;
+	fill: none;
+}
+
+.pointer-arrow
+{
+	marker-end: url(#arrow-head);
+	stroke-width: 3px;
+	marker-start: url(#arrow-rear);
+	stroke: darksalmon;
+	fill: none;
+}
+
+.grid-axis-hash
+{
+	stroke: black;
+	stroke-width: 0.5px;
+	fill: none;
+}
+
+.linear-rgb
+{
+	stroke: grey;
+	fill: none;
+}
+
+.grid-axis-hash
+{
+	text-anchor: end;
+}]]></style>
+	<defs >
+		<clipPath id="graph-clip" >
+			<rect y="20" x="50" height="530" width="530" />
+		</clipPath>
+		<marker markerWidth="14" markerHeight="14" refX="7" refY="7" markerUnits="userSpaceOnUse" id="arrow-rear" >
+			<circle r="7" cy="7" cx="7" class="pointer-arrow-marker" />
+		</marker>
+		<marker markerWidth="21" markerHeight="14" refX="14" refY="7" markerUnits="userSpaceOnUse" orient="auto" id="arrow-head" >
+			<polygon points="21,7 0,0 5,7 0,14" class="pointer-arrow-marker" />
+		</marker>
+	</defs>
+	<rect y="20" x="50" height="530" width="530" class="grid-background" />
+	<path d="M 50 497 L 580 497 M 50 444 L 580 444 M 50 391 L 580 391 M 50 338 L 580 338 M 50 285 L 580 285 M 50 232 L 580 232 M 50 179 L 580 179 M 50 126 L 580 126 M 50 73 L 580 73 M 315 550 L 315 20" class="grid-line" />
+	<path d="M 50 550 L 580 20" class="linear-rgb" />
+	<path d="M 50 550 L 63.25 549.84160411722 L 76.5 549.27220364006 L 89.75 548.22413213304 L 103 546.65592607425 L 116.25 544.53641255696 L 129.5 541.84025401015 L 142.75 538.54593675719 L 156 534.63467113003 L 169.25 530.08971808118 L 182.5 524.89594436717 L 195.75 519.03951209967 L 209 512.50765281704 L 222.25 505.28849755489 L 235.5 497.3709455798 L 248.75 488.74456072815 L 262 479.39948801232 L 275.25 469.32638546174 L 288.5 458.51636764931 L 301.75 446.96095833909 L 315 434.65205036326 L 328.25 421.58187130705 L 341.5 407.74295391594 L 354.75 393.12811038413 L 368 377.73040986383 L 381.25 361.54315867113 L 394.5 344.55988276744 L 407.75 326.77431217536 L 421 308.18036704987 L 434.25 288.77214517508 L 447.5 268.54391069521 L 460.75 247.49008392017 L 474 225.60523207122 L 487.25 202.88406085271 L 493.875 191.20823697066 L 500.5 179.32140675292 L 507.125 167.22294403859 L 513.75 154.912229991 L 520.375 142.38865290779 L 527 129.65160803843 L 533.625 116.70049740895 L 545.21875 93.519182994017 L 553.9140625 75.69990844817 L 560.435546875 62.090851914318 L 570.2177734375 41.282865644376 L 580 20" class="gamma-func" />
+	<path d="M 50 550 L 50.4140625 529.49267028859 L 52.0703125 507.37911782614 L 55.3828125 484.19687860467 L 58.6953125 468.16910837108 L 65.3203125 444.14110249325 L 71.9453125 425.35636982447 L 78.5703125 409.47655962466 L 85.1953125 395.50414237044 L 91.8203125 382.90503149506 L 105.0703125 360.63694211056 L 118.3203125 341.13996166989 L 131.5703125 323.61519960359 L 144.8203125 307.58441728826 L 158.0703125 292.73484161934 L 171.3203125 278.84884641253 L 184.5703125 265.76789183475 L 197.8203125 253.37231098995 L 211.0703125 241.56918924128 L 224.3203125 230.28470056364 L 237.5703125 219.45904982741 L 250.8203125 209.04301461223 L 264.0703125 198.99550925431 L 277.3203125 189.28182483423 L 290.5703125 179.87232935737 L 303.8203125 170.7414892636 L 317.0703125 161.86712032346 L 330.3203125 153.22980551523 L 343.5703125 144.81243658403 L 356.8203125 136.59984864787 L 370.0703125 128.57852579046 L 383.3203125 120.73636150232 L 396.5703125 113.06246199243 L 409.8203125 105.54698336365 L 423.0703125 98.180995797372 L 436.3203125 90.956369473194 L 449.5703125 83.865678123693 L 462.8203125 76.902117007508 L 476.0703125 70.05943275438 L 489.3203125 63.331863050344 L 502.5703125 56.714084529455 L 515.8203125 50.201167549249 L 529.0703125 43.788536771726 L 541.802734375 37.716926048365 L 560.9013671875 28.768125898226 L 580 20" class="gamma-func gamma-correct-dash" />
+	<text y="141.9" x="222.25" class="curve-label text-right-justified" ><tspan x="222.25" >gamma</tspan><tspan dy="30" x="222.25" >correction</tspan><tspan dy="30" x="222.25" >1/2.2</tspan></text>
+	<text y="351.25" x="421" class="curve-label text-left-justified" ><tspan x="421" >CRT</tspan><tspan dy="30" x="421" >gamma</tspan><tspan dy="30" x="421" >2.2</tspan></text>
+	<line x2="315" y2="423.65205036326" y1="285" x1="315" class="pointer-arrow" />
+	<line x2="165.34794963674" y2="296" y1="434.65205036326" x1="165.34794963674" class="pointer-arrow pointer-arrow-dash" />
+	<text y="285" x="300" class="pointer-arrow-label" >0.5</text>
+	<text y="434.65205036326" x="300" class="pointer-arrow-label" >0.218</text>
+	<text y="434.65205036326" x="150.34794963674" class="pointer-arrow-label" >0.218</text>
+	<text y="285" x="150.34794963674" class="pointer-arrow-label" >0.5</text>
+	<text y="575" x="50" class="grid-axis-label grid-axis-label-x" >0</text>
+	<text y="575" x="103" class="grid-axis-label grid-axis-label-x" >0.1</text>
+	<text y="575" x="156" class="grid-axis-label grid-axis-label-x" >0.2</text>
+	<text y="575" x="209" class="grid-axis-label grid-axis-label-x" >0.3</text>
+	<text y="575" x="262" class="grid-axis-label grid-axis-label-x" >0.4</text>
+	<text y="575" x="315" class="grid-axis-label grid-axis-label-x" >0.5</text>
+	<text y="575" x="368" class="grid-axis-label grid-axis-label-x" >0.6</text>
+	<text y="575" x="421" class="grid-axis-label grid-axis-label-x" >0.7</text>
+	<text y="575" x="474" class="grid-axis-label grid-axis-label-x" >0.8</text>
+	<text y="575" x="527" class="grid-axis-label grid-axis-label-x" >0.9</text>
+	<text y="575" x="580" class="grid-axis-label grid-axis-label-x" >1</text>
+	<text y="555.5" x="40" class="grid-axis-label grid-axis-label-y" >0</text>
+	<text y="502.5" x="40" class="grid-axis-label grid-axis-label-y" >0.1</text>
+	<text y="449.5" x="40" class="grid-axis-label grid-axis-label-y" >0.2</text>
+	<text y="396.5" x="40" class="grid-axis-label grid-axis-label-y" >0.3</text>
+	<text y="343.5" x="40" class="grid-axis-label grid-axis-label-y" >0.4</text>
+	<text y="290.5" x="40" class="grid-axis-label grid-axis-label-y" >0.5</text>
+	<text y="237.5" x="40" class="grid-axis-label grid-axis-label-y" >0.6</text>
+	<text y="184.5" x="40" class="grid-axis-label grid-axis-label-y" >0.7</text>
+	<text y="131.5" x="40" class="grid-axis-label grid-axis-label-y" >0.8</text>
+	<text y="78.5" x="40" class="grid-axis-label grid-axis-label-y" >0.9</text>
+	<text y="25.5" x="40" class="grid-axis-label grid-axis-label-y" >1</text>
+	<path d="M 50 550 L 50 555 M 103 550 L 103 555 M 156 550 L 156 555 M 209 550 L 209 555 M 262 550 L 262 555 M 315 550 L 315 555 M 368 550 L 368 555 M 421 550 L 421 555 M 474 550 L 474 555 M 527 550 L 527 555 M 580 550 L 580 555 M 50 550 L 45 550 M 50 497 L 45 497 M 50 444 L 45 444 M 50 391 L 45 391 M 50 338 L 45 338 M 50 285 L 45 285 M 50 232 L 45 232 M 50 179 L 45 179 M 50 126 L 45 126 M 50 73 L 45 73 M 50 20 L 45 20" class="grid-axis-hash" />
+	<path d="M 50 20 L 580 20 M 580 20 L 580 550" class="grid-border" />
+	<path d="M 50 20 L 50 550 M 50 550 L 580 550" class="grid-axis" />
+</svg>
