@@ -677,7 +677,14 @@ else
             </equation>
             <para>It would be interesting to see a graph of these functions, to speculate about what
                 we will see in our gamma-correct images.</para>
-            <!--TODO: SVG, recreating the Wikipedia article's gamma function.-->
+            <figure>
+                <title>Gamma Function Graph</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="GammaFunctionGraph.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>Without gamma correction, our linearRGB colors (the diagonal line in the graph)
                 would become the CRT gamma curve at the bottom. This means that what we have been
                 seeing is a <emphasis>severely</emphasis> darkened version of our colors. A
