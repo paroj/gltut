@@ -50,7 +50,7 @@
                 uniform variable, or computed in an arbitrary way. This makes all of our objects
                 look very flat and unrealistic.</para>
             <para>Properly modeling the interaction between light and a surface is vital in creating
-                a convincing world. Lighting defines how we see and understands shapes to a large
+                a convincing world. Lighting defines how we see and understand shapes to a large
                 degree. This is the reason why the objects we have used thus far look fairly flat. A
                 curved surface appears curved to us because of how the light plays over the surface.
                 The same goes for a flat surface. Without this visual hinting, surfaces appear flat

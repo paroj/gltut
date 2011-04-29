@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+   <mi mathvariant="italic">GammaRGB</mi>
+   <mo>=</mo>
+   <msup>
+    <mi mathvariant="italic">LinearRGB</mi>
+		<mfrac>
+			<mrow>
+				<mn>1</mn>
+			</mrow>
+			<mrow>
+				<mi>γ</mi>
+			</mrow>
+		</mfrac>
+   </msup>
+  </mrow>
+</math>

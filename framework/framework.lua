@@ -42,7 +42,7 @@ function SetupProject(projName, ...)
 		language "c++"
 		
 		files {...}
-		targetdir "bin"
+--		targetdir "bin"
 
 		includedirs {"../freeglut-2.6.0/include", "../glloader/include",
 			"../FreeImage/dist", "../glm-0.9.0.7", "../tinyxml"}

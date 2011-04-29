@@ -1,0 +1,56 @@
+== GL Extensions ==
+
+Here is how the extension loading library will work:
+
+=== Convert to Lua-Form ===
+
+The current extension data format is pretty primitive. So instead, we want to convert it into a Lua-based form.
+
+enumext.spec now contains all of the enumerators, so the format conversion shouldn't be so bad.
+
+Basically, the format should be not entirely unlike what the "collation" functions do. Except that they need to be more true to the .spec format. If we are to replace .specs with this type (or an XML-ized version of it) then we need to deal with the format.
+
+There should also be a converter that converts back to the old format.
+
+==== Format ====
+
+The format is written out by ExtractSpecsToFile.lua. The result is a lua file that, when run will return a table with the following elements:
+
+* extensions: An array of extension name strings, ordered as in enumext.spec.
+* typemap: A table. The keys are the GL types that are used by functions; the values are the actual C types for them.
+* enumerations: An array of enumerators, ordered as in enumext.spec. Each enumerator is a struct defined as:
+** name: String containing the name of the enumerator.
+** value: String number containing the value of the enumerator, or the name of an enumerator to copy from.
+** copy: True if the value is an enumerator to copy from; false if it's a number.
+** version: String in A.B format contining the core version for this enumerator.
+** deprecated: String in A.B format for the version where the enumerator was deprecated.
+** removed: String in A.B format when the enumerator was removed from GL.
+** extension: An array of extension names.
+* funcData: A table containing the following fields:
+** properties: A table of property values. It is a map between property name and values. The value can either be "*" or an array of possible string values that the property can take.
+** passthru: An array of line strings, in the order in gl.spec, for the preamble passthrough data.
+** functions: An array of functions. Each function is a table with:
+*** name: The name of the function.
+*** any of the properties defined in the properties table. This will have values culled from the list of possibles, except if the property was defined as "*", in which case it will be any string.
+*** params: An array of parameters, in the order that they appear in the function prototype. Each parameter is a table with:
+**** name: the name of the parameter.
+**** type: The basic type. Something in the type-map.
+**** input: True if it is an input variable, valse otherwise.
+**** array: True if it is a pointer; false otehrwise.
+**** other: A string containing the other data. Kept for backwards compatibility.
+
+==== Post-Convert ====
+
+The above format is nice, compact and tidy. But there are some useful permutations we can add to make later processing easier. Calling LoadLuaSpec.lua will load the given lua file and add the following entries to the table:
+
+* enumtable: A table of enumerators, indexed by their names. The value are the entries in the main enum array.
+* extdefs: This is a table of extensions, indexed by extension name. Each extension contains:
+** enums: An array of enumerators. These enumerators are the entries in the main enum array.
+** funcs: An array of functions. These functions are the entries in the main funcData.functions array.
+* coredefs: This is a table of core versions, indexed by version name string. Each core contains:
+** enums: An array of enumerators. These enumerators are the entries in the main enum array.
+** funcs: An array of functions. These functions are the entries in the main funcData.functions array.
+* coreexts: A table of core extensions, indexed by extension name. The value of these entries are:
+** name: The core extension's name.
+** version: the version that extension became core in. The version is a string.
+

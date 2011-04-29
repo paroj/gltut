@@ -12,8 +12,8 @@ namespace Framework
 		Mesh(const std::string &strFilename);
 		~Mesh();
 
-		void Render();
-		void Render(const std::string &strMeshName);
+		void Render() const;
+		void Render(const std::string &strMeshName) const;
 		void DeleteObjects();
 
 	private:

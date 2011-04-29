@@ -15,7 +15,7 @@ namespace Framework
 		{
 		}
 
-		const glm::mat4 &Top()
+		const glm::mat4 &Top() const
 		{
 			return m_currMat;
 		}

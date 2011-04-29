@@ -929,7 +929,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 <para>Callee-save is probably a better convention to use. With caller-save, a
                     function that takes a matrix stack must be assumed to modify it (if it takes the
                     object as a non-const reference), so it will have to do a push/pop. Whereas with
-                    callee-save, you only push/pop as you explicitly need: at the cite where you are
+                    callee-save, you only push/pop as you explicitly need: at the site where you are
                     modifying the matrix stack. It groups the code together better.</para>
             </sidebar>
         </section>

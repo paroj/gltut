@@ -442,15 +442,15 @@ glm::vec3 ResolveCamPosition()
 {
 	Framework::MatrixStack tempMat;
 
-	float rho = Framework::DegToRad(g_sphereCamRelPos.x);
+	float phi = Framework::DegToRad(g_sphereCamRelPos.x);
 	float theta = Framework::DegToRad(g_sphereCamRelPos.y + 90.0f);
 
 	float fSinTheta = sinf(theta);
 	float fCosTheta = cosf(theta);
-	float fCosRho = cosf(rho);
-	float fSinRho = sinf(rho);
+	float fCosPhi = cosf(phi);
+	float fSinPhi = sinf(phi);
 
-	glm::vec3 dirToCamera(fSinTheta * fCosRho, fCosTheta, fSinTheta * fSinRho);
+	glm::vec3 dirToCamera(fSinTheta * fCosPhi, fCosTheta, fSinTheta * fSinPhi);
 	return (dirToCamera * g_sphereCamRelPos.z) + g_camTarget;
 }
 

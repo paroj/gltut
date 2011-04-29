@@ -611,14 +611,12 @@ void main()
                 </imageobject>
             </mediaobject>
         </informalequation>
-        <para>However physically correct this equation is, it has certain drawbacks. And this brings
-            us back to the light intensity problem we touched on earlier.</para>
-        <para>Since our lights are clamped on the [0, 1] range, it doesn't take much distance from
-            the light before the contribution from a light to become effectively nil. In reality,
-            with an unclamped range, we could just pump the light's intensity up to realistic
-            values. But we're working with a clamped range.</para>
-        <para>Therefore, a more common attenuation scheme is to use the inverse of just the distance
-            instead of the inverse of the distance squared:</para>
+        <para>This equation computes physically realistic light attenuation for point-lights. But it
+            often doesn't look very good. Lights seem to have a much sharper intensity falloff than
+            one would expect.</para>
+        <para>There is a reason for this, but it is not one we are ready to get into quite yet. What
+            is often done is to simply use the inverse rather than the inverse-square of the
+            distance:</para>
         <equation>
             <title>Light Attenuation Inverse</title>
             <mediaobject>
@@ -627,8 +625,10 @@ void main()
                 </imageobject>
             </mediaobject>
         </equation>
-        <para>It looks brighter for more distant lights. It isn't physically correct, but so much
-            about our rendering is at this point that it won't be noticed much.</para>
+        <para>It looks brighter at greater distances than the physically correct model. This is fine
+            for simple examples, but as we get more advanced, it will not be acceptable. This
+            solution is really just a stop-gap; the real solution is one that we will discuss in a
+            few tutorials.</para>
         <section>
             <title>Reverse of the Transform</title>
             <para>However, there is a problem. We previously did per-fragment lighting in model

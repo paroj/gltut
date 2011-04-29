@@ -292,7 +292,7 @@ glUseProgram(0);</programlisting>
             <para>Spherical coordinates are three dimensional, so they have 3 values. One value,
                 commonly given the name <quote>r</quote> (for radius) represents the distance of the
                 coordinate from the center of the coordinate system. This value is on the range [0,
-                ∞). The second value, called <quote>φ</quote> (rho), represents the angle in the
+                ∞). The second value, called <quote>φ</quote> (phi), represents the angle in the
                 elliptical plane. This value extends on the range [0, 360). The third value, called
                     <quote>θ</quote> (theta), represents the angle above and below the elliptical
                 plane. This value is on the range [0, 180], where 0 means straight up and 180 means
@@ -329,8 +329,8 @@ glUseProgram(0);</programlisting>
 }</programlisting>
             </example>
             <para>The global variable <varname>g_sphereCamRelPos</varname> contains the spherical
-                coordinates. The X value contains Rho, the Y value contains Theta, and the Z value
-                is the radius.</para>
+                coordinates. The X value contains φ, the Y value contains θ, and the Z value is the
+                radius.</para>
             <para>The Theta value used in our spherical coordinates is slightly different from the
                 usual. Instead of being on the range [0, 180], it is on the range [-90, 90]; this is
                 why there is an addition by 90 degrees before computing the Theta angle in
@@ -1017,7 +1017,7 @@ void main()
                     <glossterm>glBindBufferRange</glossterm>
                     <glossdef>
                         <para>Binds a buffer object to a particular indexed location, as well as
-                            binding it to a target. When used with GL_UNIFORM_BUFFER, it binds the
+                            binding it to the given. When used with GL_UNIFORM_BUFFER, it binds the
                             buffer object to a particular uniform buffer binding point. It has range
                             parameters that can be used to effectively bind part of the buffer
                             object to an indexed location.</para>

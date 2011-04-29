@@ -336,7 +336,7 @@
             useful for our purposes.</para>
         <formalpara>
             <title>Triangles and Vertices</title>
-            <para>Triangles consist of 3 vertices. A <glossterm>vertex</glossterm> is of a
+            <para>Triangles consist of 3 vertices. A <glossterm>vertex</glossterm> is a
                 collection of arbitrary data. For the sake of simplicity (we will expand upon this
                 later), let us say that this data must contain a point in three dimensional space.
                 It may contain other data, but it must have at least this. Any 3 points that are not
@@ -921,7 +921,8 @@ OpenGL_Context context;</programlisting>
                 <glossterm>colorspace</glossterm>
                 <glossdef>
                     <para>The set of reference colors that define a way of representing a color in
-                        computer graphics. All colors are defined relative to a particular
+                        computer graphics, and the function mapping between those reference colors
+                        and the actual colors. All colors are defined relative to a particular
                         colorspace.</para>
                 </glossdef>
             </glossentry>

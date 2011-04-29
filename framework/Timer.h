@@ -31,12 +31,24 @@ namespace Framework
 		//Resets the timer, as though the user just created the object with the original parameters.
 		void Reset();
 
-		//Pauses/unpauses. Returns true if the timer is paused.
+		//Pauses/unpauses. Returns true if the timer is paused after the toggling.
 		bool TogglePause();
+
+		//Sets the pause state to the given value.
+		void SetPause(bool pause = true);
+
+		//Returns true if the timer is paused.
+		bool IsPaused() const;
 
 		//Updates the time for the timer. Returns true if the timer has reached the end.
 		//Will only return true for SINGLE timers that have reached their duration.
 		bool Update();
+
+		//Subtracts secRewind from the current time and continues from there.
+		void Rewind(float secRewind);
+
+		//Adds secRewind to the current time and continues from there.
+		void Fastforward(float secFF);
 
 		//Returns a number [0, 1], representing progress through the duration. Only used
 		//for SINGLE and LOOP timers.
@@ -52,13 +64,13 @@ namespace Framework
 
 	private:
 		Type m_eType;
-		float m_fDuration;
+		float m_secDuration;
 
-		bool m_bHasUpdated;
-		bool m_bIsPaused;
+		bool m_hasUpdated;
+		bool m_isPaused;
 
 		float m_absPrevTime;
-		float m_fAccumTime;
+		float m_secAccumTime;
 	};
 }
 

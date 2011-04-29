@@ -669,7 +669,7 @@ glDepthRange(0.0f, 1.0f);</programlisting>
             <para>These are the most common depth testing parameters. It turns on depth testing,
                 sets the test function to less than or equal to, and sets the range mapping to the
                 full accepted range.</para>
-            <para>It is comment to use <literal>GL_LEQUAL</literal> instead of
+            <para>It is common to use <literal>GL_LEQUAL</literal> instead of
                     <literal>GL_LESS</literal>. This allows for the use of multipass algorithms,
                 where you render the same geometry with the same vertex shader, but linked with a
                 different fragment shader. We'll look at those much, much later.</para>

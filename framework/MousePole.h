@@ -31,6 +31,30 @@ namespace Framework
 		void GetCurrVectors(glm::vec3 &pos, glm::vec3 &lookAt, glm::vec3 &upVec);
 		glm::mat4 CalcMatrix() const;
 
+		glm::vec3 GetLookAtPos() const {return m_lookAt;}
+		float GetLookAtDistance() const {return m_radius.fCurrRadius;}
+
+		void GLUTMouseMove(const glm::ivec2 &position);
+		void GLUTMouseButton(int button, int btnState, const glm::ivec2 &position);
+		void GLUTMouseWheel(int direction, const glm::ivec2 &position);
+		void GLUTKeyOffset(int key, float largeIncrement, float smallIncrement);
+
+		bool IsDragging() const {return m_bIsDragging;}
+
+		enum TargetOffsetDir
+		{
+			DIR_UP,
+			DIR_DOWN,
+			DIR_FORWARD,
+			DIR_BACKWARD,
+			DIR_RIGHT,
+			DIR_LEFT,
+		};
+
+		void OffsetTargetPos(TargetOffsetDir eDir, float worldDistance);
+		void OffsetTargetPos(const glm::vec3 &cameraOffset);
+
+	protected:
 		enum RotateMode
 		{
 			RM_DUAL_AXIS_ROTATE,
@@ -40,13 +64,6 @@ namespace Framework
 			RM_SPIN_VIEW_AXIS,
 		};
 
-		void GLUTMouseMove(const glm::ivec2 &position);
-		void GLUTMouseButton(int button, int btnState, const glm::ivec2 &position);
-		void GLUTMouseWheel(int direction, const glm::ivec2 &position);
-
-		bool IsDragging() const {return m_bIsDragging;}
-
-	protected:
 		glm::vec3 m_lookAt;
 
 		float m_radCurrXZAngle;	//Angle around the y-axis. In radians

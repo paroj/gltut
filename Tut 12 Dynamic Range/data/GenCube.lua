@@ -57,70 +57,76 @@ local positions =
 	vmath.vec3(-0.5,  0.5, -0.5),
 };
 
-local tints =
+local normals =
 {
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
+	--Front
+	vmath.vec3(0.0,  0.0,  1.0),
+	vmath.vec3(0.0,  0.0,  1.0),
+	vmath.vec3(0.0,  0.0,  1.0),
+	vmath.vec3(0.0,  0.0,  1.0),
 
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
+	--Top
+	vmath.vec3(0.0,  1.0,  0.0),
+	vmath.vec3(0.0,  1.0,  0.0),
+	vmath.vec3(0.0,  1.0,  0.0),
+	vmath.vec3(0.0,  1.0,  0.0),
 
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
+	--Left
+	vmath.vec3(1.0,  0.0,  0.0),
+	vmath.vec3(1.0,  0.0,  0.0),
+	vmath.vec3(1.0,  0.0,  0.0),
+	vmath.vec3(1.0,  0.0,  0.0),
 
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
-	vmath.vec4(1.0, 1.0, 1.0, 1.0),
+	--Back
+	vmath.vec3(0.0,  0.0, -1.0),
+	vmath.vec3(0.0,  0.0, -1.0),
+	vmath.vec3(0.0,  0.0, -1.0),
+	vmath.vec3(0.0,  0.0, -1.0),
 
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
-	vmath.vec4(0.75, 0.75, 0.75, 1.0),
+	--Bottom
+	vmath.vec3(0.0, -1.0,  0.0),
+	vmath.vec3(0.0, -1.0,  0.0),
+	vmath.vec3(0.0, -1.0,  0.0),
+	vmath.vec3(0.0, -1.0,  0.0),
 
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
-	vmath.vec4(0.5, 0.5, 0.5, 1.0),
+	--Right
+	vmath.vec3(-1.0,  0.0,  0.0),
+	vmath.vec3(-1.0,  0.0,  0.0),
+	vmath.vec3(-1.0,  0.0,  0.0),
+	vmath.vec3(-1.0,  0.0,  0.0),
 }
 
 local colors =
 {
-	vmath.vec4(0.0, 1.0, 0.0, 1.0),
-	vmath.vec4(0.0, 1.0, 0.0, 1.0),
-	vmath.vec4(0.0, 1.0, 0.0, 1.0),
-	vmath.vec4(0.0, 1.0, 0.0, 1.0),
+	vmath.vec4(0.25, 1.0, 0.25, 1.0),
+	vmath.vec4(0.25, 1.0, 0.25, 1.0),
+	vmath.vec4(0.25, 1.0, 0.25, 1.0),
+	vmath.vec4(0.25, 1.0, 0.25, 1.0),
 
-	vmath.vec4(0.0, 0.0, 1.0, 1.0),
-	vmath.vec4(0.0, 0.0, 1.0, 1.0),
-	vmath.vec4(0.0, 0.0, 1.0, 1.0),
-	vmath.vec4(0.0, 0.0, 1.0, 1.0),
+	vmath.vec4(0.5, 0.5, 1.0, 1.0),
+	vmath.vec4(0.5, 0.5, 1.0, 1.0),
+	vmath.vec4(0.5, 0.5, 1.0, 1.0),
+	vmath.vec4(0.5, 0.5, 1.0, 1.0),
 
-	vmath.vec4(1.0, 0.0, 0.0, 1.0),
-	vmath.vec4(1.0, 0.0, 0.0, 1.0),
-	vmath.vec4(1.0, 0.0, 0.0, 1.0),
-	vmath.vec4(1.0, 0.0, 0.0, 1.0),
+	vmath.vec4(1.0, 0.5, 0.5, 1.0),
+	vmath.vec4(1.0, 0.5, 0.5, 1.0),
+	vmath.vec4(1.0, 0.5, 0.5, 1.0),
+	vmath.vec4(1.0, 0.5, 0.5, 1.0),
 
-	vmath.vec4(1.0, 1.0, 0.0, 1.0),
-	vmath.vec4(1.0, 1.0, 0.0, 1.0),
-	vmath.vec4(1.0, 1.0, 0.0, 1.0),
-	vmath.vec4(1.0, 1.0, 0.0, 1.0),
+	vmath.vec4(1.0, 1.0, 0.5, 1.0),
+	vmath.vec4(1.0, 1.0, 0.5, 1.0),
+	vmath.vec4(1.0, 1.0, 0.5, 1.0),
+	vmath.vec4(1.0, 1.0, 0.5, 1.0),
 
-	vmath.vec4(0.0, 1.0, 1.0, 1.0),
-	vmath.vec4(0.0, 1.0, 1.0, 1.0),
-	vmath.vec4(0.0, 1.0, 1.0, 1.0),
-	vmath.vec4(0.0, 1.0, 1.0, 1.0),
+	vmath.vec4(0.5, 1.0, 1.0, 1.0),
+	vmath.vec4(0.5, 1.0, 1.0, 1.0),
+	vmath.vec4(0.5, 1.0, 1.0, 1.0),
+	vmath.vec4(0.5, 1.0, 1.0, 1.0),
 
-	vmath.vec4(1.0, 0.0, 1.0, 1.0),
-	vmath.vec4(1.0, 0.0, 1.0, 1.0),
-	vmath.vec4(1.0, 0.0, 1.0, 1.0),
-	vmath.vec4(1.0, 0.0, 1.0, 1.0),
+	vmath.vec4(1.0, 0.5, 1.0, 1.0),
+	vmath.vec4(1.0, 0.5, 1.0, 1.0),
+	vmath.vec4(1.0, 0.5, 1.0, 1.0),
+	vmath.vec4(1.0, 0.5, 1.0, 1.0),
 }
 
 local indices =
@@ -159,6 +165,23 @@ do
 			writer:AddAttribute("type", "float");
 			writer:AddAttribute("size", "4");
 			writer:AddText(GenStringFromArray(colors));
+		writer:PopElement();
+		writer:PushElement("attribute");
+			writer:AddAttribute("index", "2");
+			writer:AddAttribute("type", "float");
+			writer:AddAttribute("size", "3");
+			writer:AddText(GenStringFromArray(normals));
+		writer:PopElement();
+		writer:PushElement("vao");
+			writer:AddAttribute("name", "lit");
+			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
+			writer:PushElement("source"); writer:AddAttribute("attrib", "2"); writer:PopElement();
+		writer:PopElement();
+		writer:PushElement("vao");
+			writer:AddAttribute("name", "lit-color");
+			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
+			writer:PushElement("source"); writer:AddAttribute("attrib", "1"); writer:PopElement();
+			writer:PushElement("source"); writer:AddAttribute("attrib", "2"); writer:PopElement();
 		writer:PopElement();
 		writer:PushElement("vao");
 			writer:AddAttribute("name", "color");

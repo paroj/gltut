@@ -1,0 +1,4 @@
+enumext.spec:
+
+- Renamed TEXTURE_CUBE_MAP_SEAMLESS_ARB to TEXTURE_CUBE_MAP_SEAMLESS in the AMD_seamless_cubemap_per_texture section.
+
