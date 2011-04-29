@@ -73,12 +73,12 @@ function SubImage(subImagesX, subImagesY, subImageWidth, subImageHeight,
 				  subImageHSpacing, subImageVSpacing)
 
 	if(not subImageHeight) then
-		subImageVSpacing = subImageWidth.y;
-		subImageHSpacing = subImageWidth.x;
-		subImageHeight = subImagesY.y;
-		subImageWidth = subImagesY.x;
-		subImagesY = subImagesX.y;
-		subImagesX = subImagesX.x;
+		subImageVSpacing = subImageWidth[2];
+		subImageHSpacing = subImageWidth[1];
+		subImageHeight = subImagesY[2];
+		subImageWidth = subImagesY[1];
+		subImagesY = subImagesX[2];
+		subImagesX = subImagesX[1];
 	end
 	
 	local subImage = {};

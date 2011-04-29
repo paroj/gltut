@@ -35,7 +35,8 @@ function View:Transform(points)
 	end;
 
 	point = self.matrix:Transform(point);
-
+	point = point + self.pixelOffset;
+	
 	return point;
 end
 
@@ -70,7 +71,7 @@ function View:Length(testVal)
 	return vmath.length(test2 - test1);
 end
 
-function Viewport(pixelSize, vpOrigin, vpSize)
+function Viewport(pixelSize, vpOrigin, vpSize, vpPixelOffset)
 	local viewport = {};
 	
 	viewport.pixelSize = vmath.vec2(pixelSize);
@@ -80,6 +81,12 @@ function Viewport(pixelSize, vpOrigin, vpSize)
 		vpSize = vmath.vec2(vpSize, vpSize * (pixelSize[2] / pixelSize[1]))
 	end;
 	viewport.vpSize = vmath.vec2(vpSize);
+	
+	if(vpPixelOffset) then
+		viewport.pixelOffset = vmath.vec2(vpPixelOffset);
+	else
+		viewport.pixelOffset = vmath.vec2(0.0, 0.0);
+	end
 	
 	local trans = Transform2D();
 	trans:Translate(viewport.pxCenter);
