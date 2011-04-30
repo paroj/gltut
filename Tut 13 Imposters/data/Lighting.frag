@@ -1,53 +1,94 @@
 #version 330
 
-in vec4 diffuseColor;
 in vec3 vertexNormal;
 in vec3 cameraSpacePosition;
 
 out vec4 outputColor;
 
-uniform vec3 modelSpaceLightPos;
+layout(std140) uniform;
 
-uniform vec4 lightIntensity;
-uniform vec4 ambientIntensity;
+uniform Material
+{
+	vec4 diffuseColor;
+	vec4 specularColor;
+	float specularShininess;
+} Mtl;
 
-uniform vec3 cameraSpaceLightPos;
+struct PerLight
+{
+	vec4 cameraSpaceLightPos;
+	vec4 lightIntensity;
+};
 
-uniform float lightAttenuation;
+const int numberOfLights = 1;
 
-const vec4 specularColor = vec4(0.25, 0.25, 0.25, 1.0);
-uniform float shininessFactor;
-uniform vec4 baseDiffuseColor;
+uniform Light
+{
+	vec4 ambientIntensity;
+	float lightAttenuation;
+	float maxIntensity;
+	float gamma;
+	PerLight lights[numberOfLights];
+} Lgt;
 
 
-float CalcAttenuation(in vec3 cameraSpacePosition, out vec3 lightDirection)
+float CalcAttenuation(in vec3 cameraSpacePosition,
+	in vec3 cameraSpaceLightPos,
+	out vec3 lightDirection)
 {
 	vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
 	float lightDistanceSqr = dot(lightDifference, lightDifference);
 	lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
 	
-	return (1 / ( 1.0 + lightAttenuation * sqrt(lightDistanceSqr)));
+	return (1 / ( 1.0 + Lgt.lightAttenuation * lightDistanceSqr));
+}
+
+vec4 ComputeLighting(in PerLight lightData)
+{
+	vec3 lightDir;
+	vec4 lightIntensity;
+	if(lightData.cameraSpaceLightPos.w == 0.0)
+	{
+		lightDir = vec3(lightData.cameraSpaceLightPos);
+		lightIntensity = lightData.lightIntensity;
+	}
+	else
+	{
+		float atten = CalcAttenuation(cameraSpacePosition,
+			lightData.cameraSpaceLightPos.xyz, lightDir);
+		lightIntensity = atten * lightData.lightIntensity;
+	}
+	
+	vec3 surfaceNormal = normalize(vertexNormal);
+	float cosAngIncidence = dot(surfaceNormal, lightDir);
+	cosAngIncidence = cosAngIncidence < 0.0001 ? 0.0 : cosAngIncidence;
+	
+	vec3 viewDirection = normalize(-cameraSpacePosition);
+	
+	vec3 halfAngle = normalize(lightDir + viewDirection);
+	float angleNormalHalf = acos(dot(halfAngle, surfaceNormal));
+	float exponent = angleNormalHalf / Mtl.specularShininess;
+	exponent = -(exponent * exponent);
+	float gaussianTerm = exp(exponent);
+
+	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
+	
+	vec4 lighting = Mtl.diffuseColor * lightIntensity * cosAngIncidence;
+	lighting += Mtl.specularColor * lightIntensity * gaussianTerm;
+	
+	return lighting;
 }
 
 void main()
 {
-	vec3 lightDir = vec3(0.0);
-	float atten = CalcAttenuation(cameraSpacePosition, lightDir);
-	vec4 attenIntensity = atten * lightIntensity;
+	vec4 accumLighting = Mtl.diffuseColor * Lgt.ambientIntensity;
+	for(int light = 0; light < numberOfLights; light++)
+	{
+		accumLighting += ComputeLighting(Lgt.lights[light]);
+	}
 	
-	vec3 surfaceNormal = normalize(vertexNormal);
-	float cosAngIncidence = dot(surfaceNormal, lightDir);
-	cosAngIncidence = clamp(cosAngIncidence, 0, 1);
-	
-	vec3 viewDirection = normalize(-cameraSpacePosition);
-	vec3 reflectDir = reflect(-lightDir, surfaceNormal);
-	float phongTerm = dot(viewDirection, reflectDir);
-	phongTerm = clamp(phongTerm, 0, 1);
-	phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
-	phongTerm = pow(phongTerm, shininessFactor);
-	
-
-	outputColor = (baseDiffuseColor * attenIntensity * cosAngIncidence) +
-		(specularColor * attenIntensity * phongTerm) +
-		(baseDiffuseColor * ambientIntensity);
+	accumLighting = accumLighting / Lgt.maxIntensity;
+	vec4 gamma = vec4(1.0 / Lgt.gamma);
+	gamma.w = 1.0;
+	outputColor = pow(accumLighting, gamma);
 }

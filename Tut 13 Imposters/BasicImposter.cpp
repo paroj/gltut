@@ -2,13 +2,14 @@
 #include <vector>
 #include <stack>
 #include <math.h>
-#include <glloader/gl_3_2_comp.h>
+#include <glloader/gl_3_3_comp.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
 #include "../framework/ObjectPole.h"
+#include "../framework/UniformBlockArray.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -18,25 +19,8 @@ struct ProgramData
 {
 	GLuint theProgram;
 
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
-
-	GLuint lightIntensityUnif;
-	GLuint ambientIntensityUnif;
-
 	GLuint normalModelToCameraMatrixUnif;
-	GLuint cameraSpaceLightPosUnif;
-	GLuint lightAttenuationUnif;
-	GLuint shininessFactorUnif;
-	GLuint baseDiffuseColorUnif;
-
-	void SetWindowData(const glm::mat4 cameraToClip)
-	{
-		glUseProgram(theProgram);
-		glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(cameraToClip));
-		glUseProgram(0);
-	}
 };
 
 struct UnlitProgData
@@ -44,24 +28,19 @@ struct UnlitProgData
 	GLuint theProgram;
 
 	GLuint objectColorUnif;
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
-
-	void SetWindowData(const glm::mat4 cameraToClip)
-	{
-		glUseProgram(theProgram);
-		glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(cameraToClip));
-		glUseProgram(0);
-	}
 };
 
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-ProgramData g_LitObjects;
-
+ProgramData g_litMeshProg;
+ProgramData g_litImposterProg;
 UnlitProgData g_Unlit;
+
+const int g_materialBlockIndex = 0;
+const int g_lightBlockIndex = 1;
+const int g_projectionBlockIndex = 2;
 
 UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
@@ -73,8 +52,10 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	UnlitProgData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
@@ -89,32 +70,29 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
-	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
-	data.ambientIntensityUnif = glGetUniformLocation(data.theProgram, "ambientIntensity");
 
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
-	data.cameraSpaceLightPosUnif = glGetUniformLocation(data.theProgram, "cameraSpaceLightPos");
-	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
-	data.shininessFactorUnif = glGetUniformLocation(data.theProgram, "shininessFactor");
-	data.baseDiffuseColorUnif = glGetUniformLocation(data.theProgram, "baseDiffuseColor");
+
+	GLuint materialBlock = glGetUniformBlockIndex(data.theProgram, "Material");
+	GLuint lightBlock = glGetUniformBlockIndex(data.theProgram, "Light");
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+
+	glUniformBlockBinding(data.theProgram, materialBlock, g_materialBlockIndex);
+	glUniformBlockBinding(data.theProgram, lightBlock, g_lightBlockIndex);
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
 
 void InitializePrograms()
 {
-	g_LitObjects = LoadLitProgram("PN.vert", "Lighting.frag");
+	g_litMeshProg = LoadLitProgram("PN.vert", "Lighting.frag");
 
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
 
-Framework::Mesh *g_pCylinderMesh = NULL;
-Framework::Mesh *g_pPlaneMesh = NULL;
-Framework::Mesh *g_pCubeMesh = NULL;
-
 Framework::RadiusDef radiusDef = {5.0f, 3.0f, 200.0f, 1.5f, 0.5f};
-glm::vec3 objectCenter = glm::vec3(0.0f, 0.5f, 0.0f);
+glm::vec3 objectCenter = glm::vec3(0.0f, 10.0f, 0.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
 Framework::ObjectPole g_objectPole(objectCenter, &g_mousePole);
@@ -143,6 +121,60 @@ namespace
 	}
 }
 
+struct ProjectionBlock
+{
+	glm::mat4 cameraToClipMatrix;
+};
+
+struct PerLight
+{
+	glm::vec4 cameraSpaceLightPos;
+	glm::vec4 lightIntensity;
+};
+
+const int NUMBER_OF_LIGHTS = 1;
+
+struct LightBlock
+{
+	glm::vec4 ambientIntensity;
+	float lightAttenuation;
+	float maxIntensity;
+	float gamma;
+	float padding;
+	PerLight lights[NUMBER_OF_LIGHTS];
+};
+
+struct MaterialBlock
+{
+	glm::vec4 diffuseColor;
+	glm::vec4 specularColor;
+	float specularShininess;
+	float padding[3];
+};
+
+Framework::Mesh *g_pPlaneMesh = NULL;
+Framework::Mesh *g_pSphereMesh = NULL;
+
+GLuint g_lightUniformBuffer = 0;
+GLuint g_projectionUniformBuffer = 0;
+GLuint g_materialUniformBuffer = 0;
+
+int g_materialBlockOffset = 0;
+
+void CreateMaterials()
+{
+	Framework::UniformBlockArray<MaterialBlock, 1> ubArray;
+	g_materialBlockOffset = ubArray.GetArrayOffset();
+
+	MaterialBlock mtl;
+	mtl.diffuseColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	mtl.specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+	mtl.specularShininess = 0.6f;
+	ubArray[0] = mtl;
+
+	g_materialUniformBuffer = ubArray.CreateBufferObject();
+}
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -150,13 +182,13 @@ void init()
 
 	try
 	{
-		g_pCylinderMesh = new Framework::Mesh("UnitCylinder.xml");
 		g_pPlaneMesh = new Framework::Mesh("LargePlane.xml");
-		g_pCubeMesh = new Framework::Mesh("UnitCube.xml");
+		g_pSphereMesh = new Framework::Mesh("UnitSphere.xml");
 	}
 	catch(std::exception &except)
 	{
 		printf(except.what());
+		throw;
 	}
 
 	glutMouseFunc(MouseButton);
@@ -175,59 +207,27 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
+
+	//Setup our Uniform Buffers
+	glGenBuffers(1, &g_lightUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), NULL, GL_DYNAMIC_DRAW);
+
+	glGenBuffers(1, &g_projectionUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
+
+	//Bind the static buffers.
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_lightBlockIndex, g_lightUniformBuffer,
+		0, sizeof(LightBlock));
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
+		0, sizeof(ProjectionBlock));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	CreateMaterials();
 }
-
-static float g_fLightHeight = 1.5f;
-static float g_fLightRadius = 1.0f;
-static bool g_bRotateLight = true;
-
-static float g_fRotateTime = 0.0f;
-static float g_fPrevTime = 0.0f;
-
-glm::vec4 CalcLightPosition()
-{
-	const float fLoopDuration = 5.0f;
-	const float fScale = 3.14159f * 2.0f / fLoopDuration;
-
-	float fCurrTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-	float fDeltaTime = fCurrTime - g_fPrevTime;
-	g_fPrevTime = fCurrTime;
-
-	if(g_bRotateLight)
-		g_fRotateTime += fDeltaTime;
-
-	float fCurrTimeThroughLoop = fmodf(g_fRotateTime, fLoopDuration);
-
-	glm::vec4 ret(0.0f, g_fLightHeight, 0.0f, 1.0f);
-
-	ret.x = cosf(fCurrTimeThroughLoop * fScale) * g_fLightRadius;
-	ret.z = sinf(fCurrTimeThroughLoop * fScale) * g_fLightRadius;
-
-	return ret;
-}
-
-enum LightingModel
-{
-	LM_PURE_DIFFUSE = 0,
-	LM_DIFFUSE_AND_SPECULAR,
-	LM_SPECULAR_ONLY,
-
-	LM_MAX_LIGHTING_MODEL,
-};
-
-static int g_eLightModel = LM_DIFFUSE_AND_SPECULAR;
-
-static bool g_bUseFragmentLighting = true;
-static bool g_bDrawColoredCyl = false;
-static bool g_bDrawLightSource = false;
-static bool g_bScaleCyl = false;
-static bool g_bDrawDark = false;
-
-const float g_fLightAttenuation = 1.2f;
-static float g_fShininessFactor = 4.0f;
-
-const glm::vec4 g_darkColor(0.2f, 0.2f, 0.2f, 1.0f);
-const glm::vec4 g_lightColor(1.0f);
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -235,116 +235,48 @@ const glm::vec4 g_lightColor(1.0f);
 
 void display()
 {
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearColor(0.5f, 1.0f, 0.5f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pPlaneMesh && g_pCylinderMesh && g_pCubeMesh)
+	if(g_pPlaneMesh && g_pSphereMesh)
 	{
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+		const glm::mat4 &worldToCamMat = modelMatrix.Top();
 
-		const glm::vec4 &worldLightPos = CalcLightPosition();
-		const glm::vec4 &lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
+		LightBlock lightData;
 
-		ProgramData *pWhiteProg = NULL;
-		ProgramData *pColorProg = NULL;
+		lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+		lightData.lightAttenuation = 25.0f;
+		lightData.maxIntensity = 1.0f;
+		lightData.gamma = 2.2f;
 
-		switch(g_eLightModel)
-		{
-		case LM_PURE_DIFFUSE:
-			pWhiteProg = &g_WhiteNoPhong;
-			pColorProg = &g_ColorNoPhong;
-			break;
-		case LM_DIFFUSE_AND_SPECULAR:
-			pWhiteProg = &g_WhitePhong;
-			pColorProg = &g_ColorPhong;
-			break;
-		case LM_SPECULAR_ONLY:
-			pWhiteProg = &g_LitObjects;
-			pColorProg = &g_ColorPhongOnly;
-			break;
-		}
+		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+		lightData.lights[0].lightIntensity = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 
-		glUseProgram(pWhiteProg->theProgram);
-		glUniform4f(pWhiteProg->lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
-		glUniform4f(pWhiteProg->ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
-		glUniform3fv(pWhiteProg->cameraSpaceLightPosUnif,1, glm::value_ptr(lightPosCameraSpace));
-		glUniform1f(pWhiteProg->lightAttenuationUnif, g_fLightAttenuation);
-		glUniform1f(pWhiteProg->shininessFactorUnif, g_fShininessFactor);
-		glUniform4fv(pWhiteProg->baseDiffuseColorUnif, 1,
-			g_bDrawDark ? glm::value_ptr(g_darkColor) : glm::value_ptr(g_lightColor));
+		glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-		glUseProgram(pColorProg->theProgram);
-		glUniform4f(pColorProg->lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
-		glUniform4f(pColorProg->ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
-		glUniform3fv(pColorProg->cameraSpaceLightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-		glUniform1f(pColorProg->lightAttenuationUnif, g_fLightAttenuation);
-		glUniform1f(pColorProg->shininessFactorUnif, g_fShininessFactor);
-		glUseProgram(0);
 
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
+				0 * g_materialBlockOffset, sizeof(MaterialBlock));
 
-			//Render the ground plane.
-			{
-				Framework::MatrixStackPusher push(modelMatrix);
+			glm::mat3 normMatrix(modelMatrix.Top());
+			normMatrix = glm::transpose(glm::inverse(normMatrix));
 
-				glm::mat3 normMatrix(modelMatrix.Top());
-				normMatrix = glm::transpose(glm::inverse(normMatrix));
+			glUseProgram(g_litMeshProg.theProgram);
+			glUniformMatrix4fv(g_litMeshProg.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+			glUniformMatrix3fv(g_litMeshProg.normalModelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(normMatrix));
 
-				glUseProgram(pWhiteProg->theProgram);
-				glUniformMatrix4fv(pWhiteProg->modelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(modelMatrix.Top()));
+			g_pPlaneMesh->Render();
 
-				glUniformMatrix3fv(pWhiteProg->normalModelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(normMatrix));
-				g_pPlaneMesh->Render();
-				glUseProgram(0);
-			}
-
-			//Render the Cylinder
-			{
-				Framework::MatrixStackPusher push(modelMatrix);
-
-				modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
-
-				if(g_bScaleCyl)
-					modelMatrix.Scale(1.0f, 1.0f, 0.2f);
-
-				glm::mat3 normMatrix(modelMatrix.Top());
-				normMatrix = glm::transpose(glm::inverse(normMatrix));
-
-				ProgramData *pProg = g_bDrawColoredCyl ? pColorProg : pWhiteProg;
-				glUseProgram(pProg->theProgram);
-				glUniformMatrix4fv(pProg->modelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(modelMatrix.Top()));
-
-				glUniformMatrix3fv(pProg->normalModelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(normMatrix));
-
-				if(g_bDrawColoredCyl)
-					g_pCylinderMesh->Render("tint");
-				else
-					g_pCylinderMesh->Render("flat");
-
-				glUseProgram(0);
-			}
-
-			//Render the light
-			if(g_bDrawLightSource)
-			{
-				Framework::MatrixStackPusher push(modelMatrix);
-
-				modelMatrix.Translate(glm::vec3(worldLightPos));
-				modelMatrix.Scale(0.1f, 0.1f, 0.1f);
-
-				glUseProgram(g_Unlit.theProgram);
-				glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
-					glm::value_ptr(modelMatrix.Top()));
-				glUniform4f(g_Unlit.objectColorUnif, 0.8078f, 0.8706f, 0.9922f, 1.0f);
-				g_pCubeMesh->Render("flat");
-			}
+			glUseProgram(0);
+			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
 		}
 	}
 
@@ -358,28 +290,17 @@ void reshape (int w, int h)
 {
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
-	const glm::mat4 &invMat = glm::inverse(persMatrix.Top());
 
-	g_WhiteNoPhong.SetWindowData(persMatrix.Top());
-	g_ColorNoPhong.SetWindowData(persMatrix.Top());
-	g_WhitePhong.SetWindowData(persMatrix.Top());
-	g_ColorPhong.SetWindowData(persMatrix.Top());
-	g_LitObjects.SetWindowData(persMatrix.Top());
-	g_ColorPhongOnly.SetWindowData(persMatrix.Top());
+	ProjectionBlock projData;
+	projData.cameraToClipMatrix = persMatrix.Top();
 
-	g_Unlit.SetWindowData(persMatrix.Top());
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
 }
-
-static const char *strLightModelNames[] =
-{
-	"Diffuse only.",
-	"Specular + diffuse.",
-	"Specular only.",
-};
-
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
@@ -387,73 +308,19 @@ static const char *strLightModelNames[] =
 //exit the program.
 void keyboard(unsigned char key, int x, int y)
 {
-	bool bChangedShininess = false;
-	bool bChangedLightModel = false;
 	switch (key)
 	{
 	case 27:
 		delete g_pPlaneMesh;
-		delete g_pCylinderMesh;
-		delete g_pCubeMesh;
+		delete g_pSphereMesh;
+		g_pPlaneMesh = NULL;
+		g_pSphereMesh = NULL;
 		glutLeaveMainLoop();
 		break;
 
-	case 32:
-		g_bDrawColoredCyl = !g_bDrawColoredCyl;
-		break;
-
-	case 'i': g_fLightHeight += 0.2f; break;
-	case 'k': g_fLightHeight -= 0.2f; break;
-	case 'l': g_fLightRadius += 0.2f; break;
-	case 'j': g_fLightRadius -= 0.2f; break;
-	case 'I': g_fLightHeight += 0.05f; break;
-	case 'K': g_fLightHeight -= 0.05f; break;
-	case 'L': g_fLightRadius += 0.05f; break;
-	case 'J': g_fLightRadius -= 0.05f; break;
-
-	case 'o': g_fShininessFactor += 0.5f; bChangedShininess = true; break;
-	case 'u': g_fShininessFactor -= 0.5f; bChangedShininess = true; break;
-	case 'O': g_fShininessFactor += 0.1f; bChangedShininess = true; break;
-	case 'U': g_fShininessFactor -= 0.1f; bChangedShininess = true; break;
-
-	case 'y': g_bDrawLightSource = !g_bDrawLightSource; break;
-	case 't': g_bScaleCyl = !g_bScaleCyl; break;
-	case 'b': g_bRotateLight = !g_bRotateLight; break;
-	case 'g': g_bDrawDark = !g_bDrawDark; break;
-	case 'h':
-		g_eLightModel += 1;
-		g_eLightModel %= LM_MAX_LIGHTING_MODEL;
-		bChangedLightModel = true;
-		break;
-	case 'H':
-		switch(g_eLightModel)
-		{
-		case LM_DIFFUSE_AND_SPECULAR:
-			g_eLightModel = LM_PURE_DIFFUSE;
-			break;
-		case LM_PURE_DIFFUSE:
-			g_eLightModel = LM_DIFFUSE_AND_SPECULAR;
-			break;
-		case LM_SPECULAR_ONLY:
-			g_eLightModel = LM_PURE_DIFFUSE;
-			break;
-		}
-		bChangedLightModel = true;
-		break;
 	}
 
-	if(g_fLightRadius < 0.2f)
-		g_fLightRadius = 0.2f;
-
-	if(g_fShininessFactor <= 0.0f)
-		g_fShininessFactor = 0.0001f;
-
-	if(bChangedShininess)
-		printf("Shiny: %f\n", g_fShininessFactor);
-
-	if(bChangedLightModel)
-		printf("%s\n", strLightModelNames[g_eLightModel]);
-
 	glutPostRedisplay();
+	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
 }
 

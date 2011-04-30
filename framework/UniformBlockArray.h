@@ -30,6 +30,10 @@ namespace Framework
 
 		int size() const {return arrayCount;}
 
+		//The array offset should be multiplied by the array index to get the offset
+		//for a particular element.
+		int GetArrayOffset() const {return m_blockOffset;}
+
 		class BlockMemberReference
 		{
 		private:
@@ -61,7 +65,7 @@ namespace Framework
 
 
 		private:
-			UniformBlockArray m_array;
+			UniformBlockArray &m_array;
 			int m_blockIndex;
 
 			friend class UniformBlockArray;
