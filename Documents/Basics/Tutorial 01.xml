@@ -545,15 +545,14 @@ void main()
             OpenGL to assume that the string is null-terminated. In general, unless you need to use
             the null character in a string, there is no need to use the last parameter.</para>
         <para>Once the strings are in the object, they are compiled with
-                <function>glCompileShader</function>, which simply takes the shader object to
-            compile.</para>
+                <function>glCompileShader</function>, which does exactly what it says.</para>
         <para>After compiling, we need to see if the compilation was successful. We do this by
             calling <function>glGetShaderiv</function> to retrieve the
                 <literal>GL_COMPILE_STATUS</literal>. If this is <literal>GL_FALSE</literal>, then
             the shader failed to compile; otherwise compiling was successful.</para>
         <para>If compilation fails, we do some error reporting. It prints a message to stderr that
             explains what failed to compile. It also prints an info log from OpenGL that describes
-            the error; this of this log as the compiler output from a regular C compilation.</para>
+            the error; think of this log as the compiler output from a regular C compilation.</para>
         <para>After creating both shader objects, we then pass them on to the
                 <function>CreateProgram</function> function:</para>
         <example>
