@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 13.html" ?>
+    <title>Lies and Impostors</title>
+    <para>Lighting in these tutorials has ultimately been a form of deception. An increasingly
+        accurate one, but it is deception all the same. We are not rendering round objects; we
+        simply use lighting and interpolation of surface characteristics to make an object appear
+        round. Sometimes we have artifacts or optical illusions that show the lie for what it is.
+        Even when the lie is near-perfect, the geometry of a model still doesn't correspond to what
+        the lighting makes the geometry appear to be.</para>
+    <para>In this tutorial, we will be looking at the ultimate expression of this lie. We will use
+        lighting computations to make an object appear to be something entirely different from its
+        geometry.</para>
+    <section>
+        <?dbhtml filename="Tut13 Simple Sham.html" ?>
+        <title>Simple Sham</title>
+        <para>We want to render a sphere.</para>
+    </section>
+    <section>
+        <?dbhtml filename="Tut13 Correct Chicanery.html" ?>
+        <title>Correct Chicanery</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut13 Deceit in Depth.html" ?>
+        <title>Deceit in Depth</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut13 Purloined Primitives.html" ?>
+        <title>Purloined Primitives</title>
+        <para/>
+    </section>
+    
+    <section>
+        <?dbhtml filename="Tut13 In Review.html" ?>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Impostors are objects who's geometric representation has little or no
+                    resemblance to what the viewer sees. These typically generate an object
+                    procedurally by cutting fragments out to form a shape, and then use normals and
+                    depth manipulation to do lighting computations on the cut-out.</para>
+            </listitem>
+            <listitem>
+                <para>Fragments can be discarded from within a fragment shader. This prevents the
+                    outputs from the shader from being written to the final image.</para>
+            </listitem>
+            <listitem>
+                <para>Fragment shaders can change the depth value that is used for the depth test
+                    and is written to the framebuffer.</para>
+            </listitem>
+            <listitem>
+                <para>Geometry shaders are a shader stage between the vertex shader and the
+                    rasterizer. They take a primitive as input and return one or more primitives as
+                    output.</para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para/>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Further Research</title>
+            <para/>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <para/>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <para/>
+        </section>
+        
+    </section>
+    <section>
+        <?dbhtml filename="Tut13 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm/>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+        
+    </section>
+</chapter>

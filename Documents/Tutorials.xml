@@ -72,6 +72,8 @@
         <xi:include href="Illumination/tutorial 09.xml"/>
         <xi:include href="Illumination/tutorial 10.xml"/>
         <xi:include href="Illumination/tutorial 11.xml"/>
+        <xi:include href="Illumination/tutorial 12.xml"/>
+        <xi:include href="Illumination/tutorial 13.xml"/>
     </part>
     <xi:include href="Texturing.xml"/>
     <part>
