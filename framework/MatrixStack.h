@@ -20,14 +20,15 @@ namespace Framework
 			return m_currMat;
 		}
 
-		void Rotate(glm::vec3 &axisOfRotation, float fAngDeg);
-		void RotateRadians(glm::vec3 &axisOfRotation, float fAngRad);
+		void Rotate(const glm::vec3 &axisOfRotation, float fAngDeg);
+		void RotateRadians(const glm::vec3 &axisOfRotation, float fAngRad);
 		void RotateX(float fAngDeg);
 		void RotateY(float fAngDeg);
 		void RotateZ(float fAngDeg);
 
 		void Scale(const glm::vec3 &scaleVec);
 		void Scale(float fScaleX, float fScaleY, float fScaleZ) {Scale(glm::vec3(fScaleX, fScaleY, fScaleZ));}
+		void Scale(float uniformScale) {Scale(glm::vec3(uniformScale));}
 		void Translate(const glm::vec3 &offsetVec);
 		void Translate(float fTransX, float fTransY, float fTransZ) {Translate(glm::vec3(fTransX, fTransY, fTransZ));}
 

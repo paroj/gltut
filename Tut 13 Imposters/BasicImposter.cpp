@@ -9,6 +9,7 @@
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
 #include "../framework/ObjectPole.h"
+#include "../framework/Timer.h"
 #include "../framework/UniformBlockArray.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -91,8 +92,8 @@ void InitializePrograms()
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
 
-Framework::RadiusDef radiusDef = {5.0f, 3.0f, 200.0f, 1.5f, 0.5f};
-glm::vec3 objectCenter = glm::vec3(0.0f, 10.0f, 0.0f);
+Framework::RadiusDef radiusDef = {10.0f, 3.0f, 70.0f, 3.5f, 1.5f};
+glm::vec3 objectCenter = glm::vec3(0.0f, 30.0f, 25.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
 Framework::ObjectPole g_objectPole(objectCenter, &g_mousePole);
@@ -132,15 +133,13 @@ struct PerLight
 	glm::vec4 lightIntensity;
 };
 
-const int NUMBER_OF_LIGHTS = 1;
+const int NUMBER_OF_LIGHTS = 2;
 
 struct LightBlock
 {
 	glm::vec4 ambientIntensity;
 	float lightAttenuation;
-	float maxIntensity;
-	float gamma;
-	float padding;
+	float padding[3];
 	PerLight lights[NUMBER_OF_LIGHTS];
 };
 
@@ -154,6 +153,7 @@ struct MaterialBlock
 
 Framework::Mesh *g_pPlaneMesh = NULL;
 Framework::Mesh *g_pSphereMesh = NULL;
+Framework::Mesh *g_pCubeMesh = NULL;
 
 GLuint g_lightUniformBuffer = 0;
 GLuint g_projectionUniformBuffer = 0;
@@ -161,16 +161,47 @@ GLuint g_materialUniformBuffer = 0;
 
 int g_materialBlockOffset = 0;
 
+enum MaterialNames
+{
+	MTL_TERRAIN = 0,
+	MTL_BLUE_SHINY,
+	MTL_GOLD_METAL,
+	MTL_DULL_GREY,
+	MTL_BLACK_SHINY,
+
+	NUM_MATERIALS,
+};
+
 void CreateMaterials()
 {
-	Framework::UniformBlockArray<MaterialBlock, 1> ubArray;
+	Framework::UniformBlockArray<MaterialBlock, NUM_MATERIALS> ubArray;
 	g_materialBlockOffset = ubArray.GetArrayOffset();
 
 	MaterialBlock mtl;
 	mtl.diffuseColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	mtl.specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	mtl.specularShininess = 0.6f;
-	ubArray[0] = mtl;
+	ubArray[MTL_TERRAIN] = mtl;
+
+	mtl.diffuseColor = glm::vec4(0.1f, 0.1f, 0.8f, 1.0f);
+	mtl.specularColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
+	mtl.specularShininess = 0.1f;
+	ubArray[MTL_BLUE_SHINY] = mtl;
+
+	mtl.diffuseColor = glm::vec4(0.803f, 0.709f, 0.15f, 1.0f);
+	mtl.specularColor = glm::vec4(0.803f, 0.709f, 0.15f, 1.0f) * 0.75;
+	mtl.specularShininess = 0.18f;
+	ubArray[MTL_GOLD_METAL] = mtl;
+
+	mtl.diffuseColor = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f);
+	mtl.specularColor = glm::vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	mtl.specularShininess = 0.8f;
+	ubArray[MTL_DULL_GREY] = mtl;
+
+	mtl.diffuseColor = glm::vec4(0.05f, 0.05f, 0.05f, 1.0f);
+	mtl.specularColor = glm::vec4(0.95f, 0.95f, 0.95f, 1.0f);
+	mtl.specularShininess = 0.3f;
+	ubArray[MTL_BLACK_SHINY] = mtl;
 
 	g_materialUniformBuffer = ubArray.CreateBufferObject();
 }
@@ -184,6 +215,7 @@ void init()
 	{
 		g_pPlaneMesh = new Framework::Mesh("LargePlane.xml");
 		g_pSphereMesh = new Framework::Mesh("UnitSphere.xml");
+		g_pCubeMesh = new Framework::Mesh("UnitCube.xml");
 	}
 	catch(std::exception &except)
 	{
@@ -229,13 +261,84 @@ void init()
 	CreateMaterials();
 }
 
+void DrawMeshSphere(Framework::MatrixStack &modelMatrix,
+					const glm::vec3 &position, float radius, MaterialNames material)
+{
+	Framework::MatrixStackPusher push(modelMatrix);
+	modelMatrix.Translate(position);
+	modelMatrix.Scale(radius * 2.0f); //The unit sphere has a radius 0.5f.
+
+	glm::mat3 normMatrix(modelMatrix.Top());
+	normMatrix = glm::transpose(glm::inverse(normMatrix));
+
+	glUseProgram(g_litMeshProg.theProgram);
+	glUniformMatrix4fv(g_litMeshProg.modelToCameraMatrixUnif, 1, GL_FALSE,
+		glm::value_ptr(modelMatrix.Top()));
+	glUniformMatrix3fv(g_litMeshProg.normalModelToCameraMatrixUnif, 1, GL_FALSE,
+		glm::value_ptr(normMatrix));
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
+		material * g_materialBlockOffset, sizeof(MaterialBlock));
+
+	g_pSphereMesh->Render("lit");
+
+	glUseProgram(0);
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+}
+
+void DrawSphereOrbit(Framework::MatrixStack &modelMatrix,
+					 const glm::vec3 &orbitCenter, const glm::vec3 &orbitAxis,
+					 float orbitRadius, float orbitAlpha, float sphereRadius, MaterialNames material)
+{
+	Framework::MatrixStackPusher push(modelMatrix);
+
+	modelMatrix.Translate(orbitCenter);
+	modelMatrix.Rotate(orbitAxis, 360.0f * orbitAlpha);
+
+	glm::vec3 offsetDir = glm::cross(orbitAxis, glm::vec3(0.0f, 1.0f, 0.0f));
+	if(glm::length(offsetDir) < 0.001f)
+		offsetDir = glm::cross(orbitAxis, glm::vec3(1.0f, 0.0f, 0.0f));
+
+	offsetDir = glm::normalize(offsetDir);
+
+	modelMatrix.Translate(offsetDir * orbitRadius);
+
+	DrawMeshSphere(modelMatrix, glm::vec3(0.0f), sphereRadius, material);
+}
+
+bool g_bDrawCameraPos = false;
+bool g_bDrawLights = true;
+
+Framework::Timer g_sphereTimer(Framework::Timer::TT_LOOP, 6.0f);
+
+float g_lightHeight = 20.0f;
+
+glm::vec4 CalcLightPosition()
+{
+	const float fLoopDuration = 5.0f;
+	const float fScale = 3.14159f * 2.0f;
+
+	float timeThroughLoop = g_sphereTimer.GetAlpha();
+
+	glm::vec4 ret(0.0f, g_lightHeight, 0.0f, 1.0f);
+
+	ret.x = cosf(timeThroughLoop * fScale) * 20.0f;
+	ret.z = sinf(timeThroughLoop * fScale) * 20.0f;
+
+	return ret;
+}
+
+const float g_fHalfLightDistance = 25.0f;
+const float g_fLightAttenuation = 1.0f / (g_fHalfLightDistance * g_fHalfLightDistance);
+
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
-
 void display()
 {
-	glClearColor(0.5f, 1.0f, 0.5f, 1.0f);
+	g_sphereTimer.Update();
+
+	glClearColor(0.75f, 0.75f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -248,12 +351,13 @@ void display()
 		LightBlock lightData;
 
 		lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-		lightData.lightAttenuation = 25.0f;
-		lightData.maxIntensity = 1.0f;
-		lightData.gamma = 2.2f;
+		lightData.lightAttenuation = g_fLightAttenuation;
 
-		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(0.707f, 0.707f, 0.0f, 0.0f);
 		lightData.lights[0].lightIntensity = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
+
+		lightData.lights[1].cameraSpaceLightPos = worldToCamMat * CalcLightPosition();
+		lightData.lights[1].lightIntensity = glm::vec4(0.4f, 0.4f, 0.4f, 1.0f);
 
 		glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
@@ -262,7 +366,7 @@ void display()
 
 		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
-				0 * g_materialBlockOffset, sizeof(MaterialBlock));
+				MTL_TERRAIN * g_materialBlockOffset, sizeof(MaterialBlock));
 
 			glm::mat3 normMatrix(modelMatrix.Top());
 			normMatrix = glm::transpose(glm::inverse(normMatrix));
@@ -277,6 +381,50 @@ void display()
 
 			glUseProgram(0);
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+		}
+
+		DrawMeshSphere(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), 4.0f, MTL_BLUE_SHINY);
+		DrawSphereOrbit(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.6f, 0.8f, 0.0f),
+			20.0f, g_sphereTimer.GetAlpha(), 2.0f, MTL_DULL_GREY);
+		DrawSphereOrbit(modelMatrix, glm::vec3(-10.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
+			10.0f, g_sphereTimer.GetAlpha(), 1.0f, MTL_BLACK_SHINY);
+		DrawSphereOrbit(modelMatrix, glm::vec3(10.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
+			10.0f, g_sphereTimer.GetAlpha() * 2.0f, 1.0f, MTL_GOLD_METAL);
+
+		if(g_bDrawLights)
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
+
+			modelMatrix.Translate(glm::vec3(CalcLightPosition()));
+			modelMatrix.Scale(0.5f);
+
+			glUseProgram(g_Unlit.theProgram);
+			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+
+			glm::vec4 lightColor(1.0f);
+			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
+			g_pCubeMesh->Render("flat");
+		}
+
+		if(g_bDrawCameraPos)
+		{
+			Framework::MatrixStackPusher push(modelMatrix);
+
+			modelMatrix.SetIdentity();
+			modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_mousePole.GetLookAtDistance()));
+
+			glDisable(GL_DEPTH_TEST);
+			glDepthMask(GL_FALSE);
+			glUseProgram(g_Unlit.theProgram);
+			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+			glUniform4f(g_Unlit.objectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
+			g_pCubeMesh->Render("flat");
+			glDepthMask(GL_TRUE);
+			glEnable(GL_DEPTH_TEST);
+			glUniform4f(g_Unlit.objectColorUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+			g_pCubeMesh->Render("flat");
 		}
 	}
 
@@ -318,9 +466,14 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		break;
 
+	case 'p': g_sphereTimer.TogglePause(); break;
+	case '-': g_sphereTimer.Rewind(0.5f); break;
+	case '=': g_sphereTimer.Fastforward(0.5f); break;
+	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
+	case 'g': g_bDrawLights = !g_bDrawLights; break;
+
 	}
 
-	glutPostRedisplay();
 	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
 }
 

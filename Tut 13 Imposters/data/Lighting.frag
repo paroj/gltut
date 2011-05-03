@@ -20,14 +20,12 @@ struct PerLight
 	vec4 lightIntensity;
 };
 
-const int numberOfLights = 1;
+const int numberOfLights = 2;
 
 uniform Light
 {
 	vec4 ambientIntensity;
 	float lightAttenuation;
-	float maxIntensity;
-	float gamma;
 	PerLight lights[numberOfLights];
 } Lgt;
 
@@ -87,8 +85,5 @@ void main()
 		accumLighting += ComputeLighting(Lgt.lights[light]);
 	}
 	
-	accumLighting = accumLighting / Lgt.maxIntensity;
-	vec4 gamma = vec4(1.0 / Lgt.gamma);
-	gamma.w = 1.0;
-	outputColor = pow(accumLighting, gamma);
+	outputColor = sqrt(accumLighting); //2.0 gamma correction
 }

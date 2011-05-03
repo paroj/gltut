@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/meshFormat.rnc" type="compact"?>
+
+<mesh xmlns="http://www.arcsynthesis.com/gltut/mesh" >
+	<attribute index="0" type="float" size="3" > 
+        0.5 0.5 0.5
+        0.5 -0.5 0.5
+        -0.5 -0.5 0.5
+        -0.5 0.5 0.5
+        0.5 0.5 0.5
+        -0.5 0.5 0.5
+        -0.5 0.5 -0.5
+        0.5 0.5 -0.5
+        0.5 0.5 0.5
+        0.5 0.5 -0.5
+        0.5 -0.5 -0.5
+        0.5 -0.5 0.5
+        0.5 0.5 -0.5
+        -0.5 0.5 -0.5
+        -0.5 -0.5 -0.5
+        0.5 -0.5 -0.5
+        0.5 -0.5 0.5
+        0.5 -0.5 -0.5
+        -0.5 -0.5 -0.5
+        -0.5 -0.5 0.5
+        -0.5 0.5 0.5
+        -0.5 -0.5 0.5
+        -0.5 -0.5 -0.5
+        -0.5 0.5 -0.5</attribute>
+	<attribute index="1" type="float" size="4" > 
+        0.25 1 0.25 1
+        0.25 1 0.25 1
+        0.25 1 0.25 1
+        0.25 1 0.25 1
+        0.5 0.5 1 1
+        0.5 0.5 1 1
+        0.5 0.5 1 1
+        0.5 0.5 1 1
+        1 0.5 0.5 1
+        1 0.5 0.5 1
+        1 0.5 0.5 1
+        1 0.5 0.5 1
+        1 1 0.5 1
+        1 1 0.5 1
+        1 1 0.5 1
+        1 1 0.5 1
+        0.5 1 1 1
+        0.5 1 1 1
+        0.5 1 1 1
+        0.5 1 1 1
+        1 0.5 1 1
+        1 0.5 1 1
+        1 0.5 1 1
+        1 0.5 1 1</attribute>
+	<attribute index="2" type="float" size="3" > 
+        0 0 1
+        0 0 1
+        0 0 1
+        0 0 1
+        0 1 0
+        0 1 0
+        0 1 0
+        0 1 0
+        1 0 0
+        1 0 0
+        1 0 0
+        1 0 0
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 -1 0
+        0 -1 0
+        0 -1 0
+        0 -1 0
+        -1 0 0
+        -1 0 0
+        -1 0 0
+        -1 0 0</attribute>
+	<vao name="lit" >
+		<source attrib="0" />
+		<source attrib="2" />
+	</vao>
+	<vao name="lit-color" >
+		<source attrib="0" />
+		<source attrib="1" />
+		<source attrib="2" />
+	</vao>
+	<vao name="color" >
+		<source attrib="0" />
+		<source attrib="1" />
+	</vao>
+	<vao name="flat" >
+		<source attrib="0" />
+	</vao>
+	<indices cmd="triangles" type="ushort" > 
+        0 1 2
+        2 3 0
+        4 5 6
+        6 7 4
+        8 9 10
+        10 11 8
+        12 13 14
+        14 15 12
+        16 17 18
+        18 19 16
+        20 21 22
+        22 23 20</indices>
+</mesh>
