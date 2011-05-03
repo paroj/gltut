@@ -1,9 +1,11 @@
 #version 330
 
-in vec3 vertexNormal;
-in vec3 cameraSpacePosition;
+in vec2 mapping;
 
 out vec4 outputColor;
+
+uniform float sphereRadius;
+uniform vec3 cameraSpherePos;
 
 layout(std140) uniform;
 
@@ -40,6 +42,11 @@ float CalcAttenuation(in vec3 cameraSpacePosition,
 	
 	return (1 / ( 1.0 + Lgt.lightAttenuation * lightDistanceSqr));
 }
+
+uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
 
 vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	in vec3 cameraSpaceNormal)
@@ -78,13 +85,39 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	return lighting;
 }
 
+void Impostor(out vec3 cameraPos, out vec3 cameraNormal)
+{
+	vec3 cameraPlanePos = vec3(mapping * sphereRadius, 0.0) + cameraSpherePos;
+	vec3 rayDirection = normalize(cameraPlanePos);
+	
+	float B = 2.0 * dot(rayDirection, -cameraSpherePos);
+	float C = dot(cameraSpherePos, cameraSpherePos) - (sphereRadius * sphereRadius);
+	
+	float det = (B * B) - (4 * C);
+	if(det < 0.0)
+		discard;
+		
+	float sqrtDet = sqrt(det);
+	float posT = (-B + sqrtDet)/2;
+	float negT = (-B - sqrtDet)/2;
+	
+	float intersectT = min(posT, negT);
+	cameraPos = rayDirection * intersectT;
+	cameraNormal = normalize(cameraPos - cameraSpherePos);
+}
+
 void main()
 {
+	vec3 cameraPos;
+	vec3 cameraNormal;
+	
+	Impostor(cameraPos, cameraNormal);
+	
 	vec4 accumLighting = Mtl.diffuseColor * Lgt.ambientIntensity;
 	for(int light = 0; light < numberOfLights; light++)
 	{
 		accumLighting += ComputeLighting(Lgt.lights[light],
-			cameraSpacePosition, vertexNormal);
+			cameraPos, cameraNormal);
 	}
 	
 	outputColor = sqrt(accumLighting); //2.0 gamma correction

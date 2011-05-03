@@ -43,8 +43,17 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
+enum Impostors
+{
+	IMP_BASIC,
+ 	IMP_PERSPECTIVE,
+ 	IMP_DEPTH,
+
+	IMP_NUM_IMPOSTORS,
+};
+
 ProgramMeshData g_litMeshProg;
-ProgramImposData g_litImposterProg;
+ProgramImposData g_litImpProgs[IMP_NUM_IMPOSTORS];
 UnlitProgData g_Unlit;
 
 const int g_materialBlockIndex = 0;
@@ -116,10 +125,22 @@ ProgramImposData LoadLitImposProgram(const std::string &strVertexShader, const s
 	return data;
 }
 
+const char *g_impShaderNames[IMP_NUM_IMPOSTORS * 2] =
+{
+	"BasicImposter.vert", "BasicImposter.frag",
+ 	"PerspImpostor.vert", "PerspImpostor.frag",
+ 	"DepthImpostor.vert", "DepthImpostor.frag",
+};
+
 void InitializePrograms()
 {
 	g_litMeshProg = LoadLitMeshProgram("PN.vert", "Lighting.frag");
-	g_litImposterProg = LoadLitImposProgram("BasicImposter.vert", "BasicImposter.frag");
+
+	for(int iLoop = 0; iLoop < IMP_NUM_IMPOSTORS; iLoop++)
+	{
+		g_litImpProgs[iLoop] = LoadLitImposProgram(
+			g_impShaderNames[iLoop * 2], g_impShaderNames[iLoop * 2 + 1]);
+	}
 
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
@@ -308,16 +329,21 @@ void init()
 	CreateMaterials();
 }
 
+int g_currImpostor = IMP_BASIC;
+
 void DrawSphere(Framework::MatrixStack &modelMatrix,
 				const glm::vec3 &position, float radius, MaterialNames material,
 				bool bDrawImposter = false)
 {
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
+		material * g_materialBlockOffset, sizeof(MaterialBlock));
+
 	if(bDrawImposter)
 	{
 		glm::vec4 cameraSpherePos = modelMatrix.Top() * glm::vec4(position, 1.0f);
-		glUseProgram(g_litImposterProg.theProgram);
-		glUniform3fv(g_litImposterProg.cameraSpherePosUnif, 1, glm::value_ptr(cameraSpherePos));
-		glUniform1f(g_litImposterProg.sphereRadiusUnif, radius);
+		glUseProgram(g_litImpProgs[g_currImpostor].theProgram);
+		glUniform3fv(g_litImpProgs[g_currImpostor].cameraSpherePosUnif, 1, glm::value_ptr(cameraSpherePos));
+		glUniform1f(g_litImpProgs[g_currImpostor].sphereRadiusUnif, radius);
 
 		glBindVertexArray(g_imposterVAO);
 
@@ -341,14 +367,12 @@ void DrawSphere(Framework::MatrixStack &modelMatrix,
 		glUniformMatrix3fv(g_litMeshProg.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 			glm::value_ptr(normMatrix));
 
-		glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
-			material * g_materialBlockOffset, sizeof(MaterialBlock));
-
 		g_pSphereMesh->Render("lit");
 
 		glUseProgram(0);
-		glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
 	}
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
 }
 
 void DrawSphereOrbit(Framework::MatrixStack &modelMatrix,
@@ -396,6 +420,8 @@ glm::vec4 CalcLightPosition()
 
 const float g_fHalfLightDistance = 25.0f;
 const float g_fLightAttenuation = 1.0f / (g_fHalfLightDistance * g_fHalfLightDistance);
+
+bool g_drawImposter[4] = { false, false, false, false };
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -448,13 +474,14 @@ void display()
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
 		}
 
-		DrawSphere(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), 4.0f, MTL_BLUE_SHINY);
+		DrawSphere(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), 4.0f, MTL_BLUE_SHINY,
+			g_drawImposter[0]);
 		DrawSphereOrbit(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.6f, 0.8f, 0.0f),
-			20.0f, g_sphereTimer.GetAlpha(), 2.0f, MTL_DULL_GREY);
+			20.0f, g_sphereTimer.GetAlpha(), 2.0f, MTL_DULL_GREY, g_drawImposter[1]);
 		DrawSphereOrbit(modelMatrix, glm::vec3(-10.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
-			10.0f, g_sphereTimer.GetAlpha(), 1.0f, MTL_BLACK_SHINY, true);
+			10.0f, g_sphereTimer.GetAlpha(), 1.0f, MTL_BLACK_SHINY, g_drawImposter[2]);
 		DrawSphereOrbit(modelMatrix, glm::vec3(10.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
-			10.0f, g_sphereTimer.GetAlpha() * 2.0f, 1.0f, MTL_GOLD_METAL);
+			10.0f, g_sphereTimer.GetAlpha() * 2.0f, 1.0f, MTL_GOLD_METAL, g_drawImposter[3]);
 
 		if(g_bDrawLights)
 		{
@@ -536,6 +563,28 @@ void keyboard(unsigned char key, int x, int y)
 	case '=': g_sphereTimer.Fastforward(0.5f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 	case 'g': g_bDrawLights = !g_bDrawLights; break;
+
+	case '1': g_drawImposter[0] = !g_drawImposter[0]; break;
+	case '2': g_drawImposter[1] = !g_drawImposter[1]; break;
+	case '3': g_drawImposter[2] = !g_drawImposter[2]; break;
+	case '4': g_drawImposter[3] = !g_drawImposter[3]; break;
+
+	case 'l':
+		{
+			g_currImpostor += 1;
+			g_currImpostor %= IMP_NUM_IMPOSTORS;
+			const char *impostorNames[IMP_NUM_IMPOSTORS] =
+			{
+				"basic",
+ 				"perspective-correct",
+ 				"depth-accurate",
+			};
+
+			printf("Now using %s impostor.\n", impostorNames[g_currImpostor]);
+		}
+		break;
+
+	case 32: InitializePrograms(); break;
 
 	}
 
