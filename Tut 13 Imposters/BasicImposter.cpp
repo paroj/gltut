@@ -16,12 +16,20 @@
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
-struct ProgramData
+struct ProgramMeshData
 {
 	GLuint theProgram;
 
 	GLuint modelToCameraMatrixUnif;
 	GLuint normalModelToCameraMatrixUnif;
+};
+
+struct ProgramImposData
+{
+	GLuint theProgram;
+
+	GLuint sphereRadiusUnif;
+	GLuint cameraSpherePosUnif;
 };
 
 struct UnlitProgData
@@ -35,8 +43,8 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-ProgramData g_litMeshProg;
-ProgramData g_litImposterProg;
+ProgramMeshData g_litMeshProg;
+ProgramImposData g_litImposterProg;
 UnlitProgData g_Unlit;
 
 const int g_materialBlockIndex = 0;
@@ -61,14 +69,14 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	return data;
 }
 
-ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
+ProgramMeshData LoadLitMeshProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
 	std::vector<GLuint> shaderList;
 
 	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, strVertexShader));
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, strFragmentShader));
 
-	ProgramData data;
+	ProgramMeshData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
 
@@ -85,9 +93,33 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	return data;
 }
 
+ProgramImposData LoadLitImposProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
+{
+	std::vector<GLuint> shaderList;
+
+	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, strVertexShader));
+	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, strFragmentShader));
+
+	ProgramImposData data;
+	data.theProgram = Framework::CreateProgram(shaderList);
+	data.sphereRadiusUnif = glGetUniformLocation(data.theProgram, "sphereRadius");
+	data.cameraSpherePosUnif = glGetUniformLocation(data.theProgram, "cameraSpherePos");
+
+	GLuint materialBlock = glGetUniformBlockIndex(data.theProgram, "Material");
+	GLuint lightBlock = glGetUniformBlockIndex(data.theProgram, "Light");
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+
+	glUniformBlockBinding(data.theProgram, materialBlock, g_materialBlockIndex);
+	glUniformBlockBinding(data.theProgram, lightBlock, g_lightBlockIndex);
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
+
+	return data;
+}
+
 void InitializePrograms()
 {
-	g_litMeshProg = LoadLitProgram("PN.vert", "Lighting.frag");
+	g_litMeshProg = LoadLitMeshProgram("PN.vert", "Lighting.frag");
+	g_litImposterProg = LoadLitImposProgram("BasicImposter.vert", "BasicImposter.frag");
 
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
@@ -206,6 +238,9 @@ void CreateMaterials()
 	g_materialUniformBuffer = ubArray.CreateBufferObject();
 }
 
+GLuint g_imposterVAO;
+GLuint g_imposterVBO;
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -258,37 +293,68 @@ void init()
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+	glGenBuffers(1, &g_imposterVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, g_imposterVBO);
+	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float), NULL, GL_STATIC_DRAW);
+
+	glGenVertexArrays(1, &g_imposterVAO);
+	glBindVertexArray(g_imposterVAO);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, (void*)(0));
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 	CreateMaterials();
 }
 
-void DrawMeshSphere(Framework::MatrixStack &modelMatrix,
-					const glm::vec3 &position, float radius, MaterialNames material)
+void DrawSphere(Framework::MatrixStack &modelMatrix,
+				const glm::vec3 &position, float radius, MaterialNames material,
+				bool bDrawImposter = false)
 {
-	Framework::MatrixStackPusher push(modelMatrix);
-	modelMatrix.Translate(position);
-	modelMatrix.Scale(radius * 2.0f); //The unit sphere has a radius 0.5f.
+	if(bDrawImposter)
+	{
+		glm::vec4 cameraSpherePos = modelMatrix.Top() * glm::vec4(position, 1.0f);
+		glUseProgram(g_litImposterProg.theProgram);
+		glUniform3fv(g_litImposterProg.cameraSpherePosUnif, 1, glm::value_ptr(cameraSpherePos));
+		glUniform1f(g_litImposterProg.sphereRadiusUnif, radius);
 
-	glm::mat3 normMatrix(modelMatrix.Top());
-	normMatrix = glm::transpose(glm::inverse(normMatrix));
+		glBindVertexArray(g_imposterVAO);
 
-	glUseProgram(g_litMeshProg.theProgram);
-	glUniformMatrix4fv(g_litMeshProg.modelToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(modelMatrix.Top()));
-	glUniformMatrix3fv(g_litMeshProg.normalModelToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(normMatrix));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
-		material * g_materialBlockOffset, sizeof(MaterialBlock));
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
+	else
+	{
+		Framework::MatrixStackPusher push(modelMatrix);
+		modelMatrix.Translate(position);
+		modelMatrix.Scale(radius * 2.0f); //The unit sphere has a radius 0.5f.
 
-	g_pSphereMesh->Render("lit");
+		glm::mat3 normMatrix(modelMatrix.Top());
+		normMatrix = glm::transpose(glm::inverse(normMatrix));
 
-	glUseProgram(0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+		glUseProgram(g_litMeshProg.theProgram);
+		glUniformMatrix4fv(g_litMeshProg.modelToCameraMatrixUnif, 1, GL_FALSE,
+			glm::value_ptr(modelMatrix.Top()));
+		glUniformMatrix3fv(g_litMeshProg.normalModelToCameraMatrixUnif, 1, GL_FALSE,
+			glm::value_ptr(normMatrix));
+
+		glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
+			material * g_materialBlockOffset, sizeof(MaterialBlock));
+
+		g_pSphereMesh->Render("lit");
+
+		glUseProgram(0);
+		glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+	}
 }
 
 void DrawSphereOrbit(Framework::MatrixStack &modelMatrix,
 					 const glm::vec3 &orbitCenter, const glm::vec3 &orbitAxis,
-					 float orbitRadius, float orbitAlpha, float sphereRadius, MaterialNames material)
+					 float orbitRadius, float orbitAlpha, float sphereRadius, MaterialNames material,
+					 bool drawImposter = false)
 {
 	Framework::MatrixStackPusher push(modelMatrix);
 
@@ -303,7 +369,7 @@ void DrawSphereOrbit(Framework::MatrixStack &modelMatrix,
 
 	modelMatrix.Translate(offsetDir * orbitRadius);
 
-	DrawMeshSphere(modelMatrix, glm::vec3(0.0f), sphereRadius, material);
+	DrawSphere(modelMatrix, glm::vec3(0.0f), sphereRadius, material, drawImposter);
 }
 
 bool g_bDrawCameraPos = false;
@@ -342,7 +408,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pPlaneMesh && g_pSphereMesh)
+	if(g_pPlaneMesh && g_pSphereMesh && g_pCubeMesh)
 	{
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
@@ -363,7 +429,6 @@ void display()
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(lightData), &lightData);
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
 		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
 				MTL_TERRAIN * g_materialBlockOffset, sizeof(MaterialBlock));
@@ -383,11 +448,11 @@ void display()
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
 		}
 
-		DrawMeshSphere(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), 4.0f, MTL_BLUE_SHINY);
+		DrawSphere(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), 4.0f, MTL_BLUE_SHINY);
 		DrawSphereOrbit(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), glm::vec3(0.6f, 0.8f, 0.0f),
 			20.0f, g_sphereTimer.GetAlpha(), 2.0f, MTL_DULL_GREY);
 		DrawSphereOrbit(modelMatrix, glm::vec3(-10.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
-			10.0f, g_sphereTimer.GetAlpha(), 1.0f, MTL_BLACK_SHINY);
+			10.0f, g_sphereTimer.GetAlpha(), 1.0f, MTL_BLACK_SHINY, true);
 		DrawSphereOrbit(modelMatrix, glm::vec3(10.0f, 1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
 			10.0f, g_sphereTimer.GetAlpha() * 2.0f, 1.0f, MTL_GOLD_METAL);
 
