@@ -127,7 +127,7 @@ ProgramImposData LoadLitImposProgram(const std::string &strVertexShader, const s
 
 const char *g_impShaderNames[IMP_NUM_IMPOSTORS * 2] =
 {
-	"BasicImposter.vert", "BasicImposter.frag",
+	"BasicImpostor.vert", "BasicImpostor.frag",
  	"PerspImpostor.vert", "PerspImpostor.frag",
  	"DepthImpostor.vert", "DepthImpostor.frag",
 };
