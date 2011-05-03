@@ -1,4 +1,5 @@
 #version 330
+#extension GL_EXT_gpu_shader4 : enable
 
 in FragData
 {
@@ -82,7 +83,7 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	
 	vec3 halfAngle = normalize(lightDir + viewDirection);
 	float angleNormalHalf = acos(dot(halfAngle, surfaceNormal));
-	float exponent = angleNormalHalf / material.specularShininess.x;
+	float exponent = angleNormalHalf / material.specularShininess.x;		//ATI Array Bug fix. Not really a vec4.
 	exponent = -(exponent * exponent);
 	float gaussianTerm = exp(exponent);
 
