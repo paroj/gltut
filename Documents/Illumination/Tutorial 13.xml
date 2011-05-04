@@ -17,17 +17,475 @@
     <section>
         <?dbhtml filename="Tut13 Simple Sham.html" ?>
         <title>Simple Sham</title>
-        <para>We want to render a sphere.</para>
+        <para>We want to render a sphere. We could do this as we have done in previous tutorials.
+            That is, generate a mesh of a sphere and render it. But this will never be a
+            mathematically perfect sphere. It is easy to generate a sphere with an arbitrary number
+            of triangles, and thus improve the approximation. But it will always be an
+            approximation.</para>
+        <para>Spheres are very simple, mathematically speaking. They are simply the set of points in
+            a space that are a certain distance from a specific point. This sounds like something we
+            might be able to compute in a shader.</para>
+        <para>Our first attempt to render a sphere will be quite simple. We will use the vertex
+            shader to compute the vertex positions of a <emphasis>square</emphasis> in clip-space.
+            This square will be in the same position and width/height as the actual circle would be,
+            and it will always face the camera. In the fragment shader, we will compute the position
+            and normal of each point along the sphere's surface. By doing this, we can map each
+            point on the square to a point on the sphere we are trying to render.</para>
+        <para>For those points on the square that do not map to a sphere point (ie: the corners), we
+            have to do something special. Fragment shaders are required to write a value to the
+            output image. But they also have the ability to abort processing and write neither color
+            information nor depth to the color and depth buffers. We will employ this to draw our
+            square-spheres.</para>
+        <para>This technique is commonly called <glossterm>impostors.</glossterm> The idea is that
+            we're actually drawing a square, but we use the fragment shaders to make it look like
+            something else. The geometric shape is just a placeholder, a way to invoke the fragment
+            shader over a certain region of the screen. The fragment shader is where the real magic
+            happens.</para>
+        <para>The tutorial project <phrase role="propername">Basic Impostor</phrase> demonstrates
+            this technique. It shows a scene with several spheres, a directional light, and a moving
+            point light source.</para>
+        <!--TODO: Picture of this tutorial.-->
+        <para>The camera movement is controlled in the same way as previous tutorials. The
+                <keycap>T</keycap> key will toggle a display showing the look-at point. The
+                <keycap>-</keycap> and <keycap>=</keycap> keys will rewind and fast-forward the
+            time, and the <keycap>P</keycap> key will toggle pausing of the time advancement.</para>
+        <para>The tutorial starts showing mesh spheres, to allow you to switch back and forth
+            between actual meshes and impostor spheres. Each sphere is independently
+            controlled:</para>
+        <table frame="all">
+            <title>Sphere Impostor Control Key Map</title>
+            <tgroup cols="2">
+                <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                <thead>
+                    <row>
+                        <entry>Key</entry>
+                        <entry>Sphere</entry>
+                    </row>
+                </thead>
+                <tbody>
+                    <row>
+                        <entry><keycap>1</keycap></entry>
+                        <entry>The central blue sphere.</entry>
+                    </row>
+                    <row>
+                        <entry><keycap>2</keycap></entry>
+                        <entry>The orbiting grey sphere.</entry>
+                    </row>
+                    <row>
+                        <entry><keycap>3</keycap></entry>
+                        <entry>The black marble on the left.</entry>
+                    </row>
+                    <row>
+                        <entry><keycap>4</keycap></entry>
+                        <entry>The gold sphere on the right.</entry>
+                    </row>
+                </tbody>
+            </tgroup>
+        </table>
+        <para>This tutorial uses a rendering setup similar to the last one. The shaders use uniform
+            blocks to control most of the uniforms. There is a shared global lighting uniform block,
+            as well as one for the projection matrix.</para>
+        <section>
+            <title>Grifting Geometry</title>
+            <para>The way this program actually renders the geometry for the impostors is
+                interesting. The vertex shader looks like this:</para>
+            <example>
+                <title>Basic Impostor Vertex Shader</title>
+                <programlisting language="glsl">#version 330
+
+layout(std140) uniform;
+
+out vec2 mapping;
+
+uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};Q
+
+uniform float sphereRadius;
+uniform vec3 cameraSpherePos;
+
+void main()
+{
+    vec2 offset;
+    switch(gl_VertexID)
+    {
+    case 0:
+        //Bottom-left
+        mapping = vec2(-1.0, -1.0);
+        offset = vec2(-sphereRadius, -sphereRadius);
+        break;
+    case 1:
+        //Top-left
+        mapping = vec2(-1.0, 1.0);
+        offset = vec2(-sphereRadius, sphereRadius);
+        break;
+    case 2:
+        //Bottom-right
+        mapping = vec2(1.0, -1.0);
+        offset = vec2(sphereRadius, -sphereRadius);
+        break;
+    case 3:
+        //Top-right
+        mapping = vec2(1.0, 1.0);
+        offset = vec2(sphereRadius, sphereRadius);
+        break;
+    }
+    
+    vec4 cameraCornerPos = vec4(cameraSpherePos, 1.0);
+    cameraCornerPos.xy += offset;
+    
+    gl_Position = cameraToClipMatrix * cameraCornerPos;
+}</programlisting>
+            </example>
+            <para>Notice anything missing? There are no input variables declared anywhere in this
+                vertex shader.</para>
+            <para>It does still use an input variable: <varname>gl_VertexID</varname>. This is a
+                built-in input variable; it contains the current index of this particular vertex.
+                When using array rendering, it's just the count of the vertex we are in. When using
+                indexed rendering, it is the index of this vertex.</para>
+            <para>When we render this mesh, we render 4 vertices as a
+                    <literal>GL_TRIANGLE_STRIP</literal>. This is rendered in array rendering mode,
+                so the <varname>gl_VertexID</varname> will vary from 0 to 3. Our switch/case
+                statement determines which vertex we are rendering. Since we're trying to render a
+                square with a triangle strip, the order of the vertices needs to be appropriate for
+                this.</para>
+            <para>After computing which vertex we are trying to render, we use the radius-based
+                offset as a bias to the camera-space sphere position. The Z value of the sphere
+                position is left alone, since it will always be correct for our square. After that,
+                we transform the camera-space position to clip-space as normal.</para>
+            <para>The output <varname>mapping</varname> is a value that is used by the fragment
+                shader, as we will see below.</para>
+            <para>Since this vertex shader takes no inputs, you might think that you could get away
+                with binding a vertex array object that had no enabled attributes. Alas, this does
+                not work; we must have a dummy attribute enabled and a dummy buffer object to pull
+                data from. We do this in the initialization function of this tutorial.</para>
+            <note>
+                <para>The OpenGL 3.3 core specification says that it should be possible to render
+                    with no enabled attributes. Sadly, certain implementations of OpenGL
+                    (*cough*AMD*cough*) incorrectly forbid it.</para>
+            </note>
+        </section>
+        <section>
+            <title>Racketeering Rasterization</title>
+            <para>Our lighting equations in the past needed only a position and normal in
+                camera-space (as well as other material and lighting parameters) in order to work.
+                So the job of the fragment shader is to provide them. Even though they don't
+                correspond to those of the actual triangles in any way.</para>
+            <para>Here are the salient new parts of the fragment shader for impostors:</para>
+            <example>
+                <title>Basic Impostor Fragment Shader</title>
+                <programlisting language="glsl">in vec2 mapping;
+
+void Impostor(out vec3 cameraPos, out vec3 cameraNormal)
+{
+    float lensqr = dot(mapping, mapping);
+    if(lensqr > 1.0)
+        discard;
+    	
+    cameraNormal = vec3(mapping, sqrt(1.0 - lensqr));
+    cameraPos = (cameraNormal * sphereRadius) + cameraSpherePos;
+}
+
+void main()
+{
+    vec3 cameraPos;
+    vec3 cameraNormal;
+    
+    Impostor(cameraPos, cameraNormal);
+    
+    vec4 accumLighting = Mtl.diffuseColor * Lgt.ambientIntensity;
+    for(int light = 0; light &lt; numberOfLights; light++)
+    {
+        accumLighting += ComputeLighting(Lgt.lights[light],
+            cameraPos, cameraNormal);
+    }
+    
+    outputColor = sqrt(accumLighting); //2.0 gamma correction
+}</programlisting>
+            </example>
+            <para>In order to compute the position and normal, we first need to find the point on
+                the sphere that corresponds with the point on the square that we are currently on.
+                And to do that, we need a way to tell where on the square we are.</para>
+            <para>Using <varname>gl_FragCoord</varname> will not help, as it is relative to the
+                entire screen. We need a value that is relative only to the impostor square. That is
+                the purpose of the <varname>mapping</varname> variable. When this variable is at (0,
+                0), we are in the center of the square, which is the center of the sphere. When it
+                is at (-1, -1), we are at the bottom left corner of the square.</para>
+            <para>Given this, we can now compute the sphere point directly <quote>above</quote> the
+                point on the square, which is the job of the <function>Impostor</function>
+                function.</para>
+            <para>Before we can compute the sphere point however, we must make sure that we are
+                actually on a point that has the sphere above it. This requires only a simple
+                distance check. Since the size of the square is equal to the radius of the sphere,
+                if the distance of the <varname>mapping</varname> variable from its (0, 0) point is
+                greater than 1, then we know that this point is off of the sphere.</para>
+            <para>Here, we use a clever way of computing the length; we don't. Instead, we compute
+                the square of the length. We know that if <inlineequation>
+                    <mathphrase>X<superscript>2</superscript> >
+                        Y<superscript>2</superscript></mathphrase>
+                </inlineequation> is true, then <inlineequation>
+                    <mathphrase>X > Y</mathphrase>
+                </inlineequation> must also be true for all positive real numbers X and Y. So we
+                just do the comparison as squares, rather than taking a square-root to find the true
+                length.</para>
+            <para>If the point is not under the sphere, we execute something new:
+                    <literal>discard</literal>. The <literal>discard</literal> keyword is unique to
+                fragment shaders. It tells OpenGL that the fragment is invalid and its data should
+                not be written to the image or depth buffers. This allows us to carve out a shape in
+                our flat square, turning it into a circle.</para>
+            <sidebar>
+                <title>A Word on Discard</title>
+                <para>Using <literal>discard</literal> sounds a lot like throwing an exception.
+                    Since the fragment's outputs will be ignored and discarded, you might expect
+                    that executing this instruction will cause the fragment shader to stop
+                    executing. This is not necessarily the case.</para>
+                <para>Due to the way that shaders tend to work, multiple executions of the same
+                    shader are often operating at the same time. All of them are running in
+                    lock-step with one another; they all execute instructions at the same time. If
+                    one of them does a discard, it still has to keep doing what it was doing,
+                    because the other three may not have discarded, since the discard was based on
+                    data that may be different between each shader. This is also why branches in
+                    shaders will often execute both sides rather than actually branching; it keeps
+                    the shader logic simpler.</para>
+                <para>However, that doesn't mean <literal>discard</literal> is without use for
+                    stopping unwanted processing. If all of the shaders that are running together
+                    hit a <literal>discard</literal>, then they can all be aborted with no problems.
+                    And hardware often does this where possible.</para>
+            </sidebar>
+            <para>The computation of the normal is based on simple trigonometry. The normal of a
+                sphere does not change based on the sphere's radius. Therefore, we can compute the
+                normal in the space of the mapping, which uses a normalized sphere radius of 1. The
+                normal of a sphere at a point is in the same direction as the direction from the
+                sphere's center to that point on the surface.</para>
+            <para>Let's look at the 2D case. To have a 2D vector direction, we need an X and Y
+                coordinate. If we only have the X, but we know that the vector has a certain length,
+                then we can compute the Y based on the Pythagorean theorem:</para>
+            <!--TODO: Picture of the 2D case of finding Y based on X and a diagonal.
+TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
+            <para>We simply use the 3D version of this. We have X and Y from
+                    <varname>mapping</varname>, and we know the length is 1.0. So we compute the Z
+                value easily enough. And since we are only interested in the front-side of the
+                sphere, we know that the Z value must be positive.</para>
+            <para>Computing the position is also easy. The position of a point on the surface of a
+                sphere is the normal at that position scaled by the radius and offset by the center
+                point of the sphere.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut13 Correct Chicanery.html" ?>
         <title>Correct Chicanery</title>
-        <para/>
+        <para>Our perfect sphere looks pretty nice. However, it is unfortunately very wrong.</para>
+        <para>To see how, toggle back to rendering the mesh on sphere <keycap>1</keycap> (the
+            central blue one). Then move the camera so that the sphere is at the left edge of the
+            screen. Then toggle back to impostor rendering.</para>
+        <!--TODO: Picture of the bad sphere impostor, both before and after.-->
+        <para>What's going on here? The mesh sphere seems to be wider than the impostor sphere. This
+            must mean that the mesh sphere is doing something our impostor isn't. Does this have to
+            do with the inaccuracy of the mesh sphere?</para>
+        <para>Quite the opposite, in fact. The mesh sphere is correct. The problem is that our
+            impostor is too simple.</para>
+        <para>Look back at how we did our computations. We map a sphere down to a flat surface. The
+            problem is that <quote>down</quote> in this case is in the camera-space Z direction. The
+            mapping between the surface and the sphere is static; it doesn't change based on the
+            viewing angle.</para>
+        <para>Consider this 2D case:</para>
+        <!--TODO: Picture of 2D case of perspective projection and sphere impostor off to the left.-->
+        <para>When viewing the sphere off to the side like this, we shouldn't be able to see the
+            left-edge of the sphere facing perpendicular to the camera. And we should see some of
+            the sphere on the right that is behind the plane.</para>
+        <para>So how do we solve this?</para>
+        <para>Use better math. Our last algorithm is a decent approximation if the spheres are
+            somewhat small. But if the spheres are reasonably large (which also can mean close to
+            the camera), then our approximation is shown to be very fake. Our new algorithm needs to
+            take this into account.</para>
+        <para>This algorithm is based on a term you may have heard before: <glossterm>ray
+                tracing.</glossterm> We will not be implementing a full ray tracing algorithm here;
+            instead, we will use it solely to get the position and normal of a sphere at a certain
+            point.</para>
+        <para>A ray is a direction and a position; it represents a line extending from the position
+            along that direction. The points on the ray can be expressed as the following
+            equation:</para>
+        <!--TODO: Equation for a ray.-->
+        <para>The <varname>t</varname> value can be positive or negative, but for our needs, we'll
+            stick with positive values.</para>
+        <para>For each fragment, we want to create a ray from the camera position in the direction
+            towards that point on the impostor square. Then we want to detect the point on the
+            sphere that it hits, if any. If the ray intersects the sphere, then we use that point
+            and normal for our lighting equation.</para>
+        <para>The math for this is fairly simple. The equation for the points on a sphere is
+            this:</para>
+        <!--TODO: Equation for a sphere. |P - S| = R-->
+        <para>For any point P, if this equation is true, then P is on the sphere. So we can
+            substitute our ray equation for P:</para>
+        <!--TODO: Equation, Ray substituted for P. |Dt + O - S| = R-->
+        <para>Our ray goes from the camera into the scene. Since we're in camera space, the camera
+            is at the origin. So O can be eliminated from the equation.</para>
+        <para>To solve for t, we need to get rid of that length. One way to do it is to re-express
+            the sphere equation as the length squared. So then we get:</para>
+        <!--TODO: Equation for a sphere: |P - S|^2 = R^2
+Then |Dt - S|^2 = R^2-->
+        <para>The square of the length of a vector is the same as that vector dot-producted with
+            itself. So let's do that:</para>
+        <!--TODO: Equation: (Dt - S)DOT(Dt - S) = R^2-->
+        <para>The dot product is distributive. Indeed, it follows most of the rules of scalar
+            multiplication. This gives us:</para>
+        <!--TODO: Equation: (DDOTD)t^2 -2DDOTS*t + SDOTS = R^2 -->
+        <para>While this equation has a lot of vector elements in it, as far as t is concerned, it
+            is a scalar equation. Indeed, it is a quadratic equation, with respect to t. Ahh, good
+            old algebra.</para>
+        <!--TODO: Equation: the Quadratic Formula
+A, B, C from the above.-->
+        <para>In case you've forgotten, the part under the square root in the quadratic formula is
+            called the determinant. If this value is negative, then the equation has no solution. In
+            terms of our ray test, this means the ray misses the sphere.</para>
+        <para>As you may recall, the square root can be either positive or negative. This gives us
+            two t values. Which makes sense; the ray hits the sphere in two places: once going in,
+            and once coming out. The correct t value that we're interested in is the smallest one.
+            Once we have that, we can use the ray equation to compute the point. With the point and
+            the center of the sphere, we can compute the normal. And we're back in business.</para>
+        <section>
+            <title>Extorting and Expanding</title>
+            <para>To see this done, open up the last tutorial project. Since they use the exact same
+                source, and since they use the same uniforms and other interfaces for their shaders,
+                there was no need to make another code project for it. To see the ray-traced
+                version, press the <keycap>J</keycap> key; all impostors will use the perspective
+                version. To go back to the flat version, press <keycap>L</keycap>.</para>
+            <!--TODO: Picture, comparing the non-perspective version to the perspective one. And to the mesh.-->
+            <para>Much better.</para>
+            <para>The <function>Impostor</function> function in the fragment shader implements our
+                ray tracing algorithm. More importantly are the changes to the vertex shader's
+                computation of the impostor square:</para>
+            <example>
+                <title>Ray Traced Impostor Square</title>
+                <programlisting language="glsl">const float g_boxCorrection = 1.5;
+
+void main()
+{
+    vec2 offset;
+    switch(gl_VertexID)
+    {
+    case 0:
+        //Bottom-left
+        mapping = vec2(-1.0, -1.0) * g_boxCorrection;
+        offset = vec2(-sphereRadius, -sphereRadius);
+        break;
+    case 1:
+        //Top-left
+        mapping = vec2(-1.0, 1.0) * g_boxCorrection;
+        offset = vec2(-sphereRadius, sphereRadius);
+        break;
+    case 2:
+        //Bottom-right
+        mapping = vec2(1.0, -1.0) * g_boxCorrection;
+        offset = vec2(sphereRadius, -sphereRadius);
+        break;
+    case 3:
+        //Top-right
+        mapping = vec2(1.0, 1.0) * g_boxCorrection;
+        offset = vec2(sphereRadius, sphereRadius);
+        break;
+    }
+
+    vec4 cameraCornerPos = vec4(cameraSpherePos, 1.0);
+    cameraCornerPos.xy += offset * g_boxCorrection;
+    
+    gl_Position = cameraToClipMatrix * cameraCornerPos;
+}</programlisting>
+            </example>
+            <para>We have expanded the size of the square by 50%. What is the purpose of
+                this?</para>
+            <para>Recall that, when you look sidelong at the sphere, it shifts to the side a bit.
+                This also means that it no longer fits into a radius-sized square from the
+                perspective of camera space. Rather than finding a clever way to compute the exact
+                extent of the sphere based on things like the viewport, the perspective matrix, and
+                so forth, it's much easier to just make the square bigger. Sure, you'll end up
+                running the rasterizer rather more than strictly necessary. But it's overall much
+                simpler.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut13 Deceit in Depth.html" ?>
         <title>Deceit in Depth</title>
-        <para/>
+        <para>While the perspective version looks great, there remains one problem. Move the time
+            around until the rotating grey sphere ducks underneath the ground.</para>
+        <!--TODO: Picture of the grey sphere intersecting the ground, in perspective mode.-->
+        <para>Hmm. Even though we've made it look like a mathematically perfect sphere, it doesn't
+            act like one to the depth buffer. As far as it is concerned, it's just a circle
+            (remember: <literal>discard</literal> prevents depth writes and tests as well).</para>
+        <para>Is that the end for our impostors? Hardly.</para>
+        <para>Part of the fragment shader's output is a depth value. If you do not write one, then
+            OpenGL will happily use <varname>gl_FragCoord.z</varname> as the depth output from the
+            fragment shader. This value will be depth tested against the current depth value and, if
+            the test passes, written to the depth buffer.</para>
+        <para>But we do have the ability to write a depth value ourselves. To see how this is done,
+            load up the tutorial (using the same code again) and press the <keycap>H</keycap> key.
+            This will cause all impostors to use depth-correct shaders.</para>
+        <!--TODO: Picture comparing the grey sphere before and after depth correction.-->
+        <para>This shader is identical to the ray traced version, except for these lines in the
+            fragment shader:</para>
+        <example>
+            <title>Depth Correct Fragment Shader</title>
+            <programlisting>Impostor(cameraPos, cameraNormal);
+	
+//Set the depth based on the new cameraPos.
+vec4 clipPos = cameraToClipMatrix * vec4(cameraPos, 1.0);
+float ndcDepth = clipPos.z / clipPos.w;
+gl_FragDepth = ((gl_DepthRange.diff * ndcDepth) +
+    gl_DepthRange.near + gl_DepthRange.far) / 2.0;</programlisting>
+        </example>
+        <para>Basically, we go through the process OpenGL normally goes through to compute the
+            depth. We just do it on the camera-space position we computed with the ray tracing
+            function. The position is transformed to clip space. The perspective division happens,
+            transforming to normalized device coordinate (<acronym>NDC</acronym>) space. The depth
+            range function is applied, forcing the [-1, 1] range in the fragment shader to the range
+            that the user provided with <function>glDepthRange.</function></para>
+        <para>We write the final depth to a built-in output variable
+                <varname>gl_FragDepth.</varname></para>
+        <section>
+            <section>
+                <sidebar>
+                    <title>Fragments and Depth</title>
+                    <para>The default behavior of OpenGL is, if a fragment shader does not write to
+                        the output depth, then simply take the <varname>gl_FragCoord.z</varname>
+                        depth as the depth of the fragment. Oh, you could do this manually. One
+                        could add the following statement to any fragment shader that uses the
+                        default depth value:</para>
+                    <programlisting language="glsl">gl_FragDepth = gl_FragCoord.z</programlisting>
+                    <para>This is, in terms of behavior a noop; it does nothing OpenGL wouldn't have
+                        done itself. However, in terms of <emphasis>performance</emphasis>, this is
+                        a drastic change.</para>
+                    <para>The reason fragment shaders aren't required to have this line in all of
+                        them is to allow for certain optimizations. If the OpenGL driver can see
+                        that you do not set <varname>gl_FragDepth</varname> anywhere in the fragment
+                        shader, then it can dramatically improve performance in certain
+                        cases.</para>
+                    <para>If the driver knows that the output fragment depth is the same as the
+                        generated one, it can do the whole depth test <emphasis>before</emphasis>
+                        executing the fragment shader. This is called <glossterm>early depth
+                            test</glossterm> or <glossterm>early-z</glossterm>. This means that it
+                        can discard fragments <emphasis>before</emphasis> wasting precious time
+                        executing potentially complex fragment shaders. Indeed, most hardware
+                        nowadays has complicated early z culling hardware that can discard multiple
+                        fragments with a single test.</para>
+                    <para>The moment your fragment shader writes anything to
+                            <varname>gl_FragDepth</varname>, all of those optimizations have to go
+                        away. So generally, you should only write a depth value yourself if you
+                            <emphasis>really</emphasis> need to do it.</para>
+                    <para>Also, if your shader writes <varname>gl_FragDepth</varname> anywhere, it
+                        must ensure that it is <emphasis>always</emphasis> written to, no matter
+                        what conditional branches your shader uses. The value is not initialized to
+                        a default; you either always write to it or never mention
+                                <quote><varname>gl_FragDepth</varname></quote> in your fragment
+                        shader at all. Obviously, you don't always have to write the same value; you
+                        can conditionally write different values. But you cannot write something in
+                        one path and not write something in another. Initialize it explicitly with
+                            <varname>gl_FragCoord.z</varname> if you want to do something like
+                        that.</para>
+                </sidebar>
+            </section>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut13 Purloined Primitives.html" ?>
@@ -78,7 +536,50 @@
             <para/>
         </section>
         <section>
-            <title>GLSL Functions of Note</title>
+            <title>GLSL Features of Note</title>
+            <glosslist>
+                <glossentry>
+                    <glossterm>discard</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>gl_VertexID</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>gl_FragCoord</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>gl_PrimitiveID</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>gl_PrimitiveIDin</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm/>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>void <function>EmitVertex</function></funcdef>
+                </funcprototype>
+            </funcsynopsis>
             <para/>
         </section>
         
@@ -88,7 +589,13 @@
         <title>Glossary</title>
         <glosslist>
             <glossentry>
-                <glossterm/>
+                <glossterm>impostor</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>ray tracing</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>

@@ -569,23 +569,9 @@ void keyboard(unsigned char key, int x, int y)
 	case '3': g_drawImposter[2] = !g_drawImposter[2]; break;
 	case '4': g_drawImposter[3] = !g_drawImposter[3]; break;
 
-	case 'l':
-		{
-			g_currImpostor += 1;
-			g_currImpostor %= IMP_NUM_IMPOSTORS;
-			const char *impostorNames[IMP_NUM_IMPOSTORS] =
-			{
-				"basic",
- 				"perspective-correct",
- 				"depth-accurate",
-			};
-
-			printf("Now using %s impostor.\n", impostorNames[g_currImpostor]);
-		}
-		break;
-
-	case 32: InitializePrograms(); break;
-
+	case 'l': g_currImpostor = IMP_BASIC; break;
+	case 'j': g_currImpostor = IMP_PERSPECTIVE; break;
+	case 'h': g_currImpostor = IMP_DEPTH; break;
 	}
 
 	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);

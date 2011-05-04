@@ -525,9 +525,6 @@ void keyboard(unsigned char key, int x, int y)
 	case '=': g_sphereTimer.Fastforward(0.5f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 	case 'g': g_bDrawLights = !g_bDrawLights; break;
-
-	case 32: InitializePrograms(); break;
-
 	}
 
 	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
