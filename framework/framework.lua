@@ -21,7 +21,7 @@ function SetupSolution(slnName)
 		targetdir "../framework/lib"
 		objdir "../framework/lib"
 
-		includedirs {"../freeglut-2.6.0/include", "../glloader/include",
+		includedirs {"../freeglut-2.6.0/include", "../glload/include",
 			"../FreeImage/dist", "../glm-0.9.0.7", "../tinyxml", "../framework"}
 		
 		configuration "Debug"
@@ -44,7 +44,7 @@ function SetupProject(projName, ...)
 		files {...}
 --		targetdir "bin"
 
-		includedirs {"../freeglut-2.6.0/include", "../glloader/include",
+		includedirs {"../freeglut-2.6.0/include", "../glload/include",
 			"../FreeImage/dist", "../glm-0.9.0.7", "../tinyxml"}
 			
 		links "framework"
@@ -54,7 +54,7 @@ function SetupProject(projName, ...)
 			flags "Symbols"
 			links "../freeglut-2.6.0/VisualStudio2008Static/debug/freeglut_static"
 			links "../FreeImage/dist/FreeImageD"
-			links "../glloader/lib/glloaderD"
+			links "../glload/lib/glloadD"
 			links "../tinyxml/lib/tinyxml_pmD"
 			targetname(projName .. "D")
 		
@@ -62,7 +62,7 @@ function SetupProject(projName, ...)
 			defines {"RELEASE", "NDEBUG"};
 			links "../freeglut-2.6.0/VisualStudio2008Static/release/freeglut_static"
 			links "../FreeImage/dist/FreeImage"
-			links "../glloader/lib/glloader"
+			links "../glload/lib/glload"
 			links "../tinyxml/lib/tinyxml_pm"
 			targetname(projName)
 end

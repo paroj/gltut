@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 #include <glm/glm.hpp>
-#include <glloader/gl_3_3_comp.h>
+#include <glload/gl_3_3_comp.h>
 #include "../framework/framework.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/Mesh.h"

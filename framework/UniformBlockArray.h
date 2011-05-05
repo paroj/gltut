@@ -2,7 +2,7 @@
 #ifndef UNIFORM_BLOCK_ARRAY_H
 #define UNIFORM_BLOCK_ARRAY_H
 
-#include <glloader/gl_3_3_comp.h>
+#include <glload/gl_3_3_comp.h>
 #include <vector>
 
 namespace Framework

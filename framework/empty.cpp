@@ -4,7 +4,7 @@ when/why they are called. You can copy this file and simply implement
 these function.
 ***********************************************************************/
 
-#include <glloader/gl_3_2_comp.h>
+#include <glload/gl_3_2_comp.h>
 #include <GL/freeglut.h>
 
 

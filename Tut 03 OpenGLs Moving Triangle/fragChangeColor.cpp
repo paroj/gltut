@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <math.h>
-#include <glloader/gl_3_2_comp.h>
+#include <glload/gl_3_2_comp.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 

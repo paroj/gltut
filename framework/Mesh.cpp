@@ -6,9 +6,8 @@
 #include <sstream>
 #include <functional>
 #include <algorithm>
-#include <glloader/gl_3_2_comp.h>
-#include <glloader/wgl_exts.h>
-#include <glloader/gle.h>
+#include <glload/gl_3_2_comp.h>
+#include <glload/gll.h>
 #include <GL/freeglut.h>
 #include <tinyxml.h>
 #include "framework.h"

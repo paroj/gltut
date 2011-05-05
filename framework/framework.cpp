@@ -3,9 +3,8 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <glloader/gl_3_2_comp.h>
-#include <glloader/wgl_exts.h>
-#include <glloader/gle.h>
+#include <glload/gl_3_2_comp.h>
+#include <glload/gll.h>
 #include <GL/freeglut.h>
 #include "framework.h"
 
@@ -126,7 +125,7 @@ int main(int argc, char** argv)
 
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
-	gleLoadFunctions();
+	glload::LoadFunctions();
 	init();
 
 // 	glutMouseFunc(MouseButton);
