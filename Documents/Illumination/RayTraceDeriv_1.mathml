@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+	<mrow>
+		<mfenced open="&#x2225;" close="&#x2225;">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mi>t</mi>
+				<mo>+</mo>
+				<mover accent="true">
+					<mi>O</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+				<mo>-</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mo>=</mo>
+		<mi>R</mi>
+	</mrow>
+</math>

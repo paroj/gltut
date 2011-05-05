@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+    <mtable columnalign="left">
+        <mtr>
+            <mtd>
+                <mi>A</mi>
+                <msup>
+                    <mi>x</mi>
+                    <mn>2</mn>
+                </msup>
+                <mo>+</mo>
+                <mi>B</mi>
+                <mi>x</mi>
+                <mo>+</mo>
+                <mi>C</mi>
+                <mo>=</mo>
+                <mn>0</mn>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+                <mi>x</mi>
+                <mo>=</mo>
+                <mfrac>
+                    <mrow>
+						<mo>-</mo>
+						<mi>B</mi>
+						<mo>&#xb1;</mo>
+						<msqrt>
+							<msup>
+								<mi>B</mi>
+								<mn>2</mn>
+							</msup>
+							<mo>-</mo>
+							<mn>4</mn>
+							<mi>A</mi>
+							<mi>C</mi>
+						</msqrt>
+                    </mrow>
+                    <mrow>
+						<mn>2</mn>
+						<mi>A</mi>
+                    </mrow>
+                </mfrac>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+				<mi>A</mi>
+				<mo>=</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mo>&#xb7;</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mo>=</mo>
+				<mn>1</mn>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+				<mi>B</mi>
+				<mo>=</mo>
+				<mo>-</mo>
+				<mn>2</mn>
+				<mfenced open="(" close=")">
+					<mrow>
+						<mover accent="true">
+							<mi>D</mi>
+							<mo>&#x5e;</mo>
+						</mover>
+						<mo>&#xb7;</mo>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>&#x21C0;</mo>
+						</mover>
+					</mrow>
+				</mfenced>
+			</mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+				<mi>C</mi>
+				<mo>=</mo>
+				<mfenced open="(" close=")">
+					<mrow>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>&#x21C0;</mo>
+						</mover>
+						<mo>&#xb7;</mo>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>&#x21C0;</mo>
+						</mover>
+					</mrow>
+				</mfenced>
+				<mo>-</mo>
+				<msup>
+					<mi>R</mi>
+					<mn>2</mn>
+				</msup>
+            </mtd>
+        </mtr>
+    </mtable>
+</math>

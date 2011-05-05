@@ -32,3 +32,7 @@ Tut */*.vcproj
 framework/*.vcproj
 Test/*.sln
 Test/*.vcproj
+AllTutorials.sln
+glloader/*.sln
+glloader/*.vcproj
+website/*

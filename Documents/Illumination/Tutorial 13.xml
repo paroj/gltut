@@ -46,7 +46,14 @@
         <para>The tutorial project <phrase role="propername">Basic Impostor</phrase> demonstrates
             this technique. It shows a scene with several spheres, a directional light, and a moving
             point light source.</para>
-        <!--TODO: Picture of this tutorial.-->
+        <figure>
+            <title>Basic Impostor</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Basic%20Impostor.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The camera movement is controlled in the same way as previous tutorials. The
                 <keycap>T</keycap> key will toggle a display showing the look-at point. The
                 <keycap>-</keycap> and <keycap>=</keycap> keys will rewind and fast-forward the
@@ -263,9 +270,23 @@ void main()
                 sphere's center to that point on the surface.</para>
             <para>Let's look at the 2D case. To have a 2D vector direction, we need an X and Y
                 coordinate. If we only have the X, but we know that the vector has a certain length,
-                then we can compute the Y based on the Pythagorean theorem:</para>
-            <!--TODO: Diagram of the 2D case of finding Y based on X and a diagonal.
-TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
+                then we can compute the Y component of the vector based on the Pythagorean
+                theorem:</para>
+            <figure>
+                <title>Circle Point Computation</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="CirclePythagorean.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <informalfigure>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="PythagoreanTheorem.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </informalfigure>
             <para>We simply use the 3D version of this. We have X and Y from
                     <varname>mapping</varname>, and we know the length is 1.0. So we compute the Z
                 value easily enough. And since we are only interested in the front-side of the
@@ -282,7 +303,14 @@ TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
         <para>To see how, toggle back to rendering the mesh on sphere <keycap>1</keycap> (the
             central blue one). Then move the camera so that the sphere is at the left edge of the
             screen. Then toggle back to impostor rendering.</para>
-        <!--TODO: Picture of the bad sphere impostor, both before and after.-->
+        <figure>
+            <title>Bad Impostor</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Impostor%20No%20Perspective.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>What's going on here? The mesh sphere seems to be wider than the impostor sphere. This
             must mean that the mesh sphere is doing something our impostor isn't. Does this have to
             do with the inaccuracy of the mesh sphere?</para>
@@ -293,10 +321,18 @@ TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
             mapping between the surface and the sphere is static; it doesn't change based on the
             viewing angle.</para>
         <para>Consider this 2D case:</para>
-        <!--TODO: Diagram of 2D case of perspective projection and sphere impostor off to the left.-->
-        <para>When viewing the sphere off to the side like this, we shouldn't be able to see the
-            left-edge of the sphere facing perpendicular to the camera. And we should see some of
-            the sphere on the right that is behind the plane.</para>
+        <figure>
+            <title>Circle Projection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CircleInPerspective.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The line through the circle represents the square we drew. When viewing the sphere off
+            to the side like this, we shouldn't be able to see the left-edge of the sphere facing
+            perpendicular to the camera. And we should see some of the sphere on the right that is
+            behind the plane.</para>
         <para>So how do we solve this?</para>
         <para>Use better math. Our last algorithm is a decent approximation if the spheres are
             somewhat small. But if the spheres are reasonably large (which also can mean close to
@@ -309,7 +345,14 @@ TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
         <para>A ray is a direction and a position; it represents a line extending from the position
             along that direction. The points on the ray can be expressed as the following
             equation:</para>
-        <!--TODO: Equation for a ray.-->
+        <equation>
+            <title>Ray Equation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RayEquation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
         <para>The <varname>t</varname> value can be positive or negative, but for our needs, we'll
             stick with positive values.</para>
         <para>For each fragment, we want to create a ray from the camera position in the direction
@@ -318,30 +361,66 @@ TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
             and normal for our lighting equation.</para>
         <para>The math for this is fairly simple. The equation for the points on a sphere is
             this:</para>
-        <!--TODO: Equation for a sphere. |P - S| = R-->
-        <para>For any point P, if this equation is true, then P is on the sphere. So we can
-            substitute our ray equation for P:</para>
-        <!--TODO: Equation, Ray substituted for P. |Dt + O - S| = R-->
+        <equation>
+            <title>Sphere Equation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="SphereEquation.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </equation>
+        <para>For any point P, if this equation is true, if the length between that point and the
+            sphere's center equals the radius, then P is on the sphere. So we can substitute our ray
+            equation for P:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RayTraceDeriv_1.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>Our ray goes from the camera into the scene. Since we're in camera space, the camera
-            is at the origin. So O can be eliminated from the equation.</para>
-        <para>To solve for t, we need to get rid of that length. One way to do it is to re-express
-            the sphere equation as the length squared. So then we get:</para>
-        <!--TODO: Equation for a sphere: |P - S|^2 = R^2
-Then |Dt - S|^2 = R^2-->
+            is at the origin. So O can be eliminated from the equation. To solve for
+                <varname>t</varname>, we need to get rid of that length. One way to do it is to
+            re-express the sphere equation as the length squared. So then we get:</para>
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RayTraceDeriv_2.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>The square of the length of a vector is the same as that vector dot-producted with
             itself. So let's do that:</para>
-        <!--TODO: Equation: (Dt - S)DOT(Dt - S) = R^2-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RayTraceDeriv_3.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>The dot product is distributive. Indeed, it follows most of the rules of scalar
             multiplication. This gives us:</para>
-        <!--TODO: Equation: (DDOTD)t^2 -2DDOTS*t + SDOTS = R^2 -->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RayTraceDeriv_4.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>While this equation has a lot of vector elements in it, as far as t is concerned, it
-            is a scalar equation. Indeed, it is a quadratic equation, with respect to t. Ahh, good
+            is a scalar equation. Indeed, it is a quadratic equation, with respect to t. Ah, good
             old algebra.</para>
-        <!--TODO: Equation: the Quadratic Formula
-A, B, C from the above.-->
+        <informalequation>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="RayTraceDeriv_5.svg" format="SVG"/>
+                </imageobject>
+            </mediaobject>
+        </informalequation>
         <para>In case you've forgotten, the part under the square root in the quadratic formula is
-            called the determinant. If this value is negative, then the equation has no solution. In
-            terms of our ray test, this means the ray misses the sphere.</para>
+            called the discriminant. If this value is negative, then the equation has no solution.
+            In terms of our ray test, this means the ray misses the sphere.</para>
         <para>As you may recall, the square root can be either positive or negative. This gives us
             two t values. Which makes sense; the ray hits the sphere in two places: once going in,
             and once coming out. The correct t value that we're interested in is the smallest one.
@@ -354,8 +433,16 @@ A, B, C from the above.-->
                 there was no need to make another code project for it. To see the ray-traced
                 version, press the <keycap>J</keycap> key; all impostors will use the perspective
                 version. To go back to the flat version, press <keycap>L</keycap>.</para>
-            <!--TODO: Picture, comparing the non-perspective version to the perspective one. And to the mesh.-->
-            <para>Much better.</para>
+            <figure>
+                <title>Bad vs. Good</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Bad%20vs%20Good%20Impostor2.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The top is the original, the middle is the actual mesh, and the bottom is our new
+                ray traced version.</para>
             <para>The <function>Impostor</function> function in the fragment shader implements our
                 ray tracing algorithm. More importantly are the changes to the vertex shader's
                 computation of the impostor square:</para>
@@ -396,15 +483,24 @@ void main()
     gl_Position = cameraToClipMatrix * cameraCornerPos;
 }</programlisting>
             </example>
-            <para>We have expanded the size of the square by 50%. What is the purpose of
-                this?</para>
-            <para>Recall that, when you look sidelong at the sphere, it shifts to the side a bit.
-                This also means that it no longer fits into a radius-sized square from the
-                perspective of camera space. Rather than finding a clever way to compute the exact
-                extent of the sphere based on things like the viewport, the perspective matrix, and
-                so forth, it's much easier to just make the square bigger. Sure, you'll end up
-                running the rasterizer rather more than strictly necessary. But it's overall much
-                simpler.</para>
+            <para>We have expanded the size of the square by 50%. What is the purpose of this? Well,
+                let's look at our 2D image again.</para>
+            <informalfigure>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="CircleInPerspective.svg" format="SVG"/>
+                    </imageobject>
+                </mediaobject>
+            </informalfigure>
+            <para>The black line represents the square we used originally. There is a portion to the
+                left of the projection that we should be able to see. However, with proper ray
+                tracing, it wouldn't fit onto the area of the radius-sized square.</para>
+            <para>This means that we need to expand the size of the square. Rather than finding a
+                clever way to compute the exact extent of the sphere's area projected onto a square,
+                it's much easier to just make the square bigger. This is even moreso considering
+                that such math would have to take into account things like the viewport and the
+                perspective matrix. Sure, we will end up running the rasterizer rather more than
+                strictly necessary. But it's overall much simpler.</para>
         </section>
     </section>
     <section>
@@ -412,7 +508,14 @@ void main()
         <title>Deceit in Depth</title>
         <para>While the perspective version looks great, there remains one problem. Move the time
             around until the rotating grey sphere ducks underneath the ground.</para>
-        <!--TODO: Picture of the grey sphere intersecting the ground, in perspective mode.-->
+        <figure>
+            <title>Bad Intersection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Bad%20Impostor%20Intersection.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Hmm. Even though we've made it look like a mathematically perfect sphere, it doesn't
             act like one to the depth buffer. As far as it is concerned, it's just a circle
             (remember: <literal>discard</literal> prevents depth writes and tests as well).</para>
@@ -424,7 +527,14 @@ void main()
         <para>But we do have the ability to write a depth value ourselves. To see how this is done,
             load up the tutorial (using the same code again) and press the <keycap>H</keycap> key.
             This will cause all impostors to use depth-correct shaders.</para>
-        <!--TODO: Picture comparing the grey sphere before and after depth correction.-->
+        <figure>
+            <title>Depth Correct Impostor</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Depth%20Correct%20Impostor.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This shader is identical to the ray traced version, except for these lines in the
             fragment shader:</para>
         <example>

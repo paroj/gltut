@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+	<mtable>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mo>=</mo>
+				<mtext>Ray Direction</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>O</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+				<mo>=</mo>
+				<mtext>Ray Origin</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>P</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+				<mfenced open="(" close=")" separators=",">
+					<mrow>
+						<mi>t</mi>
+					</mrow>
+				</mfenced>
+				<mo>=</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mi>t</mi>
+				<mo>+</mo>
+				<mover accent="true">
+					<mi>O</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+			</mtd>
+		</mtr>
+	</mtable>
+</math>
