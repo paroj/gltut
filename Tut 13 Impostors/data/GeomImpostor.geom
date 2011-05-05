@@ -10,18 +10,18 @@ uniform Projection
 	mat4 cameraToClipMatrix;
 };
 
+in VertexData
+{
+	vec3 cameraSpherePos;
+	float sphereRadius;
+} vert[];
+
 out FragData
 {
 	flat vec3 cameraSpherePos;
 	flat float sphereRadius;
 	smooth vec2 mapping;
 };
-
-in VertexData
-{
-	vec3 cameraSpherePos;
-	float sphereRadius;
-} vert[];
 
 const float g_boxCorrection = 1.5;
 
