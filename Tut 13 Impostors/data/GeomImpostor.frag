@@ -101,7 +101,8 @@ void Impostor(out vec3 cameraPos, out vec3 cameraNormal)
 	vec3 rayDirection = normalize(cameraPlanePos);
 	
 	float B = 2.0 * dot(rayDirection, -cameraSpherePos);
-	float C = dot(cameraSpherePos, cameraSpherePos) - (sphereRadius * sphereRadius);
+	float C = dot(cameraSpherePos, cameraSpherePos) -
+		(sphereRadius * sphereRadius);
 	
 	float det = (B * B) - (4 * C);
 	if(det < 0.0)

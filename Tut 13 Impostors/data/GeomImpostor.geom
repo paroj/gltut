@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 #extension GL_EXT_gpu_shader4 : enable
 
 layout(std140) uniform;
@@ -17,6 +17,12 @@ out FragData
 	smooth vec2 mapping;
 };
 
+in VertexData
+{
+	vec3 cameraSpherePos;
+	float sphereRadius;
+} vert[];
+
 const float g_boxCorrection = 1.5;
 
 void main()
@@ -24,40 +30,40 @@ void main()
 	vec4 cameraCornerPos;
 	//Bottom-left
 	mapping = vec2(-1.0, -1.0) * g_boxCorrection;
-	cameraSpherePos = vec3(gl_in[0].gl_Position);
-	sphereRadius = gl_in[0].gl_PointSize;
-	cameraCornerPos = gl_in[0].gl_Position;
-	cameraCornerPos.xy += vec2(-gl_in[0].gl_PointSize, -gl_in[0].gl_PointSize) * g_boxCorrection;
+	cameraSpherePos = vec3(vert[0].cameraSpherePos);
+	sphereRadius = vert[0].sphereRadius;
+	cameraCornerPos = vec4(vert[0].cameraSpherePos, 1.0);
+	cameraCornerPos.xy += vec2(-vert[0].sphereRadius, -vert[0].sphereRadius) * g_boxCorrection;
 	gl_Position = cameraToClipMatrix * cameraCornerPos;
 	gl_PrimitiveID = gl_PrimitiveIDIn;
 	EmitVertex();
 	
 	//Top-left
 	mapping = vec2(-1.0, 1.0) * g_boxCorrection;
-	cameraSpherePos = vec3(gl_in[0].gl_Position);
-	sphereRadius = gl_in[0].gl_PointSize;
-	cameraCornerPos = gl_in[0].gl_Position;
-	cameraCornerPos.xy += vec2(-gl_in[0].gl_PointSize, gl_in[0].gl_PointSize) * g_boxCorrection;
+	cameraSpherePos = vec3(vert[0].cameraSpherePos);
+	sphereRadius = vert[0].sphereRadius;
+	cameraCornerPos = vec4(vert[0].cameraSpherePos, 1.0);
+	cameraCornerPos.xy += vec2(-vert[0].sphereRadius, vert[0].sphereRadius) * g_boxCorrection;
 	gl_Position = cameraToClipMatrix * cameraCornerPos;
 	gl_PrimitiveID = gl_PrimitiveIDIn;
 	EmitVertex();
 	
 	//Bottom-right
 	mapping = vec2(1.0, -1.0) * g_boxCorrection;
-	cameraSpherePos = vec3(gl_in[0].gl_Position);
-	sphereRadius = gl_in[0].gl_PointSize;
-	cameraCornerPos = gl_in[0].gl_Position;
-	cameraCornerPos.xy += vec2(gl_in[0].gl_PointSize, -gl_in[0].gl_PointSize) * g_boxCorrection;
+	cameraSpherePos = vec3(vert[0].cameraSpherePos);
+	sphereRadius = vert[0].sphereRadius;
+	cameraCornerPos = vec4(vert[0].cameraSpherePos, 1.0);
+	cameraCornerPos.xy += vec2(vert[0].sphereRadius, -vert[0].sphereRadius) * g_boxCorrection;
 	gl_Position = cameraToClipMatrix * cameraCornerPos;
 	gl_PrimitiveID = gl_PrimitiveIDIn;
 	EmitVertex();
 	
 	//Top-right
 	mapping = vec2(1.0, 1.0) * g_boxCorrection;
-	cameraSpherePos = vec3(gl_in[0].gl_Position);
-	sphereRadius = gl_in[0].gl_PointSize;
-	cameraCornerPos = gl_in[0].gl_Position;
-	cameraCornerPos.xy += vec2(gl_in[0].gl_PointSize, gl_in[0].gl_PointSize) * g_boxCorrection;
+	cameraSpherePos = vec3(vert[0].cameraSpherePos);
+	sphereRadius = vert[0].sphereRadius;
+	cameraCornerPos = vec4(vert[0].cameraSpherePos, 1.0);
+	cameraCornerPos.xy += vec2(vert[0].sphereRadius, vert[0].sphereRadius) * g_boxCorrection;
 	gl_Position = cameraToClipMatrix * cameraCornerPos;
 	gl_PrimitiveID = gl_PrimitiveIDIn;
 	EmitVertex();
