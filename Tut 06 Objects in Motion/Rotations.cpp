@@ -1,7 +1,7 @@
 #include <string>
 #include <vector>
 #include <math.h>
-#include <glload/gl_3_2_comp.h>
+#include <glload/gl_3_3.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include <glm/glm.hpp>

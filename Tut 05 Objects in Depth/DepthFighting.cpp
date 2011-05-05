@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <glload/gl_3_2_comp.h>
+#include <glload/gl_3_3.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 

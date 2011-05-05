@@ -2,7 +2,8 @@
 #ifndef UNIFORM_BLOCK_ARRAY_H
 #define UNIFORM_BLOCK_ARRAY_H
 
-#include <glload/gl_3_3_comp.h>
+//To use this file, you must include one of the glload headers before including this.
+
 #include <vector>
 
 namespace Framework

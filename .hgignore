@@ -36,3 +36,5 @@ AllTutorials.sln
 glloader/*.sln
 glloader/*.vcproj
 website/*
+glload/*.sln
+glload/*.vcproj
