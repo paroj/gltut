@@ -264,7 +264,7 @@ void main()
             <para>Let's look at the 2D case. To have a 2D vector direction, we need an X and Y
                 coordinate. If we only have the X, but we know that the vector has a certain length,
                 then we can compute the Y based on the Pythagorean theorem:</para>
-            <!--TODO: Picture of the 2D case of finding Y based on X and a diagonal.
+            <!--TODO: Diagram of the 2D case of finding Y based on X and a diagonal.
 TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
             <para>We simply use the 3D version of this. We have X and Y from
                     <varname>mapping</varname>, and we know the length is 1.0. So we compute the Z
@@ -293,7 +293,7 @@ TODO: Equation of Pythagorean theorem, then reformulated to solve for Y.-->
             mapping between the surface and the sphere is static; it doesn't change based on the
             viewing angle.</para>
         <para>Consider this 2D case:</para>
-        <!--TODO: Picture of 2D case of perspective projection and sphere impostor off to the left.-->
+        <!--TODO: Diagram of 2D case of perspective projection and sphere impostor off to the left.-->
         <para>When viewing the sphere off to the side like this, we shouldn't be able to see the
             left-edge of the sphere facing perpendicular to the camera. And we should see some of
             the sphere on the right that is behind the plane.</para>
@@ -776,12 +776,17 @@ uniform Material
             <listitem>
                 <para>Impostors are objects who's geometric representation has little or no
                     resemblance to what the viewer sees. These typically generate an object
-                    procedurally by cutting fragments out to form a shape, and then use normals and
-                    depth manipulation to do lighting computations on the cut-out.</para>
+                    procedurally by cutting fragments out to form a shape, and then use normals to
+                    do lighting computations on the cut-out.</para>
             </listitem>
             <listitem>
                 <para>Fragments can be discarded from within a fragment shader. This prevents the
                     outputs from the shader from being written to the final image.</para>
+            </listitem>
+            <listitem>
+                <para>Ray tracing can be employed by a fragment shader to determine the position and
+                    normal for a point. Those values can be fed into the lighting equation to
+                    produce a color value.</para>
             </listitem>
             <listitem>
                 <para>Fragment shaders can change the depth value that is used for the depth test
