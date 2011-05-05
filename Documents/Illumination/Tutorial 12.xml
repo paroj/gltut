@@ -119,9 +119,10 @@ struct MaterialBlock
                 don't have to write <quote>layout(std140)</quote> for each of the three uniform
                 blocks we use in each shader file.</para>
             <para>Also, note the use of <literal>Mtl</literal> at the foot of the uniform block
-                definition. When nothing is placed there, then the names in the uniform block are
-                global. If an identifier is placed there, then that name must be used to qualify
-                access to the names within that block. This allows us to have the <literal>in vec4
+                definition. This is called the <glossterm>instance name</glossterm> of an interface
+                block. When no instance name is specified, then the names in the uniform block are
+                global. If an instance name is specified, this name must be used to qualify access
+                to the names within that block. This allows us to have the <literal>in vec4
                     diffuseColor</literal> be separate from the material definition's
                     <varname>Mtl.diffuseColor</varname>.</para>
             <para>What we want to do is put 6 material blocks in a single uniform buffer. One might
@@ -901,6 +902,15 @@ outputColor = pow(accumLighting, gamma);</programlisting>
                         reflectance, specular reflectance, any specular power values, and so forth.
                         The source of these values can come from many sources: uniform values for an
                         object, fragment-shader inputs, or potentially other sources.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>instance name</glossterm>
+                <glossdef>
+                    <para>For uniform blocks (or other kinds of interface blocks), this name is used
+                        within a shader to name-qualifier the members of the block. These are
+                        optional, unless there is a naming conflict, or unless an array needs to be
+                        specified.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

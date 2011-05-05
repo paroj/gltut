@@ -1,5 +1,7 @@
 #version 330
 
+layout(std140) uniform;
+
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec4 inDiffuseColor;
 layout(location = 2) in vec3 normal;

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+	<mtable>
+		<mtr>
+			<mtd>
+				<mi>R</mi>
+				<mo>=</mo>
+				<mtext>Sphere Radius</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+				<mo>=</mo>
+				<mtext>Sphere Center</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mfenced open="&#x2225;" close="&#x2225;">
+					<mrow>
+						<mover accent="true">
+							<mi>P</mi>
+							<mo>&#x21C0;</mo>
+						</mover>
+						<mo>-</mo>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>&#x21C0;</mo>
+						</mover>
+					</mrow>
+				</mfenced>
+				<mo>=</mo>
+				<mi>R</mi>
+			</mtd>
+		</mtr>
+	</mtable>
+</math>

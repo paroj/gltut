@@ -12,6 +12,21 @@
 
 namespace Framework
 {
+	namespace
+	{
+		const char *GetShaderName(GLenum eShaderType)
+		{
+			switch(eShaderType)
+			{
+			case GL_VERTEX_SHADER: return "vertex"; break;
+			case GL_GEOMETRY_SHADER: return "geometry"; break;
+			case GL_FRAGMENT_SHADER: return "fragment"; break;
+			}
+
+			return NULL;
+		}
+	}
+
 	GLuint CreateShader(GLenum eShaderType,
 		const std::string &strShaderFile, const std::string &strShaderName)
 	{
@@ -31,16 +46,8 @@ namespace Framework
 			GLchar *strInfoLog = new GLchar[infoLogLength + 1];
 			glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
-			const char *strShaderType = NULL;
-			switch(eShaderType)
-			{
-			case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
-			case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
-			case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
-			}
-
 			fprintf(stderr, "Compile failure in %s shader named \"%s\". Error:\n%s\n",
-				strShaderType, strShaderName.c_str(), strInfoLog);
+				GetShaderName(eShaderType), strShaderName.c_str(), strInfoLog);
 			delete[] strInfoLog;
 		}
 
@@ -51,6 +58,12 @@ namespace Framework
 	{
 		std::string strFilename = "data\\" + strShaderFilename;
 		std::ifstream shaderFile(strFilename.c_str());
+		if(!shaderFile.is_open())
+		{
+			fprintf(stderr, "Cannot load the shader file \"%s\" for the %s shader.\n",
+				strFilename.c_str(), GetShaderName(eShaderType));
+			return 0;
+		}
 		std::stringstream shaderData;
 		shaderData << shaderFile.rdbuf();
 		shaderFile.close();

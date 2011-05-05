@@ -8,7 +8,7 @@ Top-level constructs:
     div.preface: The preface of the set of tutorials.
     div.part: Contains all of the chapters and stuff in a part.
         div.partintro: Contains intro material and a table of contents.
-    div.article: An article.
+    div.article: An article. Not a tutorial
     div.chapter: A chapter of the book. In our case, a tutorial.
     div.section
     div.glossary

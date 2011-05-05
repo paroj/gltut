@@ -1,0 +1,38 @@
+syntax: glob
+*.obj
+*.dll
+*.fo
+*.lib
+*.exp
+*.ilk
+*.pdb
+*.dep
+*.idb
+*.ncb
+*.suo
+*.user
+BuildLog.htm
+*.exe
+*.res
+*.manifest
+*.bsc
+*.sbr
+*.pdf
+obj/*
+FreeImage/Dist/FreeImage.h
+FreeImage/Wrapper/FreeImagePlus/dist/FreeImagePlus.h
+Documents/Build/fo.xsl
+Documents/Build/website.xsl
+desktop.ini
+glIntercept/*
+tinyxml/*.sln
+tinyxml/*.vcproj
+Tut */*.sln
+Tut */*.vcproj
+framework/*.vcproj
+Test/*.sln
+Test/*.vcproj
+AllTutorials.sln
+glloader/*.sln
+glloader/*.vcproj
+website/*

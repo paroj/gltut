@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+	<mrow>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mo>&#xb7;</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<msup>
+			<mi>t</mi>
+			<mn>2</mn>
+		</msup>
+		<mo>-</mo>
+		<mn>2</mn>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>&#x5e;</mo>
+				</mover>
+				<mo>&#xb7;</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mi>t</mi>
+		<mo>+</mo>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+				<mo>&#xb7;</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>&#x21C0;</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mo>=</mo>
+		<msup>
+			<mi>R</mi>
+			<mn>2</mn>
+		</msup>
+	</mrow>
+</math>

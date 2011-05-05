@@ -3,7 +3,15 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <book xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude" version="5.0">
     <info>
-        <title>Learning Modern 3D Graphics Programming Through OpenGL</title>
+        <title>Learning Modern 3D Graphics Programming</title>
+        <copyright>
+            <year>2011</year>
+            <holder>Jason L. McKesson</holder>
+        </copyright>
+        <author>
+            <personname><firstname>Jason</firstname><othername
+                role="middle">L.</othername><surname>McKesson</surname></personname>
+        </author>
     </info>
     <xi:include href="preface.xml"/>
     <xi:include href="Building the Tutorials.xml"/>
@@ -64,6 +72,8 @@
         <xi:include href="Illumination/tutorial 09.xml"/>
         <xi:include href="Illumination/tutorial 10.xml"/>
         <xi:include href="Illumination/tutorial 11.xml"/>
+        <xi:include href="Illumination/tutorial 12.xml"/>
+        <xi:include href="Illumination/tutorial 13.xml"/>
     </part>
     <xi:include href="Texturing.xml"/>
     <part>
@@ -84,6 +94,6 @@
                 from Phong lighting to reflections to HDR and blooming.</para>
         </partintro>
     </part>
-    <xi:include href="Optimization.xml"/>
+    <!--<xi:include href="Optimization.xml"/>-->
     <xi:include href="History of Graphics Hardware.xml"/>
 </book>

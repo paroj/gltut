@@ -6,14 +6,14 @@
 
 namespace Framework
 {
-	void MatrixStack::Rotate( glm::vec3 &axisOfRotation, float fAngDeg )
+	void MatrixStack::Rotate( const glm::vec3 &axisOfRotation, float fAngDeg )
 	{
 		float fAngRad = DegToRad(fAngDeg);
 
 		RotateRadians(axisOfRotation, fAngRad);
 	}
 
-	void MatrixStack::RotateRadians( glm::vec3 &axisOfRotation, float fAngRad )
+	void MatrixStack::RotateRadians( const glm::vec3 &axisOfRotation, float fAngRad )
 	{
 		float fCos = cosf(fAngRad);
 		float fInvCos = 1.0f - fCos;
