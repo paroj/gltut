@@ -278,7 +278,7 @@
             <title>An Image</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="pixels.svg" format="SVG" contentwidth="4in"/>
+                    <imagedata fileref="PixelImage.svg" format="SVG" contentwidth=""/>
                 </imageobject>
             </mediaobject>
         </figure>
