@@ -146,7 +146,7 @@ struct MaterialBlock
             <para>The code that builds the material uniform buffer is as follows:</para>
             <example>
                 <title>Material UBO Construction</title>
-                <programlisting>int uniformBufferAlignSize = 0;
+                <programlisting language="cpp">int uniformBufferAlignSize = 0;
 glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &amp;uniformBufferAlignSize);
 
 m_sizeMaterialBlock = sizeof(MaterialBlock);
@@ -301,7 +301,7 @@ struct LightBlock
             <para>The only difference between directional and point lights in the lighting function
                 are attenuation (directional lights don't use attenuation) and how the light
                 direction is computed. So we simply compute these based on the W component:</para>
-            <programlisting>vec3 lightDir;
+            <programlisting language="glsl">vec3 lightDir;
 vec4 lightIntensity;
 if(lightData.cameraSpaceLightPos.w == 0.0)
 {
@@ -645,12 +645,11 @@ else
             monitor's gamma-correction circuitry has been mangling.</para>
         <section>
             <title>Gamma Functions</title>
-            <para>A <glossterm>gamma function</glossterm> is the function that maps linear RGB space
-                to non-linear RGB space. The gamma function for CRT displays was fairly standard,
-                and all non-CRT displays mimic this standard. It is ultimately based on a math
-                function of CRT displays. The strength of the electron beam is controlled by the
-                voltage passed through it. This correlates with the light intensity as
-                follows:</para>
+            <para>A gamma function is the function that maps linear RGB space to non-linear RGB
+                space. The gamma function for CRT displays was fairly standard, and all non-CRT
+                displays mimic this standard. It is ultimately based on a math function of CRT
+                displays. The strength of the electron beam is controlled by the voltage passed
+                through it. This correlates with the light intensity as follows:</para>
             <equation>
                 <title>Display Gamma Function</title>
                 <mediaobject>

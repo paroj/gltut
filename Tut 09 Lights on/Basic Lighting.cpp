@@ -195,7 +195,7 @@ void display()
 					glm::mat3 normMatrix(modelMatrix.Top());
 					glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
 					glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-					g_pCylinderMesh->Render("tint");
+					g_pCylinderMesh->Render("lit-color");
 				}
 				else
 				{
@@ -204,7 +204,7 @@ void display()
 					glm::mat3 normMatrix(modelMatrix.Top());
 					glUniformMatrix3fv(g_WhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
 					glUniform4f(g_WhiteDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-					g_pCylinderMesh->Render("flat");
+					g_pCylinderMesh->Render("lit");
 				}
 				glUseProgram(0);
 			}

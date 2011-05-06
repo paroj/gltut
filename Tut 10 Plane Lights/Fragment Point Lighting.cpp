@@ -282,7 +282,7 @@ void display()
 
 					glUniform3fv(pVertColorProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
-					g_pCylinderMesh->Render("tint");
+					g_pCylinderMesh->Render("lit-color");
 				}
 				else
 				{
@@ -292,7 +292,7 @@ void display()
 
 					glUniform3fv(pWhiteProgram->modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
 
-					g_pCylinderMesh->Render("flat");
+					g_pCylinderMesh->Render("lit");
 				}
 				glUseProgram(0);
 			}

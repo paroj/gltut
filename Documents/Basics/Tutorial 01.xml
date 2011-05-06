@@ -383,7 +383,7 @@ void main()
                 the list of vertices represents.</para>
             <para>OpenGL can interpret a list of vertices in a variety of different ways. The way
                 OpenGL interprets vertex lists is given by the draw command:</para>
-            <programlisting>glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
+            <programlisting language="cpp">glDrawArrays(GL_TRIANGLES, 0, 3);</programlisting>
             <para>The enum <literal>GL_TRIANGLES</literal> tells OpenGL that every 3 vertices of the
                 list should be used to build a triangle. Since we passed only 3 vertices, we get 1
                 triangle.</para>

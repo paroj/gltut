@@ -97,10 +97,10 @@
             Instead it is determined by... making things up.</para>
         <sidebar>
             <title>On Phong and Nomenclature</title>
-            <para>The term <glossterm>Phong shading</glossterm> was once commonly used to refer to
-                what we now know as per-fragment (or per-pixel) lighting. That is, evaluating the
-                lighting equation at every fragment over a surface. This term should not be confused
-                with the Phong specular lighting model. Because of this, the term <quote>Phong
+            <para>The term <quote>Phong shading</quote> was once commonly used to refer to what we
+                now know as per-fragment (or per-pixel) lighting. That is, evaluating the lighting
+                equation at every fragment over a surface. This term should not be confused with the
+                Phong specular lighting model. Because of this, the term <quote>Phong
                     shading</quote> has fallen out of common usage.</para>
         </sidebar>
         <para>The Phong model is not really based on anything real. It doesn't deal in microfacet
@@ -846,8 +846,8 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 <glossterm>inverse cosine, arc cosine</glossterm>
                 <glossdef>
                     <para>Performs the opposite of the cosine function. The cosine function takes
-                        angles and returns a value on the range (-1, 1). The inverse cosine takes
-                        values on the range (-1, 1) and returns an angle in radians.</para>
+                        angles and returns a value on the range [-1, 1]. The inverse cosine takes
+                        values on the range [-1, 1] and returns an angle in radians.</para>
                 </glossdef>
             </glossentry>
         </glosslist>

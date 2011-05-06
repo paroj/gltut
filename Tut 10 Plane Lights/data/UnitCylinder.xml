@@ -371,16 +371,16 @@
         0.91354344291528 0 -0.40674116819729
         0.97814653407707 0 -0.20791670897984
         0.97814653407707 0 -0.20791670897984</attribute>
-	<vao name="tint" >
+	<vao name="lit-color" >
 		<source attrib="0" />
 		<source attrib="1" />
 		<source attrib="2" />
 	</vao>
-	<vao name="flat" >
+	<vao name="lit" >
 		<source attrib="0" />
 		<source attrib="2" />
 	</vao>
-	<vao name="tint-unlit" >
+	<vao name="color" >
 		<source attrib="0" />
 		<source attrib="1" />
 	</vao>

@@ -1328,16 +1328,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                         less than the range zFar.</para>
                 </glossdef>
             </glossentry>
-            <glossentry>
-                <glossterm>early depth test, early-z</glossterm>
-                <glossdef>
-                    <para>An optimization in the depth test, where the incoming fragment's depth
-                        value is tested <emphasis>before</emphasis> the fragment shader executes. If
-                        the fragment shader is long, this can save a great deal of time. If the
-                        fragment shader exercises the option to modify or replace the fragment's
-                        depth, then the early depth test optimization will not be active.</para>
-                </glossdef>
-            </glossentry>
 			<!--TODO: Reinstate this.-->
 			<!--
             <glossentry>

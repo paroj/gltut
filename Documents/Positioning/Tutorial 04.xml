@@ -1073,7 +1073,7 @@ glUseProgram(0);]]></programlisting>
                         <quote>y,</quote>
                         <quote>z,</quote> and <quote>w</quote> to pick components out of the input
                         vector. Swizzle operations look like this:</para>
-                    <programlisting>vec2 firstVec;
+                    <programlisting language="glsl">vec2 firstVec;
 vec4 secondVec = firstVec.xyxx;
 vec3 thirdVec = secondVec.wzy;</programlisting>
                     <para>Swizzle selection is, in graphics hardware, considered an operation so

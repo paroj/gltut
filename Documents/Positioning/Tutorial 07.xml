@@ -236,7 +236,7 @@ void main()
                 by updating the world-to-camera matrix.</para>
             <example>
                 <title>Upload World to Camera Matrix</title>
-                <programlisting>const glm::vec3 &amp;camPos = ResolveCamPosition();
+                <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
 
 Framework::MatrixStack camMatrix;
 camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget,
@@ -680,7 +680,7 @@ void main()
                 all, they don't have storage within a program object; their data comes from a buffer
                 object.</para>
             <para>So instead of calling glGetUniformLocation, we have a new function.</para>
-            <programlisting>data.globalUniformBlockIndex =
+            <programlisting language="cpp">data.globalUniformBlockIndex =
     glGetUniformBlockIndex(data.theProgram, "GlobalMatrices");</programlisting>
             <para>The function <function>glGetUniformBlockIndex</function> takes a program object
                 and the name of a uniform block. It returns a <glossterm>uniform block
@@ -804,7 +804,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
             <para>Therefore, to use a uniform buffer, one first must tell the program which binding
                 point in the context to find the buffer. This association is made with the
                     <function>glUniformBlockBinding</function> function.</para>
-            <programlisting>glUniformBlockBinding(data.theProgram, data.globalUniformBlockIndex,
+            <programlisting language="cpp">glUniformBlockBinding(data.theProgram, data.globalUniformBlockIndex,
     g_iGlobalMatricesBindingIndex);</programlisting>
             <para>The first parameter is the program, the second is the uniform block index queried
                 before. The third is the uniform buffer binding point that this block should
@@ -812,7 +812,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
             <para>After doing this for each program, the uniform buffer must be bound to that
                 binding point. This is done with a new function,
                     <function>glBindBufferRange</function>.</para>
-            <programlisting>glBindBufferRange(GL_UNIFORM_BUFFER, g_iGlobalMatricesBindingIndex,
+            <programlisting language="cpp">glBindBufferRange(GL_UNIFORM_BUFFER, g_iGlobalMatricesBindingIndex,
     g_GlobalMatricesUBO, 0, sizeof(glm::mat4) * 2);</programlisting>
             <para>This functions similarly to glBindBuffer; in addition to binding the buffer to the
                     <literal>GL_UNIFORM_BUFFER</literal> target, it also binds the buffer to the
@@ -846,7 +846,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 matrix that always positions the object at the target point.</para>
             <example>
                 <title>Viewing Point with UBO</title>
-                <programlisting>glDisable(GL_DEPTH_TEST);
+                <programlisting language="cpp">glDisable(GL_DEPTH_TEST);
 
 Framework::MatrixStackPusher push(modelMatrix);
 

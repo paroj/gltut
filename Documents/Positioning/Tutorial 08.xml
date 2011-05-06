@@ -660,7 +660,7 @@
             <para>The code for slerp is rather complex:</para>
             <example>
                 <title>Spherical Linear Interpolation</title>
-                <programlisting>glm::fquat Slerp(const glm::fquat &amp;v0, const glm::fquat &amp;v1, float alpha)
+                <programlisting language="cpp">glm::fquat Slerp(const glm::fquat &amp;v0, const glm::fquat &amp;v1, float alpha)
 {
     float dot = glm::dot(v0, v1);
     

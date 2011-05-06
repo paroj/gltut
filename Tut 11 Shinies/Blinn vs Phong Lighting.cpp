@@ -415,9 +415,9 @@ void display()
 					glm::value_ptr(normMatrix));
 
 				if(g_bDrawColoredCyl)
-					g_pCylinderMesh->Render("tint");
+					g_pCylinderMesh->Render("lit-color");
 				else
-					g_pCylinderMesh->Render("flat");
+					g_pCylinderMesh->Render("lit");
 
 				glUseProgram(0);
 			}

@@ -201,7 +201,7 @@ void display()
 				}
 				glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
 				glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-				g_pCylinderMesh->Render("tint");
+				g_pCylinderMesh->Render("lit-color");
 				glUseProgram(0);
 			}
 		}

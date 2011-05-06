@@ -306,7 +306,7 @@ void display()
 
 					glUniformMatrix3fv(g_FragVertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(normMatrix));
-					g_pCylinderMesh->Render("tint");
+					g_pCylinderMesh->Render("lit-color");
 				}
 				else
 				{
@@ -316,7 +316,7 @@ void display()
 
 					glUniformMatrix3fv(g_FragWhiteDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE,
 						glm::value_ptr(normMatrix));
-					g_pCylinderMesh->Render("flat");
+					g_pCylinderMesh->Render("lit");
 				}
 				glUseProgram(0);
 			}

@@ -548,7 +548,7 @@ void main()
             fragment shader:</para>
         <example>
             <title>Depth Correct Fragment Shader</title>
-            <programlisting>Impostor(cameraPos, cameraNormal);
+            <programlisting language="glsl">Impostor(cameraPos, cameraNormal);
 	
 //Set the depth based on the new cameraPos.
 vec4 clipPos = cameraToClipMatrix * vec4(cameraPos, 1.0);
@@ -660,7 +660,7 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
                     <glossterm>interleaving</glossterm>. It is a very useful technique; indeed, for
                 performance reasons, data should generally be interleaved where possible. One thing
                 that it allows us to do is build our vertex data based on a struct:</para>
-            <programlisting>struct VertexData
+            <programlisting language="cpp">struct VertexData
 {
     glm::vec3 cameraPosition;
     float sphereRadius;
@@ -1037,12 +1037,23 @@ uniform Material
                 </glossdef>
             </glossentry>
             <glossentry>
+                <glossterm>early depth test, early-z</glossterm>
+                <glossdef>
+                    <para>An optimization in the depth test, where the incoming fragment's depth
+                        value is tested <emphasis>before</emphasis> the fragment shader executes. If
+                        the fragment shader is long, this can save a great deal of time. If the
+                        fragment shader exercises the option to modify or replace the fragment's
+                        depth, then the early depth test optimization will not be active.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
                 <glossterm>interleaving</glossterm>
                 <glossdef>
-                    <para>The process of entwining vertex data, so that all of one vertex is
-                        spatially adjacent in the buffer object. This is as opposed to giving each
-                        vertex attribute its own array. Interleaving can lead to higher rendering
-                        performance in vertex transfer limited cases.</para>
+                    <para>A way of storing vertex attributes in a buffer object. This involves
+                        entwining the attribute data, so that most or all of a vertex's attributes
+                        are spatially adjacent in the buffer object. This is as opposed to giving
+                        each vertex attribute its own array. Interleaving can lead to higher
+                        rendering performance in vertex transfer limited cases.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

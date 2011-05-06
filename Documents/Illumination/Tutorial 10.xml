@@ -7,9 +7,9 @@
     <title>Plane Lights</title>
     <para>Directional lights are useful for representing light sources like the sun and so forth.
         But most light sources are more likely to be represented as point lights.</para>
-    <para>A <glossterm>point light</glossterm> is a light source that has a position in the world
-        and shines with equal intensity in all directions. Our simple diffuse lighting equation is a
-        function of these properties:</para>
+    <para>A <glossterm>point light source</glossterm> is a light source that has a position in the
+        world and shines with equal intensity in all directions. Our simple diffuse lighting
+        equation is a function of these properties:</para>
     <itemizedlist>
         <listitem>
             <para>The surface normal at that point.</para>
@@ -72,7 +72,7 @@ glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCam
             changes:</para>
         <example>
             <title>Per-Vertex Point Light Vertex Shader</title>
-            <programlisting>#version 330
+            <programlisting language="glsl">#version 330
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec4 diffuseColor;
