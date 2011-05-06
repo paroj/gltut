@@ -294,12 +294,21 @@ void main()
             <para>Computing the position is also easy. The position of a point on the surface of a
                 sphere is the normal at that position scaled by the radius and offset by the center
                 point of the sphere.</para>
+            <para>One final thing. Notice the square-root at the end, being applied to our
+                accumulated lighting. This effectively simulates a gamma of 2.0, but without the
+                expensive <function>pow</function> function call. A <function>sqrt</function> call
+                is much less expensive and far more likely to be directly built into the shader
+                hardware. Yes, this is not entirely accurate, since most displays simulate the 2.2
+                gamma of CRT displays. But it's a lot less inaccurate than applying no correction at
+                all. We'll discuss a much cheaper way to apply proper gamma correction in future
+                tutorials.</para>
         </section>
     </section>
     <section>
         <?dbhtml filename="Tut13 Correct Chicanery.html" ?>
         <title>Correct Chicanery</title>
-        <para>Our perfect sphere looks pretty nice. However, it is unfortunately very wrong.</para>
+        <para>Our perfect sphere looks pretty nice. It has no polygonal outlines and you can zoom in
+            on it forever. However, it is unfortunately very wrong.</para>
         <para>To see how, toggle back to rendering the mesh on sphere <keycap>1</keycap> (the
             central blue one). Then move the camera so that the sphere is at the left edge of the
             screen. Then toggle back to impostor rendering.</para>
@@ -329,10 +338,10 @@ void main()
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>The line through the circle represents the square we drew. When viewing the sphere off
-            to the side like this, we shouldn't be able to see the left-edge of the sphere facing
-            perpendicular to the camera. And we should see some of the sphere on the right that is
-            behind the plane.</para>
+        <para>The dark line through the circle represents the square we drew. When viewing the
+            sphere off to the side like this, we shouldn't be able to see the left-edge of the
+            sphere facing perpendicular to the camera. And we should see some of the sphere on the
+            right that is behind the plane.</para>
         <para>So how do we solve this?</para>
         <para>Use better math. Our last algorithm is a decent approximation if the spheres are
             somewhat small. But if the spheres are reasonably large (which also can mean close to
