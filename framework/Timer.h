@@ -62,6 +62,9 @@ namespace Framework
 		//time for pausing.
 		float GetTimeSinceStart() const;
 
+		//Returns the timer's duration that was passed in.
+		float GetDuration() const {return m_secDuration;}
+
 	private:
 		Type m_eType;
 		float m_secDuration;

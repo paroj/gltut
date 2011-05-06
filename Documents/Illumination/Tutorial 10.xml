@@ -68,7 +68,8 @@ glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCam
         <para>The light is computed initially in world space, then transformed into camera space.
             The camera-space light position is given to both of the shaders. Rendering proceeds
             normally from there.</para>
-        <para>Our vertex shader has had a few changes:</para>
+        <para>Our vertex shader, <filename>PosVertexLighting_PCN.vert</filename> has had a few
+            changes:</para>
         <example>
             <title>Per-Vertex Point Light Vertex Shader</title>
             <programlisting>#version 330
@@ -83,10 +84,13 @@ uniform vec3 lightPos;
 uniform vec4 lightIntensity;
 uniform vec4 ambientIntensity;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
-
 uniform mat3 normalModelToCameraMatrix;
+
+uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
 
 void main()
 {
@@ -407,8 +411,13 @@ uniform vec3 modelSpaceLightPos;
 uniform vec4 lightIntensity;
 uniform vec4 ambientIntensity;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
+uniform mat3 normalModelToCameraMatrix;
+
+uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
 
 void main()
 {
@@ -445,8 +454,12 @@ out vec4 diffuseColor;
 out vec3 vertexNormal;
 out vec3 modelSpacePosition;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
+
+uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
 
 void main()
 {
@@ -492,6 +505,7 @@ void main()
             necessary because interpolating between two unit vectors does not mean you will get a
             unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
             you will not get a unit vector.</para>
+        <!-- 
         <section>
             <title>Caught in a Lie</title>
             <para>While this may look perfect, there is still one problem. Use the <keycombo>
@@ -562,6 +576,7 @@ void main()
                 more vertices, more executions of our (admittedly simple) vertex shader, and more
                 triangles rasterized or discarded for being back-facing.</para>
         </section>
+        -->
     </section>
     <section>
         <?dbhtml filename="Tut10 Distant Points of Light.html" ?>
@@ -796,32 +811,15 @@ void main()
                 changed from the last one, but there have been some additions:</para>
             <example>
                 <title>Light Attenuation Fragment Shader Definitions</title>
-                <programlisting language="glsl">uniform mat4 clipToCameraMatrix;
-uniform ivec2 windowSize;
-uniform vec2 depthRange;
+                <programlisting language="glsl">uniform float lightAttenuation;
+uniform bool bUseRSquare;
 
-uniform float lightAttenuation;
-uniform bool bUseRSquare;</programlisting>
+uniform UnProjection
+{
+    mat4 clipToCameraMatrix;
+    ivec2 windowSize;
+};</programlisting>
             </example>
-            <para>The first three lines are the information we need to perform the
-                previously-discussed reverse-transformation, so that we can turn
-                    <varname>gl_FragCoord</varname> into a camera-space position. Notice that the
-                    <varname>windowSize</varname> uses a new type: <type>ivec2</type>. This is a
-                2-dimensional vector of integers.</para>
-            <para>Thus far, we have only modified uniforms of floating-point type. All of the vector
-                uploading functions we have used have been of the forms
-                    <function>glUniform#f</function> or <function>glUniform#fv</function>, where the
-                # is a number 1-4. The <quote>v</quote> represents a vector version, which takes a
-                pointer instead of 1-4 parameters.</para>
-            <para>Uploading to an integer uniform uses functions of the form
-                    <function>glUniform#i</function> and <function>glUniform#iv</function>. So the
-                code we use to set the window size uniform is this:</para>
-            <programlisting language="cpp">glUniform2i(g_FragWhiteDiffuseColor.windowSizeUnif, w, h);</programlisting>
-            <para>The <varname>w</varname> and <varname>h</varname> values are the width and height
-                passed to the <function>reshape</function> function. That is where this line of code
-                is, and that is where we set both the clip-to-camera matrix and the window size. The
-                    <varname>depthRange</varname> is set in the initialization code, since it never
-                changes.</para>
             <para>The <varname>lightAttenuation</varname> uniform is just a float, but
                     <varname>bUseRSquare</varname> uses a new type: boolean.</para>
             <para>GLSL has the <type>bool</type> type just like C++ does. The
@@ -836,6 +834,13 @@ uniform bool bUseRSquare;</programlisting>
             <para>The integer form of uniform uploading is used, but the floating-point form could
                 be allowed as well. The number 0 represents false, and any other number is
                 true.</para>
+            <para>The <classname>UnProjection</classname> uniform block contains data that only
+                changes when the window changes. This uniform block is updated along with the vertex
+                shader's <classname>Projection</classname> block. This data is used to perform the
+                previously-discussed reverse-transformation operation, so that we can turn
+                    <varname>gl_FragCoord</varname> into a camera-space position.</para>
+            <para>Notice that the <varname>windowSize</varname> uses a new type: <type>ivec2</type>.
+                This is a 2-dimensional vector of integers.</para>
         </section>
         <section>
             <title>Functions in GLSL</title>
@@ -846,13 +851,13 @@ uniform bool bUseRSquare;</programlisting>
                 <title>Window to Camera Space Function</title>
                 <programlisting language="glsl">vec3 CalcCameraSpacePosition()
 {
-    vec3 ndcPos;
+    vec4 ndcPos;
     ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
-    ndcPos.z = (2.0 * gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+    ndcPos.z = (2.0 * gl_FragCoord.z - gl_DepthRange.near - gl_DepthRange.far) /
+        (gl_DepthRange.far - gl_DepthRange.near);
+    ndcPos.w = 1.0;
     
-    vec4 clipPos;
-    clipPos.w = 1.0f / gl_FragCoord.w;
-    clipPos.xyz = ndcPos.xyz * clipPos.w;
+    vec4 clipPos = ndcPos / gl_FragCoord.w;
     
     return vec3(clipToCameraMatrix * clipPos);
 }</programlisting>
@@ -864,11 +869,15 @@ uniform bool bUseRSquare;</programlisting>
                 original function. This is because our viewport always sets the lower-left position
                 of the viewport to (0, 0). This is what you get when you plug zeros into that
                 equation.</para>
-            <para>From there, the clip-space position is computed as previously shown. Then the
-                result is multiplied through the clip-to-camera matrix, and that vector is returned
-                to the caller.</para>
+            <para>The <varname>gl_DepthRange</varname> variable is a special uniform defined by GLSL
+                for fragment shaders. As the name suggests, it properly mirrors the values passed to
+                    <function>glDepthRange</function>; this way, we do not have to put it in our
+                uniform block.</para>
+            <para>After the transformation to NDC space, we compute the clip-space position as
+                previously shown. Then the result is multiplied through the clip-to-camera matrix,
+                and that vector is returned to the caller.</para>
             <para>This is a simple function that uses only uniforms to compute a value. It takes no
-                inputs and outputs. The second function is not quite as simple.</para>
+                arguments. The second function is not quite as simple.</para>
             <example>
                 <title>Light Intensity Application Function</title>
                 <programlisting language="glsl">vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
@@ -1043,7 +1052,18 @@ uniform bool bUseRSquare;</programlisting>
             </itemizedlist>
         </section>
         <section>
-            <title>GLSL Functions of Note</title>
+            <title>GLSL Features of Note</title>
+            <glosslist>
+                <glossentry>
+                    <glossterm>gl_DepthRange</glossterm>
+                    <glossdef>
+                        <para>A built-in OpenGL uniform defined for fragment shaders only. This
+                            uniform stores the parameters passed to
+                                <function>glDepthRange.</function> When those parameters change, all
+                            programs are automatically updated.</para>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
             <funcsynopsis>
                 <funcprototype>
                     <funcdef>vec <function>inversesqrt</function></funcdef>

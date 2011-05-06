@@ -12,18 +12,21 @@ uniform vec4 ambientIntensity;
 
 uniform vec3 cameraSpaceLightPos;
 
-uniform mat4 clipToCameraMatrix;
-uniform ivec2 windowSize;
-uniform vec2 depthRange;
-
 uniform float lightAttenuation;
 uniform bool bUseRSquare;
+
+uniform UnProjection
+{
+	mat4 clipToCameraMatrix;
+	ivec2 windowSize;
+};
 
 vec3 CalcCameraSpacePosition()
 {
 	vec4 ndcPos;
 	ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
-	ndcPos.z = (2.0 * gl_FragCoord.z - depthRange.x - depthRange.y) / (depthRange.y - depthRange.x);
+	ndcPos.z = (2.0 * gl_FragCoord.z - gl_DepthRange.near - gl_DepthRange.far) /
+		(gl_DepthRange.far - gl_DepthRange.near);
 	ndcPos.w = 1.0;
 	
 	vec4 clipPos = ndcPos / gl_FragCoord.w;

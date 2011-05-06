@@ -442,10 +442,13 @@ smooth out vec4 interpColor;
 uniform vec3 dirToLight;
 uniform vec4 lightIntensity;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
-
 uniform mat3 normalModelToCameraMatrix;
+
+layout(std140) uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
 
 void main()
 {
@@ -465,7 +468,10 @@ void main()
                 is the direction from the surface <emphasis>towards</emphasis> the light. It is not
                 the direction <emphasis>from</emphasis> the light.</para>
             <para>We also have a light intensity uniform value, as well as two matrices for
-                positions and a separate one for normals.</para>
+                positions and a separate one for normals. Notice that the
+                    <varname>cameraToClipMatrix</varname> is in a uniform block. This allows us to
+                update all programs that use the projection matrix just by changing the buffer
+                object.</para>
             <para>The first line of <function>main</function> simply does the position transforms we
                 need to position our vertices, as we have seen before. We don't need to store the
                 camera-space position, so we can do the entire transformation in a single
@@ -814,10 +820,13 @@ uniform vec3 dirToLight;
 uniform vec4 lightIntensity;
 uniform vec4 ambientIntensity;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
-
 uniform mat3 normalModelToCameraMatrix;
+
+layout(std140) uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
 
 void main()
 {

@@ -10,6 +10,7 @@
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
 #include "../framework/ObjectPole.h"
+#include "../framework/Timer.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -19,7 +20,6 @@ struct ProgramData
 {
 	GLuint theProgram;
 
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
 
 	GLuint lightIntensityUnif;
@@ -27,9 +27,7 @@ struct ProgramData
 
 	GLuint normalModelToCameraMatrixUnif;
 	GLuint cameraSpaceLightPosUnif;
-	GLuint clipToCameraMatrixUnif;
 	GLuint windowSizeUnif;
-	GLuint depthRangeUnif;
 	GLuint lightAttenuationUnif;
 	GLuint bUseRSquareUnif;
 };
@@ -39,7 +37,6 @@ struct UnlitProgData
 	GLuint theProgram;
 
 	GLuint objectColorUnif;
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
 };
 
@@ -51,6 +48,10 @@ ProgramData g_FragVertexDiffuseColor;
 
 UnlitProgData g_Unlit;
 
+const int g_projectionBlockIndex = 2;
+const int g_unprojectionBlockIndex = 1;
+
+
 UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
 	std::vector<GLuint> shaderList;
@@ -61,8 +62,10 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	UnlitProgData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
@@ -77,17 +80,19 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
 	data.ambientIntensityUnif = glGetUniformLocation(data.theProgram, "ambientIntensity");
 
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
 	data.cameraSpaceLightPosUnif = glGetUniformLocation(data.theProgram, "cameraSpaceLightPos");
-	data.clipToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "clipToCameraMatrix");
 	data.windowSizeUnif = glGetUniformLocation(data.theProgram, "windowSize");
-	data.depthRangeUnif = glGetUniformLocation(data.theProgram, "depthRange");
 	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
 	data.bUseRSquareUnif = glGetUniformLocation(data.theProgram, "bUseRSquare");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
+	GLuint unprojectionBlock = glGetUniformBlockIndex(data.theProgram, "UnProjection");
+	glUniformBlockBinding(data.theProgram, unprojectionBlock, g_unprojectionBlockIndex);
 
 	return data;
 }
@@ -134,6 +139,20 @@ namespace
 	}
 }
 
+GLuint g_projectionUniformBuffer = 0;
+GLuint g_unprojectionUniformBuffer = 0;
+
+struct ProjectionBlock
+{
+	glm::mat4 cameraToClipMatrix;
+};
+
+struct UnProjectionBlock
+{
+	glm::mat4 clipToCameraMatrix;
+	glm::ivec2 windowSize;
+};
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -167,38 +186,39 @@ void init()
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
 
-	glUseProgram(g_FragWhiteDiffuseColor.theProgram);
-	glUniform2f(g_FragWhiteDiffuseColor.depthRangeUnif,depthZNear, depthZFar);
-	glUseProgram(g_FragVertexDiffuseColor.theProgram);
-	glUniform2f(g_FragVertexDiffuseColor.depthRangeUnif,depthZNear, depthZFar);
-	glUseProgram(0);
+	glGenBuffers(1, &g_projectionUniformBuffer);
+	glGenBuffers(1, &g_unprojectionUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, g_unprojectionUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(UnProjectionBlock), NULL, GL_DYNAMIC_DRAW);
+
+	//Bind the static buffers.
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
+		0, sizeof(ProjectionBlock));
+
+	//Bind the static buffers.
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_unprojectionBlockIndex, g_unprojectionUniformBuffer,
+		0, sizeof(UnProjectionBlock));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 static float g_fLightHeight = 1.5f;
 static float g_fLightRadius = 1.0f;
-static bool g_bRotateLight = true;
 
-static float g_fRotateTime = 0.0f;
-static float g_fPrevTime = 0.0f;
+using Framework::Timer;
+Timer g_LightTimer(Timer::TT_LOOP, 5.0f);
 
 glm::vec4 CalcLightPosition()
 {
-	const float fLoopDuration = 5.0f;
-	const float fScale = 3.14159f * 2.0f / fLoopDuration;
-
-	float fCurrTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-	float fDeltaTime = fCurrTime - g_fPrevTime;
-	g_fPrevTime = fCurrTime;
-
-	if(g_bRotateLight)
-		g_fRotateTime += fDeltaTime;
-
-	float fCurrTimeThroughLoop = fmodf(g_fRotateTime, fLoopDuration);
+	float fCurrTimeThroughLoop = g_LightTimer.GetAlpha();
 
 	glm::vec4 ret(0.0f, g_fLightHeight, 0.0f, 1.0f);
 
-	ret.x = cosf(fCurrTimeThroughLoop * fScale) * g_fLightRadius;
-	ret.z = sinf(fCurrTimeThroughLoop * fScale) * g_fLightRadius;
+	ret.x = cosf(fCurrTimeThroughLoop * (3.14159f * 2.0f)) * g_fLightRadius;
+	ret.z = sinf(fCurrTimeThroughLoop * (3.14159f * 2.0f)) * g_fLightRadius;
 
 	return ret;
 }
@@ -217,6 +237,8 @@ static float g_fLightAttenuation = 1.0f;
 
 void display()
 {
+	g_LightTimer.Update();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -326,26 +348,19 @@ void reshape (int w, int h)
 {
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
-	const glm::mat4 &invMat = glm::inverse(persMatrix.Top());
 
-	glUseProgram(g_FragWhiteDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_FragWhiteDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(persMatrix.Top()));
-	glUniform2i(g_FragWhiteDiffuseColor.windowSizeUnif, w, h);
-	glUniformMatrix4fv(g_FragWhiteDiffuseColor.clipToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(invMat));
+	ProjectionBlock projData;
+	projData.cameraToClipMatrix = persMatrix.Top();
 
-	glUseProgram(g_FragVertexDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_FragVertexDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(persMatrix.Top()));
-	glUniform2i(g_FragVertexDiffuseColor.windowSizeUnif, w, h);
-	glUniformMatrix4fv(g_FragVertexDiffuseColor.clipToCameraMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(invMat));
+	UnProjectionBlock unprojData;
+	unprojData.clipToCameraMatrix = glm::inverse(persMatrix.Top());
+	unprojData.windowSize = glm::ivec2(w, h);
 
-	glUseProgram(g_Unlit.theProgram);
-	glUniformMatrix4fv(g_Unlit.cameraToClipMatrixUnif, 1, GL_FALSE,
-		glm::value_ptr(persMatrix.Top()));
-	glUseProgram(0);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_unprojectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(UnProjectionBlock), &unprojData);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
@@ -388,7 +403,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'y': g_bDrawLight = !g_bDrawLight; break;
 	case 't': g_bScaleCyl = !g_bScaleCyl; break;
-	case 'b': g_bRotateLight = !g_bRotateLight; break;
+	case 'b': g_LightTimer.TogglePause(); break;
 
 	case 'h':
 		g_bUseRSquare = !g_bUseRSquare;
@@ -407,8 +422,6 @@ void keyboard(unsigned char key, int x, int y)
 
 	if(bChangedAtten)
 		printf("Atten: %f\n", g_fLightAttenuation); 
-
-	glutPostRedisplay();
 }
 
 

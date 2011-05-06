@@ -22,7 +22,6 @@ struct ProgramData
 	GLuint dirToLightUnif;
 	GLuint lightIntensityUnif;
 
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
 	GLuint normalModelToCameraMatrixUnif;
 };
@@ -32,6 +31,8 @@ float g_fzFar = 1000.0f;
 
 ProgramData g_WhiteDiffuseColor;
 ProgramData g_VertexDiffuseColor;
+
+const int g_projectionBlockIndex = 2;
 
 ProgramData LoadProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
@@ -43,10 +44,12 @@ ProgramData LoadProgram(const std::string &strVertexShader, const std::string &s
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
 	data.dirToLightUnif = glGetUniformLocation(data.theProgram, "dirToLight");
 	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
@@ -90,6 +93,13 @@ namespace
 	}
 }
 
+GLuint g_projectionUniformBuffer = 0;
+
+struct ProjectionBlock
+{
+	glm::mat4 cameraToClipMatrix;
+};
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -118,6 +128,16 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
 	glEnable(GL_DEPTH_CLAMP);
+
+	glGenBuffers(1, &g_projectionUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
+
+	//Bind the static buffers.
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
+		0, sizeof(ProjectionBlock));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 glm::vec4 g_lightDirection(0.866f, 0.5f, 0.0f, 0.0f);
@@ -201,11 +221,12 @@ void reshape (int w, int h)
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
 
-	glUseProgram(g_WhiteDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_WhiteDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
-	glUseProgram(g_VertexDiffuseColor.theProgram);
-	glUniformMatrix4fv(g_VertexDiffuseColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
-	glUseProgram(0);
+	ProjectionBlock projData;
+	projData.cameraToClipMatrix = persMatrix.Top();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();

@@ -114,7 +114,6 @@ void keyboard(unsigned char key, int x, int y);
 
 int main(int argc, char** argv)
 {
-    printf("here!\n");
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL/* | GLUT_MULTISAMPLE | GLUT_SRGB*/);
 	glutInitContextVersion (3, 3);

@@ -10,6 +10,7 @@
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
 #include "../framework/ObjectPole.h"
+#include "../framework/Timer.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -19,7 +20,6 @@ struct ProgramData
 {
 	GLuint theProgram;
 
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
 
 	GLuint lightIntensityUnif;
@@ -30,14 +30,6 @@ struct ProgramData
 	GLuint lightAttenuationUnif;
 	GLuint shininessFactorUnif;
 	GLuint baseDiffuseColorUnif;
-
-	void SetWindowData(const glm::mat4 cameraToClip)
-	{
-		glUseProgram(theProgram);
-		glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(cameraToClip));
-		glUseProgram(0);
-	}
 };
 
 struct UnlitProgData
@@ -45,16 +37,7 @@ struct UnlitProgData
 	GLuint theProgram;
 
 	GLuint objectColorUnif;
-	GLuint cameraToClipMatrixUnif;
 	GLuint modelToCameraMatrixUnif;
-
-	void SetWindowData(const glm::mat4 cameraToClip)
-	{
-		glUseProgram(theProgram);
-		glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(cameraToClip));
-		glUseProgram(0);
-	}
 };
 
 float g_fzNear = 1.0f;
@@ -71,6 +54,8 @@ ProgramData g_ColorPhongOnly;
 
 UnlitProgData g_Unlit;
 
+const int g_projectionBlockIndex = 2;
+
 UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
 	std::vector<GLuint> shaderList;
@@ -81,8 +66,10 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	UnlitProgData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
@@ -97,7 +84,6 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
-	data.cameraToClipMatrixUnif = glGetUniformLocation(data.theProgram, "cameraToClipMatrix");
 	data.lightIntensityUnif = glGetUniformLocation(data.theProgram, "lightIntensity");
 	data.ambientIntensityUnif = glGetUniformLocation(data.theProgram, "ambientIntensity");
 
@@ -106,6 +92,9 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	data.lightAttenuationUnif = glGetUniformLocation(data.theProgram, "lightAttenuation");
 	data.shininessFactorUnif = glGetUniformLocation(data.theProgram, "shininessFactor");
 	data.baseDiffuseColorUnif = glGetUniformLocation(data.theProgram, "baseDiffuseColor");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	return data;
 }
@@ -158,6 +147,13 @@ namespace
 	}
 }
 
+GLuint g_projectionUniformBuffer = 0;
+
+struct ProjectionBlock
+{
+	glm::mat4 cameraToClipMatrix;
+};
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -190,33 +186,31 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
+
+	glGenBuffers(1, &g_projectionUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
+
+	//Bind the static buffers.
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
+		0, sizeof(ProjectionBlock));
+
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 static float g_fLightHeight = 1.5f;
 static float g_fLightRadius = 1.0f;
-static bool g_bRotateLight = true;
-
-static float g_fRotateTime = 0.0f;
-static float g_fPrevTime = 0.0f;
+using Framework::Timer;
+Timer g_LightTimer(Timer::TT_LOOP, 5.0f);
 
 glm::vec4 CalcLightPosition()
 {
-	const float fLoopDuration = 5.0f;
-	const float fScale = 3.14159f * 2.0f / fLoopDuration;
-
-	float fCurrTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
-	float fDeltaTime = fCurrTime - g_fPrevTime;
-	g_fPrevTime = fCurrTime;
-
-	if(g_bRotateLight)
-		g_fRotateTime += fDeltaTime;
-
-	float fCurrTimeThroughLoop = fmodf(g_fRotateTime, fLoopDuration);
+	float fCurrTimeThroughLoop = g_LightTimer.GetAlpha();
 
 	glm::vec4 ret(0.0f, g_fLightHeight, 0.0f, 1.0f);
 
-	ret.x = cosf(fCurrTimeThroughLoop * fScale) * g_fLightRadius;
-	ret.z = sinf(fCurrTimeThroughLoop * fScale) * g_fLightRadius;
+	ret.x = cosf(fCurrTimeThroughLoop * (3.14159f * 2.0f)) * g_fLightRadius;
+	ret.z = sinf(fCurrTimeThroughLoop * (3.14159f * 2.0f)) * g_fLightRadius;
 
 	return ret;
 }
@@ -250,6 +244,8 @@ const glm::vec4 g_lightColor(1.0f);
 
 void display()
 {
+	g_LightTimer.Update();
+
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -373,16 +369,13 @@ void reshape (int w, int h)
 {
 	Framework::MatrixStack persMatrix;
 	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
-	const glm::mat4 &invMat = glm::inverse(persMatrix.Top());
 
-	g_WhiteNoPhong.SetWindowData(persMatrix.Top());
-	g_ColorNoPhong.SetWindowData(persMatrix.Top());
-	g_WhitePhong.SetWindowData(persMatrix.Top());
-	g_ColorPhong.SetWindowData(persMatrix.Top());
-	g_WhitePhongOnly.SetWindowData(persMatrix.Top());
-	g_ColorPhongOnly.SetWindowData(persMatrix.Top());
+	ProjectionBlock projData;
+	projData.cameraToClipMatrix = persMatrix.Top();
 
-	g_Unlit.SetWindowData(persMatrix.Top());
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
@@ -433,7 +426,7 @@ void keyboard(unsigned char key, int x, int y)
 
 	case 'y': g_bDrawLightSource = !g_bDrawLightSource; break;
 	case 't': g_bScaleCyl = !g_bScaleCyl; break;
-	case 'b': g_bRotateLight = !g_bRotateLight; break;
+	case 'b': g_LightTimer.TogglePause(); break;
 	case 'g': g_bDrawDark = !g_bDrawDark; break;
 	case 'h':
 		g_eLightModel += 1;

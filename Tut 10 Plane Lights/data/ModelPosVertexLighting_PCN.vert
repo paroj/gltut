@@ -10,8 +10,12 @@ uniform vec3 modelSpaceLightPos;
 uniform vec4 lightIntensity;
 uniform vec4 ambientIntensity;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
+
+uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
 
 void main()
 {

@@ -7,11 +7,15 @@ out vec4 diffuseColor;
 out vec3 vertexNormal;
 out vec3 cameraSpacePosition;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
+uniform mat3 normalModelToCameraMatrix;
+
 uniform vec4 baseDiffuseColor;
 
-uniform mat3 normalModelToCameraMatrix;
+uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
 
 void main()
 {

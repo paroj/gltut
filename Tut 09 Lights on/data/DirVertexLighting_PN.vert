@@ -8,10 +8,13 @@ smooth out vec4 interpColor;
 uniform vec3 dirToLight;
 uniform vec4 lightIntensity;
 
-uniform mat4 cameraToClipMatrix;
 uniform mat4 modelToCameraMatrix;
-
 uniform mat3 normalModelToCameraMatrix;
+
+layout(std140) uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
 
 void main()
 {
