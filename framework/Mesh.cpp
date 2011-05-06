@@ -4,6 +4,8 @@
 #include <utility>
 #include <fstream>
 #include <sstream>
+#include <exception>
+#include <stdexcept>
 #include <functional>
 #include <algorithm>
 #include <glload/gl_3_2_comp.h>
@@ -12,6 +14,7 @@
 #include <tinyxml.h>
 #include "framework.h"
 #include "Mesh.h"
+#include "directories.h"
 
 
 namespace Framework
@@ -72,7 +75,7 @@ namespace Framework
 	AttribData theValue;\
 	inStream >> theValue.attribDataValue >> std::ws;\
 	if(inStream.fail())\
-	throw std::exception("Parse error in array data stream.");\
+	throw std::runtime_error("Parse error in array data stream.");\
 	outputData.push_back(theValue);\
 	}\
 	}\
@@ -186,7 +189,7 @@ namespace Framework
 			g_allAttributeTypes, &g_allAttributeTypes[iArrayCount], std::bind1st(AttribTypeFinder(), strType));
 
 		if(pAttrib == &g_allAttributeTypes[iArrayCount])
-			throw std::exception("Unknown 'type' field.");
+			throw std::runtime_error("Unknown 'type' field.");
 
 		return pAttrib;
 	}
@@ -204,21 +207,21 @@ namespace Framework
 		{
 			int iAttributeIndex;
 			if(pAttribElem->QueryIntAttribute("index", &iAttributeIndex) != TIXML_SUCCESS)
-				throw std::exception("Missing 'index' attribute in an 'attribute' element.");
+				throw std::runtime_error("Missing 'index' attribute in an 'attribute' element.");
 			if(!((0 <= iAttributeIndex) && (iAttributeIndex < 16)))
-				throw std::exception("Attribute index must be between 0 and 16.");
+				throw std::runtime_error("Attribute index must be between 0 and 16.");
 			iAttribIx = iAttributeIndex;
 
 			int iVectorSize;
 			if(pAttribElem->QueryIntAttribute("size", &iVectorSize) != TIXML_SUCCESS)
-				throw std::exception("Missing 'size' attribute in an 'attribute' element.");
+				throw std::runtime_error("Missing 'size' attribute in an 'attribute' element.");
 			if(!((1 <= iVectorSize) && (iVectorSize < 5)))
-				throw std::exception("Attribute size must be between 1 and 4.");
+				throw std::runtime_error("Attribute size must be between 1 and 4.");
 			iSize = iVectorSize;
 
 			std::string strType;
 			if(pAttribElem->QueryStringAttribute("type", &strType) != TIXML_SUCCESS)
-				throw std::exception("Missing 'type' attribute in an 'attribute' element.");
+				throw std::runtime_error("Missing 'type' attribute in an 'attribute' element.");
 
 			pAttribType = GetAttribType(strType);
 
@@ -232,15 +235,15 @@ namespace Framework
 				else if(strIntegral == "false")
 					bIsIntegral = false;
 				else
-					throw std::exception("Incorrect 'integral' value for the 'attribute'.");
+					throw std::runtime_error("Incorrect 'integral' value for the 'attribute'.");
 
 				if(pAttribType->bNormalized)
-					throw std::exception("Attribute cannot be both 'integral' and a normalized 'type'.");
+					throw std::runtime_error("Attribute cannot be both 'integral' and a normalized 'type'.");
 
 				if(pAttribType->eGLType == GL_FLOAT ||
 					pAttribType->eGLType == GL_HALF_FLOAT ||
 					pAttribType->eGLType == GL_DOUBLE)
-					throw std::exception("Attribute cannot be both 'integral' and a floating-point 'type'.");
+					throw std::runtime_error("Attribute cannot be both 'integral' and a floating-point 'type'.");
 			}
 
 			//Read the text data.
@@ -262,9 +265,9 @@ namespace Framework
 			//Parse the text stream.
 			pAttribType->ParseFunc(dataArray, strStream);
 			if(dataArray.empty())
-				throw std::exception("The attribute's must have an array of values.");
+				throw std::runtime_error("The attribute's must have an array of values.");
 			if(dataArray.size() % iSize != 0)
-				throw std::exception("The attribute's data must be a multiple of its size in elements.");
+				throw std::runtime_error("The attribute's data must be a multiple of its size in elements.");
 		}
 
 		Attribute(const Attribute &rhs)
@@ -327,7 +330,7 @@ namespace Framework
 	void ProcessVAO(const TiXmlElement *pVaoElem, std::string &strName, std::vector<GLuint> &attributes)
 	{
 		if(pVaoElem->QueryStringAttribute("name", &strName) != TIXML_SUCCESS)
-			throw std::exception("Missing 'name' attribute in a 'vao' element.");
+			throw std::runtime_error("Missing 'name' attribute in a 'vao' element.");
 
 		for(const TiXmlElement *pNode = pVaoElem->FirstChildElement();
 			pNode;
@@ -335,7 +338,7 @@ namespace Framework
 		{
 			int iAttrib = -1;
 			if(pNode->QueryIntAttribute("attrib", &iAttrib) != TIXML_SUCCESS)
-				throw std::exception("Missing 'attrib' attribute in a 'source' element.");
+				throw std::runtime_error("Missing 'attrib' attribute in a 'source' element.");
 
 			attributes.push_back(iAttrib);
 		}
@@ -347,10 +350,10 @@ namespace Framework
 		{
 			std::string strType;
 			if(pIndexElem->QueryStringAttribute("type", &strType) != TIXML_SUCCESS)
-				throw std::exception("Missing 'type' attribute in an 'index' element.");
+				throw std::runtime_error("Missing 'type' attribute in an 'index' element.");
 
 			if(strType != "uint" && strType != "ushort" && strType != "ubyte")
-				throw std::exception("Improper 'type' attribute value on 'index' element.");
+				throw std::runtime_error("Improper 'type' attribute value on 'index' element.");
 
 			pAttribType = GetAttribType(strType);
 
@@ -373,7 +376,7 @@ namespace Framework
 			//Parse the text stream.
 			pAttribType->ParseFunc(dataArray, strStream);
 			if(dataArray.empty())
-				throw std::exception("The index element must have an array of values.");
+				throw std::runtime_error("The index element must have an array of values.");
 		}
 
 		IndexData()
@@ -413,7 +416,7 @@ namespace Framework
 
 		std::string strCmdName;
 		if(pCmdElem->QueryStringAttribute("cmd", &strCmdName) != TIXML_SUCCESS)
-			throw std::exception("Missing 'cmd' attribute in an 'arrays' or 'indices' element.");
+			throw std::runtime_error("Missing 'cmd' attribute in an 'arrays' or 'indices' element.");
 
 		int iArrayCount = ARRAY_COUNT(g_allAttributeTypes);
 		const PrimitiveType *pPrim = std::find_if(
@@ -421,7 +424,7 @@ namespace Framework
 			std::bind1st(PrimitiveTypeFinder(), strCmdName));
 
 		if(pPrim == &g_allPrimitiveTypes[iArrayCount])
-			throw std::exception("Unknown 'cmd' field.");
+			throw std::runtime_error("Unknown 'cmd' field.");
 
 		cmd.ePrimType = pPrim->eGLPrimType;
 
@@ -432,7 +435,7 @@ namespace Framework
 			if(pCmdElem->QueryIntAttribute("prim-restart", &iPrimRestart) == TIXML_SUCCESS)
 			{
 				if(iPrimRestart < 0)
-					throw std::exception("Attribute 'start' must be between 0 or greater.");
+					throw std::runtime_error("Attribute 'start' must be between 0 or greater.");
 			}
 			else
 				iPrimRestart = -1;
@@ -443,20 +446,20 @@ namespace Framework
 			cmd.bIsIndexedCmd = false;
 			int iStart;
 			if(pCmdElem->QueryIntAttribute("start", &iStart) != TIXML_SUCCESS)
-				throw std::exception("Missing 'start' attribute in an 'arrays' element.");
+				throw std::runtime_error("Missing 'start' attribute in an 'arrays' element.");
 			if(iStart < 0)
-				throw std::exception("Attribute 'start' must be between 0 or greater.");
+				throw std::runtime_error("Attribute 'start' must be between 0 or greater.");
 			cmd.start = iStart;
 
 			int iCount;
 			if(pCmdElem->QueryIntAttribute("count", &iCount) != TIXML_SUCCESS)
-				throw std::exception("Missing 'count' attribute in an 'arrays' element.");
+				throw std::runtime_error("Missing 'count' attribute in an 'arrays' element.");
 			if(iCount <= 0)
-				throw std::exception("Attribute 'count' must be between 0 or greater.");
+				throw std::runtime_error("Attribute 'count' must be between 0 or greater.");
 			cmd.elemCount = iCount;
 		}
 		else
-			throw std::exception("Bad element. Must be 'indices' or 'arrays'.");
+			throw std::runtime_error("Bad element. Must be 'indices' or 'arrays'.");
 
 		return cmd;
 	}
@@ -493,7 +496,7 @@ namespace Framework
 		std::vector<std::pair<std::string, std::vector<GLuint> > > namedVaoList;
 
 		{
-			std::string strDataFilename = "data\\" + strFilename;
+			std::string strDataFilename = LOCAL_FILE_DIR + strFilename;
 			std::ifstream fileStream(strDataFilename.c_str());
 
 			TiXmlDocument theDoc;
@@ -502,7 +505,7 @@ namespace Framework
 			fileStream.close();
 
 			if(theDoc.Error())
-				throw std::exception(theDoc.ErrorDesc());
+				throw std::runtime_error(theDoc.ErrorDesc());
 
 			TiXmlHandle docHandle(&theDoc);
 
@@ -548,7 +551,7 @@ namespace Framework
 			if(iNumElements)
 			{
 				if(iNumElements != attrib.NumElements())
-					throw std::exception("Some of the attribute arrays have different element counts.");
+					throw std::runtime_error("Some of the attribute arrays have different element counts.");
 			}
 			else
 				iNumElements = attrib.NumElements();

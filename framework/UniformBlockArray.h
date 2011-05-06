@@ -4,6 +4,7 @@
 
 //To use this file, you must include one of the glload headers before including this.
 
+#include <string.h>
 #include <vector>
 
 namespace Framework

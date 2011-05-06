@@ -63,7 +63,7 @@ namespace Framework
 		template<typename BidirectionalRange>
 		void SetValues(const BidirectionalRange &data, bool isLooping = true)
 		{
-			m_values.clear();
+			this->m_values.clear();
 			typename BidirectionalRange::const_iterator curr = data.begin();
 			typename BidirectionalRange::const_iterator final = data.end();
 			for(; curr != final; ++curr)
@@ -73,17 +73,17 @@ namespace Framework
 				currData.weight = GetTime(*curr);
 
 				assert(0.0f <= currData.weight && currData.weight <= 1.0f);
-				m_values.push_back(currData);
+				this->m_values.push_back(currData);
 			}
 
-			if(isLooping && !m_values.empty())
-				m_values.push_back(m_values[0]);
+			if(isLooping && !this->m_values.empty())
+				this->m_values.push_back(this->m_values[0]);
 
 			//Ensure first is weight 0, and last is weight 1.
-			if(!m_values.empty())
+			if(!this->m_values.empty())
 			{
-				m_values.front().weight = 0.0f;
-				m_values.back().weight = 1.0f;
+				this->m_values.front().weight = 0.0f;
+				this->m_values.back().weight = 1.0f;
 			}
 		}
 	protected:
@@ -99,7 +99,7 @@ namespace Framework
 		template<typename BidirectionalRange>
 		void SetValues(const BidirectionalRange &data, bool isLooping = true)
 		{
-			m_values.clear();
+			this->m_values.clear();
 			int iNumValues = 0;
 			typename BidirectionalRange::const_iterator curr = data.begin();
 			typename BidirectionalRange::const_iterator final = data.end();
@@ -108,21 +108,21 @@ namespace Framework
 				typename WeightedLinearInterpolator<ValueType>::Data currData;
 				currData.data = *curr;
 				currData.weight = 0.0f;
-				m_values.push_back(currData);
+				this->m_values.push_back(currData);
 
 				iNumValues++;
 			}
 
-			if(isLooping && !m_values.empty())
+			if(isLooping && !this->m_values.empty())
 			{
-				m_values.push_back(m_values.back());
+				this->m_values.push_back(this->m_values.back());
 				++iNumValues;
 			}
 
 			//Compute weights.
-			for(size_t valIx = 0; valIx < m_values.size(); ++valIx)
+			for(size_t valIx = 0; valIx < this->m_values.size(); ++valIx)
 			{
-				m_values[valIx].weight = valIx / (float)(iNumValues - 1);
+				this->m_values[valIx].weight = valIx / (float)(iNumValues - 1);
 			}
 		}
 	private:
@@ -152,38 +152,39 @@ namespace Framework
 		template<typename BidirectionalRange>
 		void SetValues(const BidirectionalRange &data, bool isLoop = true)
 		{
-			m_values.clear();
+			this->m_values.clear();
 
 			typename BidirectionalRange::const_iterator curr = data.begin();
 			typename BidirectionalRange::const_iterator last = data.end();
 			for(; curr != last; ++curr)
 			{
-				Data currData;
+				typename WeightedLinearInterpolator<ValueType>::Data currData;
 				currData.data = *curr;
 				currData.weight = 0.0f;
-				m_values.push_back(currData);
+				this->m_values.push_back(currData);
 			}
 
 			if(isLoop)
 			{
-				Data currData;
+				typename WeightedLinearInterpolator<ValueType>::Data currData;
 				currData.data = *data.begin();
 				currData.weight = 0.0f;
-				m_values.push_back(currData);
+				this->m_values.push_back(currData);
 			}
 
 			//Compute the distances of each segment.
 			m_totalDist = 0.0f;
-			for(size_t iLoop = 1; iLoop < m_values.size(); ++iLoop)
+			for(size_t iLoop = 1; iLoop < this->m_values.size(); ++iLoop)
 			{
-				m_totalDist += distance(m_values[iLoop - 1].data, m_values[iLoop].data);
-				m_values[iLoop].weight = m_totalDist;
+				m_totalDist += distance(this->m_values[iLoop - 1].data,
+				    this->m_values[iLoop].data);
+				this->m_values[iLoop].weight = m_totalDist;
 			}
 
 			//Compute the alpha value that represents when to use this segment.
-			for(size_t iLoop = 1; iLoop < m_values.size(); ++iLoop)
+			for(size_t iLoop = 1; iLoop < this->m_values.size(); ++iLoop)
 			{
-				m_values[iLoop].weight /= m_totalDist;
+				this->m_values[iLoop].weight /= m_totalDist;
 			}
 		}
 

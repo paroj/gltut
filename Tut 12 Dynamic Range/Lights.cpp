@@ -4,6 +4,8 @@
 #include <vector>
 #include <stack>
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 #include "Lights.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

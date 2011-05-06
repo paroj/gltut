@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <math.h>
+#include <stdio.h>
+#include <string.h>
 #include <glload/gl_3_3.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"

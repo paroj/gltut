@@ -3,6 +3,7 @@
 #include <vector>
 #include <stack>
 #include <math.h>
+#include <stdio.h>
 #include <glload/gl_3_3.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"

@@ -5,7 +5,13 @@ function SetupSolution(slnName)
 	solution(slnName)
 		configurations {"Debug", "Release"}
 		defines {"_CRT_SECURE_NO_WARNINGS", "_CRT_SECURE_NO_DEPRECATE", "_SCL_SECURE_NO_WARNINGS", "TIXML_USE_STL"}
-		defines {"FREEGLUT_STATIC", "WIN32"}
+		defines {"FREEGLUT_STATIC"}
+		
+    	configuration "windows"
+        	defines {"WIN32"}
+        	
+       	configuration "linux"
+    	    defines {"LOAD_X11"}
 		
 	local currPath = os.getcwd();
 	os.chdir(myPath);
@@ -22,7 +28,7 @@ function SetupSolution(slnName)
 		objdir "../framework/lib"
 
 		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../FreeImage/dist", "../glm-0.9.0.7", "../tinyxml", "../framework"}
+			"../glm-0.9.0.7", "../tinyxml", "../framework"}
 		
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
@@ -33,6 +39,7 @@ function SetupSolution(slnName)
 			defines {"RELEASE", "NDEBUG"};
 			targetname("framework")
 
+
 	os.chdir(currPath);
 end
 
@@ -42,28 +49,34 @@ function SetupProject(projName, ...)
 		language "c++"
 		
 		files {...}
---		targetdir "bin"
 
 		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../FreeImage/dist", "../glm-0.9.0.7", "../tinyxml"}
+			"../glm-0.9.0.7", "../tinyxml"}
 			
 		links "framework"
 
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
 			flags "Symbols"
-			links "../freeglut-2.6.0/VisualStudio2008Static/debug/freeglut_static"
-			links "../FreeImage/dist/FreeImageD"
-			links "../glload/lib/glloadD"
-			links "../tinyxml/lib/tinyxml_pmD"
+			libdirs {"../glload/lib", "../tinyxml/lib"}
+			links "glloadD"
+			links "tinyxml_pmD"
 			targetname(projName .. "D")
 		
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
-			links "../freeglut-2.6.0/VisualStudio2008Static/release/freeglut_static"
-			links "../FreeImage/dist/FreeImage"
-			links "../glload/lib/glload"
-			links "../tinyxml/lib/tinyxml_pm"
+			libdirs {"../glload/lib", "../tinyxml/lib"}
+			links "glload"
+			links "tinyxml_pm"
 			targetname(projName)
+
+
+        configuration {"Debug", "windows"}
+			links "../freeglut-2.6.0/VisualStudio2008Static/debug/freeglut_static"
+        configuration {"Release", "windows"}
+			links "../freeglut-2.6.0/VisualStudio2008Static/release/freeglut_static"
+        configuration {"linux"}
+            libdirs {"../freeglut-2.6.0/src/.libs"}
+			links "glut"
 end
 

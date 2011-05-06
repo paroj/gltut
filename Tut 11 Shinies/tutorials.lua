@@ -1,5 +1,5 @@
 
-SetupProject("Tut 10 Phong Lighting", "Phong Lighting.cpp",
+SetupProject("Tut 11 Phong Lighting", "Phong Lighting.cpp",
 	"data/PCN.vert",
 	"data/PN.vert",
 	"data/PosTransform.vert",
@@ -8,7 +8,7 @@ SetupProject("Tut 10 Phong Lighting", "Phong Lighting.cpp",
 	"data/PhongOnly.frag",
 	"data/PhongLighting.frag")
 
-SetupProject("Tut 10 Blinn vs Phong Lighting", "Blinn vs Phong Lighting.cpp",
+SetupProject("Tut 11 Blinn vs Phong Lighting", "Blinn vs Phong Lighting.cpp",
 	"data/PCN.vert",
 	"data/PN.vert",
 	"data/PosTransform.vert",
@@ -18,7 +18,7 @@ SetupProject("Tut 10 Blinn vs Phong Lighting", "Blinn vs Phong Lighting.cpp",
 	"data/PhongOnly.frag",
 	"data/BlinnOnly.frag")
 
-SetupProject("Tut 10 Gaussian Specular Lighting", "Gaussian Specular Lighting.cpp",
+SetupProject("Tut 11 Gaussian Specular Lighting", "Gaussian Specular Lighting.cpp",
 	"data/PCN.vert",
 	"data/PN.vert",
 	"data/PosTransform.vert",

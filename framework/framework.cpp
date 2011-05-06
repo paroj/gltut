@@ -3,10 +3,12 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <string.h>
 #include <glload/gl_3_2_comp.h>
 #include <glload/gll.h>
 #include <GL/freeglut.h>
 #include "framework.h"
+#include "directories.h"
 
 
 namespace Framework
@@ -31,7 +33,7 @@ namespace Framework
 	{
 		GLuint shader = glCreateShader(eShaderType);
 		const char *strFileData = strShaderFile.c_str();
-		glShaderSource(shader, 1, &strFileData, NULL);
+		glShaderSource(shader, 1, (const GLchar**)&strFileData, NULL);
 
 		glCompileShader(shader);
 
@@ -55,7 +57,7 @@ namespace Framework
 
 	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename)
 	{
-		std::string strFilename = "data\\" + strShaderFilename;
+		std::string strFilename = LOCAL_FILE_DIR + strShaderFilename;
 		std::ifstream shaderFile(strFilename.c_str());
 		if(!shaderFile.is_open())
 		{
@@ -112,6 +114,7 @@ void keyboard(unsigned char key, int x, int y);
 
 int main(int argc, char** argv)
 {
+    printf("here!\n");
 	glutInit(&argc, argv);
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL/* | GLUT_MULTISAMPLE | GLUT_SRGB*/);
 	glutInitContextVersion (3, 3);

@@ -1,5 +1,6 @@
 
 #include "Scene.h"
+#include <string.h>
 #include <glm/gtc/type_ptr.hpp>
 
 //One for the ground, and one for each of the 5 objects.
