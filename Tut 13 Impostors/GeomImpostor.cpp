@@ -531,3 +531,4 @@ void keyboard(unsigned char key, int x, int y)
 	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
 }
 
+unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode;}

@@ -111,17 +111,24 @@ void display();
 void reshape(int w, int h);
 void keyboard(unsigned char key, int x, int y);
 
+unsigned int defaults(unsigned int displayMode, int &width, int &height);
 
 int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode (GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL/* | GLUT_MULTISAMPLE | GLUT_SRGB*/);
+
+	int width = 500;
+	int height = 500;
+	unsigned int displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL;
+	displayMode = defaults(displayMode, width, height);
+
+	glutInitDisplayMode (displayMode);
 	glutInitContextVersion (3, 3);
 	glutInitContextProfile(GLUT_CORE_PROFILE);
 #ifdef DEBUG
 	glutInitContextFlags(GLUT_DEBUG);
 #endif
-	glutInitWindowSize (500, 500); 
+	glutInitWindowSize (width, height); 
 	glutInitWindowPosition (300, 200);
 	glutCreateWindow (argv[0]);
 

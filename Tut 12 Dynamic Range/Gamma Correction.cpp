@@ -84,19 +84,15 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 {
 	std::vector<GLuint> shaderList;
 
-    printf("A!\n");
 	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, strVertexShader));
-    printf("A2!\n");
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, strFragmentShader));
 
-    printf("B!\n");
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
 
 	data.normalModelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "normalModelToCameraMatrix");
 
-    printf("C!\n");
 	GLuint materialBlock = glGetUniformBlockIndex(data.theProgram, "Material");
 	GLuint lightBlock = glGetUniformBlockIndex(data.theProgram, "Light");
 	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
@@ -212,10 +208,8 @@ Scene *g_pScene = NULL;
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
-    printf("Top;\n");
 	InitializePrograms();
 
-    printf("Scene\n");
 	try
 	{
 		g_pScene = new Scene();
@@ -226,17 +220,14 @@ void init()
 		throw;
 	}
 
-    printf("Setup\n");
 	SetupHDRLighting();
 
 	g_lights.CreateTimer("tetra", Framework::Timer::TT_LOOP, 2.5f);
 
-    printf("Glutfuncs\n");
 	glutMouseFunc(MouseButton);
  	glutMotionFunc(MouseMotion);
 	glutMouseWheelFunc(MouseWheel);
 
-    printf("Simple\n");
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CW);
@@ -250,7 +241,6 @@ void init()
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
 
-    printf("UBO setup\n");
 	//Setup our Uniform Buffers
 	glGenBuffers(1, &g_lightUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
@@ -260,7 +250,6 @@ void init()
 	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), NULL, GL_DYNAMIC_DRAW);
 
-    printf("Bind static\n");
 	//Bind the static buffers.
 	glBindBufferRange(GL_UNIFORM_BUFFER, g_lightBlockIndex, g_lightUniformBuffer,
 		0, sizeof(LightBlock));
@@ -469,3 +458,4 @@ void keyboard(unsigned char key, int x, int y)
 }
 
 
+unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode;}

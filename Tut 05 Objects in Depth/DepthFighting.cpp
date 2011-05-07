@@ -342,3 +342,4 @@ void keyboard(unsigned char key, int x, int y)
 	glutPostRedisplay();
 }
 
+unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode;}
