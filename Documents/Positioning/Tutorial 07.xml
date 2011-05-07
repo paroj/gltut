@@ -46,7 +46,7 @@
             <title>Full Vertex Transformation Pipeline</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="TransformPipeline.svg" format="SVG"/>
+                    <imagedata fileref="TransformPipeline.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -302,7 +302,7 @@ glUseProgram(0);</programlisting>
                 <title>Spherical Coordinates</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="Coord_system_SZ_0.svg" format="SVG"/>
+                        <imagedata fileref="Coord_system_SZ_0.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -505,7 +505,7 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             <title>Triangle Fan</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="TriangleFan.svg" format="SVG"/>
+                    <imagedata fileref="TriangleFan.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -525,7 +525,7 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             <title>Triangle Strip</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="TriangleStrip.svg"/>
+                    <imagedata  fileref="TriangleStrip.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -544,7 +544,7 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             <title>Triangle Strips with Winding Order</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="StripWindingOrder.svg"/>
+                    <imagedata  fileref="StripWindingOrder.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -793,7 +793,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 <title>Uniform Buffer and Block Binding Points</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="UBOContextBinding.svg" format="SVG"/>
+                        <imagedata fileref="UBOContextBinding.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>

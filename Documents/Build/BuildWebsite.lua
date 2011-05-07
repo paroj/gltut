@@ -37,6 +37,12 @@ hFile:write([[    <xsl:import href="html-highlights.xsl"/>]], "\n");
 WriteParamsToFile(hFile, dofile("_commonParams.lua"));
 WriteParamsToFile(hFile, params);
 
+hFile:write([[
+	<xsl:template name="system.head.content">
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+	</xsl:template>
+]]);
+
 hFile:write([[</xsl:stylesheet> 
 ]]);
 

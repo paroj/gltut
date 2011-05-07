@@ -572,7 +572,7 @@ glUseProgram(0);</programlisting>
             <title>Three Overlapping Triangles</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="ThreeTriangleOverlap.svg" format="SVG"/>
+                    <imagedata fileref="ThreeTriangleOverlap.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -773,7 +773,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             <title>Perspective Computation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="PerspectiveFunc.svg" format="SVG" contentwidth="3in"/>
+                    <imagedata fileref="PerspectiveFunc.svg"  contentwidth="3in"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -818,7 +818,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             <title>Triangle Clipping</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="TriangleClipping.svg"/>
+                    <imagedata  fileref="TriangleClipping.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -997,7 +997,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 <title>2D Camera to NDC Space</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="CameraToPerspective.svg" format="SVG" contentwidth="6in"
+                        <imagedata fileref="CameraToPerspective.svg"  contentwidth="6in"
                         />
                     </imageobject>
                 </mediaobject>

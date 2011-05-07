@@ -37,7 +37,7 @@
             <title>Perfect Specular Reflection</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="SpecularReflection.svg" format="SVG"/>
+                    <imagedata fileref="SpecularReflection.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -58,7 +58,7 @@
             <title>Smooth and Rough Microfacets</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="MicrofacetRoughSmooth.svg" format="SVG"/>
+                    <imagedata fileref="MicrofacetRoughSmooth.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -114,7 +114,7 @@
             <title>Phong Specular Term</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="PhongTerm.svg" format="SVG"/>
+                    <imagedata fileref="PhongTerm.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -235,7 +235,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 <title>Vector Reflection</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="ReflectionVector.svg" format="SVG"/>
+                        <imagedata fileref="ReflectionVector.svg" />
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -346,7 +346,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Large View and Reflect Angle</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="PhongReflectDirTooGreat.svg" format="SVG"/>
+                    <imagedata fileref="PhongReflectDirTooGreat.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -363,7 +363,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Geometric Half-Angle Vector</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="HalfangleVectorDiagram.svg" format="SVG"/>
+                    <imagedata fileref="HalfangleVectorDiagram.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -371,7 +371,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Half-Angle Vector</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="HalfAngleVector.svg" format="SVG"/>
+                    <imagedata fileref="HalfAngleVector.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -383,7 +383,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Perfect Reflection Half-Angle Vector</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="HalfangleVectorPerfect.svg" format="SVG"/>
+                    <imagedata fileref="HalfangleVectorPerfect.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -394,7 +394,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Blinn Specular Term</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="BlinnTerm.svg" format="SVG"/>
+                    <imagedata fileref="BlinnTerm.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -488,7 +488,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Gaussian Distribution Function</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="GaussianDistributionEq.svg" format="SVG"/>
+                    <imagedata fileref="GaussianDistributionEq.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -496,7 +496,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Gaussian Probability Distribution Curves</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="GaussianPlot.svg" format="SVG"/>
+                    <imagedata fileref="GaussianPlot.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -524,7 +524,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             <title>Gaussian Specular Term</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="GaussianTerm.svg" format="SVG"/>
+                    <imagedata fileref="GaussianTerm.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -608,7 +608,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="ReflectionVector.svg" format="SVG"/>
+                    <imagedata fileref="ReflectionVector.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>

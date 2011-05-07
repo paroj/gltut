@@ -276,14 +276,14 @@ void main()
                 <title>Circle Point Computation</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="CirclePythagorean.svg" format="SVG"/>
+                        <imagedata fileref="CirclePythagorean.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>
             <informalfigure>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="PythagoreanTheorem.svg" format="SVG"/>
+                        <imagedata fileref="PythagoreanTheorem.svg" />
                     </imageobject>
                 </mediaobject>
             </informalfigure>
@@ -334,7 +334,7 @@ void main()
             <title>Circle Projection</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CircleInPerspective.svg" format="SVG"/>
+                    <imagedata fileref="CircleInPerspective.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -358,7 +358,7 @@ void main()
             <title>Ray Equation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RayEquation.svg" format="SVG"/>
+                    <imagedata fileref="RayEquation.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -374,7 +374,7 @@ void main()
             <title>Sphere Equation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="SphereEquation.svg" format="SVG"/>
+                    <imagedata fileref="SphereEquation.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -384,7 +384,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RayTraceDeriv_1.svg" format="SVG"/>
+                    <imagedata fileref="RayTraceDeriv_1.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -395,7 +395,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RayTraceDeriv_2.svg" format="SVG"/>
+                    <imagedata fileref="RayTraceDeriv_2.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -404,7 +404,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RayTraceDeriv_3.svg" format="SVG"/>
+                    <imagedata fileref="RayTraceDeriv_3.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -413,7 +413,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RayTraceDeriv_4.svg" format="SVG"/>
+                    <imagedata fileref="RayTraceDeriv_4.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -423,7 +423,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="RayTraceDeriv_5.svg" format="SVG"/>
+                    <imagedata fileref="RayTraceDeriv_5.svg" />
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -497,7 +497,7 @@ void main()
             <informalfigure>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="CircleInPerspective.svg" format="SVG"/>
+                        <imagedata fileref="CircleInPerspective.svg" />
                     </imageobject>
                 </mediaobject>
             </informalfigure>

@@ -187,7 +187,7 @@
             <title>Angle/Axis to Quaternion</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="AngleAxisToQuaternion.svg" format="SVG"/>
+                    <imagedata fileref="AngleAxisToQuaternion.svg" />
                 </imageobject>
             </mediaobject>
         </equation>
@@ -206,7 +206,7 @@
                 <title>Quaternion Multiplication</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="QuaternionMultiplication.svg" format="SVG"/>
+                        <imagedata fileref="QuaternionMultiplication.svg" />
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -229,7 +229,7 @@
                 <title>Quaternion to Matrix</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="QuaternionToMatrix.svg" format="SVG"/>
+                        <imagedata fileref="QuaternionToMatrix.svg" />
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -596,7 +596,7 @@
                 <title>Interpolation Directions</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="InterpolateDirection.svg" format="SVG"/>
+                        <imagedata fileref="InterpolateDirection.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>

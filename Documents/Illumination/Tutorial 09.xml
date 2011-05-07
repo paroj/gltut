@@ -59,7 +59,7 @@
             <title>Surface Light Absorption</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="SurfaceColorAbsorption.svg" format="SVG"/>
+                    <imagedata fileref="SurfaceColorAbsorption.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -85,7 +85,7 @@
             <title>Perpendicular Light</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="DirectLightColumn.svg" format="SVG"/>
+                    <imagedata fileref="DirectLightColumn.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -96,7 +96,7 @@
             <title>Light at an Angle</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="AngleLightColumn.svg" format="SVG"/>
+                    <imagedata fileref="AngleLightColumn.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -115,7 +115,7 @@
                 <title>Diffuse Reflectance</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="DiffuseReflection.svg" format="SVG"/>
+                        <imagedata fileref="DiffuseReflection.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -130,7 +130,7 @@
                 <title>Diffuse Lighting Equation</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata format="SVG" fileref="DiffuseLightingEquation.svg"/>
+                        <imagedata fileref="DiffuseLightingEquation.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -199,7 +199,7 @@
                 <title>Near and Far Lights</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="NearVsFarLight.svg" format="SVG"/>
+                        <imagedata fileref="NearVsFarLight.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -514,7 +514,7 @@ void main()
                 <title>Dot Product</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata format="SVG" fileref="DotProductLength.svg"/>
+                        <imagedata  fileref="DotProductLength.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -530,7 +530,7 @@ void main()
                 <title>Dot Product from Vector Math</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata format="SVG" fileref="DotProductEquation.svg"/>
+                        <imagedata  fileref="DotProductEquation.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -564,7 +564,7 @@ void main()
             <title>Circle Scaling</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CircleScaling.svg" format="SVG"/>
+                    <imagedata fileref="CircleScaling.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -573,7 +573,7 @@ void main()
             <title>Circle Scaling with Normals</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="CircleNormalScaling.svg" format="SVG"/>
+                    <imagedata fileref="CircleNormalScaling.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -598,7 +598,7 @@ void main()
             <title>Matrix Transpose</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="MatrixTranspose.svg"/>
+                    <imagedata  fileref="MatrixTranspose.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -609,7 +609,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="MatrixSVD.svg"/>
+                    <imagedata  fileref="MatrixSVD.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -631,7 +631,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="InvertedScale.svg"/>
+                    <imagedata  fileref="InvertedScale.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -647,7 +647,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="DeriveInvTrans_1.svg"/>
+                    <imagedata  fileref="DeriveInvTrans_1.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -656,7 +656,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="FactorOutTranspose_2.svg"/>
+                    <imagedata  fileref="FactorOutTranspose_2.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -665,7 +665,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="FactorOutInverse_3.svg"/>
+                    <imagedata  fileref="FactorOutInverse_3.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>

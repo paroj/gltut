@@ -654,7 +654,7 @@ else
                 <title>Display Gamma Function</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="GammaFunc.svg" format="SVG"/>
+                        <imagedata fileref="GammaFunc.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -671,7 +671,7 @@ else
                 <title>Gamma Correction Function</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="GammaCorrectFunc.svg" format="SVG"/>
+                        <imagedata fileref="GammaCorrectFunc.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -681,7 +681,7 @@ else
                 <title>Gamma Function Graph</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="GammaFunctionGraph.svg" format="SVG"/>
+                        <imagedata fileref="GammaFunctionGraph.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>

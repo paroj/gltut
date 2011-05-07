@@ -341,7 +341,7 @@ void main()
                 <title>Data Flow to Vertex Shader</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="VertexShaderDataFlow.svg" format="SVG"/>
+                        <imagedata fileref="VertexShaderDataFlow.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>

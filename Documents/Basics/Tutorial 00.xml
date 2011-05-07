@@ -30,7 +30,7 @@
             <title>Position Vectors</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorPosition.svg" format="SVG"/>
+                    <imagedata fileref="VectorPosition.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -42,7 +42,7 @@
             <title>Direction Vectors</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorDirections.svg" format="SVG"/>
+                    <imagedata fileref="VectorDirections.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -60,7 +60,7 @@
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="ColumnVector.svg"/>
+                    <imagedata fileref="ColumnVector.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -83,7 +83,7 @@
             <title>Vector Addition</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorAddition.svg" format="SVG"/>
+                    <imagedata fileref="VectorAddition.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -94,7 +94,7 @@
             <title>Vector Addition Head-to-Tail</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorAdditionHeads.svg" format="SVG"/>
+                    <imagedata fileref="VectorAdditionHeads.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -104,7 +104,7 @@
             <title>Vector Addition with Numbers</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorAdditionNum.svg"/>
+                    <imagedata fileref="VectorAdditionNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -120,7 +120,7 @@
             <title>Vector Negation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorNegation.svg" format="SVG"/>
+                    <imagedata fileref="VectorNegation.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -129,7 +129,7 @@
             <title>Vector Negation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorNegationNum.svg"/>
+                    <imagedata fileref="VectorNegationNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -139,7 +139,7 @@
             <title>Vector Subtraction</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorSubtraction.svg" format="SVG"/>
+                    <imagedata fileref="VectorSubtraction.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -156,7 +156,7 @@
             <title>Vector Multiplication</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorMultiplicationNum.svg"/>
+                    <imagedata fileref="VectorMultiplicationNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -170,7 +170,7 @@
             <title>Vector Scaling</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="VectorScalarMult.svg" format="SVG"/>
+                    <imagedata fileref="VectorScalarMult.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -180,7 +180,7 @@
             <title>Vector-Scalar Multiplication</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorScalarMultNum.svg"/>
+                    <imagedata fileref="VectorScalarMultNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -191,7 +191,7 @@
             <title>Vector-Scalar Addition</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorScalarAddNum.svg"/>
+                    <imagedata fileref="VectorScalarAddNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -206,7 +206,7 @@
             <title>Vector Algebra</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorMathProperties.svg"/>
+                    <imagedata fileref="VectorMathProperties.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -221,7 +221,7 @@
             <title>Vector Length</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorLengthNum.svg"/>
+                    <imagedata fileref="VectorLengthNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -241,7 +241,7 @@
             <title>Vector Normalization</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="VectorNormalizationNum.svg"/>
+                    <imagedata fileref="VectorNormalizationNum.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -279,7 +279,7 @@
             <title>An Image</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="PixelImage.svg" format="SVG" contentwidth=""/>
+                    <imagedata fileref="PixelImage.svg"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -402,7 +402,7 @@
                 <title>Normalized Device Coordinate Space</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="NormDeviceCoord.svg" format="SVG" contentwidth="4in"/>
+                        <imagedata fileref="NormDeviceCoord.svg" contentwidth="4in"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -440,7 +440,7 @@
                 <title>Scan Converted Triangle</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="TriangleScanConvert.svg" format="SVG" contentwidth="6in"/>
+                        <imagedata fileref="TriangleScanConvert.svg" contentwidth="6in"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -459,7 +459,7 @@
                 <title>Shared Edge Scan Conversion</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="SharedEdgeScanConvert.svg" format="SVG" contentwidth="6in"/>
+                        <imagedata fileref="SharedEdgeScanConvert.svg" contentwidth="6in"/>
                     </imageobject>
                 </mediaobject>
             </figure>

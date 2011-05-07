@@ -131,7 +131,7 @@ void main()
             <title>Light Near Surface</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="LightNearSurface.svg" format="SVG"/>
+                    <imagedata fileref="LightNearSurface.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -172,7 +172,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="StandardLerp_1.svg"/>
+                    <imagedata  fileref="StandardLerp_1.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -184,7 +184,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="DiffuseLightEq_2.svg"/>
+                    <imagedata  fileref="DiffuseLightEq_2.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -194,7 +194,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_3.svg"/>
+                    <imagedata  fileref="LerpDiffuse_3.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -203,7 +203,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_4.svg"/>
+                    <imagedata  fileref="LerpDiffuse_4.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -214,7 +214,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_5.svg"/>
+                    <imagedata  fileref="LerpDiffuse_5.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -224,7 +224,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LerpDiffuse_6.svg"/>
+                    <imagedata  fileref="LerpDiffuse_6.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -266,7 +266,7 @@ void main()
             <title>Triangle Interpolation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="BarycentricTriangle.svg" format="SVG"/>
+                    <imagedata fileref="BarycentricTriangle.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -282,7 +282,7 @@ void main()
             <title>Triangle Edge Interpolation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="BarycentricTriangleEdge.svg" format="SVG"/>
+                    <imagedata fileref="BarycentricTriangleEdge.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -300,7 +300,7 @@ void main()
             <title>Two Triangle Quadrilateral</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="TwoTriangleQuad.svg" format="SVG"/>
+                    <imagedata fileref="TwoTriangleQuad.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -311,7 +311,7 @@ void main()
             <title>Two Triangle Interpolation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="TwoTriangleInterpolation.svg" format="SVG"/>
+                    <imagedata fileref="TwoTriangleInterpolation.svg" />
                 </imageobject>
             </mediaobject>
         </figure>
@@ -542,7 +542,7 @@ void main()
                 <title>Faceted Cylinder</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="FacetedCircle.svg" format="SVG"/>
+                        <imagedata fileref="FacetedCircle.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -552,7 +552,7 @@ void main()
                 <title>Light Directions on Faceted Cylinder</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="FacetedNearVsFar.svg" format="SVG"/>
+                        <imagedata fileref="FacetedNearVsFar.svg" />
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -610,7 +610,7 @@ void main()
             <title>Physical Light Attenuation</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LightAttenEq.svg"/>
+                    <imagedata  fileref="LightAttenEq.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -622,7 +622,7 @@ void main()
         <informalequation>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="HalfLightAtten.svg"/>
+                    <imagedata  fileref="HalfLightAtten.svg"/>
                 </imageobject>
             </mediaobject>
         </informalequation>
@@ -636,7 +636,7 @@ void main()
             <title>Light Attenuation Inverse</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata format="SVG" fileref="LightAttenInvEq.svg"/>
+                    <imagedata  fileref="LightAttenInvEq.svg"/>
                 </imageobject>
             </mediaobject>
         </equation>
@@ -752,7 +752,7 @@ void main()
                 <title>Camera to Window Transforms</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata format="SVG" fileref="CameraToWindowTrans.svg"/>
+                        <imagedata  fileref="CameraToWindowTrans.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>
@@ -762,7 +762,7 @@ void main()
                 <title>Window to Camera Transforms</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata format="SVG" fileref="WindowToCameraTrans.svg"/>
+                        <imagedata  fileref="WindowToCameraTrans.svg"/>
                     </imageobject>
                 </mediaobject>
             </equation>

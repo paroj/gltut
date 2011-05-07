@@ -145,7 +145,7 @@ void main()
                 <title>Vertex Array Memory Map</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="MemoryDiagram.svg" format="SVG"/>
+                        <imagedata fileref="MemoryDiagram.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>
@@ -286,7 +286,7 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                     <title>Multiple Vertex Attributes</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata fileref="VertexShaderTwoAttributes.svg" format="SVG"/>
+                            <imagedata fileref="VertexShaderTwoAttributes.svg"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
