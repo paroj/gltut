@@ -266,6 +266,7 @@
             not including zero would be on the range (-∞, 0).</para>
     </section>
     <section>
+        <?dbhtml filename="Intro Graphics and Rendering.html"?>
         <title>Graphics and Rendering</title>
         <para>This is an overview of the process of rendering. Do not worry if you don't understand
             everything right away; every step will be covered in lavish detail in later
