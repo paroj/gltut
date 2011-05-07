@@ -23,16 +23,19 @@
             single window; all OpenGL commands refer to this window. Because windows in various GUI
             systems need to have certain book-keeping done, how the user interfaces with this is
             rigidly controlled.</para>
-        <para>The framework file expects 4 functions to be defined: <function>init</function>,
-                <function>display</function>, <function>reshape</function>, and
-                <function>keyboard</function>. The <function>init</function> function is called
-            after OpenGL is initialized. This gives the tutorial file the opportunity to load what
-            it needs into OpenGL before actual rendering takes place. The
-                <function>reshape</function> function is called by FreeGLUT whenever the window is
-            resized. This allows the tutorial to make whatever OpenGL calls are necessary to keep
-            the window's size in sync with OpenGL. The <function>keyboard</function> function is
-            called by FreeGLUT whenever the user presses a key. This gives the tutorial the chance
-            to process some basic user input.</para>
+        <para>The framework file expects 5 functions to be defined: <function>defaults</function>,
+                <function>init</function>, <function>display</function>,
+                <function>reshape</function>, and <function>keyboard</function>. The
+                <function>defaults</function> function is called before FreeGLUT is initialized; it
+            gives the tutorial the chance to modify the window size or the initialization
+            parameters. The <function>init</function> function is called after OpenGL is
+            initialized. This gives the tutorial file the opportunity to load what it needs into
+            OpenGL before actual rendering takes place. The <function>reshape</function> function is
+            called by FreeGLUT whenever the window is resized. This allows the tutorial to make
+            whatever OpenGL calls are necessary to keep the window's size in sync with OpenGL. The
+                <function>keyboard</function> function is called by FreeGLUT whenever the user
+            presses a key. This gives the tutorial the chance to process some basic user
+            input.</para>
         <para>The <function>display</function> function is where the most important work happens.
             FreeGLUT will call this function when it detects that the screen needs to be rendered
             to.</para>
@@ -63,11 +66,12 @@ glutSwapBuffers();</programlisting>
         </example>
         <para>Let us examine this code in detail.</para>
         <para>The first two lines clear the screen. <function>glClearColor</function> is one of
-            those state setting functions; it sets the color to use when clearing the screen. It
-            sets the clearing color to black. <function>glClear</function> does not set OpenGL
-            state; it causes the screen to be cleared. The <literal>GL_COLOR_BUFFER_BIT</literal>
-            parameter means that the clear call will affect the color buffer, causing it to be
-            cleared to the current clearing color.</para>
+            those state setting functions; it sets the color that will be used when clearing the
+            screen. It sets the clearing color to black. <function>glClear</function> does not set
+            OpenGL state; it causes the screen to be cleared. The
+                <literal>GL_COLOR_BUFFER_BIT</literal> parameter means that the clear call will
+            affect the color buffer, causing it to be cleared to the current clearing color we set
+            in the previous function.</para>
         <para>The next line sets the current shader program to be used by all subsequent rendering
             commands. We will go into detail as to how this works later.</para>
         <para>The next three commands all set state. These command set up the coordinates of the
