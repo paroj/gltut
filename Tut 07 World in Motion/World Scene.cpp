@@ -139,7 +139,7 @@ void DrawTree(Framework::MatrixStack &modelMatrix, float fTrunkHeight = 2.0f, fl
 		glUseProgram(UniformColorTint.theProgram);
 		glUniformMatrix4fv(UniformColorTint.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
 		glUniform4f(UniformColorTint.baseColorUnif, 0.0f, 1.0f, 0.0f, 1.0f);
-		g_pConeMesh->Render("all");
+		g_pConeMesh->Render();
 		glUseProgram(0);
 	}
 }
