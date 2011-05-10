@@ -367,7 +367,7 @@ else
         <?dbhtml filename="Tut12 High Dynamic Range.html" ?>
         <title>High Dynamic Range</title>
         <para>In order to answer this question, we must first determine why flashlights appear
-            brighter at night than in the daytime? Much of the answer has to do with our
+            brighter at night than in the daytime. Much of the answer has to do with our
             eyes.</para>
         <para>The pupil is the hole in our eyes that allows light to pass through it; cameras call
             this hole the aperture. The hole is small, relative to the world, which helps with
@@ -614,7 +614,7 @@ else
             we multiplied the sun and ambient intensities by 3 in the last section, we were
             increasing the brightness by 3x. Multiplying the maximum intensity by 3 had the effect
             of reducing the overall brightness by 3x.</para>
-        <para>There's just one problem: tour screen doesn't work that way. Time for a short history
+        <para>There's just one problem: your screen doesn't work that way. Time for a short history
             of television/monitors.</para>
         <para>The original televisions used an electron gun fired at a phosphor surface to generate
             light and images; this is called a <acronym>CRT</acronym> display (cathode ray tube).
@@ -776,9 +776,9 @@ outputColor = pow(accumLighting, gamma);</programlisting>
                     <mathphrase>1/r<superscript>2.2</superscript></mathphrase>
                 </inlineequation>.</para>
             <para>Since this lighting environment was not designed while looking at gamma correct
-                results, let's look at some scene lighting that was developed that way. Turn on
-                gamma correction and set the gamma value to 2.2 (the default if you did not change
-                it). The press <keycombo>
+                results, let's look at some scene lighting that was developed with proper gamma in
+                mind. Turn on gamma correction and set the gamma value to 2.2 (the default if you
+                did not change it). The press <keycombo>
                     <keycap>Shift</keycap>
                     <keycap>L</keycap>
                 </keycombo>:</para>

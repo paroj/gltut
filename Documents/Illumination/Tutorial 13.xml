@@ -450,11 +450,11 @@ void main()
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>The top is the original, the middle is the actual mesh, and the bottom is our new
-                ray traced version.</para>
-            <para>The <function>Impostor</function> function in the fragment shader implements our
-                ray tracing algorithm. More importantly are the changes to the vertex shader's
-                computation of the impostor square:</para>
+            <para>The top is the original impostor, the middle is the actual mesh, and the bottom is
+                our new ray traced impostor.</para>
+            <para>The <function>Impostor</function> function in the new fragment shader implements
+                our ray tracing algorithm. More important than this are the changes to the vertex
+                shader's computation of the impostor square:</para>
             <example>
                 <title>Ray Traced Impostor Square</title>
                 <programlisting language="glsl">const float g_boxCorrection = 1.5;
@@ -882,8 +882,10 @@ uniform Material
                 vertex shader is used to index into the <varname>Mtl.material[]</varname>
                 array.</para>
             <para>Do note that uniform blocks have a maximum size that is hardware-dependent. If we
-                wanted to have a large palette of materials, on the order of several
-                thousand,</para>
+                wanted to have a large palette of materials, on the order of several thousand, then
+                we may exceed this limit. At that point, we would need an entirely new way to handle
+                this data. Once that we haven't learned about yet.</para>
+            <para>Or we could just split it up into multiple draw calls instead of one.</para>
         </section>
     </section>
     
@@ -939,7 +941,7 @@ uniform Material
                 or quadratic surfaces. But impostors are capable of much, much more.</para>
             <para>In effect, impostors allow you to use the fragment shader to just draw stuff to an
                 area of the screen. They can be used to rasterize perfect circles, rather than
-                drawing line-based approximations. Some have even used them to rasterize bezier
+                drawing line-based approximations. Some have even used them to rasterize Bézier
                 curves perfectly.</para>
             <para>There are other impostor-based solutions. Most particle systems (a large and
                 vibrant topic that you should investigate) use flat-cards to draw pictures that move
@@ -1000,9 +1002,10 @@ uniform Material
                     <funcdef>void <function>EmitVertex</function></funcdef>
                 </funcprototype>
             </funcsynopsis>
-            <para>When this function is called, all output variables previously set by the geometry
-                shader are consumed and transformed into a vertex. The value of those variables
-                becomes undefined after calling this function.</para>
+            <para>Available on in the geometry shader, when this function is called, all output
+                variables previously set by the geometry shader are consumed and transformed into a
+                vertex. The value of those variables becomes undefined after calling this
+                function.</para>
         </section>
         
     </section>
