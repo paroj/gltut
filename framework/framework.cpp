@@ -61,9 +61,14 @@ namespace Framework
 		std::ifstream shaderFile(strFilename.c_str());
 		if(!shaderFile.is_open())
 		{
-			fprintf(stderr, "Cannot load the shader file \"%s\" for the %s shader.\n",
-				strFilename.c_str(), GetShaderName(eShaderType));
-			return 0;
+			strFilename = GLOBAL_FILE_DIR + strShaderFilename;
+			shaderFile.open(strFilename.c_str());
+			if(!shaderFile.is_open())
+			{
+				fprintf(stderr, "Cannot load the shader file \"%s\" for the %s shader.\n",
+					strShaderFilename.c_str(), GetShaderName(eShaderType));
+				return 0;
+			}
 		}
 		std::stringstream shaderData;
 		shaderData << shaderFile.rdbuf();
