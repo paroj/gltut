@@ -403,7 +403,7 @@ void display()
 			g_pPlaneMesh->Render();
 
 			glUseProgram(0);
-			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+			glBindBufferBase(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0);
 		}
 
 		{
@@ -443,7 +443,7 @@ void display()
 			glBindVertexArray(0);
 			glUseProgram(0);
 
-			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+			glBindBufferBase(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0);
 		}
 
 		if(g_bDrawLights)

@@ -165,7 +165,7 @@ void Scene::DrawObject( const Framework::Mesh *pMesh, const ProgramData &prog,
 	pMesh->Render();
 	glUseProgram(0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, materialBlockIndex, 0, 0, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, materialBlockIndex, 0);
 }
 
 void Scene::DrawObject(const Framework::Mesh *pMesh, const std::string &meshName, 
@@ -187,7 +187,7 @@ void Scene::DrawObject(const Framework::Mesh *pMesh, const std::string &meshName
 	pMesh->Render(meshName);
 	glUseProgram(0);
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, materialBlockIndex, 0, 0, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, materialBlockIndex, 0);
 }
 
 

@@ -132,17 +132,19 @@ struct MaterialBlock
             <para>When you use <function>glBindBufferRange</function> to bind a UBO, OpenGL requires
                 that the offset parameter, the parameter that tells where the beginning of the
                 uniform block's data is within the buffer object, be aligned to a specific value.
-                What value, you may ask?</para>
-            <para>Welcome to the world of implementation-dependent values. This means that it can
-                (and most certainly will) change depending on what platform you're running on. This
-                code was tested on two different hardware platforms; one has a minimum alignment of
-                64, the other an alignment of 256.</para>
+                That is, the begining of a uniform block within a uniform buffer must be a multiple
+                of a specific value. 0 works, of course, but since we have more than one block
+                within a uniform buffer, they can't all start at the buffer's beginning.</para>
+            <para>What is this value, you may ask? Welcome to the world of implementation-dependent
+                values. This means that it can (and most certainly will) change depending on what
+                platform you're running on. This code was tested on two different hardware
+                platforms; one has a minimum alignment of 64, the other an alignment of 256.</para>
             <para>To retrieve the implementation-dependent value, we must use a previously-unseen
                 function: <function>glGetIntegerv</function>. This is a function that does one
                 simple thing: gets integer values from OpenGL. However, the meaning of the value
                 retrieved depends on the enumerator passed as the first parameter. Basically, it's a
                 way to have state retrieval functions that can easily be extended by adding new
-                enumerators rather than new function entrypoints.</para>
+                enumerators rather than new functions.</para>
             <para>The code that builds the material uniform buffer is as follows:</para>
             <example>
                 <title>Material UBO Construction</title>

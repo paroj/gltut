@@ -373,7 +373,7 @@ void DrawSphere(Framework::MatrixStack &modelMatrix,
 		glUseProgram(0);
 	}
 
-	glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+	glBindBufferBase(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0);
 }
 
 void DrawSphereOrbit(Framework::MatrixStack &modelMatrix,
@@ -472,7 +472,7 @@ void display()
 			g_pPlaneMesh->Render();
 
 			glUseProgram(0);
-			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0, 0, 0);
+			glBindBufferBase(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0);
 		}
 
 		DrawSphere(modelMatrix, glm::vec3(0.0f, 10.0f, 0.0f), 4.0f, MTL_BLUE_SHINY,
