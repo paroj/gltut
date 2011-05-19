@@ -26,10 +26,10 @@
             is that they aren't <emphasis>that</emphasis> important. What you have learned is how to
             think about solving graphics problems without textures.</para>
         <para>Many graphics texts overemphasize the importance of textures. This is mostly a legacy
-            of the past. In the older days, before real programmable hardware, you needed textures
-            to do anything of real importance in graphics rendering. Textures were used to simulate
-            lighting and various other effects. If you wanted to do anything like per-fragment
-            lighting, you had to use textures to do it.</para>
+            of the past. In the older days, before the availability real programmable hardware, you
+            needed textures to do anything of real importance in graphics rendering. Textures were
+            used to simulate lighting and various other effects. If you wanted to do anything like
+            per-fragment lighting, you had to use textures to do it.</para>
         <para>Yes, textures are important for creating details in rendered images. They are
             important for being able to vary material parameters over a polygonal surface. And they
             have value in other areas as well. But there is so much more to rendering than textures,

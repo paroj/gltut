@@ -225,9 +225,10 @@ for vaoName, vao in pairs(options.vaos) do
 end
 
 
-local colladaDoc = wx.wxXmlDocument(inputFile);
+local colladaDoc, test = wx.wxXmlDocument(inputFile);
 assert(colladaDoc, "Could not load XML file \"" .. inputFile .. "\"");
-assert(colladaDoc:GetRoot(), "Could not load XML file \"" .. inputFile .. "\"");
+print(inputFile);
+assert(colladaDoc:IsOk(), "Could not load XML file \"" .. inputFile .. "\"");
 
 local xColladaElem = colladaDoc:GetRoot();
 
