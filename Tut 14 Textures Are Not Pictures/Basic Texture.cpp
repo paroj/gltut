@@ -237,7 +237,7 @@ void init()
 
 	try
 	{
-		g_pObjectMesh = new Framework::Mesh("UnitSphere.xml");
+		g_pObjectMesh = new Framework::Mesh("Infinity.xml");
 		g_pCubeMesh = new Framework::Mesh("UnitCube.xml");
 	}
 	catch(std::exception &except)
@@ -393,7 +393,7 @@ void display()
 			Framework::MatrixStackPusher push(modelMatrix);
 
 			modelMatrix.Translate(glm::vec3(CalcLightPosition()));
-			modelMatrix.Scale(0.5f);
+			modelMatrix.Scale(0.25f);
 
 			glUseProgram(g_Unlit.theProgram);
 			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
@@ -410,6 +410,7 @@ void display()
 
 			modelMatrix.SetIdentity();
 			modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_mousePole.GetLookAtDistance()));
+			modelMatrix.Scale(0.25f);
 
 			glDisable(GL_DEPTH_TEST);
 			glDepthMask(GL_FALSE);

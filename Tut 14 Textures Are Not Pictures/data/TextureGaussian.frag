@@ -71,13 +71,6 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	texCoord.t = Mtl.specularShininess;
 	float gaussianTerm = texture(gaussianTexture, texCoord).r;
 
-/*	
-	float angleNormalHalf = acos();
-	float exponent = angleNormalHalf / Mtl.specularShininess;
-	exponent = -(exponent * exponent);
-	float gaussianTerm = exp(exponent);
-*/
-
 	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
 	
 	vec4 lighting = Mtl.diffuseColor * lightIntensity * cosAngIncidence;
