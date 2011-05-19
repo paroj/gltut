@@ -2499,6 +2499,7 @@
         <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
         <file name="preface.xml"/>
+        <file name="Texturing.xml"/>
         <file name="Tutorials.xml"/>
     </projectTree>
 </project>

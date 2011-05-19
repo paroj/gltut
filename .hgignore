@@ -38,3 +38,4 @@ glloader/*.vcproj
 website/*
 glload/*.sln
 glload/*.vcproj
+*.blend?
