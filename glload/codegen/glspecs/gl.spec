@@ -3957,7 +3957,6 @@ TexImage3D(target, level, internalformat, width, height, depth, border, format, 
 	dlflags		handcode
 	glxflags	client-handcode server-handcode EXT
 	version		1.2
-	deprecated	3.1
 	glxropcode	4114
 	offset		371
 

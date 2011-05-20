@@ -1,9 +1,12 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <memory>
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glimg/glimg.h>
+#include <glimg/ImageCreatorExceptions.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -36,7 +39,7 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-ProgramData g_litShaderProg;
+ProgramData g_litFixedProg;
 ProgramData g_litTextureProg;
 
 UnlitProgData g_Unlit;
@@ -46,6 +49,7 @@ const int g_lightBlockIndex = 1;
 const int g_projectionBlockIndex = 2;
 
 const int g_gaussTexUnit = 0;
+const int g_shineTexUnit = 1;
 
 UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
@@ -86,8 +90,10 @@ ProgramData LoadLitMeshProgram(const std::string &strVertexShader, const std::st
 	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 
 	GLuint gaussianTextureUnif = glGetUniformLocation(data.theProgram, "gaussianTexture");
+	GLuint shininessTextureUnif = glGetUniformLocation(data.theProgram, "shininessTexture");
 	glUseProgram(data.theProgram);
 	glUniform1i(gaussianTextureUnif, g_gaussTexUnit);
+	glUniform1i(shininessTextureUnif, g_shineTexUnit);
 	glUseProgram(0);
 
 	return data;
@@ -95,13 +101,13 @@ ProgramData LoadLitMeshProgram(const std::string &strVertexShader, const std::st
 
 void InitializePrograms()
 {
-	g_litShaderProg = LoadLitMeshProgram("PN.vert", "ShaderGaussian.frag");
-	g_litTextureProg = LoadLitMeshProgram("PN.vert", "TextureGaussian.frag");
+	g_litFixedProg = LoadLitMeshProgram("PN.vert", "FixedShininess.frag");
+	g_litTextureProg = LoadLitMeshProgram("PNT.vert", "TextureShininess.frag");
 
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
 
-Framework::RadiusDef radiusDef = {10.0f, 3.0f, 70.0f, 3.5f, 1.5f};
+Framework::RadiusDef radiusDef = {10.0f, 3.0f, 70.0f, 1.5f, 0.5f};
 glm::vec3 objectCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
@@ -229,6 +235,34 @@ void CreateGaussianTextures()
 	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
+GLuint g_shineTexture = 0;
+
+void CreateShininessTexture()
+{
+	std::auto_ptr<glimg::ImageSet> pImageSet;
+
+	try
+	{
+		pImageSet.reset(glimg::loaders::stb::LoadFromFile("data\\main.tga"));
+		std::auto_ptr<glimg::Image> pImage(pImageSet->GetImage(0, 0, 0));
+
+		glimg::Dimensions dims = pImage->GetDimensions();
+
+		glGenTextures(1, &g_shineTexture);
+		glBindTexture(GL_TEXTURE_2D, g_shineTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, dims.width, dims.height, 0,
+			GL_RGB, GL_UNSIGNED_BYTE, pImage->GetImageData());
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	catch(glimg::ImageCreationException &e)
+	{
+		printf(e.what());
+		throw;
+	}
+}
+
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -294,6 +328,7 @@ void init()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	CreateGaussianTextures();
+	CreateShininessTexture();
 }
 
 bool g_bDrawCameraPos = false;
@@ -367,7 +402,7 @@ void display()
 			glm::mat3 normMatrix(modelMatrix.Top());
 			normMatrix = glm::transpose(glm::inverse(normMatrix));
 
-			ProgramData &prog = g_bUseTexture ? g_litTextureProg : g_litShaderProg;
+			ProgramData &prog = g_bUseTexture ? g_litTextureProg : g_litFixedProg;
 
 			glUseProgram(prog.theProgram);
 			glUniformMatrix4fv(prog.modelToCameraMatrixUnif, 1, GL_FALSE,
@@ -379,7 +414,14 @@ void display()
 			glBindTexture(GL_TEXTURE_2D, g_gaussTextures[g_currTexture]);
 			glBindSampler(g_gaussTexUnit, g_gaussSampler);
 
-			g_pObjectMesh->Render("lit");
+			glActiveTexture(GL_TEXTURE0 + g_shineTexUnit);
+			glBindTexture(GL_TEXTURE_2D, g_shineTexture);
+			glBindSampler(g_shineTexUnit, g_gaussSampler);
+
+			if(g_bUseTexture)
+				g_pObjectMesh->Render("lit-tex");
+			else
+				g_pObjectMesh->Render("lit");
 
 			glBindSampler(g_gaussTexUnit, 0);
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -472,9 +514,9 @@ void keyboard(unsigned char key, int x, int y)
 	case 32:
 		g_bUseTexture = !g_bUseTexture;
 		if(g_bUseTexture)
-			printf("Texture\n");
+			printf("Texture Shininess\n");
 		else
-			printf("Shader\n");
+			printf("Fixed Shininess\n");
 		break;
 	}
 

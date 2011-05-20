@@ -9867,7 +9867,6 @@ return {
 			{
 				["offset"] = [==[371]==],
 				["return"] = [==[void]==],
-				["deprecated"] = [==[3.1]==],
 				["glxropcode"] = [==[4114]==],
 				["version"] = [==[1.2]==],
 				["name"] = [==[TexImage3D]==],

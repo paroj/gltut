@@ -2,6 +2,7 @@
 
 in vec3 vertexNormal;
 in vec3 cameraSpacePosition;
+in vec2 shinTexCoord;
 
 out vec4 outputColor;
 
@@ -30,7 +31,7 @@ uniform Light
 } Lgt;
 
 uniform sampler2D gaussianTexture;
-uniform sampler2D 
+uniform sampler2D shininessTexture;
 
 float CalcAttenuation(in vec3 cameraSpacePosition,
 	in vec3 cameraSpaceLightPos,
@@ -44,7 +45,7 @@ float CalcAttenuation(in vec3 cameraSpacePosition,
 }
 
 vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
-	in vec3 cameraSpaceNormal)
+	in vec3 cameraSpaceNormal, in float specularShininess)
 {
 	vec3 lightDir;
 	vec4 lightIntensity;
@@ -69,7 +70,7 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	vec3 halfAngle = normalize(lightDir + viewDirection);
 	vec2 texCoord;
 	texCoord.s = dot(halfAngle, surfaceNormal);
-	texCoord.t = Mtl.specularShininess;
+	texCoord.t = specularShininess;
 	float gaussianTerm = texture(gaussianTexture, texCoord).r;
 
 	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
@@ -82,11 +83,13 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 
 void main()
 {
+	float specularShininess = texture(shininessTexture, shinTexCoord).r;
+
 	vec4 accumLighting = Mtl.diffuseColor * Lgt.ambientIntensity;
 	for(int light = 0; light < numberOfLights; light++)
 	{
 		accumLighting += ComputeLighting(Lgt.lights[light],
-			cameraSpacePosition, vertexNormal);
+			cameraSpacePosition, vertexNormal, specularShininess);
 	}
 	
 	outputColor = sqrt(accumLighting); //2.0 gamma correction

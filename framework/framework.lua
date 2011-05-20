@@ -28,7 +28,8 @@ function SetupSolution(slnName)
 		objdir "../framework/lib"
 
 		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../glm-0.9.0.7", "../tinyxml", "../framework"}
+			"../glimg/include", "../glm-0.9.0.7", "../tinyxml",
+			"../framework"}
 		
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
@@ -51,22 +52,24 @@ function SetupProject(projName, ...)
 		files {...}
 
 		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../glm-0.9.0.7", "../tinyxml"}
+			"../glimg/include", "../glm-0.9.0.7", "../tinyxml"}
 			
 		links "framework"
 
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
 			flags "Symbols"
-			libdirs {"../glload/lib", "../tinyxml/lib"}
+			libdirs {"../glload/lib", "../glimg/lib", "../tinyxml/lib"}
 			links "glloadD"
+			links "glimgD"
 			links "tinyxml_pmD"
 			targetname(projName .. "D")
 		
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
-			libdirs {"../glload/lib", "../tinyxml/lib"}
+			libdirs {"../glload/lib", "../glimg/lib", "../tinyxml/lib"}
 			links "glload"
+			links "glimg"
 			links "tinyxml_pm"
 			targetname(projName)
 

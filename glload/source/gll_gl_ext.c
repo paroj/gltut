@@ -11864,6 +11864,12 @@ static int gleIntLoadCore_1_2_Version_3_1()
 		__gleDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)gle_CoreStruct.gleVarDrawRangeElements;
 		if(!__gleDrawRangeElements) bIsLoaded = 0;
 	}
+	__gleTexImage3D = (PFNGLTEXIMAGE3DPROC)gleIntGetProcAddress("glTexImage3D");
+	if(!TestPointer((const void*)__gleTexImage3D))
+	{
+		__gleTexImage3D = (PFNGLTEXIMAGE3DPROC)gle_CoreStruct.gleVarTexImage3D;
+		if(!__gleTexImage3D) bIsLoaded = 0;
+	}
 	__gleTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)gleIntGetProcAddress("glTexSubImage3D");
 	if(!TestPointer((const void*)__gleTexSubImage3D))
 	{
@@ -14531,12 +14537,6 @@ static int gleIntLoadCore_1_1_Base()
 static int gleIntLoadCore_1_2_Base()
 {
 	int bIsLoaded = gleIntLoadCore_1_2_Version_3_1();
-	__gleTexImage3D = (PFNGLTEXIMAGE3DPROC)gleIntGetProcAddress("glTexImage3D");
-	if(!TestPointer((const void*)__gleTexImage3D))
-	{
-		__gleTexImage3D = (PFNGLTEXIMAGE3DPROC)gle_CoreStruct.gleVarTexImage3D;
-		if(!__gleTexImage3D) bIsLoaded = 0;
-	}
 	__gleColorTable = (PFNGLCOLORTABLEPROC)gleIntGetProcAddress("glColorTable");
 	if(!TestPointer((const void*)__gleColorTable))
 	{
