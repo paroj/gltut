@@ -11,7 +11,7 @@ uniform Material
 {
 	vec4 diffuseColor;
 	vec4 specularColor;
-	float specularShininess;	//Not used in this shader
+	float specularShininess;
 } Mtl;
 
 struct PerLight
@@ -29,7 +29,7 @@ uniform Light
 	PerLight lights[numberOfLights];
 } Lgt;
 
-uniform sampler1D gaussianTexture;
+uniform sampler2D gaussianTexture;
 
 float CalcAttenuation(in vec3 cameraSpacePosition,
 	in vec3 cameraSpaceLightPos,
@@ -66,7 +66,9 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	vec3 viewDirection = normalize(-cameraSpacePosition);
 	
 	vec3 halfAngle = normalize(lightDir + viewDirection);
-	float texCoord = dot(halfAngle, surfaceNormal);
+	vec2 texCoord;
+	texCoord.s = dot(halfAngle, surfaceNormal);
+	texCoord.t = Mtl.specularShininess;
 	float gaussianTerm = texture(gaussianTexture, texCoord).r;
 
 	gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;

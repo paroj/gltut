@@ -175,33 +175,35 @@ GLuint g_gaussSampler = 0;
 GLuint g_imposterVAO;
 GLuint g_imposterVBO;
 
-float g_specularShininess = 0.2f;
-
 GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
 {
 	std::vector<unsigned char> textureData(shininessResolution * cosAngleResolution);
 
 	std::vector<unsigned char>::iterator currIt = textureData.begin();
-	for(int iCosAng = 0; iCosAng < cosAngleResolution; iCosAng++)
+	for(int iShin = 0; iShin < shininessResolution; iShin++)
 	{
-		float cosAng = iCosAng / (float)(cosAngleResolution - 1);
-		float angle = acosf(cosAng);
-		float exponent = angle / g_specularShininess;
-		exponent = -(exponent * exponent);
-		float gaussianTerm = glm::exp(exponent);
+		float shininess = iShin / (float)(shininessResolution - 1);
+		for(int iCosAng = 0; iCosAng < cosAngleResolution; iCosAng++)
+		{
+			float cosAng = iCosAng / (float)(cosAngleResolution - 1);
+			float angle = acosf(cosAng);
+			float exponent = angle / shininess;
+			exponent = -(exponent * exponent);
+			float gaussianTerm = glm::exp(exponent);
 
-		*currIt = (unsigned char)(gaussianTerm * 255.0f);
-		++currIt;
+			*currIt = (unsigned char)(gaussianTerm * 255.0f);
+			++currIt;
+		}
 	}
 
 	GLuint gaussTexture;
 	glGenTextures(1, &gaussTexture);
-	glBindTexture(GL_TEXTURE_1D, gaussTexture);
-	glTexImage1D(GL_TEXTURE_1D, 0, GL_R8, cosAngleResolution, 0,
+	glBindTexture(GL_TEXTURE_2D, gaussTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, cosAngleResolution, shininessResolution, 0,
 		GL_RED, GL_UNSIGNED_BYTE, &textureData[0]);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAX_LEVEL, 0);
-	glBindTexture(GL_TEXTURE_1D, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return gaussTexture;
 }
@@ -265,7 +267,7 @@ void init()
 	MaterialBlock mtl;
 	mtl.diffuseColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f);
 	mtl.specularColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f) * 0.4f;
-	mtl.specularShininess = g_specularShininess;
+	mtl.specularShininess = 0.2f;
 
 	glGenBuffers(1, &g_materialUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_materialUniformBuffer);
@@ -374,13 +376,13 @@ void display()
 				glm::value_ptr(normMatrix));
 
 			glActiveTexture(GL_TEXTURE0 + g_gaussTexUnit);
-			glBindTexture(GL_TEXTURE_1D, g_gaussTextures[g_currTexture]);
+			glBindTexture(GL_TEXTURE_2D, g_gaussTextures[g_currTexture]);
 			glBindSampler(g_gaussTexUnit, g_gaussSampler);
 
 			g_pObjectMesh->Render("lit");
 
 			glBindSampler(g_gaussTexUnit, 0);
-			glBindTexture(GL_TEXTURE_1D, 0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
 			glUseProgram(0);
 			glBindBufferBase(GL_UNIFORM_BUFFER, g_materialBlockIndex, 0);
