@@ -418,7 +418,7 @@ namespace Framework
 		if(pCmdElem->QueryStringAttribute("cmd", &strCmdName) != TIXML_SUCCESS)
 			throw std::runtime_error("Missing 'cmd' attribute in an 'arrays' or 'indices' element.");
 
-		int iArrayCount = ARRAY_COUNT(g_allAttributeTypes);
+		int iArrayCount = ARRAY_COUNT(g_allPrimitiveTypes);
 		const PrimitiveType *pPrim = std::find_if(
 			g_allPrimitiveTypes, &g_allPrimitiveTypes[iArrayCount],
 			std::bind1st(PrimitiveTypeFinder(), strCmdName));
