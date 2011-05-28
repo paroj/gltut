@@ -334,7 +334,7 @@ void init()
 bool g_bDrawCameraPos = false;
 bool g_bDrawLights = true;
 bool g_bUseTexture = false;
-int g_currTexture = 0;
+int g_currTexture = NUM_GAUSS_TEXTURES - 1;
 
 Framework::Timer g_lightTimer = Framework::Timer(Framework::Timer::TT_LOOP, 6.0f);
 

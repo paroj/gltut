@@ -22,9 +22,10 @@
             generate a lighting model. In the very last tutorial, we were able to convincingly
             render a mathematically perfect representation of a sphere simply by rendering two
             triangles.</para>
-        <para>All without textures. Thus, the first lesson this book has to teach you about textures
-            is that they aren't <emphasis>that</emphasis> important. What you have learned is how to
-            think about solving graphics problems without textures.</para>
+        <para>All of this has been done without textures. Thus, the first lesson this book has to
+            teach you about textures is that they aren't <emphasis>that</emphasis> important. What
+            you have learned is how to think about solving graphics problems without
+            textures.</para>
         <para>Many graphics texts overemphasize the importance of textures. This is mostly a legacy
             of the past. In the older days, before the availability real programmable hardware, you
             needed textures to do anything of real importance in graphics rendering. Textures were
@@ -35,9 +36,10 @@
             have value in other areas as well. But there is so much more to rendering than textures,
             and this is especially true with programmable hardware.</para>
         <para>A texture is a look-up table; an array. There is a lot of bits of minutiae about
-            accessing them, but at their core, a texture is just a large array of some
-            dimensionality that you can access from a shader. Perhaps the most important lesson you
-            could learn is that textures are tools. Use them where appropriate, but do not let them
-            become your primary solution to any rendering problem.</para>
+            accessing them, but at their core a texture is just a large array of some dimensionality
+            that you can access from a shader. Perhaps the most important lesson you could learn is
+            that textures are tools. Use them where appropriate, but do not let them become your
+            primary solution to any rendering problem.</para>
     </partintro>
+    <xi:include href="Texturing/Tutorial 14.xml"/>
 </part>

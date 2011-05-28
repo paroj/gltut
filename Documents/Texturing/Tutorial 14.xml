@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 14.html" ?>
+    <title>Textures are not Pictures</title>
+    <para>Perhaps the most common misconception about textures is that textures are pictures: images
+        of skin, rock, or something else that you can look at in an image editor. While it is true
+        that many textures are pictures of something, it would be wrong to limit your thoughts in
+        terms of textures to just being pictures. Sadly, this way of thinking about textures is
+        reinforced by OpenGL, since many functions around textures have <quote>image</quote>
+        somewhere in them.</para>
+    <para>The best way to avoid this kind of thinking is to have our first textures be of those
+        non-picture types of textures. So as our introduction to the world of textures, let us
+        define a problem space that textures can solve without having to be pictures.</para>
+    <para>We have seen that the Gaussian specular function is a pretty useful specular function.
+        It's shininess value is a nice (0, 1] value, and it produces pretty good results visually.
+        It has fewer artifacts than the less complicated Blinn-Phong function. But there is one
+        significant problem: Gaussian is much more expensive to compute. Blinn-Phong requires a
+        single power-function; Gaussian requires not only exponentiation, but also an inverse-cosine
+        function. This is in addition to other operations like squaring the exponent.</para>
+    <para>Let us say that we have determined that the Gaussian specular function is good, but too
+        expensive for our needs.<footnote>
+            <para>This is for demonstration purposes only. You should not undertake this process
+                unless you have determined with proper profiling that the specular function is a
+                performance problem that you should work to alleviate.</para>
+        </footnote> So we want to find a way to get the equivalent quality of Gaussian specular but
+        with more performance. What are our options?</para>
+    <para>A common tactic in optimizing math functions is a <glossterm>look-up table</glossterm>.
+        These are arrays of some dimensionality that represents a function. For any function <inlineequation>
+            <mathphrase>F(x)</mathphrase>
+        </inlineequation>, where x is valid over some range [a, b], you can define a table that
+        stores the results of the function at various points along the valid range of x. Obviously
+        if x has an infinite range, there is a problem. But if x has a finite range, one can decide
+        to take some number of values on that range and store them in a table.</para>
+    <para>The Gaussian specular function takes three parameters: the surface normal, the half-angle
+        vector, and the specular shininess of the surface. However, if we redefine the specular
+        function in terms of the dot-product of the surface normal and the half-angle vector, we can
+        reduce the number of parameters to two. Also, the specular shininess has been a constant
+        value across a mesh. So, for any given mesh, the specular function is a function of one
+        parameter: the dot-product between the half-angle vector and the surface normal.</para>
+    <!--TODO: Equation for Gaussian, with a constant shininess and based on the dot-product.-->
+    <para>So how do we get a look-up table to the shader? We could use the obvious method; build a
+        uniform buffer containing an array of floats. We would multiply the dot-product by the
+        number of entries in the table and pick one based on that value. By now, you should be able
+        to code this.</para>
+    <para>But lets say that we want another alternative; what else can we do? We can put our look-up
+        table in a texture.</para>
+    <section>
+        <?dbhtml filename="Tut14 The First Texture.html" ?>
+        <title>The First Texture</title>
+        <para>A <glossterm>texture</glossterm> is an object that contains one or more arrays of some
+            dimensionality. The storage for a texture is owned by OpenGL and the GPU, much like they
+            own the storage for buffer objects. Textures can be accessed in a shader, which fetches
+            data from the texture at a specific location within the arrays. The process of fetching
+            data from a texture is called <glossterm>sampling.</glossterm></para>
+        <para>The arrays within a texture are called <glossterm>images</glossterm>; this is a legacy
+            term, but it is what they are called. Textures have a <glossterm>texture
+                type</glossterm>; this defines characteristics of the texture as a whole, like the
+            number of dimensions of the images and a few other special things.</para>
+        <para>We first use textures in the <phrase role="propername">Basic Texture</phrase>
+            tutorial. This tutorial shows a scene containing a golden infinity symbol, with a
+            directional light and a second moving point light source.</para>
+        <!--TODO: Picture of the tutorial.-->
+        <para>The camera and the object can be rotated, with the left and right mouse buttons
+            respectively. Pressing the <keycap>Spacebar</keycap> toggles between shader-based
+            Gaussian specular and texture-based specular. The <keycap>1</keycap> through
+                <keycap>4</keycap> keys switch to progressively larger textures, so that you can see
+            the effects that higher resolution look-up tables has on the visual result.</para>
+        <section>
+            <title>Building Textures</title>
+            <para>In order to understand how textures work, let's follow the data from our initial
+                generation of the lookup tables to how the GLSL shader accesses them.</para>
+            <para/>
+        </section>
+        <para/>
+        <para/>
+        <para/>
+        <para/>
+        <para>Textures and buffer objects have many similarities. They both represent memory owned
+            by OpenGL. The user can modify this memory with various functions. Besides the fact that
+            a texture object can contain multiple images, the major difference is the arrangement of
+            data as it is stored by the GPU.</para>
+        <para>Buffer objects are linear arrays of memory. The data stored by OpenGL must be
+            binary-identical to how the user specifies the data with
+                <function>glBuffer(Sub)Data</function> calls. The format of the data stored in a
+            buffer object is defined external to the buffer object itself. Buffer objects used for
+            vertex attributes have their formats defined by glVertexAttribPointer. The format for
+            buffer objects that store uniform data is defined by the arrangement of types in a GLSL
+            uniform block. In all cases, it is the <emphasis>user's</emphasis> responsibility to
+            make sure that the data stored there uses the format that OpenGL was told to
+            expect.</para>
+        <para>Textures do not work this way. The format of an image stored in a texture is
+            controlled by OpenGL itself. The user tells it what format to use, but the specific
+            arrangements of bytes is up to OpenGL. This allows different hardware to store textures
+            in whatever way is most optimal for accessing them.</para>
+    </section>
+    <section>
+        <?dbhtml filename="Tut14 Interpolation Redux.html" ?>
+        <title>Interpolation Redux</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut14 Texture Mapping.html" ?>
+        <title>Texture Mapping</title>
+        <para/>
+    </section>
+    
+    <section>
+        <?dbhtml filename="Tut14 In Review.html" ?>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Textures are objects that store one or more arrays of data of some
+                    dimensionality. They can be created and filled with data from OpenGL. Shaders
+                    can reference them with sampler types, and they can access them using texturing
+                    functions.</para>
+            </listitem>
+            <listitem>
+                <para>The data in textures can represent arbitrary information. They can be used to
+                    vary a material parameter across a surface, replace a complex function with a
+                    look-up table, or anything else you might need a multi-dimensional array of
+                    values for.</para>
+            </listitem>
+            <listitem>
+                <para>Vertex or geometry shader outputs interpolated across polygons can be
+                    interpolated linearly in window space or linearly in camera space. The GLSL
+                    interpolation qualifiers control which kind of interpolation happens.</para>
+            </listitem>
+            <listitem>
+                <para>Textures can be associated with points on a surface by giving those vertex
+                    attributes texture coordinates. The texture coordinate is interpolated across
+                    the triangle's surface and then used to fetch values from a texture. This is but
+                    a part of the utility of textures.</para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>If you look at the look-up table for our specular function, you will see
+                        that much of it is very dark, if not actually at 0.0. Even when the dot
+                        product is close to 1.0, it doesn't take very far before the specular value
+                        becomes negligible. One way to improve our look-up table without having to
+                        use larger textures is to change how we index the texture. If we index the
+                        texture by the square-root of the dot-product, then there will be more room
+                        in the table for the values close to 1.0, and less for the values close to
+                        0.0. This is similar to how gamma correction works. Implement this by
+                        storing the values in the table based on the square-root of the dot-product,
+                        and then take the square-root of the dot-product in the shader before
+                        accessing the texture.</para>
+                </listitem>
+                <listitem>
+                    <para/>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Further Research</title>
+            <para/>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <para/>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <para/>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Tut14 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm>look-up table</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texture</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>sampling</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>image</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texture type</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+    </section>
+</chapter>

@@ -110,7 +110,7 @@ out vec2 mapping;
 uniform Projection
 {
 	mat4 cameraToClipMatrix;
-};Q
+};
 
 uniform float sphereRadius;
 uniform vec3 cameraSpherePos;
