@@ -3,11 +3,266 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
-    <?dbhtml filename="Optimization.html" ?>
-    <title>Optimizations</title>
-    <para>This appendix is not intended to be a detailed view of possible graphics optimizations.
-        Instead, it is a high-level view of important information for optimizing rendering
-        applications. There are also no source code samples for this.</para>
+    <?dbhtml filename="Basic Optimization.html" ?>
+    <title>Basic Optimization</title>
+    <para>Optimization is far too large of a subject to cover adequately in a mere appendix.
+        Optimizations tend to be specific to particular algorithms, and they usually involve
+        tradeoffs with memory. That is, one can make something run faster by taking up memory. And
+        even then, optimizations should only be made when one has proper profiling to determine
+        where performance is lacking.</para>
+    <para>This appendix will instead cover the most basic optimizations. These are not guaranteed to
+        improve performance in any particular program, but they almost never hurt. They are also
+        things you can implement relatively easily. These of these as the default standard practice
+        you should start with before performing real optimizations. For the sake of clarity, most of
+        the code in this book did not use these practices, so many of them will be new.</para>
+    <section>
+        <title>Vertex Format</title>
+        <para>Interleave vertex arrays for objects where possible. Obviously, if you need to
+            overwrite some vertex data frequently while other data remains static, then you will
+            need to separate that data. But unless you have some specific need to do so, interleave
+            your vertex data.</para>
+        <para>Equally importantly, use the smallest vertex data possible. In the tutorials, the
+            vertex data was almost always 32-bit floats. You should only use 32-bit floats when you
+            absolutely need that much precision.</para>
+        <para>The biggest key to this is the use of normalized integer values for attributes. Here
+            is the definition of <function>glVertexAttribPointer</function>:</para>
+        <funcsynopsis>
+            <funcprototype>
+                <funcdef>void <function>glVertexAttribPointer</function></funcdef>
+                <paramdef>GLuint <parameter>index</parameter></paramdef>
+                <paramdef>GLint <parameter>size</parameter></paramdef>
+                <paramdef>GLenum <parameter>type</parameter></paramdef>
+                <paramdef>GLboolean <parameter>normalized</parameter></paramdef>
+                <paramdef>GLsizei <parameter>stride</parameter></paramdef>
+                <paramdef>GLvoid *<parameter>pointer</parameter></paramdef>
+            </funcprototype>
+        </funcsynopsis>
+        <para>If <varname>type</varname> is an integer attribute, like
+                <varname>GL_UNSIGNED_BYTE</varname>, then setting <varname>normalized</varname> to
+                <literal>GL_TRUE</literal> will mean that OpenGL interprets the integer value as
+            normalized. It will automatically convert the integer 255 to 1.0, and so forth. If the
+            normalization flag is false instead, then it will convert the integers directly to
+            floats: 255 becomes 255.0, etc. Signed values can be normalized as well; GL_BYTE with
+            normalization will map 127 to 1.0, -128 to -1.0, etc.</para>
+        <formalpara>
+            <title>Colors</title>
+            <para>Color values are commonly stored as 4 unsigned normalized bytes. This is far
+                smaller than using 4 32-bit floats, but the loss of precision is almost always
+                negligible. To send 4 unsigned normalized bytes, use:</para>
+        </formalpara>
+        <programlisting language="cpp">glVertexAttribPointer(#, 4, GL_UNSIGNED_BYTE, GL_TRUE, ...);</programlisting>
+        <para>The best part is that all of this is free; it costs no actual performance. Note
+            however that 32-bit integers cannot be normalized.</para>
+        <para>Sometimes, color values need higher precision than 8-bits, but less than 16-bits. If a
+            color is a linear RGB color, it is often desirable to give them greater than 8-bit
+            precision. If the alpha of the color is negligible or non-existent, then a special
+                <varname>type</varname> can be used. This type is
+                <literal>GL_UNSIGNED_INT_2_10_10_10_REV</literal>. It takes 32-bit unsigned
+            normalized integers and pulls the four components of the attributes out of each integer.
+            This type can only be used with normalization:</para>
+        <programlisting language="cpp">glVertexAttribPointer(#, 4, GL_UNSIGNED_BYTE, GL_TRUE, ...);</programlisting>
+        <para>The most significant 2 bits of each integer is the Alpha. The next 10 bits are the
+            Blue, then Green, and finally red. It is equivalent to this struct in C:</para>
+        <programlisting language="cpp">struct RGB10_A2
+{
+  unsigned int alpha    : 2;
+  unsigned int blue     : 10;
+  unsigned int green    : 10;
+  unsigned int red      : 10;
+};</programlisting>
+        <formalpara>
+            <title>Normals</title>
+            <para>Another attribute where precision isn't of paramount importance is normals. If the
+                normals are normalized, and they always should be, the coordinates are always going
+                to be on the [-1, 1] range. So signed normalized integers are appropriate here.
+                8-bits of precision are sometimes enough, but 10-bit precision is going to be an
+                improvement. 16-bit precision, <literal>GL_SHORT</literal>, may be overkill, so
+                stick with <literal>GL_INT_2_10_10_10_REV</literal>. Because this format provides 4
+                values, you will still need to use 4 as the size of the attribute, but you can still
+                use <type>vec3</type> in the shader as the normal's input variable.</para>
+        </formalpara>
+        <formalpara>
+            <title>Texture Coordinates</title>
+            <para>Two-dimensional texture coordinates do not typically need 32-bits of precision. 8
+                and 10-bit precision are usually not good enough, but 16-bit unsigned normalized
+                integers are often sufficient. If texture coordinates range outside of [0, 1], then
+                normalization will not be sufficient. In these cases, there is an alternative to
+                32-bit floats: 16-bit floats.</para>
+        </formalpara>
+        <para>The hardest part of dealing with 16-bit floats is that C/C++ does not deal with very
+            well. There is no native 16-bit float type, unlike virtually every other type. Even the
+            10-bit format can be built using bit selectors in structs, as above. Generating a 16-bit
+            float from a 32-bit float requires care, as well as an understanding of how
+            floating-point values work. The details of that are beyond the scope of this work,
+            however.</para>
+        <formalpara>
+            <title>Positions</title>
+            <para>In general, positions are the least likely attribute to be easily optimized
+                without consequence. 16-bit floats can be used, but these are restricted to a range
+                of approximately [-6550.4, 6550.4]. They also lack some precision, which may be
+                necessary depending on the size and detail of the object in model space.</para>
+        </formalpara>
+        <para>If 16-bit floats are insufficient, there are things that can be done. The process is
+            as follows:</para>
+        <orderedlist>
+            <listitem>
+                <para>When loading the mesh data, find the bounding volume of the mesh in model
+                    space. To do this, find the maximum and minimum values in the X, Y and Z
+                    directions independently. This represents a rectangle in model space that
+                    contains all of the vertices. This rectangle is defined by two vectors: the
+                    maximum vector (containing the max X, Y and Z values), and the minimum vector.
+                    These are named <varname>max</varname> and <varname>min</varname>.</para>
+            </listitem>
+            <listitem>
+                <para>Compute the center point of this region:</para>
+                <programlisting language="cpp">glm::vec3 center = (max + min) / 2.0f;</programlisting>
+            </listitem>
+            <listitem>
+                <para>Compute half of the size (width, height, depth) of the region:</para>
+                <programlisting language="cpp">glm::vec3 halfSize = (max - min) / 2.0f;</programlisting>
+            </listitem>
+            <listitem>
+                <para>For each position in the mesh, compute a normalized version by subtracting the
+                    center from it, then dividing it by half the size. As follows:</para>
+                <programlisting language="cpp">glm::vec3 newPosition = (position - center) / halfSize;</programlisting>
+            </listitem>
+            <listitem>
+                <para>For each new position, convert it to a signed, normalized integer by
+                    multiplying it by 32767:</para>
+                <programlisting>unsigned short normX = (unsigned short)(newPosition.x * 32767.0f);
+unsigned short normY = (unsigned short)(newPosition.y * 32767.0f);
+unsigned short normZ = (unsigned short)(newPosition.z * 32767.0f);</programlisting>
+                <para>These three coordinates are then stored as the new position data in the buffer
+                    object.</para>
+            </listitem>
+            <listitem>
+                <para>Keep the <varname>center</varname> and <varname>halfSize</varname> variables
+                    stored with your mesh data. When computing the model-space to camera-space
+                    matrix for that mesh, add one final matrix to the top. This matrix will perform
+                    the inverse operation from the one that we used to compute the normalized
+                    values:</para>
+                <programlisting language="cpp">matrixStack.Translate(center);
+matrixStack.Scale(halfSize);</programlisting>
+                <para>This final matrix should <emphasis>not</emphasis> be applied to the normal's
+                    matrix. Compute the normal matrix <emphasis>before</emphasis> applying the final
+                    step above. So if you were not using a separate matrix for normals (you did not
+                    have non-uniform scales in your model-to-camera matrix), you will need to use
+                    one now. So this may make your data bigger or make your shader run slightly
+                    slower.</para>
+            </listitem>
+        </orderedlist>
+        <formalpara>
+            <title>Alignment</title>
+            <para>One additional rule you should always follow is this: make sure that all
+                attributes begin on a 4-byte boundary. This is true for attributes that are smaller
+                than 4-bytes, such as a 3-vector of 8-bit values. While OpenGL will allow you to use
+                arbitrary alignments, hardware may have problems making it work. So if you make your
+                position data 16-bit floats or signed normalized integers, you will still waste 2
+                bytes from every position. You may want to try making your position values
+                4-dimensional values and using the last value for something useful.</para>
+        </formalpara>
+    </section>
+    <section>
+        <title>Image Formats</title>
+        <para>As with vertex formats, try to use the smallest format that you can get away with.
+            Also, as with vertex formats, what you can get away with tends to be defined by what you
+            are trying to store in the texture.</para>
+        <formalpara>
+            <title>Normals</title>
+            <para>Textures containing normals can use <literal>GL_RGB10_A2_SNORM</literal>, which is
+                the texture equivalent to the 10-bit signed normalized format we used for attribute
+                normals. However, this can be made more precise if the normals are for a
+                tangent-space bump map. Since the tangent-space normals always have a positive Z
+                coordinate, and since the normals are normalized, the actual Z value can be computed
+                from the other two. So you only need to store 2 values;
+                    <literal>GL_RG16_SNORM</literal> is sufficient for these needs. To compute the
+                third value, do this:</para>
+        </formalpara>
+        <programlisting language="glsl">vec2 norm2d = texture(tangentBumpTex, texCoord).xy;
+vec3 tanSpaceNormal = sqrt(1.0 - dot(norm2d, norm2d));</programlisting>
+        <para>Obviously this costs some performance, so the added precision may not be worthwhile.
+            On the plus side, you will not have to do any normalization of the tangent-space
+            normal.</para>
+        <para>The <literal>GL_RG16_SNORM</literal> format can be made even smaller with texture
+            compression. The <literal>GL_COMPRESSED_SIGNED_RG_RGTC1</literal> compressed texture
+            format is a 2-channel signed integer format. It only takes up 8-bits per pixel.</para>
+        <formalpara>
+            <title>Floating-point Intensity</title>
+            <para>There are two unorthodox formats for floating-point textures, both of which have
+                important uses. The <literal>GL_R11F_G11F_B10F</literal> format is potentially a
+                good format to use for HDR render targets. As the name suggests, it takes up only
+                32-bits. The downside is the relative loss of precision compared to
+                    <literal>GL_RGB16F</literal>. They can store approximately the same magnitude of
+                values, but the smaller format loses some precision. This may or may not impact the
+                overall visual quality of the scene. It should be fairly simple to test to see which
+                is better.</para>
+        </formalpara>
+        <para>The <literal>GL_RGB9_E5</literal> format is used for input floating-point textures. If
+            you have a texture that represents light intensity in HDR situations, this format can be
+            quite handy. The way it works is that each of the RGB colors get 9 bits for their
+            values, but they all share the same exponent. This has to do with how floating-point
+            numbers work, but what it boils down to is that the values have to be relatively close
+            to one another in magnitude. They do not have to be that close; there's still some
+            leeway. Values that are too small relative to larger ones become zero. This is
+            oftentimes an acceptable tradeoff, depending on the particular magnitude in
+            question.</para>
+        <para>This format is useful for textures that are generated offline by tools. You cannot
+            render to a texture in this format.</para>
+        <formalpara>
+            <title>Colors</title>
+            <para>Storing colors that are clamped to [0, 1] can be done with good precision with
+                    <literal>GL_RGBA8</literal> or <literal>GL_SRGB8_ALPHA8</literal> as needed.
+                However, compressed texture formats are available. The S3TC formats are good choices
+                if the compression works reasonably well for the texture. There are sRGB versions of
+                the S3TC formats as well.</para>
+        </formalpara>
+        <para>The difference in the various S3TC formats are how much alpha you need. The choices
+            are as follows:</para>
+        <glosslist>
+            <glossentry>
+                <glossterm>GL_COMPRESSED_RGB_S3TC_DXT1_EXT</glossterm>
+                <glossdef>
+                    <para>No alpha.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT1_EXT</glossterm>
+                <glossdef>
+                    <para>Binary alpha. Either zero or one for each texel. The RGB color for any
+                        alpha of zero will also be zero.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT3_EXT</glossterm>
+                <glossdef>
+                    <para>4-bits of alpha per pixel.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT5_EXT</glossterm>
+                <glossdef>
+                    <para>Alpha is compressed in an S3TC block, much like RG texture
+                        compression.</para>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+        <para>If a variable alpha matters for a texture, the primary difference will be between DXT3
+            and DXT5. DXT5 has the potential for better results, but if the alpha does not compress
+            well with the S3TC algorithm, the results will be rather worse.</para>
+    </section>
+    <section>
+        <title>Textures</title>
+        <para>Mipmapping improves performance when textures are mapped to regions that are larger in
+            texel space than in window space. That is, when texture minification happens. Mipmapping
+            improves performance because it keeps the locality of texture accesses near each other.
+            Texture hardware is optimized for accessing regions of textures, so improving locality
+            of texture data will help performance.</para>
+        <para>How much this matters depends on how the texture is mapped to the surface. Static
+            mapping with explicit texture coordinates, or with linear computation based on surface
+            properties, can use mipmapping to improve locality of texture access. For more unusual
+            mappings or for pure-lookup tables, mipmapping may not help locality at all.</para>
+        <para/>
+    </section>
     <section>
         <title>Finding the Bottleneck</title>
         <para>The absolute best tool to have in your repertoire for optimizing your rendering is
@@ -292,9 +547,9 @@ Vertex vertArray[20];</programlisting>
             <para>If we did a memcpy between <varname>vertArray</varname> and a buffer object, and
                 we wanted to set the attributes to pull from this data, we could do so using the
                 stride and offsets to position things properly.</para>
-            <programlisting>glVertexAttribPointer(0, 3, GLfloat, GLfalse, 20, 0);
-glVertexAttribPointer(1, 3, GLubyte, GLtrue, 20, 12);
-glVertexAttribPointer(3, 3, GLushort, GLtrue, 20, 16);</programlisting>
+            <programlisting>glVertexAttribPointer(0, 3, GL_FLOAT, GLfalse, 20, 0);
+glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 20, 12);
+glVertexAttribPointer(3, 3, GL_UNSIGNED_SHORT, GL_TRUE, 20, 16);</programlisting>
             <para>The fifth argument is the stride. The stride is the number of bytes from the
                 beginning of one instance of this attribute to the beginning of another. The stride
                 here is set to <literal>sizeof</literal>(<type>Vertex</type>). C++ defines that the
