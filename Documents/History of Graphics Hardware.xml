@@ -226,11 +226,11 @@
             transform vectors to texture space. Cubemaps allow you to do arbitrary reflections, but
             computing reflection directions per-vertex requires interpolating reflection normals,
             which doesn't work very well over large polygons.</para>
-        <para>This also saw the introduction of something called a rectangle texture. This was
-            something of an odd duck, that still remains in current day. It was a way of creating a
-            texture of arbitrary size; until then, textures were limited to powers of two in size
-            (though the sizes did not have to be the same). The texture coordinates were not
-            normalized either; they were in texture space values.</para>
+        <para>This also saw the introduction of something called a rectangle texture. This texture
+            type is something of an odd duck that still remains in current day. It was a way of
+            creating a texture of arbitrary size; until then, textures were limited to powers of two
+            in size (though the sizes did not have to be the same). The texture coordinates for
+            rectangle textures are not normalized; they were in texture space values.</para>
         <sidebar>
             <title>The GPU Divide</title>
             <para>When NVIDIA released the GeForce 256, they coined the term <quote>Geometry
