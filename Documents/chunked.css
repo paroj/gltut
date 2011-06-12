@@ -23,6 +23,9 @@ div.example p.title
 
 pre.programlisting
 {
+	max-height: 204pt;
+	overflow: auto;
+
     font-family: consolas, monospace;
     font-size: 12pt;
     margin-left: 5%;
