@@ -13,5 +13,6 @@ SetupProject("Tut 14 Material Texture", "Material Texture.cpp",
 	"data/PN.vert",
 	"data/PNT.vert",
 	"data/FixedShininess.frag",
-	"data/TextureShininess.frag")
+	"data/TextureShininess.frag",
+	"data/TextureCompute.frag")
 	

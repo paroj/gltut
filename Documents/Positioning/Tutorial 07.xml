@@ -828,9 +828,10 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                     <function>glBindBufferRange</function> is called immediately after creating the
                 buffer object.</para>
             <para>The global constant <varname>g_iGlobalMatricesBindingIndex</varname> is, as the
-                name suggests, global. By convention, all programs get their buffer data from here.
-                If you want to change where programs get their uniform blocks from, you only need to
-                change what uniform buffer is bound to that location.</para>
+                name suggests, global. By convention, all programs get their buffer data from this
+                index. If you want to bind a different buffer to the global matrix binding, you only
+                need to bind that buffer object to that binding index. You do not need to change any
+                state in any program object.</para>
             <para>This means that you can establish conventions about where certain kinds of uniform
                 blocks are stored among the list of context binding points. You do not need to
                 change each program to affect them all.</para>

@@ -61,6 +61,7 @@ namespace Framework
 		std::ifstream shaderFile(strFilename.c_str());
 		if(!shaderFile.is_open())
 		{
+			shaderFile.clear();
 			strFilename = GLOBAL_FILE_DIR + strShaderFilename;
 			shaderFile.open(strFilename.c_str());
 			if(!shaderFile.is_open())

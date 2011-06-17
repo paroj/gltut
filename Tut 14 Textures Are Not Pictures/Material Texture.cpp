@@ -39,8 +39,16 @@ struct UnlitProgData
 float g_fzNear = 1.0f;
 float g_fzFar = 1000.0f;
 
-ProgramData g_litFixedProg;
-ProgramData g_litTextureProg;
+enum ShaderMode
+{
+	MODE_FIXED,
+	MODE_TEXTURED,
+	MODE_TEXTURED_COMPUTE,
+
+	NUM_SHADER_MODES,
+};
+
+ProgramData g_Programs[NUM_SHADER_MODES];
 
 UnlitProgData g_Unlit;
 
@@ -69,7 +77,7 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	return data;
 }
 
-ProgramData LoadLitMeshProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
+ProgramData LoadStandardProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
 	std::vector<GLuint> shaderList;
 
@@ -99,15 +107,31 @@ ProgramData LoadLitMeshProgram(const std::string &strVertexShader, const std::st
 	return data;
 }
 
+struct ShaderPairs
+{
+	const char *vertShader;
+	const char *fragShader;
+};
+
+ShaderPairs g_shaderPairs[NUM_SHADER_MODES] =
+{
+	{"PN.vert", "FixedShininess.frag"},
+	{"PNT.vert", "TextureShininess.frag"},
+	{"PNT.vert", "TextureCompute.frag"},
+};
+
 void InitializePrograms()
 {
-	g_litFixedProg = LoadLitMeshProgram("PN.vert", "FixedShininess.frag");
-	g_litTextureProg = LoadLitMeshProgram("PNT.vert", "TextureShininess.frag");
+	for(int prog = 0; prog < NUM_SHADER_MODES; prog++)
+	{
+		g_Programs[prog] = LoadStandardProgram(g_shaderPairs[prog].vertShader,
+			g_shaderPairs[prog].fragShader);
+	}
 
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
 
-Framework::RadiusDef radiusDef = {10.0f, 3.0f, 70.0f, 1.5f, 0.5f};
+Framework::RadiusDef radiusDef = {10.0f, 1.5f, 70.0f, 1.5f, 0.5f};
 glm::vec3 objectCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
@@ -168,10 +192,12 @@ struct MaterialBlock
 
 Framework::Mesh *g_pObjectMesh = NULL;
 Framework::Mesh *g_pCubeMesh = NULL;
+Framework::Mesh *g_pPlaneMesh = NULL;
 
 GLuint g_lightUniformBuffer = 0;
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_materialUniformBuffer = 0;
+int g_materialOffset = 0;
 
 const int NUM_GAUSS_TEXTURES = 4;
 GLuint g_gaussTextures[NUM_GAUSS_TEXTURES];
@@ -225,7 +251,7 @@ void CreateGaussianTextures()
 	for(int loop = 0; loop < NUM_GAUSS_TEXTURES; loop++)
 	{
 		int cosAngleResolution = CalcCosAngResolution(loop);
-		g_gaussTextures[loop] = CreateGaussianTexture(cosAngleResolution, 32);
+		g_gaussTextures[loop] = CreateGaussianTexture(cosAngleResolution, 128);
 	}
 
 	glGenSamplers(1, &g_gaussSampler);
@@ -263,6 +289,27 @@ void CreateShininessTexture()
 	}
 }
 
+const int NUM_MATERIALS = 2;
+
+void SetupMaterials()
+{
+	Framework::UniformBlockArray<MaterialBlock, NUM_MATERIALS> mtls;
+
+	MaterialBlock mtl;
+	mtl.diffuseColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f);
+	mtl.specularColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f) * 0.4f;
+	mtl.specularShininess = 0.2f;
+	mtls[0] = mtl;
+
+	mtl.diffuseColor = glm::vec4(0.01f, 0.01f, 0.01f, 1.0f);
+	mtl.specularColor = glm::vec4(0.99f, 0.99f, 0.99f, 1.0f);
+	mtl.specularShininess = 0.2f;
+	mtls[1] = mtl;
+
+	g_materialUniformBuffer = mtls.CreateBufferObject();
+	g_materialOffset = mtls.GetArrayOffset();
+}
+
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -273,6 +320,7 @@ void init()
 	{
 		g_pObjectMesh = new Framework::Mesh("Infinity.xml");
 		g_pCubeMesh = new Framework::Mesh("UnitCube.xml");
+		g_pPlaneMesh = new Framework::Mesh("UnitPlane.xml");
 	}
 	catch(std::exception &except)
 	{
@@ -298,14 +346,7 @@ void init()
 	glEnable(GL_DEPTH_CLAMP);
 
 	//Setup our Uniform Buffers
-	MaterialBlock mtl;
-	mtl.diffuseColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f);
-	mtl.specularColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f) * 0.4f;
-	mtl.specularShininess = 0.2f;
-
-	glGenBuffers(1, &g_materialUniformBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, g_materialUniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialBlock), &mtl, GL_STATIC_DRAW);
+	SetupMaterials();
 
 	glGenBuffers(1, &g_lightUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
@@ -333,8 +374,13 @@ void init()
 
 bool g_bDrawCameraPos = false;
 bool g_bDrawLights = true;
-bool g_bUseTexture = false;
+bool g_bUseInfinity = true;
+
+ShaderMode g_eMode = MODE_FIXED;
+
 int g_currTexture = NUM_GAUSS_TEXTURES - 1;
+
+int g_currMaterial = 0;
 
 Framework::Timer g_lightTimer = Framework::Timer(Framework::Timer::TT_LOOP, 6.0f);
 
@@ -370,18 +416,20 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pObjectMesh && g_pCubeMesh)
+	if(g_pObjectMesh && g_pCubeMesh && g_pPlaneMesh)
 	{
 		Framework::MatrixStack modelMatrix;
 		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
-		const glm::mat4 &worldToCamMat = modelMatrix.Top();
+		glm::mat4 worldToCamMat = modelMatrix.Top();
 
 		LightBlock lightData;
 
 		lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 		lightData.lightAttenuation = g_fLightAttenuation;
 
-		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(0.707f, 0.707f, 0.0f, 0.0f);
+		glm::vec3 globalLightDirection(0.707f, 0.707f, 0.0f);
+
+		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(globalLightDirection, 0.0f);
 		lightData.lights[0].lightIntensity = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 
 		lightData.lights[1].cameraSpaceLightPos = worldToCamMat * CalcLightPosition();
@@ -392,17 +440,19 @@ void display()
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 		{
+			Framework::Mesh *pMesh = g_bUseInfinity ? g_pObjectMesh : g_pPlaneMesh;
+
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialUniformBuffer,
-				0, sizeof(MaterialBlock));
+				g_currMaterial * g_materialOffset, sizeof(MaterialBlock));
 
 			Framework::MatrixStackPusher push(modelMatrix);
 			modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
-			modelMatrix.Scale(2.0f); //The unit sphere has a radius 0.5f.
+			modelMatrix.Scale(g_bUseInfinity ? 2.0f : 4.0f);
 
 			glm::mat3 normMatrix(modelMatrix.Top());
 			normMatrix = glm::transpose(glm::inverse(normMatrix));
 
-			ProgramData &prog = g_bUseTexture ? g_litTextureProg : g_litFixedProg;
+			ProgramData &prog = g_Programs[g_eMode];
 
 			glUseProgram(prog.theProgram);
 			glUniformMatrix4fv(prog.modelToCameraMatrixUnif, 1, GL_FALSE,
@@ -418,10 +468,10 @@ void display()
 			glBindTexture(GL_TEXTURE_2D, g_shineTexture);
 			glBindSampler(g_shineTexUnit, g_gaussSampler);
 
-			if(g_bUseTexture)
-				g_pObjectMesh->Render("lit-tex");
+			if(g_eMode != MODE_FIXED)
+				pMesh->Render("lit-tex");
 			else
-				g_pObjectMesh->Render("lit");
+				pMesh->Render("lit");
 
 			glBindSampler(g_gaussTexUnit, 0);
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -444,6 +494,17 @@ void display()
 			glm::vec4 lightColor(1.0f);
 			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
 			g_pCubeMesh->Render("flat");
+
+			push.Reset();
+
+			modelMatrix.Translate(globalLightDirection * 100.0f);
+			modelMatrix.Scale(5.0f);
+
+			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+			g_pCubeMesh->Render("flat");
+
+			glUseProgram(0);
 		}
 
 		if(g_bDrawCameraPos)
@@ -490,6 +551,13 @@ void reshape (int w, int h)
 	glutPostRedisplay();
 }
 
+const char *g_shaderModeNames[NUM_SHADER_MODES] =
+{
+	"Fixed Shininess with Gaussian Texture",
+	"Texture Shininess with Gaussian Texture",
+	"Texture Shininess with computed Gaussian",
+};
+
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
 //It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
@@ -501,8 +569,10 @@ void keyboard(unsigned char key, int x, int y)
 	case 27:
 		delete g_pObjectMesh;
 		delete g_pCubeMesh;
+		delete g_pPlaneMesh;
 		g_pObjectMesh = NULL;
 		g_pCubeMesh = NULL;
+		g_pPlaneMesh = NULL;
 		glutLeaveMainLoop();
 		break;
 
@@ -511,13 +581,12 @@ void keyboard(unsigned char key, int x, int y)
 	case '=': g_lightTimer.Fastforward(0.5f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 	case 'g': g_bDrawLights = !g_bDrawLights; break;
+	case 'y': g_bUseInfinity = !g_bUseInfinity; break;
 	case 32:
-		g_bUseTexture = !g_bUseTexture;
-		if(g_bUseTexture)
-			printf("Texture Shininess\n");
-		else
-			printf("Fixed Shininess\n");
-		break;
+		g_eMode = (ShaderMode)(g_eMode + 1);
+		g_eMode = (ShaderMode)(g_eMode % NUM_SHADER_MODES);
+
+		printf("%s\n", g_shaderModeNames[g_eMode]);
 	}
 
 	if(('1' <= key) && (key <= '9'))
@@ -527,6 +596,13 @@ void keyboard(unsigned char key, int x, int y)
 		{
 			printf("Angle Resolution: %i\n", CalcCosAngResolution(number));
 			g_currTexture = number;
+		}
+
+		if(number >= (9 - NUM_MATERIALS))
+		{
+			number = number - (9 - NUM_MATERIALS);
+			printf("Material number %i\n", number);
+			g_currMaterial = number;
 		}
 	}
 

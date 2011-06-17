@@ -131,6 +131,7 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 
 	case 's':
+	case 'S':
 		g_bUseFakeHallway = !g_bUseFakeHallway;
 		if(g_bUseFakeHallway)
 			printf("Fake Hallway.\n");
@@ -138,7 +139,8 @@ void keyboard(unsigned char key, int x, int y)
 			printf("Real Hallway.\n");
 		break;
 
-	case 'w':
+	case 'p':
+	case 'P':
 		g_bUseSmoothInterpolation = !g_bUseSmoothInterpolation;
 		if(g_bUseSmoothInterpolation)
 			printf("Perspective correct interpolation.\n");

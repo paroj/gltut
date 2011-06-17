@@ -9,22 +9,22 @@
         of skin, rock, or something else that you can look at in an image editor. While it is true
         that many textures are pictures of something, it would be wrong to limit your thoughts in
         terms of textures to just being pictures. Sadly, this way of thinking about textures is
-        reinforced by OpenGL, since many functions around textures have <quote>image</quote>
-        somewhere in them.</para>
+        reinforced by OpenGL; data in textures are <quote>colors</quote> and many functions dealing
+        with textures have the word <quote>image</quote> somewhere in them.</para>
     <para>The best way to avoid this kind of thinking is to have our first textures be of those
         non-picture types of textures. So as our introduction to the world of textures, let us
-        define a problem space that textures can solve without having to be pictures.</para>
-    <para>We have seen that the Gaussian specular function is a pretty useful specular function.
-        It's shininess value is a nice (0, 1] value, and it produces pretty good results visually.
-        It has fewer artifacts than the less complicated Blinn-Phong function. But there is one
+        define a problem that textures can solve without having to be pictures.</para>
+    <para>We have seen that the Gaussian specular function is a pretty useful specular function. Its
+        shininess value has a nice range (0, 1], and it produces pretty good results visually. It
+        has fewer artifacts than the less complicated Blinn-Phong function. But there is one
         significant problem: Gaussian is much more expensive to compute. Blinn-Phong requires a
         single power-function; Gaussian requires not only exponentiation, but also an inverse-cosine
         function. This is in addition to other operations like squaring the exponent.</para>
-    <para>Let us say that we have determined that the Gaussian specular function is good, but too
+    <para>Let us say that we have determined that the Gaussian specular function is good but too
         expensive for our needs.<footnote>
-            <para>This is for demonstration purposes only. You should not undertake this process
-                unless you have determined with proper profiling that the specular function is a
-                performance problem that you should work to alleviate.</para>
+            <para>This is for demonstration purposes only. You should not undertake this process in
+                the real world unless you have determined with proper profiling that the specular
+                function is a performance problem that you should work to alleviate.</para>
         </footnote> So we want to find a way to get the equivalent quality of Gaussian specular but
         with more performance. What are our options?</para>
     <para>A common tactic in optimizing math functions is a <glossterm>look-up table</glossterm>.
@@ -34,17 +34,19 @@
         stores the results of the function at various points along the valid range of x. Obviously
         if x has an infinite range, there is a problem. But if x has a finite range, one can decide
         to take some number of values on that range and store them in a table.</para>
+    <para>The obvious downside of this approach is that the quality you get depends on how large this
+        table is. That is, how many times the function is evaluated and stored in the table.</para>
     <para>The Gaussian specular function takes three parameters: the surface normal, the half-angle
         vector, and the specular shininess of the surface. However, if we redefine the specular
         function in terms of the dot-product of the surface normal and the half-angle vector, we can
-        reduce the number of parameters to two. Also, the specular shininess has been a constant
-        value across a mesh. So, for any given mesh, the specular function is a function of one
-        parameter: the dot-product between the half-angle vector and the surface normal.</para>
+        reduce the number of parameters to two. Also, the specular shininess is a constant value
+        across a mesh. So, for any given mesh, the specular function is a function of one parameter:
+        the dot-product between the half-angle vector and the surface normal.</para>
     <!--TODO: Equation for Gaussian, with a constant shininess and based on the dot-product.-->
     <para>So how do we get a look-up table to the shader? We could use the obvious method; build a
         uniform buffer containing an array of floats. We would multiply the dot-product by the
-        number of entries in the table and pick one based on that value. By now, you should be able
-        to code this.</para>
+        number of entries in the table and pick a table entry based on that value. By now, you
+        should be able to code this.</para>
     <para>But lets say that we want another alternative; what else can we do? We can put our look-up
         table in a texture.</para>
     <section>
@@ -53,13 +55,13 @@
         <para>A <glossterm>texture</glossterm> is an object that contains one or more arrays of some
             dimensionality. The storage for a texture is owned by OpenGL and the GPU, much like they
             own the storage for buffer objects. Textures can be accessed in a shader, which fetches
-            data from the texture at a specific location within the arrays. The process of fetching
-            data from a texture is called <glossterm>sampling.</glossterm></para>
+            data from the texture at a specific location within the texture's arrays. The process of
+            fetching data from a texture is called <glossterm>sampling.</glossterm></para>
         <para>The arrays within a texture are called <glossterm>images</glossterm>; this is a legacy
             term, but it is what they are called. Textures have a <glossterm>texture
                 type</glossterm>; this defines characteristics of the texture as a whole, like the
             number of dimensions of the images and a few other special things.</para>
-        <para>We first use textures in the <phrase role="propername">Basic Texture</phrase>
+        <para>Our first use of textures is in the <phrase role="propername">Basic Texture</phrase>
             tutorial. This tutorial shows a scene containing a golden infinity symbol, with a
             directional light and a second moving point light source.</para>
         <!--TODO: Picture of the tutorial.-->
@@ -69,44 +71,515 @@
                 <keycap>4</keycap> keys switch to progressively larger textures, so that you can see
             the effects that higher resolution look-up tables has on the visual result.</para>
         <section>
-            <title>Building Textures</title>
+            <title>Normalized Integers</title>
             <para>In order to understand how textures work, let's follow the data from our initial
-                generation of the lookup tables to how the GLSL shader accesses them.</para>
-            <para/>
+                generation of the lookup tables to how the GLSL shader accesses them. The function
+                    <function>BuildGaussianData</function> generates the data that we want to put
+                into our OpenGL texture.</para>
+            <example>
+                <title>BuildGaussianData function</title>
+                <programlisting language="cpp">void BuildGaussianData(std::vector&lt;GLubyte> &amp;textureData,
+                       int cosAngleResolution)
+{
+    textureData.resize(cosAngleResolution);
+
+    std::vector&lt;GLubyte>::iterator currIt = textureData.begin();
+    for(int iCosAng = 0; iCosAng &lt; cosAngleResolution; iCosAng++)
+    {
+        float cosAng = iCosAng / (float)(cosAngleResolution - 1);
+        float angle = acosf(cosAng);
+        float exponent = angle / g_specularShininess;
+        exponent = -(exponent * exponent);
+        float gaussianTerm = glm::exp(exponent);
+        
+        *currIt++ = (GLubyte)(gaussianTerm * 255.0f);
+    }
+}</programlisting>
+            </example>
+            <para>This function fills a <classname>std::vector</classname> with bytes that
+                represents our lookup table. It's a pretty simple function. The parameter
+                    <varname>cosAngleResolution</varname> specifies the number of entries in the
+                table. As we iterate over the range, we convert them into cosine values and then
+                perform the Gaussian specular computations.</para>
+            <para>However, the result of this computation is a <type>float</type>, not a
+                    <type>GLubyte</type>. Yet our array contains bytes. It is here that we must
+                introduce a new concept widely used with textures: <glossterm>normalized
+                    integers</glossterm>.</para>
+            <para>A normalized integer is a way of storing floating-point values on the range [0, 1]
+                in far fewer than the 32-bytes it takes for a regular <type>float</type>. The idea
+                is to take the full range of the integer and map it to the [0, 1] range. The full
+                range of an unsigned integer is [0, 255]. So to map it to a floating-point range of
+                [0, 1], we simply divide the value by 255.</para>
+            <para>The above code takes the <varname>gaussianTerm</varname> and converts it into a
+                normalized integer.</para>
+            <para>This saves a lot of memory. By using normalized integers in our texture, we save
+                4x the memory over a floating-point texture. When it comes to textures, oftentimes
+                saving memory improves performance. And since this is supposed to be a performance
+                optimization over shader computations, it makes sense to use a normalized integer
+                value.</para>
+            <note>
+                <para>Normalized integers are not restricted to textures. Vertex attributes of all
+                    kinds can be stored as normalized integers as an optimization. For positions,
+                    this usually means using 16-bit normalized <emphasis>signed</emphasis> integers,
+                    which map to a [-1, 1] range. These are optimizations, since the smaller the
+                    vertex data, the faster those vertices can be fed to the vertex shader. Again,
+                    as with all optimizations, you should not bother unless you have profiling data
+                    in hand that shows it to be a problem.</para>
+            </note>
         </section>
-        <para/>
-        <para/>
-        <para/>
-        <para/>
-        <para>Textures and buffer objects have many similarities. They both represent memory owned
-            by OpenGL. The user can modify this memory with various functions. Besides the fact that
-            a texture object can contain multiple images, the major difference is the arrangement of
-            data as it is stored by the GPU.</para>
-        <para>Buffer objects are linear arrays of memory. The data stored by OpenGL must be
-            binary-identical to how the user specifies the data with
-                <function>glBuffer(Sub)Data</function> calls. The format of the data stored in a
-            buffer object is defined external to the buffer object itself. Buffer objects used for
-            vertex attributes have their formats defined by glVertexAttribPointer. The format for
-            buffer objects that store uniform data is defined by the arrangement of types in a GLSL
-            uniform block. In all cases, it is the <emphasis>user's</emphasis> responsibility to
-            make sure that the data stored there uses the format that OpenGL was told to
-            expect.</para>
-        <para>Textures do not work this way. The format of an image stored in a texture is
-            controlled by OpenGL itself. The user tells it what format to use, but the specific
-            arrangements of bytes is up to OpenGL. This allows different hardware to store textures
-            in whatever way is most optimal for accessing them.</para>
+        <section>
+            <title>Texture Objects</title>
+            <para>The function <function>CreateGaussianTexture</function> calls
+                    <function>BuildGaussianData</function> to generate the array of normalized
+                integers. The rest of that function uses the array to build the OpenGL texture
+                object:</para>
+            <example>
+                <title>CreateGaussianTexture function</title>
+                <programlisting language="cpp">GLuint CreateGaussianTexture(int cosAngleResolution)
+{
+    std::vector&lt;GLubyte> textureData;
+    BuildGaussianData(textureData, cosAngleResolution);
+    
+    GLuint gaussTexture;
+    glGenTextures(1, &amp;gaussTexture);
+    glBindTexture(GL_TEXTURE_1D, gaussTexture);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_R8, cosAngleResolution, 0,
+        GL_RED, GL_UNSIGNED_BYTE, &amp;textureData[0]);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAX_LEVEL, 0);
+    glBindTexture(GL_TEXTURE_1D, 0);
+    
+    return gaussTexture;
+}</programlisting>
+            </example>
+            <para>The <function>glGenTextures</function> function creates a single texture object,
+                similar to other <function>glGen*</function> functions we have seen.
+                    <function>glBindTexture</function> attaches the texture object to the context.
+                The first parameter specifies the texture's type. Note that once you have bound a
+                texture to the context with a certain type, it must <emphasis>always</emphasis> be
+                bound with that same type. <literal>GL_TEXTURE_1D</literal> means that the texture
+                contains one-dimensional arrays of data.</para>
+            <para>The next function, <function>glTexImage1D</function> is how we pass data to the
+                texture. It has a lot of parameters. The first specifies the type of the currently
+                bound texture. As with buffer objects, multiple textures can be bound to different
+                texture type locations. So you could have a texture bound to
+                    <literal>GL_TEXTURE_1D</literal> and another boudn to
+                    <literal>GL_TEXTURE_2D</literal>. But it's really bad form to try to exploit
+                this. It is best to just have one target bound at a time.</para>
+            <para>The second parameter is something we will talk about in the next tutorial. The
+                third parameter is the format that OpenGL will use to store the texture's data. The
+                fourth parameter is the width of the image, which corresponds to the length of our
+                lookup table. The fifth parameter must always be 0; it represents an old feature no
+                longer supported.</para>
+            <para>The last three parameters of all functions of the form
+                    <function>glTexImage*</function> are special. They tell OpenGL how to read the
+                texture data in our array. This seems redundant, since we already told OpenGL what
+                the format of the data was with the third parameter. This bears further
+                examination.</para>
+            <para>Textures and buffer objects have many similarities. They both represent memory
+                owned by OpenGL. The user can modify this memory with various functions. Besides the
+                fact that a texture object can contain multiple images, the major difference is the
+                arrangement of data as it is stored by the GPU.</para>
+            <para>Buffer objects are linear arrays of memory. The data stored by OpenGL must be
+                binary-identical to how the user specifies the data with
+                    <function>glBuffer(Sub)Data</function> calls. The format of the data stored in a
+                buffer object is defined external to the buffer object itself. Buffer objects used
+                for vertex attributes have their formats defined by glVertexAttribPointer. The
+                format for buffer objects that store uniform data is defined by the arrangement of
+                types in a GLSL uniform block.</para>
+            <para>There are other ways that use buffer objects that allow OpenGL calls to fill them
+                with data. But even in these cases, the binary format of the data to be stored is
+                very strictly controlled by the user. In all cases, it is the
+                    <emphasis>user's</emphasis> responsibility to make sure that the data stored
+                there uses the format that OpenGL was told to expect. Even when OpenGL itself is
+                generating the data.</para>
+            <para>Textures do not work this way. The format of an image stored in a texture is
+                controlled by OpenGL itself. The user tells it what format to use, but the specific
+                arrangements of bytes is up to OpenGL. This allows different hardware to store
+                textures in whatever way is most optimal for accessing them.</para>
+            <para>Because of this, there is an intermediary between the data the user provides and
+                the data that is actually stored in the texture. The data the user provides must be
+                transformed into the format that OpenGL uses internally for the texture's data.
+                Therefore, <function>glTexImage*</function> functions must specify both the expected
+                internal format and a description of how the texture data is stored in the user's
+                array.</para>
+            <formalpara>
+                <title>Pixel Transfer and Formats</title>
+                <para>This process, the conversion between an image's internal format and a
+                    user-provided array, is called a <glossterm>pixel transfer</glossterm>
+                    operation. These are somewhat complex, but not too difficult to
+                    understand.</para>
+            </formalpara>
+            <para>Each pixel in a texture is more properly referred to as a
+                    <glossterm>texel</glossterm>. Since texture data is accessed in OpenGL by the
+                texel, we want our array of normalized unsigned integers to each be stored in a
+                single texel. So our input data has only one value per texel, that value is 8-bits
+                in size, and it represents an normalized unisgned integer.</para>
+            <para>The last three parameters describe this to OpenGL. The parameter
+                    <literal>GL_RED</literal> says that we are uploading a single component to the
+                texture, namely the red component. Components of texels are named after color
+                components. Because this parameter does not end in <quote>_INTEGER</quote>, OpenGL
+                knows that the data we are uploading is either a floating-point value or a
+                normalized integer value (which converts to a float when accessed by the
+                user).</para>
+            <para>The parameter <literal>GL_UNSIGNED_BYTE</literal> says that each component that we
+                are uploading is stored in an 8-bit unsigned byte. This, plus the pointer to the
+                data, is all OpenGL needs to read our data.</para>
+            <para>That describes the data format as we are providing it. The format parameter, the
+                third parameter to the <function>glTexImage*</function> functions, describes the
+                format of the texture's internal storage. The texture's format defines the
+                properties of the texels stored in that texture:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>The components stored in the texel. Multiple components can be used, but
+                        only certain combinations of components are allowed. The components include
+                        the RGBA of colors, and certain more exotic values we will discuss
+                        later.</para>
+                </listitem>
+                <listitem>
+                    <para>The number of bits that each component takes up when stored by OpenGL.
+                        Different components within a texel can have different bitdepths.</para>
+                </listitem>
+                <listitem>
+                    <para>The data type of the components. Certain exotic formats can give different
+                        components different types, but most of them give them each the same data
+                        type. Data types include normalized unsigned integers, floats,
+                        non-normalized signed integers, and so forth.</para>
+                </listitem>
+            </itemizedlist>
+            <para>The parameter <literal>GL_R8</literal> defines all of these. The <quote>R</quote>
+                represents the components that are stored. Namely, the <quote>red</quote> component.
+                Since textures used to always represent image data, the components are named after
+                components of a color vec4. Each component takes up <quote>8</quote> bits. The
+                suffix of the format represents the </para>
+            <para>Note that this perfectly matches the texture data that we generated. We tell
+                OpenGL to make the texture store unsigned normalized 8-bit integers, and we provide
+                unsigned normalized 8-bit integers.</para>
+            <para>This is not strictly necessary. We could have used <literal>GL_R16</literal> as
+                our format instead. OpenGL would have created a texture that contained 16-bit
+                unsigned normalized integers. OpenGL would then have had to convert our input data
+                to the 16-bit format. It is good practice to try to match the texture's format with
+                the format of the data that you upload to OpenGL.</para>
+            <para>The calls to <function>glTexParameter</function> set parameters on the texture
+                object. These parameters define certain properties of the texture. Exactly what
+                these parameters are doing is something that will be discussed in the next
+                tutorial.</para>
+        </section>
+        <section>
+            <title>Textures in Shaders</title>
+            <para>OK, so we have a texture object, which has a texture type. We need some way to
+                represent that texture in GLSL. This is done with something called a <glossterm>GLSL
+                    sampler</glossterm>. Samplers are special types in OpenGL; they represent a
+                texture that has been bound to the OpenGL context. For every OpenGL texture type,
+                there is a corresponding sampler type. So a texture that is of type
+                    <literal>GL_TEXTURE_1D</literal> is paired with a sampler of type
+                    <type>sampler1D</type>.</para>
+            <para>The GLSL sampler type is very unusual. You can use vectors of all kinds as inputs,
+                outputs, function parameters, etc. You can use matrices and even arrays as outputs
+                or inputs. But not samplers. The restrictions on samplers are:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Samplers can only declared as <literal>uniform</literal> in function
+                        parameters with the <literal>in</literal> qualifier. They cannot even be
+                        declared as local variables.</para>
+                </listitem>
+                <listitem>
+                    <para>Samplers cannot be members of structs or uniform blocks.</para>
+                </listitem>
+                <listitem>
+                    <para>Samplers can be used in arrays, but the index for sampler arrays must be a
+                        compile-time constant.</para>
+                </listitem>
+                <listitem>
+                    <para>Samplers do not have values. No mathematical expressions can use sampler
+                        variables.</para>
+                </listitem>
+                <listitem>
+                    <para>Variables of sampler type can only be passed to user-defined functions
+                        that take samplers of the equivalent type, and to be passed to special
+                        built-in functions that take samplers of those types.</para>
+                </listitem>
+            </itemizedlist>
+            <para>In the shader <filename>TextureGaussian.frag</filename>, we have an example of
+                creating a sampler:</para>
+            <programlisting language="glsl">uniform sampler1D gaussianTexture;</programlisting>
+            <para>This sampler is used in our lighting computation function:</para>
+            <example>
+                <title>Shader Texture Access</title>
+                <programlisting language="glsl">vec3 halfAngle = normalize(lightDir + viewDirection);
+float texCoord = dot(halfAngle, surfaceNormal);
+float gaussianTerm = texture(gaussianTexture, texCoord).r;
+
+gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;</programlisting>
+            </example>
+            <para>The third line is where the texture is accessed. The value used to access a
+                texture is called a <glossterm>texture coordinate</glossterm>. Since our texture has
+                only one dimension, our texture coordinate also has one dimension. The first
+                parameter to the <function>texture</function> function is the sampler to fetch from;
+                the second parameter is the texture coordinate that determines from where in that
+                texture to fetch.</para>
+            <para>The <function>texture</function> function for 1D textures expects the texture
+                coordinate to be normalized. This means something similar to normalizing integer
+                values. A normalized texture coordinate is a texture coordinate where the coordinate
+                values range from [0, 1] refer to texel coordinates (the coordinates of the pixels
+                within the textures) to [0, texture-size].</para>
+            <para>What this means is that our texture coordinates don't have to care how big the
+                texture is. We can change the texture's size without changing anything about how we
+                compute the texture coordinate. A coordinate of 0.5 will always mean the middle of
+                the texture, regardless of the size of that texture.</para>
+            <para>A texture coordinate values outside of the [0, 1] range must still map to a
+                location on the texture. What happens to such coordinates depends on values set in
+                OpenGL that we will see later.</para>
+            <para>The return value of the <function>texture</function> function is a vec4,
+                regardless of the image format of the texture. So even though our texture's format
+                is <literal>GL_R8</literal>, meaning that it holds only one channel of data, we
+                still get four in the shader. The other three components are 0, 0, and 1,
+                respectively.</para>
+            <para>We get floating-point data back because our sampler is a floating-point sampler.
+                Samplers use the same prefixes as <type>vec</type> types. A <type>ivec4</type>
+                represents a vector of 4 integers, while a <type>vec4</type> represents a vector of
+                4 floats. Thus, an <type>isampler1D</type> represents a texture that returns
+                integers, while a <type>sampler1D</type> is a texture that returns floats. Since our
+                texture's format uses 8-bit normalized unsigned integers, which is just a cheap way
+                to store floats, this matches everything correctly.</para>
+        </section>
+        <section>
+            <title>Texture Binding</title>
+            <para>At this point, we have a texture object, an OpenGL object that holds our image
+                data with a specific format. We have a shader that contains a sampler uniform that
+                represents a texture being accessed by our shader. How do we associate a texture
+                object with a sampler in the shader?</para>
+            <para>Although the API is slightly more obfuscated due to legacy issues, this
+                association is made essentially the same was as for UBOs.</para>
+            <para>The OpenGL context has an array of slots called <glossterm>texture image
+                    units</glossterm>, also known as <glossterm>image units</glossterm> or
+                    <glossterm>texture units</glossterm>. Each image unit represents a single
+                texture. A sampler uniform in a shader is set to a particular image unit; this sets
+                the association between the shader and the image unit. To associate an image unit
+                with a texture object, we bind the texture to that unit.</para>
+            <!--TODO: Diagram of the connection between texture objects, sampler uniforms, and the context state.-->
+            <para>Though the idea is essentially the same, there are many API differences between
+                the UBO mechanism and the texture mechanism. We will start with setting the sampler
+                uniform to an image unit.</para>
+            <para>With UBOs, this used a different API from regular uniforms. With texture objects,
+                it does not:</para>
+            <programlisting language="cpp">GLuint gaussianTextureUnif = glGetUniformLocation(data.theProgram, "gaussianTexture");
+glUseProgram(data.theProgram);
+glUniform1i(gaussianTextureUnif, g_gaussTexUnit);</programlisting>
+            <para>Sampler uniforms are considered 1-dimesional (scalar) integer values from the
+                OpenGL side of the API. Do not forget that, in the GLSL side, samplers have no value
+                at all.</para>
+            <para>When it comes time to bind the texture object to that image unit, OpenGL again
+                overloads existing API rather than making a new one the way UBOs did:</para>
+            <programlisting language="cpp">glActiveTexture(GL_TEXTURE0 + g_gaussTexUnit);
+glBindTexture(GL_TEXTURE_1D, g_gaussTextures[g_currTexture]);</programlisting>
+            <para>The <function>glActiveTexture</function> function changes the current texture
+                unit. All subsequent texture operations, whether <function>glBindTexture</function>,
+                    <function>glTexImage</function>, <function>glTexParameter</function>, etc,
+                affect the texture bound to the current texture unit. To put it another way, with
+                UBOs, it was possible to bind a buffer object to
+                    <literal>GL_UNIFORM_BUFFER</literal> without overwriting any of the uniform
+                buffer binding points. This is possible because there are two functions for buffer
+                object binding: <function>glBindBuffer</function> which binds only to the target,
+                and <function>glBindBufferRange</function> which binds to the target and an indexed
+                location.</para>
+            <para>Texture units do not have this. There is one binding function,
+                    <function>glBindTexture</function>. And it always binds to whatever texture unit
+                happens to be current. Namely, the one set by the last call to
+                    <function>glActiveTexture</function>.</para>
+            <para>What this means is that if you want to modify a texture, you must overwrite a
+                texture unit that may already be bound. This is usually not a huge problem, because
+                you rarely modify textures in the same area of code used to render. But you should
+                be aware of this API oddity.</para>
+            <para>Also note the peculiar <function>glActiveTexture</function> syntax for specifying
+                the image unit: <code>GL_TEXTURE0 + g_gaussTexUnit</code>. This is the correct way
+                to specify which texture unit, because <function>glActiveTexture</function> is
+                defined in terms of an enumerator rather than integer texture image units.</para>
+            <para>If you look at the rendering function, you will find that the texture will always
+                be bound, even when not rendering with the texture. This is perfectly harmless; the
+                contents of a texture image unit is ignored unless a program has a sampler uniform
+                that is associated with that image unit.</para>
+        </section>
+        <section>
+            <title>Sampler Objects</title>
+            <para>With the association between a texture and a program's sampler uniform made, there
+                is still one thing we need before we render. There are a number of parameters the
+                user can set that affects how texture data is fetched from the texture.</para>
+            <para>In our case, we want to make sure that the shader cannot access texels outside of
+                the range of the texture. If the shader tries, we want the shader to get the nearest
+                texel to our value. So if the shader passes a texture coordinate of -0.3, we want
+                them to get the same texel as if they passed 0.0. In short, we want to clamp the
+                texture coordinate to the range of the texture.</para>
+            <para>These kinds of settings are controlled by an OpenGL object called a
+                    <glossterm>sampler object.</glossterm> The code that creates a sampler object
+                for our textures is in the <function>CreateGaussianTextures</function>
+                function.</para>
+            <example>
+                <title>Sampler Object Creation</title>
+                <programlisting language="cpp">glGenSamplers(1, &amp;g_gaussSampler);
+glSamplerParameteri(g_gaussSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+glSamplerParameteri(g_gaussSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</programlisting>
+            </example>
+            <para>As with most OpenGL objects, we create a sampler object with
+                    <function>glGenSamplers</function>. However, notice something unusual with the
+                next series of functions. We do not bind a sampler to the context to set parameters
+                in it, nor does <function>glSamplerParameter</function> take a context target. We
+                simply pass an object directly to the function.</para>
+            <para>In this above code, we set three parameters. The first two parameters are things
+                we will discuss in the next tutorial. The third parameter is how we tell OpenGL that
+                texture coordinates should be clamped to the range of the texture.</para>
+            <para>OpenGL names the components of the texture coordinate <quote>strq</quote> rather
+                than <quote>xyzw</quote> or <quote>uvw</quote> as is common. Indeed, OpenGL has two
+                different names for the components: <quote>strq</quote> is used in the API, but
+                    <quote>stpq</quote> is used in shaders. Much like <quote>rgba</quote>, you can
+                use <quote>stpq</quote> as swizzle selectors for any vector instead of the
+                traditional <quote>xyzw</quote>.</para>
+            <note>
+                <para>The reason for the odd naming is that OpenGL tries to keep suffixes from
+                    conflicting. <quote>uvw</quote> doesn't work because <quote>w</quote> is already
+                    part of the <quote>xyzw</quote> suffix. In GLSL, <quote>strq</quote> conflicts
+                    with <quote>rgba</quote>, so they had to go with <quote>stpq</quote>
+                    instead.</para>
+            </note>
+            <para>The <literal>GL_TEXTURE_WRAP_S</literal> parameter defines how the
+                    <quote>s</quote> component of the texture coordinate will be adjusted if it
+                falls outside of the [0, 1] range. Setting this to
+                    <literal>GL_CLAMP_TO_EDGE</literal> clamps this component of the texture
+                coordinate to the edge of the texture. Each component of the texture coordinate can
+                have a separate wrapping mode. Since our texture is a 1D texture, its texture
+                coordinates only have one component.</para>
+            <para>The sampler object is used similarly to how textures are associated with GLSL
+                samplers: we bind them to a texture image unit. The API is much simpler than what we
+                saw for textures:</para>
+            <programlisting language="cpp">glBindSampler(g_gaussTexUnit, g_gaussSampler);</programlisting>
+            <para>We pass the texture unit directly; there is no need to add
+                    <literal>GL_TEXTURE0</literal> to it to convert it into an enumerator. This
+                effectively adds an additional value to each texture unit.</para>
+            <!--TODO: Diagram from above, but with sampler objects.-->
+            <para/>
+            <note>
+                <para>Technically, we do not have to use a sampler object. The parameters we use for
+                    samplers could have been set into the texture object directly with
+                    glTexParameter. Sampler objects have a lot of advantages over setting the value
+                    in the texture, and binding a sampler object overrides parameters set in the
+                    texture. There are still some parameters that must be in the texture, and those
+                    are not overridden by the sampler object.</para>
+            </note>
+        </section>
+        <section>
+            <title>Texture Resolution</title>
+            <para>This tutorial creates multiple textures at a variety of resolutions. The
+                resolution corresponding with the <keycap>1</keycap> is the lowest resolution, while
+                the one corresponding with <keycap>4</keycap> is the highest.</para>
+            <para>If we use resolution <keycap>1</keycap>, we can see that it is a pretty rough
+                approximation. We can very clearly see the distinction between the different texels
+                in our lookup table. It is a 64-texel lookup table.</para>
+            <!--TODO: Picture of the low resolution image, with a shot of the correct one off to the side-->
+            <para>Switching to the level <keycap>3</keycap> resolution shows more gradations, and
+                looks much more like the shader calculation. This one is 256 texels across.</para>
+            <!--TODO: Picture of resolution 3, with shot of correct off to the side.-->
+            <para>The largest resolution, <keycap>4</keycap>, is 512 texels, and it looks nearly
+                identical to the pure shader version.</para>
+            <!--TODO: Picture of resolution 4, with the correct shot to the side.-->
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut14 Interpolation Redux.html" ?>
         <title>Interpolation Redux</title>
-        <para/>
+        <para>The next step when working with textures is to associate a texture with locations on
+            the surface of an object. But before we can do that, we need to have a discussion about
+            what it means to interpolate a value across a triangle.</para>
+        <para>Thus far, we have more or less glossed over the details of interpolation. We expanded
+            on this earlier when we explained why per-vertex lighting would not work for certain
+            kinds of functions, as well as when explaining why normals don't interpolate well. But
+            now that we want to associate vertices of a triangle with locations on a texture, we
+            need to fully explain what interpolation means.</para>
+        <para>The main topic is linearity. In the earlier discussions, it was stressed that
+            interpolation was linear. The question that was danced around is both simple and
+            obscure: linear in what space?</para>
+        <para>The perspective projection is a non-linear transform; that's why a matrix
+            multiplication is insufficient to express it. Matrices can only handle linear
+            transformations, and the perspective projection needs a division, which is non-linear.
+            We have seen the effect of this non-linear transformation before:</para>
+        <!--TODO: Diagram from before of camera space to NDC space.
+This time, we want to mark the nearest line A, farthest line B, and the middle line C.
+Add line D in a different color, representing the NDC space midpoint. Show it on both objects.-->
+        <para>The transformation from normalized device coordinate space to window space is fully
+            linear. So the problem is the transformation from camera space to NDC space.</para>
+        <para>From this diagram we see that lines which are parallel in camera space are not
+            parallel in NDC space; this is one of the features of non-linear transforms. But most
+            important of all is the fact that the distance between objects has changed non-linearly.
+            In camera-space, the lines parallel to the Z axis are all equally spaced. In NDC space,
+            they are not.</para>
+        <para>Look at the lines A and B. Imagine that these are the only two vertices in the object.
+            In camera-space, the point halfway between them is C. However, in NDC space, the point
+            halfway between them is D. The points C and D are not that close to one another in
+            either space.</para>
+        <para>So, what space has OpenGL been doing our interpolation in? It might seem obvious to
+            say window space, since window space is the space that the rasterizer (the hardware that
+            does the interpolating) sees and uses. But if it had, we would have had a great many
+            interpolation problems.</para>
+        <para>Consider interpolating camera space positions. This only works if the interpolation
+            happens in camera-space (or some linear transform thereof). Look at the diagram again;
+            the camera-space position C would be computed for the NDC location D. That would be very
+            wrong.</para>
+        <para>So our interpolation has somehow been happening in camera space, even though the
+            rasterizer only sees window space. What mechanism causes this?</para>
+        <para>The ability to linearly interpolate values in pre-projection space is called
+                <glossterm>perspective-correct interpolation.</glossterm> And we now get to the
+            final reason why our vertex shader provides values in clip-space rather than having the
+            shader perform the perspective divide. The W term of clip-space is vital for performing
+            perspective-correct interpolation.</para>
+        <para>This makes sense; the clip-space W is after all what makes our transformation
+            non-linear. Perspective-correction simply uses the clip-space W to adjust the
+            interpolation so that it happens in a space that is linear with respect to clip-space.
+            And since clip-space is a linear transform of camera space, everything works out.
+            Technically, perspective-correct interpolation does not cause interpolation in camera
+            space, but it interpolates in a space that is a linear transform from camera
+            space.</para>
+        <para>To see the effects of perspective-correction most dramatically, fire up the <phrase
+                role="propername">Perspective Interpolation</phrase> project.</para>
+        <para>There are no camera controls in this demo; the camera is fixed so as to allow the
+            illusion presented to work. Pressing the <keycap>P</keycap> key switches between
+            perspective-correct interpolation and window-space linear interpolation.</para>
+        <!--TODO: Picture of perspective correct vs. linear.-->
+        <para>The interesting bit is as follows. Switch to the perspective-correct version (a
+            message will appear in the console window) and press the <keycap>S</keycap> key. Now,
+            the <keycap>P</keycap> key no longer seems to have any effect; we seem to be trapped in
+            linear-interpolation.</para>
+        <para>What happens is that the <keycap>S</keycap> key switches meshes. The
+                <quote>fake</quote> mesh is not really a hallway; it is perfectly flat. It is more
+            or less a mesh who's vertex positions are in clip-space, after multiplying the original
+            hallway by the perspective matrix. The difference is that the clip-space W is not
+            present. It's just a flat object, an optical illusion. There is no perspective
+            information for the perspective-correction logic to key on, so it looks just like
+            window-space linear interpolation.</para>
+        <para>The switch used to turn on or off perspective-correct interpolation is the
+            interpolation qualifier. Previously, we said that there were three qualifiers:
+                <literal>flat</literal>, <literal>smooth</literal>, and
+                <literal>noperspective</literal>. The third one was previously left undefined
+            before; you can probably guess what it does now.</para>
+        <para>We are not going to use <literal>noperspective</literal> in the immediate future.
+            Indeed, doing window space interpolation with a perspective projection is exceedingly
+            rare, far more rare than <literal>flat</literal>. The important thing to understand from
+            this section is that interpolation style matters. And <literal>smooth</literal> will be
+            our default interpolation; fortunately, it is OpenGL's default too.</para>
     </section>
     <section>
         <?dbhtml filename="Tut14 Texture Mapping.html" ?>
         <title>Texture Mapping</title>
+        <para>One of the most important uses of textures is to vary material parameters across a
+            surface. Previously, the finest granularity that we get for material parameters is
+            interpolation per-vertex. Textures allow us to get a granularity down to the
+            texel.</para>
+        <para>To achieve this variation of material parameters, we must first find a way to
+            associate points on our triangles with texels on a texture. This association is called
+                <glossterm>texture mapping</glossterm>, since it maps between points on a triangle
+            and locations on the texture.</para>
+        <para/>
         <para/>
     </section>
-    
     <section>
         <?dbhtml filename="Tut14 In Review.html" ?>
         <title>In Review</title>
@@ -154,7 +627,12 @@
                         accessing the texture.</para>
                 </listitem>
                 <listitem>
-                    <para/>
+                    <para>Animate the texture coordinates in the texture mapping tutorial. Do this
+                        by sending an offset to the fragment shader which is applied to the . You
+                        can generate the offset based on the <type>Framework::Timer</type>
+                        <varname>g_lightTimer</varname>. Make sure to use <function>mod</function>
+                        on the texture coordinate with a value of 1.0, so that the texture
+                        coordinate will always stay on the range [0, 1].</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -164,10 +642,54 @@
         </section>
         <section>
             <title>OpenGL Functions of Note</title>
-            <para/>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glGenTextures, glBindTexture</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glTexImage1D, glTexImage2D</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glTexParameter*</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glActiveTexture</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glGenSamplers</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>glSamplerParameter</glossterm>
+                    <glossdef>
+                        <para/>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
         </section>
         <section>
             <title>GLSL Functions of Note</title>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec4 <function>texture</function></funcdef>
+                    <paramdef>sampler <parameter>texSampler</parameter></paramdef>
+                    <paramdef>vec <parameter>texCoord</parameter></paramdef>
+                </funcprototype>
+            </funcsynopsis>
             <para/>
         </section>
     </section>
@@ -201,6 +723,54 @@
             </glossentry>
             <glossentry>
                 <glossterm>texture type</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>normalized integers</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>pixel transfer</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texel</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texture coordinate</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texture image unit</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>sampler object</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>perspective-correct interpolation</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texture mapping</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>

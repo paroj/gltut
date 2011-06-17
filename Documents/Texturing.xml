@@ -26,20 +26,21 @@
             teach you about textures is that they aren't <emphasis>that</emphasis> important. What
             you have learned is how to think about solving graphics problems without
             textures.</para>
-        <para>Many graphics texts overemphasize the importance of textures. This is mostly a legacy
-            of the past. In the older days, before the availability real programmable hardware, you
-            needed textures to do anything of real importance in graphics rendering. Textures were
-            used to simulate lighting and various other effects. If you wanted to do anything like
-            per-fragment lighting, you had to use textures to do it.</para>
+        <para>Many graphics texts overemphasize the importance of textures; most of them introduce
+            textures before even talking about lighting. This is mostly a legacy of the past. In the
+            older days, before the availability real programmable hardware, you needed textures to
+            do anything of real importance in graphics rendering. Textures were used to simulate
+            lighting and various other effects. If you wanted to do anything like per-fragment
+            lighting, you had to use textures to do it.</para>
         <para>Yes, textures are important for creating details in rendered images. They are
             important for being able to vary material parameters over a polygonal surface. And they
             have value in other areas as well. But there is so much more to rendering than textures,
             and this is especially true with programmable hardware.</para>
-        <para>A texture is a look-up table; an array. There is a lot of bits of minutiae about
-            accessing them, but at their core a texture is just a large array of some dimensionality
-            that you can access from a shader. Perhaps the most important lesson you could learn is
-            that textures are tools. Use them where appropriate, but do not let them become your
-            primary solution to any rendering problem.</para>
+        <para>A texture is a look-up table; an array. There is a lot of minutiae about accessing
+            them, but at their core a texture is just a large array of some dimensionality that you
+            can access from a shader. Perhaps the most important lesson you could learn is that
+            textures are tools. Use them where appropriate, but do not let them become your primary
+            solution to any rendering problem.</para>
     </partintro>
     <xi:include href="Texturing/Tutorial 14.xml"/>
 </part>

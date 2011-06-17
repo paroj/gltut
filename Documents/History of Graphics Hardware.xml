@@ -30,10 +30,11 @@
             pipeline, it took vertex inputs of a 4-dimensional clip-space position (though the
             actual space was not necessarily the same as OpenGL's clip-space), a single RGBA color,
             and a single three-dimensional texture coordinate. The hardware did not support 3D
-            textures; the extra component was for projective texturing.</para>
+            textures; the extra component was in case the user wanted to do projective
+            texturing.</para>
         <para>The texture coordinate was used to map into a single texture. The texture coordinate
-            interpolation was perspective-correct; in those days, that was a significant selling
-            point. The venerable Playstation 1 could not do perspective-correct
+            and color interpolation was perspective-correct; in those days, that was a significant
+            selling point. The venerable Playstation 1 could not do perspective-correct
             interpolation.</para>
         <para>The value fetched from the texture could be combined with the interpolated color using
             one of three math functions: additions, multiplication, or linear interpolation based on

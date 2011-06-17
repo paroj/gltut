@@ -655,9 +655,10 @@ void main()
             <glossentry>
                 <glossterm>uniforms</glossterm>
                 <glossdef>
-                    <para>These are a class of global variable that can be defined in GLSL shaders. They
-                        represent values that are uniform (unchanging) over the course of a rendering
-                        operation.</para>
+                    <para>These are a class of global variable that can be defined in GLSL shaders.
+                        They represent values that are uniform (unchanging) over the course of a
+                        rendering operation. Their values are set from outside of the shader, and
+                        they cannot be changed from within a shader.</para>
                 </glossdef>
             </glossentry>
         </glosslist>

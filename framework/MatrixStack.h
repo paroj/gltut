@@ -69,6 +69,13 @@ namespace Framework
 			m_stack.Pop();
 		}
 
+		//Does a pop/push operation, resetting the matrix.
+		void Reset()
+		{
+			m_stack.Pop();
+			m_stack.Push();
+		}
+
 	private:
 		MatrixStack &m_stack;
 

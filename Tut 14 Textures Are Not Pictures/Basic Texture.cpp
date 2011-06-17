@@ -65,7 +65,7 @@ UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::st
 	return data;
 }
 
-ProgramData LoadLitMeshProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
+ProgramData LoadStandardProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
 {
 	std::vector<GLuint> shaderList;
 
@@ -95,13 +95,13 @@ ProgramData LoadLitMeshProgram(const std::string &strVertexShader, const std::st
 
 void InitializePrograms()
 {
-	g_litShaderProg = LoadLitMeshProgram("PN.vert", "ShaderGaussian.frag");
-	g_litTextureProg = LoadLitMeshProgram("PN.vert", "TextureGaussian.frag");
+	g_litShaderProg = LoadStandardProgram("PN.vert", "ShaderGaussian.frag");
+	g_litTextureProg = LoadStandardProgram("PN.vert", "TextureGaussian.frag");
 
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
 
-Framework::RadiusDef radiusDef = {10.0f, 3.0f, 70.0f, 3.5f, 1.5f};
+Framework::RadiusDef radiusDef = {10.0f, 1.5f, 70.0f, 3.5f, 1.5f};
 glm::vec3 objectCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 
 Framework::MousePole g_mousePole(objectCenter, radiusDef);
@@ -177,11 +177,12 @@ GLuint g_imposterVBO;
 
 float g_specularShininess = 0.2f;
 
-GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
+void BuildGaussianData(std::vector<GLubyte> &textureData,
+					   int cosAngleResolution)
 {
-	std::vector<unsigned char> textureData(shininessResolution * cosAngleResolution);
+	textureData.resize(cosAngleResolution);
 
-	std::vector<unsigned char>::iterator currIt = textureData.begin();
+	std::vector<GLubyte>::iterator currIt = textureData.begin();
 	for(int iCosAng = 0; iCosAng < cosAngleResolution; iCosAng++)
 	{
 		float cosAng = iCosAng / (float)(cosAngleResolution - 1);
@@ -190,9 +191,14 @@ GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
 		exponent = -(exponent * exponent);
 		float gaussianTerm = glm::exp(exponent);
 
-		*currIt = (unsigned char)(gaussianTerm * 255.0f);
-		++currIt;
+		*currIt++ = (GLubyte)(gaussianTerm * 255.0f);
 	}
+}
+
+GLuint CreateGaussianTexture(int cosAngleResolution)
+{
+	std::vector<GLubyte> textureData;
+	BuildGaussianData(textureData, cosAngleResolution);
 
 	GLuint gaussTexture;
 	glGenTextures(1, &gaussTexture);
@@ -217,14 +223,13 @@ void CreateGaussianTextures()
 	for(int loop = 0; loop < NUM_GAUSS_TEXTURES; loop++)
 	{
 		int cosAngleResolution = CalcCosAngResolution(loop);
-		g_gaussTextures[loop] = CreateGaussianTexture(cosAngleResolution, 32);
+		g_gaussTextures[loop] = CreateGaussianTexture(cosAngleResolution);
 	}
 
 	glGenSamplers(1, &g_gaussSampler);
 	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 
@@ -344,7 +349,9 @@ void display()
 		lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 		lightData.lightAttenuation = g_fLightAttenuation;
 
-		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(0.707f, 0.707f, 0.0f, 0.0f);
+		glm::vec3 globalLightDirection(0.707f, 0.707f, 0.0f);
+
+		lightData.lights[0].cameraSpaceLightPos = worldToCamMat * glm::vec4(globalLightDirection, 0.0f);
 		lightData.lights[0].lightIntensity = glm::vec4(0.6f, 0.6f, 0.6f, 1.0f);
 
 		lightData.lights[1].cameraSpaceLightPos = worldToCamMat * CalcLightPosition();
@@ -360,7 +367,7 @@ void display()
 
 			Framework::MatrixStackPusher push(modelMatrix);
 			modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
-			modelMatrix.Scale(2.0f); //The unit sphere has a radius 0.5f.
+			modelMatrix.Scale(2.0f);
 
 			glm::mat3 normMatrix(modelMatrix.Top());
 			normMatrix = glm::transpose(glm::inverse(normMatrix));
@@ -400,6 +407,17 @@ void display()
 			glm::vec4 lightColor(1.0f);
 			glUniform4fv(g_Unlit.objectColorUnif, 1, glm::value_ptr(lightColor));
 			g_pCubeMesh->Render("flat");
+
+			push.Reset();
+
+			modelMatrix.Translate(globalLightDirection * 100.0f);
+			modelMatrix.Scale(5.0f);
+
+			glUniformMatrix4fv(g_Unlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+			g_pCubeMesh->Render("flat");
+
+			glUseProgram(0);
 		}
 
 		if(g_bDrawCameraPos)
