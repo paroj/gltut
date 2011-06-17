@@ -45,7 +45,7 @@
                 you can create multiple objects with one call. As before, the objects are
                     <type>GLuint</type>s.</para>
             <para>VAOs are bound to the context with <function>glBindVertexArray</function>; this
-                function doesn't take a target the way that <function>glBindBuffer</function> does.
+                function does not take a target the way that <function>glBindBuffer</function> does.
                 It only takes the VAO to bind to the context.</para>
             <para>Once the VAO is bound, calls to certain functions change the data in the bound
                 VAO. Technically, they <emphasis>always</emphasis> have changed the VAO's state; all
@@ -54,14 +54,14 @@
 glBindVertexArray(vao);]]></programlisting>
             <para>This creates a single VAO, which contains the vertex array state that we have been
                 setting. This means that we have been changing the state of a VAO in all of the
-                tutorials. We just didn't talk about it at the time.</para>
+                tutorials. We just did not talk about it at the time.</para>
             <para>The following functions change VAO state. Therefore, if no VAO is bound to the
                 context (if you call <function>glBindVertexArray(0)</function> or you do not bind a
                 VAO at all), all of these functions, except as noted, will fail.</para>
             <itemizedlist>
                 <listitem>
                     <para><function>glVertexAttribPointer</function>. Also
-                            <function>glVertexAttribIPointer</function>, but we haven't talked about
+                            <function>glVertexAttribIPointer</function>, but we have not talked about
                         that one yet.</para>
                 </listitem>
                 <listitem>
@@ -94,7 +94,7 @@ glBindVertexArray(vao);]]></programlisting>
                     call; it will affect <emphasis>nothing</emphasis> in the final rendering. So
                     VAOs do store which buffer objects are associated with which attributes; but
                     they do not store the <literal>GL_ARRAY_BUFFER</literal> binding itself.</para>
-                <para>If you want to know why <function>glVertexAttribPointer</function> doesn't
+                <para>If you want to know why <function>glVertexAttribPointer</function> does not
                     simply take a buffer object rather than requiring this bind+call mechanism, it
                     is again because of legacy API cruft. When buffer objects were first introduced,
                     they were designed to impact the API as little as possible. So the old
@@ -170,7 +170,7 @@ glBindVertexArray(vao);]]></programlisting>
                     corner positions that are shared between two triangles that have different
                     colors will still have to be duplicated in different vertices.</para>
                 <para>It turns out that, for most meshes, duplication of this sort is fairly rare.
-                    Most meshes are smooth across their surface, so different attributes don't
+                    Most meshes are smooth across their surface, so different attributes do not
                     generally pop from location to location. Shared edges typically use the same
                     attributes for both triangles along the edges. The simple cubes and the like
                     that we use are one of the few cases where a per-attribute index would have a
@@ -307,7 +307,7 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
             <note>
                 <para>If you look at the vertex position attribute and the shader, you will notice
                     that we now use a 3-component position vector rather than a 4-component one.
-                    This saves on data, yet our matrix math shouldn't work, since you cannot
+                    This saves on data, yet our matrix math should not work, since you cannot
                     multiply a 4x4 matrix with a 3-component vector.</para>
                 <para>This is a subtle feature of OpenGL. If you attempt to transform a matrix by a
                     vector that is one size smaller than the matrix, it will assume that the last
@@ -563,7 +563,7 @@ glUseProgram(0);</programlisting>
             most distant objects first. This is called <glossterm>depth sorting.</glossterm> As you
             might imagine, this <quote>solution</quote> scales incredibly poorly. Doing it for each
             triangle is prohibitive, particularly with scenes with millions of triangles.</para>
-        <para>And the worst part is that even if you put in all the effort, it doesn't actually
+        <para>And the worst part is that even if you put in all the effort, it does not actually
             work. Not all the time at any rate. Many trivial cases can be solved via depth sorting,
             but non-trivial cases have real problems. You can have an arrangement of 3 triangles
             where each overlaps the other, such that there simply is no order you can render them in
@@ -579,7 +579,7 @@ glUseProgram(0);</programlisting>
         <para>Even worse, it does nothing for inter-penetrating triangles; that is, triangles that
             pass through each other in 3D space (as opposed to just from the perspective of the
             camera).</para>
-        <para>Depth sorting isn't going to cut it; clearly, we need something better.</para>
+        <para>Depth sorting is not going to cut it; clearly, we need something better.</para>
         <para>One solution might be to tag fragments with the distance from the viewer. Then, if a
             fragment that is about to be written has a farther distance (ie: the fragment is behind
             what was already drawn), we simply do not write that fragment to the output image. That
@@ -644,7 +644,7 @@ glUseProgram(0);</programlisting>
                 and zFar is 1.0, NDC values of -1 will map to 0.5 and values of 1 will result in
                 1.0.</para>
             <note>
-                <para>Don't confuse the range zNear/zFar with the <emphasis>camera</emphasis>
+                <para>Do not confuse the range zNear/zFar with the <emphasis>camera</emphasis>
                     zNear/zFar used in the perspective projection matrix computation.</para>
             </note>
             <para>The range zNear can be greater than the range zFar; if it is, then the
@@ -682,7 +682,7 @@ glDepthRange(0.0f, 1.0f);</programlisting>
                 is not sufficient to actually write depth values. This allows us to have depth
                 testing for objects where their <emphasis>own</emphasis> depth (the incoming
                 fragment's depth) is not written to the depth buffer, even when their color outputs
-                are written. We don't use this here, but a special algorithm might need this
+                are written. We do not use this here, but a special algorithm might need this
                 feature.</para>
             <note>
                 <para>Due to an odd quirk of OpenGL, writing to the depth buffer is always inactive
@@ -785,7 +785,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             ever exactly 0, then we have a problem.</para>
         <para>This is where clip-space comes in to save the day. See, until we actually
                 <emphasis>do</emphasis> the divide, everything is fine. A 4-dimensional vector that
-            will be divided by the fourth component but hasn't <emphasis>yet</emphasis> is still
+            will be divided by the fourth component but has not <emphasis>yet</emphasis> is still
             valid, even if the fourth component is zero. This kind of coordinate system is called a
                 <glossterm>homogeneous coordinate system</glossterm>. It is a way of talking about
             things that you could not talk about in a normal, 3D coordinate system. Like dividing by
@@ -801,7 +801,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         <para>Since the vertex coordinate is not going to be visible anyway, why bother drawing it
             and dividing by that pesky 0? Well, because that vertex happens to be part of a
             triangle, and if part of the triangle is visible, we have to draw it.</para>
-        <para>But we don't have to draw <emphasis>all</emphasis> of it.</para>
+        <para>But we do not have to draw <emphasis>all</emphasis> of it.</para>
         <para><glossterm>Clipping</glossterm> is the process of taking a triangle and breaking it up
             into smaller triangles, such that only the part of the original triangle that is within
             the viewable region remains. This may generate only one triangle, or it may generate
@@ -810,9 +810,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             vertex shader's interpolation qualifiers) to determine the relative value of the
             post-clipping vertex.</para>
         <para>As you might have guessed, clipping happens in <emphasis>clip space</emphasis>, not
-            NDC space. Hence the name. Since clip-space is a homogeneous coordinate system, we don't
+            NDC space. Hence the name. Since clip-space is a homogeneous coordinate system, we do not
             have to worry about those pesky zeros. Unfortunately, because homogeneous spaces are not
-            easy to draw, we can't show you what it would look like. But we can show you what it
+            easy to draw, we cannot show you what it would look like. But we can show you what it
             would look like if you clipped in camera space, in 2D:</para>
         <figure>
             <title>Triangle Clipping</title>
@@ -839,7 +839,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             <para>We have phrased the discussion of clipping as a way to avoid dividing by zero for
                 good reason. The OpenGL specification states that clipping must be done against all
                 sides of the viewable region. And it certainly appears that way; if you move objects
-                far enough away that they overlap with zFar, then you won't see the objects.</para>
+                far enough away that they overlap with zFar, then you will not see the objects.</para>
             <para>You can also see apparent clipping with objects against the four sides of the view
                 frustum. To see this, you would need to modify the viewport with
                     <function>glViewport</function>, so that only part of the window is being
@@ -852,29 +852,29 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 The simple act of turning one triangle into several is hard and time
                 consuming.</para>
             <para>So, if OpenGL states that this must happen, but supposedly OpenGL-compliant
-                hardware doesn't do it, then what's going on?</para>
-            <para>Consider this: if we hadn't told you just now that the hardware doesn't do
+                hardware does not do it, then what's going on?</para>
+            <para>Consider this: if we had not told you just now that the hardware does not do
                 clipping most of the time, could you tell? No. And that's the point: OpenGL
-                specifies <emphasis>apparent</emphasis> behavior; the spec doesn't care if you
-                actually do vertex clipping or not. All the spec cares about is that the user can't
+                specifies <emphasis>apparent</emphasis> behavior; the spec does not care if you
+                actually do vertex clipping or not. All the spec cares about is that the user cannot
                 tell the difference in terms of the output.</para>
             <para>That's how hardware can get away with the early-z optimization mentioned before;
                 the OpenGL spec says that the depth test must happen after the fragment program
-                executes. But if the fragment shader doesn't modify the depth, then would you be
+                executes. But if the fragment shader does not modify the depth, then would you be
                 able to tell the difference if it did the depth test before the fragment shader? No;
                 if it passes, it would have passed either way, and the same goes for failing.</para>
             <para>Instead of clipping, the hardware usually just lets the triangles go through if
                 part of the triangle is within the visible region. It generates fragments from those
                 triangles, and if a fragment is outside of the visible window, it is discarded
                 before any fragment processing takes place.</para>
-            <para>Hardware usually can't do this however, if any vertex of the triangle has a
+            <para>Hardware usually cannot do this however, if any vertex of the triangle has a
                 clip-space W &lt;= zero. In terms of a perspective projection, this means that part
                 of the triangle is fully behind the eye, rather than just behind the camera zNear
                 plane. In these cases, clipping is much more likely to happen.</para>
             <para>Even so, clipping only happens if the triangle is partially visible; a triangle
                 that is entirely in front of the zNear plane is dropped entirely.</para>
             <para>In general, you should try to avoid rendering things that will clip against the
-                eye plane (clip-space W &lt;= 0, or camera-space Z >= 0). You don't need to be
+                eye plane (clip-space W &lt;= 0, or camera-space Z >= 0). You do not need to be
                 pedantic about it; long walls and the like are fine. But, particularly for low-end
                 hardware, a lot of clipping can really kill performance.</para>
         </sidebar>
@@ -899,9 +899,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     <quote><emphasis>this is fake!</emphasis></quote> as loud as possible to the
             user. What can we do about this?</para>
         <para>The most common technique is to simply not allow it. That is, know how close objects
-            are getting to the near clipping plane (ie: the camera) and don't let them get close
+            are getting to the near clipping plane (ie: the camera) and do not let them get close
             enough to clip.</para>
-        <para>And while this can <quote>function</quote> as a solution, it isn't exactly good. It
+        <para>And while this can <quote>function</quote> as a solution, it is not exactly good. It
             limits what you can do with objects and so forth.</para>
         <para>A more reasonable mechanism is <glossterm>depth clamping</glossterm>. What this does
             is turn off camera near/far plane clipping altogether. Instead, the depth for these
@@ -975,7 +975,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 near and far planes. If you're wondering what happens when you have depth clamping,
                 which turns off clipping, and a clip-space W &lt;= 0, it's simple. In camera space,
                 near and far clipping is represented as turning a pyramid into a frustum: cutting
-                off the top and bottom. If near/far clipping isn't active, then the frustum becomes
+                off the top and bottom. If near/far clipping is not active, then the frustum becomes
                 a pyramid. The other 4 clipping planes are still fully in effect. Clip-space
                 vertices with a W of less than 0 are all outside of the boundary of any of the other
                 four clipping planes.</para>
@@ -1067,7 +1067,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 again: 45%. 10 inches may seem like a lot, but that's still less than a foot away
                 from the eye. Depending on what you are rendering, this may be a perfectly
                 legitimate trade-off.</para>
-            <para>What this teaches us is that the absolute numbers don't matter: it is the ratio of
+            <para>What this teaches us is that the absolute numbers do not matter: it is the ratio of
                 zNear to zFar that dictates where you lose precision. 0.1:1000 is just as bad as
                 1:10,000. So push the zNear distance forward as far as you can. What happens if you
                 push it too far? That's the next section.</para>
@@ -1097,7 +1097,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     object, imagine how bad it will look if it's up in your face. Even if you could
                     make the z-values linear, it could cause problems in near objects.</para>
                 <para>Fifth, if you really need a camera range this large, you can play some tricks
-                    with the depth range. But only do this if you actually do get z-fighting; don't
+                    with the depth range. But only do this if you actually do get z-fighting; do not
                     simply do it because you have a large camera range.</para>
                 <para>The camera range defines how the perspective matrix transforms the Z to
                     clip-space and therefore NDC space. The <emphasis>depth</emphasis> range defines
@@ -1105,7 +1105,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                     So you can draw the front half of your scene into the [0, 0.5] depth range with
                     a camera range like [-1, -2,000,000]. Then, you can draw the back half of the
                     scene in the [0.5, 1] depth range, with a camera range of [-2,000,000,
-                    -4,000,000]. Dividing it in half like this isn't very fair to your front
+                    -4,000,000]. Dividing it in half like this is not very fair to your front
                     objects, so it's more likely that you would want to use something like [-1,
                     -10,000] for the front half and [-10,000, -4,000,000] for the second. Each of
                     these would still map to half of the depth range.</para>
@@ -1145,7 +1145,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
             </listitem>
             <listitem>
                 <para>Clipping holes can be repaired to a degree by activating depth clamping, so long as there
-                    is no overlap. And as long as the triangles don't extend beyond 0 in camera space.</para>
+                    is no overlap. And as long as the triangles do not extend beyond 0 in camera space.</para>
             </listitem>
 			<!--TODO: Reinstate this.-->
 			<!--
@@ -1334,7 +1334,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
                 <glossterm>z-fighting</glossterm>
                 <glossdef>
                     <para>Happens when the window-space Z values for two surfaces are sufficiently
-                        close together that part of one shows through a surface that it shouldn't.
+                        close together that part of one shows through a surface that it should not.
                         This is usually due to a lack of depth buffer precision. The common remedy
                         is to try to move the camera zNear further from 0.</para>
                 </glossdef>

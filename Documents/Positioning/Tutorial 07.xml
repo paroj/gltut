@@ -146,7 +146,7 @@
                 regardless of any other circumstance. You can declare the uniforms with the same
                 name, with the same types, in the same order, but OpenGL will not
                     <emphasis>guarantee</emphasis> that you get the same uniform locations. It
-                doesn't even guarantee that you get the same uniform locations on different
+                does not even guarantee that you get the same uniform locations on different
                 run-through of the same executable.</para>
             <para>This means that uniform locations are local to a program object. Uniform data is
                 also local to an object. For example:</para>
@@ -221,11 +221,11 @@ void main()
                 <para>If a vertex shader takes attributes that the VAO does not provide, then the
                     value the vertex shader gets will be a vector of (0, 0, 0, 1). If the vertex
                     shader input vector has fewer than 4 elements, then it fills them in in that
-                    order. A vec3 input that isn't provided by the VAO will be (0, 0, 0).</para>
+                    order. A vec3 input that is not provided by the VAO will be (0, 0, 0).</para>
                 <para>Speaking of which, if a VAO provides more components of an attribute vector
                     than the vertex shader expects (the VAO provides 4 elements, but the vertex
                     shader input is a vec2), then the vertex shader input will be filled in as much
-                    as it can be. If the reverse is true, if the VAO doesn't provide enough
+                    as it can be. If the reverse is true, if the VAO does not provide enough
                     components of the vector, then the unfilled values are always filled in from the
                     (0, 0, 0, 1) vector.</para>
             </sidebar>
@@ -261,13 +261,13 @@ glUseProgram(0);</programlisting>
                 world-space that should be considered <quote>up</quote> based on where the camera is
                 looking.</para>
             <para>The implementation of this function is less simple. It does a lot of complex
-                geometric computations. I won't go into detail explaining how it work, but there is
+                geometric computations. I will not go into detail explaining how it work, but there is
                 one thing you need to know.</para>
             <para>It is very important that the <quote>up</quote> direction is not along the same
                 line as the direction from the camera position to the look at target. If up is very
                 close to that direction then the generated matrix is no longer valid, and unpleasant
                 things will happen.</para>
-            <para>Since it doesn't make physical sense for <quote>up</quote> to be directly behind
+            <para>Since it does not make physical sense for <quote>up</quote> to be directly behind
                 or in front of the viewer, it makes a degree of sense that this would likewise
                 produce a nonsensical matrix. This problem usually crops up in camera systems like
                 the one devised here, where the camera is facing a certain point and is rotating
@@ -639,7 +639,7 @@ void main()
                 elements in the uniform block. This allows different hardware to position elements
                 where it is most efficient for them. Some shader hardware can place 2
                     <type>vec3</type>'s directly adjacent to one another, so that they only take up
-                6 floats. Other hardware can't handle that, and must pad each <type>vec3</type> out
+                6 floats. Other hardware cannot handle that, and must pad each <type>vec3</type> out
                 to 4 floats.</para>
             <para>Normally, this would mean that, in order to set any values into the buffer object,
                 you would have to query the program object for the byte offsets for each element in
@@ -658,7 +658,7 @@ void main()
                 set a value to a location that is -1, but no data will actually be set.</para>
             <para>If a uniform block is marked with the <quote>std140</quote> layout, then the
                 ability to disable uniforms in a block is entirely removed. All uniforms must have
-                storage, even if this particular program doesn't use them. This means that, as long
+                storage, even if this particular program does not use them. This means that, as long
                 as you declare the same uniforms in the same order within a block, the storage for
                 that uniform block will have the same layout in <emphasis>any</emphasis> program.
                 This means that multiple different programs can use the same uniform buffer.</para>
@@ -677,7 +677,7 @@ void main()
         <section>
             <title>Uniform Block Indices</title>
             <para>Uniforms inside a uniform block do not have individual uniform locations. After
-                all, they don't have storage within a program object; their data comes from a buffer
+                all, they do not have storage within a program object; their data comes from a buffer
                 object.</para>
             <para>So instead of calling glGetUniformLocation, we have a new function.</para>
             <programlisting language="cpp">data.globalUniformBlockIndex =
@@ -713,7 +713,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
             <para><literal>GL_UNIFORM_BUFFER</literal> does not really have an intrinsic meaning
                 like these other two. Having something bound to this binding means nothing as far as
                 any other function of OpenGL is concerned. Oh, you can call buffer object functions
-                on it, like glBufferData as above. But it doesn't have any other role to play in
+                on it, like glBufferData as above. But it does not have any other role to play in
                 rendering. The main reason to use it is to preserve the contents of more useful
                 binding points. It also communicates to someone reading your code that this buffer
                 object is going to be used to store uniform data.</para>
@@ -841,7 +841,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
             <para>In the <phrase role="propername">World Space</phrase> example, we drew the
                 camera's look-at target directly in camera space, bypassing the world-to-camera
                 matrix. Doing that with uniform buffers would be harder, since we would have to set
-                the uniform buffer value twice in the same draw call. This isn't particularly
+                the uniform buffer value twice in the same draw call. This is not particularly
                 difficult, but it could be a drain on performance.</para>
             <para>Instead, we just use the camera's target position to compute a model-to-world
                 matrix that always positions the object at the target point.</para>
@@ -861,7 +861,7 @@ g_pCubeColorMesh->Render();
 glUseProgram(0);
 glEnable(GL_DEPTH_TEST);</programlisting>
             </example>
-            <para>We don't get the neat effect of having the object always face the camera though.
+            <para>We do not get the neat effect of having the object always face the camera though.
                 We still shut off the depth test, so that we can always see the object.</para>
         </section>
     </section>
@@ -937,10 +937,10 @@ void main()
             origin.</para>
         <para>This means that, if you <emphasis>combined</emphasis> the two matrices into one, you
             would have one matrix with a relatively small translation component. Therefore, you
-            wouldn't have a precision problem.</para>
+            would not have a precision problem.</para>
         <para>Now, 32-bit floats on the CPU are no more precise than on the GPU. However, on the CPU
             you are guaranteed to be able to do double-precision math. And while it is slower than
-            single-precision math, the CPU isn't doing as many computations. You aren't doing
+            single-precision math, the CPU is not doing as many computations. You are not doing
             vector/matrix multiplies per vertex; you're doing them per <emphasis>object</emphasis>.
             And since the final result would actually fit within 32-bit precision limitations, the
             solution is obvious.</para>

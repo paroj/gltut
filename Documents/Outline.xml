@@ -197,7 +197,7 @@
                     <para>glDrawElementsBaseVertex, as an optimization.</para>
                 </listitem>
                 <listitem>
-                    <para>Depth buffers. How to use them to hide surfaces. Don't forget about
+                    <para>Depth buffers. How to use them to hide surfaces. Do not forget about
                         glDepthRange and the depth portion of the viewport transform.</para>
                 </listitem>
                 <listitem>
@@ -578,7 +578,7 @@
         <section>
             <title>Selecting the Masses</title>
             <para>This tutorial creates a number of entities that all move around, on pre-defined
-                paths, over a surface of bumpy terrain. They don't interact with the terrain. We
+                paths, over a surface of bumpy terrain. They do not interact with the terrain. We
                 then render projected selection circles onto the ground beneath them.</para>
             <para>Concepts:</para>
             <itemizedlist>
@@ -629,7 +629,7 @@
                         as much room/performance.</para>
                 </listitem>
                 <listitem>
-                    <para>Floating-point render targets. Don't forget the hardware
+                    <para>Floating-point render targets. Do not forget the hardware
                         limitations.</para>
                 </listitem>
                 <listitem>

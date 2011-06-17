@@ -49,7 +49,7 @@
                 <keycap>k</keycap> keys move the light up and down respectively, while the
                 <keycap>j</keycap> and <keycap>l</keycap> will decrease and increase the light's
             radius. Holding shift with these keys will move in smaller increments.</para>
-        <para>Most of the code is nothing we haven't seen elsewhere. The main changes are at the top
+        <para>Most of the code is nothing we have not seen elsewhere. The main changes are at the top
             of the rendering function.</para>
         <example>
             <title>Per-Vertex Point Light Rendering</title>
@@ -151,10 +151,10 @@ void main()
             bright. But if you move the light to the middle of the cylinder, far the top or bottom
             vertices, then the illumination will be much dimmer.</para>
         <para>This is not the only problem with doing per-vertex lighting. For example, run the
-            tutorial again and don't move the light. Just watch how the light behaves on the
+            tutorial again and do not move the light. Just watch how the light behaves on the
             cylinder's surface as it animates around. Unlike with directional lighting, you can very
             easily see the triangles on the cylinder's surface. Though the per-vertex computations
-            aren't helping matters, the main problem here has to do with interpolating the
+            are not helping matters, the main problem here has to do with interpolating the
             values.</para>
         <para>If you move the light source farther away, you can see that the triangles smooth out
             and become indistinct from one another. But this is simply because, if the light source
@@ -230,11 +230,11 @@ void main()
         </informalequation>
         <para>This means that if L is constant, linearly interpolating N is exactly equivalent to
             linearly interpolating the results of the lighting equation. And the addition of the
-            ambient term doesn't change this, since it is a constant and would not be affected by
+            ambient term does not change this, since it is a constant and would not be affected by
             linear interpolation.</para>
         <para>When doing point lighting, you would have to interpolate both N and L. And that does
             not yield the same results as linearly interpolating the two colors you get from the
-            lighting equation. This is a big part of the reason why the cylinder doesn't look
+            lighting equation. This is a big part of the reason why the cylinder does not look
             correct.</para>
         <para>The more physically correct method of lighting is to perform lighting at every rendered
             pixel. To do that, we would have to interpolate the lighting parameters across the
@@ -321,7 +321,7 @@ void main()
             another neighboring triangle.</para>
         <para>In our case, this means that for points along the main diagonal, the light direction
             will only be composed of the direction values from the two vertices on that diagonal.
-            This is not good. This wouldn't be much of a problem if the light direction did not
+            This is not good. This would not be much of a problem if the light direction did not
             change much along the surface, but with large triangles (relative to how close the light
             is to them), that is simply not the case.</para>
         <para>Since we cannot interpolate the light direction very well, we need to interpolate
@@ -470,7 +470,7 @@ void main()
     diffuseColor = inDiffuseColor;
 }</programlisting>
         </example>
-        <para>Since our lighting is done in the fragment shader, there isn't much to do except pass
+        <para>Since our lighting is done in the fragment shader, there is not much to do except pass
             variables through and set the output clip-space position. The version that takes no
             diffuse color just passes a <type>vec4</type> containing just 1.0.</para>
         <para>The fragment shader is much more interesting:</para>
@@ -522,7 +522,7 @@ void main()
                 </mediaobject>
             </figure>
             <para>Notice the vertical bands on the cylinder. This are reminiscent of the same
-                interpolation problem we had before. Wasn't doing lighting at the fragment level
+                interpolation problem we had before. Was not doing lighting at the fragment level
                 supposed to fix this?</para>
             <para>Actually, this is a completely different problem. And it is one that is
                 essentially impossible to solve. Well, not without changing our rendered
@@ -565,7 +565,7 @@ void main()
             <para>The lighting computations are correct for the vertices near the edges of a
                 triangle. But the farther from the edges you get, the more incorrect it
                 becomes.</para>
-            <para>The key point is that there isn't much we can do about this problem. The only
+            <para>The key point is that there is not much we can do about this problem. The only
                 solution is to add more vertices to the approximation of the cylinder. It should
                 also be noted that adding more triangles would also make per-vertex lighting look
                 more correct. If you add infinitely many vertices to the cylinder, then the results
@@ -627,7 +627,7 @@ void main()
             </mediaobject>
         </informalequation>
         <para>This equation computes physically realistic light attenuation for point-lights. But it
-            often doesn't look very good. Lights seem to have a much sharper intensity falloff than
+            often does not look very good. Lights seem to have a much sharper intensity falloff than
             one would expect.</para>
         <para>There is a reason for this, but it is not one we are ready to get into quite yet. What
             is often done is to simply use the inverse rather than the inverse-square of the
@@ -650,7 +650,7 @@ void main()
                 space. And while this is a perfectly useful space to do lighting in, model space is
                 not world space.</para>
             <para>We want to specify the attenuation constant factor in terms of world space
-                distances. But we aren't dealing in world space; we are in model space. And model
+                distances. But we are not dealing in world space; we are in model space. And model
                 space distances are, naturally, in model space, which may well be scaled relative to
                 world space. Here, any kind of scale in the model-to-world transform is a problem,
                 not just non-uniform scales. Although if there was a uniform scale, we could apply
@@ -660,7 +660,7 @@ void main()
                 can do our lighting in that space.</para>
             <para>Doing it in camera space requires computing a camera space position and passing it
                 to the fragment shader to be interpolated. And while we could do this, that's not
-                clever enough. Isn't there some way to get around that?</para>
+                clever enough. Is not there some way to get around that?</para>
             <para>Yes, there is. Recall <varname>gl_FragCoord</varname>, an intrinsic value given to
                 every fragment shader. It represents the location of the fragment in window space.
                 So instead of transforming from model space to camera space, we will transform from
@@ -825,7 +825,7 @@ uniform UnProjection
             <para>GLSL has the <type>bool</type> type just like C++ does. The
                     <literal>true</literal> and <literal>false</literal> values work just like C++'s
                 equivalents. Where they differ is that GLSL also has vectors of bools, called
-                    <type>bvec#</type>, where the # can be 2, 3, or 4. We don't use that here, but
+                    <type>bvec#</type>, where the # can be 2, 3, or 4. We do not use that here, but
                 it is important to note.</para>
             <para>OpenGL's API, however, is still a C API. And C (at least, pre-C99) has no
                     <type>bool</type> type. Uploading a boolean value to a shader looks like

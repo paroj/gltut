@@ -9,7 +9,7 @@
         accurate one, but it is deception all the same. We are not rendering round objects; we
         simply use lighting and interpolation of surface characteristics to make an object appear
         round. Sometimes we have artifacts or optical illusions that show the lie for what it is.
-        Even when the lie is near-perfect, the geometry of a model still doesn't correspond to what
+        Even when the lie is near-perfect, the geometry of a model still does not correspond to what
         the lighting makes the geometry appear to be.</para>
     <para>In this tutorial, we will be looking at the ultimate expression of this lie. We will use
         lighting computations to make an object appear to be something entirely different from its
@@ -180,7 +180,7 @@ void main()
             <title>Racketeering Rasterization</title>
             <para>Our lighting equations in the past needed only a position and normal in
                 camera-space (as well as other material and lighting parameters) in order to work.
-                So the job of the fragment shader is to provide them. Even though they don't
+                So the job of the fragment shader is to provide them. Even though they do not
                 correspond to those of the actual triangles in any way.</para>
             <para>Here are the salient new parts of the fragment shader for impostors:</para>
             <example>
@@ -230,7 +230,7 @@ void main()
                 distance check. Since the size of the square is equal to the radius of the sphere,
                 if the distance of the <varname>mapping</varname> variable from its (0, 0) point is
                 greater than 1, then we know that this point is off of the sphere.</para>
-            <para>Here, we use a clever way of computing the length; we don't. Instead, we compute
+            <para>Here, we use a clever way of computing the length; we do not. Instead, we compute
                 the square of the length. We know that if <inlineequation>
                     <mathphrase>X<superscript>2</superscript> >
                         Y<superscript>2</superscript></mathphrase>
@@ -258,7 +258,7 @@ void main()
                     data that may be different between each shader. This is also why branches in
                     shaders will often execute both sides rather than actually branching; it keeps
                     the shader logic simpler.</para>
-                <para>However, that doesn't mean <literal>discard</literal> is without use for
+                <para>However, that does not mean <literal>discard</literal> is without use for
                     stopping unwanted processing. If all of the shaders that are running together
                     hit a <literal>discard</literal>, then they can all be aborted with no problems.
                     And hardware often does this where possible.</para>
@@ -321,13 +321,13 @@ void main()
             </mediaobject>
         </figure>
         <para>What's going on here? The mesh sphere seems to be wider than the impostor sphere. This
-            must mean that the mesh sphere is doing something our impostor isn't. Does this have to
+            must mean that the mesh sphere is doing something our impostor is not. Does this have to
             do with the inaccuracy of the mesh sphere?</para>
         <para>Quite the opposite, in fact. The mesh sphere is correct. The problem is that our
             impostor is too simple.</para>
         <para>Look back at how we did our computations. We map a sphere down to a flat surface. The
             problem is that <quote>down</quote> in this case is in the camera-space Z direction. The
-            mapping between the surface and the sphere is static; it doesn't change based on the
+            mapping between the surface and the sphere is static; it does not change based on the
             viewing angle.</para>
         <para>Consider this 2D case:</para>
         <figure>
@@ -339,7 +339,7 @@ void main()
             </mediaobject>
         </figure>
         <para>The dark line through the circle represents the square we drew. When viewing the
-            sphere off to the side like this, we shouldn't be able to see the left-edge of the
+            sphere off to the side like this, we should not be able to see the left-edge of the
             sphere facing perpendicular to the camera. And we should see some of the sphere on the
             right that is behind the plane.</para>
         <para>So how do we solve this?</para>
@@ -503,7 +503,7 @@ void main()
             </informalfigure>
             <para>The black line represents the square we used originally. There is a portion to the
                 left of the projection that we should be able to see. However, with proper ray
-                tracing, it wouldn't fit onto the area of the radius-sized square.</para>
+                tracing, it would not fit onto the area of the radius-sized square.</para>
             <para>This means that we need to expand the size of the square. Rather than finding a
                 clever way to compute the exact extent of the sphere's area projected onto a square,
                 it's much easier to just make the square bigger. This is even moreso considering
@@ -525,7 +525,7 @@ void main()
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>Hmm. Even though we've made it look like a mathematically perfect sphere, it doesn't
+        <para>Hmm. Even though we've made it look like a mathematically perfect sphere, it does not
             act like one to the depth buffer. As far as it is concerned, it's just a circle
             (remember: <literal>discard</literal> prevents depth writes and tests as well).</para>
         <para>Is that the end for our impostors? Hardly.</para>
@@ -574,10 +574,10 @@ gl_FragDepth = ((gl_DepthRange.diff * ndcDepth) +
                         could add the following statement to any fragment shader that uses the
                         default depth value:</para>
                     <programlisting language="glsl">gl_FragDepth = gl_FragCoord.z</programlisting>
-                    <para>This is, in terms of behavior a noop; it does nothing OpenGL wouldn't have
+                    <para>This is, in terms of behavior a noop; it does nothing OpenGL would not have
                         done itself. However, in terms of <emphasis>performance</emphasis>, this is
                         a drastic change.</para>
-                    <para>The reason fragment shaders aren't required to have this line in all of
+                    <para>The reason fragment shaders are not required to have this line in all of
                         them is to allow for certain optimizations. If the OpenGL driver can see
                         that you do not set <varname>gl_FragDepth</varname> anywhere in the fragment
                         shader, then it can dramatically improve performance in certain
@@ -599,7 +599,7 @@ gl_FragDepth = ((gl_DepthRange.diff * ndcDepth) +
                         what conditional branches your shader uses. The value is not initialized to
                         a default; you either always write to it or never mention
                                 <quote><varname>gl_FragDepth</varname></quote> in your fragment
-                        shader at all. Obviously, you don't always have to write the same value; you
+                        shader at all. Obviously, you do not always have to write the same value; you
                         can conditionally write different values. But you cannot write something in
                         one path and not write something in another. Initialize it explicitly with
                             <varname>gl_FragCoord.z</varname> if you want to do something like
@@ -680,9 +680,9 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
                 thing is an entirely new programmatic shader stage: <glossterm>geometry
                     shaders</glossterm>.</para>
             <para>Our initial pipeline discussion ignored this shader stage, because it is an
-                entirely optional part of the pipeline. If a program object doesn't contain a
+                entirely optional part of the pipeline. If a program object does not contain a
                 geometry shader, then OpenGL just does its normal stuff.</para>
-            <para>The most confusing thing about geometry shaders is that they don't shade geometry.
+            <para>The most confusing thing about geometry shaders is that they do not shade geometry.
                 Vertex shaders take a vertex as input and write a vertex as output. Fragment shader
                 take a fragment as input and write a fragment as output.</para>
             <para>Geometry shaders take a <emphasis>primitive</emphasis> as input and write one or
@@ -701,7 +701,7 @@ glBindVertexArray(0);</programlisting>
                     <literal>GL_POINTS.</literal> Recall that multiple primitives can have the same
                 base type. <literal>GL_TRIANGLE_STRIP</literal> and <literal>GL_TRIANGLES</literal>
                 are both separate primitives, but both generate triangles.
-                    <literal>GL_POINTS</literal> doesn't generate triangle primitives; it generates
+                    <literal>GL_POINTS</literal> does not generate triangle primitives; it generates
                 point primitives.</para>
             <para><literal>GL_POINTS</literal> interprets each individual vertex as a separate point
                 primitive. There are no other forms of point primitives, because points only contain
@@ -736,7 +736,7 @@ void main()
                 outputs using the interface name (<varname>outData</varname>, in this case). This
                 allows us to use the same names for inputs as we do for their corresponding outputs.
                 They do have other virtues, as we will soon see.</para>
-            <para>Do note that this vertex shader doesn't write to <varname>gl_Position.</varname>
+            <para>Do note that this vertex shader does not write to <varname>gl_Position.</varname>
                 That is not necessary when a vertex shader is paired with a geometry shader.</para>
             <para>Speaking of which, let's look at the global definitions of our geometry
                 shader.</para>
@@ -792,7 +792,7 @@ out FragData
                 length 1, since point primitives have only one vertex. But this is still necessary
                 even in that case.</para>
             <para>We also have another output fragment block. This one matches the definition from
-                the fragment shader, as we will see a bit later. It doesn't have an instance name.
+                the fragment shader, as we will see a bit later. It does not have an instance name.
                 Also, note that several of the values use the <literal>flat</literal> qualifier. We
                 could have just used <literal>smooth</literal>, since we're passing the same values
                 for all of the triangles. However, it's more descriptive to use the
@@ -879,7 +879,7 @@ uniform Material
             <para>Do note that uniform blocks have a maximum size that is hardware-dependent. If we
                 wanted to have a large palette of materials, on the order of several thousand, then
                 we may exceed this limit. At that point, we would need an entirely new way to handle
-                this data. Once that we haven't learned about yet.</para>
+                this data. Once that we have not learned about yet.</para>
             <para>Or we could just split it up into multiple draw calls instead of one.</para>
         </section>
     </section>
@@ -981,7 +981,7 @@ uniform Material
                             of type <type>int</type>. If there is no geometry shader, then this
                             value will be the current count of primitives that was previously
                             rendered in this draw call. If there is a geometry shader, but it
-                            doesn't write to this value, then the value will be undefined.</para>
+                            does not write to this value, then the value will be undefined.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>

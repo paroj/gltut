@@ -23,7 +23,7 @@
             render a mathematically perfect representation of a sphere simply by rendering two
             triangles.</para>
         <para>All of this has been done without textures. Thus, the first lesson this book has to
-            teach you about textures is that they aren't <emphasis>that</emphasis> important. What
+            teach you about textures is that they are not <emphasis>that</emphasis> important. What
             you have learned is how to think about solving graphics problems without
             textures.</para>
         <para>Many graphics texts overemphasize the importance of textures; most of them introduce

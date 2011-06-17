@@ -68,8 +68,8 @@ void main()
             <para>The third parameter to <function>mix</function> must be on the range [0, 1].
                 However, GLSL will not check this or do the clamping for you. If it is not on this
                 range, the result of the <function>mix</function> function will be undefined.
-                    <quote>Undefined</quote> is the OpenGL shorthand for, <quote>I don't know, but
-                    it's probably not what you want.</quote></para>
+                    <quote>Undefined</quote> is the OpenGL shorthand for, <quote>I do not know, but
+                    it is probably not what you want.</quote></para>
         </note>
         <para>We get the following image:</para>
         <figure>

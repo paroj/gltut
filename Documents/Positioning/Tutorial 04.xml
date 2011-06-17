@@ -114,7 +114,7 @@
             <para>Now, move it to the right and up, similar to where the square is. You should be
                 able to see the bottom and left side of the remote.</para>
             <para>So we should be able to see the bottom and left side of our rectangular prism. But
-                we can't. Why not?</para>
+                we cannot. Why not?</para>
             <para>Think back to how rendering happens. In clip-space, the vertices of the back end
                 of the rectangular prism are directly behind the front end. And when we transform
                 these into window coordinates, the back vertices are still directly behind the front
@@ -532,7 +532,7 @@ glUseProgram(0);]]></programlisting>
                 the following rules:</para>
             <itemizedlist>
                 <listitem>
-                    <para>You cannot select components that aren't in the source vector. So if you
+                    <para>You cannot select components that are not in the source vector. So if you
                         have:</para>
                     <programlisting language="glsl">vec2 theVec;</programlisting>
                     <para>You cannot do <literal>theVec.zz</literal> because it has no Z component.</para>
@@ -558,7 +558,7 @@ glUseProgram(0);]]></programlisting>
                 follows:</para>
             <programlisting language="glsl">clipPos.x = cameraPos.x * frustumScale;
 clipPos.y = cameraPos.y * frustumScale;</programlisting>
-            <para>But it probably wouldn't be as fast as the swizzle and vector math version.</para>
+            <para>But it probably would not be as fast as the swizzle and vector math version.</para>
         </section>
     </section>
     <section xml:id="Tut04_matrix">
@@ -581,7 +581,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             </mediaobject>
         </equation>
         <para>The odd spacing is intentional. For laughs, let's add a bunch of meaningless terms
-            that don't change the equation, but starts to develop an interesting pattern:</para>
+            that do not change the equation, but starts to develop an interesting pattern:</para>
         <equation>
             <title>Camera to Clip Expanded Equations</title>
             <mediaobject>
@@ -651,7 +651,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             Because each of the multiplications are independent of each other, they could all be
             done simultaneously, which is exactly the kind of thing graphics hardware does fast.
             Similarly, the addition operations are partially independent; each row's summation
-            doesn't depend on the values from any other row. Ultimately, vector-matrix
+            does not depend on the values from any other row. Ultimately, vector-matrix
             multiplication usually generates only 4 instructions in the GPU's machine
             language.</para>
         <para>We can re-implement the above perspective projection using matrix math rather than
@@ -1095,7 +1095,7 @@ vec3 thirdVec = secondVec.wzy;</programlisting>
                         matrices together can only be performed if the number of rows in the matrix
                         on the left is equal to the number of columns in the matrix on the right.
                         For this reason, among others, matrix multiplication is not commutative (A*B is not B*A;
-                        sometimes B*A isn't even possible).</para>
+                        sometimes B*A is not even possible).</para>
                     <para>4x4 matrices are used in computer graphics to transform 3 or 4-dimensional
                         vectors from one space to another. Most kinds of linear transforms can be
                         represented with 4x4 matrices.</para>

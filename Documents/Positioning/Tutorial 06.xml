@@ -153,7 +153,7 @@
             multiplication causes the value in the W column to be multiplied by the W coordinate of
             the vector (which is 1) and added to the sum of the other terms.</para>
         <para>But how do we keep the matrix from doing something to the other terms? We only want
-            this matrix to apply an offset to the position. We don't want to have it modify the
+            this matrix to apply an offset to the position. We do not want to have it modify the
             position in some other way.</para>
         <para>This is done by modifying an <glossterm>identity matrix.</glossterm> An identity
             matrix is a matrix that, when performing matrix multiplication, will return the matrix
@@ -360,7 +360,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             </mediaobject>
         </equation>
         <para>You may start to see a pattern emerging here, something that begins to suggest why
-            matrices are very, very useful. I won't spoil it for you yet though.</para>
+            matrices are very, very useful. I will not spoil it for you yet though.</para>
         <para>The tutorial project <phrase role="propername">Scale</phrase> will display 5 objects
             at various scales. The objects are all at the same Z distance from the camera, so the
             only size difference between the objects is the scale effects applied to them. The
@@ -462,7 +462,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 </imageobject>
             </mediaobject>
         </informalequation>
-        <para>Doesn't this look a bit familiar? No? Maybe this look at vector-matrix multiplication
+        <para>Does not this look a bit familiar? No? Maybe this look at vector-matrix multiplication
             will jog your memory:</para>
         <informalequation>
             <mediaobject>
@@ -694,7 +694,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 that the full transformation matrix is relative to the space of its parent, not
                 camera space.</para>
             <para>So if you have a node who's translation is (3, 0, 4), then it will be 3 X-units
-                and 4 Z-units from the origin of its parent transform. The node itself doesn't know
+                and 4 Z-units from the origin of its parent transform. The node itself does not know
                 or care what the parent transform actually is; it simply stores a transform relative
                 to that.</para>
             <para>Technically, a node does not have to have a mesh. It is sometimes useful in a
@@ -889,7 +889,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 more buffer object room and more vertex attribute changes when these were simply
                 unnecessary. The vertex shader runs no slower this way; it's still just multiplying
                 by matrices. And the minor CPU computation time is exactly that: minor.</para>
-            <para>Mesh space is very useful, even though it isn't commonly talked about to the point
+            <para>Mesh space is very useful, even though it is not commonly talked about to the point
                 where it gets a special name. As we have seen, it allows easy model reusage, but it
                 has other properties as well. For example, it can be good for data compression. As
                 we will see in later tutorials, there are ways to store values on the range [0, 1]
@@ -920,8 +920,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                     should feel free to do whatever they want to the current matrix, as well as
                     push/pop as much as they want. However, the callee <emphasis>must</emphasis> not
                     pop more than they push, though this is a general requirement with any function
-                    taking a matrix stack. After all, a stack doesn't report how many elements it
-                    has, so you can't know whether someone pushed anything at all.</para>
+                    taking a matrix stack. After all, a stack does not report how many elements it
+                    has, so you cannot know whether someone pushed anything at all.</para>
                 <para>In callee-save, what the convention is saying is that a function must be
                     responsible for any changes it wants to make to the matrix stack. If it wants to
                     change the matrix stack, then it must push first and pop after using those

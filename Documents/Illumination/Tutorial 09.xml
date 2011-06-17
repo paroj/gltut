@@ -54,7 +54,7 @@
         <para>A surface looks blue under white light because the surface absorbs all non-blue parts
             of the light and only reflects the blue parts. If one were to shine a red light on the
             surface, the surface would appear very dark, as the surface absorbs non-blue light, and
-            the red light doesn't have much blue light in it.</para>
+            the red light does not have much blue light in it.</para>
         <figure>
             <title>Surface Light Absorption</title>
             <mediaobject>
@@ -169,7 +169,7 @@
         <section>
             <title>Gouraud Shading</title>
             <para>So each vertex has a normal. That is useful, but it is not sufficient, for one
-                simple reason. We don't draw the vertices of triangles; we draw the interior of a
+                simple reason. We do not draw the vertices of triangles; we draw the interior of a
                 triangle through rasterization.</para>
             <para>There are several ways to go about computing lighting across the surface of a
                 triangle. The simplest to code, and most efficient for rendering, is to perform the
@@ -182,7 +182,7 @@
                 fast process, and not having to compute lighting at every fragment generated from
                 the triangle raises the performance substantially.</para>
             <para>That being said, modern games have essentially abandoned this technique. Part of
-                that is because the per-fragment computation isn't as slow and limited as it used to
+                that is because the per-fragment computation is not as slow and limited as it used to
                 be. And part of it is simply that games tend to not use just diffuse lighting
                 anymore, so the Gouraud approximation is more noticeably inaccurate.</para>
         </section>
@@ -310,7 +310,7 @@
                     direction of the camera.</para>
                 <para>The code for these are contained in the framework objects
                         <type>MousePole</type> and <type>ObjectPole</type>. The source code in them
-                    is, outside of how FreeGLUT handles mouse input, nothing that hasn't been seen
+                    is, outside of how FreeGLUT handles mouse input, nothing that has not been seen
                     previously.</para>
             </sidebar>
             <para>Pressing the <keycap>Spacebar</keycap> will switch between a cylinder that has a
@@ -350,7 +350,7 @@ glUseProgram(0);</programlisting>
                 scaling a direction is a reasonable operation, translating it is not. Now, we could
                 just adjust the matrix to remove all translations before transforming our light into
                 camera space. But that's highly unnecessary; we can simply put 0.0 in the fourth
-                component of the direction. This will do the same job, only we don't have to mess
+                component of the direction. This will do the same job, only we do not have to mess
                 with the matrix to do so.</para>
             <para>This also allows us to use the same transformation matrix for vectors as for
                 positions.</para>
@@ -412,10 +412,10 @@ glUseProgram(0);</programlisting>
                 inputs.</para>
             <para>We actually draw two different kinds of cylinders, based on user input. The
                 colored cylinder is tinted red and is the initial cylinder. The white cylinder uses
-                a vertex program that doesn't use per-vertex colors for the diffuse color; instead,
+                a vertex program that does not use per-vertex colors for the diffuse color; instead,
                 it uses a hard-coded color of full white. These both come from the same mesh file,
                 but have special names to differentiate between them.</para>
-            <para>What changes is that the <quote>flat</quote> mesh doesn't pass the color vertex
+            <para>What changes is that the <quote>flat</quote> mesh does not pass the color vertex
                 attribute and the <quote>tint</quote> mesh does.</para>
             <para>Other than which program is used to render them and what mesh name they use, they
                 are both rendered similarly.</para>
@@ -473,7 +473,7 @@ void main()
                 update all programs that use the projection matrix just by changing the buffer
                 object.</para>
             <para>The first line of <function>main</function> simply does the position transforms we
-                need to position our vertices, as we have seen before. We don't need to store the
+                need to position our vertices, as we have seen before. We do not need to store the
                 camera-space position, so we can do the entire transformation in a single
                 step.</para>
             <para>The next line takes our normal and transforms it by the model-to-camera matrix
@@ -489,7 +489,7 @@ void main()
             <para>This is important, because the cosine of the angle of incidence can be negative.
                 This is for values which are pointed directly away from the light, such as the
                 underside of the ground plane, or any part of the cylinder that is facing away from
-                the light. The lighting computations don't make sense with this value being
+                the light. The lighting computations do not make sense with this value being
                 negative, so the clamping is necessary.</para>
             <para>After computing that value, we multiply it by the light intensity and diffuse
                 color. This result is then passed to the interpolated output color. The fragment
@@ -534,8 +534,8 @@ void main()
                     </imageobject>
                 </mediaobject>
             </equation>
-            <para>This doesn't require any messy cosine transcendental math computations. This
-                doesn't require using trigonometry to compute the angle between the two vectors.
+            <para>This does not require any messy cosine transcendental math computations. This
+                does not require using trigonometry to compute the angle between the two vectors.
                 Simple multiplications and additions; most graphics hardware can do billions of
                 these a second.</para>
             <para>Obviously, the GLSL function <function>dot</function> computes the vector dot
@@ -639,7 +639,7 @@ void main()
                 <emphasis>is</emphasis> its transpose. Also, taking the inverse of a matrix twice
             results in the original matrix. Therefore, you can express any pure-rotation matrix as
             the inverse transpose of itself, without affecting the matrix. Since the inverse is its
-            transpose, and doing a transpose twice on a matrix doesn't change its value, the
+            transpose, and doing a transpose twice on a matrix does not change its value, the
             inverse-transpose of a rotation matrix is a no-op.</para>
         <para>Also, since the values in pure-scale matrices are along the diagonal, a transpose
             operation on scale matrices does nothing. With these two facts in hand, we can
@@ -718,7 +718,7 @@ glUseProgram(0);</programlisting>
             are not used. At least, not in the output mesh. It's better to just get the modeller to
             adjust the model as needed in their modelling application.</para>
         <para>Uniform scales are more commonly used. So you still need to normalize the normal after
-            transforming it with the model-to-camera matrix, even if you aren't using the
+            transforming it with the model-to-camera matrix, even if you are not using the
             inverse-transpose.</para>
     </section>
     <section>
@@ -779,9 +779,9 @@ glUseProgram(0);</programlisting>
             technique: <glossterm>ambient lighting.</glossterm></para>
         <para>The ambient lighting <quote>model</quote><footnote>
                 <para>I put the word model in quotations because ambient lighting is so divorced
-                    from anything in reality that it doesn't really deserve to be called a model.
+                    from anything in reality that it does not really deserve to be called a model.
                     That being said, just because it does not actually model global illumination in
-                    any real way doesn't mean that it isn't <emphasis>useful</emphasis>.</para>
+                    any real way does not mean that it is not <emphasis>useful</emphasis>.</para>
             </footnote> is quite simple. It assumes that, on every object in the scene, there is a
             light of a certain intensity that emanates from everywhere. It comes from all directions
             equally, so there is no angle of incidence in our diffuse calculation. It is simply the
@@ -887,7 +887,7 @@ else
         <para>Thus far, we have used light intensity like a color. We clamp it to the range [0, 1].
             We even make sure that combined intensities from different lighting models always are
             within that range.</para>
-        <para>What this effectively means is that the light doesn't brighten the scene. The scene
+        <para>What this effectively means is that the light does not brighten the scene. The scene
             without the light is fully lit; our lights simply <emphasis>darken</emphasis> parts of
             the scene. They take the diffuse color and make it smaller, because multiplying with a
             number on the range [0, 1] can only ever make a number smaller (or the same).</para>
@@ -903,23 +903,23 @@ else
         <para>The concept of lighting darkening a scene was common for a long time in real-time
             applications. It is another part of the reason why, for so many years, 3D games tended
             to avoid the bright outdoors, preferring corridors with darker lighting. The sun is a
-            powerful light source; binding lighting intensity to the [0, 1] range doesn't lead to a
+            powerful light source; binding lighting intensity to the [0, 1] range does not lead to a
             realistic vision of the outdoors.</para>
         <para>One obvious way to correct this is to take all of the diffuse colors and divide them by
             a value like 2. Then increase your light intensity range from [0, 1] to [0, 2]. This is
             a workable solution, to some extent. Lights can be brighter than 1.0, and lighting can
             serve to increase the brightness of the diffuse color as well as decrease it. Of course,
-            2 is just as far from infinity as 1 is, so it isn't technically any closer to proper
+            2 is just as far from infinity as 1 is, so it is not technically any closer to proper
             lighting. But it is an improvement.</para>
         <para>This technique does have its flaws. As we will see in later tutorials, you often will
             want to render the same object multiple times and combine the results. This method
-            doesn't work when adding contributions from multiple light sources this way, unless you
+            does not work when adding contributions from multiple light sources this way, unless you
             limit the sum total of all lights to the same value. Just as we did for diffuse when
             combining it with an ambient term.</para>
         <para>It is certainly possible on modern hardware to model light intensity correctly. And we
             will eventually do that. But these more primitive lighting models do still have their
             uses in some cases. And it is illustrative to see what an improvement having proper
-            lighting intensity can make on the result. The lighting computations themselves don't
+            lighting intensity can make on the result. The lighting computations themselves do not
             change; what changes are the numbers fed into them.</para>
     </section>
     <section>

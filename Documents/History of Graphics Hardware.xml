@@ -55,7 +55,7 @@
         <para>It's interesting to note that the simplicity of the fragment processing stage owes as
             much to the lack of inputs as anything else. When the only values you have to work with
             are the color from a texture lookup and the per-vertex interpolated color, there really
-            isn't all that much you could do with them. Indeed, as we will see in the next phases of
+            is not all that much you could do with them. Indeed, as we will see in the next phases of
             hardware, increases in the complexity of the fragment processor was a reaction to
             increasing the number of inputs <emphasis>to</emphasis> the fragment processor. When you
             have more data to work with, you need more complex operations to make that data
@@ -87,7 +87,7 @@
             point.</para>
         <para>This becomes less useful if you want to add a specular term. The specular absorption
             and diffuse absorption are not necessarily the same, after all. And while you may not
-            need to have a specular texture, you don't want to add the specular component to the
+            need to have a specular texture, you do not want to add the specular component to the
             diffuse component <emphasis>before</emphasis> you multiply by their respective colors.
             You want to do the addition afterwards.</para>
         <para>This is simply not possible if you have only one per-vertex color. But it becomes
@@ -117,7 +117,7 @@
             After all, until TNT, that was the only way to apply multiple textures to a single
             surface. And even with TNT, it had a pretty confining limit of two textures and two
             opcodes.</para>
-        <para>This was powerful, but quite limited. Two opcodes really wasn't enough.</para>
+        <para>This was powerful, but quite limited. Two opcodes really was not enough.</para>
         <para>The TNT cards also provided something else: 32-bit framebuffers and depth buffers.
             While the Voodoo cards used high-precision math internally, they still wrote to 16-bit
             framebuffers, using a technique called dithering to make them look like higher
@@ -162,7 +162,7 @@
             <para>Embedded platforms tend to play to their tile-based renderer's strengths. Memory,
                 particularly high-bandwidth memory, eats up power; having less memory means
                 longer-lasting mobile devices. Embedded devices tend to use smaller resolutions,
-                which their platform excels at. And with low resolutions, you aren't trying to push
+                which their platform excels at. And with low resolutions, you are not trying to push
                 nearly as much geometry.</para>
             <para>Thanks to these facts, PowerVR graphics chips power the vast majority of mobile
                 platforms that have any 3D rendering in them. Just about every iPhone, Droid, iPad,
@@ -222,11 +222,11 @@
             Compressed texture formats also appeared on the scene.</para>
         <para>What we see thus far as we take steps towards true programmability is that increased
             complexity in fragment processing starts pushing for other needs. The addition of a dot
-            product allows lighting computations to take place per-fragment. But you can't have full
+            product allows lighting computations to take place per-fragment. But you cannot have full
             texture-space bump mapping because of the lack of a normal/binormal/tangent matrix to
             transform vectors to texture space. Cubemaps allow you to do arbitrary reflections, but
             computing reflection directions per-vertex requires interpolating reflection normals,
-            which doesn't work very well over large polygons.</para>
+            which does not work very well over large polygons.</para>
         <para>This also saw the introduction of something called a rectangle texture. This was
             something of an odd duck, that still remains in current day. It was a way of creating a
             texture of arbitrary size; until then, textures were limited to powers of two in size
@@ -281,7 +281,7 @@
         <para>At this point, the holy grail of programmability at the fragment level was dependent
             texture access. That is, being able to access a texture, do some arbitrary computations
             on it, and then access another texture with the result. The GeForce 3 had some
-            facilities for that, but they weren't very good ones.</para>
+            facilities for that, but they were not very good ones.</para>
         <para>The GeForce 3 used 8 register combiner stages instead of the 2 that the earlier cards
             used. Their register files were extended to support two extra texture colors and a few
             more tricks. But the main change was something that, in OpenGL terminology, would be
@@ -300,7 +300,7 @@
             coordinate.</para>
         <para>But using that required spending a total of 3 texture shader stages. Which meant you
             get a bump map and a normalization cubemap only; there was no room for a diffuse map in
-            that pass. It also didn't perform very well; the texture shader functions were quite
+            that pass. It also did not perform very well; the texture shader functions were quite
             expensive.</para>
         <para>True programmability came to the fragment shader from ATI, with the Radeon 8500,
             released in late 2001.</para>
@@ -345,7 +345,7 @@
             <para>NVIDIA and ATI released entirely separate proprietary extensions for specifying
                 fragment shaders. NVIDIA's extensions built on the register combiner extension they
                 released with the GeForce 256. They were completely incompatible. And worse, they
-                weren't even string-based.</para>
+                were not even string-based.</para>
             <para>Imagine having to call a C++ function to write every opcode of a shader. Now
                 imagine having to call <emphasis>three</emphasis> functions to write each opcode.
                 That's what using those APIs was like.</para>
@@ -390,7 +390,7 @@
             all D3D 9 applications, making them run much slower than their ATI counterparts (the
             9700 always used 24-bit precision math).</para>
         <para>Things were no better in OpenGL land. The two competing unified fragment processing
-            APIs, GLSL and an assembly-like fragment shader, didn't have precision specifications
+            APIs, GLSL and an assembly-like fragment shader, did not have precision specifications
             either. Only NVIDIA's proprietary extension for fragment shaders provided that, and
             developers were less likely to use it. Especially with the head start that the 9700
             gained in the market by the FX being released late.</para>
@@ -400,7 +400,7 @@
         <para>This level of hardware saw the gaining of a number of different features. sRGB
             textures and framebuffers appeared, as did floating-point textures. Blending support for
             floating-point framebuffers was somewhat spotty; some hardware could do it only for
-            16-bit floating-point, some couldn't do it at all. The restrictions of power-of-two
+            16-bit floating-point, some could not do it at all. The restrictions of power-of-two
             texture sizes was also lifted, to varying degrees. None of ATI's hardware of this era
             fully supported this when used with mipmapping, but NVIDIA's hardware from the GeForce 6
             and above did.</para>
@@ -547,12 +547,12 @@
                 primitive, based on the values of the primitive being tessellated. The geometry
                 shader still exists; it is executed after the final tessellation shader
                 stage.</para>
-            <para>Tessellation is not covered in this book for a few reasons. First, there isn't as
+            <para>Tessellation is not covered in this book for a few reasons. First, there is not as
                 much hardware out there that supports it. Sticking to OpenGL 3.3 meant casting a
                 wider net; requiring OpenGL 4.1 (which includes tessellation) would have meant fewer
                 people could run those tutorials.</para>
-            <para>Second, tessellation isn't that important. That's not to say that it isn't
-                important or a worthwhile feature. But it really isn't something that matters a
+            <para>Second, tessellation is not that important. That's not to say that it is not
+                important or a worthwhile feature. But it really is not something that matters a
                 great deal.</para>
         </sidebar>
     </section>

@@ -141,7 +141,7 @@ glutSwapBuffers();</programlisting>
             </example>
             <para>The first line creates the buffer object, storing the handle to the object in the
                 global variable <varname>positionBufferObject</varname>. Though the object now
-                exists, it doesn't own any memory yet. That is because we have not allocated any
+                exists, it does not own any memory yet. That is because we have not allocated any
                 with this object.</para>
             <para>The <function>glBindBuffer</function> function binds the newly-created buffer
                 object to the <literal>GL_ARRAY_BUFFER</literal> binding target. As mentioned in
@@ -604,7 +604,7 @@ void main()
                     <varname>position</varname> was assigned directly in the shader itself. There
                 are other ways to assign attribute indices to attributes besides
                     <literal>layout(location = #)</literal>. OpenGL will even assign an attribute
-                index if you don't use any of them. Therefore, it is possible that you may not know
+                index if you do not use any of them. Therefore, it is possible that you may not know
                 the attribute index of an attribute. If you need to query the attribute index, you
                 may call <function>glGetAttribLocation</function> with the program object and a
                 string containing the attribute's name.</para>
@@ -638,7 +638,7 @@ void main()
             assets when OpenGL is shut down as part of window deactivation.</para>
         <para>It is generally good form to delete objects that you create before shutting down
             OpenGL. And you certainly should do it if you encapsulate objects in C++ objects, such
-            that destructors will delete the OpenGL objects. But it isn't strictly necessary.</para>
+            that destructors will delete the OpenGL objects. But it is not strictly necessary.</para>
     </section>
     <section>
         <?dbhtml filename="Tut01 In Review.html" ?>

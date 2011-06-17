@@ -10,7 +10,7 @@
     <section>
         <?dbhtml filename="Tut08 Gimbal Lock.html"?>
         <title>Gimbal Lock</title>
-        <para>Remember a few tutorials back, when we said that a rotation matrix isn't a rotation
+        <para>Remember a few tutorials back, when we said that a rotation matrix is not a rotation
             matrix at all, that it is an orientation matrix? We also said that forgetting this can
             come back to bite you. Well, here's likely the most common way.</para>
         <para>Normally, when dealing with orienting an object like a plane or spaceship in 3D space,
@@ -83,8 +83,8 @@
             at this picture.</para>
         <para>Given the controls of these gimbals, can you cause the object to pitch up and down?
             That is, move its nose up and down from where it is currently? Only slightly; you can
-            use the middle gimbal, which has a bit of pitch rotation. But that isn't much.</para>
-        <para>The reason we don't have as much freedom to orient the object is because the outer and
+            use the middle gimbal, which has a bit of pitch rotation. But that is not much.</para>
+        <para>The reason we do not have as much freedom to orient the object is because the outer and
             inner gimbals are now rotating about the <emphasis>same axis</emphasis>. Which means you
             really only have two gimbals to manipulate in order to orient the red gimbal. And 3D
             orientation cannot be fully controlled with only 2 axial rotations, with only 2
@@ -95,7 +95,7 @@
         <section>
             <title>Rendering</title>
             <para>Before we find a solution to the problem, let's review the code. Most of it is
-                nothing you haven't seen elsewhere, so this will be quick.</para>
+                nothing you have not seen elsewhere, so this will be quick.</para>
             <para>There is no explicit camera matrix set up for this example; it is too simple for
                 that. The three gimbals are loaded from mesh files as we saw in our last tutorial.
                 They are built to fit into the above array. The ship is also from a mesh
@@ -149,7 +149,7 @@
     <section>
         <?dbhtml filename="Tut08 Quaternions.html"?>
         <title>Quaternions</title>
-        <para>So gimbals, 3 accumulated axial rotations, don't really work very well for orienting
+        <para>So gimbals, 3 accumulated axial rotations, do not really work very well for orienting
             an object. How do we fix this problem?</para>
         <para>Part of the problem is that we are trying to store an orientation as a series of 3
             accumulated axial rotations. Orientations are <emphasis>orientations,</emphasis> not
@@ -175,8 +175,8 @@
             scale) and each axis is perpendicular to all of the others.</para>
         <para>Unfortunately, re-orthonormalizing a matrix is not a simple operation. You could try
             to normalize each of the axis vectors with typical vector normalization, but that
-            wouldn't ensure that the matrix was orthonormal. It would remove scaling, but the axes
-            wouldn't be guaranteed to be perpendicular.</para>
+            would not ensure that the matrix was orthonormal. It would remove scaling, but the axes
+            would not be guaranteed to be perpendicular.</para>
         <para>Orthonormalization is certainly possible. But there are better solutions. Such as using
             something called a <glossterm>quaternion.</glossterm></para>
         <para>A quaternion is (for the purposes of this conversation) a 4-dimensional vector that is
@@ -262,7 +262,7 @@
         <section>
             <title>Yaw Pitch Roll</title>
             <para>We implement this in the <phrase role="propername">Quaternion YPR</phrase>
-                tutorial. This tutorial doesn't show gimbals, but the same controls exist for yaw,
+                tutorial. This tutorial does not show gimbals, but the same controls exist for yaw,
                 pitch, and roll transformations. Here, pressing the <keycap>SpaceBar</keycap> will
                 switch between right-multiplying the YPR values to the current orientation and
                 left-multiplying them. Post-multiplication will apply the YPR transforms from
@@ -501,7 +501,7 @@
             </figure>
             <para>The <function>display</function> function only changed where needed to deal with
                 drawing the ground plane and to handle the camera. Either way, it's nothing that
-                hasn't been seen elsewhere.</para>
+                has not been seen elsewhere.</para>
             <para>The substantive changes were in the <function>OffsetOrientation</function>
                 function:</para>
             <example>
@@ -562,7 +562,7 @@
             interpolation between two orientations, so that we can watch an object move from one
             orientation to another. This would allow us to see an object smoothly moving from one
             orientation to another.</para>
-        <para>This is one more trick we can play with quaternions that we can't with matrices.
+        <para>This is one more trick we can play with quaternions that we cannot with matrices.
             Linearly-interpolating the components of matrices does not create anything that
             resembles an inbetween transformation. However, linearly interpolating a pair of
             quaternions does. As long as you normalize the results.</para>
@@ -573,7 +573,7 @@
             and the <keycap>Q</keycap> key is the initial orientation.</para>
         <para>We can see that there are some pretty reasonable looking transitions. The transition
             from <keycap>Q</keycap> to <keycap>W</keycap>, for example. However, there are some
-            other transitions that don't look so good; the <keycap>Q</keycap> to <keycap>E</keycap>
+            other transitions that do not look so good; the <keycap>Q</keycap> to <keycap>E</keycap>
             transition. What exactly is going on?</para>
         <section>
             <title>The Long Path</title>
@@ -590,7 +590,7 @@
                 vector part of the quaternion. If you negate all four components however, you get
                 something quite different: the same orientation as before. Negating a quaternion
                 does not affect its orientation.</para>
-            <para>While the two quaternions represent the same orientation, they aren't the same as
+            <para>While the two quaternions represent the same orientation, they are not the same as
                 far as interpolation is concerned. Consider a two-dimensional case:</para>
             <figure>
                 <title>Interpolation Directions</title>
@@ -637,7 +637,7 @@
                     through the code.</para>
             </note>
             <para>The <function>Vectorize</function> function simply takes a quaternion and returns
-                a <type>vec4</type>; this is necessary because GLM <type>fquat</type> don't support
+                a <type>vec4</type>; this is necessary because GLM <type>fquat</type> do not support
                 many of the operations that GLM <type>vec4</type>'s do. In this case, the
                     <type>glm::mix</type> function, which performs component-wise linear
                 interpolation.</para>
@@ -647,7 +647,7 @@
                 order for the first componet of Q to get to E's first component, it will have to go
                 through zero.</para>
             <para>When the alpha is around 0.5, half-way through the movement, the resultant vector
-                before normalization is very small. But the vector itself isn't what provides the
+                before normalization is very small. But the vector itself is not what provides the
                 orientation; the <emphasis>direction</emphasis> of the 4D vector is. Which is why it
                 moves very fast in the middle: the direction is changing rapidly.</para>
             <para>In order to get smooth interpolation, we need to interpolate based on the
@@ -683,7 +683,7 @@
                 <para>It's important to know what kind of problems slerp is intended to solve and
                     what kind it is not. Slerp becomes increasingly more important the more
                     disparate the two quaternions being interpolated are. If you know that two
-                    quaternions are always quite close to one another, then slerp isn't worth the
+                    quaternions are always quite close to one another, then slerp is not worth the
                     expense.</para>
                 <para>The <function>acos</function> call in the slerp code alone is pretty
                     substantial in terms of performance. Whereas lerp is typically just a

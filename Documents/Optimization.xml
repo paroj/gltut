@@ -61,7 +61,7 @@
                 framebuffers with a guarantee of not causing half of the displayed image to be from
                 one buffer and half from another. The latter eventuality is called
                     <glossterm>tearing</glossterm>, and having vsync enabled avoids that. However,
-                you don't care about tearing; you want to know about performance. So you need to
+                you do not care about tearing; you want to know about performance. So you need to
                 turn off any form of vsync.</para>
             <para>Vsync is controlled by the window-system specific extensions
                     <literal>GLX_EXT_swap_control</literal> and
@@ -104,7 +104,7 @@
             <section>
                 <title>CPU</title>
                 <para>A CPU bottleneck means that the GPU is being starved; it is consuming data
-                    faster than the CPU is providing it. You don't really test for CPU bottlenecks
+                    faster than the CPU is providing it. You do not really test for CPU bottlenecks
                     per-se; they are discovered by process of elimination. If nothing else is
                     bottlenecking the GPU, then the CPU clearly is not giving it enough stuff to
                     do.</para>
@@ -118,7 +118,7 @@
             <para>If there is some bottleneck that cannot be optimized away, then turn it to your
                 advantage. If you have a CPU bottleneck, then render more detailed models. If you
                 have a vertex-shader bottleneck, improve your lighting by adding some
-                fragment-shader complexity. And so forth. Just make sure that you don't increase
+                fragment-shader complexity. And so forth. Just make sure that you do not increase
                 complexity to the point where you move the bottleneck.</para>
         </section>
     </section>
@@ -157,7 +157,7 @@
         <section>
             <title>Object Culling</title>
             <para>The fastest object is one not drawn. And there's no point in drawing something
-                that isn't seen.</para>
+                that is not seen.</para>
             <para>The simplest form of object culling is frustum culling: choosing not to render
                 objects that are entirely outside of the view frustum. Determining that an object is
                 off screen is a CPU task. You generally have to represent each object as a sphere or
@@ -261,7 +261,7 @@
             <programlisting language="cpp">glVertexAttribPointer(index, 3, GLushort, GLtrue, 0, offset);</programlisting>
             <para>There are also a few specialized formats. <literal>GL_HALF_FLOAT</literal> can be
                 used for 16-bit floating-point types. This is useful for when you need values
-                outside of [-1, 1], but don't need the full </para>
+                outside of [-1, 1], but do not need the full </para>
             <para>Non-normalized integers can be used as well. These map in GLSL directly to
                 floating-point values, so a non-normalized value of 16 maps to a GLSL value of
                 16.0.</para>
@@ -307,7 +307,7 @@ glVertexAttribPointer(3, 3, GLushort, GLtrue, 20, 16);</programlisting>
             <para>There are certain gotchas when deciding how data gets packed like this. First, it
                 is a good idea to keep every attribute on a 4-byte alignment. This may mean
                 introducing explicit padding (empty space) into your structures. Some hardware will
-                have massive slowdowns if things aren't aligned to four bytes.</para>
+                have massive slowdowns if things are not aligned to four bytes.</para>
             <para>Next, it is a good idea to keep the size of any interleaved vertex data restricted
                 to multiples of 32 bytes in size. Violating this is not as bad as violating the
                 4-byte alignment rule, but one can sometimes get sub-optimal performance if the

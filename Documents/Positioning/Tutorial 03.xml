@@ -43,7 +43,7 @@
             parameter. Thus, it returns a value on the range [0, <varname>fLoopDuration</varname>),
             which is what we need to create a periodically repeating pattern.</para>
         <para>The <function>cosf</function> and <function>sinf</function> functions compute the
-            cosine and sine respectively. It isn't important to know exactly how these functions
+            cosine and sine respectively. It is not important to know exactly how these functions
             work, but they effectively compute a circle of diameter 2. By multiplying by 0.5f, it
             shrinks the circle down to a circle with a diameter of 1.</para>
         <para>Once the offsets are computed, the offsets have to be added to the vertex data. This
@@ -104,7 +104,7 @@
         <programlisting language="cpp">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STREAM_DRAW);</programlisting>
         <para>GL_STATIC_DRAW tells OpenGL that you intend to only set the data in this buffer object
             once. GL_STREAM_DRAW tells OpenGL that you intend to set this data constantly, generally
-            once per frame. These parameters don't mean <emphasis>anything</emphasis> with regard to
+            once per frame. These parameters do not mean <emphasis>anything</emphasis> with regard to
             the API; they are simply hints to the OpenGL implementation. Proper use of these hints
             can be crucial for getting good buffer object performance when making frequent changes.
             We will see more of these hints later.</para>
@@ -152,11 +152,11 @@
             this way means having to copy millions of vertices from the original vertex data, add an
             offset to each of them, and then upload that data to an OpenGL buffer object. And all of
             that is <emphasis>before</emphasis> rendering. Clearly there must be a better way; games
-            can't possibly do this every frame and still hold decent framerates.</para>
+            can not possibly do this every frame and still hold decent framerates.</para>
         <para>Actually for quite some time, they did. In the pre-GeForce 256 days, that was how all
             games worked. Graphics hardware just took a list of vertices in clip space and rasterized them into fragments and pixels. Granted, in those days,
             we were talking about maybe 10,000 triangles per frame. And while CPUs have come a long
-            way since then, they haven't scaled with the complexity of graphics scenes.</para>
+            way since then, they have not scaled with the complexity of graphics scenes.</para>
         <para>The GeForce 256 (note: not a GT 2xx card, but the very first GeForce card) was the
             first graphics card that actually did some from of vertex processing. It could store
             vertices in GPU memory, read them, do some kind of transformation on them, and then send
@@ -277,7 +277,7 @@ gl_Position.w = position.w + totalOffset.w;</programlisting>
         <para>It's all well and good that we are no longer having to transform vertices manually.
             But perhaps we can move more things to the vertex shader. Could it be possible to move
             all of <function>ComputePositionOffsets</function> to the vertex shader?</para>
-        <para>Well, no. The call to <function>glutGet(GL_ELAPSED_TIME)</function> can't be moved
+        <para>Well, no. The call to <function>glutGet(GL_ELAPSED_TIME)</function> cannot be moved
             there, since GLSL code cannot directly call C/C++ functions. But everything else can be
             moved. This is what <filename>vertCalcOffset.cpp</filename> does.</para>
         <para>The vertex program is found in <filename>data\calcOffset.vert</filename>.</para>
@@ -334,7 +334,7 @@ void main()
     glutPostRedisplay();
 }</programlisting>
         </example>
-        <para>This time, we don't need any code to use the elapsed time; we simply pass it
+        <para>This time, we do not need any code to use the elapsed time; we simply pass it
             unmodified to the shader.</para>
         <para>You may be wondering exactly how it is that the <varname>loopDuration</varname>
             uniform gets set. This is done in our shader initialization routine, and it is done only
@@ -454,7 +454,7 @@ void main()
             <para>Variables at global scope in GLSL can be defined with certain storage qualifiers:
                     <literal>const</literal>, <literal>uniform</literal>, <literal>in</literal>, and
                     <literal>out</literal>. A <literal>const</literal> value works like it does in
-                C99 and C++: the value doesn't change, period. It must have an initializer. An
+                C99 and C++: the value does not change, period. It must have an initializer. An
                 unqualified variable works like one would expect in C/C++; it is a global value that
                 can be changed. GLSL shaders can call functions, and globals can be shared between
                 functions. However, unlike <literal>in</literal>, <literal>out</literal>, and
@@ -472,7 +472,7 @@ void main()
             do the transform, and put as much as possible in the vertex shader and only have the CPU
             provide the most basic parameters. Which is the best to use?</para>
         <para>This is not an easy question to answer. However, it is almost always the case that CPU
-            transformations will be slower than doing it on the GPU. The only time it won't be is if
+            transformations will be slower than doing it on the GPU. The only time it will not be is if
             you need to do the exact same transformations many times within the same frame. And even
             then, it is better to do the transformations once on the GPU and save the result of that
             in a buffer object that you will pull from later. This is called transform feedback, and
@@ -483,14 +483,14 @@ void main()
             a time parameter, and for every vertex, the GPU must compute the <emphasis>exact
                 same</emphasis> offset. This means that the vertex shader is doing a lot of work
             that all comes out to the same number.</para>
-        <para>Even so, that doesn't mean it's always slower. What matters is the overhead of
+        <para>Even so, that does not mean it's always slower. What matters is the overhead of
             changing data. Changing a uniform takes time; changing a vector uniform typically takes
             no more time than changing a single float, due to the way that many cards handle
             floating-point math. The question is this: what is the cost of doing more complex
             operations in a vertex shader vs. how often those operations need to be done.</para>
         <para>The second vertex shader we use, the one that computes the offset itself, does a lot
             of complex math. Sine and cosine values are not particularly fast to compute. They
-            require quite a few computations to calculate. And since the offset itself doesn't
+            require quite a few computations to calculate. And since the offset itself does not
             change for each vertex in a single rendering call, performance-wise it would be best to
             compute the offset on the CPU and pass the offset as a uniform value.</para>
         <para>And typically, that is how rendering is done much of the time. Vertex shaders are
@@ -586,7 +586,7 @@ void main()
                     <glossterm>glGetUniformLocation</glossterm>
                     <glossdef>
                         <para>This function retrieves the location of a uniform of the given name
-                            from the given program object. If that uniform does not exist or wasn't
+                            from the given program object. If that uniform does not exist or was not
                             considered in use by GLSL, then this function returns -1, which is not a
                             valid uniform location.</para>
                     </glossdef>
