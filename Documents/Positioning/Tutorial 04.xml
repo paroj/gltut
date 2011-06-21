@@ -232,9 +232,8 @@
             </figure>
             <para>What we have are two similar right triangles; the triangle formed by E, R and
                     E<subscript>z</subscript>the origin; and the triangle formed by E, P, and
-                    P<subscript>z</subscript>+E<subscript>z</subscript>. We have the eye position
-                and the position of the unprojected point. To find the location of R, we simply do
-                this:</para>
+                    P<subscript>z</subscript>. We have the eye position and the position of the
+                unprojected point. To find the location of R, we simply do this:</para>
             <equation>
                 <title>Perspective Computation</title>
                 <mediaobject>
@@ -496,7 +495,7 @@ glUseProgram(0);]]></programlisting>
                 zFar are positive but refer to negative values).</para>
             <para>The location of the prism has also changed. In the original tutorial, it was
                 located on the 0.75 range in Z. Because camera space has a very different Z from
-                clip space, this had to change. Now, the Z location of the prims is between -1.25
+                clip space, this had to change. Now, the Z location of the prism is between -1.25
                 and -2.75.</para>
             <para>All of this leaves us with this result:</para>
             <figure>
