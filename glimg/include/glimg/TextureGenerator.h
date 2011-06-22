@@ -25,6 +25,7 @@ namespace glimg
 	{
 		unsigned int format;
 		unsigned int type;
+		unsigned int blockByteCount;
 	};
 
 	OpenGLUploadData GetUploadFormatType(const ImageFormat &format, unsigned int forceConvertBits);

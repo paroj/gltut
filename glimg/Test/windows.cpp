@@ -479,7 +479,8 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 	TestImageFormats();
 
 //	glimg::ImageSet *pImgSet = glimg::loaders::test::TestImage2D();
-	glimg::ImageSet *pImgSet = glimg::loaders::stb::LoadFromFile("bitmap.png");
+	glimg::ImageSet *pImgSet = glimg::loaders::dds::LoadFromFile("main.dds");
+//	glimg::ImageSet *pImgSet = glimg::loaders::stb::LoadFromFile("bitmap.png");
 
 	texture = glimg::CreateTexture(pImgSet, 0);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -488,6 +489,7 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	delete pImgSet;
+
 
 	while(!done)									// Loop That Runs While done=FALSE
 	{

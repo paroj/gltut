@@ -21,7 +21,6 @@ namespace glimg
 			const void *Data() const {return &pixelData[0];}
 		};
 
-
 		ImageSet *BuildImageSetFromIntegerData(const unsigned char *pixelData,
 			int width, int height, int numComp)
 		{
