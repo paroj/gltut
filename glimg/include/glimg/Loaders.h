@@ -4,6 +4,7 @@
 
 #include "TestLoader.h"
 #include "StbLoader.h"
+#include "DdsLoader.h"
 
 
 #endif //GLIMG_LOADERS_H

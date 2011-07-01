@@ -916,10 +916,24 @@ namespace glimg
 		OpenGLUploadData ret;
 		ret.type = 0xFFFFFFFF;
 		ret.format = 0xFFFFFFFF;
+		ret.blockByteCount = 0;
 
 		BaseDataType eType = GetDataType(format, forceConvertBits);
 		if(eType >= DT_NUM_UNCOMPRESSED_TYPES)
+		{
+			switch(eType)
+			{
+			case DT_COMPRESSED_BC1:
+			case DT_COMPRESSED_UNSIGNED_BC4:
+			case DT_COMPRESSED_SIGNED_BC4:
+				ret.blockByteCount = 8;
+				break;
+			default:
+				ret.blockByteCount = 16;
+				break;
+			}
 			return ret;
+		}
 
 		ret.type = GetOpenGLType(format, eType, forceConvertBits);
 		ret.format = GetOpenGLFormat(format, eType, forceConvertBits);
@@ -988,6 +1002,63 @@ namespace glimg
 			//Too old to bother checking.
 		}
 
+		GLuint CalcCompressedImageSize(GLuint width, GLuint height, const OpenGLUploadData &upload)
+		{
+			GLuint columnCount = (width + 3) / 4;
+			GLuint rowCount = (height + 3) / 4;
+			return columnCount * upload.blockByteCount * rowCount;
+		}
+
+		void TexImage1D(GLenum texTarget, GLuint mipmap, GLuint internalFormat,
+			GLuint width, const OpenGLUploadData &upload, const void *pPixelData)
+		{
+			if(upload.blockByteCount)
+			{
+				GLuint byteCount = CalcCompressedImageSize(width, 1, upload);
+				glCompressedTexImage1D(texTarget, mipmap, internalFormat, width, 0,
+					byteCount, pPixelData);
+			}
+			else
+			{
+				glTexImage1D(texTarget, mipmap, internalFormat, width, 0,
+					upload.format, upload.type, pPixelData);
+			}
+		}
+
+		void TexImage2D(GLenum texTarget, GLuint mipmap, GLuint internalFormat,
+			GLuint width, GLuint height, const OpenGLUploadData &upload, const void *pPixelData)
+		{
+			if(upload.blockByteCount)
+			{
+				GLuint byteCount = CalcCompressedImageSize(width, height, upload);
+				glCompressedTexImage2D(texTarget, mipmap, internalFormat, width, height, 0,
+					byteCount, pPixelData);
+			}
+			else
+			{
+				glTexImage2D(texTarget, mipmap, internalFormat, width, height, 0,
+					upload.format, upload.type, pPixelData);
+			}
+		}
+
+		void TexImage3D(GLenum texTarget, GLuint mipmap, GLuint internalFormat,
+			GLuint width, GLuint height, GLuint depth, const OpenGLUploadData &upload,
+			const void *pPixelData)
+		{
+			if(upload.blockByteCount)
+			{
+				//compressed array textures are stored as 4x4x1 sheets.
+				GLuint byteCount = CalcCompressedImageSize(width, height, upload) * depth;
+				glCompressedTexImage3D(texTarget, mipmap, internalFormat, width, height, depth, 0,
+					byteCount, pPixelData);
+			}
+			else
+			{
+				glTexImage3D(texTarget, mipmap, internalFormat, width, height, depth, 0,
+					upload.format, upload.type, pPixelData);
+			}
+		}
+
 		void Build1DArrayTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
 			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
 		{
@@ -1007,17 +1078,11 @@ namespace glimg
 				const detail::MipmapLevel &mipData = pImage->GetMipmapLevel(mipmap);
 				Dimensions dims = pImage->GetDimensions(mipmap);
 
-				if(mipData.bFullLayer)
-				{
-					glTexImage1D(GL_TEXTURE_1D, mipmap, internalFormat, dims.width, 0,
-						upload.format, upload.type, mipData.fullPixelData.pPixelData);
-				}
-				else
-				{
-					assert(mipData.individualDataList.size() == 1);
-					glTexImage1D(GL_TEXTURE_1D, mipmap, internalFormat, dims.width, 0,
-						upload.format, upload.type, mipData.individualDataList[0].pPixelData);
-				}
+				const void *pPixelData = mipData.bFullLayer ?
+					mipData.fullPixelData.pPixelData : mipData.individualDataList[0].pPixelData;
+
+				TexImage1D(GL_TEXTURE_1D, mipmap, internalFormat, dims.width,
+					upload, pPixelData);
 			}
 
 			FinalizeTexture(GL_TEXTURE_1D, pImage);
@@ -1056,18 +1121,11 @@ namespace glimg
 			{
 				const detail::MipmapLevel &mipData = pImage->GetMipmapLevel(mipmap);
 				Dimensions dims = pImage->GetDimensions(mipmap);
+				const void *pPixelData = mipData.bFullLayer ?
+					mipData.fullPixelData.pPixelData : mipData.individualDataList[0].pPixelData;
 
-				if(mipData.bFullLayer)
-				{
-					glTexImage2D(GL_TEXTURE_2D, mipmap, internalFormat, dims.width, dims.height, 0,
-						upload.format, upload.type, mipData.fullPixelData.pPixelData);
-				}
-				else
-				{
-					assert(mipData.individualDataList.size() == 1);
-					glTexImage2D(GL_TEXTURE_2D, mipmap, internalFormat, dims.width, dims.height, 0,
-						upload.format, upload.type, mipData.individualDataList[0].pPixelData);
-				}
+				TexImage2D(GL_TEXTURE_2D, mipmap, internalFormat, dims.width, dims.height,
+					upload, pPixelData);
 			}
 
 			FinalizeTexture(GL_TEXTURE_2D, pImage);
@@ -1084,18 +1142,11 @@ namespace glimg
 			{
 				const detail::MipmapLevel &mipData = pImage->GetMipmapLevel(mipmap);
 				Dimensions dims = pImage->GetDimensions(mipmap);
+				const void *pPixelData = mipData.bFullLayer ?
+					mipData.fullPixelData.pPixelData : mipData.individualDataList[0].pPixelData;
 
-				if(mipData.bFullLayer)
-				{
-					glTexImage3D(GL_TEXTURE_3D, mipmap, internalFormat, dims.width, dims.height, dims.depth, 0,
-						upload.format, upload.type, mipData.fullPixelData.pPixelData);
-				}
-				else
-				{
-					assert(mipData.individualDataList.size() == 1);
-					glTexImage3D(GL_TEXTURE_3D, mipmap, internalFormat, dims.width, dims.height, dims.depth, 0,
-						upload.format, upload.type, mipData.individualDataList[0].pPixelData);
-				}
+				TexImage3D(GL_TEXTURE_2D, mipmap, internalFormat, dims.width, dims.height, dims.depth,
+					upload, pPixelData);
 			}
 
 			FinalizeTexture(GL_TEXTURE_3D, pImage);
@@ -1119,7 +1170,15 @@ namespace glimg
 		GLuint textureName = 0;
 		glGenTextures(1, &textureName);
 
-		CreateTexture(textureName, pImage, forceConvertBits);
+		try
+		{
+			CreateTexture(textureName, pImage, forceConvertBits);
+		}
+		catch(...)
+		{
+			glDeleteTextures(1, &textureName);
+			throw;
+		}
 
 		return textureName;
 	}

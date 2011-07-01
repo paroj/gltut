@@ -277,7 +277,7 @@ void CreateShininessTexture()
 
 	try
 	{
-		pImageSet.reset(glimg::loaders::stb::LoadFromFile("data\\main.tga"));
+		pImageSet.reset(glimg::loaders::dds::LoadFromFile("data\\main.dds"));
 		std::auto_ptr<glimg::Image> pImage(pImageSet->GetImage(0, 0, 0));
 
 		glimg::Dimensions dims = pImage->GetDimensions();
@@ -285,7 +285,7 @@ void CreateShininessTexture()
 		glGenTextures(1, &g_shineTexture);
 		glBindTexture(GL_TEXTURE_2D, g_shineTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, dims.width, dims.height, 0,
-			GL_RGB, GL_UNSIGNED_BYTE, pImage->GetImageData());
+			GL_RED, GL_UNSIGNED_BYTE, pImage->GetImageData());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
