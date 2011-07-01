@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 15.html" ?>
+    <title>SomeTitle</title>
+    <para>G</para>
+    
+    <section>
+        <?dbhtml filename="Tut15 In Review.html" ?>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para/>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Go back to <phrase role="propername">Basic Texture</phrase> the previous
+                        tutorial and modify the sampler to use linear magnification filtering on the
+                        1D texture. See if the linear filtering makes some of the lower resolutions
+                        more palatable.</para>
+                </listitem>
+                <listitem>
+                    <para/>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>Further Research</title>
+            <para/>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <para/>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <para/>
+        </section>
+        
+    </section>
+    <section>
+        <?dbhtml filename="Tut15 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm/>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+        
+    </section>
+</chapter>

@@ -207,14 +207,16 @@ GLuint g_gaussSampler = 0;
 GLuint g_imposterVAO;
 GLuint g_imposterVBO;
 
-GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
+void BuildGaussianData(std::vector<GLubyte> &textureData,
+					   int cosAngleResolution,
+					   int shininessResolution)
 {
-	std::vector<unsigned char> textureData(shininessResolution * cosAngleResolution);
+	textureData.resize(shininessResolution * cosAngleResolution);
 
 	std::vector<unsigned char>::iterator currIt = textureData.begin();
-	for(int iShin = 0; iShin < shininessResolution; iShin++)
+	for(int iShin = 1; iShin <= shininessResolution; iShin++)
 	{
-		float shininess = iShin / (float)(shininessResolution - 1);
+		float shininess = iShin / (float)(shininessResolution);
 		for(int iCosAng = 0; iCosAng < cosAngleResolution; iCosAng++)
 		{
 			float cosAng = iCosAng / (float)(cosAngleResolution - 1);
@@ -227,6 +229,12 @@ GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
 			++currIt;
 		}
 	}
+}
+
+GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
+{
+	std::vector<unsigned char> textureData;
+	BuildGaussianData(textureData, cosAngleResolution, shininessResolution);
 
 	GLuint gaussTexture;
 	glGenTextures(1, &gaussTexture);

@@ -2496,6 +2496,7 @@
         </folder>
         <folder name="Texturing">
             <file name="Texturing/Tutorial%2014.xml"/>
+            <file name="Texturing/Tutorial%2015.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>

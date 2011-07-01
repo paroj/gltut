@@ -818,7 +818,7 @@ outputColor = pow(accumLighting, gamma);</programlisting>
                 available light intensity. That does not leave much room for areas that are dark but
                 not too dark to see anything.</para>
             <para>As such, gamma correction is a key process for producing color-accurate rendered
-                images.</para>
+                images. It allows details within darkness to show up much more easily.</para>
         </section>
     </section>
     <section>
@@ -872,9 +872,9 @@ outputColor = pow(accumLighting, gamma);</programlisting>
                 allow the use of a large range of lighting values.</para>
             <para>When doing tone mapping with some form of variable aperture setting, computing the
                 proper maximum intensity value can be difficult. Having a hard-coded value, even one
-                that varies, works well enough for some scenes. But for scenes where the user can
-                control where the camera faces, it can be inappropriate. In many modern games, they
-                actually read portions of the rendered image back to the CPU and do some
+                that varies algorithmically, works well enough for some scenes. But for scenes where
+                the user can control where the camera faces, it can be inappropriate. In many modern
+                games, they actually read portions of the rendered image back to the CPU and do some
                 computational analysis to determine what the maximum intensity should be for the
                 next frame. This is delayed, of course, but it allows for an aperture that varies
                 based on what the player is currently looking at, rather than hard-coded

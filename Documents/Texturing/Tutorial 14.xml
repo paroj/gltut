@@ -457,7 +457,6 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
                     <literal>GL_TEXTURE0</literal> to it to convert it into an enumerator. This
                 effectively adds an additional value to each texture unit.</para>
             <!--TODO: Diagram from above, but with sampler objects.-->
-            <para/>
             <note>
                 <para>Technically, we do not have to use a sampler object. The parameters we use for
                     samplers could have been set into the texture object directly with
@@ -480,7 +479,7 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
                 looks much more like the shader calculation. This one is 256 texels across.</para>
             <!--TODO: Picture of resolution 3, with shot of correct off to the side.-->
             <para>The largest resolution, <keycap>4</keycap>, is 512 texels, and it looks nearly
-                identical to the pure shader version.</para>
+                identical to the pure shader version for this object.</para>
             <!--TODO: Picture of resolution 4, with the correct shot to the side.-->
         </section>
     </section>
@@ -570,15 +569,128 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
         <?dbhtml filename="Tut14 Texture Mapping.html" ?>
         <title>Texture Mapping</title>
         <para>One of the most important uses of textures is to vary material parameters across a
-            surface. Previously, the finest granularity that we get for material parameters is
-            interpolation per-vertex. Textures allow us to get a granularity down to the
-            texel.</para>
-        <para>To achieve this variation of material parameters, we must first find a way to
-            associate points on our triangles with texels on a texture. This association is called
+            surface. Previously, the finest granularity that we could get for material parameters is
+            per-vertex values. Textures allow us to get a granularity down to the texel. While we
+            could target the most common material parameter controlled by textures (aka: the diffuse
+            color), we will instead look at something less common. We will vary the specular
+            shininess factor.</para>
+        <para>To achieve this variation of specular shininess, we must first find a way to associate
+            points on our triangles with texels on a texture. This association is called
                 <glossterm>texture mapping</glossterm>, since it maps between points on a triangle
-            and locations on the texture.</para>
-        <para/>
-        <para/>
+            and locations on the texture. This is achieved by using texture coordinates that
+            correspond with positions on the surface.</para>
+        <para>In the last example, the texture coordinate was a value computed based on lighting
+            parameters. The texture coordinate for accessing our shininess texture will instead come
+            from interpolated per-vertex parameters. Hence the prior discussion of the specifics of
+            interpolation.</para>
+        <para>For simple cases, we could generate the texture coordinate from vertex positions. And
+            in some later tutorials, we will. In the vast majority of cases however, texture
+            coordinates for texture mapping will be part of the per-vertex attribute data.</para>
+        <para>Since the texture map's coordinates come from per-vertex attributes, this will affect
+            our mesh topography. It adds yet another channel with its own topology, which must be
+            massaged into the overall topology of the mesh.</para>
+        <para>To see texture mapping in action, load up the <phrase role="propername">Material
+                Texture</phrase> tutorial. This tutorial uses the same scene as before, but the
+            infinity symbol can use a texture to define the specular shininess of the object.</para>
+        <!--TODO: Picture of the tutorial.-->
+        <para>The <keycap>Spacebar</keycap> switches between one of three rendering modes: fixed
+            shininess with a Gaussian lookup-table, a texture-based shininess with a Gaussian
+            lookup-table, and a texture-based shininess with a shader-computed Gaussian term. The
+                <keycap>Y</keycap> key switches between the infinity symbol and a flat plane. The
+                <keycap>9</keycap> key switches to a material with a dark diffuse color and bright
+            specular color; this makes the effects of the shininess texture more noticeable.</para>
+        <section>
+            <title>Texture 2D</title>
+            <para>The <keycap>1</keycap> through <keycap>4</keycap> keys still switch to different
+                resolutions of Gaussian textures. Speaking of which, that works rather differently
+                now.</para>
+            <para>Previously, we assumed that the specular shininess was a fixed value for the
+                entire surface. Now that our shininess values can come from a texture, this is not
+                the case. With the fixed shininess, we had a function that took one variable: the
+                dot-product of the half-angle vector with the normal. But with a variable shininess,
+                we have a function of two variables. Functions of two variables are often called
+                    <quote>two dimensional.</quote></para>
+            <para>It is therefore not surprising that we model such a function with a
+                two-dimensional texture. The S texture coordinate represents the dot-product, while
+                the T texture coordinate is the shininess value. Both range from [0, 1], so they fit
+                within the expected range of texture coordinates.</para>
+            <para>Our new function for building the data for the Gaussian term is as follows:</para>
+            <example>
+                <title>BuildGaussianData in 2D</title>
+                <programlisting language="cpp">void BuildGaussianData(std::vector&lt;GLubyte> &amp;textureData,
+                       int cosAngleResolution,
+                       int shininessResolution)
+{
+    textureData.resize(shininessResolution * cosAngleResolution);
+    
+    std::vector&lt;unsigned char>::iterator currIt = textureData.begin();
+    for(int iShin = 1; iShin &lt;= shininessResolution; iShin++)
+    {
+        float shininess = iShin / (float)(shininessResolution);
+        for(int iCosAng = 0; iCosAng &lt; cosAngleResolution; iCosAng++)
+        {
+            float cosAng = iCosAng / (float)(cosAngleResolution - 1);
+            float angle = acosf(cosAng);
+            float exponent = angle / shininess;
+            exponent = -(exponent * exponent);
+            float gaussianTerm = glm::exp(exponent);
+            
+            *currIt = (unsigned char)(gaussianTerm * 255.0f);
+            ++currIt;
+        }
+    }
+}</programlisting>
+            </example>
+            <para>This function writes into a 1D array of data. It writes a full set of values for a
+                particular shininess, then writes the next values for that shininess, and so on.
+                This is the most standard way that image data is stored in virtually every image
+                format. Naturally, this is also how OpenGL takes its data.</para>
+            <para>However, notice that the texture data expects a lower-left origin: the first row,
+                which corresponds to the smallest shininess value, is the <emphasis>first</emphasis>
+                row. Sadly, this not how most image formats store rows of pixel data; they tend to
+                use a top-left orientation, so the first row in most image formats is the top
+                row.</para>
+            <para>This brings us to how we present this data to OpenGL. The function is similar to
+                what we saw before, only with a couple of changes.</para>
+            <example>
+                <title>CreateGaussianTexture in 2D</title>
+                <programlisting language="cpp">GLuint CreateGaussianTexture(int cosAngleResolution, int shininessResolution)
+{
+    std::vector&lt;unsigned char> textureData;
+    BuildGaussianData(textureData, cosAngleResolution, shininessResolution);
+    
+    GLuint gaussTexture;
+    glGenTextures(1, &amp;gaussTexture);
+    glBindTexture(GL_TEXTURE_2D, gaussTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, cosAngleResolution, shininessResolution, 0,
+        GL_RED, GL_UNSIGNED_BYTE, &amp;textureData[0]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    return gaussTexture;
+}</programlisting>
+            </example>
+            <para>Here, we can see that we use the <literal>GL_TEXTURE_2D</literal> target instead
+                of the 1D version. We also use <function>glTexImage2D</function> instead of the 1D
+                version. This takes both a width and a height. But otherwise, the code is very
+                similar to the previous version.</para>
+        </section>
+        <section>
+            <title>Image From a File</title>
+            <para>Our Gaussian texture comes from data we compute, but the specular shininess
+                texture is defined by a file. For this, we use the GLImg library. While the GLImg
+                library has functions that will directly create textures for us, it is instructive
+                to see a more manual process.</para>
+            <example>
+                <title>CreateShininessTexture function</title>
+                <programlisting language="cpp"><!--TODO: Add this.--></programlisting>
+            </example>
+            <para>The first line uses the DDS loader to load the file. DDS stands for <quote>Direct
+                    Draw Surface,</quote> but it really has nothing to do with Direct3D or DirectX.
+                It is unique among image file formats </para>
+            <para/>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut14 In Review.html" ?>
@@ -589,7 +701,8 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
                 <para>Textures are objects that store one or more arrays of data of some
                     dimensionality. They can be created and filled with data from OpenGL. Shaders
                     can reference them with sampler types, and they can access them using texturing
-                    functions.</para>
+                    functions. The values in a texture have a specific meaning; never forget what
+                    the texture and its stored data represent.</para>
             </listitem>
             <listitem>
                 <para>The data in textures can represent arbitrary information. They can be used to
@@ -629,11 +742,13 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
                 </listitem>
                 <listitem>
                     <para>Animate the texture coordinates in the texture mapping tutorial. Do this
-                        by sending an offset to the fragment shader which is applied to the . You
-                        can generate the offset based on the <type>Framework::Timer</type>
-                        <varname>g_lightTimer</varname>. Make sure to use <function>mod</function>
-                        on the texture coordinate with a value of 1.0, so that the texture
-                        coordinate will always stay on the range [0, 1].</para>
+                        by sending an offset to the fragment shader which is applied to the texture
+                        coordinates. You can generate the offset based on the
+                            <type>Framework::Timer</type>
+                        <varname>g_lightTimer</varname>. Make sure to use the
+                            <function>mod</function> function on the texture coordinates with a
+                        value of 1.0, so that the texture coordinate will always stay on the range
+                        [0, 1].</para>
                 </listitem>
             </itemizedlist>
         </section>
@@ -657,7 +772,7 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
                     </glossdef>
                 </glossentry>
                 <glossentry>
-                    <glossterm>glTexParameter*</glossterm>
+                    <glossterm>glTexParameter</glossterm>
                     <glossdef>
                         <para/>
                     </glossdef>
