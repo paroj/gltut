@@ -65,7 +65,7 @@
             tutorial. This tutorial shows a scene containing a golden infinity symbol, with a
             directional light and a second moving point light source.</para>
         <!--TODO: Picture of the tutorial.-->
-        <para>The camera and the object can be rotated, with the left and right mouse buttons
+        <para>The camera and the object can be rotated using the left and right mouse buttons
             respectively. Pressing the <keycap>Spacebar</keycap> toggles between shader-based
             Gaussian specular and texture-based specular. The <keycap>1</keycap> through
                 <keycap>4</keycap> keys switch to progressively larger textures, so that you can see
@@ -119,12 +119,11 @@
                 value.</para>
             <note>
                 <para>Normalized integers are not restricted to textures. Vertex attributes of all
-                    kinds can be stored as normalized integers as an optimization. For positions,
-                    this usually means using 16-bit normalized <emphasis>signed</emphasis> integers,
-                    which map to a [-1, 1] range. These are optimizations, since the smaller the
-                    vertex data, the faster those vertices can be fed to the vertex shader. Again,
-                    as with all optimizations, you should not bother unless you have profiling data
-                    in hand that shows it to be a problem.</para>
+                    kinds can be stored as normalized integers as an optimization. This is easier
+                    for some attributes than others; colors are often restricted to 8-bit normalized
+                    integers, and texture coordinates often can work well as 16-bit normalized
+                    values. These are optimizations, since the smaller the vertex data, the faster
+                    those vertices can be fed to the vertex shader.</para>
             </note>
         </section>
         <section>
@@ -579,6 +578,11 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
                 <glossterm>texture mapping</glossterm>, since it maps between points on a triangle
             and locations on the texture. This is achieved by using texture coordinates that
             correspond with positions on the surface.</para>
+        <note>
+            <para>Some people refer to textures themselves as <quote>texture maps.</quote> This is
+                sadly widespread terminology, but is incorrect. This text will not refer to them as
+                such, and you are strongly advised not to do the same.</para>
+        </note>
         <para>In the last example, the texture coordinate was a value computed based on lighting
             parameters. The texture coordinate for accessing our shininess texture will instead come
             from interpolated per-vertex parameters. Hence the prior discussion of the specifics of
@@ -596,9 +600,11 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
         <para>The <keycap>Spacebar</keycap> switches between one of three rendering modes: fixed
             shininess with a Gaussian lookup-table, a texture-based shininess with a Gaussian
             lookup-table, and a texture-based shininess with a shader-computed Gaussian term. The
-                <keycap>Y</keycap> key switches between the infinity symbol and a flat plane. The
-                <keycap>9</keycap> key switches to a material with a dark diffuse color and bright
-            specular color; this makes the effects of the shininess texture more noticeable.</para>
+                <keycap>Y</keycap> key switches between the infinity symbol and a flat plane; this
+            helps make it more obvious what the shininess looks like. The <keycap>9</keycap> key
+            switches to a material with a dark diffuse color and bright specular color; this makes
+            the effects of the shininess texture more noticeable. Press the <keycap>8</keycap> key
+            to return to the gold material.</para>
         <section>
             <title>Texture 2D</title>
             <para>The <keycap>1</keycap> through <keycap>4</keycap> keys still switch to different
@@ -646,10 +652,10 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
                 This is the most standard way that image data is stored in virtually every image
                 format. Naturally, this is also how OpenGL takes its data.</para>
             <para>However, notice that the texture data expects a lower-left origin: the first row,
-                which corresponds to the smallest shininess value, is the <emphasis>first</emphasis>
-                row. Sadly, this not how most image formats store rows of pixel data; they tend to
-                use a top-left orientation, so the first row in most image formats is the top
-                row.</para>
+                which corresponds to the smallest shininess value (a T value of 0), is the
+                    <emphasis>first</emphasis> row. Sadly, this not how most image formats store
+                rows of pixel data; they tend to use a top-left orientation, so the first row in
+                most image formats is the top row.</para>
             <para>This brings us to how we present this data to OpenGL. The function is similar to
                 what we saw before, only with a couple of changes.</para>
             <example>
@@ -684,12 +690,177 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
                 to see a more manual process.</para>
             <example>
                 <title>CreateShininessTexture function</title>
-                <programlisting language="cpp"><!--TODO: Add this.--></programlisting>
+                <programlisting language="cpp">void CreateShininessTexture()
+{
+    std::auto_ptr&lt;glimg::ImageSet> pImageSet;
+    
+    try
+    {
+        pImageSet.reset(glimg::loaders::dds::LoadFromFile("data\\main.dds"));
+        std::auto_ptr&lt;glimg::Image> pImage(pImageSet->GetImage(0, 0, 0));
+        
+        glimg::Dimensions dims = pImage->GetDimensions();
+        
+        glGenTextures(1, &amp;g_shineTexture);
+        glBindTexture(GL_TEXTURE_2D, g_shineTexture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, dims.width, dims.height, 0,
+            GL_RED, GL_UNSIGNED_BYTE, pImage->GetImageData());
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    catch(glimg::ImageCreationException &amp;e)
+    {
+        printf(e.what());
+        throw;
+    }
+}</programlisting>
             </example>
-            <para>The first line uses the DDS loader to load the file. DDS stands for <quote>Direct
-                    Draw Surface,</quote> but it really has nothing to do with Direct3D or DirectX.
-                It is unique among image file formats </para>
-            <para/>
+            <para>The GLImg library has a number of loaders for different image formats; the one we
+                use in the first line of the try-block is the DDS loader. DDS stands for
+                    <quote>Direct Draw Surface,</quote> but it really has nothing to do with
+                Direct3D or DirectX. It is unique among image file formats </para>
+            <para>The <classname>glimg::ImageSet</classname> object also supports all of the unique
+                features of textures; an <classname>ImageSet</classname> represents all of the
+                images for a particular texture. To get at the image data, we first select an image
+                with the <function>GetImage</function> function. We will discuss later what exactly
+                these parameters represent, but (0, 0, 0) represents the single image that the DDS
+                file contains.</para>
+            <para>Images in textures can have different sizes, so each
+                    <classname>glimg::Image</classname> object has its own dimensions, which we
+                retrieve. After this, we use the usual methods to upload the texture. The
+                    <function>GetImageData</function> object returns a pointer to the data for that
+                image as loaded from the DDS file.</para>
+        </section>
+        <section>
+            <title>Shaders Textures in 2D</title>
+            <para>Since we are using texture objects of <literal>GL_TEXTURE_2D</literal> type, we
+                must use <type>sampler2D</type> samplers in our shader.</para>
+            <programlisting language="glsl">uniform sampler2D gaussianTexture;
+uniform sampler2D shininessTexture;</programlisting>
+            <para>We have two textures. The shininess texture determines our specular shininess
+                value. This is accessed in the fragment shader's main function, before looping over
+                the lights:</para>
+            <example>
+                <title>Shininess Texture Access</title>
+                <programlisting language="glsl">void main()
+{
+    float specularShininess = texture(shininessTexture, shinTexCoord).r;
+    
+    vec4 accumLighting = Mtl.diffuseColor * Lgt.ambientIntensity;
+    for(int light = 0; light &lt; numberOfLights; light++)
+    {
+        accumLighting += ComputeLighting(Lgt.lights[light],
+            cameraSpacePosition, vertexNormal, specularShininess);
+    }
+    
+    outputColor = sqrt(accumLighting); //2.0 gamma correction
+}</programlisting>
+            </example>
+            <para>The <function>ComputeLighting</function> function now takes the specular term as a
+                parameter. It uses this as part of its access to the Gaussian texture:</para>
+            <example>
+                <title>Gaussian Texture with Specular</title>
+                <programlisting language="glsl">vec3 halfAngle = normalize(lightDir + viewDirection);
+vec2 texCoord;
+texCoord.s = dot(halfAngle, surfaceNormal);
+texCoord.t = specularShininess;
+float gaussianTerm = texture(gaussianTexture, texCoord).r;
+
+gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;</programlisting>
+            </example>
+            <para>The use of the S and T components matches how we generated the lookup texture. The
+                shader that computes the Gaussian term uses the specular passed in, and is little
+                different otherwise from the usual Gaussian computations.</para>
+        </section>
+        <section>
+            <title>Rendering with Shininess</title>
+            <para>We have two textures in this example, but we do not have two sampler objects
+                (remember: sampler objects are not the same as sampler types in GLSL). We can use
+                the same sampler object for accessing both of our textures.</para>
+            <para>Because they are 2D textures, they are accessed with two texture coordinates: S
+                and T. So we need to clamp both S and T in our sampler object:</para>
+            <programlisting language="cpp">glGenSamplers(1, &amp;g_textureSampler);
+glSamplerParameteri(g_textureSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+glSamplerParameteri(g_textureSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+glSamplerParameteri(g_textureSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+glSamplerParameteri(g_textureSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);</programlisting>
+            <para>When the time comes to render, the sampler is bound to both texture image
+                units:</para>
+            <programlisting language="cpp">glActiveTexture(GL_TEXTURE0 + g_gaussTexUnit);
+glBindTexture(GL_TEXTURE_2D, g_gaussTextures[g_currTexture]);
+glBindSampler(g_gaussTexUnit, g_textureSampler);
+
+glActiveTexture(GL_TEXTURE0 + g_shineTexUnit);
+glBindTexture(GL_TEXTURE_2D, g_shineTexture);
+glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
+            <para>It is perfectly valid to bind the same sampler to more than one texture unit.
+                Indeed, while many programs may have hundreds of individual textures, they may have
+                less than 10 distinct samplers. It is also perfectly valid to bind the same texture
+                to different units that have different samplers attached to them.</para>
+        </section>
+        <section>
+            <title>The Way of the Map</title>
+            <!--Kill this section if it is too hard to get images for it.-->
+            <para>We use two objects in this tutorial: a flat plane and an infinity symbol. The
+                mapping of the plane is fairly obvious, but the infinity symbol's map is more
+                interesting. Topologically, the infinity symbol is no different from that of a
+                torus.</para>
+            <!--TODO: diagram of a torus-->
+            <para>That is, the infinity symbol and a torus have the same connectivity between
+                vertices; those vertices are just in different positions.</para>
+            <para>Mapping an object onto a 2D plane generally means finding a way to slice the
+                object into pieces that fit onto that plane. However, a torus is, topologically
+                speaking, equivalent to a plane. It is rolled into a tube, and bent so that it
+                context end to end. Therefore, mapping a texture onto this means reversing the
+                process: cutting the torus lengthwise down an arbitrary line, much like a car tire.
+                Then, it is cut again along the side, so that it becomes a plane.</para>
+            <!--TODO: diagram of a torus, then cut lengthwise, then cut down the side.-->
+            <para>Exactly where those cuts need to be made is arbitrary. And because the specular
+                texture mirrors perfectly in the S and T directions, it is not possible to tell
+                exactly where the seams in the topology are.</para>
+            <para>What this does mean is that the vertices along the same have duplicate positions
+                and normals. Because they have different texture coordinates, their shared positions
+                and normals must be duplicated to match what OpenGL needs.</para>
+        </section>
+        <section>
+            <title>Smudges on Glass</title>
+            <para>The best way to understand how the shininess texture affects the rendered result
+                is to switch to the dark material with the <keycap>9</keycap> key. The plane also
+                shows this a bit easier than the curved infinity symbol.</para>
+            <!--TODO: picture of the flat plane in black.-->
+            <para>The areas with lower shininess look like smudge marks. While the bright marks in
+                the highly shiny areas only reflect light when the light source is very close to
+                perfectly reflecting, the lower shininess areas will reflect light from much larger
+                angles.</para>
+            <para>One interesting thing to note is how our look-up table works with the flat
+                surface. Even at the highest resolution, 512 individual values, the lookup table is
+                pretty poor; a lot of concentric rings are plainly visible. It looked more
+                reasonable on the infinity symbol because it was heavily curved, and therefore the
+                specular highlights were much smaller. On this flat surface, the visual artifacts
+                become much more obvious. The <keycap>Spacebar</keycap> can be used to switch to a
+                shader-based computation to see the correct version.</para>
+            <para>If our intent was to show a smudged piece of metal or highly reflective black
+                surface, we could enhance the effect by also applying a texture that changed the
+                specular reflectance. Smudged areas don't tend to reflect as strongly as the shiny
+                ones. We could use the same texture mapping, the same texture coordinates, and the
+                specular texture would not even have to be the same size as our shininess
+                texture.</para>
+            <para>There is one more thing to note about the shininess texture. The size of the
+                texture is 1024x256 in size. The reason for that is that the texture is intended to
+                be used on the infinity symbol. This object is longer in model space than it is
+                wide. By making the texture map 4x longer in the axis that is mapped to the S
+                coordinate, we are able to maintain the aspect ratio of the objects on the texture
+                more closely than the flat plane we see here. All of those oval smudge marks you see
+                are in fact round in the texture. They are still somewhat ovoid and distorted on the
+                infinity symbol though.</para>
+            <para>It is generally the job of the artist creating the texture mapping to ensure that
+                the aspect ratio and stretching of the mapped object remains reasonable for the
+                texture. In the best possible case, every texel in the texture maps to the same
+                physical size on the object's surface. Fortunately for a graphics programmer, doing
+                that isn't your job.</para>
+            <para>Unless your job is writing the tool that the artists use to help them in this
+                process.</para>
         </section>
     </section>
     <section>
@@ -728,17 +899,17 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
-                    <para>If you look at the look-up table for our specular function, you will see
-                        that much of it is very dark, if not actually at 0.0. Even when the dot
-                        product is close to 1.0, it does not take very far before the specular value
-                        becomes negligible. One way to improve our look-up table without having to
-                        use larger textures is to change how we index the texture. If we index the
-                        texture by the square-root of the dot-product, then there will be more room
-                        in the table for the values close to 1.0, and less for the values close to
-                        0.0. This is similar to how gamma correction works. Implement this by
-                        storing the values in the table based on the square-root of the dot-product,
-                        and then take the square-root of the dot-product in the shader before
-                        accessing the texture.</para>
+                    <para>If you were to look at the look-up table for our specular function, you
+                        will see that much of it is very dark, if not actually at 0.0. Even when the
+                        dot product is close to 1.0, it does not take very far before the specular
+                        value becomes negligible. One way to improve our look-up table without
+                        having to use larger textures is to change how we index the texture. If we
+                        index the texture by the square-root of the dot-product, then there will be
+                        more room in the table for the values close to 1.0, and less for the values
+                        close to 0.0. This is similar to how gamma correction works. Implement this
+                        by storing the values in the table based on the square-root of the
+                        dot-product, and then take the square-root of the dot-product in the shader
+                        before accessing the texture.</para>
                 </listitem>
                 <listitem>
                     <para>Animate the texture coordinates in the texture mapping tutorial. Do this

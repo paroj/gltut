@@ -24,7 +24,11 @@
                     <para>Go back to <phrase role="propername">Basic Texture</phrase> the previous
                         tutorial and modify the sampler to use linear magnification filtering on the
                         1D texture. See if the linear filtering makes some of the lower resolutions
-                        more palatable.</para>
+                        more palatable. If you were to try this with the 2D texture in <phrase
+                            role="propername">Material Texture</phrase> tutorial, it would cause
+                        filtering in both the S and T coordinates. This would mean that it would
+                        filter across the shininess of the table as well. Try this and see how this
+                        affects the results.</para>
                 </listitem>
                 <listitem>
                     <para/>

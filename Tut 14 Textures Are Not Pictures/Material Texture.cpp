@@ -202,7 +202,7 @@ int g_materialOffset = 0;
 const int NUM_GAUSS_TEXTURES = 4;
 GLuint g_gaussTextures[NUM_GAUSS_TEXTURES];
 
-GLuint g_gaussSampler = 0;
+GLuint g_textureSampler = 0;
 
 GLuint g_imposterVAO;
 GLuint g_imposterVBO;
@@ -262,11 +262,11 @@ void CreateGaussianTextures()
 		g_gaussTextures[loop] = CreateGaussianTexture(cosAngleResolution, 128);
 	}
 
-	glGenSamplers(1, &g_gaussSampler);
-	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glGenSamplers(1, &g_textureSampler);
+	glSamplerParameteri(g_textureSampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(g_textureSampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(g_textureSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(g_textureSampler, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 GLuint g_shineTexture = 0;
@@ -470,11 +470,11 @@ void display()
 
 			glActiveTexture(GL_TEXTURE0 + g_gaussTexUnit);
 			glBindTexture(GL_TEXTURE_2D, g_gaussTextures[g_currTexture]);
-			glBindSampler(g_gaussTexUnit, g_gaussSampler);
+			glBindSampler(g_gaussTexUnit, g_textureSampler);
 
 			glActiveTexture(GL_TEXTURE0 + g_shineTexUnit);
 			glBindTexture(GL_TEXTURE_2D, g_shineTexture);
-			glBindSampler(g_shineTexUnit, g_gaussSampler);
+			glBindSampler(g_shineTexUnit, g_textureSampler);
 
 			if(g_eMode != MODE_FIXED)
 				pMesh->Render("lit-tex");
