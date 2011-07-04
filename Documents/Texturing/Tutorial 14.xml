@@ -426,8 +426,9 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
                 in it, nor does <function>glSamplerParameter</function> take a context target. We
                 simply pass an object directly to the function.</para>
             <para>In this above code, we set three parameters. The first two parameters are things
-                we will discuss in the next tutorial. The third parameter is how we tell OpenGL that
-                texture coordinates should be clamped to the range of the texture.</para>
+                we will discuss in the next tutorial. The third parameter,
+                    <literal>GL_TEXTURE_WRAP_S</literal>, is how we tell OpenGL that texture
+                coordinates should be clamped to the range of the texture.</para>
             <para>OpenGL names the components of the texture coordinate <quote>strq</quote> rather
                 than <quote>xyzw</quote> or <quote>uvw</quote> as is common. Indeed, OpenGL has two
                 different names for the components: <quote>strq</quote> is used in the API, but
@@ -435,10 +436,10 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
                 use <quote>stpq</quote> as swizzle selectors for any vector instead of the
                 traditional <quote>xyzw</quote>.</para>
             <note>
-                <para>The reason for the odd naming is that OpenGL tries to keep suffixes from
-                    conflicting. <quote>uvw</quote> does not work because <quote>w</quote> is already
-                    part of the <quote>xyzw</quote> suffix. In GLSL, <quote>strq</quote> conflicts
-                    with <quote>rgba</quote>, so they had to go with <quote>stpq</quote>
+                <para>The reason for the odd naming is that OpenGL tries to keep vector suffixes
+                    from conflicting. <quote>uvw</quote> does not work because <quote>w</quote> is
+                    already part of the <quote>xyzw</quote> suffix. In GLSL, <quote>strq</quote>
+                    conflicts with <quote>rgba</quote>, so they had to go with <quote>stpq</quote>
                     instead.</para>
             </note>
             <para>The <literal>GL_TEXTURE_WRAP_S</literal> parameter defines how the
@@ -504,12 +505,13 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
 This time, we want to mark the nearest line A, farthest line B, and the middle line C.
 Add line D in a different color, representing the NDC space midpoint. Show it on both objects.-->
         <para>The transformation from normalized device coordinate space to window space is fully
-            linear. So the problem is the transformation from camera space to NDC space.</para>
+            linear. So the problem is the transformation from camera space to NDC space, the
+            perspective projection.</para>
         <para>From this diagram we see that lines which are parallel in camera space are not
-            parallel in NDC space; this is one of the features of non-linear transforms. But most
-            important of all is the fact that the distance between objects has changed non-linearly.
-            In camera-space, the lines parallel to the Z axis are all equally spaced. In NDC space,
-            they are not.</para>
+            necessarily parallel in NDC space; this is one of the features of non-linear transforms.
+            But most important of all is the fact that the distance between objects has changed
+            non-linearly. In camera-space, the lines parallel to the Z axis are all equally spaced.
+            In NDC space, they are not.</para>
         <para>Look at the lines A and B. Imagine that these are the only two vertices in the object.
             In camera-space, the point halfway between them is C. However, in NDC space, the point
             halfway between them is D. The points C and D are not that close to one another in
@@ -532,10 +534,10 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
         <para>This makes sense; the clip-space W is after all what makes our transformation
             non-linear. Perspective-correction simply uses the clip-space W to adjust the
             interpolation so that it happens in a space that is linear with respect to clip-space.
-            And since clip-space is a linear transform of camera space, everything works out.
-            Technically, perspective-correct interpolation does not cause interpolation in camera
-            space, but it interpolates in a space that is a linear transform from camera
-            space.</para>
+            And since clip-space is a linear transform of camera space (using 4D homogeneous
+            coordinates), everything works out. Technically, perspective-correct interpolation does
+            not cause interpolation in camera space, but it interpolates in a space that is a linear
+            transform from camera space.</para>
         <para>To see the effects of perspective-correction most dramatically, fire up the <phrase
                 role="propername">Perspective Interpolation</phrase> project.</para>
         <para>There are no camera controls in this demo; the camera is fixed so as to allow the
@@ -931,39 +933,50 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
             <title>OpenGL Functions of Note</title>
             <glosslist>
                 <glossentry>
-                    <glossterm>glGenTextures, glBindTexture</glossterm>
+                    <glossterm>glGenTextures, glBindTexture, glActiveTexture</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>These functions create texture objects and bind them to a specific
+                            texture target in the OpenGL context.
+                                <function>glActiveTexture</function> selects which texture unit the
+                            texture all texture object commands refer to, including
+                                <function>glBindTexture</function>. The first time a texture is
+                            bound to a target, that texture object takes on the texture type
+                            associated with that target. It then becomes illegal to bind that
+                            texture to a different target. So if you bind a texture to
+                                <literal>GL_TEXTURE_2D</literal> the first time, you cannot bind it
+                            to any other target ever again.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glTexImage1D, glTexImage2D</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Allocates storage for an image in the currently bound texture of the
+                            currently active texture unit. If the last parameter is not NULL, then
+                            these functions will also upload data to that image. Otherwise, the
+                            content of this image is undefined.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glTexParameter</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Sets a parameter in the currently bound texture of the currently
+                            active texture unit.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
-                    <glossterm>glActiveTexture</glossterm>
+                    <glossterm>glGenSamplers, glBindSampler</glossterm>
                     <glossdef>
-                        <para/>
-                    </glossdef>
-                </glossentry>
-                <glossentry>
-                    <glossterm>glGenSamplers</glossterm>
-                    <glossdef>
-                        <para/>
+                        <para>These functions create sampler objects and bind them to the context
+                            for use.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
                     <glossterm>glSamplerParameter</glossterm>
                     <glossdef>
-                        <para/>
+                        <para>Sets a parameter to the given sampler object. Unlike most OpenGL
+                            functions that operate on objects, this function takes a sampler object
+                            as a parameter; it does not require that the sampler object be bound to
+                            the context.</para>
                     </glossdef>
                 </glossentry>
             </glosslist>
@@ -977,7 +990,11 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
                     <paramdef>vec <parameter>texCoord</parameter></paramdef>
                 </funcprototype>
             </funcsynopsis>
-            <para/>
+            <para>Accesses the texture associated with <parameter>texSampler</parameter>, at the
+                location given by <parameter>texCoord</parameter>. The <type>sampler</type> type can
+                be any of the sampler types. The number of components of <type>vec</type> depends on
+                the type of <type>sampler</type> used; a <type>sampler1D</type> takes a single
+                float, while a <type>sampler2D</type> takes a <type>vec2</type>.</para>
         </section>
     </section>
     <section>
@@ -987,79 +1004,126 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
             <glossentry>
                 <glossterm>look-up table</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A table that is used to represent an expensive function computation. The
+                        function is sampled at discrete intervals. To access the function, the input
+                        values for the function are transformed into a discrete location in the
+                        table and that value is returned.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>texture</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An object that contains one or more images of a particular dimensionality.
+                        The data in the images can be fetched by the user in a shader. Textures have
+                        a type, which represents the nature of that particular texture.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>sampling</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The process of accessing a particular memory location in one of the images
+                        of a texture.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>image</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An array of data of a particular dimensionality. Images can be 1D, 2D, or
+                        3D in size.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>texture type</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>Represents the basic nature of the texture. The texture type defines the
+                        dimensionality of the images it stores. It defines the size of the texture
+                        coordinate that the texture takes, the number of images it can contain, and
+                        various other information about the texture.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>normalized integers</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An integer that represents a floating-point value on the range [0, 1] for
+                        unsigned integers and [-1, 1] for signed integers. Normalized integers use
+                        their entire bitrange to represent a floating point value. The maximum value
+                        for the integer's bitdepth represents the maximum floating point value, and
+                        the minimum value for the integer's bitdepth represents the minimum floating
+                        point value.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>pixel transfer</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The act of sending pixel data to an image in OpenGL, or receiving pixel
+                        data from OpenGL.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>texel</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A pixel within a texture. Used to distinguish between a pixel in a
+                        destination image.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>GLSL sampler</glossterm>
+                <glossdef>
+                    <para>A number of types in GLSL that represents a texture bound to a texture
+                        image unit of the OpenGL context. For every texture type in OpenGL, there is
+                        a matching sampler type. There are a number of restrictions on the use of
+                        samplers in GLSL. They can only be declared globally as uniforms and as
+                        input parameters to functions. They can only be used as the value passed to
+                        a function, whether user-defined or built-in.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>texture coordinate</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A value that is used to access locations within a texture. Each texture
+                        type defines what dimensionality of texture coordinate it takes (note that
+                        the texture type may define a different dimensionality from the image
+                        dimensionality). Texture coordinates are often normalized on the range [0,
+                        1]. This allows texture coordinates to ignore the size of the specific
+                        texture they are used with.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>texture image unit</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An array of locations in the OpenGL context where texture objects are
+                        bound to. Programs can have their GLSL sampler uniforms associated with one
+                        of the entries in this array. When using such a program, it will use the
+                        texture object bound to that location to find the texture for that GLSL
+                        sampler.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>sampler object</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>An OpenGL object that defines how a texture is accessed in the shader. The
+                        parameters that are set on a sampler object can also be set on a texture
+                        object, but if a sampler is bound to the same image unit as a texture, then
+                        the sampler takes precidence.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>perspective-correct interpolation</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A scheme for interpolating values across the surface of a triangle in
+                        pre-projection space. This is necessary when working with perspective
+                        projections. This is the default interpolation scheme in OpenGL; it can be
+                        selectively disabled with the <literal>noperspective</literal> GLSL
+                        qualifier.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>texture mapping</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The association between one or more textures and positions on the surface.
+                        This association is made by putting texture coordinates in the per-vertex
+                        attribute data. Therefore, each triangle vertex has a texture
+                        coordinate.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
