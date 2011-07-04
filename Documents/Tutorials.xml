@@ -96,4 +96,5 @@
     </part>
     <!--<xi:include href="Optimization.xml"/>-->
     <xi:include href="History of Graphics Hardware.xml"/>
+    <xi:include href="Getting Started.xml"/>
 </book>

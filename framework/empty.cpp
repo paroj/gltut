@@ -39,4 +39,9 @@ void keyboard(unsigned char key, int x, int y)
 
 }
 
-
+//Called before FreeGLUT is initialized. It should return the FreeGLUT
+//display mode flags that you want to use. The initial value are the standard ones
+//used by the framework. You can modify it or just return you own set.
+//This function can also set the width/height of the window. The initial
+//value of these variables is the default, but you can change it.
+unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode;}

@@ -2464,6 +2464,7 @@
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
         <folder name="Appendices">
+            <file name="Getting%20Started.xml"/>
             <file name="History%20of%20Graphics%20Hardware.xml"/>
             <file name="Optimization.xml"/>
         </folder>

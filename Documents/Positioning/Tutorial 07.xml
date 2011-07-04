@@ -209,9 +209,8 @@ void main()
                 <title>Mismatched Attributes and Programs</title>
                 <para>You may be wondering what happens if there is a mis-match between the
                     attributes provided by a VAO and the vertex shader inputs. For example, we could
-                    use the position-only vertex shader, which takes attribute 0) with a mesh that
-                    provides attributes 0 and 1, with 0 being the position and 1 being the
-                    color.</para>
+                    use the position-only vertex shader with a mesh that provides attributes 0 and
+                    1, with 0 being the position and 1 being the color.</para>
                 <para>OpenGL is actually very lenient about this sort of thing. It also goes through
                     some effort to fully define what information the vertex shader gets in the event
                     of a mismatch.</para>
@@ -580,7 +579,8 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             buffer object. You can bind it to the <literal>GL_ARRAY_BUFFER</literal> and use it for
             vertex data, you can use it for indexed rendering with
                 <literal>GL_ELEMENT_ARRAY_BUFFER</literal>, and many other things that buffer
-            objects can be used for.</para>
+            objects can be used for. Now granted, that doesn't mean that you should, only that you
+            can.</para>
         <para>The example <phrase role="propername">World with UBO</phrase> uses a uniform buffer
             object to store the camera and perspective matrices.</para>
         <section>
@@ -657,11 +657,12 @@ void main()
                     <function>glGetUniformLocation</function> will return -1. It's actually legal to
                 set a value to a location that is -1, but no data will actually be set.</para>
             <para>If a uniform block is marked with the <quote>std140</quote> layout, then the
-                ability to disable uniforms in a block is entirely removed. All uniforms must have
-                storage, even if this particular program does not use them. This means that, as long
-                as you declare the same uniforms in the same order within a block, the storage for
-                that uniform block will have the same layout in <emphasis>any</emphasis> program.
-                This means that multiple different programs can use the same uniform buffer.</para>
+                ability to disable uniforms in within that block is entirely removed. All uniforms
+                must have storage, even if this particular program does not use them. This means
+                that, as long as you declare the same uniforms in the same order within a block, the
+                storage for that uniform block will have the same layout in <emphasis>any</emphasis>
+                program. This means that multiple different programs can use the same uniform
+                buffer.</para>
             <para>The other two alternatives to <quote>std140</quote> are <quote>packed</quote> and
                     <quote>shared</quote>. The default, <quote>shared,</quote> prevents the uniform
                 optimization, thus allowing the block's uniform buffer data to be shared among
@@ -722,7 +723,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                     something about your intended use of a buffer object based on what target you
                         <emphasis>first</emphasis> use to bind it. So by allocating storage for this
                     buffer in <literal>GL_UNIFORM_BUFFER</literal>, we are signaling something to
-                    OpenGL, which can change where it allocates storage for the buffer.</para>
+                    OpenGL, which can change how it allocates storage for the buffer.</para>
                 <para>However, OpenGL is <emphasis>not</emphasis> allowed to make any behavioral
                     changes based on this. It is still legal to use a buffer allocated on the
                         <literal>GL_UNIFORM_BUFFER</literal> target as a
@@ -801,8 +802,8 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 context. The uniform buffer is bound to one of those slots. Therefore, when you
                 render with that program, the uniform buffer that is in the slot specified by the
                 program will be where the program gets its uniform data from.</para>
-            <para>Therefore, to use a uniform buffer, one first must tell the program which binding
-                point in the context to find the buffer. This association is made with the
+            <para>Therefore, to use a uniform buffer, one first must tell the program object which
+                binding point in the context to find the buffer. This association is made with the
                     <function>glUniformBlockBinding</function> function.</para>
             <programlisting language="cpp">glUniformBlockBinding(data.theProgram, data.globalUniformBlockIndex,
     g_iGlobalMatricesBindingIndex);</programlisting>
@@ -814,13 +815,14 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                     <function>glBindBufferRange</function>.</para>
             <programlisting language="cpp">glBindBufferRange(GL_UNIFORM_BUFFER, g_iGlobalMatricesBindingIndex,
     g_GlobalMatricesUBO, 0, sizeof(glm::mat4) * 2);</programlisting>
-            <para>This functions similarly to glBindBuffer; in addition to binding the buffer to the
-                    <literal>GL_UNIFORM_BUFFER</literal> target, it also binds the buffer to the
-                given uniform buffer binding point. Lastly, it provides an offset and range, the
-                last two parameters. This allows you to put uniform data in arbitrary places in a
-                buffer object. You could have the uniform data for <emphasis>several</emphasis>
-                uniform blocks in several programs all in one buffer object. The range parameters
-                would be how to say where that block's data begins and how big it is.</para>
+            <para>This functions similarly to <function>glBindBuffer</function>; in addition to
+                binding the buffer to the <literal>GL_UNIFORM_BUFFER</literal> target, it also binds
+                the buffer to the given uniform buffer binding point. Lastly, it provides an offset
+                and range, the last two parameters. This allows you to put uniform data in arbitrary
+                places in a buffer object. You could have the uniform data for
+                    <emphasis>several</emphasis> uniform blocks in several programs all in one
+                buffer object. The range parameters would be how to say where that block's data
+                begins and how big it is.</para>
             <para>The reason this is better than directly binding a buffer object to the program
                 object can be seen in exactly where all of this happens. Both of these functions are
                 called as part of initialization code. <function>glUniformBlockBinding</function> is
