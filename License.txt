@@ -9,9 +9,10 @@ The FreeImage library is distributed under the terms of the FreeImage Public Lic
 
 The GLM library is distributed under the terms of the MIT License, as specified in the "glm-0.9.0.7/copying.txt" file.
 
-With two exceptions, all other materials in this distribution are copywritten and distributed under the terms of the MIT License, as specified in the "./MIT License.txt" file. The two files that are not distributed under this copyright are:
+With a few exceptions exceptions, all other materials in this distribution are copywritten and distributed under the terms of the MIT License, as specified in the "./MIT License.txt" file. The two files that are not distributed under this copyright are:
 
 * Documents/Positioning/Coord_system_SZ_0.svg
-* Documents/Illumination/GammaCorrectFunc.svg.
+* Documents/Illumination/GammaCorrectFunc.svg
+* Documents/Texturing/Torus.png
 
 These files have been released in the public domain and therefore are not copywritten.

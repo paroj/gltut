@@ -9,7 +9,9 @@
         useful to discuss how to get started using OpenGL in your own projects. This discussion will
         assume that you know how to set up a build project in your build system of choice.</para>
     <para>There are two ways to go about it: you can use the framework provided in the download, or
-        you can use whatever tools you wish.</para>
+        you can use whatever tools you wish. I don't advocate using the tutorial framework for any
+        serious application; it was intended to be used for only these tutorials, so it may not
+        serve your needs outside of this particular purpose.</para>
     <section>
         <?dbhtml filename="Started Tutorial Framework.html" ?>
         <title>Tutorial Framework</title>
@@ -119,16 +121,13 @@ dofile("tutorials.lua");</programlisting>
         </section>
     </section>
     <section>
-        <?dbhtml filename="Started Nature of OpenGL.html" ?>
-        <title>The Nature of OpenGL</title>
-        <para/>
-    </section>
-    <section>
         <?dbhtml filename="Started Necessary Tools.html" ?>
         <title>Necessary Tools</title>
-        <para>In order to use OpenGL, you will need to do two things. You must create a window and
-            attach an OpenGL context to it, and you must load the OpenGL functions for that
-            context.</para>
+        <para>In order to use OpenGL without the framework, you will need to do two things. You must
+            create a window and attach an OpenGL context to it, and you must load the OpenGL
+            functions for that context. There are a number of other tools you may want (vector math,
+            model loading, image loading, etc), but these tools are ones you need if you aren't
+            going to do them manually.</para>
         <section>
             <title>Window and OpenGL Creation</title>
             <para>Windows, displayable surfaces in GUI operating environments, are very
@@ -198,12 +197,13 @@ dofile("tutorials.lua");</programlisting>
                 updates. It is a C library, so if you are allergic to C-isms, you may wish to avoid
                 it. Work is being done on SDL 1.3, which will apparently have support for mobile
                 platforms. SDL uses the zLib license.</para>
-            <para>SFML is a newer library, which has a C++ API. While SDL is one big library, SFML
-                is more of a choose-your-own package. The base package contains just input and the
-                ability to create a window, while there are other packages that build upon this.
-                Also SFML makes it possible to integrate SFML windows with other GUI toolkits (see
-                below); this makes it easier to build non-gaming applications that use actual GUI
-                tools. SFML uses the zLib license.</para>
+            <para>SFML is a newer library, which has a C++ API. While SDL is one big library (and
+                requires dependencies like DirectX on Windows), SFML is more of a choose-your-own
+                package. The base package contains just input and the ability to create a window,
+                while there are other packages that build upon this. Also SFML makes it possible to
+                integrate SFML windows with other GUI toolkits (see below); this makes it easier to
+                build non-gaming applications that use actual GUI tools. SFML uses the zLib
+                license.</para>
             <para>Allegro is a game-centric multimedia library. Version 5 has native support for
                 OpenGL in its graphics subsystem. It uses a C interface. It also has a number of
                 advanced 2D rendering functions. Allegro uses the <quote>giftware license,</quote>
@@ -215,6 +215,8 @@ dofile("tutorials.lua");</programlisting>
                     windowing system. Most of them have support for using OpenGL in one or more of
                     their windows.</para>
             </formalpara>
+            <para>Which window creation tools you use are entirely up to you; the possible needs
+                that you might have are well beyond the scope of this book.</para>
         </section>
         <section>
             <title>Function Loading</title>
@@ -247,6 +249,14 @@ dofile("tutorials.lua");</programlisting>
                 compatibility or older OpenGL versions. Being a Python script, it requires a Python
                 2.6 environment; it is unknown if it works with later Python versions. GL3W is
                 public domain software.</para>
+        </section>
+        <section>
+            <title>Initialization</title>
+            <para>Once you have selected your tools of choice, the next step is to make them work.
+                After downloading and compiling them, you will need to register them with your C/C++
+                build tool of choice. On Linux-platforms, you typically have some global registry
+                for these things, but on Windows, things go where you put them.</para>
+            <para/>
         </section>
     </section>
 </appendix>

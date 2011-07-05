@@ -306,12 +306,12 @@ void SetupMaterials()
 	MaterialBlock mtl;
 	mtl.diffuseColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f);
 	mtl.specularColor = glm::vec4(1.0f, 0.673f, 0.043f, 1.0f) * 0.4f;
-	mtl.specularShininess = 0.2f;
+	mtl.specularShininess = 0.125f;
 	mtls[0] = mtl;
 
 	mtl.diffuseColor = glm::vec4(0.01f, 0.01f, 0.01f, 1.0f);
 	mtl.specularColor = glm::vec4(0.99f, 0.99f, 0.99f, 1.0f);
-	mtl.specularShininess = 0.2f;
+	mtl.specularShininess = 0.125f;
 	mtls[1] = mtl;
 
 	g_materialUniformBuffer = mtls.CreateBufferObject();

@@ -42,7 +42,14 @@
         reduce the number of parameters to two. Also, the specular shininess is a constant value
         across a mesh. So, for any given mesh, the specular function is a function of one parameter:
         the dot-product between the half-angle vector and the surface normal.</para>
-    <!--TODO: Equation for Gaussian, with a constant shininess and based on the dot-product.-->
+    <equation>
+        <title>Gaussian as Function of One Variable</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="GaussianLookup.svg"/>
+            </imageobject>
+        </mediaobject>
+    </equation>
     <para>So how do we get a look-up table to the shader? We could use the obvious method; build a
         uniform buffer containing an array of floats. We would multiply the dot-product by the
         number of entries in the table and pick a table entry based on that value. By now, you
@@ -64,7 +71,14 @@
         <para>Our first use of textures is in the <phrase role="propername">Basic Texture</phrase>
             tutorial. This tutorial shows a scene containing a golden infinity symbol, with a
             directional light and a second moving point light source.</para>
-        <!--TODO: Picture of the tutorial.-->
+        <figure>
+            <title>Basic Texture</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Basic%20Texture.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The camera and the object can be rotated using the left and right mouse buttons
             respectively. Pressing the <keycap>Spacebar</keycap> toggles between shader-based
             Gaussian specular and texture-based specular. The <keycap>1</keycap> through
@@ -356,7 +370,14 @@ gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;</programlisting>
                 texture. A sampler uniform in a shader is set to a particular image unit; this sets
                 the association between the shader and the image unit. To associate an image unit
                 with a texture object, we bind the texture to that unit.</para>
-            <!--TODO: Diagram of the connection between texture objects, sampler uniforms, and the context state.-->
+            <figure>
+                <title>Texture Binding and Context</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="TextureBindingDiagram.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>Though the idea is essentially the same, there are many API differences between
                 the UBO mechanism and the texture mechanism. We will start with setting the sampler
                 uniform to an image unit.</para>
@@ -456,7 +477,14 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
             <para>We pass the texture unit directly; there is no need to add
                     <literal>GL_TEXTURE0</literal> to it to convert it into an enumerator. This
                 effectively adds an additional value to each texture unit.</para>
-            <!--TODO: Diagram from above, but with sampler objects.-->
+            <figure>
+                <title>Sampler Binding and Context</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="SamplerBindingDiagram.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <note>
                 <para>Technically, we do not have to use a sampler object. The parameters we use for
                     samplers could have been set into the texture object directly with
@@ -474,13 +502,25 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
             <para>If we use resolution <keycap>1</keycap>, we can see that it is a pretty rough
                 approximation. We can very clearly see the distinction between the different texels
                 in our lookup table. It is a 64-texel lookup table.</para>
-            <!--TODO: Picture of the low resolution image, with a shot of the correct one off to the side-->
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Lookup%20Low%20Resolution.png"/>
+                </imageobject>
+            </mediaobject>
             <para>Switching to the level <keycap>3</keycap> resolution shows more gradations, and
                 looks much more like the shader calculation. This one is 256 texels across.</para>
-            <!--TODO: Picture of resolution 3, with shot of correct off to the side.-->
+            <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Lookup%20Mid%20Resolution.png"/>
+                    </imageobject>
+            </mediaobject>
             <para>The largest resolution, <keycap>4</keycap>, is 512 texels, and it looks nearly
                 identical to the pure shader version for this object.</para>
-            <!--TODO: Picture of resolution 4, with the correct shot to the side.-->
+            <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Lookup%20High%20Resolution.png"/>
+                    </imageobject>
+            </mediaobject>
         </section>
     </section>
     <section>
@@ -501,9 +541,14 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
             multiplication is insufficient to express it. Matrices can only handle linear
             transformations, and the perspective projection needs a division, which is non-linear.
             We have seen the effect of this non-linear transformation before:</para>
-        <!--TODO: Diagram from before of camera space to NDC space.
-This time, we want to mark the nearest line A, farthest line B, and the middle line C.
-Add line D in a different color, representing the NDC space midpoint. Show it on both objects.-->
+        <figure>
+            <title>Projection and Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="PerspectiveInterpolation.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The transformation from normalized device coordinate space to window space is fully
             linear. So the problem is the transformation from camera space to NDC space, the
             perspective projection.</para>
@@ -543,7 +588,17 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
         <para>There are no camera controls in this demo; the camera is fixed so as to allow the
             illusion presented to work. Pressing the <keycap>P</keycap> key switches between
             perspective-correct interpolation and window-space linear interpolation.</para>
-        <!--TODO: Picture of perspective correct vs. linear.-->
+        <figure>
+            <title>Perspective Correct Interpolation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="PerspectiveInterpolation.png"/>
+                </imageobject>
+            </mediaobject>
+            <caption>
+                <para>Left: Linear interpolation. Right: Perspective-correct interpolation</para>
+            </caption>
+        </figure>
         <para>The interesting bit is as follows. Switch to the perspective-correct version (a
             message will appear in the console window) and press the <keycap>S</keycap> key. Now,
             the <keycap>P</keycap> key no longer seems to have any effect; we seem to be trapped in
@@ -598,7 +653,14 @@ Add line D in a different color, representing the NDC space midpoint. Show it on
         <para>To see texture mapping in action, load up the <phrase role="propername">Material
                 Texture</phrase> tutorial. This tutorial uses the same scene as before, but the
             infinity symbol can use a texture to define the specular shininess of the object.</para>
-        <!--TODO: Picture of the tutorial.-->
+        <figure>
+            <title>Material Texture</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Material%20Texture.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The <keycap>Spacebar</keycap> switches between one of three rendering modes: fixed
             shininess with a Gaussian lookup-table, a texture-based shininess with a Gaussian
             lookup-table, and a texture-based shininess with a shader-computed Gaussian term. The
@@ -803,12 +865,18 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
         </section>
         <section>
             <title>The Way of the Map</title>
-            <!--Kill this section if it is too hard to get images for it.-->
             <para>We use two objects in this tutorial: a flat plane and an infinity symbol. The
                 mapping of the plane is fairly obvious, but the infinity symbol's map is more
                 interesting. Topologically, the infinity symbol is no different from that of a
                 torus.</para>
-            <!--TODO: diagram of a torus-->
+            <figure>
+                <title>A Torus</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Torus.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>That is, the infinity symbol and a torus have the same connectivity between
                 vertices; those vertices are just in different positions.</para>
             <para>Mapping an object onto a 2D plane generally means finding a way to slice the
@@ -817,7 +885,6 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
                 context end to end. Therefore, mapping a texture onto this means reversing the
                 process: cutting the torus lengthwise down an arbitrary line, much like a car tire.
                 Then, it is cut again along the side, so that it becomes a plane.</para>
-            <!--TODO: diagram of a torus, then cut lengthwise, then cut down the side.-->
             <para>Exactly where those cuts need to be made is arbitrary. And because the specular
                 texture mirrors perfectly in the S and T directions, it is not possible to tell
                 exactly where the seams in the topology are.</para>
@@ -830,11 +897,18 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
             <para>The best way to understand how the shininess texture affects the rendered result
                 is to switch to the dark material with the <keycap>9</keycap> key. The plane also
                 shows this a bit easier than the curved infinity symbol.</para>
-            <!--TODO: picture of the flat plane in black.-->
-            <para>The areas with lower shininess look like smudge marks. While the bright marks in
-                the highly shiny areas only reflect light when the light source is very close to
-                perfectly reflecting, the lower shininess areas will reflect light from much larger
-                angles.</para>
+            <figure>
+                <title>Surface smudges</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="Material%20Flat%20Rings.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The areas with lower shininess, the bright areas, look like smudge marks. While
+                the bright marks in the highly shiny areas only reflect light when the light source
+                is very close to perfectly reflecting, the lower shininess areas will reflect light
+                from much larger angles.</para>
             <para>One interesting thing to note is how our look-up table works with the flat
                 surface. Even at the highest resolution, 512 individual values, the lookup table is
                 pretty poor; a lot of concentric rings are plainly visible. It looked more
@@ -861,8 +935,8 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
                 texture. In the best possible case, every texel in the texture maps to the same
                 physical size on the object's surface. Fortunately for a graphics programmer, doing
                 that isn't your job.</para>
-            <para>Unless your job is writing the tool that the artists use to help them in this
-                process.</para>
+            <para>Unless of course your job is writing the tool that the artists use to help them in
+                this process.</para>
         </section>
     </section>
     <section>
