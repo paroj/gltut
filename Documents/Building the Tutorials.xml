@@ -89,25 +89,17 @@ make</programlisting>
         <para>Using the generated build files, compile for both debug and release.</para>
     </simplesect>
     <simplesect>
-        <title>GLImg</title>
-        <para>The GLImg library is a library for loading image data from various file
-            formats.</para>
-        <para>Like TinyXML, GLImg uses Premake to generate its build files. To create the build
-            files, go to the <filename>glimg</filename> directory. Type <userinput>premake4
+        <title>GLLoad and GLImg</title>
+        <para>The GLImg library is a library for loading image data from various file formats. The
+            GLLoad library is a home-brewed library for loading OpenGL function entrypoints from the
+            .dll. For reasons that are too technical to repeat here, using OpenGL on most platforms
+            requires manually loading function pointers from a .dll. This library makes this process
+            painless.</para>
+        <para>Like TinyXML, these two libraries use Premake to generate their build files. However,
+            they are both generated from the same premake file. To generate the build for these two
+            libraries, go to the <filename>glimg</filename> directory. Type <userinput>premake4
                     <replaceable>plat</replaceable></userinput> as you did for TinyXML. This will
-            create the build file you need to use to build the library for both debug and
-            release.</para>
-    </simplesect>
-    <simplesect>
-        <title>GLLoad</title>
-        <para>The GLLoad library is a home-brewed library for loading OpenGL function entrypoints
-            from the .dll. For reasons that are too technical to repeat here, using OpenGL on most
-            platforms requires manually loading function pointers from a .dll. This library makes
-            this process painless.</para>
-        <para>Like TinyXML, GLLoad uses Premake to generate its build files. To create the build
-            files, go to the <filename>glload</filename> directory. Type <userinput>premake4
-                    <replaceable>plat</replaceable></userinput> as you did for TinyXML. This will
-            create the build file you need to use to build the library for both debug and
+            create the build file you need to use to build the libraries for both debug and
             release.</para>
     </simplesect>
     <simplesect>
