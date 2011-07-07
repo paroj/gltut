@@ -55,3 +55,16 @@ freeglut-2.6.0/config.status
 freeglut-2.6.0/libtool
 freeglut-2.6.0/src/libglut.la
 freeglut-2.6.0/stamp-h1
+glload/Release
+glload/Debug
+framework/lib/Debug
+*.cbp
+*.vcxproj
+*.filters
+*.sdf
+*.workspace
+*.layout
+Shaders/*
+*.depend
+*.sln
+*.vcproj
