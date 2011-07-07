@@ -23,4 +23,5 @@ project "tinyxml_pm"
 	
 	configuration "Release"
 		defines {"NDEBUG", "RELEASE"};
+		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
 		targetname "tinyxml_pm"

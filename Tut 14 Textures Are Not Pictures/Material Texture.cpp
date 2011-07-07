@@ -294,7 +294,7 @@ void CreateShininessTexture()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
-	catch(glimg::ImageCreationException &e)
+	catch(std::exception &e)
 	{
 		printf("%s\n", e.what());
 		throw;

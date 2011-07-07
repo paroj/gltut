@@ -38,6 +38,7 @@ function SetupSolution(slnName)
 
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
+			flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
 			targetname("framework")
 
 
@@ -67,6 +68,7 @@ function SetupProject(projName, ...)
 		
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
+			flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
 			libdirs {"../glload/lib", "../glimg/lib", "../tinyxml/lib"}
 			links "glload"
 			links "glimg"
