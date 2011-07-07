@@ -13,6 +13,8 @@ namespace glimg
 			class StbLoaderException : public std::exception
 			{
 			public:
+			    
+			    virtual ~StbLoaderException() throw() {}
 
 				virtual const char *what() {return message.c_str();}
 

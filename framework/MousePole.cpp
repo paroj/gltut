@@ -235,6 +235,14 @@ namespace Framework
 						this->BeginDragRotate(position, MousePole::RM_DUAL_AXIS_ROTATE);
 				}
 			}
+
+#ifdef LOAD_X11
+            //Linux Mouse wheel support			
+	        if(button == 3)
+		        this->MoveCloser(!(glutGetModifiers() & GLUT_ACTIVE_SHIFT));
+	        if(button == 4)
+		        this->MoveAway(!(glutGetModifiers() & GLUT_ACTIVE_SHIFT));
+#endif
 		}
 		else
 		{

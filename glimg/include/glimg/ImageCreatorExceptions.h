@@ -9,6 +9,7 @@ namespace glimg
 	class ImageCreationException : public std::exception
 	{
 	public:
+	    virtual ~ImageCreationException() throw() {}
 
 		virtual const char *what() {return message.c_str();}
 

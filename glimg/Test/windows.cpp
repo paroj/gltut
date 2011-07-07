@@ -479,7 +479,7 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 	TestImageFormats();
 
 //	glimg::ImageSet *pImgSet = glimg::loaders::test::TestImage2D();
-	glimg::ImageSet *pImgSet = glimg::loaders::dds::LoadFromFile("main.dds");
+	glimg::ImageSet *pImgSet = glimg::loaders::dds::LoadFromFile("bitmap565.dds");
 //	glimg::ImageSet *pImgSet = glimg::loaders::stb::LoadFromFile("bitmap.png");
 
 	texture = glimg::CreateTexture(pImgSet, 0);

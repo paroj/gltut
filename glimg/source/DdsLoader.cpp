@@ -1,6 +1,7 @@
 
 #include <vector>
 #include <stdio.h>
+#include <string.h>
 #include "glimg/ImageSet.h"
 #include "ImageSetImpl.h"
 #include "glimg/ImageCreator.h"
@@ -266,7 +267,7 @@ namespace dds
 		}
 	}
 
-	ImageSet * loaders::dds::LoadFromFile( const std::string &filename )
+	ImageSet * LoadFromFile( const std::string &filename )
 	{
 		//Load the file.
 		FILE *pFile = fopen(filename.c_str(),"rb");

@@ -189,7 +189,8 @@ void init()
 	}
 	catch(std::exception &except)
 	{
-		printf(except.what());
+		printf("%s\n", except.what());
+		throw;
 	}
 
 	glutMouseFunc(MouseButton);

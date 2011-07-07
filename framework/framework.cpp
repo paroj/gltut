@@ -10,6 +10,9 @@
 #include "framework.h"
 #include "directories.h"
 
+#ifdef LOAD_X11
+#define APIENTRY
+#endif
 
 namespace Framework
 {

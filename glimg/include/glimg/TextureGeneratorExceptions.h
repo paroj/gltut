@@ -9,6 +9,7 @@ namespace glimg
 	class TextureGenerationException : public std::exception
 	{
 	public:
+	    virtual ~TextureGenerationException() throw() {}
 
 		virtual const char *what() {return message.c_str();}
 

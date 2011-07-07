@@ -15,6 +15,7 @@
 #include "../framework/ObjectPole.h"
 #include "../framework/Timer.h"
 #include "../framework/UniformBlockArray.h"
+#include "../framework/directories.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -277,7 +278,10 @@ void CreateShininessTexture()
 
 	try
 	{
-		pImageSet.reset(glimg::loaders::dds::LoadFromFile("data\\main.dds"));
+	    std::string filename(LOCAL_FILE_DIR);
+	    filename.append("main.dds");
+	    
+		pImageSet.reset(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 		std::auto_ptr<glimg::Image> pImage(pImageSet->GetImage(0, 0, 0));
 
 		glimg::Dimensions dims = pImage->GetDimensions();
@@ -292,7 +296,7 @@ void CreateShininessTexture()
 	}
 	catch(glimg::ImageCreationException &e)
 	{
-		printf(e.what());
+		printf("%s\n", e.what());
 		throw;
 	}
 }
@@ -332,7 +336,7 @@ void init()
 	}
 	catch(std::exception &except)
 	{
-		printf(except.what());
+		printf("%s\n", except.what());
 		throw;
 	}
 

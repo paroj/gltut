@@ -14,6 +14,8 @@ namespace glimg
 			class DdsLoaderException : public std::exception
 			{
 			public:
+			
+			    virtual ~DdsLoaderException() throw() {}
 
 				virtual const char *what() {return message.c_str();}
 
