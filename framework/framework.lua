@@ -28,7 +28,7 @@ function SetupSolution(slnName)
 		objdir "../framework/lib"
 
 		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../glimg/include", "../glm-0.9.0.7", "../tinyxml",
+			"../glimg/include", "../glm-0.9.2.3", "../tinyxml",
 			"../framework"}
 		
 		configuration "Debug"
@@ -53,7 +53,7 @@ function SetupProject(projName, ...)
 		files {...}
 
 		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../glimg/include", "../glm-0.9.0.7", "../tinyxml"}
+			"../glimg/include", "../glm-0.9.2.3", "../tinyxml"}
 			
 		links "framework"
 

@@ -150,7 +150,7 @@ glm::fquat Slerp(const glm::fquat &v0, const glm::fquat &v1, float alpha)
 	float theta_0 = acosf(dot);
 	float theta = theta_0*alpha;
 
-	glm::fquat v2 = v1 - v0*dot;
+	glm::fquat v2 = v1 + -(v0*dot);
 	v2 = glm::normalize(v2);
 
 	return v0*cos(theta) + v2*sin(theta);
