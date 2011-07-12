@@ -3,6 +3,7 @@
 #include <stack>
 #include <math.h>
 #include <stdio.h>
+#include <sstream>
 #include <glimg/glimg.h>
 #include <glimg/TextureGenerator.h>
 #include <glload/gl_3_3.h>
@@ -72,36 +73,111 @@ struct ProjectionBlock
 Framework::Mesh *g_pPlane = NULL;
 
 GLuint g_projectionUniformBuffer = 0;
-GLuint g_testTexture = 0;
-GLuint g_testSampler = 0;
+GLuint g_checkerTexture = 0;
+GLuint g_mipmapTestTexture = 0;
 
-void LoadTextures()
+const int NUM_SAMPLERS = 6;
+GLuint g_samplers[NUM_SAMPLERS];
+
+void CreateSamplers()
 {
-	std::auto_ptr<glimg::ImageSet> pImageSet;
+	glGenSamplers(NUM_SAMPLERS, &g_samplers[0]);
 
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glSamplerParameteri(g_samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glSamplerParameteri(g_samplers[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glSamplerParameteri(g_samplers[2], GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glSamplerParameteri(g_samplers[2], GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glSamplerParameteri(g_samplers[3], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[3], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glSamplerParameteri(g_samplers[3], GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glSamplerParameteri(g_samplers[3], GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glSamplerParameteri(g_samplers[4], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[4], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glSamplerParameterf(g_samplers[4], GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
+	glSamplerParameteri(g_samplers[4], GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glSamplerParameteri(g_samplers[4], GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	GLfloat maxAniso = 0.0f;
+	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+
+	printf("Maximum anisotropy: %f\n", maxAniso);
+
+	glSamplerParameteri(g_samplers[5], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[5], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+	glSamplerParameteri(g_samplers[5], GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glSamplerParameteri(g_samplers[5], GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+void LoadMipmapTexture()
+{
 	try
 	{
-		std::string filename(LOCAL_FILE_DIR);
-		filename.append("checker.dds");
+		glGenTextures(1, &g_mipmapTestTexture);
+		glBindTexture(GL_TEXTURE_2D, g_mipmapTestTexture);
 
-		pImageSet.reset(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-		std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
+		for(int mipmapLevel = 0; mipmapLevel < 8; mipmapLevel++)
+		{
+			std::string filename(LOCAL_FILE_DIR);
+			filename += "Mip";
+			std::ostringstream foo;
+			foo << mipmapLevel;
+			filename += foo.str();
+			filename += ".png";
 
-		glimg::Dimensions dims = pImage->GetDimensions();
+			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::stb::LoadFromFile(filename));
+			std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
 
-		g_testTexture = glimg::CreateTexture(pImageSet.get(), 0);
+			glimg::Dimensions dims = pImage->GetDimensions();
+
+			glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
+				GL_RGBA, GL_UNSIGNED_BYTE, pImage->GetImageData());
+		}
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 7);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	catch(std::exception &e)
 	{
 		printf("%s\n", e.what());
 		throw;
 	}
+}
 
-	glGenSamplers(1, &g_testSampler);
-	glSamplerParameteri(g_testSampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glSamplerParameteri(g_testSampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glSamplerParameteri(g_testSampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_testSampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
+void LoadCheckerTexture()
+{
+	std::auto_ptr<glimg::ImageSet> pImageSet;
+
+	try
+	{
+		std::string filename(LOCAL_FILE_DIR);
+		filename += "checker.dds";
+
+		pImageSet.reset(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+		std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
+
+		glimg::Dimensions dims = pImage->GetDimensions();
+
+		g_checkerTexture = glimg::CreateTexture(pImageSet.get(), 0);
+	}
+	catch(std::exception &e)
+	{
+		printf("%s\n", e.what());
+		throw;
+	}
 }
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
@@ -142,12 +218,17 @@ void init()
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	LoadTextures();
+	LoadCheckerTexture();
+	LoadMipmapTexture();
+	CreateSamplers();
 }
 
 using Framework::Timer;
 
 Timer g_camTimer = Timer(Timer::TT_LOOP, 5.0f);
+int g_currSampler = 0;
+
+bool g_useMipmapTexture = false;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -162,12 +243,14 @@ void display()
 	{
 		g_camTimer.Update();
 
-
+		float cyclicAngle = g_camTimer.GetAlpha() * 6.28f;
+		float hOffset = cosf(cyclicAngle) * 0.25f;
+		float vOffset = sinf(cyclicAngle) * 0.25f;
 
 		Framework::MatrixStack modelMatrix;
 		const glm::mat4 &worldToCamMat = glm::lookAt(
-			glm::vec3(0.0f, 1.0f, -64.0f),
-			glm::vec3(0.0f, -5.0f, -44.0f),
+			glm::vec3(hOffset, 1.0f, -64.0f),
+			glm::vec3(hOffset, -5.0f + vOffset, -44.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
 		modelMatrix.ApplyMatrix(worldToCamMat);
@@ -180,8 +263,9 @@ void display()
 				glm::value_ptr(modelMatrix.Top()));
 
  			glActiveTexture(GL_TEXTURE0 + g_colorTexUnit);
- 			glBindTexture(GL_TEXTURE_2D, g_testTexture);
- 			glBindSampler(g_colorTexUnit, g_testSampler);
+			glBindTexture(GL_TEXTURE_2D,
+				g_useMipmapTexture ? g_mipmapTestTexture : g_checkerTexture);
+ 			glBindSampler(g_colorTexUnit, g_samplers[g_currSampler]);
 
 			g_pPlane->Render("tex");
 
@@ -214,6 +298,16 @@ void reshape (int w, int h)
 	glutPostRedisplay();
 }
 
+const char *g_samplerNames[NUM_SAMPLERS] =
+{
+	"Nearest",
+	"Linear",
+	"Linear with nearest mipmaps",
+	"Linear with linear mipmaps",
+	"Small anisotropic",
+	"Max anisotropic",
+};
+
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
 //It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
@@ -227,6 +321,19 @@ void keyboard(unsigned char key, int x, int y)
 		g_pPlane = NULL;
 		glutLeaveMainLoop();
 		break;
+	case 32:
+		g_useMipmapTexture = !g_useMipmapTexture;
+		break;
+	}
+
+	if(('1' <= key) && (key <= '9'))
+	{
+		int number = key - '1';
+		if(number < NUM_SAMPLERS)
+		{
+			printf("Sampler: %s\n", g_samplerNames[number]);
+			g_currSampler = number;
+		}
 	}
 }
 
