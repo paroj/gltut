@@ -7,6 +7,7 @@
 #include "glimg/ImageCreator.h"
 #include "glimg/DdsLoader.h"
 #include "DdsLoaderInt.h"
+#include "Util.h"
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
@@ -137,13 +138,13 @@ namespace dds
 				//Check the bitcounts, not the fourCC.
 				if(header.ddspf.dwRGBBitCount != ddsFmt.bitDepth)
 					return false;
-				if(ddsFmt.rBitmask && header.ddspf.dwRBitMask != ddsFmt.rBitmask)
+				if((ddsFmt.rBitmask & header.ddspf.dwRBitMask) != ddsFmt.rBitmask)
 					return false;
-				if(ddsFmt.gBitmask && header.ddspf.dwGBitMask != ddsFmt.gBitmask)
+				if((ddsFmt.gBitmask & header.ddspf.dwGBitMask) != ddsFmt.gBitmask)
 					return false;
-				if(ddsFmt.bBitmask && header.ddspf.dwBBitMask != ddsFmt.bBitmask)
+				if((ddsFmt.bBitmask & header.ddspf.dwBBitMask) != ddsFmt.bBitmask)
 					return false;
-				if(ddsFmt.aBitmask && header.ddspf.dwABitMask != ddsFmt.aBitmask)
+				if((ddsFmt.aBitmask & header.ddspf.dwABitMask) != ddsFmt.aBitmask)
 					return false;
 			}
 
@@ -206,6 +207,67 @@ namespace dds
 		size_t GetImageByteSize(const ImageFormat &fmt, const glimg::Dimensions &dims,
 			int mipmapLevel);
 
+		//Computes the bytesize of a single scanline of an image of the given format,
+		//with the given line width.
+		//For compressed textures, the value returned is the number of bytes for every
+		//4 scanlines.
+		size_t CalcLineSize(const ImageFormat &fmt, int lineWidth)
+		{
+			//This is from the DDS suggestions for line size computations.
+			if(fmt.eBitdepth == BD_COMPRESSED)
+			{
+				size_t blockSize = 16;
+
+				if(fmt.eType == DT_COMPRESSED_BC1 ||
+					fmt.eType == DT_COMPRESSED_UNSIGNED_BC4 || fmt.eType == DT_COMPRESSED_SIGNED_BC4)
+					blockSize = 8;
+
+				return ((lineWidth + 3) / 4) * blockSize;
+			}
+
+			size_t bytesPerPixel = CalcBytesPerPixel(fmt);
+			return lineWidth * bytesPerPixel;
+		}
+
+		//Computes the offset from the first image.
+		size_t CalcByteOffsetToImage(const ImageFormat &fmt, const glimg::Dimensions &dims,
+			int mipmapLevel, int faceIx, int arrayIx)
+		{
+			//TODO: remove
+			if(faceIx != 0 || arrayIx != 0)
+				throw DdsFileUnsupportedException("", "Cubemaps/array textures not yet supported.");
+
+			size_t currOffset = 0;
+
+			for(int currLevel = 0; currLevel < mipmapLevel; currLevel++)
+			{
+				glimg::Dimensions mipmapDims = ModifySizeForMipmap(dims, currLevel);
+
+				size_t lineSize = CalcLineSize(fmt, mipmapDims.width);
+
+				int effectiveHeight = 1;
+				if(mipmapDims.numDimensions > 1)
+				{
+					effectiveHeight = mipmapDims.height;
+					if(fmt.eBitdepth == BD_COMPRESSED)
+						effectiveHeight = (effectiveHeight + 3) / 4;
+				}
+
+				int effectiveDepth = 1;
+				if(mipmapDims.numDimensions > 2)
+				{
+					effectiveDepth = mipmapDims.depth;
+					if(fmt.eBitdepth == BD_COMPRESSED)
+						effectiveDepth = (effectiveDepth + 3) / 4;
+				}
+
+				int numLines = effectiveHeight * effectiveDepth;
+				currOffset += numLines * lineSize;
+			}
+
+			return currOffset;
+		}
+
 		//Takes ownership of ddsData;
 		ImageSet *ProcessDDSData(FileBuffer &ddsData, const std::string &filename = std::string())
 		{
@@ -239,12 +301,15 @@ namespace dds
 			std::vector<size_t> imageOffsets;
 			imageOffsets.reserve(numMipmaps * numArrays * numFaces);
 
-			//Temporary.
-			if(numMipmaps != 1 || numArrays != 1 || numFaces != 1)
+			//TODO: remove
+			if(numArrays != 1 || numFaces != 1)
 				throw DdsFileUnsupportedException(filename, "foo");
 
-			imageOffsets.push_back(baseOffset);
-
+			for(int mipmapLevel = 0; mipmapLevel < numMipmaps; mipmapLevel++)
+			{
+				size_t offsetFromFirstImg = CalcByteOffsetToImage(fmt, dims, mipmapLevel, 0, 0);
+				imageOffsets.push_back(baseOffset + offsetFromFirstImg);
+			}
 
 			//Build the image creator. No more exceptions, except for those thrown by.
 			//the ImageCreator.

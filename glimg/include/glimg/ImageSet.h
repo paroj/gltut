@@ -2,16 +2,29 @@
 #ifndef GLIMG_IMAGE_SET_H
 #define GLIMG_IMAGE_SET_H
 
+/**
+\file
+
+\brief Contains the ImageSet class and associated objects.
+**/
+
 #include "ImageFormat.h"
 
 namespace glimg
 {
+	///\addtogroup module_glimg_imageset
+	///@{
+
+	/**
+	\brief Describes the dimensionality of an image.
+	
+	**/
 	struct Dimensions
 	{
-		int numDimensions;
-		int width;
-		int height;
-		int depth;
+		int numDimensions;	///<The number of dimensions of an image. Can be 1, 2, or 3.
+		int width;			///<The width of the image. Always valid.
+		int height;			///<The height of the image. Only valid if numDimensions is 2 or 3.
+		int depth;			///<The depth of the image. Only valid if numDimensions is 3.
 	};
 
 	namespace detail
@@ -24,15 +37,22 @@ namespace glimg
 	/**
 	\brief Represents a single image of a certain dimensionality.
 	**/
-	class Image
+	class SingleImage
 	{
 	public:
-		~Image();
+		~SingleImage();
 
 		Dimensions GetDimensions() const;
 
 		ImageFormat GetFormat() const;
 
+		/**
+		\brief Retrieves a pointer to this image's pixel data.
+
+		The format of this pixel data is defined by the ImageFormat returned from GetFormat().
+
+		Do not delete this pointer. It is owned by this object (and the ImageSet it came from).
+		**/
 		const void *GetImageData() const;
 
 	private:
@@ -44,7 +64,7 @@ namespace glimg
 		friend class detail::ImageSetImpl;
 		friend class ImageSet;
 
-		Image(const detail::ImageSetImpl *pImpl, int arrayIx, int faceIx, int mipmapLevel);
+		SingleImage(const detail::ImageSetImpl *pImpl, int arrayIx, int faceIx, int mipmapLevel);
 	};
 
 	/**
@@ -59,12 +79,7 @@ namespace glimg
 		~ImageSet();
 
 		/**
-		\brief Returns the number of dimensions in this image set, as well as the size of the base mipmap image.
-		
-		This function will return the number of dimensions that the images in the image set contains.
-		It also returns the size in pixels of the base image. For dimensions less than 3,
-		the base image size will be 0 for the dimensions that aren't present. For example, if
-		the image is 2D, the ImageDimensions::depth will be zero.
+		\brief Returns the dimensionality of the base mipmap image.
 		**/
 		Dimensions GetDimensions() const;
 
@@ -73,44 +88,45 @@ namespace glimg
 
 		This function will return the number of array images in the image set. The minimum is 1.
 
-		The API makes no distinction between an array of length 1 and a non-array texture.
-		If such a distinction needs to be made, it should be made in the uploading, not in the storage.
+		This API makes no distinction between an array of length 1 and a non-array texture.
+		If such a distinction needs to be made, it should be made in the uploading of the image's data,
+		not in the ImageSet.
 		**/
 		int GetArrayCount() const;
 
 		/**
 		\brief Returns the number of mipmap levels the image set contains.
 
-		This function will return the number of mipmap levels in the image set. The minimum is 1.
-		
+		\return The number of mipmap levels in the image set. The minimum is 1.
 		**/
 		int GetMipmapCount() const;
 
 		/**
 		\brief Returns the number of faces in the image set.
 
-		This function will return the number of faces in the image set. This will be 1 for regular
-		images, and 6 for cubemaps and cubemap arrays.
+		\return The number of faces in the image set. It will be 1 for regular images,
+		and 6 for cubemaps and cubemap arrays.
 		**/
 		int GetFaceCount() const;
 
 		/**
 		\brief Retrieves the image format that describes all images in this ImageSet.
-		
 		**/
 		ImageFormat GetFormat() const;
 
 		/**
-		\brief Retrieves the image at the given array index, face index, and mipmap level.
+		\brief Retrieves the image at the given mipmap level, array index, and face index.
 		
-		\return A pointer to the image. Do not use it after the ImageSet object is destroyed. This pointer must be deleted manually.
+		\return A pointer to the image. Do not use it after the ImageSet object is destroyed.
+		This pointer must be deleted manually.
 		**/
-		Image *GetImage(int ixMipmapLevel, int ixArray = 0, int ixFace = 0) const;
+		SingleImage *GetImage(int ixMipmapLevel, int ixArray = 0, int ixFace = 0) const;
 
 		/**
 		\brief Retrieves a pointer to the full array data for a mipmap level.
 		
-		\return A pointer to the image data. DO NOT DELETE THIS POINTER. Also, do not use this pointer after this object is destroyed.
+		\return A pointer to the image data. DO NOT DELETE THIS POINTER. Also, do not use this
+		pointer after this object is destroyed.
 		**/
 		const void *GetImageArray(int ixMipmapLevel) const;
 
@@ -122,6 +138,8 @@ namespace glimg
 		friend class ImageCreator;
 		friend void CreateTexture(unsigned int textureName, const ImageSet *pImage, unsigned int forceConvertBits);
 	};
+
+	///@}
 }
 
 

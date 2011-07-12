@@ -5,27 +5,27 @@
 
 namespace glimg
 {
-	Image::Image( const detail::ImageSetImpl *pImpl, int arrayIx, int faceIx, int mipmapLevel )
+	SingleImage::SingleImage( const detail::ImageSetImpl *pImpl, int arrayIx, int faceIx, int mipmapLevel )
 		: m_pImpl(pImpl)
 		, m_arrayIx(arrayIx)
 		, m_faceIx(faceIx)
 		, m_mipmapLevel(mipmapLevel)
 	{}
 
-	Image::~Image()
+	SingleImage::~SingleImage()
 	{}
 
-	glimg::Dimensions Image::GetDimensions() const
+	glimg::Dimensions SingleImage::GetDimensions() const
 	{
 		return m_pImpl->GetDimensions(m_mipmapLevel);
 	}
 
-	glimg::ImageFormat Image::GetFormat() const
+	glimg::ImageFormat SingleImage::GetFormat() const
 	{
 		return m_pImpl->GetFormat();
 	}
 
-	const void * Image::GetImageData() const
+	const void * SingleImage::GetImageData() const
 	{
 		const detail::MipmapLevel &mipmapData = m_pImpl->GetMipmapLevel(m_mipmapLevel);
 
@@ -75,9 +75,9 @@ namespace glimg
 		return m_pImpl->GetFormat();
 	}
 
-	Image * ImageSet::GetImage( int ixMipmapLevel, int ixArray, int ixFace ) const
+	SingleImage * ImageSet::GetImage( int ixMipmapLevel, int ixArray, int ixFace ) const
 	{
-		return new Image(m_pImpl, ixArray, ixFace, ixMipmapLevel);
+		return new SingleImage(m_pImpl, ixArray, ixFace, ixMipmapLevel);
 	}
 }
 

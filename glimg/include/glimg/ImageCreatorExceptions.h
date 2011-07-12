@@ -6,6 +6,9 @@
 
 namespace glimg
 {
+	///\addtogroup module_glimg_exceptions
+	///@{
+
 	class ImageCreationException : public std::exception
 	{
 	public:
@@ -85,6 +88,7 @@ namespace glimg
 			message = "Attempted to add an image to an ImageCreator that has already been used to create an image set.";
 		}
 	};
+	///@}
 }
 
 

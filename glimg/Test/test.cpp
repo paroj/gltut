@@ -37,7 +37,7 @@ namespace
 		testFmt.format.eOrder = ORDER_RGBA;
 		testFmt.format.eBitdepth = BD_PACKED_32_BIT_8888;
 		testFmt.format.lineAlignment = 4;
-		testFmt.forceConvertBits = FORCE_SRGB_COLORSPACE;
+		testFmt.forceConvertBits = FORCE_SRGB_COLORSPACE_FMT;
 		formats.push_back(testFmt);
 
 		//Succeed. GL_RGB5_A1 = 0x8057.
@@ -109,7 +109,7 @@ namespace
 		testFmt.format.eOrder = ORDER_RGBA;
 		testFmt.format.eBitdepth = BD_PER_COMP_16;
 		testFmt.format.lineAlignment = 4;
-		testFmt.forceConvertBits = FORCE_LUMINANCE_FORMATS;
+		testFmt.forceConvertBits = FORCE_LUMINANCE_FMT;
 		formats.push_back(testFmt);
 
 		//Succeed. GL_R11F_G11F_B10F = 0x8C3A.
@@ -163,7 +163,7 @@ namespace
 		testFmt.format.eOrder = ORDER_COMPRESSED;
 		testFmt.format.eBitdepth = BD_COMPRESSED;
 		testFmt.format.lineAlignment = 4;
-		testFmt.forceConvertBits = FORCE_BC1_ALPHA_TEXTURE | FORCE_SRGB_COLORSPACE;
+		testFmt.forceConvertBits = FORCE_BC1_ALPHA_FMT | FORCE_SRGB_COLORSPACE_FMT;
 		formats.push_back(testFmt);
 
 		//Fail. Packed + integral = bad.
@@ -215,7 +215,7 @@ void TestImageFormats()
 		try
 		{
 			GLuint internalFmt = glimg::GetInternalFormat(formats[loop].format, formats[loop].forceConvertBits);
-			OpenGLUploadData upload = glimg::GetUploadFormatType(formats[loop].format, formats[loop].forceConvertBits);
+			OpenGLPixelTransferParams upload = glimg::GetUploadFormatType(formats[loop].format, formats[loop].forceConvertBits);
 			printf("Internal Format of %i: 0x%04x, [format=0x%04x, type=0x%04x]\n", loop, internalFmt,
 				upload.format, upload.type);
 		}

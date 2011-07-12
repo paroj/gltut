@@ -1,24 +1,9 @@
 
 #include "ImageSetImpl.h"
+#include "Util.h"
 
 namespace glimg
 {
-	namespace
-	{
-		Dimensions ModifySizeForMipmap(Dimensions origDim, int mipmapLevel)
-		{
-			for(int iLoop = 0; iLoop < mipmapLevel; iLoop++)
-			{
-				origDim.width /= 2;
-				origDim.height /= 2;
-				origDim.depth /= 2;
-			}
-
-			return origDim;
-		}
-	}
-
-
 	detail::ImageSetImpl::ImageSetImpl( MemoryObject *pObject, Dimensions dimensions,
 		int arrayCount, int mipmapCount, int faceCount,
 		ImageFormat format, std::vector<MipmapLevel> &swapThisIn )

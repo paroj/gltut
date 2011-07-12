@@ -10,6 +10,7 @@ namespace glimg
 	{
 		namespace test
 		{
+			///\internal
 			glimg::ImageSet *TestImage2D();
 		}
 	}

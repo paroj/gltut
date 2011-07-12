@@ -1,11 +1,21 @@
 #ifndef GLIMG_TEXTURE_GENERATOR_EXCEPTIONS_H
 #define GLIMG_TEXTURE_GENERATOR_EXCEPTIONS_H
 
+/**
+\file
+\brief Exceptions for texture generation functions.
+
+**/
+
 #include <exception>
 #include <string>
 
 namespace glimg
 {
+	///\addtogroup module_glimg_exceptions
+	///@{
+
+	///Base class for all exceptions thrown by the texture loaders.
 	class TextureGenerationException : public std::exception
 	{
 	public:
@@ -17,6 +27,7 @@ namespace glimg
 		std::string message;
 	};
 
+	///Thrown if the image format cannot be used because the OpenGL implementation doesn't support the format.
 	class ImageFormatUnsupportedException : public TextureGenerationException
 	{
 	public:
@@ -32,6 +43,7 @@ namespace glimg
 		}
 	};
 
+	///Thrown if the texture type that was asked to be created is not supported by this OpenGL implementation.
 	class TextureUnsupportedException : public TextureGenerationException
 	{
 	public:
@@ -47,6 +59,7 @@ namespace glimg
 		}
 	};
 
+	///Thrown because the texture type is not yet supported by GL Image.
 	class TextureUnexpectedException : public TextureGenerationException
 	{
 	public:
@@ -62,6 +75,7 @@ namespace glimg
 		}
 	};
 
+	///Thrown when using the FORCE_REQUIRED_FORMATS flag and the format could not be converted to a required one without compromising data.
 	class CannotForceRenderTargetException : public TextureGenerationException
 	{
 	public:
@@ -71,6 +85,7 @@ namespace glimg
 		}
 	};
 
+	///Thrown if the image format given to a texture conversion routine is invalid.
 	class ImageFormatUnexpectedException : public TextureGenerationException
 	{
 	public:
@@ -85,7 +100,7 @@ namespace glimg
 			message += msg;
 		}
 	};
-
+	///@}
 }
 
 

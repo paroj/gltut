@@ -10,6 +10,8 @@
 
 namespace glimg
 {
+	///\addtogroup module_glimg_creation
+	///@{
 	namespace detail
 	{
 		struct SimpleImage
@@ -27,12 +29,17 @@ namespace glimg
 		};
 	}
 
+	/**
+	\brief Used to destroy all of the memory provided to the image creation routines.
+	
+	**/
 	class MemoryObject
 	{
 	public:
 		virtual ~MemoryObject() {}
 	};
 
+	///Do not use. Not mature enough yet.
 	class ImageCreator
 	{
 	public:
@@ -61,6 +68,8 @@ namespace glimg
 		std::vector<detail::SimpleImage> m_simpleImages;
 		std::vector<detail::FullLayerImage> m_fullLayerImages;
 	};
+
+	///@}
 }
 
 

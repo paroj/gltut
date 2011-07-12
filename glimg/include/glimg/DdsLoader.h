@@ -5,12 +5,23 @@
 #include <string>
 #include "ImageSet.h"
 
+/**
+\file
+\brief Has all of the DDS-based loaders.
+
+**/
+
 namespace glimg
 {
 	namespace loaders
 	{
+		///Contains the DDS loaders.
 		namespace dds
 		{
+			///\addtogroup module_glimg_exceptions
+			///@{
+
+			///Base class for all exceptions thrown by the DDS loaders.
 			class DdsLoaderException : public std::exception
 			{
 			public:
@@ -23,6 +34,7 @@ namespace glimg
 				std::string message;
 			};
 
+			///Thrown if the DDS file could not be opened.
 			class DdsFileNotFoundException : public DdsLoaderException
 			{
 			public:
@@ -32,6 +44,7 @@ namespace glimg
 				}
 			};
 
+			///Thrown if the DDS data is not a valid DDS format.
 			class DdsFileMalformedException : public DdsLoaderException
 			{
 			public:
@@ -46,6 +59,7 @@ namespace glimg
 				}
 			};
 
+			///Thrown if the DDS format uses features that the loader cannot yet handle.
 			class DdsFileUnsupportedException : public DdsLoaderException
 			{
 			public:
@@ -59,9 +73,28 @@ namespace glimg
 					message += msg;
 				}
 			};
+			///@}
 
+			/**
+			\brief Loads a DDS file from the disk, given an ASCII filename.
+
+			DDS is a good texture format, because it naturally fits the needs of textures. It
+			supports features like mipmaps and arrays that other image formats do not.
+
+			\throws DdsLoaderException The image could not be loaded.  There are derived classes from this type that could be thrown.
+			\return An ImageSet that represents the loaded image data.
+
+			\todo Get 3D textures working.
+			\todo Get cubemap textures working. With mipmaps.
+			\todo Implement the D3D10 format.
+			\todo Get array textures working. With mipmaps.
+			\todo Get cubemap array textures working.
+			**/
 			ImageSet *LoadFromFile(const std::string &filename);
+
+			///As LoadFromFile, but from an already loaded buffer. The buffer pointer may be deleted after this call.
 			ImageSet *LoadFromMemory(const unsigned char *buffer, size_t bufSize);
+
 		}
 	}
 }

@@ -479,10 +479,12 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 	TestImageFormats();
 
 //	glimg::ImageSet *pImgSet = glimg::loaders::test::TestImage2D();
-	glimg::ImageSet *pImgSet = glimg::loaders::dds::LoadFromFile("bitmap565.dds");
-//	glimg::ImageSet *pImgSet = glimg::loaders::stb::LoadFromFile("bitmap.png");
+	glimg::ImageSet *pImgSet = glimg::loaders::dds::LoadFromFile("pics/bitmapDXT1_mip.dds");
+//	glimg::ImageSet *pImgSet = glimg::loaders::stb::LoadFromFile("pics/bitmap.png");
 
 	texture = glimg::CreateTexture(pImgSet, 0);
+
+	printf("%i\n", pImgSet->GetMipmapCount());
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

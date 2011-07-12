@@ -3,17 +3,29 @@
 
 #include <string>
 
+
+/**
+@file
+
+\brief Contains all of the enums and objects related to formats.
+
+\ingroup module_glimg_format
+**/
+
 namespace glimg
 {
+	///\addtogroup module_glimg_format
+	///@{
+
 	/**
 	\brief Describes the basic type of the pixel data.
 
 	The pixel data type of an image represents the basic type of data stored in the image.
-	This can be floating-point, normalized unsigned integer, and the like.
-
-	Compressed formats do not have pixel bitdepths or component ordering.
+	This can be floating-point, normalized unsigned integer, and the like. They also describe
+	if they are compressed. You can test a PixelDataType to see if it is a compressed format
+	by seeing if the value is less than DT_NUM_UNCOMPRESSED_TYPES.
 	**/
-	enum BaseDataType
+	enum PixelDataType
 	{
 		DT_NORM_UNSIGNED_INTEGER,			///<Image data are unsigned integers that is mapped to floats on the range [0, 1].
 		DT_NORM_SIGNED_INTEGER,				///<Image data are signed integers that is mapped to floats on the range [-1, 1].
@@ -38,13 +50,13 @@ namespace glimg
 	};
 
 	/**
-	\brief Describes the meaning of the pixel data stored in the image.
+	\brief Describes the values stored in a pixel of the image.
 
-	The base data format of an image represents what kind of data is stored in each pixel. If it is
-	color data, it also describes which color components are stored. The order of these components in
-	the image data is not reflected here.
+	Pixels can store between 1 and 4 values. This enumerator defines how many values are stored
+	and what these values mean. It defines the colorspace of the values (sRGB vs. linear),
+	and also whether the values are color or depth values.
 	**/
-	enum BaseDataFormat
+	enum PixelComponents
 	{
 		FMT_COLOR_RED,					///<Image contains 1 color component, namely red.
 		FMT_COLOR_RG,					///<Image contains 2 color components, red and green.
@@ -52,7 +64,7 @@ namespace glimg
 		FMT_COLOR_RGBX,					///<Image contains 3 color components, red, green, and blue. There is a fourth component, which takes up space in the data but should be discarded.
 		FMT_COLOR_RGBA,					///<Image contains 4 color components, red, green, blue, and alpha.
 		FMT_COLOR_RGB_sRGB,				///<Image contains 3 color components, which are in the sRGB colorspace.
-		FMT_COLOR_RGBX_sRGB,			///<Image contains 3 color components, which are in the sRGB colorspace. There is a fourth component,  which takes up space in the data but should be discarded.
+		FMT_COLOR_RGBX_sRGB,			///<Image contains 3 color components, which are in the sRGB colorspace. There is a fourth component, which takes up space in the data but should be discarded.
 		FMT_COLOR_RGBA_sRGB,			///<Image contains 4 color components; the RGB components are in the sRGB colorspace.
 
 		FMT_DEPTH,						///<Image contains a single depth component.
@@ -83,20 +95,25 @@ namespace glimg
 	};
 
 	/**
-	\brief Specifies the bitdepth for each component of each value.
+	\brief Specifies the bitdepth for each component of each pixel.
 
 	Each component of each pixel has a particular bitdepth. The bitdepths specified here
 	are either per-component or specify the size of an entire pixel. The PER_COMP
 	enumerators specify the size of each component.
 
 	So if PER_COMP_16 is used with a RGB format, then each pixel takes up 48 bits.
-	This could be using unsigned integers (shorts) or floats (half-floats).
+	This could be using integers (shorts) or floats (half-floats). Whether it is
+	16-bit integers or 16-bit floats is determined by the PixelDataType.
 
 	The PACKED enumerators are for formats where each component does not have
 	the same bitdepth. The number after PACKED specifies the overall bitdepth
 	of the pixel. PACKED_16_BIT means that the pixel takes up 16 bits.
-	The numbers after represent the bitdepth of the individual components, in the oder
+	The numbers after represent the bitdepth of the individual components, in the order
 	specified by the ComponentOrder enumerator.
+
+	PACKED formats that end in "_REV" reverse the order of the components. So 1555_REV
+	means that the lowest 5 bits are the first component, the next 5 are the second, 
+	the 5 after that are the third, and the highest bit is the fourth component.
 	**/
 	enum Bitdepth
 	{
@@ -127,19 +144,37 @@ namespace glimg
 		BD_NUM_BITDEPTH,
 	};
 
+	/**
+	\brief Stores the enums and data that describes the format of an image.
+	**/
 	struct ImageFormat
 	{
-		BaseDataType eType;
-		BaseDataFormat eFormat;
-		ComponentOrder eOrder;
-		Bitdepth eBitdepth;
+		PixelDataType eType;		///<The type of pixel data.
+		PixelComponents eFormat;	///<The components stored by a pixel.
+		ComponentOrder eOrder;		///<The order of the components of the pixel.
+		Bitdepth eBitdepth;			///<The bitdepth of each pixel component.
 
-		int lineAlignment;
+		int lineAlignment;			///<The byte alignment of a horizontal line of pixel data.
 
-		bool ValidateFormat() const;
+		/**
+		\brief Determines if the values set into this ImageFormat are valid.
+
+		The ImageFormat object has no constructor, and therefore you could conceivably use
+		any combination of parameters. However, there are specific constraints imposed on
+		ImageFormat enumerators. If these constraints fail, then an error results.
+
+		For details on the specifics of validation, see
+		\ref page_glimg_format_validation.
+
+		\return An empty string if the ImageFormat is valid, and an error message if it is not.
+		**/
 		std::string ValidateFormatText() const;
+
+		///As ValidateFormatText, only returns true if valid and false otherwise.
+		bool ValidateFormat() const;
 	};
 
+	///@}
 }
 
 

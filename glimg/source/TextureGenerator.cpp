@@ -157,7 +157,7 @@ namespace glimg
 
 		void ThrowIfForceRendertarget(unsigned int forceConvertBits)
 		{
-			if(forceConvertBits & FORCE_COLOR_RENDERABLE)
+			if(forceConvertBits & FORCE_COLOR_RENDERABLE_FMT)
 				throw CannotForceRenderTargetException();
 		}
 
@@ -203,9 +203,9 @@ namespace glimg
 		int ComponentCount(const ImageFormat &format, unsigned int forceConvertBits)
 		{
 			//TODO: Forceconv.
-			BaseDataFormat twoCompFormats[] = {FMT_COLOR_RG, FMT_DEPTH_X};
-			BaseDataFormat threeCompFormats[] = {FMT_COLOR_RGB, FMT_COLOR_RGB_sRGB};
-			BaseDataFormat fourCompFormats[] = {FMT_COLOR_RGBX, FMT_COLOR_RGBA,
+			PixelComponents twoCompFormats[] = {FMT_COLOR_RG, FMT_DEPTH_X};
+			PixelComponents threeCompFormats[] = {FMT_COLOR_RGB, FMT_COLOR_RGB_sRGB};
+			PixelComponents fourCompFormats[] = {FMT_COLOR_RGBX, FMT_COLOR_RGBA,
 				FMT_COLOR_RGBX_sRGB, FMT_COLOR_RGBA_sRGB};
 
 			if(IsOneOfThese<ARRAY_COUNT(twoCompFormats)>(format.eFormat, twoCompFormats))
@@ -235,14 +235,14 @@ namespace glimg
 
 		bool IsSRGBFormat(const ImageFormat &format, unsigned int forceConvertBits)
 		{
-			BaseDataFormat srgbFormats[] = {FMT_COLOR_RGB_sRGB, FMT_COLOR_RGBX_sRGB, FMT_COLOR_RGBA_sRGB};
+			PixelComponents srgbFormats[] = {FMT_COLOR_RGB_sRGB, FMT_COLOR_RGBX_sRGB, FMT_COLOR_RGBA_sRGB};
 			if(IsOneOfThese<ARRAY_COUNT(srgbFormats)>(format.eFormat, srgbFormats))
 				return true;
 
-			if(!(forceConvertBits & FORCE_SRGB_COLORSPACE))
+			if(!(forceConvertBits & FORCE_SRGB_COLORSPACE_FMT))
 				return false;
 
-			BaseDataType srgbTypes[] = {DT_NORM_UNSIGNED_INTEGER,
+			PixelDataType srgbTypes[] = {DT_NORM_UNSIGNED_INTEGER,
 				DT_COMPRESSED_BC1, DT_COMPRESSED_BC2, DT_COMPRESSED_BC3, DT_COMPRESSED_BC7};
 
 			if(IsOneOfThese<ARRAY_COUNT(srgbTypes)>(format.eType, srgbTypes))
@@ -254,7 +254,7 @@ namespace glimg
 				return false;
 
 			//unsigned normalized integers. Check for RGB or RGBA components.
-			BaseDataFormat convertableFormats[] = {FMT_COLOR_RGB, FMT_COLOR_RGBX, FMT_COLOR_RGBA};
+			PixelComponents convertableFormats[] = {FMT_COLOR_RGB, FMT_COLOR_RGBX, FMT_COLOR_RGBA};
 			if(IsOneOfThese<ARRAY_COUNT(convertableFormats)>(format.eFormat, convertableFormats))
 				return true;
 
@@ -264,7 +264,7 @@ namespace glimg
 		bool FormatHasAlpha(const ImageFormat &format, unsigned int forceConvertBits)
 		{
 			//TODO: Forceconv. Check for color renderable.
-			BaseDataFormat alphaFormats[] = {FMT_COLOR_RGBA, FMT_COLOR_RGBA_sRGB};
+			PixelComponents alphaFormats[] = {FMT_COLOR_RGBA, FMT_COLOR_RGBA_sRGB};
 			if(IsOneOfThese<ARRAY_COUNT(alphaFormats)>(format.eFormat, alphaFormats))
 				return true;
 
@@ -273,7 +273,7 @@ namespace glimg
 
 		bool UseLAInsteadOfRG(unsigned int forceConvertBits)
 		{
-			if(forceConvertBits & FORCE_LUMINANCE_FORMATS)
+			if(forceConvertBits & FORCE_LUMINANCE_FMT)
 				return true;
 
 			try
@@ -288,10 +288,10 @@ namespace glimg
 			return false;
 		}
 
-		BaseDataType GetDataType(const ImageFormat &format, unsigned int forceConvertBits)
+		PixelDataType GetDataType(const ImageFormat &format, unsigned int forceConvertBits)
 		{
-			bool bForceIntegral = (forceConvertBits & FORCE_INTEGRAL_FORMAT) != 0;
-			bool bForceSigned = (forceConvertBits & FORCE_SIGNED_FORMAT) != 0;
+			bool bForceIntegral = (forceConvertBits & FORCE_INTEGRAL_FMT) != 0;
+			bool bForceSigned = (forceConvertBits & FORCE_SIGNED_FMT) != 0;
 			if(!bForceIntegral && !bForceSigned)
 				return format.eType;
 
@@ -385,7 +385,7 @@ namespace glimg
 
 		unsigned int GetStandardOpenGLFormat( const ImageFormat &format, unsigned int forceConvertBits )
 		{
-			BaseDataType eType = GetDataType(format, forceConvertBits);
+			PixelDataType eType = GetDataType(format, forceConvertBits);
 
 			switch(eType)
 			{
@@ -515,7 +515,7 @@ namespace glimg
 				if(IsSRGBFormat(format, forceConvertBits))
 				{
 					ThrowIfEXT_SRGBNotSupported();
-					if(forceConvertBits & FORCE_BC1_ALPHA_TEXTURE)
+					if(forceConvertBits & FORCE_BC1_ALPHA_FMT)
 						return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
 					else
 					{
@@ -527,7 +527,7 @@ namespace glimg
 				}
 				else
 				{
-					if(forceConvertBits & FORCE_BC1_ALPHA_TEXTURE)
+					if(forceConvertBits & FORCE_BC1_ALPHA_FMT)
 						return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 					else
 					{
@@ -654,7 +654,7 @@ namespace glimg
 #define ONE_SNORM_LA(size, suffix) GL_LUMINANCE ## size ## suffix
 #define TWO_SNORM_LA(size, suffix) GL_LUMINANCE ## size ## _ALPHA ## size ## suffix
 
-	unsigned int GetOpenGLType( const ImageFormat &format, OpenGLUploadData &ret, BaseDataType eType, GLenum g_packedTypes );
+	unsigned int GetOpenGLType( const ImageFormat &format, OpenGLPixelTransferParams &ret, PixelDataType eType, GLenum g_packedTypes );
 	unsigned int GetInternalFormat( const ImageFormat &format, unsigned int forceConvertBits )
 	{
 		{
@@ -712,15 +712,15 @@ namespace glimg
 	/// UPLOAD FORMAT AND TYPE.
 	namespace
 	{
-		bool IsTypeSigned(BaseDataType eType)
+		bool IsTypeSigned(PixelDataType eType)
 		{
-			BaseDataType signedIntegerFormats[] = {DT_SIGNED_INTEGRAL, DT_NORM_SIGNED_INTEGER};
+			PixelDataType signedIntegerFormats[] = {DT_SIGNED_INTEGRAL, DT_NORM_SIGNED_INTEGER};
 			return IsOneOfThese<ARRAY_COUNT(signedIntegerFormats)>(eType, signedIntegerFormats);
 		}
 
-		bool IsTypeIntegral(BaseDataType eType)
+		bool IsTypeIntegral(PixelDataType eType)
 		{
-			BaseDataType integralIntegerFormats[] = {DT_SIGNED_INTEGRAL, DT_UNSIGNED_INTEGRAL};
+			PixelDataType integralIntegerFormats[] = {DT_SIGNED_INTEGRAL, DT_UNSIGNED_INTEGRAL};
 			return IsOneOfThese<ARRAY_COUNT(integralIntegerFormats)>(eType, integralIntegerFormats);
 		}
 
@@ -744,7 +744,7 @@ namespace glimg
 			GL_UNSIGNED_INT_5_9_9_9_REV,		//BD_PACKED_32_BIT_5999_REV
 		};
 
-		GLenum GetOpenGLType( const ImageFormat &format, BaseDataType eType, unsigned int forceConvertBits )
+		GLenum GetOpenGLType( const ImageFormat &format, PixelDataType eType, unsigned int forceConvertBits )
 		{
 			switch(format.eBitdepth)
 			{
@@ -845,7 +845,7 @@ namespace glimg
 			GL_RGBA,				GL_RGBA_INTEGER,	//FMT_COLOR_RGBA_sRGB
 		};
 
-		GLenum GetOpenGLFormat(const ImageFormat &format, BaseDataType eType, unsigned int forceConvertBits)
+		GLenum GetOpenGLFormat(const ImageFormat &format, PixelDataType eType, unsigned int forceConvertBits)
 		{
 			if(format.eFormat == FMT_DEPTH)
 			{
@@ -905,7 +905,7 @@ namespace glimg
 		}
 	}
 
-	OpenGLUploadData GetUploadFormatType( const ImageFormat &format, unsigned int forceConvertBits )
+	OpenGLPixelTransferParams GetUploadFormatType( const ImageFormat &format, unsigned int forceConvertBits )
 	{
 		{
 			const std::string & msg = format.ValidateFormatText();
@@ -913,12 +913,12 @@ namespace glimg
 				throw ImageFormatUnexpectedException(msg);
 		}
 
-		OpenGLUploadData ret;
+		OpenGLPixelTransferParams ret;
 		ret.type = 0xFFFFFFFF;
 		ret.format = 0xFFFFFFFF;
 		ret.blockByteCount = 0;
 
-		BaseDataType eType = GetDataType(format, forceConvertBits);
+		PixelDataType eType = GetDataType(format, forceConvertBits);
 		if(eType >= DT_NUM_UNCOMPRESSED_TYPES)
 		{
 			switch(eType)
@@ -1002,7 +1002,7 @@ namespace glimg
 			//Too old to bother checking.
 		}
 
-		GLuint CalcCompressedImageSize(GLuint width, GLuint height, const OpenGLUploadData &upload)
+		GLuint CalcCompressedImageSize(GLuint width, GLuint height, const OpenGLPixelTransferParams &upload)
 		{
 			GLuint columnCount = (width + 3) / 4;
 			GLuint rowCount = (height + 3) / 4;
@@ -1010,7 +1010,7 @@ namespace glimg
 		}
 
 		void TexImage1D(GLenum texTarget, GLuint mipmap, GLuint internalFormat,
-			GLuint width, const OpenGLUploadData &upload, const void *pPixelData)
+			GLuint width, const OpenGLPixelTransferParams &upload, const void *pPixelData)
 		{
 			if(upload.blockByteCount)
 			{
@@ -1026,7 +1026,7 @@ namespace glimg
 		}
 
 		void TexImage2D(GLenum texTarget, GLuint mipmap, GLuint internalFormat,
-			GLuint width, GLuint height, const OpenGLUploadData &upload, const void *pPixelData)
+			GLuint width, GLuint height, const OpenGLPixelTransferParams &upload, const void *pPixelData)
 		{
 			if(upload.blockByteCount)
 			{
@@ -1042,7 +1042,7 @@ namespace glimg
 		}
 
 		void TexImage3D(GLenum texTarget, GLuint mipmap, GLuint internalFormat,
-			GLuint width, GLuint height, GLuint depth, const OpenGLUploadData &upload,
+			GLuint width, GLuint height, GLuint depth, const OpenGLPixelTransferParams &upload,
 			const void *pPixelData)
 		{
 			if(upload.blockByteCount)
@@ -1060,14 +1060,14 @@ namespace glimg
 		}
 
 		void Build1DArrayTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			ThrowIfArrayTextureNotSupported();
 			throw TextureUnexpectedException();
 		}
 
 		void Build1DTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			SetupUploadState(pImage->GetFormat(), forceConvertBits);
 			glBindTexture(GL_TEXTURE_1D, textureName);
@@ -1089,7 +1089,7 @@ namespace glimg
 		}
 
 		void Build2DCubeArrayTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			ThrowIfArrayTextureNotSupported();
 			ThrowIfCubeArrayTextureNotSupported();
@@ -1097,21 +1097,21 @@ namespace glimg
 		}
 
 		void Build2DArrayTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			ThrowIfArrayTextureNotSupported();
 			throw TextureUnexpectedException();
 		}
 
 		void Build2DCubeTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			ThrowIfCubeTextureNotSupported();
 			throw TextureUnexpectedException();
 		}
 
 		void Build2DTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			SetupUploadState(pImage->GetFormat(), forceConvertBits);
 			glBindTexture(GL_TEXTURE_2D, textureName);
@@ -1132,7 +1132,7 @@ namespace glimg
 		}
 
 		void Build3DTexture(unsigned int textureName, const detail::ImageSetImpl *pImage,
-			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLUploadData &upload)
+			unsigned int forceConvertBits, GLuint internalFormat, const OpenGLPixelTransferParams &upload)
 		{
 			SetupUploadState(pImage->GetFormat(), forceConvertBits);
 			glBindTexture(GL_TEXTURE_3D, textureName);
@@ -1187,7 +1187,7 @@ namespace glimg
 	{
 		const ImageFormat &format = pImage->GetFormat();
 		GLuint internalFormat = GetInternalFormat(format, forceConvertBits);
-		OpenGLUploadData upload = GetUploadFormatType(format, forceConvertBits);
+		OpenGLPixelTransferParams upload = GetUploadFormatType(format, forceConvertBits);
 
 		Dimensions dims = pImage->GetDimensions();
 

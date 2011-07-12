@@ -10,6 +10,7 @@ project("glimg")
 		"source/*.h",
 		"source/*.cpp",
 		"source/*.c",
+		"source/*.inc",
 	};
 
 	configuration "windows"
