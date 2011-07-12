@@ -159,19 +159,30 @@ void LoadMipmapTexture()
 
 void LoadCheckerTexture()
 {
-	std::auto_ptr<glimg::ImageSet> pImageSet;
+	;
 
 	try
 	{
 		std::string filename(LOCAL_FILE_DIR);
 		filename += "checker.dds";
 
-		pImageSet.reset(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-		std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
+		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 
-		glimg::Dimensions dims = pImage->GetDimensions();
+		glGenTextures(1, &g_checkerTexture);
+		glBindTexture(GL_TEXTURE_2D, g_checkerTexture);
 
-		g_checkerTexture = glimg::CreateTexture(pImageSet.get(), 0);
+		for(int mipmapLevel = 0; mipmapLevel < pImageSet->GetMipmapCount(); mipmapLevel++)
+		{
+			std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(mipmapLevel, 0, 0));
+			glimg::Dimensions dims = pImage->GetDimensions();
+
+			glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
+				GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pImage->GetImageData());
+		}
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet->GetMipmapCount() - 1);
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 	catch(std::exception &e)
 	{
@@ -285,7 +296,7 @@ void display()
 void reshape (int w, int h)
 {
 	Framework::MatrixStack persMatrix;
-	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+	persMatrix.Perspective(90.0f, (h / (float)w), g_fzNear, g_fzFar);
 
 	ProjectionBlock projData;
 	projData.cameraToClipMatrix = persMatrix.Top();
