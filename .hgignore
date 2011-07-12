@@ -68,3 +68,4 @@ Shaders/*
 *.depend
 *.sln
 *.vcproj
+glm-0.9.2.3/doc
