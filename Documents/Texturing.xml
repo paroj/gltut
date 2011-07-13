@@ -43,4 +43,5 @@
             solution to any rendering problem.</para>
     </partintro>
     <xi:include href="Texturing/Tutorial 14.xml"/>
+    <xi:include href="Texturing/Tutorial 15.xml"/>
 </part>

@@ -2496,6 +2496,7 @@
             <file name="Positioning/Tutorial%2008.xml"/>
         </folder>
         <folder name="Texturing">
+            <file name="Texturing.xml"/>
             <file name="Texturing/Tutorial%2014.xml"/>
             <file name="Texturing/Tutorial%2015.xml"/>
         </folder>
@@ -2504,7 +2505,6 @@
         <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
         <file name="preface.xml"/>
-        <file name="Texturing.xml"/>
         <file name="Tutorials.xml"/>
     </projectTree>
 </project>

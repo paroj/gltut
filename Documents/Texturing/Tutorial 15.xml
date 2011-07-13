@@ -4,8 +4,122 @@
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 15.html" ?>
-    <title>SomeTitle</title>
-    <para>G</para>
+    <title>Many Images</title>
+    <para>In the last tutorial, we looked at textures that were not pictures. Now, we will look at
+        textures that are pictures. However, unlike the last tutorial, where the textures
+        represented some parameter in the light equation, here, we will just be directly outputting
+        the values read from the texture.</para>
+    <sidebar>
+        <title>Graphics Fudging</title>
+        <para>Before we begin however, there is something you may need to do. When you installed
+            your graphics drivers, installed along with it was an application that allows you to
+            provide settings for your graphics driver. This affects facets about how games render
+            and so forth.</para>
+        <para>Thus far, most of those settings have been irrelevant to us, because everything we
+            have done has been entirely in our control. The OpenGL specification defined exactly
+            what could and could not happen, and outside of actual driver bugs, the results we
+            produced are reproducible and exact.</para>
+        <para>That is no longer the case as of this tutorial.</para>
+        <para>Texturing has long been a place where graphics drivers have been given room to play
+            and fudge results. The OpenGL specification plays fast-and-loose with certain aspects of
+            texturing. And with the driving need for graphics card makers to have high performance
+            and high image quality, graphics driver writers can, at the behest of the user, simply
+            ignore the OpenGL spec with regard to certain aspects of texturing.</para>
+        <para>The image quality settings in your graphics driver provide control over this. They are
+            ways for you to tell graphics drivers to ignore whatever the application thinks it
+            should do and instead do things their way. That is fine for a game, but right now, we
+            are learning how things work. If the driver starts pretending that we set some parameter
+            that we clearly did not, it will taint our results and make it difficult to know what
+            parameters cause what effects.</para>
+        <para>Therefore, you will need to go into your graphics driver application and change all of
+            those setting to the value that means to do what the application says. Otherwise, the
+            visual results you get for the following code may be very different from the given
+            images.</para>
+    </sidebar>
+    <section>
+        <title>Playing Checkers</title>
+        <para/>
+    </section>
+    <section>
+        <title>Magnification</title>
+        <para/>
+    </section>
+    <section>
+        <title>Need More Pictures</title>
+        <para/>
+    </section>
+    <section>
+        <title>Anisotropy</title>
+        <para/>
+        <sidebar>
+            <title>How Mipmapping Works</title>
+            <para>Previously, we discussed mipmap selection and interpolation in terms related to
+                the geometry of the object. That's fine when we are dealing with texture coordinates
+                that are attached to vertex positions. But as we saw in our first tutorial on
+                texturing, texture coordinates can be entirely arbitrary. So how does mipmap
+                selection work?</para>
+            <para>Very carefully.</para>
+            <para>Imagine a 2x2 pixel area of the screen. Now imagine that four fragment shaders,
+                all from the same triangle, are executing for that screen area. Since the fragment
+                shaders are all guaranteed to have the same uniforms and the same code, the only
+                thing that is different is the fragment inputs. And because they are executing the
+                same code, you can conceive of them executing in lockstep. That is, each of them
+                executes the same instruction, on their individual dataset, at the same time.</para>
+            <para>Under that assumption, for any particular value in a fragment shader, you can pick
+                the corresponding 3 other values in the other fragment shaders executing alongside
+                it. If that value is based solely on uniform or constant data, then each shader will
+                have the same value. But if it is based in part on input values, then each shader
+                may have a different value, based on how it was computed and the inputs.</para>
+            <para>So, let's look at the texture coordinate value; the particular value used to
+                access the texture. Each shader has one. If that value is associated with the
+                position of the object, via perspective-correct interpolation and so forth, then the
+                    <emphasis>difference</emphasis> between the shaders' values will represent the
+                window space geometry of the triangle. There are two dimensions for a difference,
+                and therefore there are two differences: the difference in the window space X axis,
+                and the window space Y axis.</para>
+            <para>These two differences, sometimes called gradients or derivatives, are how
+                mipmapping works. If the texture coordinate used is just an input value, which
+                itself is directly associated with a position, then the gradients represent the
+                geometry of the triangle in window space. If the texture coordinate is computed in
+                more unconventional ways, it still works, as the gradients represent how the texture
+                coordinates are changing across the surface of the triangle.</para>
+            <para>Now, you may notice that this is all very conditional. It requires that you have 4
+                fragment shaders all running in lock-step. Since they have different inputs, you may
+                wonder what would happen if they execute a conditional statement based on the value
+                of those inputs. For example, maybe the two fragment shaders on the left execute one
+                patch of code, while the two on the right execute a different patch of code.</para>
+            <para>That is... complicated. It is something we will discuss later. Suffice it to say,
+                it screws everything up.</para>
+        </sidebar>
+    </section>
+    <section>
+        <title>Performance</title>
+        <para>Mipmapping has some unexpected performance characteristics. A texture with a full
+            mipmap pyramid will take up 33% more space than just the base layer. So there is some
+            memory overhead. The unexpected part is that this is actually a memory vs. performance
+            tradeoff, as mipmapping improves performance.</para>
+        <para>If a texture is going to be minified significantly, providing mipmaps is a performance
+            benefit. The reason is this: for a minified texture, the texture accesses for adjacent
+            fragment shaders will be very far apart. Texture sampling units like texture access
+            patterns where there is a high degree of locality, where adjacent fragment shaders
+            access texels that are very near one another. The farther apart they are, the less
+            useful the optimizations in the texture samplers are. Indeed, if they are far enough
+            apart, those optimizations start turning around and becoming performance
+            penalties.</para>
+        <para>Textures that are used as lookup tables should not use mipmaps. But other kinds of
+            textures, like those that provide surface details, can and should.</para>
+        <para>While mipmapping is free, mipmap filtering,
+            <literal>GL_LINEAR_MIPMAP_LINEAR</literal>, is generally not free. But the cost of it is
+            rather small these days. For those textures where mipmap interpolation makes sense, it
+            should be used.</para>
+        <para>Anisotropic filtering is even more costly, as one might expect. After all, it means
+            taking more texture samples to cover a particular texture area. However, anisotropic
+            filtering is almost always implemented adaptively. This means that it will only take
+            extra samples for textures where it detects that this is necessary. And it will only
+            take enough samples to fill out the area, up to the maximum the user provides of course.
+            Therefore, turning on anisotropic filtering, even just 2x or 4x, only hurts for the
+            fragments that need it.</para>
+    </section>
     
     <section>
         <?dbhtml filename="Tut15 In Review.html" ?>
@@ -13,7 +127,33 @@
         <para>In this tutorial, you have learned the following:</para>
         <itemizedlist>
             <listitem>
-                <para/>
+                <para>Visual artifacts can appear on objects that have textures mapped to them due
+                    to the discrete nature of textures. These artifacts are most pronounced when the
+                    texture's apparent size is larger than its actual size or smaller.</para>
+            </listitem>
+            <listitem>
+                <para>Filtering techniques can reduce these artifacts, transforming visual popping
+                    into something more visually palatable. This is most easily done for texture
+                    magnification.</para>
+            </listitem>
+            <listitem>
+                <para>Mipmaps are reduced size versions of images. The purpose behind them is to act
+                    as pre-filtered versions of images, so that texture sampling hardware can
+                    effectively sample and filter lots of texels all at once. The downside is that
+                    it can appear to over-filter textures, causing them to blend down to lower
+                    mipmaps in areas where detail could be retained.</para>
+            </listitem>
+            <listitem>
+                <para>Filtering can be applied between mipmapping. Mipmap filtering can produce
+                    quite reasonable results with a relatively negligible performance
+                    penalty.</para>
+            </listitem>
+            <listitem>
+                <para>Anisotropic filtering attempts to rectify the over-filtering problems with
+                    mipmapping by filtering based on the coverage area of the texture access.
+                    Anisotropic filtering is controlled with a maximum value, which represents the
+                    maximum number of additional samples the texture access will use to compose the
+                    final color.</para>
             </listitem>
         </itemizedlist>
         <section>
@@ -21,17 +161,14 @@
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
-                    <para>Go back to <phrase role="propername">Basic Texture</phrase> the previous
-                        tutorial and modify the sampler to use linear magnification filtering on the
-                        1D texture. See if the linear filtering makes some of the lower resolutions
-                        more palatable. If you were to try this with the 2D texture in <phrase
-                            role="propername">Material Texture</phrase> tutorial, it would cause
-                        filtering in both the S and T coordinates. This would mean that it would
-                        filter across the shininess of the table as well. Try this and see how this
-                        affects the results.</para>
-                </listitem>
-                <listitem>
-                    <para/>
+                    <para>Go back to <phrase role="propername">Basic Texture</phrase> in the
+                        previous tutorial and modify the sampler to use linear magnification
+                        filtering on the 1D texture. See if the linear filtering makes some of the
+                        lower resolutions more palatable. If you were to try this with the 2D
+                        texture in <phrase role="propername">Material Texture</phrase> tutorial, it
+                        would cause filtering in both the S and T coordinates. This would mean that
+                        it would filter across the shininess of the table as well. Try this and see
+                        how this affects the results.</para>
                 </listitem>
             </itemizedlist>
         </section>

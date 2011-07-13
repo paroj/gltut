@@ -15,7 +15,8 @@
     <section>
         <?dbhtml filename="Started Tutorial Framework.html" ?>
         <title>Tutorial Framework</title>
-        <para>If you intend to use the tutorial framework, the process is relatively simple.</para>
+        <para>If you intend to use the tutorial framework, the process is relatively simple, though
+            it is somewhat restricted.</para>
         <para>The framework is intended to only be used in the directory it was downloaded into. So
             if you want to use it in a project, you will need to make a new directory under the base
             tutorial directory. Let us call this directory <filename>Project</filename>.</para>
@@ -256,7 +257,16 @@ dofile("tutorials.lua");</programlisting>
                 After downloading and compiling them, you will need to register them with your C/C++
                 build tool of choice. On Linux-platforms, you typically have some global registry
                 for these things, but on Windows, things go where you put them.</para>
-            <para/>
+            <para>How to use them depends on which tools you use. But the general idea for OpenGL
+                context creation tools is that there will be some series of commands to supply
+                parameters to the underlying system for context creation. And then a function is
+                called to use those parameters to create the context. It is only
+                    <emphasis>after</emphasis> this process is complete that one should call
+                whatever initialization function the OpenGL function loading system uses. Your
+                tools' documentation should explain this.</para>
+            <para>After doing both of these, you should be able to make OpenGL calls. The specifics
+                on how to swap framebuffers (which is not part of the OpenGL API) is again left up
+                to the window management tool.</para>
         </section>
     </section>
 </appendix>
