@@ -37,18 +37,22 @@
             images.</para>
     </sidebar>
     <section>
+        <?dbhtml filename="Tut15 Playing Checkers.html" ?>
         <title>Playing Checkers</title>
         <para/>
     </section>
     <section>
+        <?dbhtml filename="Tut15 Magnification.html" ?>
         <title>Magnification</title>
         <para/>
     </section>
     <section>
-        <title>Need More Pictures</title>
+        <?dbhtml filename="Tut15 Needs More Pictures.html" ?>
+        <title>Needs More Pictures</title>
         <para/>
     </section>
     <section>
+        <?dbhtml filename="Tut15 Anisotropy.html" ?>
         <title>Anisotropy</title>
         <para/>
         <sidebar>
@@ -93,6 +97,7 @@
         </sidebar>
     </section>
     <section>
+        <?dbhtml filename="Tut15 Performace.html" ?>
         <title>Performance</title>
         <para>Mipmapping has some unexpected performance characteristics. A texture with a full
             mipmap pyramid will take up 33% more space than just the base layer. So there is some
