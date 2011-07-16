@@ -121,46 +121,65 @@ void CreateSamplers()
 	glSamplerParameteri(g_samplers[5], GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
+void FillWithColor(std::vector<GLubyte> &buffer,
+				   GLubyte red, GLubyte green, GLubyte blue,
+				   int width, int height)
+{
+	int numTexels = width * height;
+	buffer.resize(numTexels * 3);
+
+	std::vector<GLubyte>::iterator it = buffer.begin();
+	while(it != buffer.end())
+	{
+		*it++ = red;
+		*it++ = green;
+		*it++ = blue;
+	}
+}
+
+const GLubyte mipmapColors[] =
+{
+	0xFF, 0xFF, 0x00,
+	0xFF, 0x00, 0xFF,
+	0x00, 0xFF, 0xFF,
+	0xFF, 0x00, 0x00,
+	0x00, 0xFF, 0x00,
+	0x00, 0x00, 0xFF,
+	0x00, 0x00, 0x00,
+	0xFF, 0xFF, 0xFF,
+};
+
 void LoadMipmapTexture()
 {
-	try
-	{
 		glGenTextures(1, &g_mipmapTestTexture);
 		glBindTexture(GL_TEXTURE_2D, g_mipmapTestTexture);
 
+		GLint oldAlign = 0;
+		glGetIntegerv(GL_UNPACK_ALIGNMENT, &oldAlign);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 		for(int mipmapLevel = 0; mipmapLevel < 8; mipmapLevel++)
 		{
-			std::string filename(LOCAL_FILE_DIR);
-			filename += "Mip";
-			std::ostringstream foo;
-			foo << mipmapLevel;
-			filename += foo.str();
-			filename += ".png";
+			int width = 128 >> mipmapLevel;
+			int height = 128 >> mipmapLevel;
+			std::vector<GLubyte> buffer;
 
-			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::stb::LoadFromFile(filename));
-			std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
+			const GLubyte *pCurrColor = &mipmapColors[mipmapLevel * 3];
+			FillWithColor(buffer, pCurrColor[0], pCurrColor[1], pCurrColor[2], width, height);
 
-			glimg::Dimensions dims = pImage->GetDimensions();
-
-			glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
-				GL_RGBA, GL_UNSIGNED_BYTE, pImage->GetImageData());
+			glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, width, height, 0,
+				GL_RGB, GL_UNSIGNED_BYTE, &buffer[0]);
 		}
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, oldAlign);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 7);
 		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-	catch(std::exception &e)
-	{
-		printf("%s\n", e.what());
-		throw;
-	}
 }
 
 void LoadCheckerTexture()
 {
-	;
-
 	try
 	{
 		std::string filename(LOCAL_FILE_DIR);
