@@ -70,8 +70,6 @@ struct ProjectionBlock
 	glm::mat4 cameraToClipMatrix;
 };
 
-Framework::Mesh *g_pPlane = NULL;
-
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_checkerTexture = 0;
 GLuint g_mipmapTestTexture = 0;
@@ -210,6 +208,9 @@ void LoadCheckerTexture()
 	}
 }
 
+Framework::Mesh *g_pPlane = NULL;
+Framework::Mesh *g_pCorridor = NULL;
+
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
@@ -217,6 +218,7 @@ void init()
 
 	try
 	{
+		g_pCorridor = new Framework::Mesh("Corridor.xml");
 		g_pPlane = new Framework::Mesh("BigPlane.xml");
 	}
 	catch(std::exception &except)
@@ -259,6 +261,7 @@ Timer g_camTimer = Timer(Timer::TT_LOOP, 5.0f);
 int g_currSampler = 0;
 
 bool g_useMipmapTexture = false;
+bool g_drawCorridor = false;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -269,7 +272,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	if(g_pPlane)
+	if(g_pPlane && g_pCorridor)
 	{
 		g_camTimer.Update();
 
@@ -297,7 +300,10 @@ void display()
 				g_useMipmapTexture ? g_mipmapTestTexture : g_checkerTexture);
  			glBindSampler(g_colorTexUnit, g_samplers[g_currSampler]);
 
-			g_pPlane->Render("tex");
+			if(g_drawCorridor)
+				g_pCorridor->Render("tex");
+			else
+				g_pPlane->Render("tex");
 
  			glBindSampler(g_colorTexUnit, 0);
  			glBindTexture(GL_TEXTURE_2D, 0);
@@ -348,11 +354,33 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		delete g_pPlane;
+		delete g_pCorridor;
 		g_pPlane = NULL;
+		g_pCorridor = NULL;
 		glutLeaveMainLoop();
 		break;
 	case 32:
 		g_useMipmapTexture = !g_useMipmapTexture;
+		break;
+	case 'y':
+		g_drawCorridor = !g_drawCorridor;
+		break;
+	case 'p':
+		g_camTimer.TogglePause();
+		break;
+	case 'z':
+		delete g_pPlane;
+		delete g_pCorridor;
+		try
+		{
+			g_pCorridor = new Framework::Mesh("Corridor.xml");
+			g_pPlane = new Framework::Mesh("BigPlane.xml");
+		}
+		catch(std::exception &except)
+		{
+			printf("%s\n", except.what());
+			throw;
+		}
 		break;
 	}
 
