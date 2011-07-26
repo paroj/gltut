@@ -81,32 +81,34 @@ void CreateSamplers()
 {
 	glGenSamplers(NUM_SAMPLERS, &g_samplers[0]);
 
+	for(int samplerIx = 0; samplerIx < NUM_SAMPLERS; samplerIx++)
+	{
+		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+
+	//Nearest
 	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//Linear
 	glSamplerParameteri(g_samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//Linear mipmap Nearest
 	glSamplerParameteri(g_samplers[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-	glSamplerParameteri(g_samplers[2], GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_samplers[2], GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//Linear mipmap linear
 	glSamplerParameteri(g_samplers[3], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glSamplerParameteri(g_samplers[3], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glSamplerParameteri(g_samplers[3], GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_samplers[3], GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//Low anisotropic
 	glSamplerParameteri(g_samplers[4], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glSamplerParameteri(g_samplers[4], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glSamplerParameterf(g_samplers[4], GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);
-	glSamplerParameteri(g_samplers[4], GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_samplers[4], GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	//Max anisotropic
 	GLfloat maxAniso = 0.0f;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
 
@@ -115,8 +117,6 @@ void CreateSamplers()
 	glSamplerParameteri(g_samplers[5], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glSamplerParameteri(g_samplers[5], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
-	glSamplerParameteri(g_samplers[5], GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glSamplerParameteri(g_samplers[5], GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 void FillWithColor(std::vector<GLubyte> &buffer,
@@ -340,7 +340,7 @@ const char *g_samplerNames[NUM_SAMPLERS] =
 	"Linear",
 	"Linear with nearest mipmaps",
 	"Linear with linear mipmaps",
-	"Small anisotropic",
+	"Low anisotropic",
 	"Max anisotropic",
 };
 
@@ -367,20 +367,6 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'p':
 		g_camTimer.TogglePause();
-		break;
-	case 'z':
-		delete g_pPlane;
-		delete g_pCorridor;
-		try
-		{
-			g_pCorridor = new Framework::Mesh("Corridor.xml");
-			g_pPlane = new Framework::Mesh("BigPlane.xml");
-		}
-		catch(std::exception &except)
-		{
-			printf("%s\n", except.what());
-			throw;
-		}
 		break;
 	}
 

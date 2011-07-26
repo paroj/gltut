@@ -39,8 +39,8 @@ hFile:write(
 ]]);
 
 hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "fo\\docbook.xsl"), "\"/>\n");
-
 hFile:write([[    <xsl:import href="colorfo-highlights.xsl"/>]], "\n");
+hFile:write([[    <xsl:import href="fo-common.xsl"/>]], "\n");
 
 WriteParamsToFile(hFile, dofile("_commonParams.lua"));
 WriteParamsToFile(hFile, dofile("_commonFOParams.lua"));

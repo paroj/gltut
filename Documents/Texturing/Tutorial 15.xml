@@ -13,12 +13,12 @@
         <title>Graphics Fudging</title>
         <para>Before we begin however, there is something you may need to do. When you installed
             your graphics drivers, installed along with it was an application that allows you to
-            provide settings for your graphics driver. This affects facets about how games render
-            and so forth.</para>
-        <para>Thus far, most of those settings have been irrelevant to us, because everything we
-            have done has been entirely in our control. The OpenGL specification defined exactly
-            what could and could not happen, and outside of actual driver bugs, the results we
-            produced are reproducible and exact.</para>
+            provide settings for your graphics driver. This affects facets about how graphics
+            applications render and so forth.</para>
+        <para>Thus far, most of those settings have been irrelevant to us because everything we have
+            done has been entirely in our control. The OpenGL specification defined exactly what
+            could and could not happen, and outside of actual driver bugs, the results we produced
+            are reproducible and exact across hardware.</para>
         <para>That is no longer the case as of this tutorial.</para>
         <para>Texturing has long been a place where graphics drivers have been given room to play
             and fudge results. The OpenGL specification plays fast-and-loose with certain aspects of
@@ -34,73 +34,557 @@
         <para>Therefore, you will need to go into your graphics driver application and change all of
             those setting to the value that means to do what the application says. Otherwise, the
             visual results you get for the following code may be very different from the given
-            images.</para>
+            images. This includes settings for antialiasing.</para>
     </sidebar>
     <section>
         <?dbhtml filename="Tut15 Playing Checkers.html" ?>
         <title>Playing Checkers</title>
-        <para/>
+        <para>We will start by drawing a single large, flat plane. The plane will have a texture of
+            a checkerboard drawn on it. The camera will hover above the plane, looking out at the
+            horizon as if the plane were the ground. This is implemented in the <phrase
+                role="propername">Many Images</phrase> tutorial project.</para>
+        <!--TODO: Picture of the Many Images tutorial, basic view.-->
+        <para>The camera is automatically controlled, though it's motion can be paused with the
+                <keycap>P</keycap> key. The other functions of the tutorial will be explained as we
+            get to them.</para>
+        <para>If you look at the <filename>BigPlane.xml</filename> file, you will find that the
+            texture coordinates are well outside of the [0, 1] range we are used to. They span from
+            [-64, 64] now, but the texture itself is only valid within the [0, 1] range.</para>
+        <para>Recall from the last tutorial that the sampler object has a parameter that controls
+            what texture coordinates outside of the [0, 1] range mean. This tutorial uses many
+            samplers, but all of our samplers use the same S and T wrap modes:</para>
+        <programlisting>glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_REPEAT);
+glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</programlisting>
+        <para>We set the S and T wrap modes to <literal>GL_REPEAT</literal>. This means that values
+            outside of the [0, 1] range wrap around to values within the range. So a texture
+            coordinate of 1.1 becomes 0.1, and a texture coordinate of -0.1 becomes 0.9. The idea is
+            to make it as though the texture were infinitely large, with infinitely many copies
+            repeating over and over.</para>
+        <note>
+            <para>It is perfectly legitimate to set the texture coordinate wrapping modes
+                differently for different coordinates. Well, usually; this does not work for certain
+                texture types, but only because they take texture coordinates with special meanings.
+                For them, the wrap modes are ignored entirely.</para>
+        </note>
+        <para>You may toggle between two meshes with the <keycap>Y</keycap> key. The alternative
+            mesh is a long, square corridor.</para>
+        <para>The shaders used here are very simple. The vertex shader takes positions and texture
+            coordinates as inputs and outputs the texture coordinate directly. The fragment shader
+            takes the texture coordinate, fetches a texture with it, and writes that color value as
+            output. Not even gamma correction is used.</para>
+        <para>The texture in question is 128x128 in size, with 4 alternating black and white squares
+            on each side.</para>
     </section>
     <section>
         <?dbhtml filename="Tut15 Magnification.html" ?>
-        <title>Magnification</title>
-        <para/>
+        <title>Linear Filtering</title>
+        <para>While this example certainly draws a checkerboard, you can see that there are some
+            visual issues. We will start finding solutions to the with the least obvious glitches
+            first.</para>
+        <para>Take a look at one of the squares at the very bottom of the screen. Notice how the
+            line looks jagged as it moves to the left and right. You can see the pixels of it sort
+            of crawl up and down as it shifts around on the plane.</para>
+        <para>This is caused by the discrete nature of our texture accessing. The texture
+            coordinates are all in floating-point values. The GLSL <function>texture</function>
+            function internally converts these texture coordinates to specific texel values within
+            the texture. So what value do you get if the texture coordinate lands halfway between
+            two texels?</para>
+        <para>That is governed by a process called <glossterm>texture filtering</glossterm>.
+            Filtering can happen in two directions: magnification and minification. Magnification
+            happens when the texture mapping makes the texture appear bigger than it's actual
+            resolution. If you get closer to the texture, relative to its mapping, then the texture
+            is magnified relative to its natural resolution. Minification is the opposite: when the
+            texture is being shrunken relative to its natural resolution.</para>
+        <para>In OpenGL, magnification and minification filtering are each set independently. That
+            is what the <literal>GL_TEXTURE_MAG_FILTER</literal> and
+                <literal>GL_TEXTURE_MIN_FILTER</literal> sampler parameters control. We are
+            currently using <literal>GL_NEAREST</literal> for both; this is called
+                <glossterm>nearest filtering</glossterm>. This mode means that each texture
+            coordinate picks the texel value that it is nearest to. For our checkerboard, that means
+            that we will get either black or white.</para>
+        <para>Now this may sound fine, since our texture is a checkerboard and only has two actual
+            colors. However, it is exactly this discrete sampling that gives rise to the pixel crawl
+            effect. A texture coordinate that is half-way between the white and the black is either
+            white or black; a small change in the camera causes an instant pop from black to white
+            or vice-versa.</para>
+        <para>Each fragment being rendered takes up a certain area of space on the screen: the area
+            of the destination pixel for that fragment. The texture mapping of the rendered surface
+            to the texture gives a texture coordinate for each point on the surface. But a pixel is
+            not a single, infinitely small point on the surface; it represents some finite area of
+            the surface.</para>
+        <para>Therefore, we can use the texture mapping in reverse. We can take the four corners of
+            a pixel area and find the texture coordinates from them. The area of this 4-sided
+            figure, in the space of the texture, is the area of the texture that is being mapped to
+            the screen pixel. With a perfect texture accessing system, the total color of that area
+            would be the value we get from the GLSL <function>texture</function> function.</para>
+        <!--TODO: Diagram of the checkerboard texture, at the pixel level with a grid.
+This should also have a region that represents the pixel area mapped from the surface.
+And it should have a point representing the texture coordinate.-->
+        <para>The problem happens because a fragment area mapped into the texture's space may cover
+            some white area and some black area. Since nearest only picks a single texel, which is
+            either black or white, it does not accurately represent the mapped area of the
+            fragment.</para>
+        <para>One obvious way to smooth out the differences is to do exactly that. Instead of
+            picking a single sample for each texture coordinate, pick the nearest 4 samples and then
+            interpolate the values based on how close they each are to the texture coordinate. To do
+            this, we set the magnification and minification filters to
+            <literal>GL_LINEAR</literal>.</para>
+        <programlisting>glSamplerParameteri(g_samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programlisting>
+        <para>This is called, surprisingly enough, <glossterm>linear filtering</glossterm>. In our
+            tutorial, press the <keycap>2</keycap> key to see what linear filtering looks like;
+            press <keycap>1</keycap> to go back to nearest sampling.</para>
+        <!--TODO: Picture of linear filtering.-->
+        <para>That looks much better for the squares close to the camera. It creates a bit of
+            fuzziness, but this is generally a lot easier for the viewer to tolerate than pixel
+            crawl. Human vision tends to be attracted to movement, and false movement, like dot
+            crawl, can be distracting.</para>
     </section>
     <section>
         <?dbhtml filename="Tut15 Needs More Pictures.html" ?>
         <title>Needs More Pictures</title>
-        <para/>
+        <para>Speaking of distracting, let's talk about what is going on in the distance. When the
+            camera moves, the more distant parts of the texture look like a jumbled mess. Even when
+            the camera motion is paused, it still doesn't look like a checkerboard.</para>
+        <para>What is going on there is really simple. The way our filtering works is that, for a
+            given texture coordinate, we take either the nearest texel value, or the nearest 4
+            texels and interpolate. The problem is that, for distant areas of our surface, the
+            texture space area covered by our fragment is much larger than 4 texels across.</para>
+        <!--TODO: Diagram of the fragment area in texture space. There should be a texture coordinate location.-->
+        <para>In order to accurately represent this area of the texture, we would need to sample
+            from more than just 4 texels. The GPU would be capable of detecting the fragment area
+            and sampling enough values from the texture to be representative. But this would be
+            exceedingly expensive, both in terms of texture bandwidth and computation.</para>
+        <para>What if, instead of having to sample more texels, we had a number of smaller versions
+            of our texture? The smaller versions effectively pre-compute groups of texels. That way,
+            we could just sample 4 texels from a texture that is close enough to the size of our
+            pixel area.</para>
+        <!--TODO: Diagram from above, with another version that uses a mipmap that has only ~4 texels within the area.-->
+        <para>These smaller versions of an image are called <glossterm>mipmaps</glossterm>; they are
+            also sometimes called mipmap levels. Previously, it was said that textures can store
+            multiple images. The additional images, for many texture types, are mipmaps.</para>
+        <para>In OpenGL, mipmaps are numbered starting from 0. The 0 image is the largest mipmap,
+            what is usually considered the main texture image. When people speak of a texture having
+            a certain size, they mean the resolution of mipmap level 0. Each mipmap is half as small
+            as the previous one. So if our main image, mipmap level 0, has a size of 128x128, the
+            next mipmap, level 1, is 64x64. The next is 32x32. And so forth, down to 1x1 for the
+            smallest mipmap.</para>
+        <para>For textures that are not square (which as we saw in the previous tutorial, is
+            perfectly legitimate), the mipmap chain keeps going until all dimensions are 1. So a
+            texture who's size is 128x16 (remember: the texture's size is the size of the largest
+            mipmap) would have just as many mipmap levels as a 128x128 texture. The mipmap level 4
+            of the 128x16 texture would be 8x1; the next mipmap would be 4x1.</para>
+        <note>
+            <para>It is perfectly legal to have texture sizes that are not powers of two. For them,
+                mipmap sizes are rounded down. So a 129x129 texture's mipmap 1 will be 64x64.</para>
+        </note>
+        <para>The DDS image format is one of the few image formats that actually supports storing
+            all of the mipmaps for a texture in the same file. Most image formats only allow one
+            image in a single file. The texture loading code for our 128x128 texture with mipmaps is
+            as follows:</para>
+        <example>
+            <title>DDS Texture Loading with Mipmaps</title>
+            <programlisting language="cpp">std::string filename(LOCAL_FILE_DIR);
+filename += "checker.dds";
+
+std::auto_ptr&lt;glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+
+glGenTextures(1, &amp;g_checkerTexture);
+glBindTexture(GL_TEXTURE_2D, g_checkerTexture);
+
+for(int mipmapLevel = 0; mipmapLevel &lt; pImageSet->GetMipmapCount(); mipmapLevel++)
+{
+    std::auto_ptr&lt;glimg::SingleImage> pImage(pImageSet->GetImage(mipmapLevel, 0, 0));
+    glimg::Dimensions dims = pImage->GetDimensions();
+    
+    glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
+        GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pImage->GetImageData());
+}
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet->GetMipmapCount() - 1);
+glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
+        </example>
+        <para>Because the file contains multiple mipmaps, we must load each one in turn. The GLImg
+            library considers each mipmap to be its own image. The
+                <function>GetDimensions</function> member of
+                <classname>glimg::SingleImage</classname> returns the size of the particular
+            mipmap.</para>
+        <para>The <function>glTexImage2D</function> function takes a mipmap level as the second
+            parameter. The width and height parameters represent the size of the mipmap in question,
+            not the size of the base level.</para>
+        <para>Notice that the last statements have changed. The
+                <literal>GL_TEXTURE_BASE_LEVEL</literal> and <literal>GL_TEXTURE_MAX_LEVEL</literal>
+            parameters tell OpenGL what mipmaps in our texture can be used. This represents a closed
+            range. Since a 128x128 texture has 8 mipmaps, we use the range [0, 7]. The base level of
+            a texture is the largest usable mipmap level, while the max level is the smallest usable
+            level. It is possible to omit some of the smaller mipmap levels.</para>
+        <para>Filtering based on mipmaps is unsurprisingly named <glossterm>mipmap
+                filtering</glossterm>. This tutorial does not load two checkerboard textures; it
+            only ever uses one checkerboard. The reason mipmaps have not been used until now is
+            because mipmap filtering was not activated. Setting the base and max level is not
+            enough; the sampler object must be told to use mipmap filtering. If it does not, then it
+            will simply use the base level.</para>
+        <para>Mipmap filtering only works for minification, since minification represents a fragment
+            area that is larger than the texture's resolution. To activate this, we use a special
+                <literal>MIPMAP</literal> mode of minification filtering.</para>
+        <programlisting>glSamplerParameteri(g_samplers[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);</programlisting>
+        <para>The <literal>GL_LINEAR_MIPMAP_NEAREST</literal> minification filter means the
+            following. For a particular call to the GLSL <function>texture</function> function, it
+            will detect which mipmap is the one that is closest to our fragment area. This detection
+            is based on the angle of the surface relative to the camera's view<footnote>
+                <para>This is a simplification; a more thorough discussion is forthcoming.</para>
+            </footnote>. Then, when it samples from that mipmap, it will use linear filtering of the
+            four nearest samples within that mipmap.</para>
+        <para>If you press the <keycap>3</keycap> key in the tutorial, you can see the effects of
+            this filtering mode.</para>
+        <!--TODO: Picture of LINEAR_MIPMAP_NEAREST, #3. Hallway.-->
+        <para>That's a lot more reasonable. It isn't perfect, but it's much better than the random
+            motion in the distance that we have previously seen.</para>
+        <para>It can be difficult to truly understand the effects of mipmap filtering when using
+            normal textures and mipmaps. Therefore, if you press the <keycap>Spacebar</keycap>, the
+            tutorial will switch to a special texture. It is not loaded from a file; it is instead
+            constructed at runtime.</para>
+        <para>Normally, mipmaps are simply smaller versions of larger images, using linear filtering
+            or various other algorithms to compute a reasonable scaled down result. This special
+            texture's mipmaps are all flat colors, but each mipmap has a different color. This makes
+            it much more obvious where each mipmap is.</para>
+        <!--TODO: Picture of the special texture with hallway, linear mipmap nearest.-->
+        <para>Now we can really see where the different mipmaps are.</para>
+        <section>
+            <title>Special Texture Generation</title>
+            <para>The special mipmap viewing texture is interesting, as it shows an issue you may
+                need to work with when uploading certain textures. Alignment.</para>
+            <para>The checkerboard texture, though it only stores black and white values, actually
+                has all three color channels, plus a fourth value. Since each channel is stored as
+                8-bit unsigned normalized integers, each pixel takes up 4 * 8 or 32 bits, which is 4
+                bytes.</para>
+            <para>OpenGL image uploading and downloading is based on horizontal rows of image data.
+                Each row is expected to have a certain byte alignment. The OpenGL default is 4
+                bytes; since our pixels are 4 bytes in length, every mipmap will have a line size in
+                bytes that is a multiple of 4 bytes. Even the 1x1 mipmap level is 4 bytes in
+                size.</para>
+            <para>Note that the internal format we provide is <literal>GL_RGB8</literal>, even
+                though the components we are transferring are <literal>GL_BGRA</literal> (the A
+                being the fourth component). This means that OpenGL will, more or less, discard the
+                fourth component we upload. That is fine.</para>
+            <para>The issue with the special texture's pixel data is that it is not 4 bytes in
+                length. The function used to generate a mipmap level of the special texture is as
+                follows:</para>
+            <example>
+                <title>Special Texture Data</title>
+                <programlisting>void FillWithColor(std::vector&lt;GLubyte> &amp;buffer,
+                   GLubyte red, GLubyte green, GLubyte blue,
+                   int width, int height)
+{
+    int numTexels = width * height;
+    buffer.resize(numTexels * 3);
+    
+    std::vector&lt;GLubyte>::iterator it = buffer.begin();
+    while(it != buffer.end())
+    {
+        *it++ = red;
+        *it++ = green;
+        *it++ = blue;
+    }
+}</programlisting>
+            </example>
+            <para>This creates a texture that has 24-bit pixels; each pixel contains 3 bytes.</para>
+            <para>That is fine for any width value that is a multiple of 4. However, if the width is
+                2, then each row of pixel data will be 6 bytes long. That is not a multiple of 4 and
+                therefore breaks alignment.</para>
+            <para>Therefore, we must change the pixel alignment that OpenGL uses. The
+                    <function>LoadMipmapTexture</function> function is what generates the special
+                texture. One of the first lines is this:</para>
+            <programlisting>GLint oldAlign = 0;
+glGetIntegerv(GL_UNPACK_ALIGNMENT, &amp;oldAlign);
+glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
+            <para>The first two lines gets the old alignment, so that we can reset it once we are
+                finished. The last line uses <function>glPixelStorei</function>
+            </para>
+            <para>Note that the GLImg library does provide an alignment value; it is part of the
+                    <classname>Dimensions</classname> structure of an image. We have simply not used
+                it yet. In the last tutorial, our row widths were aligned to 4 bytes, so there was
+                no chance of a problem. In this tutorial, our image data is 4-bytes in pixel size,
+                so it is always intrinsically aligned to 4 bytes.</para>
+            <para>That being said, you should always keep row alignment in mind, particularly when
+                dealing with mipmaps.</para>
+        </section>
+        <section>
+            <title>Filtering Between Mipmaps</title>
+            <para>Our mipmap filtering has been a dramatic improvement over previous efforts.
+                However, it does create artifacts. One of particular concern is the change between
+                mipmap levels. It is abrupt and somewhat easy to notice for a moving scene. Perhaps
+                there is a way to smooth that out.</para>
+            <para>Our current minification filtering pics a single mipmap level and selects a sample
+                from it. It would be better if we could pick the two nearest mipmap levels and blend
+                between the values fetched from the two textures. This would give us a smoother
+                transition from one mipmap level to the next.</para>
+            <para>This is done by using <literal>GL_LINEAR_MIPMAP_LINEAR</literal> minification
+                filtering. The first <literal>LINEAR</literal> represents the filtering done within
+                a single mipmap level, and the second <literal>LINEAR</literal> represents the
+                filtering done between mipmap levels.</para>
+            <para>To see this in action, press the <keycap>4</keycap> key.</para>
+            <!--TODO: Picture of linear_mipmap_linear, on a plane, with both textures side-by-side.-->
+            <para>That is an improvement. There are still issues to work out, but it is much harder
+                to see where one mipmap ends and another begins.</para>
+            <para>OpenGL actually allows all combinations of <literal>NEAREST</literal> and
+                    <literal>LINEAR</literal> in minification filtering. Using nearest filtering
+                within levels while filtering between levels
+                    (<literal>GL_NEAREST_MIPMAP_LINEAR</literal>) is not terribly useful
+                however.</para>
+            <sidebar>
+                <title>Filtering Nomenclature</title>
+                <para>If you are familiar with texture filtering from other materials, you may have
+                    heard the terms <quote>bilinear filtering</quote> and <quote>trilinear
+                        filtering</quote> before. Indeed, you may know that linear filtering between
+                    mipmap levels is commonly called trilinear filtering.</para>
+                <para>This book does not use that terminology. And for good reason: <quote>trilinear
+                        filtering</quote> is a misnomer.</para>
+                <para>To understand the problem, it is important to understand what <quote>bilinear
+                        filtering</quote> means. The <quote>bi</quote> in bilinear comes from doing
+                    linear filtering along the two axes of a 2D texture. So there is linear
+                    filtering in the S and T directions (remember: proper OpenGL nomenclature calls
+                    the texture coordinate axes S and T); since that is two directions, it is called
+                        <quote>bilinear filtering</quote>. Thus <quote>trilinear</quote> comes from
+                    adding a third direction of linear filtering: between mipmap levels.</para>
+                <para>Therefore, one could consider using <literal>GL_LINEAR</literal> mag and min
+                    filtering to be bilinear, and using <literal>GL_LINEAR_MIPMAP_LINEAR</literal>
+                    to be trilinear.</para>
+                <para>That's all well and good... for 2D textures. But what about for 1D textures?
+                    Since 1D textures are one dimensional, <literal>GL_LINEAR</literal> mag and min
+                    filtering only filters in one direction: S. Therefore, it would be reasonable to
+                    call 1D <literal>GL_LINEAR</literal> filtering simply <quote>linear
+                        filtering.</quote> Indeed, filtering between mipmap levels of 1D textures
+                    (yes, 1D textures can have mipmaps) would have to be called <quote>bilinear
+                        filtering.</quote></para>
+                <para>And then there are 3D textures. <literal>GL_LINEAR</literal> mag and min
+                    filtering filters in all 3 directions: S, T, and R. Therefore, that would have
+                    to be called <quote>trilinear filtering.</quote> And if you add linear mipmap
+                    filtering on top of that (yes, 3D textures can have mipmaps), it would be
+                        <quote>quadrilinear filtering.</quote></para>
+                <para>Therefore, the term <quote>trilinear filtering</quote> means absolutely
+                    nothing without knowing what the texture's type is. Whereas
+                        <literal>GL_LINEAR_MIPMAP_LINEAR</literal> always has a well-defined meaning
+                    regardless of the texture's type.</para>
+                <para>Unlike geometry shaders, which ought to have been called primitive shaders,
+                    OpenGL does not enshrine this misnomer into its API. There is no
+                        <literal>GL_TRILINEAR_FILTERING</literal> enum. Therefore, in this book, we
+                    can and will use the proper terms for these.</para>
+            </sidebar>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut15 Anisotropy.html" ?>
         <title>Anisotropy</title>
-        <para/>
-        <sidebar>
-            <title>How Mipmapping Works</title>
-            <para>Previously, we discussed mipmap selection and interpolation in terms related to
-                the geometry of the object. That's fine when we are dealing with texture coordinates
-                that are attached to vertex positions. But as we saw in our first tutorial on
-                texturing, texture coordinates can be entirely arbitrary. So how does mipmap
-                selection work?</para>
-            <para>Very carefully.</para>
-            <para>Imagine a 2x2 pixel area of the screen. Now imagine that four fragment shaders,
-                all from the same triangle, are executing for that screen area. Since the fragment
-                shaders are all guaranteed to have the same uniforms and the same code, the only
-                thing that is different is the fragment inputs. And because they are executing the
-                same code, you can conceive of them executing in lockstep. That is, each of them
-                executes the same instruction, on their individual dataset, at the same time.</para>
-            <para>Under that assumption, for any particular value in a fragment shader, you can pick
-                the corresponding 3 other values in the other fragment shaders executing alongside
-                it. If that value is based solely on uniform or constant data, then each shader will
-                have the same value. But if it is based in part on input values, then each shader
-                may have a different value, based on how it was computed and the inputs.</para>
-            <para>So, let's look at the texture coordinate value; the particular value used to
-                access the texture. Each shader has one. If that value is associated with the
-                position of the object, via perspective-correct interpolation and so forth, then the
-                    <emphasis>difference</emphasis> between the shaders' values will represent the
-                window space geometry of the triangle. There are two dimensions for a difference,
-                and therefore there are two differences: the difference in the window space X axis,
-                and the window space Y axis.</para>
-            <para>These two differences, sometimes called gradients or derivatives, are how
-                mipmapping works. If the texture coordinate used is just an input value, which
-                itself is directly associated with a position, then the gradients represent the
-                geometry of the triangle in window space. If the texture coordinate is computed in
-                more unconventional ways, it still works, as the gradients represent how the texture
-                coordinates are changing across the surface of the triangle.</para>
-            <para>Now, you may notice that this is all very conditional. It requires that you have 4
-                fragment shaders all running in lock-step. Since they have different inputs, you may
-                wonder what would happen if they execute a conditional statement based on the value
-                of those inputs. For example, maybe the two fragment shaders on the left execute one
-                patch of code, while the two on the right execute a different patch of code.</para>
-            <para>That is... complicated. It is something we will discuss later. Suffice it to say,
-                it screws everything up.</para>
-        </sidebar>
+        <para>Linear mipmap filtering is good; it eliminates most of the fluttering and oddities in
+            the distance. The problem is that it replaces a lot of that with... grey. Mipmap-based
+            filtering works reasonably well, but it tends to over-compensate.</para>
+        <para>For example, take the diagonal chain of squares at the left or right of the screen.
+            Expand the window horizontally if you need to.</para>
+        <!--TODO: Picture of the linear_mipmap_linear with diagonal in view.-->
+        <para>Pixels that are along this diagonal should be mostly black. As they get farther and
+            farther away, the fragment area becomes more and more distorted length-wise, relative to
+            the texel area:</para>
+        <!--TODO: Diagram of the fragment area on the checkerboard.
+Pick a spot for the texture coordinate, but the area should be along the diagonal-->
+        <para>With perfect filtering, we should get a value that is mostly black. But instead, we
+            get grey. The reason has to do with the specifics of mipmapping and mipmap
+            selection.</para>
+        <para>Mipmaps are pre-filtered versions of the main texture. The problem is that they are
+            filtered in both directions equally. This is fine if the fragment area is square, but
+            for oblong shapes, mipmap selection becomes more problematic. The particular algorithm
+            used is very conservative. It selects the smallest mipmap level possible for the pixel
+            area. So long, thin areas, in terms of the values fetched by the texture function, will
+            be no different from larger areas.</para>
+        <!--TODO: Diagram from above, but with a large square representing the actual mipmap filtering area.-->
+        <para>The large square represents the effective filtering box, while the smaller area is the
+            one that we are actually sampling from. So mipmap filtering can often combine texel
+            values from outside of the pixel area.</para>
+        <para>This happens when the filter box is not a square. A square filter box is said to be
+            isotropic: uniform in all directions. Therefore, a non-square filter box is anisotropic.
+            Filtering that takes into account the anisotropic nature of a particular filter box is
+            naturally called <glossterm>anisotropic filtering.</glossterm></para>
+        <para>The OpenGL specification is very particular about most things. It explains the details
+            of which mipmap is selected as well as how closeness is defined for linear interpolation
+            between mipmaps. But for anisotropic filtering, the specification is very loose as to
+            exactly how it works.</para>
+        <para>The general idea is this. The implementation will take some number of samples that
+            approximates the shape of the filter box in the texture. It will select from mipmaps,
+            but only when those mipmaps represent a closer filtered version of area being sampled.
+            Here is an example:</para>
+        <!--TODO: Diagram of a parallelogram filter box over the texture.
+There should be some boxes representing the samples taken. Some should be inside the filter box.
+There should be four inside called A, B, C and D-->
+        <para>Some of the samples that are entirely within the sample area can use smaller mipmaps
+            to reduce the number of samples actually taken. For example, the labeled samples could
+            be collated into a single sample accessed from a smaller mipmap.</para>
+        <para>All of the sample values will be averaged together based on a weighting algorithm that
+            best represents that sample's contribution to the filter box. Again, this is all very
+            generally; the specific algorithms are implementation dependent.</para>
+        <para>Run the tutorial again. The <keycap>5</keycap> key turns activates a form of
+            anisotropic filtering.</para>
+        <!--TODO: Picture of anisotropic with plane.-->
+        <para>That's an improvement.</para>
+        <section>
+            <title>Sample Control</title>
+            <para>Anisotropic filtering requires taking multiple samples from the various mipmaps.
+                The control on the quality of anisotropic filtering is in limiting the number of
+                samples used. Raising the maximum number of samples taken will generally make the
+                result look better, but it will also </para>
+            <para>This is done by setting the <literal>GL_TEXTURE_MAX_ANISOTROPY_EXT</literal>
+                sampler parameter:</para>
+            <programlisting language="cpp">glSamplerParameteri(g_samplers[4], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[4], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glSamplerParameterf(g_samplers[4], GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);</programlisting>
+            <para>This represents the maximum number of samples that will be taken for any texture
+                accesses through this sampler. Note that we still use linear mipmap filtering in
+                combination with anisotropic filtering. While you could theoretically use
+                anisotropic filtering without mipmaps, you will get much better performance if you
+                use it in tandem with linear mipmap filtering.</para>
+            <para>The max anisotropy is a floating point value, in part because the specific nature
+                of anisotropic filtering is left up to the hardware. But in general, you can treat
+                it like an integer value.</para>
+            <para>There is a limit to the maximum anisotropy that we can provide. This limit is
+                implementation defined; it can be queried with <function>glGetFloatv</function>,
+                since the value is a float rather than an integer. To set the max anisotropy to the
+                maximum possible value, we do this.</para>
+            <programlisting language="cpp">GLfloat maxAniso = 0.0f;
+glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &amp;maxAniso);
+
+glSamplerParameteri(g_samplers[5], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[5], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</programlisting>
+            <para>To see the results of this, press the <keycap>6</keycap> key.</para>
+            <!--TODO: Picture of max anisotropic with the plane.-->
+            <para>That looks pretty good now. There are still some issues out in the distance.
+                Remember that your image may not look exactly like this one, since the details of
+                anisotropic filtering are implementation specific.</para>
+            <para>You may be concerned that none of the filtering techniques, even the max
+                anisotropic one, produces perfect results. In the distance, the texture still
+                becomes a featureless grey even along the diagonal. The reason is because rendering
+                large checkerboard is perhaps one of the most difficult problems from a texture
+                filtering perspective. This becomes even worse when it is viewed edge on, as we do
+                here.</para>
+            <para>Indeed, the repeating checkerboard texture was chosen specifically because it
+                highlights the issues in a very obvious way. A more traditional diffuse color
+                texture typically looks much better with reasonable filtering applied.</para>
+        </section>
+        <section>
+            <title>A Matter of EXT</title>
+            <para>You may have noticed the <quote>EXT</quote> suffix on
+                    <literal>GL_TEXTURE_MAX_ANISOTROPY_EXT</literal>. This suffix means that this
+                enumerator comes from an <glossterm>OpenGL extension</glossterm>. First and
+                foremost, this means that this enumerator is not part of the OpenGL
+                Specification.</para>
+            <para>An OpenGL extension is a modification of OpenGL exposed by a particular
+                implementation. Extensions are published, so that users will be able to use them
+                correctly. Because different implementations of OpenGL will implement different
+                extensions, there is a mechanism for querying whether an extension is implemented.
+                This allows user code to detect the availability of certain hardware features and
+                use them or not as needed.</para>
+            <para>There are several kinds of extensions. There are proprietary extensions; these are
+                created by a particular vendor and are rarely if ever implemented by another vendor.
+                In some cases, they are based on intellectual property owned by that vendor and thus
+                cannot be implemented without explicit permission. The enums and functions for these
+                extensions end with a suffix based on the proprietor of the extension. An
+                NVIDIA-only extension would end in <quote>NV,</quote> for example.</para>
+            <para>ARB extensions are a special class of extension that is blessed by the OpenGL ARB
+                (which governs OpenGL). These are typically created as a collaboration between
+                multiple members of the ARB. Historically, they have represented functionality that
+                implementations were highly recommended to implement.</para>
+            <para>EXT extensions are a class between the two. They are not proprietary extensions,
+                and in many cases were created through collaboration among ARB members. Yet at the
+                same time, they are not <quote>blessed</quote> by the ARB. Historically, EXT
+                extensions have been used as test beds for functionality and APIs, to ensure that
+                the API is reasonable before promoting the feature to OpenGL core or to an ARB
+                extension.</para>
+            <para>The <literal>GL_TEXTURE_MAX_ANISOTROPY_EXT</literal> enumerator is part of the
+                EXT_texture_filter_anisotropic extension. Since it is an extension rather than core
+                functionality, it is usually necessary for the user to detect if the extension is
+                available and only use it if it was. If you look through the tutorial code, you will
+                find no code that does this test.</para>
+            <para>The reason for that is simply a lack of need. The extension itself dates back to
+                the GeForce 256 (not the GeForce 250GT; the original GeForce), way back in 1999.
+                Virtually all GPUs since then have implemented anisotropic filtering and exposed it
+                through this extension. That is why the tutorial does not bother to check for the
+                presence of this extension.</para>
+            <para>If it is so ubiquitous, why has the ARB not adopted the functionality into core
+                OpenGL? Why must anisotropic filtering be an extension that is de facto guaranteed
+                but not fully part of OpenGL? This is because OpenGL must be Open.</para>
+            <para>The <quote>Open</quote> in OpenGL refers to the availability of the specification,
+                but also to the ability for anyone to implement it. As it turns out, anisotropic
+                filtering has intellectual property issues with it. If it were adopted into the
+                core, then core OpenGL would not be able to be implemented without licensing the
+                technology from the holder of the IP. It is not a proprietary extension because none
+                of the ARB members have the IP; it is held by a third party.</para>
+            <para>Therefore, you may assume that anisotropic filtering is available through OpenGL.
+                But it is technically an extension.</para>
+        </section>
+
+    </section>
+    <section>
+        <title>How Mipmap Selection Works</title>
+        <?dbhtml filename="Tut15 How Mipmapping Works.html" ?>
+        <para>Previously, we discussed mipmap selection and interpolation in terms related to the
+            geometry of the object. That is true, but only when we are dealing with simple texture
+            mapping schemes, such as when the texture coordinates are attached directly to vertex
+            positions. But as we saw in our first tutorial on texturing, texture coordinates can be
+            entirely arbitrary. So how does mipmap selection and anisotropic filtering work
+            then?</para>
+        <para>Very carefully.</para>
+        <para>Imagine a 2x2 pixel area of the screen. Now imagine that four fragment shaders, all
+            from the same triangle, are executing for that screen area. Since the fragment shaders
+            are all guaranteed to have the same uniforms and the same code, the only thing that is
+            different is the fragment inputs. And because they are executing the same code, you can
+            conceive of them executing in lockstep. That is, each of them executes the same
+            instruction, on their individual dataset, at the same time.</para>
+        <para>Under that assumption, for any particular value in a fragment shader, you can pick the
+            corresponding 3 other values in the other fragment shaders executing alongside it. If
+            that value is based solely on uniform or constant data, then each shader will have the
+            same value. But if it is based in part on input values, then each shader may have a
+            different value, based on how it was computed and the inputs.</para>
+        <para>So, let's look at the texture coordinate value; the particular value used to access
+            the texture. Each shader has one. If that value is associated with the position of the
+            object, via perspective-correct interpolation and so forth, then the
+                <emphasis>difference</emphasis> between the shaders' values will represent the
+            window space geometry of the triangle. There are two dimensions for a difference, and
+            therefore there are two differences: the difference in the window space X axis, and the
+            window space Y axis.</para>
+        <para>These two differences, sometimes called gradients or derivatives, are how mipmapping
+            actually works. If the texture coordinate used is just an input value, which itself is
+            directly associated with a position, then the gradients represent the geometry of the
+            triangle in window space. If the texture coordinate is computed in more unconventional
+            ways, it still works, as the gradients represent how the texture coordinates are
+            changing across the surface of the triangle.</para>
+        <para>Having two gradients allows for the detection of anisotropy. And therefore, it
+            provides enough information to reasonably apply anisotropic filtering algorithms.</para>
+        <para>Now, you may notice that this process is very conditional. Specifically, it requires
+            that you have 4 fragment shaders all running in lock-step. There are two circumstances
+            where that might not happen.</para>
+        <para>The most obvious is on the edge of a triangle, where a 2x2 block of neighboring
+            fragments is not possible without being outside of the fragment. This case is actually
+            trivially covered by GPUs. No matter what, the GPU will rasterize each triangle in 2x2
+            blocks. Even if some of those blocks are not actually part of the triangle of interest,
+            they will still get fragment shader time. This may seem inefficient, but it's reasonable
+            enough in cases where triangles are not incredibly tiny or thin, which is quite often.
+            The results produced by fragment shaders outside of the triangle are discarded.</para>
+        <para>The other circumstance is through deliberate user intervention. Each fragment shader
+            running in lockstep has the same uniforms but different inputs. Since they have
+            different inputs, it is possible for them to execute a conditional branch based on these
+            inputs (an if-statement or other conditional). This could cause, for example, the
+            left-half of the 2x2 quad to execute certain code, while the other half executes
+            different code. The 4 fragment shaders are no longer in lock-step. How does the GPU
+            handle it?</para>
+        <para>Well... it doesn't. Dealing with this requires manual user intervention, and it is a
+            topic we will discuss later. Suffice it to say, it screws everything up.</para>
     </section>
     <section>
         <?dbhtml filename="Tut15 Performace.html" ?>
         <title>Performance</title>
         <para>Mipmapping has some unexpected performance characteristics. A texture with a full
-            mipmap pyramid will take up 33% more space than just the base layer. So there is some
+            mipmap pyramid will take up ~33% more space than just the base level. So there is some
             memory overhead. The unexpected part is that this is actually a memory vs. performance
             tradeoff, as mipmapping improves performance.</para>
         <para>If a texture is going to be minified significantly, providing mipmaps is a performance
@@ -109,10 +593,10 @@
             patterns where there is a high degree of locality, where adjacent fragment shaders
             access texels that are very near one another. The farther apart they are, the less
             useful the optimizations in the texture samplers are. Indeed, if they are far enough
-            apart, those optimizations start turning around and becoming performance
-            penalties.</para>
-        <para>Textures that are used as lookup tables should not use mipmaps. But other kinds of
-            textures, like those that provide surface details, can and should.</para>
+            apart, those optimizations start becoming performance penalties.</para>
+        <para>Textures that are used as lookup tables should generally not use mipmaps. But other
+            kinds of textures, like those that provide surface details, can and should where
+            reasonable.</para>
         <para>While mipmapping is free, mipmap filtering,
             <literal>GL_LINEAR_MIPMAP_LINEAR</literal>, is generally not free. But the cost of it is
             rather small these days. For those textures where mipmap interpolation makes sense, it
@@ -120,7 +604,7 @@
         <para>Anisotropic filtering is even more costly, as one might expect. After all, it means
             taking more texture samples to cover a particular texture area. However, anisotropic
             filtering is almost always implemented adaptively. This means that it will only take
-            extra samples for textures where it detects that this is necessary. And it will only
+            extra samples for fragments where it detects that this is necessary. And it will only
             take enough samples to fill out the area, up to the maximum the user provides of course.
             Therefore, turning on anisotropic filtering, even just 2x or 4x, only hurts for the
             fragments that need it.</para>
@@ -166,28 +650,28 @@
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
+                    <para>Use non-mipmap filtering with anisotropic filtering and compare the
+                        results with the mipmap-based anisotropic version.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the GL_TEXTURE_MAX_LEVEL of the checkerboard texture. Subtract 3
+                        from the computed max level. This will prevent OpenGL from accessing the
+                        bottom 3 mipmaps: 1x1, 2x2, and 4x4. See what happens. Notice how there is
+                        less grey in the distance, but some of the shimmering from our non-mipmapped
+                        version has returned.</para>
+                </listitem>
+                <listitem>
                     <para>Go back to <phrase role="propername">Basic Texture</phrase> in the
-                        previous tutorial and modify the sampler to use linear magnification
-                        filtering on the 1D texture. See if the linear filtering makes some of the
-                        lower resolutions more palatable. If you were to try this with the 2D
-                        texture in <phrase role="propername">Material Texture</phrase> tutorial, it
-                        would cause filtering in both the S and T coordinates. This would mean that
-                        it would filter across the shininess of the table as well. Try this and see
-                        how this affects the results.</para>
+                        previous tutorial and modify the sampler to use linear mag and min filtering
+                        on the 1D texture. See if the linear filtering makes some of the lower
+                        resolution versions of the table more palatable. If you were to try this
+                        with the 2D lookup texture in <phrase role="propername">Material
+                            Texture</phrase> tutorial, it would cause filtering in both the S and T
+                        coordinates. This would mean that it would filter across the shininess of
+                        the table as well. Try this and see how this affects the results. Also try
+                        using linear filtering on the shininess texture.</para>
                 </listitem>
             </itemizedlist>
-        </section>
-        <section>
-            <title>Further Research</title>
-            <para/>
-        </section>
-        <section>
-            <title>OpenGL Functions of Note</title>
-            <para/>
-        </section>
-        <section>
-            <title>GLSL Functions of Note</title>
-            <para/>
         </section>
         
     </section>
@@ -196,9 +680,69 @@
         <title>Glossary</title>
         <glosslist>
             <glossentry>
-                <glossterm/>
+                <glossterm>texture filtering</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The process of fetching the value of a texture at a particular texture
+                        coordinate, potentially involving combining multiple texel values
+                        together.</para>
+                    <para>Filtering can happen in two directions: magnification and minification.
+                        Magnification happens when the fragment area projected into a texture is
+                        smaller than the texel itself. Minification happens when the fragment area
+                        projection is larger than a texel.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>nearest filtering</glossterm>
+                <glossdef>
+                    <para>Texture filtering where the texel closest to the texture coordinate is the
+                        value returned.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>linear filtering</glossterm>
+                <glossdef>
+                    <para>Texture filtering where the closest texel values in each dimension of the
+                        texture are access and linearly interpolated, based on how close the texture
+                        coordinate was to those values. For 1D textures, this picks two values and
+                        interpolates. For 2D textures, it picks four; for 3D textures, it selects
+                        8.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>mipmap, mipmap level</glossterm>
+                <glossdef>
+                    <para>Subimages of a texture. Each subsequence mipmap of a texture is half the
+                        size, rounded down, of the previous image. The largest mipmap is the base
+                        level. Many texture types can have mipmaps, but some cannot.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>mipmap filtering</glossterm>
+                <glossdef>
+                    <para>Texture filtering that uses mipmaps. The mipmap choosen when mipmap
+                        filtering is used is based on the angle of the texture coordinate, relative
+                        to the screen.</para>
+                    <para>Mipmap filtering can be nearest or linear. Nearest mipmap filtering picks
+                        a single mipmap and returns the value pulled from that mipmap. Linear mipmap
+                        filtering pics samples from the two nearest mipmaps and linearly
+                        interpolates between them. The sample returned in either case can have
+                        linear or nearest filtering applied within that mipmap.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>anisotropic filtering</glossterm>
+                <glossdef>
+                    <para>Texture filtering that takes into account the anisotropy of the texture
+                        access. This requires taking multiple samples from a surface that covers an
+                        irregular area of the surface. This works better with mipmap
+                        filtering.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>OpenGL extension</glossterm>
+                <glossdef>
+                    <para>Functionality that is not part of OpenGL proper, but can be conditionally
+                        exposed by different implementations of OpenGL.</para>
                 </glossdef>
             </glossentry>
         </glosslist>

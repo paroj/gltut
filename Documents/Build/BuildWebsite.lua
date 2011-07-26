@@ -31,7 +31,6 @@ hFile:write(
 ]]);
 
 hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "html\\chunkfast.xsl"), "\"/>\n");
-
 hFile:write([[    <xsl:import href="html-highlights.xsl"/>]], "\n");
 
 WriteParamsToFile(hFile, dofile("_commonParams.lua"));
@@ -41,6 +40,7 @@ hFile:write([[
 	<xsl:template name="system.head.content">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
 	</xsl:template>
+	<xsl:template name="generate.html.title"/>
 ]]);
 
 hFile:write([[</xsl:stylesheet> 

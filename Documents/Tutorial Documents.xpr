@@ -2474,6 +2474,9 @@
             <file name="Basics/Tutorial%2002.xml"/>
         </folder>
         <folder name="Build">
+            <file name="Build/colorfo-highlights.xsl"/>
+            <file name="Build/common-highlights.xsl"/>
+            <file name="Build/fo-common.xsl"/>
             <file name="Build/html-highlights.xsl"/>
         </folder>
         <folder name="css">
