@@ -84,11 +84,10 @@
         <para>Given the controls of these gimbals, can you cause the object to pitch up and down?
             That is, move its nose up and down from where it is currently? Only slightly; you can
             use the middle gimbal, which has a bit of pitch rotation. But that is not much.</para>
-        <para>The reason we do not have as much freedom to orient the object is because the outer and
-            inner gimbals are now rotating about the <emphasis>same axis</emphasis>. Which means you
-            really only have two gimbals to manipulate in order to orient the red gimbal. And 3D
-            orientation cannot be fully controlled with only 2 axial rotations, with only 2
-            gimbals.</para>
+        <para>The reason we do not have as much freedom to orient the object is because the outer
+            and inner gimbals are now rotating about the same axis. This means you really only have
+            two gimbals to manipulate in order to orient the red gimbal. And 3D orientation cannot
+            be fully controlled with only 2 axial rotations, with only 2 gimbals.</para>
         <para>When gimbals are in such a position, you have what is known as <glossterm>gimbal
                 lock</glossterm>; you have locked one of the gimbals to another, and now both cause
             the same effect.</para>
@@ -150,11 +149,12 @@
         <?dbhtml filename="Tut08 Quaternions.html"?>
         <title>Quaternions</title>
         <para>So gimbals, 3 accumulated axial rotations, do not really work very well for orienting
-            an object. How do we fix this problem?</para>
+            an object. Gimbals can be locked, and it is very unintuitive to control them. How do we
+            fix these problems?</para>
         <para>Part of the problem is that we are trying to store an orientation as a series of 3
             accumulated axial rotations. Orientations are <emphasis>orientations,</emphasis> not
-            rotations. And certainly not a series of them. So we need to treat the orientation of
-            the ship as an orientation.</para>
+            rotations. And orientations are certainly not a series of rotations. So we need to treat
+            the orientation of the ship as an orientation, as a specific quantity.</para>
         <para>The first thought towards this end would be to keep the orientation as a matrix. When
             the time comes to modify the orientation, we simply apply a transformation to this
             matrix, storing the result as the new current orientation.</para>
@@ -700,7 +700,9 @@
         <itemizedlist>
             <listitem>
                 <para>A fixed sequence of successive rotations can prevent other rotations from
-                    contributing to the object's orientation.</para>
+                    contributing to the object's orientation. It also makes it difficult to
+                    correctly orient the object in an intuitive way, since previous rotations have
+                    effects on later ones.</para>
             </listitem>
             <listitem>
                 <para>Quaternions are 4-dimensional vectors that can encode an orientation. They can
@@ -756,7 +758,8 @@
                 and it has deftly avoided answering the question of exactly what a quaternion
                     <emphasis>is.</emphasis> After all, saying that a quaternion is a
                 four-dimensional complex number does not explain why they are useful in graphics.
-                They are a quite fascinating subject for those who like oddball math things.</para>
+                They are a quite fascinating subject for those who like oddball math
+                concepts.</para>
             <para>This discussion has also glossed over a few uses of quaternions in graphics, such
                 as how to directly rotate a position or direction by a quaternion. Such information
                 is readily available online.</para>

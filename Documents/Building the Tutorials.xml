@@ -91,9 +91,9 @@ make</programlisting>
     <simplesect>
         <title>GLLoad and GLImg</title>
         <para>The GLImg library is a library for loading image data from various file formats. The
-            GLLoad library is a home-brewed library for loading OpenGL function entrypoints from the
-            .dll. For reasons that are too technical to repeat here, using OpenGL on most platforms
-            requires manually loading function pointers from a .dll. This library makes this process
+            GLLoad library is a library for loading OpenGL function entrypoints from the .dll. For
+            reasons that are too technical to repeat here, using OpenGL on most platforms requires
+            manually loading function pointers from a .dll. This library makes this process
             painless.</para>
         <para>Like TinyXML, these two libraries use Premake to generate their build files. However,
             they are both generated from the same premake file. To generate the build for these two

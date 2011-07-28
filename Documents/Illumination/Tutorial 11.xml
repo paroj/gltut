@@ -42,10 +42,10 @@
             </mediaobject>
         </figure>
         <para>Notice that the intensity of the reflected light depends not only on the angle of
-            incidence, but only the direction to the viewer. This is called the <glossterm>angle of
-                view</glossterm> or <glossterm>viewing angle</glossterm>. Viewing position A detects
-            the light specularly reflected from the surface at the point P, but the viewing position
-            B does not.</para>
+            incidence but also on the direction to the viewer. This is called the <glossterm>angle
+                of view</glossterm> or <glossterm>viewing angle</glossterm>. Viewing position A
+            detects the light specularly reflected from the surface at the point P, but the viewing
+            position B does not.</para>
         <para>Surfaces however are rarely perfect specular reflectors (mirrors are the most common
             perfect reflectors). Surfaces that seem smooth from far away can be rough on closer
             examination. This is true at the microscopic level as well, even for surfaces that
