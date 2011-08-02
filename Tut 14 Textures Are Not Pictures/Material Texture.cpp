@@ -282,7 +282,7 @@ void CreateShininessTexture()
 	    filename.append("main.dds");
 	    
 		pImageSet.reset(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-		std::auto_ptr<glimg::Image> pImage(pImageSet->GetImage(0, 0, 0));
+		std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
 
 		glimg::Dimensions dims = pImage->GetDimensions();
 
