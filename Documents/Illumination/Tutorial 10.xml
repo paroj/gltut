@@ -627,7 +627,7 @@ void main()
             </mediaobject>
         </informalequation>
         <para>This equation computes physically realistic light attenuation for point-lights. But it
-            often does not look very good. Lights seem to have a much sharper intensity falloff than
+            often does not look very good. The equation tends to create a sharper intensity falloff than
             one would expect.</para>
         <para>There is a reason for this, but it is not one we are ready to get into quite yet. What
             is often done is to simply use the inverse rather than the inverse-square of the
@@ -976,7 +976,7 @@ uniform UnProjection
                     physically accurate, but it can look reasonably good.</para>
                 <para>We simply do linear interpolation based on the distance. When the distance is
                     0, the light has full intensity. When the distance is beyond a given distance,
-                    the maximum light range (which varies per-light), the intensity is 1.</para>
+                    the maximum light range (which varies per-light), the intensity is 0.</para>
                 <para>Note that <quote>reasonably good</quote> depends on your needs. The closer you
                     get in other ways to providing physically accurate lighting, the closer you get
                     to photorealism, the less you can rely on less accurate phenomena. It does no
