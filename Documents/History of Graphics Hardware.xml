@@ -23,7 +23,7 @@
             (again, for its day).</para>
         <para>The functionality of this card was quite bare-bones from a modern perspective.
             Obviously there was no concept of shaders of any kind. Indeed, it did not even have
-            vertex transformation; the Voodoo Graphics pipeline begins with clip-space values. This
+            vertex transformation; the Voodoo Graphics pipeline began with clip-space values. This
             required the CPU to do vertex transformations. This hardware was effectively just a
             triangle rasterizer.</para>
         <para>That being said, it was quite good for its day. As inputs to its rasterization
@@ -41,7 +41,7 @@
             the texture's alpha value. The alpha of the output was controlled with a separate math
             function, thus allowing the user to generate the alpha with different math than the RGB
             portion of the output color. This was the sum total of its fragment processing.</para>
-        <para>It even had framebuffer blending support. Its framebuffer could even support a
+        <para>It had framebuffer blending support. Its framebuffer could even support a
             destination alpha value, though you had to give up having a depth buffer to get it.
             Probably not a good tradeoff. Outside of that issue, its blending support was superior
             even to OpenGL 1.1. It could use different source and destination factors for the alpha
@@ -71,15 +71,15 @@
             the evolution of graphics hardware.</para>
         <para>Like other graphics cards of the day, the TNT hardware had no vertex processing.
             Vertex data was in clip-space, as normal, so the CPU had to do all of the transformation
-            and lighting. Where the TNT shone was in its fragment processing.</para>
-        <para>The power of the TNT is in it's name; TNT stands for
-                <acronym>T</acronym>wi<acronym>N</acronym>
-            <acronym>T</acronym>exel. Where other graphics cards could only allow a triangle to use
-            a single texture, the TNT allowed it to use two.</para>
-        <para>This meant that its vertex input data was expanded. Two textures meant two texture
-            coordinates, since each texture coordinate was directly bound to a particular texture.
-            While they were allowing two of things, they also allowed for two per-vertex colors. The
-            idea here has to do with lighting equations.</para>
+            and lighting. Where the TNT shone was in its fragment processing. The power of the TNT
+            is in it's name; TNT stands for <acronym>T</acronym>wi<acronym>N</acronym>
+            <acronym>T</acronym>exel. It could access from two textures at once. And while the
+            Voodoo II could do that as well, the TNT had much more flexibility to its fragment
+            processing pipeline.</para>
+        <para>In order to accomidate two textures, the vertex input was expanded. Two textures meant
+            two texture coordinates, since each texture coordinate was directly bound to a
+            particular texture. While they were allowing two of things, NVIDIA also allowed for two
+            per-vertex colors. The idea here has to do with lighting equations.</para>
         <para>For regular diffuse lighting, the CPU-computed color would simply be dot(N, L),
             possibly with attenuation applied. Indeed, it could be any complicated diffuse lighting
             function, since it was all on the CPU. This diffuse light intensity would be multiplied
@@ -144,10 +144,10 @@
                 a selling point (no more having to manually sort blended objects). After rendering
                 that tile, it moves on to the next. These operations can of course be executed in
                 parallel; you can have multiple tiles being rasterized at the same time.</para>
-            <para>The idea behind this to avoid having large image buffers. You only need a few 8x8
-                depth buffers, so you can use very fast, on-chip memory for it. Rather than having
-                to deal with caches, DRAM, and large bandwidth memory channels, you just have a
-                small block of memory where you do all of your logic. You still need memory for
+            <para>The idea behind this is to avoid having large image buffers. You only need a few
+                8x8 depth buffers, so you can use very fast, on-chip memory for it. Rather than
+                having to deal with caches, DRAM, and large bandwidth memory channels, you just have
+                a small block of memory where you do all of your logic. You still need memory for
                 textures and the output image, but your bandwidth needs can be devoted solely to
                 textures.</para>
             <para>For a time, these cards were competitive with the other graphics chip makers.
@@ -451,9 +451,9 @@
         <?dbhtml filename="History Unified.html" ?>
         <title>Modern Unification</title>
         <para>Welcome to the modern era. All of the examples in this book are designed on and for
-            this era of hardware, though some of them could run on older ones. The release of the
-            Radeon HD 2000 and GeForce 8000 series cards in 2006 represented unification in more
-            ways than one.</para>
+            this era of hardware, though some of them could run on older ones with some alteration.
+            The release of the Radeon HD 2000 and GeForce 8000 series cards in 2006 represented
+            unification in more ways than one.</para>
         <para>With the prior generations, fragment hardware had certain platform-specific
             peculiarities. While the API kinks were mostly ironed out with the development of proper
             shading languages, there were still differences in the behavior of hardware. While 4
@@ -521,15 +521,15 @@
         </itemizedlist>
         <para>Various other limitations were expanded as well.</para>
         <sidebar>
-            <title>Tessellation</title>
+            <title>Post-Modern</title>
             <para>This was not the end of hardware evolution; there has been hardware released in
                 recent years  The Radeon HD 5000 and GeForce GT 400 series and above have increased
                 rendering features. They're just not as big of a difference compared to what came
                 before.</para>
-            <para>The biggest new feature in this hardware is tessellation, the ability to take
-                triangles output from a vertex shader and split them into new triangles based on
-                arbitrary (mostly) shader logic. This sounds like what geometry shaders can do, but
-                it is different.</para>
+            <para>One of the biggest new feature in this hardware is tessellation, the ability to
+                take triangles output from a vertex shader and split them into new triangles based
+                on arbitrary (mostly) shader logic. This sounds like what geometry shaders can do,
+                but it is different.</para>
             <para>Tessellation is actually something that ATI toyed around with for years. The
                 Radeon 9700 had tessellation support with something they called PN triangles. This
                 was very automated and not particularly useful. The entire Radeon HD 2000-4000 cards
@@ -547,13 +547,20 @@
                 primitive, based on the values of the primitive being tessellated. The geometry
                 shader still exists; it is executed after the final tessellation shader
                 stage.</para>
-            <para>Tessellation is not covered in this book for a few reasons. First, there is not as
-                much hardware out there that supports it. Sticking to OpenGL 3.3 meant casting a
-                wider net; requiring OpenGL 4.1 (which includes tessellation) would have meant fewer
-                people could run those tutorials.</para>
-            <para>Second, tessellation is not that important. That's not to say that it is not
-                important or a worthwhile feature. But it really is not something that matters a
-                great deal.</para>
+            <para>Another feature is the ability to have a shader arbitrarily read
+                    <emphasis>and</emphasis> write to images in textures. This is not merely
+                sampling from a texture; it uses a different interface, and it means very different
+                things. This form of image data access breaks many of the rules around OpenGL, and
+                it is very easy to use the feature wrong.</para>
+            <para>These are not covered in this book for a few reasons. First, there is not as much
+                hardware out there that supports it (though this is increasing daily). Sticking to
+                OpenGL 3.3 meant casting a wider net; requiring OpenGL 4.2 (which includes
+                tessellation) would have meant fewer people could run those tutorials.</para>
+            <para>Second, these features are quite complicated to use. Any discussion of
+                tessellation would require discussing tessellation algorithms, which are all quite
+                complicated. Any discussion of image reading/writing would require talking about
+                shader hardware at a level of depth that is pretty well beyond the beginner
+                level.</para>
         </sidebar>
     </section>
 </appendix>
