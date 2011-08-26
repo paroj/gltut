@@ -437,7 +437,7 @@ glEnable(GL_DEPTH_TEST);</programlisting>
                 the square at the same distance from the camera as the camera would be from the
                 target point.</para>
             <para>Being able to work directly in camera space like this is also a quite useful
-                technique. It allows the object to be positions relative to the camera, so that no
+                technique. It allows the object to be positioned relative to the camera, so that no
                 matter how the camera moves relative to the world, the object will always appear
                 fixed. It will also always appear facing the camera.</para>
         </section>
