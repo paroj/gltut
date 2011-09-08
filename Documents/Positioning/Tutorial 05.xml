@@ -654,8 +654,8 @@ glUseProgram(0);</programlisting>
                 farthest. However, if our clip-space Z values were negated, the depth of 1 would be
                 closest to the view and the depth of 0 would be farthest. Yet, if we flip the
                 direction of the depth test (GL_LESS to GL_GREATER, etc), we get the exact same
-                result. So it's really just a convention. Indeed, flipping the sign of Z and the
-                depth test was once a vital performance optimization for many games.</para>
+                result. Similarly, if we reverse the glDepthRange so that 1 is the depth zNear and 0 is the depth zFar, we get the same result if we use GL_GREATER. So it's really just a convention. Indeed, flipping the depth range and the
+                depth test every frame was once a vital performance optimization for many games.</para>
         </section>
         <section>
             <title>Rendering with Depth</title>
