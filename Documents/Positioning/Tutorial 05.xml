@@ -621,7 +621,7 @@ glUseProgram(0);</programlisting>
                 <literal>GL_NOTEQUAL</literal>. The test function puts the incoming fragment's depth
             on the left of the equation and on the right is the depth from the depth buffer. So
             GL_LESS means that, when the incoming fragment's depth is less than the depth from the
-            depth buffer, the incoming fragment is not written.</para>
+            depth buffer, the incoming fragment is written.</para>
         <para>With the fragment depth being something that is part of a fragment's output, you might
             imagine that this is something you have to compute in a fragment shader. You certainly
             can, but the fragment's depth is normally just the window-space Z coordinate of the
