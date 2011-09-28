@@ -363,7 +363,7 @@ gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;</programlisting>
                 represents a texture being accessed by our shader. How do we associate a texture
                 object with a sampler in the shader?</para>
             <para>Although the API is slightly more obfuscated due to legacy issues, this
-                association is made essentially the same was as for UBOs.</para>
+                association is made essentially the same way as UBOs.</para>
             <para>The OpenGL context has an array of slots called <glossterm>texture image
                     units</glossterm>, also known as <glossterm>image units</glossterm> or
                     <glossterm>texture units</glossterm>. Each image unit represents a single

@@ -160,7 +160,7 @@
                 surface really is curved, we need to do something else.</para>
             <para>Instead of using the triangle's normal, we can assign to each vertex the normal
                 that it <emphasis>would</emphasis> have had on the surface it is approximating. That
-                is, while the mesh is an approximating, the normal for a vertex is the actual normal
+                is, while the mesh is an approximation, the normal for a vertex is the actual normal
                 for that surface. This actually works out surprisingly well.</para>
             <para>This means that we must add to the vertex's information. In past tutorials, we
                 have had a position and sometimes a color. To that information, we add a normal. So
@@ -346,7 +346,7 @@ glUseProgram(0);</programlisting>
                 transforming positions, the fourth component was 1.0; this was used so that the
                 translation component of the matrix transformation would be added to each
                 position.</para>
-            <para>Vectors represent directions, not absolute positions. And while rotating or
+            <para>Normals represent directions, not absolute positions. And while rotating or
                 scaling a direction is a reasonable operation, translating it is not. Now, we could
                 just adjust the matrix to remove all translations before transforming our light into
                 camera space. But that's highly unnecessary; we can simply put 0.0 in the fourth
@@ -870,7 +870,7 @@ else
         <para>In the pure-diffuse case, the light intensity is full white. But in the ambient case,
             we deliberately set the diffuse intensity to less than full white. This is very
             intensional.</para>
-        <para>We will talk more about this issue in the next future, but it is very critical that
+        <para>We will talk more about this issue in the near future, but it is very critical that
             light intensity values not exceed 1.0. This includes <emphasis>combined</emphasis>
             lighting intensity values. OpenGL clamps colors that it writes to the output image to
             the range [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined

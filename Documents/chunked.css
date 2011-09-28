@@ -2,9 +2,25 @@
 body
 {
     background-color: #fff6e7;
-    padding: 0 5%;
+    padding: 0 5% 0 20%;
     font-family: calibri, helvetica, serif;
     font-size: 12pt;
+}
+
+div.toc
+{
+	position: absolute;
+	left: 0;
+	margin-left: 5%;
+	max-width: 15%;
+}
+
+div.book div.toc
+{
+	position: inherit;
+	left: inherit;
+	margin-left: inherit;
+	max-width: inherit;
 }
 
 br.example-break { display: none; }

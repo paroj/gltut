@@ -173,11 +173,13 @@ dofile("tutorials.lua");</programlisting>
                     It provides a way to create windows or full-screen displays. It provides ways to
                     get keyboard and mouse input.</para>
             </formalpara>
-            <para>The difference between them is that, while FreeGLUT owns the message processing
-                loop, GLFW does not. GLFW requires that the user poll it to process messages. This
-                allows the user to maintain reasonably strict timings for rendering. This makes GLFW
-                programs a bit more complicated than FreeGLUT ones (which is why these tutorials use
-                FreeGLUT), it does mean that GLFW would be useful in serious applications.</para>
+            <para>The biggest difference between them is that, while FreeGLUT owns the message
+                processing loop, GLFW does not. GLFW requires that the user poll it to process
+                messages. This allows the user to maintain reasonably strict timings for rendering.
+                While this makes GLFW programs a bit more complicated than FreeGLUT ones (which is
+                why these tutorials use FreeGLUT), it does mean that GLFW would be more useful in
+                serious applications.</para>
+            <para>GLFW also provides more robust input support as well as </para>
             <para>GLFW uses the zLib license.</para>
             <formalpara>
                 <title>Multimedia Libraries</title>

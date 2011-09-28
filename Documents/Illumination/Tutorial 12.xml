@@ -27,7 +27,7 @@
         <para>The biggest thing here is that we want the scene to dynamically change lighting
             levels. Specifically, we want a full day/night cycle. The sun will sink, gradually
             losing intensity until it has none. There, it will remain until the dawn of the next
-            day, where it will gain strength until full and rise again. The other lights should be
+            day, where it will gain strength and rise again. The other lights should be
             much weaker in overall intensity than the sun.</para>
         <para>One thing that this requires is a dynamic ambient lighting range. Remember that the
             ambient light is an attempt to resolve the global illumination problem: that light
