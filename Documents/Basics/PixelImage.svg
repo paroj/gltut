@@ -2,9 +2,9 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="256px" width="312px" >
-	<style type="text/css" ><![CDATA[.color_0
+	<style type="text/css" ><![CDATA[.color_2
 {
-	fill: #000000;
+	fill: #AFAFAF;
 	stroke: none;
 }
 
@@ -14,21 +14,21 @@
 	stroke: none;
 }
 
-.color_2
+.color_0
 {
-	fill: #AFAFAF;
-	stroke: none;
-}
-
-.color_3
-{
-	fill: #9a9a9a;
+	fill: #000000;
 	stroke: none;
 }
 
 .color_4
 {
 	fill: #D3D3D3;
+	stroke: none;
+}
+
+.color_3
+{
+	fill: #9a9a9a;
 	stroke: none;
 }]]></style>
 	<defs />
