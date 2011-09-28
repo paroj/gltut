@@ -43,7 +43,14 @@
             a checkerboard drawn on it. The camera will hover above the plane, looking out at the
             horizon as if the plane were the ground. This is implemented in the <phrase
                 role="propername">Many Images</phrase> tutorial project.</para>
-        <!--TODO: Picture of the Many Images tutorial, basic view.-->
+        <figure>
+            <title>Basic Checkerboard Plane</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="BasicCheckerboardPlane.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The camera is automatically controlled, though it's motion can be paused with the
                 <keycap>P</keycap> key. The other functions of the tutorial will be explained as we
             get to them.</para>
@@ -84,7 +91,14 @@ glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</progr
         <para>Take a look at one of the squares at the very bottom of the screen. Notice how the
             line looks jagged as it moves to the left and right. You can see the pixels of it sort
             of crawl up and down as it shifts around on the plane.</para>
-        <!--TODO: Picture of one of the checker squares at the bottom (zoomed), with nearest filtering.-->
+        <figure>
+            <title>Jagged Texture Edge</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="NearestZoom.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This is caused by the discrete nature of our texture accessing. The texture
             coordinates are all in floating-point values. The GLSL <function>texture</function>
             function internally converts these texture coordinates to specific texel values within
@@ -142,7 +156,14 @@ glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programli
         <para>This is called, surprisingly enough, <glossterm>linear filtering</glossterm>. In our
             tutorial, press the <keycap>2</keycap> key to see what linear filtering looks like;
             press <keycap>1</keycap> to go back to nearest sampling.</para>
-        <!--TODO: Picture of linear filtering.-->
+        <figure>
+            <title>Linear Filtering</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CheckerboardLinear.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>That looks much better for the squares close to the camera. It creates a bit of
             fuzziness, but this is generally a lot easier for the viewer to tolerate than pixel
             crawl. Human vision tends to be attracted to movement, and false movement like dot crawl
@@ -250,7 +271,6 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
             a texture is the largest usable mipmap level, while the max level is the smallest usable
             level. It is possible to omit some of the smaller mipmap levels. Note that level 0 is
             always the largest possible mipmap level.</para>
-        <para/>
         <para>Filtering based on mipmaps is unsurprisingly named <glossterm>mipmap
                 filtering</glossterm>. This tutorial does not load two checkerboard textures; it
             only ever uses one checkerboard. The reason mipmaps have not been used until now is
@@ -271,7 +291,14 @@ glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEARE
             four nearest samples within that mipmap.</para>
         <para>If you press the <keycap>3</keycap> key in the tutorial, you can see the effects of
             this filtering mode.</para>
-        <!--TODO: Picture of LINEAR_MIPMAP_NEAREST, #3. Hallway.-->
+        <figure>
+            <title>Hallway with Mipmapping</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="LinearMipmapNearest.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>That's a lot more reasonable. It isn't perfect, but it is much better than the random
             motion in the distance that we have previously seen.</para>
         <para>It can be difficult to truly understand the effects of mipmap filtering when using
@@ -282,8 +309,17 @@ glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEARE
             or various other algorithms to compute a reasonable scaled down result. This special
             texture's mipmaps are all flat colors, but each mipmap has a different color. This makes
             it much more obvious where each mipmap is.</para>
-        <!--TODO: Picture of the special texture with hallway, linear mipmap nearest.-->
-        <para>Now we can really see where the different mipmaps are.</para>
+        <figure>
+            <title>Hallway with Special Texture</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="SpecialHallwayLMipN.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>Now we can really see where the different mipmaps are. They don't quite line up on the
+            corners. But remember: this just shows the mipmap boundaries, not the texture
+            coordinates.</para>
         <section>
             <title>Special Texture Generation</title>
             <para>The special mipmap viewing texture is interesting, as it shows an issue you may
@@ -358,7 +394,14 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
                 a single mipmap level, and the second <literal>LINEAR</literal> represents the
                 filtering done between mipmap levels.</para>
             <para>To see this in action, press the <keycap>4</keycap> key.</para>
-            <!--TODO: Picture of linear_mipmap_linear, on a plane, with both textures side-by-side.-->
+            <figure>
+                <title>Linear Mipmap Linear Comparison</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="LMipLCompare.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>That is an improvement. There are still issues to work out, but it is much harder
                 to see where one mipmap ends and another begins.</para>
             <para>OpenGL actually allows all combinations of <literal>NEAREST</literal> and
@@ -415,7 +458,14 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
             Mipmap-based filtering works reasonably well, but it tends to over-compensate.</para>
         <para>For example, take the diagonal chain of squares at the left or right of the screen.
             Expand the window horizontally if you need to.</para>
-        <!--TODO: Picture of the linear_mipmap_linear with diagonal in view.-->
+        <figure>
+            <title>Main Diagonal</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="MainDiagonal.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Pixels that are along this diagonal should be mostly black. As they get farther and
             farther away, the fragment area becomes more and more distorted length-wise, relative to
             the texel area:</para>
@@ -477,7 +527,14 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
             generally; the specific algorithms are implementation dependent.</para>
         <para>Run the tutorial again. The <keycap>5</keycap> key turns activates a form of
             anisotropic filtering.</para>
-        <!--TODO: Picture of anisotropic with plane.-->
+        <figure>
+            <title>Anisotropic Filtering</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="LightAnisotropic.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>That's an improvement.</para>
         <section>
             <title>Sample Control</title>
@@ -509,7 +566,14 @@ glSamplerParameteri(g_samplers[5], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 glSamplerParameteri(g_samplers[5], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</programlisting>
             <para>To see the results of this, press the <keycap>6</keycap> key.</para>
-            <!--TODO: Picture of max anisotropic with the plane.-->
+            <figure>
+                <title>Max Anisotropic Filtering</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="HeavyAnisotropic.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>That looks pretty good now. There are still some issues out in the distance.
                 Remember that your image may not look exactly like this one, since the details of
                 anisotropic filtering are implementation specific.</para>
