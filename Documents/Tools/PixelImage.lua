@@ -77,6 +77,36 @@ function ImageMembers:Draw(writer, topLeft, widthHeight, gridStyles, gridId)
 	writer:Path(path, gridStyles, gridId);
 end
 
+function ImageMembers:DrawPixelRect(writer, topLeft, widthHeight,
+									pixelTopLeft, pixelWidthHeight,
+									style, id)
+	pixelWidthHeight = pixelWidthHeight or vmath.vec2(1, 1);
+	local offset = topLeft;
+	local scale = widthHeight / self.imageSize;
+	
+	local location = vmath.vec2(pixelTopLeft);
+	location = location * scale;
+	location = location + offset;
+
+	writer:Rect(location, scale * pixelWidthHeight, nil, style, id);
+end
+
+function ImageMembers:RectForSamplePt(samplePt)
+	local pixelCoordX, remainX = math.modf(samplePt.x);
+	if(remainX < 0.5) then
+		pixelCoordX = pixelCoordX - 1;
+	end
+
+	local pixelCoordY, remainY = math.modf(self.imageSize[2] - samplePt.y);
+	if(remainY < 0.5) then
+		pixelCoordY = pixelCoordY - 1;
+	end
+
+	return vmath.vec2(pixelCoordX, pixelCoordY), vmath.vec2(2, 2)
+end
+
+
+
 function PixelImage(imageFilename)
 	local image = {};
 	
@@ -110,3 +140,8 @@ function PixelImage(imageFilename)
 
 	return 	AddMembersToClass(image, ImageMembers)
 end
+
+function RectForSamplePt(image, samplePt)
+	return image:RectForSamplePt(samplePt)
+end
+

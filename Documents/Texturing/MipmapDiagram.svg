@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="250px" width="525px" >
+	<style type="text/css" ><![CDATA[.grid
+{
+	stroke: #888;
+	stroke-width: 1.5px;
+	fill: none;
+}
+
+.sample_pt
+{
+	fill: goldenrod;
+	stroke: none;
+}
+
+.frag_area
+{
+	stroke-opacity: 0.7;
+	stroke-width: 7px;
+	stroke-linejoin: round;
+	stroke: red;
+	fill: none;
+}
+
+._high0
+{
+	fill: #000000;
+	stroke: none;
+}
+
+._high1
+{
+	fill: #FFFFFF;
+	stroke: none;
+}
+
+.sample_box
+{
+	stroke: #4B4;
+	stroke-width: 4px;
+	fill: none;
+}
+
+._low1
+{
+	fill: #FFFFFF;
+	stroke: none;
+}
+
+._low0
+{
+	fill: #000000;
+	stroke: none;
+}]]></style>
+	<defs />
+	<rect y="0" x="0" height="31.25" width="31.25" class="_high0" />
+	<rect y="0" x="31.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="0" x="62.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="0" x="93.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="0" x="125" height="31.25" width="31.25" class="_high1" />
+	<rect y="0" x="156.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="0" x="187.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="0" x="218.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="31.25" x="0" height="31.25" width="31.25" class="_high0" />
+	<rect y="31.25" x="31.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="31.25" x="62.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="31.25" x="93.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="31.25" x="125" height="31.25" width="31.25" class="_high1" />
+	<rect y="31.25" x="156.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="31.25" x="187.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="31.25" x="218.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="62.5" x="0" height="31.25" width="31.25" class="_high0" />
+	<rect y="62.5" x="31.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="62.5" x="62.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="62.5" x="93.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="62.5" x="125" height="31.25" width="31.25" class="_high1" />
+	<rect y="62.5" x="156.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="62.5" x="187.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="62.5" x="218.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="93.75" x="0" height="31.25" width="31.25" class="_high0" />
+	<rect y="93.75" x="31.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="93.75" x="62.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="93.75" x="93.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="93.75" x="125" height="31.25" width="31.25" class="_high1" />
+	<rect y="93.75" x="156.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="93.75" x="187.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="93.75" x="218.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="125" x="0" height="31.25" width="31.25" class="_high1" />
+	<rect y="125" x="31.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="125" x="62.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="125" x="93.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="125" x="125" height="31.25" width="31.25" class="_high0" />
+	<rect y="125" x="156.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="125" x="187.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="125" x="218.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="156.25" x="0" height="31.25" width="31.25" class="_high1" />
+	<rect y="156.25" x="31.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="156.25" x="62.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="156.25" x="93.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="156.25" x="125" height="31.25" width="31.25" class="_high0" />
+	<rect y="156.25" x="156.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="156.25" x="187.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="156.25" x="218.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="187.5" x="0" height="31.25" width="31.25" class="_high1" />
+	<rect y="187.5" x="31.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="187.5" x="62.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="187.5" x="93.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="187.5" x="125" height="31.25" width="31.25" class="_high0" />
+	<rect y="187.5" x="156.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="187.5" x="187.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="187.5" x="218.75" height="31.25" width="31.25" class="_high0" />
+	<rect y="218.75" x="0" height="31.25" width="31.25" class="_high1" />
+	<rect y="218.75" x="31.25" height="31.25" width="31.25" class="_high1" />
+	<rect y="218.75" x="62.5" height="31.25" width="31.25" class="_high1" />
+	<rect y="218.75" x="93.75" height="31.25" width="31.25" class="_high1" />
+	<rect y="218.75" x="125" height="31.25" width="31.25" class="_high0" />
+	<rect y="218.75" x="156.25" height="31.25" width="31.25" class="_high0" />
+	<rect y="218.75" x="187.5" height="31.25" width="31.25" class="_high0" />
+	<rect y="218.75" x="218.75" height="31.25" width="31.25" class="_high0" />
+	<path d="M 0 31.25 h 250 M 0 62.5 h 250 M 0 93.75 h 250 M 0 125 h 250 M 0 156.25 h 250 M 0 187.5 h 250 M 0 218.75 h 250 M 31.25 0 v 250 M 62.5 0 v 250 M 93.75 0 v 250 M 125 0 v 250 M 156.25 0 v 250 M 187.5 0 v 250 M 218.75 0 v 250" class="grid" />
+	<rect y="0" x="275" height="62.5" width="62.5" class="_low0" />
+	<rect y="0" x="337.5" height="62.5" width="62.5" class="_low0" />
+	<rect y="0" x="400" height="62.5" width="62.5" class="_low1" />
+	<rect y="0" x="462.5" height="62.5" width="62.5" class="_low1" />
+	<rect y="62.5" x="275" height="62.5" width="62.5" class="_low0" />
+	<rect y="62.5" x="337.5" height="62.5" width="62.5" class="_low0" />
+	<rect y="62.5" x="400" height="62.5" width="62.5" class="_low1" />
+	<rect y="62.5" x="462.5" height="62.5" width="62.5" class="_low1" />
+	<rect y="125" x="275" height="62.5" width="62.5" class="_low1" />
+	<rect y="125" x="337.5" height="62.5" width="62.5" class="_low1" />
+	<rect y="125" x="400" height="62.5" width="62.5" class="_low0" />
+	<rect y="125" x="462.5" height="62.5" width="62.5" class="_low0" />
+	<rect y="187.5" x="275" height="62.5" width="62.5" class="_low1" />
+	<rect y="187.5" x="337.5" height="62.5" width="62.5" class="_low1" />
+	<rect y="187.5" x="400" height="62.5" width="62.5" class="_low0" />
+	<rect y="187.5" x="462.5" height="62.5" width="62.5" class="_low0" />
+	<path d="M 275 62.5 h 250 M 275 125 h 250 M 275 187.5 h 250 M 337.5 0 v 250 M 400 0 v 250 M 462.5 0 v 250" class="grid" />
+	<rect y="62.5" x="125" height="62.5" width="62.5" class="sample_box" />
+	<rect y="62.5" x="337.5" height="125" width="125" class="sample_box" />
+	<path d="M 352.1875 164.0625 L 352.1875 32.8125 L 483.4375 32.8125 L 483.4375 164.0625 Z" class="frag_area" />
+	<path d="M 77.1875 164.0625 L 77.1875 32.8125 L 208.4375 32.8125 L 208.4375 164.0625 Z" class="frag_area" />
+	<circle r="4.6875" cy="98.4375" cx="142.8125" class="sample_pt" />
+	<circle r="4.6875" cy="98.4375" cx="417.8125" class="sample_pt" />
+</svg>

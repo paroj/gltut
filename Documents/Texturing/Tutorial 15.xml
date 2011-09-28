@@ -117,13 +117,19 @@ glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</progr
             figure, in the space of the texture, is the area of the texture that is being mapped to
             the screen pixel. With a perfect texture accessing system, the total color of that area
             would be the value we get from the GLSL <function>texture</function> function.</para>
-        <!--TODO: Diagram of the checkerboard texture, at the pixel level with a grid.
-This should also have a region that represents the pixel area mapped from the surface.
-And it should have a point representing the texture coordinate.-->
-        <para>The problem happens because a fragment area mapped into the texture's space may cover
-            some white area and some black area. Since nearest only picks a single texel, which is
-            either black or white, it does not accurately represent the mapped area of the
-            fragment.</para>
+        <figure>
+            <title>Nearest Sampling</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="NearestSampleDiag.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The dot represents the texture coordinate's location on the texture. The square is the
+            area that the fragment covers. The problem happens because a fragment area mapped into
+            the texture's space may cover some white area and some black area. Since nearest only
+            picks a single texel, which is either black or white, it does not accurately represent
+            the mapped area of the fragment.</para>
         <para>One obvious way to smooth out the differences is to do exactly that. Instead of
             picking a single sample for each texture coordinate, pick the nearest 4 samples and then
             interpolate the values based on how close they each are to the texture coordinate. To do
@@ -150,7 +156,18 @@ glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programli
             given texture coordinate, we take either the nearest texel value, or the nearest 4
             texels and interpolate. The problem is that, for distant areas of our surface, the
             texture space area covered by our fragment is much larger than 4 texels across.</para>
-        <!--TODO: Diagram of the fragment area in texture space. There should be a texture coordinate location.-->
+        <figure>
+            <title>Large Minification Sampling</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="LargeMinificDiag.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>The inner square represents the nearest texels, while the outer square represents the
+            entire fragment mapped area. We can see that the value we get with nearest sampling will
+            be pure white, since the four nearest values are white. But the value we should get
+            based on the covered area is some shade of gray.</para>
         <para>In order to accurately represent this area of the texture, we would need to sample
             from more than just 4 texels. The GPU would be capable of detecting the fragment area
             and sampling enough values from the texture to be representative. But this would be
@@ -158,11 +175,21 @@ glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programli
         <para>What if, instead of having to sample more texels, we had a number of smaller versions
             of our texture? The smaller versions effectively pre-compute groups of texels. That way,
             we could just sample 4 texels from a texture that is close enough to the size of our
-            pixel area.</para>
-        <!--TODO: Diagram from above, with another version that uses a mipmap that has only ~4 texels within the area.-->
+            fragment area.</para>
+        <figure>
+            <title>Mipmapped Minification Sampling</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="MipmapDiagram.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>These smaller versions of an image are called <glossterm>mipmaps</glossterm>; they are
             also sometimes called mipmap levels. Previously, it was said that textures can store
-            multiple images. The additional images, for many texture types, are mipmaps.</para>
+            multiple images. The additional images, for many texture types, are mipmaps. By
+            performing linear sampling against a lower mipmap level, we get a gray value that, while
+            not the exact color the coverage area suggests, is much closer to what we should get
+            than linear filtering on the large mipmap.</para>
         <para>In OpenGL, mipmaps are numbered starting from 0. The 0 image is the largest mipmap,
             what is usually considered the main texture image. When people speak of a texture having
             a certain size, they mean the resolution of mipmap level 0. Each mipmap is half as small
@@ -175,8 +202,9 @@ glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programli
             mipmap) would have just as many mipmap levels as a 128x128 texture. The mipmap level 4
             of the 128x16 texture would be 8x1; the next mipmap would be 4x1.</para>
         <note>
-            <para>It is perfectly legal to have texture sizes that are not powers of two. For them,
-                mipmap sizes are rounded down. So a 129x129 texture's mipmap 1 will be 64x64.</para>
+            <para>It is also perfectly legal to have texture sizes that are not powers of two. For
+                them, mipmap sizes are rounded down. So a 129x129 texture's mipmap 1 will be
+                64x64.</para>
         </note>
         <para>The DDS image format is one of the few image formats that actually supports storing
             all of the mipmaps for a texture in the same file. Most image formats only allow one
@@ -205,8 +233,8 @@ glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet->GetMipmapCount() - 1);
 glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
         </example>
-        <para>Because the file contains multiple mipmaps, we must load each one in turn. The GLImg
-            library considers each mipmap to be its own image. The
+        <para>Because the file contains multiple mipmaps, we must load each one in turn. The GL
+            Image library considers each mipmap to be its own image. The
                 <function>GetDimensions</function> member of
                 <classname>glimg::SingleImage</classname> returns the size of the particular
             mipmap.</para>
@@ -387,39 +415,59 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
         <para>Pixels that are along this diagonal should be mostly black. As they get farther and
             farther away, the fragment area becomes more and more distorted length-wise, relative to
             the texel area:</para>
-        <!--TODO: Diagram of the fragment area on the checkerboard.
-Pick a spot for the texture coordinate, but the area should be along the diagonal-->
+        <figure>
+            <title>Long Fragment Area</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="DiagonalDiagram.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>With perfect filtering, we should get a value that is mostly black. But instead, we
-            get grey. The reason has to do with the specifics of mipmapping and mipmap
-            selection.</para>
+            get a much lighter shade of grey. The reason has to do with the specifics of mipmapping
+            and mipmap selection.</para>
         <para>Mipmaps are pre-filtered versions of the main texture. The problem is that they are
             filtered in both directions equally. This is fine if the fragment area is square, but
             for oblong shapes, mipmap selection becomes more problematic. The particular algorithm
-            used is very conservative. It selects the smallest mipmap level possible for the pixel
-            area. So long, thin areas, in terms of the values fetched by the texture function, will
-            be no different from larger areas.</para>
-        <!--TODO: Diagram from above, but with a large square representing the actual mipmap filtering area.-->
+            used is very conservative. It selects the smallest mipmap level possible for the
+            fragment area. So long, thin areas, in terms of the values fetched by the texture
+            function, will be no different from larger areas.</para>
+        <figure>
+            <title>Long Fragment with Sample Area</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="MipmapDiagonalDiagram.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The large square represents the effective filtering box, while the smaller area is the
-            one that we are actually sampling from. So mipmap filtering can often combine texel
-            values from outside of the pixel area.</para>
+            one that we are actually sampling from. Mipmap filtering can often combine texel values
+            from outside of the sample area, and in this particularly degenerate case, it pulls in
+            texel values from very far outside of the sample area.</para>
         <para>This happens when the filter box is not a square. A square filter box is said to be
             isotropic: uniform in all directions. Therefore, a non-square filter box is anisotropic.
             Filtering that takes into account the anisotropic nature of a particular filter box is
             naturally called <glossterm>anisotropic filtering.</glossterm></para>
-        <para>The OpenGL specification is very particular about most things. It explains the details
-            of which mipmap is selected as well as how closeness is defined for linear interpolation
-            between mipmaps. But for anisotropic filtering, the specification is very loose as to
-            exactly how it works.</para>
+        <para>The OpenGL specification is usually very particular about most things. It explains the
+            details of which mipmap is selected as well as how closeness is defined for linear
+            interpolation between mipmaps. But for anisotropic filtering, the specification is very
+            loose as to exactly how it works.</para>
         <para>The general idea is this. The implementation will take some number of samples that
             approximates the shape of the filter box in the texture. It will select from mipmaps,
             but only when those mipmaps represent a closer filtered version of area being sampled.
             Here is an example:</para>
-        <!--TODO: Diagram of a parallelogram filter box over the texture.
-There should be some boxes representing the samples taken. Some should be inside the filter box.
-There should be four inside called A, B, C and D-->
+        <figure>
+            <title>Parallelogram Sample Area</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ParallelogramDiag.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Some of the samples that are entirely within the sample area can use smaller mipmaps
-            to reduce the number of samples actually taken. For example, the labeled samples could
-            be collated into a single sample accessed from a smaller mipmap.</para>
+            to reduce the number of samples actually taken. The above image only needs four samples
+            to approximate the sample area: the three small boxes, and the larger box in the
+            center.</para>
         <para>All of the sample values will be averaged together based on a weighting algorithm that
             best represents that sample's contribution to the filter box. Again, this is all very
             generally; the specific algorithms are implementation dependent.</para>
@@ -479,8 +527,9 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
                 foremost, this means that this enumerator is not part of the OpenGL
                 Specification.</para>
             <para>An OpenGL extension is a modification of OpenGL exposed by a particular
-                implementation. Extensions are published, so that users will be able to use them
-                correctly. Because different implementations of OpenGL will implement different
+                implementation. Extensions have published documents that explain how they change the
+                standard GL specification; this allows users to be able to use them correctly.
+                Because different implementations of OpenGL will implement different sets of
                 extensions, there is a mechanism for querying whether an extension is implemented.
                 This allows user code to detect the availability of certain hardware features and
                 use them or not as needed.</para>
@@ -509,7 +558,8 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
                 the GeForce 256 (not the GeForce 250GT; the original GeForce), way back in 1999.
                 Virtually all GPUs since then have implemented anisotropic filtering and exposed it
                 through this extension. That is why the tutorial does not bother to check for the
-                presence of this extension.</para>
+                presence of this extension; if your hardware can run these tutorials, then it
+                exposes the extension.</para>
             <para>If it is so ubiquitous, why has the ARB not adopted the functionality into core
                 OpenGL? Why must anisotropic filtering be an extension that is de facto guaranteed
                 but not fully part of OpenGL? This is because OpenGL must be Open.</para>

@@ -1,0 +1,11 @@
+8 8 2 1
+. c #FFFFFF
+O c #000000
+..OO..OO
+..OO..OO
+OO..OO..
+OO..OO..
+..OO..OO
+..OO..OO
+OO..OO..
+OO..OO..

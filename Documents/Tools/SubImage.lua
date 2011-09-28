@@ -24,6 +24,12 @@ function ClassMembers:Size()
 	return size;
 end
 
+--Size using SVG pixel suffix.
+function ClassMembers:SvgSize()
+	local size = self:Size()
+	return {size.x .. "px", size.y .. "px"}
+end
+
 function ClassMembers:Offset(x, y)
 	if(y == nil) then
 		y = x.y;

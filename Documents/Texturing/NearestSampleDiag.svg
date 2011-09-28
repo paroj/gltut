@@ -2,19 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="400px" width="400px" >
-	<style type="text/css" ><![CDATA[.color_0
-{
-	fill: #000000;
-	stroke: none;
-}
-
-.color_1
-{
-	fill: #FFFFFF;
-	stroke: none;
-}
-
-.grid
+	<style type="text/css" ><![CDATA[.grid
 {
 	stroke: #888;
 	stroke-width: 1.5px;
@@ -32,7 +20,19 @@
 
 .sample_pt
 {
-	fill: green;
+	fill: goldenrod;
+	stroke: none;
+}
+
+.color_0
+{
+	fill: #000000;
+	stroke: none;
+}
+
+.color_1
+{
+	fill: #FFFFFF;
 	stroke: none;
 }]]></style>
 	<defs />
