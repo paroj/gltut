@@ -44,11 +44,11 @@
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>To toggle an indicator of the light's position, press the <keycap>y</keycap> key. The
-                <keycap>b</keycap> key will toggle rotation of the light. The <keycap>i</keycap> and
-                <keycap>k</keycap> keys move the light up and down respectively, while the
-                <keycap>j</keycap> and <keycap>l</keycap> will decrease and increase the light's
-            radius. Holding shift with these keys will move in smaller increments.</para>
+        <para>To toggle an indicator of the light's position, press the <keycap>Y</keycap> key. The
+                <keycap>B</keycap> key will toggle rotation of the light. The <keycap>I</keycap> and
+                <keycap>K</keycap> keys move the light up and down respectively, while the
+                <keycap>J</keycap> and <keycap>L</keycap> keys will decrease and increase the
+            light's radius. Holding shift with these keys will move in smaller increments.</para>
         <para>Most of the code is nothing we have not seen elsewhere. The main changes are at the top
             of the rendering function.</para>
         <example>

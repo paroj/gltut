@@ -162,11 +162,10 @@
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>The tutorial is controlled similarly to previous lighting tutorials. The
-                    <keycap>W</keycap>, <keycap>A</keycap>, <keycap>S</keycap>, and
-                    <keycap>D</keycap> keys control the orientation of the cylinder. Pressing the
-                    <keycap>T</keycap> key will swap between the scaled and unscaled cylinder. The
-                    <keycap>Y</keycap> key toggles the drawing of the light source. The
+            <para>The tutorial is controlled similarly to previous lighting tutorials. Clicking and
+                dragging with the right mouse button controls the orientation of the cylinder.
+                Pressing the <keycap>T</keycap> key will swap between the scaled and unscaled
+                cylinder. The <keycap>Y</keycap> key toggles the drawing of the light source. The
                     <keycap>B</keycap> key will toggle the light's rotation on/off. Pressing the
                     <keycap>Space Bar</keycap> toggles between drawing the uncolored cylinder and
                 the colored one.</para>
@@ -459,6 +458,58 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             In general, to produce a highlight the same size as a Phong one, you will need a larger
             Blinn exponent. Play around with the different exponents, to get a feel for what Blinn
             and Phong can and cannot achieve.</para>
+        <section>
+            <title>Hard Specular Edge</title>
+            <para>There are still a few artifacts in the rendering. For example, if you arrange the
+                light, object, and camera as follows, you can see this:</para>
+            <figure>
+                <title>Light Edge</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="FalseEdge.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The cylinder looks like it has a very sharp corner. What causes this? It is caused
+                by this line in the shader:</para>
+            <programlisting language="glsl">blinnTerm = cosAngIncidence != 0.0 ? blinnTerm : 0.0;</programlisting>
+            <para>If the angle between the normal and the light direction is greater than 90
+                degrees, then we force the specular term to zero. The reason behind this is very
+                simple: we assume our surface is a closed object. Given that assumption, if the
+                normal at a location on the surface is facing away from the light, then this could
+                only happen if there is some other part of the surface between itself and the light.
+                Therefore, the surface cannot be directly illuminated by that light.</para>
+            <para>That is a reasonable assumption, and it certainly makes sense in reality. But
+                real-life objects don't have these kinds of hard specular lines. So what are we
+                missing in our model?</para>
+            <para>What we are missing is that point lights don't exist in the real world. Light
+                illumination does not come from a single, infinitely small location in space. Even
+                the size of the Sun relative to Earth has a significant area. So what this means is
+                that, for a given point on a surface, it could be in partial view of the light
+                source. Imagine Earth at sunset for an example: part of the sun is below the horizon
+                and part of it is not.</para>
+            <para>Since only part of the light is visible from that point on the surface, then only
+                part of the light contributes to the overall illumination. So at these places where
+                you might get hard specular boundaries, under more real lighting conditions, you
+                still get a semi-gentle fall-off.</para>
+            <para>That's all well and good, but modeling true area lights is difficult even for
+                simple cases. A much simpler way to resolve this is to not use such a low specular
+                exponent. This specular exponent is relatively small, leading to a very broad
+                specular highlight. If we restrict our use of a specular term to surfaces who's
+                specular exponent is reasonably large, we can prevent this artifact from
+                appearing.</para>
+            <para>Here is the same scene, but with a larger exponent:</para>
+            <figure>
+                <title>Improved Light Edge</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="LessFalseEdge.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>We could also adjust the specular reflectance, so that surfaces with a low
+                specular exponent also have a small specular reflectance.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut11 Gaussian.html" ?>

@@ -56,10 +56,10 @@
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>You can control the orientation of each gimbal separately. The <keycap>w</keycap> and
-                <keycap>s</keycap> keys control the outer gimbal, the <keycap>a</keycap> and
-                <keycap>d</keycap> keys control the middle gimbal, and the <keycap>q</keycap> and
-                <keycap>e</keycap> keys control the inner gimbal. If you just want to see (and
+        <para>You can control the orientation of each gimbal separately. The <keycap>W</keycap> and
+                <keycap>S</keycap> keys control the outer gimbal, the <keycap>A</keycap> and
+                <keycap>D</keycap> keys control the middle gimbal, and the <keycap>Q</keycap> and
+                <keycap>E</keycap> keys control the inner gimbal. If you just want to see (and
             affect) the orientation of the ship, press the <keycap>SpaceBar</keycap> to toggle
             drawing the gimbal rings.</para>
         <para>The first thing you discover when attempting to use the gimbals to orient the ship is

@@ -25,7 +25,7 @@
                 These lighting models and rendering techniques can attempt to model cartoon styles
                 (typically called <quote>cel shading</quote>), paintbrush effects, pencil-sketch, or
                 other similar things. NPR techniques including lighting models, but they also do
-                other, non-lighting things, like drawing object silhouettes in an dark, ink
+                other, non-lighting things, like drawing object silhouettes in an dark, ink-like
                 color.</para>
             <para>Developing good NPR techniques is at least as difficult as developing good
                 photorealistic lighting models. For the most part, in this book, we will focus on

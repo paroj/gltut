@@ -722,33 +722,33 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                     <tbody>
                         <row>
                             <entry>Base Spin</entry>
-                            <entry><keycap>a</keycap></entry>
-                            <entry><keycap>d</keycap></entry>
+                            <entry><keycap>A</keycap></entry>
+                            <entry><keycap>D</keycap></entry>
                         </row>
                         <row>
                             <entry>Arm Raise</entry>
-                            <entry><keycap>w</keycap></entry>
-                            <entry><keycap>s</keycap></entry>
+                            <entry><keycap>W</keycap></entry>
+                            <entry><keycap>S</keycap></entry>
                         </row>
                         <row>
                             <entry>Elbow Raise</entry>
-                            <entry><keycap>r</keycap></entry>
-                            <entry><keycap>f</keycap></entry>
+                            <entry><keycap>R</keycap></entry>
+                            <entry><keycap>F</keycap></entry>
                         </row>
                         <row>
                             <entry>Wrist Raise</entry>
-                            <entry><keycap>t</keycap></entry>
-                            <entry><keycap>g</keycap></entry>
+                            <entry><keycap>T</keycap></entry>
+                            <entry><keycap>G</keycap></entry>
                         </row>
                         <row>
                             <entry>Wrist Spin</entry>
-                            <entry><keycap>z</keycap></entry>
-                            <entry><keycap>c</keycap></entry>
+                            <entry><keycap>Z</keycap></entry>
+                            <entry><keycap>C</keycap></entry>
                         </row>
                         <row>
                             <entry>Finger Open/Close</entry>
-                            <entry><keycap>q</keycap></entry>
-                            <entry><keycap>e</keycap></entry>
+                            <entry><keycap>Q</keycap></entry>
+                            <entry><keycap>E</keycap></entry>
                         </row>
                     </tbody>
                 </tgroup>
