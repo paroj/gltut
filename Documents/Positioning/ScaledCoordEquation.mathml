@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-	<mtable>
+	<mtable columnalign="left">
 		<mtr>
 			<mtd>
 				<mfenced open="[" close="]" separators=",">

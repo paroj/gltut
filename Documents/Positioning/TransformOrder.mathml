@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
 <mrow>
-  <mtable>
+  <mtable columnalign="left">
     <mtr>
-      <mtd>
+      <mtd columnalign="right">
         <mi>S</mi>
       </mtd>
       <mtd>
@@ -75,7 +75,7 @@
       </mtd>
     </mtr>
     <mtr>
-      <mtd>
+      <mtd columnalign="right">
         <mi>T</mi>
       </mtd>
       <mtd>
@@ -147,7 +147,7 @@
       </mtd>
     </mtr>
     <mtr>
-      <mtd>
+      <mtd columnalign="right">
         <mi>S</mi>
         <mo>&#x00D7;</mo>
         <mi>T</mi>
@@ -221,7 +221,7 @@
       </mtd>
     </mtr>
     <mtr>
-      <mtd>
+      <mtd columnalign="right">
         <mi>T</mi>
         <mo>&#x00D7;</mo>
         <mi>S</mi>

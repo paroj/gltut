@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
-	<mtable>
+	<mtable columnalign="left">
 		<mtr>
-			<mtd>
+			<mtd columnalign="right">
 				<mtext>Basis Vectors:</mtext>
 			</mtd>
 			<mtd>
@@ -86,7 +86,7 @@
 			</mtd>
 		</mtr>
 		<mtr>
-			<mtd>
+			<mtd columnalign="right">
 				<mtext>Origin Vectors:</mtext>
 			</mtd>
 			<mtd>
@@ -113,7 +113,7 @@
 			</mtd>
 		</mtr>
 		<mtr>
-			<mtd>
+			<mtd columnalign="right">
 				<mtext>Coordinate Equation:</mtext>
 			</mtd>
 			<mtd>

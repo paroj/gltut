@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
     <mrow>
-        <mtable>
+        <mtable columnalign="left">
             <mtr>
                 <mtd>
-                    <mtable>
-                        <mtr>
-                            <mtd>
-                                <mtext>Axis</mtext>
-                                <mo>=</mo>
-                                <mfenced open="(" close=")" separators=",">
-                                    <mrow>
-                                        <mi>x</mi>
-                                    </mrow>
-                                    <mrow>
-                                        <mi>y</mi>
-                                    </mrow>
-                                    <mrow>
-                                        <mi>z</mi>
-                                    </mrow>
-                                </mfenced>
-                            </mtd>
-                            <mtd>
-                                <mtext>Angle</mtext>
-                                <mo>=</mo>
-                                <mi>&#x03B8;</mi>
-                            </mtd>
-                        </mtr>
-                    </mtable>
+					<mtext>Axis</mtext>
+					<mo>=</mo>
+					<mfenced open="(" close=")" separators=",">
+						<mrow>
+							<mi>x</mi>
+						</mrow>
+						<mrow>
+							<mi>y</mi>
+						</mrow>
+						<mrow>
+							<mi>z</mi>
+						</mrow>
+					</mfenced>
                 </mtd>
             </mtr>
+			<mtr>
+				<mtd>
+					<mtext>Angle</mtext>
+					<mo>=</mo>
+					<mi>&#x03B8;</mi>
+				</mtd>
+			</mtr>
             <mtr>
                 <mtd>
                     <mtext>Quaternion</mtext>

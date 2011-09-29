@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
     <mrow>
-        <mtable>
+        <mtable columnalign="left">
             <mtr>
                 <mtd>
                     <mi>&#x03b1;</mi>

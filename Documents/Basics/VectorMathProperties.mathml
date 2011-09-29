@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
   <mrow>
-  <mtable>
+  <mtable columnalign="left">
     <mtr>
-      <mtd>
-        <mtext>Commutative</mtext>
+      <mtd columnalign="right">
+        <mtext>Commutative:</mtext>
       </mtd>
       <mtd>
         <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
@@ -26,8 +26,8 @@
       </mtd>
     </mtr>
     <mtr>
-      <mtd>
-        <mtext>Associative</mtext>
+      <mtd columnalign="right">
+        <mtext>Associative:</mtext>
       </mtd>
       <mtd>
         <mover><mi>a</mi><mo>&#x21C0;</mo></mover>
@@ -73,8 +73,8 @@
       </mtd>
     </mtr>
     <mtr>
-      <mtd>
-        <mtext>Distributive</mtext>
+      <mtd columnalign="right">
+        <mtext>Distributive:</mtext>
       </mtd>
       <mtd>
         <mover><mi>a</mi><mo>&#x21C0;</mo></mover>

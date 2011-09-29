@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
 <mrow>
-  <mtable>
+  <mtable columnalign="left">
     <mtr>
       <mtd>
         <mtext>Rotation Angle</mtext>
         <mo>=</mo>
-        <mi>&#x03D1;</mi>
+        <mi>&#x03B8;</mi>
       </mtd>
     </mtr>
     <mtr>
@@ -42,7 +42,7 @@
                         <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -51,7 +51,7 @@
                         <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -67,7 +67,7 @@
                         <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -75,7 +75,7 @@
                         <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -115,7 +115,7 @@
                         <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -126,7 +126,7 @@
                         <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -154,7 +154,7 @@
                         <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -165,7 +165,7 @@
                         <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -205,7 +205,7 @@
                         <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -214,7 +214,7 @@
                         <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -230,7 +230,7 @@
                         <mi>sin</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
@@ -238,7 +238,7 @@
                         <mi>cos</mi><mo>&#x2061;</mo>
                         <mfenced open="(" close=")" separators=",">
                           <mrow>
-                            <mi>&#x03D1;</mi>
+                            <mi>&#x03B8;</mi>
                           </mrow>
                         </mfenced>
                       </mtd>
