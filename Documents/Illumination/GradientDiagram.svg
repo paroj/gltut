@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="200px" width="200px" >
+	<style type="text/css" ><![CDATA[.line
+{
+	stroke: red;
+	stroke-width: 1.5px;
+	fill: none;
+}
+
+.axes
+{
+	stroke: black;
+	stroke-width: 2.5px;
+	fill: none;
+}]]></style>
+	<polyline points="20,0 20,160 200,160" class="axes" />
+	<polyline points="20,160 100,70 180,40" class="line" />
+</svg>

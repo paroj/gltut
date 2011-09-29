@@ -505,9 +505,8 @@ void main()
             necessary because interpolating between two unit vectors does not mean you will get a
             unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
             you will not get a unit vector.</para>
-        <!-- 
         <section>
-            <title>Caught in a Lie</title>
+            <title>Gradient Matters</title>
             <para>While this may look perfect, there is still one problem. Use the <keycombo>
                     <keycap>Shift</keycap>
                     <keycap>J</keycap>
@@ -524,59 +523,58 @@ void main()
             <para>Notice the vertical bands on the cylinder. This are reminiscent of the same
                 interpolation problem we had before. Was not doing lighting at the fragment level
                 supposed to fix this?</para>
-            <para>Actually, this is a completely different problem. And it is one that is
-                essentially impossible to solve. Well, not without changing our rendered
-                mesh.</para>
-            <para>The source of the problem is this: the light finally caught us in our lie.
-                Remember what we are actually doing. We are not rendering a true cylinder; we are
-                rendering a group of flat triangles that we attempt to make
-                    <emphasis>appear</emphasis> to be a round cylinder. We are rendering a polygonal
-                approximation of a cylinder, then using our lighting computations to make it seem
-                like the faceted shape is really round.</para>
-            <para>This works quite well when the light is fairly far from the surface. But when the
-                light is very close, as it is here, it reveals our fakery for what it is.
-                Why?</para>
-            <para>Let's take a top-down view of our cylinder approximation, but let's also draw what
-                the actual cylinder would look like from the top down:</para>
+            <para>It is similar to the original problem, but technically different. Per-vertex
+                lighting caused lines because of color interpolation artifacts. This is caused by an
+                optical illusion created by adjacent linear gradients.</para>
+            <para>The normal is being interpolated linearly across the surface. This also means that
+                the lighting is changing somewhat linearly across the surface. While the lighting
+                isn't a linear change, it can be approximated as one over a small area of the
+                surface.</para>
+            <para>The edge between two triangles changes how the light interacts. On one side, the
+                nearly-linear gradient has one slope, and on the other side, it has a different one.
+                That is, the rate at which the gradients change abruptly changes.</para>
+            <para>Here is a simple demonstration of this:</para>
             <figure>
-                <title>Faceted Cylinder</title>
+                <title>Adjacent Gradient</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="FacetedCircle.svg" />
+                        <imagedata fileref="GradientIssue.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>Now, consider our lighting equation at a particular point on the fake
-                cylinder:</para>
+            <para>These are two adjacent linear gradients, from the bottom left corner to the top
+                right. The color value increases in intensity as it goes from the bottom left to the
+                top right. They meet along the diagonal in the middle. Both gradients have the same
+                color value in the middle, yet it appears that there is a line down the center that
+                is brighter than the colors on both sides. But it is not; the color on the right
+                side of the diagonal is actually brighter than the diagonal itself.</para>
+            <para>That is the optical illusion. Here is a diagram that shows the color intensity as
+                it moves across the above gradient:</para>
             <figure>
-                <title>Light Directions on Faceted Cylinder</title>
+                <title>Gradient Intensity Plot</title>
                 <mediaobject>
                     <imageobject>
-                        <imagedata fileref="FacetedNearVsFar.svg" />
+                        <imagedata fileref="GradientDiagram.svg"/>
                     </imageobject>
                 </mediaobject>
             </figure>
-            <para>The problem comes from the difference between the actual position being rendered
-                and the corresponding position on the circle that has the normal that we are
-                pretending our point has. When the light is somewhat distant, the difference between
-                the actual light direction we use and the one we would use on a real cylinder is
-                pretty small. But when the light is very close, the difference is
-                substantial.</para>
-            <para>The lighting computations are correct for the vertices near the edges of a
-                triangle. But the farther from the edges you get, the more incorrect it
-                becomes.</para>
-            <para>The key point is that there is not much we can do about this problem. The only
-                solution is to add more vertices to the approximation of the cylinder. It should
-                also be noted that adding more triangles would also make per-vertex lighting look
-                more correct. If you add infinitely many vertices to the cylinder, then the results
-                of per-vertex lighting are indistinguishable from per-fragment lighting.</para>
-            <para>For our simple case, adding triangles is easy, since a cylinder is a
-                mathematically defined object. For a complicated case like a human being, this is
-                usually rather more difficult. It also takes up more performance, since there are
-                more vertices, more executions of our (admittedly simple) vertex shader, and more
-                triangles rasterized or discarded for being back-facing.</para>
+            <para>The color curve is continuous; there are no breaks or sudden jumps. But it is not
+                a smooth curve; there is a sharp edge.</para>
+            <para>It turns out that human vision really wants to find sharp edges in smooth
+                gradients. Anytime we see a sharp edge, our brains try to turn that into some kind
+                of shape. And if there is a shape to the gradient intersection, such as a line, we
+                tend to see that intersection <quote>pop</quote> out at us.</para>
+            <para>The solution to this problem is not yet available to us. One of the reasons we can
+                see this so clearly is that the surface has a very regular diffuse reflectance (ie:
+                color). If the surface color was irregular, if it changed at most every fragment,
+                then the effect would be virtually impossible to notice.</para>
+            <para>But the real source of the problem is that the normal is being linearly
+                interpolated. While this is certainly much better than interpolating the per-vertex
+                lighting output, it does not produce a normal that matches with the normal of a
+                perfect cylinder. The correct solution, which we will get to eventually, is to
+                provide a way to encode the normal for a surface at many points, rather than simply
+                interpolating vertex normals.</para>
         </section>
-        -->
     </section>
     <section>
         <?dbhtml filename="Tut10 Distant Points of Light.html" ?>
