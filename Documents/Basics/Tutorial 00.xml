@@ -367,7 +367,7 @@
             <para>Clip coordinates are a little different from regular positions. A position in 3D
                 space has 3 coordinates. A position in clip space has <emphasis>four</emphasis>
                 coordinates. The first three are the usual X, Y, Z positions; the fourth is called
-                W. This last coordinate actually defines the extents of clip space is for this
+                W. This last coordinate actually defines what the extents of clip space are for this
                 vertex.</para>
             <para>Clip space can actually be different for different vertices within a triangle. It
                 is a region of 3D space on the range [-W, W] in each of the X, Y, and Z directions.
@@ -521,17 +521,17 @@
                 particular reference color; thus the final color represented by the series of
                 numbers is a mix of these reference colors.</para>
             <para>The set of reference colors is called a <glossterm>colorspace</glossterm>. The
-                most common color space a screen is linear RGB, where the reference colors are Red,
+                most common color space for screens is RGB, where the reference colors are Red,
                 Green and Blue. Printed works tend to use CMYK (Cyan, Magenta, Yellow, Black). Since
                 we're dealing with rendering to a screen, and because OpenGL requires it, we will
-                use the linear RGB colorspace.</para>
+                use the RGB colorspace.</para>
             <note>
                 <para>You can play some fancy games with programmatic shaders (see below) that allow
                     you to work in different colorspaces. So technically, we only have to output to
                     a linear RGB colorspace.</para>
             </note>
             <para>So a pixel in OpenGL is defined as 3 values on the range [0, 1] that represent a
-                color in the linear RGB colorspace. By combining different intensities of this 3
+                color in a linear RGB colorspace. By combining different intensities of this 3
                 colors, we can generate millions of different color shades. This will get extended
                 slightly, as we deal with transparency later.</para>
         </section>
@@ -689,8 +689,9 @@ OpenGL_Context context;</programlisting>
                     Board</glossterm> (<acronym>ARB</acronym>), a group of representatives from
                 companies like Apple, NVIDIA, and AMD (the ATI part), among others. The ARB is part
                 of the <link xlink:href="http://www.khronos.org/">Khronos Group</link>.</para>
-            <para>The specification is a very complicated and technical document. I do not suggest
-                that the novice graphics programmer read it. If you do however, the most important
+            <para>The specification is a very complicated and technical document. However, parts of
+                it are quite readable, though you will usually need at least some understanding of
+                what should be going on to understand it. If you try to read it, the most important
                 thing to understand about it is this: it describes <emphasis>results</emphasis>, not
                 implementation. Just because the spec says that X will happen does not mean that it
                 actually does. What it means is that the user should not be able to tell the
@@ -715,11 +716,11 @@ OpenGL_Context context;</programlisting>
                 internal driver API. On Linux, things are... complicated.</para>
             <para>The long and short of this is that if you are writing a program and it seems to be
                 exhibiting off-spec behavior, that is the fault of the maker of your OpenGL
-                implementation. On Windows, the various graphics hardware makers put their OpenGL
-                implementations in their regular drivers. So if you suspect a bug in their
-                implementation, the first thing you should do is make sure your graphics drivers are
-                up-to-date; the bug may have been corrected since the last time you updated your
-                drivers.</para>
+                implementation (assuming it is not a bug in your code). On Windows, the various
+                graphics hardware makers put their OpenGL implementations in their regular drivers.
+                So if you suspect a bug in their implementation, the first thing you should do is
+                make sure your graphics drivers are up-to-date; the bug may have been corrected
+                since the last time you updated your drivers.</para>
             <formalpara>
                 <title>OpenGL Versions</title>
                 <para>There are many versions of the OpenGL Specification. OpenGL versions are not
@@ -728,8 +729,8 @@ OpenGL_Context context;</programlisting>
                     OpenGL.</para>
             </formalpara>
             <para>The only exception to this deals with OpenGL 3.0 and above, relative to previous
-                versions. v3.0 deprecated a number of older functions, and v3.1 removed those
-                functions from the API<footnote>
+                versions. v3.0 deprecated a number of older functions, and v3.1 removed most of
+                those functions from the API<footnote>
                     <para>Deprecation only means marking those functions as to be removed in later
                         functions. They are still available for use in 3.0.</para>
                 </footnote>. This also divided the specification into 2 variations (called
