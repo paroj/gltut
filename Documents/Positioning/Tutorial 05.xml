@@ -654,8 +654,51 @@ glUseProgram(0);</programlisting>
                 farthest. However, if our clip-space Z values were negated, the depth of 1 would be
                 closest to the view and the depth of 0 would be farthest. Yet, if we flip the
                 direction of the depth test (GL_LESS to GL_GREATER, etc), we get the exact same
-                result. Similarly, if we reverse the glDepthRange so that 1 is the depth zNear and 0 is the depth zFar, we get the same result if we use GL_GREATER. So it's really just a convention. Indeed, flipping the depth range and the
-                depth test every frame was once a vital performance optimization for many games.</para>
+                result. Similarly, if we reverse the glDepthRange so that 1 is the depth zNear and 0
+                is the depth zFar, we get the same result if we use GL_GREATER. So it's really just
+                a convention.</para>
+            <sidebar>
+                <title>Z-Flip: Never Do This</title>
+                <para>In the elder days of graphics cards, calling <function>glClear</function> was
+                    a slow operation. And this makes sense; clearing images means having to go
+                    through every pixel of image data and writing a value to it. Even with hardware
+                    optimized routines, if you can avoid doing it, you save some performance.</para>
+                <para>Therefore, game developers found clever ways to avoid clearing anything. They
+                    avoided clearing the image buffer by ensuring that they would draw to every
+                    pixel on the screen every frame. Avoiding clearing the depth buffer was rather
+                    more difficult. But depth range and the depth test gave them a way to do
+                    it.</para>
+                <para>The technique is quite simple. They would need to clear the buffers exactly
+                    once, at the beginning of the program. From then on, they would do the
+                    following.</para>
+                <para>They would render the first frame with a <literal>GL_LESS</literal> depth
+                    test. However, the depth range would be [0, 0.5]; this would only draw to half
+                    of the depth buffer. Since the depth test is less, it does not matter what
+                    values just so happened to be between 0.5 and 1.0 in the depth buffer
+                    beforehand. And since every pixel was being rendered to as above, the depth
+                    buffer is guaranteed to be filled with values that are less than 0.5.</para>
+                <para>On the next frame, they would render with a <literal>GL_GREATER</literal>
+                    depth test. Only this time, the depth range would be [1, 0.5]. Because the last
+                    frame filled the depth buffer with values less than 0.5, all of those depth
+                    values are automatically <quote>behind</quote> everything rendered now. This
+                    fills the depth buffer with values greater than 0.5.</para>
+                <para>Rinse and repeat. This ultimately sacrifices one bit of depth precision, since
+                    each rendering only uses half of the depth buffer. But it results in never
+                    needing to clear the depth or color buffers.</para>
+                <para>Oh, and <emphasis>you should never do this.</emphasis></para>
+                <para>See, hardware developers got really smart. They realized that a clear did not
+                    really have to go to each pixel and write a value to it. Instead, they could
+                    simply pretend that they had. They built special logic into the memory
+                    architecture, such that attempting to read from locations that have been
+                        <quote>cleared</quote> results in getting the clear color or depth
+                    value.</para>
+                <para>Because of that, this z-flip technique is useless. But it's rather worse than
+                    that; on most hardware made in the last 7 years, it actually slows down
+                    rendering. After all, getting a cleared value doesn't require actually reading
+                    memory; the very first value you get from the depth buffer is free. There are
+                    other, hardware-specific, optimizations that make z-flip actively damaging to
+                    performance.</para>
+            </sidebar>
         </section>
         <section>
             <title>Rendering with Depth</title>

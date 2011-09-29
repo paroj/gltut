@@ -39,9 +39,9 @@
                     space.</para>
             </listitem>
         </itemizedlist>
-        <para>A position or vertex in a space is defined as the sum of the axis vectors, where each
-            basis vector is multiplied by a value called a coordinate. Geometrically, this looks
-            like the following:</para>
+        <para>A position or vertex in a space is defined as the sum of the basis vectors, where each
+            basis vector is multiplied by a scalar value called a coordinate. Geometrically, this
+            looks like the following:</para>
         <figure>
             <title>Two 2D Coordinate Systems</title>
             <mediaobject>
@@ -71,13 +71,14 @@
             numerical version? A position, like the origin point, is itself a coordinate. Which
             means that it must be defined relative to some coordinate system. The same goes for the
             basis vectors.</para>
-        <para>For the purpose of this discussion, there is a coordinate system that acts as a kind
-            of neutral coordinate system; it can be used as a generic viewpoint for a coordinate
-            system. For a three-dimensional coordinate system, this identity space has the origin at
-            (0, 0, 0), with the X, Y and Z basis vectors as (1, 0, 0), (0, 1, 0), and (0, 0, 1). The
-            range of the space is infinite. Any space can be defined relative to this identity
-            space. And unless otherwise noted, this is the space of any basis vectors or origin
-            points.</para>
+        <para>Ultimately, this means that we cannot look numerically at a single coordinate system.
+            Since the coordinate values themselves are meaningless without a coordinate system, a
+            coordinate system can only be numerically expressed in relation to another coordinate
+            system.</para>
+        <para>Technically, the geometric version of coordinate systems works the same way. The
+            length of the basis vectors in the geometric diagrams are relative to our own
+            self-imposed sense of length and space. Essentially, everything is relative to
+            something, and we will explore this in the near future.</para>
         <section>
             <title>Transformation</title>
             <para>In the more recent tutorials, the ones dealing with perspective projections, we
@@ -101,7 +102,7 @@
             <para>Before we begin, we must define a new kind of space: <glossterm>model
                     space.</glossterm> This is a user-defined space, but unlike camera space, model
                 space does not have a single definition. It is instead a catch-all term for the
-                space that a particular object begins in. Coordinates in vertex buffers, passed to
+                space that a particular object begins in. Coordinates in buffer objects, passed to
                 the vertex shaders as vertex attributes are <foreignphrase>de facto</foreignphrase>
                 in model space.</para>
             <para>There are an infinite variety of model spaces. Each object one intends to render
@@ -157,8 +158,8 @@
             position in some other way.</para>
         <para>This is done by modifying an <glossterm>identity matrix.</glossterm> An identity
             matrix is a matrix that, when performing matrix multiplication, will return the matrix
-            it is multiplied with. It is sort of like the number 1 with regular multiplication: 1*X
-            = X. The 4x4 identity matrix looks like this:</para>
+            (or vector) it was multiplied with. It is sort of like the number 1 with regular
+            multiplication: 1*X = X. The 4x4 identity matrix looks like this:</para>
         <equation>
             <title>Identity Matrix</title>
             <mediaobject>
@@ -252,7 +253,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>The function <function>CalcFrustumScale</function> computes the frustum scale based on
             a field-of-view angle in degrees. The field of view in this case is the angle between
             the forward direction and the direction of the farmost-extent of the view.</para>
-        <para>This project, and many of the others in this tutorial, use a fairly complex bit of
+        <para>This project, and many of the others in this tutorial, uses a fairly complex bit of
             code to manage the transform matrices for the various object instances. There is an
                 <classname>Instance</classname> object for each actual object; it has a function
             pointer that is used to compute the object's offset position. The
@@ -274,7 +275,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             diagonal from the upper-left to the lower-right. The values along that diagonal will be
             the value passed to the constructor. An identity matrix is just a diagonal matrix with 1
             as the value along the diagonal.</para>
-        <para>This function simply replaces the W column of the matrix with the offset value.</para>
+        <para>This function simply replaces the W column of that identity matrix with the offset
+            value.</para>
         <para>This all produces the following:</para>
         <figure>
             <title>Translation Project</title>
@@ -308,8 +310,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             conversion factor from inches to centimeters.</para>
         <para>Note that scaling always happens relative to the origin of the space being
             scaled.</para>
-        <para>Remember how we defined the way coordinate systems generate a position, based on the
-            basis vectors and origin point?</para>
+        <para>Recall how we defined the way coordinate systems generate a position, based on the
+            basis vectors and origin point:</para>
         <informalequation>
             <mediaobject>
                 <imageobject>
@@ -451,8 +453,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Rotations are usually considered the most complex of the basic transformations,
             primarily because of the math involved in computing the transformation matrix.
             Generally, rotations are looked at as an operation, such as rotating around a particular
-            basis or some such. The prior part of the tutorial laid down some of the groundwork that
-            will make this much simpler.</para>
+            basis vector or some such. The prior part of the tutorial laid down some of the
+            groundwork that will make this much simpler.</para>
         <para>First, let's look back at our equation for determining what the position of a
             coordinate is relative to certain coordinate space:</para>
         <informalequation>
@@ -485,25 +487,32 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 <emphasis>always</emphasis> been, nothing more than the axes of a coordinate system.
             Except for the fourth column; because the input position has a 1 in the W, it acts as an
             offset.</para>
-        <para>Transformation ultimately means this: taking the basis vectors and origin point from
-            the original coordinate system and re-expressing them relative to the destination
-            coordinate system.</para>
-        <para>Therefore, if a rotation is just using a different set of axis directions, then
-            building a rotation transformation matrix simply requires computing a new set of basis
-            vectors that have different directions but the same length as the original ones. Now,
-            this is not easy; it requires semi-advanced math (which is easily encapsulated into
-            various functions). But no matter how complex the math may be, this math is nothing more
-            than a way to compute basis vectors that point in different directions.</para>
-        <para>That is, a rotation matrix is not really a rotation matrix; it is an
-                <emphasis>orientation</emphasis> matrix. It defines the orientation of a space
+        <para>Transformation from one space to another ultimately means this: taking the basis
+            vectors and origin point from the original coordinate system and re-expressing them
+            relative to the destination coordinate system. The transformation matrix from one space
+            to another contains the basis vectors and origin of the original coordinate system, but
+            the <emphasis>values</emphasis> of those basis vectors and origin are relative to the
+            destination coordinate system.</para>
+        <para>Earlier, we said that numerical coordinates of a space must be expressed relative to
+            another space. A matrix is a numerical representation of a coordinate system, and its
+            values are expressed in the destination coordinate system. Therefore, a transformation
+            matrix takes values in one coordinate system and transforms them into another. It does
+            this by taking the basis vectors and origin of the input coordinate system and
+            represents them relative to the output space.</para>
+        <para>A rotation matrix is just a transform that expresses the basis vectors of the input
+            space in a different orientation. The length of the basis vectors will be the same, and
+            the origin will not change. Also, the angle between the basis vectors will not change.
+            All that changes is the relative direction of all of the basis vectors.</para>
+        <para>Therefore, a rotation matrix is not really a <quote>rotation</quote> matrix; it is an
+                <emphasis>orientation</emphasis> matrix. It defines the orientation of one space
             relative to another space. Remember this, and you will avoid many pitfalls when you
             start dealing with more complex transformations.</para>
         <para>For any two spaces, the orientation transformation between then can be expressed as
             rotating the source space by some angle around a particular axis (specified in the
             initial space). This is true for any change of orientation.</para>
-        <para>A common rotation question is to compute a rotation around an arbitrary axis. Or to put it more
-            correctly, to determine the orientation of a space if it is rotated around an arbitrary
-            axis. The axis of rotation is expressed in terms of the
+        <para>A common rotation question is to therefore compute a rotation around an arbitrary
+            axis. Or to put it more correctly, to determine the orientation of a space if it is
+            rotated around an arbitrary axis. The axis of rotation is expressed in terms of the
             initial space. In 2D, there is only one axis that can be rotated around and still remain
             within that 2D plane: the Z-axis.</para>
         <para>In 3D, there are many possible axes of rotation. It does not have to be one of the
@@ -560,7 +569,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         </example>
         <para>The constructor of glm::mat4 that takes a glm::mat3 generates a 4x4 matrix with the
             3x3 matrix in the top-left corner, and all other positions 0 except the bottom-left
-            corner, which is set to 1. As with the rest of GLM, this works in GLSL as well.</para>
+            corner, which is set to 1. As with much of GLM, this works in GLSL as well.</para>
     </section>
     <section>
         <?dbhtml filename="Tut06 Fun with Matrices.html" ?>
@@ -570,8 +579,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             transform; it was a scale and translate transformation matrix. The translation was there
             primarily so that we could see everything properly.</para>
         <para>But these are not the only combinations of transformations that can be performed.
-            Indeed, any combination of transformation operations is possible, though it may not be
-            meaningful.</para>
+            Indeed, any combination of transformation operations is possible; whether they are
+            meaningful and useful depends on what you are doing.</para>
         <para>Successive transformations can be seen as doing successive multiplication operations.
             For example, if S is a pure scale matrix, T is a pure translation matrix, and R is a
             pure scale matrix, then the shader can compute the result of a transformation as
@@ -869,47 +878,41 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 stack's current matrix is uploaded to the program, and a model is rendered. Then the
                 matrix stack is popped, restoring the original transform. What is the purpose of
                 this code?</para>
-            <para>This code effectively introduces a new kind of space. It was not strictly
-                necessary for this example, but it does show off a commonly used technique. The new
-                space here does not have a widely agreed upon name, the way other user-defined
-                spaces like model space and camera space do. For the purposes of these tutorials,
-                let us call this <glossterm>mesh space.</glossterm></para>
-            <para>Notice that, for the individual nodes of hierarchical models, model space (the
-                node's transform) is propagated to all of the children. The T*R matrix we generated
-                was the model space matrix for the base of the model; this transform is preserved on
-                the matrix stack and passed to the child drawing functions. However, sometimes it is
-                useful to use source mesh data where the mesh itself is <emphasis>not</emphasis> in
-                model space.</para>
+            <para>What we see here is a difference between the transforms that need to be propagated
+                to child nodes, and the transforms necessary to properly position the model(s) for
+                rendering this particular node. It is often useful to have source mesh data where
+                the model space of the mesh is not the same space that our node transform
+                requires.</para>
             <para>In our case, we do this because we know that all of our pieces are 3D rectangles.
                 A 3D rectangle is really just a cube with scales and translations applied to them.
                 The scale makes the cube into the proper size, and the translation positions the
                 origin point for our model space.</para>
-            <para>Rather than have this mesh space transform, we could have created 9 or so actual
+            <para>Rather than have this extra transform, we could have created 9 or so actual
                 rectangle meshes, one for each rendered rectangle. However, this would have required
                 more buffer object room and more vertex attribute changes when these were simply
                 unnecessary. The vertex shader runs no slower this way; it's still just multiplying
                 by matrices. And the minor CPU computation time is exactly that: minor.</para>
-            <para>Mesh space is very useful, even though it is not commonly talked about to the point
-                where it gets a special name. As we have seen, it allows easy model reusage, but it
-                has other properties as well. For example, it can be good for data compression. As
-                we will see in later tutorials, there are ways to store values on the range [0, 1]
-                or [-1, 1] in 16 or 8 bits, rather than 32-bit floating point values. If you can
-                apply a simple mesh space scale+translation transform to go from this [-1, 1] space
-                to the original space of the model, then you can cut your data in half (or less)
-                with virtually no impact on visual quality.</para>
-            <para>Each section of the code where it uses a mesh space transform happens between a
+            <para>This concept is very useful, even though it is not commonly talked about to the
+                point where it gets a special name. As we have seen, it allows easy model reuse, but
+                it has other properties as well. For example, it can be good for data compression.
+                There are ways to store values on the range [0, 1] or [-1, 1] in 16 or 8 bits,
+                rather than 32-bit floating point values. If you can apply a simple
+                scale+translation transform to go from this [-1, 1] space to the original space of
+                the model, then you can cut your data in half (or less) with virtually no impact on
+                visual quality.</para>
+            <para>Each section of the code where it uses an extra transform happens between a
                     <function>MatrixStack::Push</function> and
-                <function>MatrixStack::Pop</function>. This preserves the model space matrix, so
-                that it may be used for rendering with other nodes.</para>
+                <function>MatrixStack::Pop</function>. This preserves the node's matrix, so that it
+                may be used for rendering with other nodes.</para>
             <para>At the bottom of the base drawing function is a call to draw the upper arm. That
                 function looks similar to this function: apply the model space matrix to the stack,
-                push, apply a mesh space matrix, render, pop, call functions for child parts. All of
-                the functions, to one degree or another, look like this. Indeed, they all looks
-                similar enough that you could probably abstract this down into a very generalized
-                form. And indeed, this is frequently done by scene graphs and the like. The major
-                difference between the child functions and the root one is that this function has a
-                push/pop wrapper around the entire thing. Though since the root creates a
-                MatrixStack to begin with, this could be considered the equivalent.</para>
+                push, apply a matrix, render, pop, call functions for child parts. All of the
+                functions, to one degree or another, look like this. Indeed, they all looks similar
+                enough that you could probably abstract this down into a very generalized form. And
+                indeed, this is frequently done by scene graphs and the like. The major difference
+                between the child functions and the root one is that this function has a push/pop
+                wrapper around the entire thing. Though since the root creates a MatrixStack to
+                begin with, this could be considered the equivalent.</para>
             <sidebar>
                 <title>Matrix Stack Conventions</title>
                 <para>There are two possible conventions for matrix stack behavior. The caller could
@@ -1033,10 +1036,8 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
             <glossentry>
                 <glossterm>model space</glossterm>
                 <glossdef>
-                    <para>The space that a particular model is expected to be in, relative to some
-                        other space. This can be the camera space, or in hierarchical models, the
-                        space of a parent node. This does not have to be the initial space that mesh
-                        data is stored in.</para>
+                    <para>The space that a particular model is expected to be in. Vertex data stored
+                        in buffer objects is expected to be in model space.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -1107,15 +1108,6 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                         node's transform is stored relative to the transform of the node beneath it,
                         called the parent. Nodes can have a single parent node and multiple child
                         nodes; the child nodes' transforms are relative to this node's space.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>mesh space</glossterm>
-                <glossdef>
-                    <para>A space beyond model space in the sequence of transforms ending in clip
-                        space. Mesh space is used to transform from a space that is convenient for
-                        storing a mesh in into the model space that the rest of the world
-                        uses.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
