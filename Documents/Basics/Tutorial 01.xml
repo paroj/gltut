@@ -145,9 +145,9 @@ glutSwapBuffers();</programlisting>
                 with this object.</para>
             <para>The <function>glBindBuffer</function> function binds the newly-created buffer
                 object to the <literal>GL_ARRAY_BUFFER</literal> binding target. As mentioned in
-                    <link linkend="OpenGLObjects">Tutorial 0</link>, objects in OpenGL usually have
-                to be bound to the context in order for them to do anything, and buffer objects are
-                no exception.</para>
+                    <link linkend="OpenGLObjects">the introduction</link>, objects in OpenGL usually
+                have to be bound to the context in order for them to do anything, and buffer objects
+                are no exception.</para>
             <para>The <function>glBufferData</function> function performs two operations. It
                 allocates memory for the buffer currently bound to
                     <literal>GL_ARRAY_BUFFER</literal>, which is the one we just created and bound.
@@ -312,8 +312,8 @@ void main()
                         <quote>gl<emphasis>VertexAttrib</emphasis>Pointer.</quote></para>
             <para>This is how data flows down the pipeline in OpenGL. When rendering starts, vertex
                 data in a buffer object is read based on setup work done by
-                    <varname>glVertexAttribPointer</varname>. This function describes where the data
-                for an attribute comes from. The connection between a particular call to
+                    <function>glVertexAttribPointer</function>. This function describes where the
+                data for an attribute comes from. The connection between a particular call to
                     <function>glVertexAttribPointer</function> and the string name of an input value
                 to a vertex shader is somewhat complicated.</para>
             <para>Each input to a vertex shader has an index location called an <glossterm>attribute

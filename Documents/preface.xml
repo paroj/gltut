@@ -130,20 +130,41 @@
             presented in the tutorial. It will also contain suggestions for playing with the source
             code itself; these are intended to further your understanding of these concepts. If the
             tutorial introduced new OpenGL functions or functions for the OpenGL shading language,
-            they will be reviewed here as well.</para>
+            they will be reviewed here as well. Each tutorial ends with a glossary of defined
+            terms.</para>
         <note condition="web">
             <title>Browser Note</title>
             <para>This website and these tutorials make extensive use of SVG images. Basic SVG
                 support is in all major browsers except all Internet Explorer versions before
-                version 9. If you are content with these versions of Internet Explorer, consider
-                installing the Google Chrome Frame add-on for IE8. This will allow you to see the
-                images correctly.</para>
+                version 9. If you are content with these versions of Internet Explorer (or unable to
+                upgrade), consider installing the Google Chrome Frame add-on for IE8. This will
+                allow you to see the images correctly.</para>
         </note>
     </section>
     <section>
         <?dbhtml filename="About Conventions.html" ?>
         <title>Conventions used in This Book</title>
-        <!--TODO: Have a list of conventions.-->
-        <para/>
+        <para>Text in this book is styled along certain conventions. The text styling denotes what
+            the marked-up text represents.</para>
+        <itemizedlist>
+            <listitem>
+                <para><glossterm>defined term</glossterm>: This term will have a definition in the
+                    glossary at the end of each tutorial.</para>
+            </listitem>
+            <listitem>
+                <para><function>FunctionNames</function>: These can be in C, C++, or the OpenGL
+                    Shading Language.</para>
+            </listitem>
+            <listitem>
+                <para><varname>nameOfVariable</varname>: These can be in C, C++, or the OpenGL
+                    Shading Language.</para>
+            </listitem>
+            <listitem>
+                <para><literal>GL_ENUMERATORS</literal></para>
+            </listitem>
+            <listitem>
+                <para><filename>Names/Of/Paths/And/Files</filename></para>
+            </listitem>
+        </itemizedlist>
     </section>
 </preface>
