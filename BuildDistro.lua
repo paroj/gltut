@@ -6,40 +6,49 @@ Takes three parameters:
 - The version number of the tutorials.
 ]]--
 
+require("ex")
+require "ufs"
 require "lfs"
+require "_FindFileInPath"
 
-local destDir, hgChangelist, versionNum = ...
+local baseDir, hgChangelist, versionNum = ...
 
---local test = {...}
---print(#test, ...)
-assert(#({...}) == 3, "Not enough commandline parameters. You provided: " .. #({...}));
+if(#({...}) ~= 3) then
+	print("Not enough commandline parameters. You provided: " .. #({...}));
+	print("Paramters:")
+	print("\tDestination dir, relative to this path.")
+	print("\tMercurial revision to archive.")
+	print("\tVersion number of the SDK.")
+	return
+end
 
+local buildDirname = "graph_tuts_" .. versionNum
+
+lfs.mkdir(baseDir);
+local pathDestDir = ufs.path(baseDir) / buildDirname;
+local destDir = tostring(pathDestDir);
 lfs.mkdir(destDir);
 
+local pathCurrent = ufs.current_path();
+local pathDest = pathCurrent / destDir;
+local pathBase = pathCurrent / baseDir;
 
 -------------------------------------------
--- Use the other Lua script to copy the HTML to the destination.
+-- Use the other Lua script to copy the HTML and PDFs to the destination.
 local CopyWebsite = assert(loadfile("CopyWebsite.lua"));
-CopyWebsite(destDir .. "\\html\\");
+--CopyWebsite(destDir .. "\\html\\");
 
 --Generate the PDF files.
-lfs.mkdir("pdfs");
-
+local pdfOutDir = "..\\..\\" .. destDir .. "\\"
 local cwd = lfs.currentdir();
 lfs.chdir("Documents\\Build");
 local BuildPrintBW = assert(loadfile("BuildPrintBWFO.lua"));
-BuildPrintBW(cwd .. "\\pdfs\\");
+--BuildPrintBW(pdfOutDir);
 local BuildKindleFO = assert(loadfile("BuildKindleFO.lua"));
-BuildKindleFO(cwd .. "\\pdfs\\");
+--BuildKindleFO(pdfOutDir);
 local BuildComputerFO = assert(loadfile("BuildComputerFO.lua"));
-BuildComputerFO(cwd .. "\\pdfs\\");
+--BuildComputerFO(pdfOutDir);
 lfs.chdir(cwd);
-
---------------------------------------------
--- Copy other files.
-os.execute(string.format([[copy "pdfs\TutorialsPrintBW.pdf" "%s\"]], destDir));
-os.execute(string.format([[copy "pdfs\TutorialsKindle.pdf" "%s\"]], destDir));
-os.execute(string.format([[copy "pdfs\TutorialsComp.pdf" "%s\"]], destDir));
 
 ------------------------------------------
 -- Use Mercurial to get a version in the destination directory.
@@ -48,6 +57,21 @@ clone = clone:format(hgChangelist, destDir);
 
 print(clone);
 os.execute(clone);
+
+---------------------------------------------------------------
+-- Apply Copyright Info
+local luaFilename = "lua.exe"
+local pathLua = ufs.path(FindFileInPath(luaFilename))
+local luaCopyScriptName = "make_copyright.lua"
+
+if(pathLua:empty()) then
+	print("Could not find Lua. Since this is a Lua script, that's kinda confusing...");
+	return;
+end
+
+local copyProc = ex.spawn(tostring(pathLua),
+	{args={luaCopyScriptName, tostring(pathDest)}});
+copyProc:wait(copyProc);
 
 -------------------------------------------
 -- Generate the ancillary files
@@ -70,10 +94,6 @@ tablets). TutorialsPrintBW.pdf is a PDF designed for printing on a black-and-whi
 printer. TutorialsKindle.pdf is a PDF that is sized specifically for the screen
 of the Kindle 2.
 
-The source of the documentation is found in the Documents directory. This
-source documentation is in the DocBook 5 format. All other formats were
-generated automatically from these source files.
-
 The License.txt file contains the licensing information for the materials distributed in these tutorials.
 ]===], versionNum))
 readme:close()
@@ -93,15 +113,61 @@ version:close();
 local index_html = io.open(destDir .. "\\index.html", "wt");
 index_html:write(
 [===[
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
+<head>
+	<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+	<meta HTTP-EQUIV="REFRESH" content="0; url=html/index.html"/>
+</head>
 <body>
-<h1>OpenGL Tutorials</h1>
-<p><a href="html/index.html">HTML Tutorials</a></p>
 </body>
-</html>
 ]===]
 )
 index_html:close();
+
+------------------------------------------------------------
+-- Delete select files from the destination location.
+local toDelete =
+{
+	--files
+	--Distro building
+	"BuildDistro.lua", "CopyWebsite.lua",
+	"_FindFileInPath.lua", "file_copyright_info.lua", "make_copyright.lua",
+	--Mercurial
+	".hgignore", ".hgtags", ".hg_archival.txt",
+	--directories
+	"glimg\\Test", "glload\\Test", "glload\\codegen",
+	"Documents",
+}
+
+
+for i, filename in ipairs(toDelete) do
+	local pathFile = pathDest / filename;
+	print("deleting:", pathFile);
+	ufs.remove_all(pathFile);
+end
+
+------------------------------------------------------------
+-- Create Zip archive of the distro.
+local szFilename = "7z.exe"
+local archiveName = buildDirname .. ".7z"
+local pathSZ = ufs.path(FindFileInPath(szFilename))
+
+if(pathSZ:empty()) then
+	print("Could not find 7zip.");
+	return;
+end
+
+ufs.current_path(pathBase);
+
+local depProc = ex.spawn(tostring(pathSZ),
+	{args={"a", "-r", archiveName, buildDirname}});
+depProc:wait(depProc);
+
+------------------------------------------------------------
+-- Destroy the directory.
+ufs.remove_all(pathDest);
+
 
 
 
