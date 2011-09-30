@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <sstream>
+#include <memory>
 #include <glimg/glimg.h>
 #include <glimg/TextureGenerator.h>
 #include <glload/gl_3_3.h>
