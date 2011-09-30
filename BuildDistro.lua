@@ -22,7 +22,7 @@ if(#({...}) ~= 3) then
 	return
 end
 
-local buildDirname = "graph_tuts_" .. versionNum
+local buildDirname = "Tutorial " .. versionNum
 
 lfs.mkdir(baseDir);
 local pathDestDir = ufs.path(baseDir) / buildDirname;
@@ -36,18 +36,18 @@ local pathBase = pathCurrent / baseDir;
 -------------------------------------------
 -- Use the other Lua script to copy the HTML and PDFs to the destination.
 local CopyWebsite = assert(loadfile("CopyWebsite.lua"));
---CopyWebsite(destDir .. "\\html\\");
+CopyWebsite(destDir .. "\\html\\");
 
 --Generate the PDF files.
 local pdfOutDir = "..\\..\\" .. destDir .. "\\"
 local cwd = lfs.currentdir();
 lfs.chdir("Documents\\Build");
 local BuildPrintBW = assert(loadfile("BuildPrintBWFO.lua"));
---BuildPrintBW(pdfOutDir);
+BuildPrintBW(pdfOutDir);
 local BuildKindleFO = assert(loadfile("BuildKindleFO.lua"));
---BuildKindleFO(pdfOutDir);
+BuildKindleFO(pdfOutDir);
 local BuildComputerFO = assert(loadfile("BuildComputerFO.lua"));
---BuildComputerFO(pdfOutDir);
+BuildComputerFO(pdfOutDir);
 lfs.chdir(cwd);
 
 ------------------------------------------
@@ -137,7 +137,7 @@ local toDelete =
 	".hgignore", ".hgtags", ".hg_archival.txt",
 	--directories
 	"glimg\\Test", "glload\\Test", "glload\\codegen",
-	"Documents",
+	"Documents", "Meshes",
 }
 
 
