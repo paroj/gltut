@@ -75,6 +75,20 @@ em.glossterm { text-decoration: underline; }
 acronym.acronym { font-weight: bold; }
 span.propername { font-weight: bold; }
 
+div.sidebar
+{
+   	max-height: 400pt;
+	overflow: auto;
+
+    margin-left: 5%;
+    margin-right: 5%;
+    padding: 7px;
+
+    background-color: #dcfedd;
+    background-image: -moz-linear-gradient(left, #dcfedd, #fff6e7);
+
+    border: 2px solid black;
+}
 
 /* Code documentation. */
 span.code-type { color: #7B7BC0;}
@@ -85,9 +99,5 @@ span.code-function { color: #a00010;}
 
 span.code-comment {color: #FF0000;}
 span.code-string { color: #008000; }
-
-
-
-
 
 

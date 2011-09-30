@@ -577,11 +577,11 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
             <para>That looks pretty good now. There are still some issues out in the distance.
                 Remember that your image may not look exactly like this one, since the details of
                 anisotropic filtering are implementation specific.</para>
-            <para>You may be concerned that none of the filtering techniques, even the max
-                anisotropic one, produces perfect results. In the distance, the texture still
-                becomes a featureless grey even along the diagonal. The reason is because rendering
-                large checkerboard is perhaps one of the most difficult problems from a texture
-                filtering perspective. This becomes even worse when it is viewed edge on, as we do
+            <para>You may be concerned that none of the filtering techniques produces perfect
+                results, even the max anisotropic one. In the distance, the texture still becomes a
+                featureless grey even along the diagonal. The reason is because rendering large
+                checkerboard is perhaps one of the most difficult problems from a texture filtering
+                perspective. This becomes even worse when it is viewed edge on, as we do
                 here.</para>
             <para>Indeed, the repeating checkerboard texture was chosen specifically because it
                 highlights the issues in a very obvious way. A more traditional diffuse color
