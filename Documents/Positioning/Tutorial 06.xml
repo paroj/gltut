@@ -498,7 +498,8 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             values are expressed in the destination coordinate system. Therefore, a transformation
             matrix takes values in one coordinate system and transforms them into another. It does
             this by taking the basis vectors and origin of the input coordinate system and
-            represents them relative to the output space.</para>
+            represents them relative to the output space. To put it another way, the transformation
+            from space A to space B is what space A looks like from an observer in space B.</para>
         <para>A rotation matrix is just a transform that expresses the basis vectors of the input
             space in a different orientation. The length of the basis vectors will be the same, and
             the origin will not change. Also, the angle between the basis vectors will not change.

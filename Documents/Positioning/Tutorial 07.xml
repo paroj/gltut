@@ -22,119 +22,163 @@
             onto a camera that has an arbitrary position and orientation. But really, that's too
             much work; camera space itself works just fine for our needs. It would be easier to just
             introduce an additional transformation.</para>
-        <para>Right now, the problem is that we transform all of the objects from their individual
-            model spaces to camera space directly. The only time the objects are in the same space
-            relative to one another is when they are in camera space. So instead, we will introduce
-            an intermediate space between model and camera space; let us call this space
-                <glossterm>world space.</glossterm></para>
-        <para>All objects will be transformed into world space. The camera itself will also have a
-            particular position and orientation in world space. And since the camera has a known
-            space, with a known position and orientation relative to world space, we have a
-            transformation from world space to camera space.</para>
-        <para>World space is the last space (in terms of vertex positions) that we will discuss.
-            While a user can define innumerable spaces with matrix and non-matrix transformations,
-            world space is the last one that is commonly used and has a specific, universal
-            definition.</para>
-        <para>While the concept of world space has a definition, the orientation of it is entirely
-            up to the user. The orientation of world space relative to camera space will of course
-            affect what the world-to-camera transformation looks like. But in terms of the rest of
-            the transformation pipeline, it is essentially irrelevant.</para>
-        <para>Speaking of the transformation pipeline, here is a diagram of the full transform for
-            vertex positions, from the initial attribute loaded from the buffer object, to the final
-            window-space position.</para>
-        <figure>
-            <title>Full Vertex Transformation Pipeline</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="TransformPipeline.svg" />
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The tutorial project <phrase role="propername">World Space</phrase> demonstrates the
-            use of a mobile camera in a world-space scene.</para>
-        <figure>
-            <title>World Space Scene</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="World%20Scene.png"/>
-                </imageobject>
-            </mediaobject>
-        </figure>
-        <para>The controls for this tutorial are as follows:</para>
-        <table frame="all">
-            <title>World Space Controls</title>
-            <tgroup cols="3">
-                <colspec colname="c1" colnum="1" colwidth="1.0*"/>
-                <colspec colname="c2" colnum="2" colwidth="1.0*"/>
-                <colspec colname="c3" colnum="3" colwidth="1.0*"/>
-                <thead>
-                    <row>
-                        <entry>Function</entry>
-                        <entry>Increase/Left</entry>
-                        <entry>Decrease/Right</entry>
-                    </row>
-                </thead>
-                <tbody>
-                    <row>
-                        <entry>Move camera target up/down</entry>
-                        <entry><keycap>E</keycap></entry>
-                        <entry><keycap>Q</keycap></entry>
-                    </row>
-                    <row>
-                        <entry>Move camera target horizontally</entry>
-                        <entry><keycap>A</keycap></entry>
-                        <entry><keycap>D</keycap></entry>
-                    </row>
-                    <row>
-                        <entry>Move camera target vertically</entry>
-                        <entry><keycap>W</keycap></entry>
-                        <entry><keycap>S</keycap></entry>
-                    </row>
-                    <row>
-                        <entry>Rotate camera horizontally around target</entry>
-                        <entry><keycap>L</keycap></entry>
-                        <entry><keycap>J</keycap></entry>
-                    </row>
-                    <row>
-                        <entry>Rotate camera vertically around target</entry>
-                        <entry><keycap>I</keycap></entry>
-                        <entry><keycap>K</keycap></entry>
-                    </row>
-                    <row>
-                        <entry>Move camera towards/away from target</entry>
-                        <entry><keycap>U</keycap></entry>
-                        <entry><keycap>O</keycap></entry>
-                    </row>
-                </tbody>
-            </tgroup>
-        </table>
-        <para>In addition, if you hold down the shift key while pressing any of these keys, then the
-            affected control will be much slower. This allows for more precision movements. The
-            spacebar will toggle the appearance of an object indicating the position of the camera
-            point.</para>
-        <para>This world is more complicated than anything we've seen up until now. There are a lot
-            of objects being rendered, and most of them are composed out of multiple objects.</para>
-        <para>This tutorial is the first to incorporate a number of the tutorial framework's
-            features. The <classname>Framework::MatrixStack</classname> class implements a matrix
-            stack very much like we saw in the last tutorial. The main difference is that the stack
-            class does not have public push/pop functions. To push a matrix onto the stack, we use a
-            stack object, <classname>Framework::MatrixStackPusher</classname>. The constructor
-            pushes the matrix and the destructor automatically pops. This way, we can never stack
-            overflow or underflow.<footnote>
-                <para>This technique, using constructors and destructors to do this kind of
-                    scope-bounded work, is called Resource Acquisition Is Initialization
-                        (<acronym>RAII</acronym>). It is a common C++ resource management technique.
-                    You can find more information about it <link
-                        xlink:href="http://www.hackcraft.net/raii/">online</link>. If you are
-                    unfamiliar with it, I suggest you become familiar with it.</para>
-            </footnote></para>
-        <para>The <classname>Framework::Mesh</classname> class is much more complicated. It
-            implements mesh loading from an XML-based file format. We will discuss some of the
-            functioning of this class in detail in the next section. For now, let us say that this
-            class's <function>Mesh::Render</function> function is equivalent to binding a vertex
-            array object, rendering with one or more <function>glDraw*</function> calls, and then
-            unbinding the VAO. It expects a suitable program object to be bound to the
-            context.</para>
+        <section>
+            <title>Defining the World</title>
+            <para>Right now, the problem is that we transform all of the objects from their
+                individual model spaces to camera space directly. The only time the objects are in
+                the same space relative to one another is when they are in camera space. So instead,
+                we will introduce an intermediate space between model and camera space; let us call
+                this space <glossterm>world space.</glossterm></para>
+            <para>All objects will be transformed into world space. The camera itself will also have
+                a particular position and orientation in world space. And since the camera has a
+                known space, with a known position and orientation relative to world space, we have
+                a transformation from world space to camera space.</para>
+            <para>So, how do we define world space? Well, we defined model space by fiat: it's the
+                space the vertex positions are in. Clip-space was defined for us. The only space
+                thus far that we have had a real choice about is camera space. And we defined that
+                in a way that gave us the simplest perspective projection matrix.</para>
+            <para>The last part gives us a hint. What defines a space is not the matrix that
+                transforms to that space, but the matrix that transforms <emphasis>from</emphasis>
+                that space. And this makes sense; a transformation matrix contains the basis vector
+                and origin of the source space, as expressed in the destination coordinate system.
+                Defining world space means defining the world-to-camera transform.</para>
+            <para>We can define this transform with a matrix. But something said earlier gives us a
+                more user-friendly mechanism. We stated that one of the properties of world space is
+                that the camera itself has a position and orientation in world space. That position
+                and orientation, expressed in world space, comprises the camera-to-world transform;
+                do note the order: <quote>camera-to-world.</quote> We want the opposite:
+                world-to-camera.</para>
+            <para>The positioning is quite simple. Given the position of the camera in world space,
+                the translation component of the world-to-camera matrix is the negation of that.
+                This translates world space positions to be relative to the camera's position. So if
+                the camera's position in world space is (3, 15, 4), then the translation component
+                of the world-to-camera matrix is (-3, -15, -4).</para>
+            <para>The orientation is a bit more troublesome. There are many ways to express an
+                orientation. In the last tutorial, we expressed it as a rotation about an axis. For
+                a camera, it is much more natural to express the orientation relative to something
+                more basic: a set of directions.</para>
+            <para>What a user most wants to do with a camera is look at something. So the direction
+                that is dead center in camera space, that is directly along the -Z axis, is one
+                direction vector. Another thing users want to do with cameras is rotate them around
+                the viewing direction. So the second direction is the direction that is
+                    <quote>up</quote> in camera space. In camera space, the up direction is
+                +Y.</para>
+            <para>We could specify a third direction, but that is unnecessary; it is implicit based
+                on the other two and a single assumption. Because we want this to be a pure
+                orientation matrix, the three basis vectors must be perpendicular to one another.
+                Therefore, the third direction is the direction perpendicular to the other two. Of
+                course, there are two vectors perpendicular to the two vectors. One goes left
+                relative to the camera's orientation and the other goes right. By convention, we
+                pick the direction that goes right.</para>
+            <para>So we define the camera's orientation (in world space) as being the viewing
+                direction and the up direction. Oftentimes, a view direction is not the most useful
+                way to orient a camera; it is often useful to select a point in world space to look
+                at.</para>
+            <para>Therefore, we can define the camera-to-world (again, note the order) transform
+                based on the camera's position in the world, a target point to look at in the world,
+                and an up direction in the world. To get the world-to-camera transform, we need to
+                expend some effort.</para>
+            <para>For the sake of reference, here is a diagram of the full transform for vertex
+                positions, from the initial attribute loaded from the buffer object, to the final
+                window-space position.</para>
+            <figure>
+                <title>Full Vertex Transformation Pipeline</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="TransformPipeline.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+        </section>
+        <section>
+            <title>Aerial View</title>
+            <para>The tutorial project <phrase role="propername">World Space</phrase> demonstrates
+                the use of a mobile camera in a world-space scene.</para>
+            <figure>
+                <title>World Space Scene</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="World%20Scene.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>The controls for this tutorial are as follows:</para>
+            <table frame="all">
+                <title>World Space Controls</title>
+                <tgroup cols="3">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c3" colnum="3" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>Function</entry>
+                            <entry>Increase/Left</entry>
+                            <entry>Decrease/Right</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>Move camera target up/down</entry>
+                            <entry><keycap>E</keycap></entry>
+                            <entry><keycap>Q</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Move camera target horizontally</entry>
+                            <entry><keycap>A</keycap></entry>
+                            <entry><keycap>D</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Move camera target vertically</entry>
+                            <entry><keycap>W</keycap></entry>
+                            <entry><keycap>S</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Rotate camera horizontally around target</entry>
+                            <entry><keycap>L</keycap></entry>
+                            <entry><keycap>J</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Rotate camera vertically around target</entry>
+                            <entry><keycap>I</keycap></entry>
+                            <entry><keycap>K</keycap></entry>
+                        </row>
+                        <row>
+                            <entry>Move camera towards/away from target</entry>
+                            <entry><keycap>U</keycap></entry>
+                            <entry><keycap>O</keycap></entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
+            <para>In addition, if you hold down the shift key while pressing any of these keys, then
+                the affected control will be much slower. This allows for more precision movements.
+                The spacebar will toggle the appearance of an object indicating the position of the
+                camera point.</para>
+            <para>This world is more complicated than anything we've seen up until now. There are a
+                lot of objects being rendered, and most of them are composed out of multiple
+                objects.</para>
+            <para>This tutorial is the first to incorporate a number of the tutorial framework's
+                features. The <classname>Framework::MatrixStack</classname> class implements a
+                matrix stack very much like we saw in the last tutorial. The main difference is that
+                the stack class does not have public push/pop functions. To push a matrix onto the
+                stack, we use a stack object, <classname>Framework::MatrixStackPusher</classname>.
+                The constructor pushes the matrix and the destructor automatically pops. This way,
+                we can never stack overflow or underflow.<footnote>
+                    <para>This technique, using constructors and destructors to do this kind of
+                        scope-bounded work, is called Resource Acquisition Is Initialization
+                            (<acronym>RAII</acronym>). It is a common C++ resource management
+                        technique. You can find more information about it <link
+                            xlink:href="http://www.hackcraft.net/raii/">online</link>. If you are
+                        unfamiliar with it, I suggest you become familiar with it.</para>
+                </footnote></para>
+            <para>The <classname>Framework::Mesh</classname> class is much more complicated. It
+                implements mesh loading from an XML-based file format. We will discuss some of the
+                functioning of this class in detail in the next section. For now, let us say that
+                this class's <function>Mesh::Render</function> function is equivalent to binding a
+                vertex array object, rendering with one or more <function>glDraw*</function> calls,
+                and then unbinding the VAO. It expects a suitable program object to be bound to the
+                context.</para>
+        </section>
         <section>
             <title>Multiple Programs</title>
             <para>Speaking of suitable program objects, this will be the first tutorial that uses
@@ -253,25 +297,10 @@ glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif,
 glUseProgram(0);</programlisting>
             </example>
             <para>The function <function>ResolveCamPosition</function> computes the camera position,
-                based on the user's input. The more important function is
-                    <function>CalcLookAtMatrix</function>. There are a number of ways to compute a
-                camera matrix, but this one is the simplest. It takes a position for the camera, a
-                point in the world that the camera should be looking in, and a direction in
-                world-space that should be considered <quote>up</quote> based on where the camera is
-                looking.</para>
-            <para>The implementation of this function is less simple. It does a lot of complex
-                geometric computations. I will not go into detail explaining how it work, but there is
-                one thing you need to know.</para>
-            <para>It is very important that the <quote>up</quote> direction is not along the same
-                line as the direction from the camera position to the look at target. If up is very
-                close to that direction then the generated matrix is no longer valid, and unpleasant
-                things will happen.</para>
-            <para>Since it does not make physical sense for <quote>up</quote> to be directly behind
-                or in front of the viewer, it makes a degree of sense that this would likewise
-                produce a nonsensical matrix. This problem usually crops up in camera systems like
-                the one devised here, where the camera is facing a certain point and is rotating
-                around that point, without rotating the up direction at the same time. In this case,
-                the up/down angle is clamped to never get high enough to cause a problem.</para>
+                based on the user's input. <function>CalcLookAtMatrix</function> is the function
+                that takes a camera position in the world, a point in the world to look at, and an
+                up vector, and uses it to compute the world-to-camera matrix. We will look at that a
+                bit later.</para>
             <para>Speaking of which, let's look at how <function>ResolveCamPosition</function>
                 works. The basic idea of this camera system is that there is a target point, which
                 is mobile. The camera's position is computed relative to this target point, so if
@@ -338,6 +367,28 @@ glUseProgram(0);</programlisting>
                 by the radius (<varname>g_sphereCamRelPos.z</varname>) do we get the full
                 decomposition from spherical coordinates to Euclidean. Applying the camera target as
                 an offset is what keeps the camera's position relative to the target.</para>
+            <para>All of the above simply gets us a position for the camera and a location where the
+                camera is looking. The matrix is computed by feeding these values into
+                    <function>CalcLookAtMatrix</function>. It takes a position for the camera, a
+                point in the world that the camera should be looking in, and a direction in
+                world-space that should be considered <quote>up</quote> based on where the camera is
+                looking.</para>
+            <para>The implementation of this function is non-trivial. We will not go into detail
+                explaining how it works, as it involves a lot of complex math concepts that have not
+                been introduced. Using the function is is much easier than understanding how it
+                works. Even so, there is one major caveat with this function (and any function of
+                the like).</para>
+            <para>It is very important that the <quote>up</quote> direction is not along the same
+                line as the direction from the camera position to the look at target. If up is very
+                close to that direction then the generated matrix is no longer valid and unpleasant
+                things will happen.</para>
+            <para>Since it does not make physical sense for <quote>up</quote> to be directly behind
+                or in front of the viewer, it makes a degree of sense that this would likewise
+                produce a nonsensical matrix. This problem usually crops up in camera systems like
+                the one devised here, where the camera is facing a certain point and is rotating
+                around that point, without rotating the up direction at the same time. In the case
+                of this code, the up/down angle is clamped to never get high enough to cause a
+                problem.</para>
         </section>
         <section>
             <title>World Rendering</title>
@@ -403,9 +454,12 @@ DrawParthenon(modelMatrix);</programlisting>
                 locations around the building. It draws scaled cubes for the base and ceiling, and
                 uses the colored version of the cube for the headpiece at the front and the interior
                 of the building. Columns are scaled cubes and cylinders.</para>
+        </section>
+        <section>
+            <title>Non-World Rendering</title>
             <para>The last part of the <function>display</function> function is more interesting.
-                Pressing the spacebar toggles the drawing of a representation of the camera target
-                point. Here is how it gets drawn:</para>
+                Pressing the <keycap>Spacebar</keycap> toggles the drawing of a representation of
+                the camera target point. Here is how it gets drawn:</para>
             <example>
                 <title>Draw Camera Target</title>
                 <programlisting language="cpp">glDisable(GL_DEPTH_TEST);
@@ -431,15 +485,29 @@ glEnable(GL_DEPTH_TEST);</programlisting>
                 the target point inside the building or a tree, you will still see it. This is a
                 useful technique for UI-type objects like this.</para>
             <para>The next important thing is that the world-to-camera matrix is set to identity.
-                This means that the model-to-world matrix functions as a model-to-camera matrix. So
-                the translation is transforming it to camera-relative coordinates. The cube is
-                translated down the -Z axis, which positions it in front of the camera. It positions
-                the square at the same distance from the camera as the camera would be from the
-                target point.</para>
-            <para>Being able to work directly in camera space like this is also a quite useful
-                technique. It allows the object to be positioned relative to the camera, so that no
-                matter how the camera moves relative to the world, the object will always appear
-                fixed. It will also always appear facing the camera.</para>
+                This means that the model-to-world matrix functions as a model-to-camera matrix. We
+                are going back to positioning objects in front of the camera, which is what we
+                actually want. The cube is translated down the -Z axis, which positions it directly
+                in front of the camera. It positions the square at the same distance from the camera
+                as the camera would be from the target point.</para>
+            <para>For the last few tutorials, we have been building up a transformation framework
+                and hierarchy. Model space to world space to camera space to clip space. But the
+                important thing to remember is that this framework is only useful to you if it does
+                what you want. If you need to position an object directly in front of the camera,
+                then simply remove world space from the equation entirely.</para>
+            <para>We could even turn the depth test back on, and the camera target would interact
+                correctly with the rest of the world. It is a part of the world, even though it
+                seems like it goes through a different transform pipe.</para>
+            <para>Indeed, you could render part of a scene with one perspective matrix and part with
+                another. This is a common technique for first-person shooter games. The main world
+                is rendered with one perspective, and the part of the first-person character that is
+                visible is rendered with another matrix.</para>
+            <para>Do not get so caught up in <quote>the way things ought to be done</quote> that you
+                forget what you could have done if you broke free of the framework. Never hold so
+                tightly to one way of doing something that it prevents you from seeing how to do
+                something you need to much easier. For example, we could have applied the reverse of
+                the camera matrix to the model-to-world matrix. Or we could just get rid of that
+                matrix altogether and make everything work very easily and simply.</para>
         </section>
     </section>
     <section>
@@ -916,13 +984,14 @@ void main()
     vec4 cameraPos = worldToCameraMatrix * worldPos;
     gl_Position = cameraToClipMatrix * cameraPos;
 }</programlisting>
-        <para>The <varname>position</varname> is either model space or mesh space; either way, it is
-            relatively close to the origin. So you have plenty of floating-point precision there.
-            The <varname>cameraPos</varname> value is also close to the origin. Remember, the camera
-            in camera space is <emphasis>at</emphasis> the origin. The world-to-camera matrix simply
-            transforms the world to the camera's position. And as stated before, the only parts of
-            the world that we are interested in seeing are the parts close to the camera. So there's
-            quite a bit of precision available in <varname>cameraPos</varname>.</para>
+        <para>The <varname>position</varname> is relatively close to the origin, since model
+            coordinates tend to be close to the model space origin. So you have plenty of
+            floating-point precision there. The <varname>cameraPos</varname> value is also close to
+            the origin. Remember, the camera in camera space is <emphasis>at</emphasis> the origin.
+            The world-to-camera matrix simply transforms the world to the camera's position. And as
+            stated before, the only parts of the world that we are interested in seeing are the
+            parts close to the camera. So there's quite a bit of precision available in
+                <varname>cameraPos</varname>.</para>
         <para>And in <varname>gl_Position</varname>, everything is in clip-space, which is again
             relative to the camera. While you can have depth buffer precision problems, that only
             happens at far distances from the near plane. Again, since everything is relative to the

@@ -2463,15 +2463,35 @@
         </options>
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
+        <folder name="1_Basics">
+            <file name="Basics/Tutorial%2000.xml"/>
+            <file name="Basics/Tutorial%2001.xml"/>
+            <file name="Basics/Tutorial%2002.xml"/>
+        </folder>
+        <folder name="2_Positioning">
+            <file name="Positioning/Tutorial%2003.xml"/>
+            <file name="Positioning/Tutorial%2004.xml"/>
+            <file name="Positioning/Tutorial%2005.xml"/>
+            <file name="Positioning/Tutorial%2006.xml"/>
+            <file name="Positioning/Tutorial%2007.xml"/>
+            <file name="Positioning/Tutorial%2008.xml"/>
+        </folder>
+        <folder name="3_Illumination">
+            <file name="Illumination/Tutorial%2009.xml"/>
+            <file name="Illumination/Tutorial%2010.xml"/>
+            <file name="Illumination/Tutorial%2011.xml"/>
+            <file name="Illumination/Tutorial%2012.xml"/>
+            <file name="Illumination/Tutorial%2013.xml"/>
+        </folder>
+        <folder name="4_Texturing">
+            <file name="Texturing.xml"/>
+            <file name="Texturing/Tutorial%2014.xml"/>
+            <file name="Texturing/Tutorial%2015.xml"/>
+        </folder>
         <folder name="Appendices">
             <file name="Getting%20Started.xml"/>
             <file name="History%20of%20Graphics%20Hardware.xml"/>
             <file name="Optimization.xml"/>
-        </folder>
-        <folder name="Basics">
-            <file name="Basics/Tutorial%2000.xml"/>
-            <file name="Basics/Tutorial%2001.xml"/>
-            <file name="Basics/Tutorial%2002.xml"/>
         </folder>
         <folder name="Build">
             <file name="Build/colorfo-highlights.xsl"/>
@@ -2482,26 +2502,6 @@
         <folder name="css">
             <file name="chunked.css"/>
             <file name="standard.css"/>
-        </folder>
-        <folder name="Illumination">
-            <file name="Illumination/Tutorial%2009.xml"/>
-            <file name="Illumination/Tutorial%2010.xml"/>
-            <file name="Illumination/Tutorial%2011.xml"/>
-            <file name="Illumination/Tutorial%2012.xml"/>
-            <file name="Illumination/Tutorial%2013.xml"/>
-        </folder>
-        <folder name="Positioning">
-            <file name="Positioning/Tutorial%2003.xml"/>
-            <file name="Positioning/Tutorial%2004.xml"/>
-            <file name="Positioning/Tutorial%2005.xml"/>
-            <file name="Positioning/Tutorial%2006.xml"/>
-            <file name="Positioning/Tutorial%2007.xml"/>
-            <file name="Positioning/Tutorial%2008.xml"/>
-        </folder>
-        <folder name="Texturing">
-            <file name="Texturing.xml"/>
-            <file name="Texturing/Tutorial%2014.xml"/>
-            <file name="Texturing/Tutorial%2015.xml"/>
         </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>
