@@ -6,4 +6,6 @@ defines {"_SCL_SECURE_NO_WARNINGS"}
 
 dofile("glload.lua");
 
-dofile("Test/Test4.lua");
+if(#os.matchfiles("Test/Test4.lua") ~= 0) then
+	dofile("Test/Test4.lua");
+end
