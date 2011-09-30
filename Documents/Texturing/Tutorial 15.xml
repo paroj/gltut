@@ -60,7 +60,7 @@
         <para>Recall from the last tutorial that the sampler object has a parameter that controls
             what texture coordinates outside of the [0, 1] range mean. This tutorial uses many
             samplers, but all of our samplers use the same S and T wrap modes:</para>
-        <programlisting>glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_REPEAT);
+        <programlisting language="cpp">glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_REPEAT);
 glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</programlisting>
         <para>We set the S and T wrap modes to <literal>GL_REPEAT</literal>. This means that values
             outside of the [0, 1] range wrap around to values within the range. So a texture
@@ -151,7 +151,7 @@ glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</progr
             interpolate the values based on how close they each are to the texture coordinate. To do
             this, we set the magnification and minification filters to
             <literal>GL_LINEAR</literal>.</para>
-        <programlisting>glSamplerParameteri(g_samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        <programlisting language="cpp">glSamplerParameteri(g_samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programlisting>
         <para>This is called, surprisingly enough, <glossterm>linear filtering</glossterm>. In our
             tutorial, press the <keycap>2</keycap> key to see what linear filtering looks like;
@@ -280,7 +280,7 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
         <para>Mipmap filtering only works for minification, since minification represents a fragment
             area that is larger than the texture's resolution. To activate this, we use a special
                 <literal>MIPMAP</literal> mode of minification filtering.</para>
-        <programlisting>glSamplerParameteri(g_samplers[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        <programlisting language="cpp">glSamplerParameteri(g_samplers[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);</programlisting>
         <para>The <literal>GL_LINEAR_MIPMAP_NEAREST</literal> minification filter means the
             following. For a particular call to the GLSL <function>texture</function> function, it
@@ -342,7 +342,7 @@ glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEARE
                 follows:</para>
             <example>
                 <title>Special Texture Data</title>
-                <programlisting>void FillWithColor(std::vector&lt;GLubyte> &amp;buffer,
+                <programlisting language="cpp">void FillWithColor(std::vector&lt;GLubyte> &amp;buffer,
                    GLubyte red, GLubyte green, GLubyte blue,
                    int width, int height)
 {
@@ -365,7 +365,7 @@ glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEARE
             <para>Therefore, we must change the pixel alignment that OpenGL uses. The
                     <function>LoadMipmapTexture</function> function is what generates the special
                 texture. One of the first lines is this:</para>
-            <programlisting>GLint oldAlign = 0;
+            <programlisting language="cpp">GLint oldAlign = 0;
 glGetIntegerv(GL_UNPACK_ALIGNMENT, &amp;oldAlign);
 glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
             <para>The first two lines gets the old alignment, so that we can reset it once we are
