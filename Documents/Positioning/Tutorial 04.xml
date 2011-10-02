@@ -230,8 +230,8 @@
                         fixed at the origin. R is the projected point.</para>
                 </caption>
             </figure>
-            <para>What we have are two similar right triangles; the triangle formed by E, R and
-                    E<subscript>z</subscript>the origin; and the triangle formed by E, P, and
+            <para>What we have are two similar right triangles: the triangle formed by E, R and
+                    E<subscript>z</subscript>, and the triangle formed by E, P, and
                     P<subscript>z</subscript>. We have the eye position and the position of the
                 unprojected point. To find the location of R, we simply do this:</para>
             <equation>
@@ -287,8 +287,9 @@
             <para>Thus, we define a new space called <glossterm>camera space.</glossterm> This is
                 not a space that OpenGL recognizes; it is purely an arbitrary user construction.
                 However, it can be useful to define a particular camera space based on what we know
-                of clip space. This minimizes the differences between camera space and a perspective
-                form of clip space, and it can simplify our perspective projection logic.</para>
+                of our perspective projection. This minimizes the differences between camera space
+                and the perspective form of clip space, and it can simplify our perspective
+                projection logic.</para>
             <para>The volume of camera space will range from positive infinity to negative infinity
                 in all directions. Positive X extends right, positive Y extends up, and positive Z
                 is <emphasis>forward</emphasis>. The last one is a change from clip space, where
