@@ -41,8 +41,9 @@
             emitting objects are called <glossterm>light sources.</glossterm></para>
         <para>The interaction between a light and a surface is the most important part of a lighting
             model. It is also the most difficult to get right. The way light interacts with atoms on
-            a surface alone involves complicated quantum mechanics to understand. And even that does
-            not get into the fact that surfaces are not perfectly smooth or perfectly opaque.</para>
+            a surface alone involves complicated quantum mechanical principles that are difficult to
+            understand. And even that does not get into the fact that surfaces are not perfectly
+            smooth or perfectly opaque.</para>
         <para>This is made more complicated by the fact that light itself is not one thing. There is
             no such thing as <quote>white light.</quote> Virtually all light is made up of a number
             of different wavelengths. Each wavelength (in the visible spectrum) represents a color.
