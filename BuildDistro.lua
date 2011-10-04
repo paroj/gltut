@@ -59,15 +59,27 @@ print(clone);
 os.execute(clone);
 
 ---------------------------------------------------------------
--- Apply Copyright Info
+-- Install the dependencies.
 local luaFilename = "lua.exe"
 local pathLua = ufs.path(FindFileInPath(luaFilename))
+local luaDepScriptName = "get_externals.lua"
+
+ufs.current_path(pathDest);
+
+local depProc = ex.spawn(tostring(pathLua),
+	{args={luaDepScriptName}});
+depProc:wait(depProc);
+
+---------------------------------------------------------------
+-- Apply Copyright Info
 local luaCopyScriptName = "make_copyright.lua"
 
 if(pathLua:empty()) then
 	print("Could not find Lua. Since this is a Lua script, that's kinda confusing...");
 	return;
 end
+
+ufs.current_path(pathCurrent);
 
 local copyProc = ex.spawn(tostring(pathLua),
 	{args={luaCopyScriptName, tostring(pathDest)}});
@@ -160,9 +172,9 @@ end
 
 ufs.current_path(pathBase);
 
-local depProc = ex.spawn(tostring(pathSZ),
+local zipProc = ex.spawn(tostring(pathSZ),
 	{args={"a", "-r", archiveName, buildDirname}});
-depProc:wait(depProc);
+zipProc:wait(zipProc);
 
 ------------------------------------------------------------
 -- Destroy the directory.
