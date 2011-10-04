@@ -625,7 +625,7 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 'a': g_armature.AdjBase(true); break;
 	case 'd': g_armature.AdjBase(false); break;
 	case 'w': g_armature.AdjUpperArm(false); break;

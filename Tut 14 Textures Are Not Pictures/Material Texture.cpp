@@ -282,14 +282,14 @@ void CreateShininessTexture()
 	    filename.append("main.dds");
 	    
 		pImageSet.reset(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-		std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(0, 0, 0));
+		glimg::SingleImage image = pImageSet->GetImage(0, 0, 0);
 
-		glimg::Dimensions dims = pImage->GetDimensions();
+		glimg::Dimensions dims = image.GetDimensions();
 
 		glGenTextures(1, &g_shineTexture);
 		glBindTexture(GL_TEXTURE_2D, g_shineTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, dims.width, dims.height, 0,
-			GL_RED, GL_UNSIGNED_BYTE, pImage->GetImageData());
+			GL_RED, GL_UNSIGNED_BYTE, image.GetImageData());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -586,7 +586,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_pCubeMesh = NULL;
 		g_pPlaneMesh = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 
 	case 'p': g_lightTimer.TogglePause(); break;
 	case '-': g_lightTimer.Rewind(0.5f); break;

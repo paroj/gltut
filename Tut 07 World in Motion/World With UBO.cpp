@@ -570,7 +570,7 @@ void keyboard(unsigned char key, int x, int y)
 		delete g_pPlaneMesh;
 		g_pPlaneMesh = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 'w': g_camTarget.z -= 4.0f; break;
 	case 's': g_camTarget.z += 4.0f; break;
 	case 'd': g_camTarget.x += 4.0f; break;

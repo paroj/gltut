@@ -13,11 +13,26 @@ require "_FindFileInPath"
 local externals =
 {
 	{
-		"OpenGL SDK 0.3.0",		--The name of the component.
+		"OpenGL SDK 0.3.1",		--The name of the component.
 		"glsdk",					--The output directory to copy the component's data.
 		"glsdk.7z",				--The filename that will be created in the download director.
-		"glsdk_0.3.0",			--If the zip file has a base directory, then name it here. If it doesn't, then just use ""
-		[==[http://downloads.sourceforge.net/project/glsdk/GLSDK%200.3.0/glsdk_0.3.0.7z?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fglsdk%2Ffiles%2FGLSDK%25200.3.0%2F&ts=1317700021&use_mirror=cdnetworks-us-2]==]
+		"glsdk_0.3.1",			--If the zip file has a base directory, then name it here. If it doesn't, then just use ""
+		[==[https://downloads.sourceforge.net/project/glsdk/GLSDK%200.3.0/glsdk_0.3.1.7z?r=&ts=1317702283&use_mirror=master]==],
+		
+		--Files/ to delete, relative to the output directory of this component.
+		{
+			"docs",
+			"examples",
+			"glfw",
+			"freeglut/progs",
+			"freeglut/doc",
+			"freeglut/VisualStudio2008",
+			"freeglut/VisualStudio2008Static",
+			"glm/bench",
+			"glm/doc",
+			"glm/test",
+			"glm/util",
+		}
 	},
 }
 
@@ -84,9 +99,19 @@ for i, ext in ipairs(externals) do
 		pathSrc = pathSrc / ext[4]
 	end
 
+	--Copy to final directory.
 	local pathOut = ufs.path(".\\" .. ext[2]);
 	ufs.create_directory(pathOut);
 	RecursiveCopy(pathSrc, pathOut);
+	
+	--Remove extraneous files/directories
+	if(ext[6]) then
+		for i, filename in ipairs(ext[6]) do
+			local pathFile = pathOut / filename;
+			print("deleting:", pathFile);
+			ufs.remove_all(pathFile);
+		end
+	end
 end
 
 ufs.remove_all(ufs.path(decompressDir));

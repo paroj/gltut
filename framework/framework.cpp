@@ -5,7 +5,7 @@
 #include <sstream>
 #include <string.h>
 #include <glload/gl_3_3.h>
-#include <glload/gll.h>
+#include <glload/gll.hpp>
 #include <GL/freeglut.h>
 #include "framework.h"
 #include "directories.h"
@@ -195,5 +195,6 @@ int main(int argc, char** argv)
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutMainLoop();
+	printf("here!\n");
 	return 0;
 }

@@ -1,4 +1,6 @@
 
+dofile("../glsdk/links.lua")
+
 local myPath = os.getcwd();
 
 function SetupSolution(slnName)
@@ -27,9 +29,9 @@ function SetupSolution(slnName)
 		targetdir "../framework/lib"
 		objdir "../framework/lib"
 
-		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../glimg/include", "../glm-0.9.2.3", "../tinyxml",
-			"../framework"}
+		includedirs {"../tinyxml", "../framework"}
+		
+		UseLibs {"glload", "glimage", "glm", "freeglut"}
 		
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
@@ -52,36 +54,31 @@ function SetupProject(projName, ...)
 		
 		files {...}
 
-		includedirs {"../freeglut-2.6.0/include", "../glload/include",
-			"../glimg/include", "../glm-0.9.2.3", "../tinyxml"}
+		UseLibs {"glload", "glimage", "glm", "freeglut"}
+
+		includedirs {"../tinyxml"}
 			
 		links "framework"
 
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
 			flags "Symbols"
-			libdirs {"../glload/lib", "../glimg/lib", "../tinyxml/lib"}
-			links "glloadD"
-			links "glimgD"
+			libdirs {"../tinyxml/lib"}
 			links "tinyxml_pmD"
 			targetname(projName .. "D")
 		
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
 			flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
-			libdirs {"../glload/lib", "../glimg/lib", "../tinyxml/lib"}
-			links "glload"
-			links "glimg"
+			libdirs {"../tinyxml/lib"}
 			links "tinyxml_pm"
 			targetname(projName)
 
+		configuration {"windows"}
+			links {"glu32", "opengl32", "gdi32", "winmm", "user32"}
 
-        configuration {"Debug", "windows"}
-			links "../freeglut-2.6.0/VisualStudio2008Static/debug/freeglut_static"
-        configuration {"Release", "windows"}
-			links "../freeglut-2.6.0/VisualStudio2008Static/release/freeglut_static"
-        configuration {"linux"}
-            libdirs {"../freeglut-2.6.0/src/.libs"}
-			links "glut"
+	    configuration "linux"
+	        links {"GL", "GLU"}
+
 end
 

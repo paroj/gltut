@@ -558,11 +558,17 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		delete g_pConeMesh;
+		g_pConeMesh = NULL;
 		delete g_pCylinderMesh;
+		g_pCylinderMesh = NULL;
 		delete g_pCubeTintMesh;
+		g_pCubeTintMesh = NULL;
 		delete g_pCubeColorMesh;
+		g_pCubeColorMesh = NULL;
+		delete g_pPlaneMesh;
+		g_pPlaneMesh = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 'w': g_camTarget.z -= 4.0f; break;
 	case 's': g_camTarget.z += 4.0f; break;
 	case 'd': g_camTarget.x += 4.0f; break;

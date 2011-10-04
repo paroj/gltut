@@ -382,7 +382,7 @@ void keyboard(unsigned char key, int x, int y)
 		delete g_pCylinderMesh;
 		delete g_pCubeMesh;
 		glutLeaveMainLoop();
-		break;
+		return;
 		
 	case 32:
 		g_bDrawColoredCyl = !g_bDrawColoredCyl;

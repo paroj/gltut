@@ -129,7 +129,7 @@ void keyboard(unsigned char key, int x, int y)
 		delete g_pRealHallway;
 		delete g_pFauxHallway;
 		glutLeaveMainLoop();
-		break;
+		return;
 
 	case 's':
 	case 'S':

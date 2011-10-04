@@ -181,7 +181,7 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 'w': OffsetOrientation(glm::vec3(1.0f, 0.0f, 0.0f), SMALL_ANGLE_INCREMENT); break;
 	case 's': OffsetOrientation(glm::vec3(1.0f, 0.0f, 0.0f), -SMALL_ANGLE_INCREMENT); break;
 

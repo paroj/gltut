@@ -557,7 +557,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_pPlaneMesh = NULL;
 		g_pSphereMesh = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 
 	case 'p': g_sphereTimer.TogglePause(); break;
 	case '-': g_sphereTimer.Rewind(0.5f); break;

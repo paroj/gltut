@@ -216,7 +216,7 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 'w': g_angles.fAngleX += SMALL_ANGLE_INCREMENT; break;
 	case 's': g_angles.fAngleX -= SMALL_ANGLE_INCREMENT; break;
 

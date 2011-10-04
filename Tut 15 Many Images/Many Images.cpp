@@ -191,11 +191,11 @@ void LoadCheckerTexture()
 
 		for(int mipmapLevel = 0; mipmapLevel < pImageSet->GetMipmapCount(); mipmapLevel++)
 		{
-			std::auto_ptr<glimg::SingleImage> pImage(pImageSet->GetImage(mipmapLevel, 0, 0));
-			glimg::Dimensions dims = pImage->GetDimensions();
+			glimg::SingleImage image = pImageSet->GetImage(mipmapLevel, 0, 0);
+			glimg::Dimensions dims = image.GetDimensions();
 
 			glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
-				GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pImage->GetImageData());
+				GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, image.GetImageData());
 		}
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -359,7 +359,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_pPlane = NULL;
 		g_pCorridor = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 32:
 		g_useMipmapTexture = !g_useMipmapTexture;
 		break;

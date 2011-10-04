@@ -409,7 +409,7 @@ void keyboard(unsigned char key, int x, int y)
 		delete g_pScene;
 		g_pScene = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 		
 	case 'p': g_lights.TogglePause(g_eTimerMode); break;
 	case '-': g_lights.RewindTime(g_eTimerMode, 1.0f); break;

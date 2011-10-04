@@ -478,7 +478,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_pObjectMesh = NULL;
 		g_pCubeMesh = NULL;
 		glutLeaveMainLoop();
-		break;
+		return;
 
 	case 'p': g_lightTimer.TogglePause(); break;
 	case '-': g_lightTimer.Rewind(0.5f); break;

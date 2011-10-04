@@ -318,7 +318,7 @@ void keyboard(unsigned char key, int x, int y)
 	{
 	case 27:
 		glutLeaveMainLoop();
-		break;
+		return;
 	case 32:
 		{
 			bool bSlerp = g_orient.ToggleSlerp();
