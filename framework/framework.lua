@@ -56,7 +56,7 @@ function SetupProject(projName, ...)
 
 		UseLibs {"glload", "glimage", "glm", "freeglut"}
 
-		includedirs {"../tinyxml"}
+		includedirs {"../tinyxml", "../framework"}
 			
 		links "framework"
 

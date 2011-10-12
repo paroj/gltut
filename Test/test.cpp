@@ -6,12 +6,12 @@ these function.
 
 #include <glload/gl_3_3_comp.h>
 #include <GL/freeglut.h>
+#include <framework.h>
 
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
-
 }
 
 //Called to update the display.
