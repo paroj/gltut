@@ -184,7 +184,6 @@ int main(int argc, char** argv)
 
 	if(glext_ARB_debug_output)
 	{
-//		printf("Debug output.");
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 		glDebugMessageCallbackARB(DebugFunc, (void*)15);
 	}
@@ -195,6 +194,5 @@ int main(int argc, char** argv)
 	glutReshapeFunc(reshape);
 	glutKeyboardFunc(keyboard);
 	glutMainLoop();
-	printf("here!\n");
 	return 0;
 }
