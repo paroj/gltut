@@ -1,19 +1,19 @@
 #version 330
 
-layout(location = 0) in vec4 position;
-uniform float loopDuration;
-uniform float time;
+layout(std140) uniform;
+
+layout(location = 0) in vec2 position;
+layout(location = 5) in vec2 texCoord;
+
+layout(std140) uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
+
+out vec2 colorCoord;
 
 void main()
 {
-	float timeScale = 3.14159f * 2.0f / loopDuration;
-	
-	float currTime = mod(time, loopDuration);
-	vec4 totalOffset = vec4(
-		cos(currTime * timeScale) * 0.5f,
-		sin(currTime * timeScale) * 0.5f,
-		0.0f,
-		0.0f);
-
-	gl_Position = position + totalOffset;
+	gl_Position = cameraToClipMatrix * vec4(position, 0.0, 1.0);
+	colorCoord = texCoord;
 }
