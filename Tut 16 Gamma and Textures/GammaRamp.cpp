@@ -172,6 +172,7 @@ void display()
 
 	glActiveTexture(GL_TEXTURE0 + g_gammaRampTextureUnit);
 	glBindTexture(GL_TEXTURE_2D, g_textures[g_useGammaCorrect[0] ? 1 : 0]);
+	glBindSampler(g_gammaRampTextureUnit, g_samplerObj);
 
 	glBindVertexArray(g_vao);
 
@@ -188,6 +189,7 @@ void display()
 
 	glActiveTexture(GL_TEXTURE0 + g_gammaRampTextureUnit);
 	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindSampler(g_gammaRampTextureUnit, 0);
 
 	glutSwapBuffers();
 	glutPostRedisplay();

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/meshFormat.rnc" type="compact"?>
+
+<mesh xmlns="http://www.arcsynthesis.com/gltut/mesh" >
+	<attribute index="0" type="float" size="3" > 
+        1 0 -64
+        1 0 64
+        -1 0 64
+        -1 0 -64
+        -1 0 -64
+        -1 0 64
+        -1 2 64
+        -1 2 -64
+        1 0 64
+        1 0 -64
+        1 2 -64
+        1 2 64
+        1 2 64
+        1 2 -64
+        -1 2 -64
+        -1 2 64</attribute>
+	<attribute index="5" type="float" size="2" > 
+        1 -64
+        1 64
+        -1 64
+        -1 -64
+        1 -64
+        1 64
+        -1 64
+        -1 -64
+        1 -64
+        1 64
+        -1 64
+        -1 -64
+        1 -64
+        1 64
+        -1 64
+        -1 -64</attribute>
+	<vao name="flat" >
+		<source attrib="0" />
+	</vao>
+	<vao name="tex" >
+		<source attrib="0" />
+		<source attrib="5" />
+	</vao>
+	<indices cmd="triangles" type="ushort" > 
+        0 1 2
+        2 3 0
+        4 5 6
+        6 7 4
+        8 9 10
+        10 11 8
+        12 13 14
+        14 15 12</indices>
+</mesh>
