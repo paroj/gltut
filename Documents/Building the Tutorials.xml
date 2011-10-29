@@ -14,7 +14,7 @@
     <para>You will need minimal familiarity with using the command line in order to build these
         tutorials. Also, any mention of directories is always relative to where you unzipped this
         distribution.</para>
-    <simplesect>
+    <section>
         <title>File Structure</title>
         <para>The layout of the files in the tutorial directory is quite simple. The
                 <filename>framework</filename> directory and all directories of the form
@@ -29,8 +29,8 @@
             DocBook 5.0 format.</para>
         <para>Every other directory contains the code and build files for a library that the
             tutorials require.</para>
-    </simplesect>
-    <simplesect>
+    </section>
+    <section>
         <title>Necessary Utilities</title>
         <para>In order to build everything, you will need to download the <link
                 xlink:href="http://industriousone.com/premake">Premake 4</link> utility for your
@@ -47,62 +47,39 @@
             Premake once for each tutorial.</para>
         <para>The Premake download comes as a pre-built executable for all platforms of interest,
             including Linux.</para>
-    </simplesect>
-    <simplesect>
-        <title>FreeGLUT</title>
-        <para><link xlink:href="http://freeglut.sourceforge.net/">FreeGLUT</link> is a
-            cross-platform library that handles a lot of the boilerplate initialization code
-            necessary for running a windowing application. It creates a window, attaches an OpenGL
-            context to the window, and handles window messages. This makes it much easier to focus
-            on OpenGL and less on how to initialize OpenGL properly.</para>
-        <para>To build FreeGLUT for Win32 with Visual Studio, go to the
-                <filename>freeglut-2.6.0/VisualStudio2008Static</filename> directory and open the
-            solution file there. There will be several projects in the solution, but the only one of
-            interest is the <quote>FreeGLUT</quote> project. Build this, for both debug and
-            release.</para>
-        <para>To build FreeGLUT for Linux, or to build it on Windows without using Visual Studio,
-            open a console window and go to the <filename>freeglut-2.6.0</filename> directory. Enter
-            the following commands:</para>
-        <programlisting>./configure
-make</programlisting>
-        <para>Do <emphasis>not</emphasis> execute <userinput>make install</userinput>. This source
-            distribution is intended to be self-contained. If you try to install FreeGLUT, it will
-            make non-local changes to your system. The rest of the build process assumes that the
-            results of the build are in the local directories after the make process.</para>
-    </simplesect>
-    <simplesect>
-        <title>TinyXML</title>
-        <para><link xlink:href="http://sourceforge.net/projects/tinyxml/">TinyXML</link> is an XML
-            parser. The framework uses an XML file format for loading complex 3D mesh data. This
-            library simply makes the loading and parsing of this format easier.</para>
-        <para>Unlike the previous libraries, this library uses Premake to generate its build files.
-            So, with <command>premake4.exe</command> in your path, go to the
-                <filename>tinyxml</filename> directory. Type <userinput>premake4
-                    <replaceable>plat</replaceable></userinput>, where
+    </section>
+    <section>
+        <title>Unofficial OpenGL SDK</title>
+        <para>The <link xlink:href="http://glsdk.sourceforge.net/docs/html/index.html">Unofficial
+                OpenGL SDK</link> is a library aggregation, consisting of a number of tools for
+            developing OpenGL applications, all bound together with a unified build system. A
+            modified SDK distribution is bundled with these tutorials; this distro does not contain
+            the documentation or GLFW that comes with the regular SDK.</para>
+        <para>The SDK his library uses Premake to generate its build files. So, with
+                <command>premake4.exe</command> in your path, go to the <filename>glsdk</filename>
+            directory. Type <userinput>premake4 <replaceable>plat</replaceable></userinput>, where
                 <replaceable>plat</replaceable> is the name of the platform of choice. For Visual
             Studio 2008, this would be <quote>vs2008</quote>; for VS2010, this would be
-                <quote>vs2010.</quote> This will generate Visual Studio project and solution files
+                <quote>vs2010.</quote> This will generate Visual Studio projects and solution files
             for that particular version.</para>
         <para>For GNU and makefile-based builds, this is <quote>gmake</quote>. This will generate a
             makefile. To build for debug, use <userinput>make config=debug</userinput>; similarly,
             to build for release, use <userinput>make config=release</userinput>.</para>
-        <para>Using the generated build files, compile for both debug and release.</para>
-    </simplesect>
-    <simplesect>
-        <title>GLLoad and GLImg</title>
-        <para>The GLImg library is a library for loading image data from various file formats. The
-            GLLoad library is a library for loading OpenGL function entrypoints from the .dll. For
-            reasons that are too technical to repeat here, using OpenGL on most platforms requires
-            manually loading function pointers from a .dll. This library makes this process
-            painless.</para>
-        <para>Like TinyXML, these two libraries use Premake to generate their build files. However,
-            they are both generated from the same premake file. To generate the build for these two
-            libraries, go to the <filename>glimg</filename> directory. Type <userinput>premake4
-                    <replaceable>plat</replaceable></userinput> as you did for TinyXML. This will
-            create the build file you need to use to build the libraries for both debug and
-            release.</para>
-    </simplesect>
-    <simplesect>
+        <para>Using the generated build files, compile for both debug and release. You should build
+            the entire solution; the tutorials use all of the libraries in the SDK.</para>
+        <para>Note that there is no execution of <userinput>make install</userinput> or similar
+            constructs. The SDK is designed to be used where it is; it does not install itself to
+            any system directories on your machine. Incidentally, neither do these tutorials.</para>
+    </section>
+    <section>
+        <title>TinyXML</title>
+        <para><link xlink:href="http://sourceforge.net/projects/tinyxml/">TinyXML</link> is an XML
+            parser. The framework uses an XML file format for loading complex 3D mesh data. This
+            library simply makes the loading and parsing of this format easier.</para>
+        <para>Like the SDK, it uses Premake to generate its build files. So perform the steps as
+            above to build it.</para>
+    </section>
+    <section>
         <title>Tutorial Building</title>
         <para>Each tutorial directory has a <filename>premake4.lua</filename> file; this file is
             used by Premake to generate the build files for that tutorial. Therefore, to build any
@@ -122,5 +99,5 @@ make</programlisting>
             in the <filename>framework</filename> directory is shared by every tutorial. It does the
             basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source
             files to focus on the useful OpenGL-specific code.</para>
-    </simplesect>
+    </section>
 </article>

@@ -232,6 +232,15 @@ dofile("tutorials.lua");</programlisting>
                 OpenGL has many functions. So the common way to handle this is to use a library to
                 do it for you.</para>
             <formalpara>
+                <title>GL Load</title>
+                <para>This comes with the Unofficial OpenGL SDK. And while most of the SDK is not
+                    intended for high-performance use, GL Load is still perfectly serviceable in
+                    that capacity. After all, this is generally a one-time initialization step, so
+                    performance is ultimately irrelevant.</para>
+            </formalpara>
+            <para>GL Load works with core and compatibility contexts equally well. GL Load uses the
+                MIT License.</para>
+            <formalpara>
                 <title>GLEW</title>
                 <para>GLEW (the OpenGL Extension Wrangler) is perhaps the most widely used
                     alternative. While it is technically intended for loading extension functions,

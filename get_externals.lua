@@ -32,6 +32,7 @@ local externals =
 			"glm/doc",
 			"glm/test",
 			"glm/util",
+			"README.html",
 		}
 	},
 }
