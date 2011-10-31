@@ -315,6 +315,8 @@ int g_currSampler = 0;
 bool g_drawGammaProgram = false;
 bool g_bDrawCameraPos = false;
 
+bool g_useGammaDisplay = false;
+
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
@@ -323,6 +325,10 @@ void display()
 	glClearColor(0.75f, 0.75f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if(g_useGammaDisplay)
+		glEnable(GL_FRAMEBUFFER_SRGB);
+	else
+		glDisable(GL_FRAMEBUFFER_SRGB);
 
 	if(g_pSphere && g_pTerrain)
 	{
@@ -414,7 +420,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_drawGammaProgram = !g_drawGammaProgram;
 		break;
 	case 32:
-		g_drawGammaProgram = !g_drawGammaProgram;
+		g_useGammaDisplay = !g_useGammaDisplay;
 		break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 	}
@@ -431,4 +437,4 @@ void keyboard(unsigned char key, int x, int y)
 	g_viewPole.CharPress(key);
 }
 
-unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode;}
+unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode | GLUT_SRGB;}
