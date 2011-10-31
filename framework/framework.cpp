@@ -3,9 +3,12 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <exception>
+#include <stdexcept>
 #include <string.h>
 #include <glload/gl_3_3.h>
 #include <glload/gll.hpp>
+#include <glutil/Shader.h>
 #include <GL/freeglut.h>
 #include "framework.h"
 #include "directories.h"
@@ -16,94 +19,20 @@
 
 namespace Framework
 {
-	namespace
-	{
-		const char *GetShaderName(GLenum eShaderType)
-		{
-			switch(eShaderType)
-			{
-			case GL_VERTEX_SHADER: return "vertex"; break;
-			case GL_GEOMETRY_SHADER: return "geometry"; break;
-			case GL_FRAGMENT_SHADER: return "fragment"; break;
-			}
-
-			return NULL;
-		}
-	}
-
-	GLuint CreateShader(GLenum eShaderType,
-		const std::string &strShaderFile, const std::string &strShaderName)
-	{
-		GLuint shader = glCreateShader(eShaderType);
-		const char *strFileData = strShaderFile.c_str();
-		glShaderSource(shader, 1, (const GLchar**)&strFileData, NULL);
-
-		glCompileShader(shader);
-
-		GLint status;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-		if (status == GL_FALSE)
-		{
-			GLint infoLogLength;
-			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-			GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-			glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
-
-			fprintf(stderr, "Compile failure in %s shader named \"%s\". Error:\n%s\n",
-				GetShaderName(eShaderType), strShaderName.c_str(), strInfoLog);
-			delete[] strInfoLog;
-		}
-
-		return shader;
-	}
-
 	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename)
 	{
-		std::string strFilename = LOCAL_FILE_DIR + strShaderFilename;
+		std::string strFilename = FindFileOrThrow(strShaderFilename);
 		std::ifstream shaderFile(strFilename.c_str());
-		if(!shaderFile.is_open())
-		{
-			shaderFile.clear();
-			strFilename = GLOBAL_FILE_DIR + strShaderFilename;
-			shaderFile.open(strFilename.c_str());
-			if(!shaderFile.is_open())
-			{
-				fprintf(stderr, "Cannot load the shader file \"%s\" for the %s shader.\n",
-					strShaderFilename.c_str(), GetShaderName(eShaderType));
-				return 0;
-			}
-		}
 		std::stringstream shaderData;
 		shaderData << shaderFile.rdbuf();
 		shaderFile.close();
 
-		return CreateShader(eShaderType, shaderData.str(), strShaderFilename);
+		return glutil::CompileShader(eShaderType, shaderData.str());
 	}
 
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 	{
-		GLuint program = glCreateProgram();
-
-		for(size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
-			glAttachShader(program, shaderList[iLoop]);
-
-		glLinkProgram(program);
-
-		GLint status;
-		glGetProgramiv (program, GL_LINK_STATUS, &status);
-		if (status == GL_FALSE)
-		{
-			GLint infoLogLength;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
-
-			GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-			glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
-			fprintf(stderr, "Linker failure: %s\n", strInfoLog);
-			delete[] strInfoLog;
-		}
-
-		return program;
+		return glutil::LinkProgram(shaderList);
 	}
 
 	float DegToRad(float fAngDeg)
@@ -112,6 +41,21 @@ namespace Framework
 		return fAngDeg * fDegToRad;
 	}
 
+	std::string FindFileOrThrow( const std::string &strBasename )
+	{
+		std::string strFilename = LOCAL_FILE_DIR + strBasename;
+		std::ifstream testFile(strFilename.c_str());
+		if(testFile.is_open())
+			return strFilename;
+
+		
+		strFilename = GLOBAL_FILE_DIR + strBasename;
+		testFile.open(strFilename.c_str());
+		if(testFile.is_open())
+			return strFilename;
+
+		throw std::runtime_error("Could not find the file " + strBasename);
+	}
 }
 
 

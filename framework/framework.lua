@@ -2,6 +2,7 @@
 dofile("../glsdk/links.lua")
 
 local myPath = os.getcwd();
+local usedLibs = {"glload", "glimage", "glm", "glutil", "glmesh", "freeglut"}
 
 function SetupSolution(slnName)
 	solution(slnName)
@@ -31,7 +32,7 @@ function SetupSolution(slnName)
 
 		includedirs {"../tinyxml", "../framework"}
 		
-		UseLibs {"glload", "glimage", "glm", "freeglut"}
+		UseLibs(usedLibs)
 		
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
@@ -54,7 +55,7 @@ function SetupProject(projName, ...)
 		
 		files {...}
 
-		UseLibs {"glload", "glimage", "glm", "freeglut"}
+		UseLibs(usedLibs)
 
 		includedirs {"../tinyxml", "../framework"}
 			

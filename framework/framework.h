@@ -15,6 +15,10 @@ namespace Framework
 	GLuint LoadShader(GLenum eShaderType, const std::string &strShaderFilename);
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList);
 
+	//Will find a file with the given base filename, either in the local directory or the global one.
+	//If it doesn't, it will throw a std::runtime_error.
+	std::string FindFileOrThrow(const std::string &strBasename);
+
 
 }
 
