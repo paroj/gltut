@@ -133,9 +133,9 @@ void LoadTextures()
 {
 	try
 	{
-		std::string filename(Framework::FindFileOrThrow("STest.png"));
+		std::string filename(Framework::FindFileOrThrow("terrain_tex.dds"));
 
-		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::stb::LoadFromFile(filename.c_str()));
+		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 
 		glGenTextures(1, &g_linearTexture);
 		glBindTexture(GL_TEXTURE_2D, g_linearTexture);
