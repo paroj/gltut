@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lightenv>
+    <sun time="15">
+        <key time="0" ambient="0.4 0.4 0.4 1.0" intensity="0 0 0 1.0" background="0.65 0.65
+            1.0 1.0" max-intensity="10" />
+        <key time="12" ambient="0.4 0.4 0.4 1.0" intensity="0 0 0 1.0" background="0.0 0.0
+            0.0 1.0" max-intensity="10" />
+    </sun>
+    <light time="30" intensity="16 16 16 1.0">
+        <key>0.0 40 0.0</key>
+    </light>
+</lightenv>

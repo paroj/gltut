@@ -17,6 +17,9 @@
 #include "../framework/Timer.h"
 #include "../framework/UniformBlockArray.h"
 #include "../framework/directories.h"
+#include "../framework/MousePole.h"
+#include "../framework/Interpolators.h"
+#include "LightEnv.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -28,6 +31,7 @@ struct ProgramData
 	GLuint theProgram;
 
 	GLuint modelToCameraMatrixUnif;
+	GLuint numberOfLightsUnif;
 };
 
 struct UnlitProgData
@@ -45,7 +49,7 @@ ProgramData g_progStandard;
 UnlitProgData g_progUnlit;
 
 const int g_projectionBlockIndex = 0;
-const int g_lightBlockIndex = 0;
+const int g_lightBlockIndex = 1;
 const int g_colorTexUnit = 0;
 
 ProgramData LoadProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
@@ -58,9 +62,13 @@ ProgramData LoadProgram(const std::string &strVertexShader, const std::string &s
 	ProgramData data;
 	data.theProgram = Framework::CreateProgram(shaderList);
 	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
+	data.numberOfLightsUnif = glGetUniformLocation(data.theProgram, "numberOfLights");
 
 	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
 	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
+
+	GLuint lightBlockIndex = glGetUniformBlockIndex(data.theProgram, "Light");
+	glUniformBlockBinding(data.theProgram, lightBlockIndex, g_lightBlockIndex);
 
 	GLuint colorTextureUnif = glGetUniformLocation(data.theProgram, "diffuseColorTex");
 	glUseProgram(data.theProgram);
@@ -100,6 +108,7 @@ struct ProjectionBlock
 };
 
 GLuint g_projectionUniformBuffer = 0;
+GLuint g_lightUniformBuffer = 0;
 GLuint g_linearTexture = 0;
 // GLuint g_gammaTexture = 0;
 
@@ -175,88 +184,22 @@ glutil::ViewData g_initialView =
 
 glutil::ViewScale g_initialViewScale =
 {
-	5.0f,
-	90.0f,
-	2.0f,
-	0.5f,
-	4.0f,
-	1.0f,
+	5.0f, 90.0f,
+	2.0f, 0.5f,
+	4.0f, 1.0f,
 	90.0f/250.0f
 };
 
 glutil::ViewPole g_viewPole(g_initialView, g_initialViewScale, glutil::MB_LEFT_BTN);
 
-
 namespace
 {
-	int calc_glut_modifiers()
-	{
-		int ret = 0;
-
-		int modifiers = glutGetModifiers();
-		if(modifiers & GLUT_ACTIVE_SHIFT)
-			ret |= glutil::MM_KEY_SHIFT;
-		if(modifiers & GLUT_ACTIVE_CTRL)
-			ret |= glutil::MM_KEY_CTRL;
-		if(modifiers & GLUT_ACTIVE_ALT)
-			ret |= glutil::MM_KEY_ALT;
-
-		return ret;
-	}
-
-	void MouseMotion(int x, int y)
-	{
-		g_viewPole.MouseMove(glm::ivec2(x, y));
-		glutPostRedisplay();
-	}
-
-
-	void MouseButton(int button, int state, int x, int y)
-	{
-		int modifiers = calc_glut_modifiers();
-
-		glm::ivec2 mouseLoc = glm::ivec2(x, y);
-
-		glutil::MouseButtons eButton;
-
-		switch(button)
-		{
-		case GLUT_LEFT_BUTTON:
-			eButton = glutil::MB_LEFT_BTN;
-			break;
-		case GLUT_MIDDLE_BUTTON:
-			eButton = glutil::MB_MIDDLE_BTN;
-			break;
-		case GLUT_RIGHT_BUTTON:
-			eButton = glutil::MB_RIGHT_BTN;
-			break;
-#ifdef LOAD_X11
-			//Linux Mouse wheel support
-		case 3:
-			{
-				g_viewPole.MouseWheel(1, modifiers, mouseLoc);
-				return;
-			}
-		case 4:
-			{
-				g_viewPole.MouseWheel(-1, modifiers, mouseLoc);
-				return;
-			}
-#endif
-		default:
-			return;
-		}
-
-		g_viewPole.MouseClick(eButton, state == GLUT_DOWN, modifiers, glm::ivec2(x, y));
-		glutPostRedisplay();
-	}
-
-	void MouseWheel(int wheel, int direction, int x, int y)
-	{
-		g_viewPole.MouseWheel(direction, calc_glut_modifiers(), glm::ivec2(x, y));
-		glutPostRedisplay();
-	}
+	void MouseMotion(int x, int y) { Framework::ForwardMouseMotion(g_viewPole, x, y); }
+	void MouseButton(int button, int state, int x, int y) { Framework::ForwardMouseButton(g_viewPole, button, state, x, y); }
+	void MouseWheel(int wheel, int direction, int x, int y) { Framework::ForwardMouseWheel(g_viewPole, wheel, direction, x, y); }
 }
+
+LightEnv *g_pLightEnv = NULL;
 
 Framework::Mesh *g_pTerrain = NULL;
 Framework::Mesh *g_pSphere = NULL;
@@ -266,6 +209,8 @@ void init()
 {
 	try
 	{
+		g_pLightEnv = new LightEnv("LightEnv.xml");
+
 		InitializePrograms();
 
 		g_pTerrain = new Framework::Mesh("terrain.xml");
@@ -302,6 +247,13 @@ void init()
 	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
 		0, sizeof(ProjectionBlock));
 
+	glGenBuffers(1, &g_lightUniformBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), NULL, GL_STREAM_DRAW);
+
+	glBindBufferRange(GL_UNIFORM_BUFFER, g_lightBlockIndex, g_lightUniformBuffer,
+		0, sizeof(LightBlock));
+
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	LoadTextures();
@@ -322,26 +274,36 @@ bool g_useGammaDisplay = false;
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
 void display()
 {
-	glClearColor(0.75f, 0.75f, 1.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(g_useGammaDisplay)
 		glEnable(GL_FRAMEBUFFER_SRGB);
 	else
 		glDisable(GL_FRAMEBUFFER_SRGB);
 
+	g_pLightEnv->UpdateTime();
+
+	glm::vec4 bgColor = g_pLightEnv->GetBackgroundColor();
+	glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glutil::MatrixStack modelMatrix;
+	modelMatrix.ApplyMatrix(g_viewPole.CalcMatrix());
+
+	LightBlock lightData = g_pLightEnv->GetLightBlock(g_viewPole.CalcMatrix());
+
+	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), &lightData, GL_STREAM_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 	if(g_pSphere && g_pTerrain)
 	{
-		glutil::MatrixStack modelMatrix;
-
-		modelMatrix.ApplyMatrix(g_viewPole.CalcMatrix());
-
 		glutil::PushStack push(modelMatrix);
 		modelMatrix.RotateX(-90.0f);
 
 		glUseProgram(g_progStandard.theProgram);
 		glUniformMatrix4fv(g_progStandard.modelToCameraMatrixUnif, 1, GL_FALSE,
 			glm::value_ptr(modelMatrix.Top()));
+		glUniform1i(g_progStandard.numberOfLightsUnif, g_pLightEnv->GetNumLights());
 
 		glActiveTexture(GL_TEXTURE0 + g_colorTexUnit);
 		glBindTexture(GL_TEXTURE_2D, g_linearTexture);
@@ -357,6 +319,23 @@ void display()
 
 		push.ResetStack();
 
+		//Render the sun
+		{
+			glm::vec3 sunlightDir(g_pLightEnv->GetSunlightDirection());
+			modelMatrix.Translate(sunlightDir * 500.0f);
+			modelMatrix.Scale(30.0f, 30.0f, 30.0f);
+
+			glUseProgram(g_progUnlit.theProgram);
+			glUniformMatrix4fv(g_progUnlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+
+			glm::vec4 lightColor = g_pLightEnv->GetSunlightIntensity(), gamma;
+			glUniform4fv(g_progUnlit.objectColorUnif, 1, glm::value_ptr(lightColor));
+			g_pSphere->Render("flat");
+		}
+
+
+		push.ResetStack();
 
 		if(g_bDrawCameraPos)
 		{
@@ -387,7 +366,7 @@ void display()
 void reshape (int w, int h)
 {
 	glutil::MatrixStack persMatrix;
-	persMatrix.Perspective(60.0f, (h / (float)w), g_fzNear, g_fzFar);
+	persMatrix.Perspective(60.0f, (w / (float)h), g_fzNear, g_fzFar);
 
 	ProjectionBlock projData;
 	projData.cameraToClipMatrix = persMatrix.Top();
@@ -412,8 +391,10 @@ void keyboard(unsigned char key, int x, int y)
 	case 27:
 		delete g_pSphere;
 		delete g_pTerrain;
+		delete g_pLightEnv;
 		g_pSphere = NULL;
 		g_pTerrain = NULL;
+		g_pLightEnv = NULL;
 		glutLeaveMainLoop();
 		return;
 	case 'a':
@@ -422,7 +403,25 @@ void keyboard(unsigned char key, int x, int y)
 	case 32:
 		g_useGammaDisplay = !g_useGammaDisplay;
 		break;
+	case '-': g_pLightEnv->RewindTime(1.0f); break;
+	case '=': g_pLightEnv->FastForwardTime(1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
+	case 'r':
+		{
+			bool isPaused = g_pLightEnv->IsPaused();
+			float elapsed = g_pLightEnv->GetElapsedTime();
+			delete g_pLightEnv;
+
+			g_pLightEnv = new LightEnv("LightEnv.xml");
+			g_pLightEnv->SetPause(isPaused);
+			g_pLightEnv->FastForwardTime(elapsed);
+
+			printf("Elapsed: %f\n", elapsed);
+		}
+		break;
+	case 'p':
+		g_pLightEnv->TogglePause();
+		break;
 	}
 
 	if(('1' <= key) && (key <= '9'))

@@ -99,7 +99,7 @@ namespace Framework
 		switch(m_eType)
 		{
 		case TT_LOOP:
-			return fmodf(m_secAccumTime, m_secDuration) * m_secDuration;
+			return fmodf(m_secAccumTime, m_secDuration);
 		case TT_SINGLE:
 			return glm::clamp(m_secAccumTime, 0.0f, m_secDuration);
 		}

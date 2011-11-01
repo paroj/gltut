@@ -27,12 +27,28 @@ namespace Framework
 		shaderData << shaderFile.rdbuf();
 		shaderFile.close();
 
-		return glutil::CompileShader(eShaderType, shaderData.str());
+		try
+		{
+			return glutil::CompileShader(eShaderType, shaderData.str());
+		}
+		catch(std::exception &e)
+		{
+			fprintf(stderr, e.what());
+			throw;
+		}
 	}
 
 	GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 	{
-		return glutil::LinkProgram(shaderList);
+		try
+		{
+			return glutil::LinkProgram(shaderList);
+		}
+		catch(std::exception &e)
+		{
+			fprintf(stderr, e.what());
+			throw;
+		}
 	}
 
 	float DegToRad(float fAngDeg)

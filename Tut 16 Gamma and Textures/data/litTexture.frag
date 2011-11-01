@@ -14,16 +14,15 @@ struct PerLight
 	vec4 lightIntensity;
 };
 
-const int numberOfLights = 1;
-
 uniform Light
 {
 	vec4 ambientIntensity;
 	float lightAttenuation;
 	float maxIntensity;
-	PerLight lights[numberOfLights];
+	PerLight lights[4];
 } Lgt;
 
+uniform int numberOfLights;
 
 float CalcAttenuation(in vec3 cameraSpacePosition,
 	in vec3 cameraSpaceLightPos,
@@ -67,15 +66,13 @@ void main()
 {
 	vec4 diffuseColor = texture(diffuseColorTex, colorCoord);
 	
-	/*
 	vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
 	for(int light = 0; light < numberOfLights; light++)
 	{
 		accumLighting += ComputeLighting(diffuseColor, Lgt.lights[light]);
 	}
 	
-	accumLighting = accumLighting / Lgt.maxIntensity;
-	*/
+	outputColor = accumLighting / Lgt.maxIntensity;
 
-	outputColor = diffuseColor;
+//	outputColor = diffuseColor;
 }

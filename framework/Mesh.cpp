@@ -496,17 +496,10 @@ namespace Framework
 		std::vector<std::pair<std::string, std::vector<GLuint> > > namedVaoList;
 
 		{
-			std::string strDataFilename = LOCAL_FILE_DIR + strFilename;
+			std::string strDataFilename = FindFileOrThrow(strFilename);
 			std::ifstream fileStream(strDataFilename.c_str());
 			if(!fileStream.is_open())
-			{
-				fileStream.clear();
-				strDataFilename = GLOBAL_FILE_DIR + strFilename;
-				fileStream.open(strDataFilename.c_str());
-
-				if(!fileStream.is_open())
-					throw std::runtime_error("Could not find the mesh file.");
-			}
+				throw std::runtime_error("Could not find the mesh file.");
 
 			TiXmlDocument theDoc;
 

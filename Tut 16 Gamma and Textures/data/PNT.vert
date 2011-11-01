@@ -19,7 +19,8 @@ uniform mat4 modelToCameraMatrix;
 
 void main()
 {
-	gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+	cameraSpacePosition = (modelToCameraMatrix * vec4(position, 1.0)).xyz;
+	gl_Position = cameraToClipMatrix * vec4(cameraSpacePosition, 1.0);
 	//Assume the modelToCameraMatrix contains no scaling.
 	cameraSpaceNormal = (modelToCameraMatrix * vec4(normal, 0)).xyz;
 	colorCoord = texCoord;
