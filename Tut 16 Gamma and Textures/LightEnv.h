@@ -64,6 +64,8 @@ public:
 		return m_sunlightInterpolator.Interpolate(m_sunTimer.GetAlpha());
 	}
 
+	glm::vec4 GetSunlightScaledIntensity() const;
+
 	float GetElapsedTime() const
 	{
 		return m_sunTimer.GetProgression();
@@ -73,9 +75,16 @@ public:
 
 	LightBlock GetLightBlock(const glm::mat4 &worldToCamera) const;
 
+	int GetNumPointLights() const;
+	glm::vec4 GetPointLightIntensity(int pointLightIx) const;
+	glm::vec4 GetPointLightScaledIntensity(int pointLightIx) const;
+	glm::vec3 GetPointLightWorldPos(int pointLightIx) const;
+
 private:
 	typedef Framework::ConstVelLinearInterpolator<glm::vec3> LightInterpolator;
 	typedef std::map<std::string, Framework::Timer> ExtraTimerMap;
+
+	float m_fLightAttenuation;
 
 	Framework::Timer m_sunTimer;
 	Framework::TimedLinearInterpolator<glm::vec4> m_ambientInterpolator;

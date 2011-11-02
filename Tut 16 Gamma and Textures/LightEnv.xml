@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<lightenv>
-    <sun time="15">
-        <key time="0" ambient="0.4 0.4 0.4 1.0" intensity="0 0 0 1.0" background="0.65 0.65
-            1.0 1.0" max-intensity="10" />
-        <key time="12" ambient="0.4 0.4 0.4 1.0" intensity="0 0 0 1.0" background="0.0 0.0
-            0.0 1.0" max-intensity="10" />
+<lightenv atten="50">
+    <sun time="48">
+        <key time="0" ambient="1 1 1 1.0" intensity="12 12 12 1.0"
+			background="0.65 0.65 1.0 1.0" max-intensity="15" />
+        <key time="4" ambient="1 1 1 1.0" intensity="12 12 12 1.0"
+			background="0.65 0.65 1.0 1.0" max-intensity="15" />
+        <key time="5" ambient="0.8 0.8 0.8 1.0" intensity="8 8 8 1.0"
+			background="0.65 0.65 1.0 1.0" max-intensity="12" />
+        <key time="6" ambient="0.8 0.4 0.4 1.0" intensity="8 4 4 1.0"
+			background="0.65 0.3 0.3 1.0" max-intensity="10" />
+        <key time="6.5" ambient="0.4 0.2 0.2 1.0" intensity="3 1 1 1.0"
+			background="0.3 0.1 0.1 1.0" max-intensity="8" />
+        <key time="7.5" ambient="0.01 0.01 0.01 1.0" intensity="0 0 0 1.0"
+			background="0 0 0 1.0" max-intensity="6" />
+        <key time="16.5" ambient="0.01 0.01 0.01 1.0" intensity="0 0 0 1.0"
+			background="0 0 0 1.0" max-intensity="6" />
+        <key time="17.5" ambient="0.4 0.2 0.2 1.0" intensity="3 1 1 1.0"
+			background="0.3 0.1 0.1 1.0" max-intensity="8" />
+        <key time="18" ambient="0.8 0.4 0.4 1.0" intensity="8 4 4 1.0"
+			background="0.65 0.3 0.3 1.0" max-intensity="10" />
+        <key time="19" ambient="0.8 0.8 0.8 1.0" intensity="8 8 8 1.0"
+			background="0.65 0.65 1.0 1.0" max-intensity="12" />
+        <key time="20" ambient="1 1 1 1.0" intensity="12 12 12 1.0"
+			background="0.65 0.65 1.0 1.0" max-intensity="15" />
     </sun>
-    <light time="30" intensity="16 16 16 1.0">
-        <key>0.0 40 0.0</key>
+    <light time="10" intensity="2 2 2 1.0">
+        <key>-100.0 25 0.0</key>
+        <key>100.0 25 0.0</key>
     </light>
 </lightenv>

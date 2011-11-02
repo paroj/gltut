@@ -267,7 +267,7 @@ int g_currSampler = 0;
 bool g_drawGammaProgram = false;
 bool g_bDrawCameraPos = false;
 
-bool g_useGammaDisplay = false;
+bool g_useGammaDisplay = true;
 
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
@@ -329,7 +329,23 @@ void display()
 			glUniformMatrix4fv(g_progUnlit.modelToCameraMatrixUnif, 1, GL_FALSE,
 				glm::value_ptr(modelMatrix.Top()));
 
-			glm::vec4 lightColor = g_pLightEnv->GetSunlightIntensity(), gamma;
+			glm::vec4 lightColor = g_pLightEnv->GetSunlightScaledIntensity(), gamma;
+			glUniform4fv(g_progUnlit.objectColorUnif, 1, glm::value_ptr(lightColor));
+			g_pSphere->Render("flat");
+		}
+
+		//Draw lights
+		for(int light = 0; light < g_pLightEnv->GetNumPointLights(); light++)
+		{
+			push.ResetStack();
+
+			modelMatrix.Translate(g_pLightEnv->GetPointLightWorldPos(light));
+
+			glUseProgram(g_progUnlit.theProgram);
+			glUniformMatrix4fv(g_progUnlit.modelToCameraMatrixUnif, 1, GL_FALSE,
+				glm::value_ptr(modelMatrix.Top()));
+
+			glm::vec4 lightColor = g_pLightEnv->GetPointLightScaledIntensity(light);
 			glUniform4fv(g_progUnlit.objectColorUnif, 1, glm::value_ptr(lightColor));
 			g_pSphere->Render("flat");
 		}
@@ -355,6 +371,7 @@ void display()
 			glUniform4f(g_progUnlit.objectColorUnif, 1.0f, 1.0f, 1.0f, 1.0f);
 			g_pSphere->Render("flat");
 		}
+
 	}
 
 	glutPostRedisplay();

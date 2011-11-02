@@ -10,8 +10,6 @@
 #include "../framework/framework.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-const float g_fHalfLightDistance = 20.0f;
-const float g_fLightAttenuation = 1.0f / (g_fHalfLightDistance * g_fHalfLightDistance);
 
 typedef std::pair<float, float> MaxIntensityData;
 typedef std::vector<MaxIntensityData> MaxIntensityVector;
@@ -53,6 +51,7 @@ namespace
 }
 
 LightEnv::LightEnv( const std::string& envFilename )
+	: m_fLightAttenuation(40.0f)
 {
 	std::ifstream fileStream(envFilename.c_str());
 	if(!fileStream.is_open())
@@ -67,6 +66,14 @@ LightEnv::LightEnv( const std::string& envFilename )
 		throw std::runtime_error(theDoc.ErrorDesc());
 
 	TiXmlHandle docHandle(&theDoc);
+
+	const TiXmlElement *pRootNode = docHandle.FirstChild("lightenv").ToElement();
+
+	if(!pRootNode)
+		throw std::runtime_error("The root node must be a 'lightenv' element.");
+
+	pRootNode->QueryFloatAttribute("atten", &m_fLightAttenuation);
+	m_fLightAttenuation = 1.0f / (m_fLightAttenuation * m_fLightAttenuation);
 
 	const TiXmlElement *pSunNode = docHandle.FirstChild("lightenv").FirstChild("sun").ToElement();
 
@@ -127,7 +134,7 @@ LightEnv::LightEnv( const std::string& envFilename )
 			throw std::runtime_error("Too many lights specified.");
 
 		float lightTime = 0;
-		if(pSunNode->QueryFloatAttribute("time", &lightTime) != TIXML_SUCCESS)
+		if(pLightNode->QueryFloatAttribute("time", &lightTime) != TIXML_SUCCESS)
 			throw std::runtime_error("'light' elements must have a 'time' attribute that is a float.");
 
 		m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, lightTime));
@@ -166,16 +173,43 @@ glm::vec4 LightEnv::GetSunlightDirection() const
 	return sunDirection;
 }
 
+glm::vec4 LightEnv::GetSunlightScaledIntensity() const
+{
+	return m_sunlightInterpolator.Interpolate(m_sunTimer.GetAlpha()) /
+		m_maxIntensityInterpolator.Interpolate(m_sunTimer.GetAlpha());
+}
+
 int LightEnv::GetNumLights() const
 {
 	return 1 + m_lightPos.size();
+}
+
+int LightEnv::GetNumPointLights() const
+{
+	return m_lightPos.size();
+}
+
+glm::vec4 LightEnv::GetPointLightIntensity( int pointLightIx ) const
+{
+	return m_lightIntensity.at(pointLightIx);
+}
+
+glm::vec4 LightEnv::GetPointLightScaledIntensity( int pointLightIx ) const
+{
+	return m_lightIntensity.at(pointLightIx) /
+		m_maxIntensityInterpolator.Interpolate(m_sunTimer.GetAlpha());
+}
+
+glm::vec3 LightEnv::GetPointLightWorldPos( int pointLightIx ) const
+{
+	return m_lightPos.at(pointLightIx).Interpolate(m_lightTimers.at(pointLightIx).GetAlpha());
 }
 
 LightBlock LightEnv::GetLightBlock( const glm::mat4 &worldToCamera ) const
 {
 	LightBlock lightData;
 	lightData.ambientIntensity = m_ambientInterpolator.Interpolate(m_sunTimer.GetAlpha());
-	lightData.lightAttenuation = g_fLightAttenuation;
+	lightData.lightAttenuation = m_fLightAttenuation;
 	lightData.maxIntensity = m_maxIntensityInterpolator.Interpolate(m_sunTimer.GetAlpha());
 
 	lightData.lights[0].cameraSpaceLightPos =
@@ -184,8 +218,7 @@ LightBlock LightEnv::GetLightBlock( const glm::mat4 &worldToCamera ) const
 
 	for(size_t light = 0; light < m_lightPos.size(); light++)
 	{
-		glm::vec4 worldLightPos =
-			glm::vec4(m_lightPos[light].Interpolate(m_lightTimers[light].GetAlpha()), 1.0f);
+		glm::vec4 worldLightPos = glm::vec4(GetPointLightWorldPos(light), 1.0f);
 		glm::vec4 lightPosCameraSpace = worldToCamera * worldLightPos;
 
 		lightData.lights[light + 1].cameraSpaceLightPos = lightPosCameraSpace;
@@ -266,3 +299,4 @@ void LightEnv::FastForwardTime( float secFF )
 	m_sunTimer.Fastforward(secFF);
 	std::for_each(m_lightTimers.begin(), m_lightTimers.end(), FFTimer(secFF));
 }
+
