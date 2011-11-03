@@ -131,14 +131,6 @@
                 saving memory improves performance. And since this is supposed to be a performance
                 optimization over shader computations, it makes sense to use a normalized integer
                 value.</para>
-            <note>
-                <para>Normalized integers are not restricted to textures. Vertex attributes of all
-                    kinds can be stored as normalized integers as an optimization. This is easier
-                    for some attributes than others; colors are often restricted to 8-bit normalized
-                    integers, and texture coordinates often can work well as 16-bit normalized
-                    values. These are optimizations, since the smaller the vertex data, the faster
-                    those vertices can be fed to the vertex shader.</para>
-            </note>
         </section>
         <section>
             <title>Texture Objects</title>
@@ -1160,6 +1152,9 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
                         dimensionality). Texture coordinates are often normalized on the range [0,
                         1]. This allows texture coordinates to ignore the size of the specific
                         texture they are used with.</para>
+                    <para>Texture coordinates are comprised by the S, T, R, and Q components, much
+                        like regular vectors are composed of X, Y, Z, and W components. In GLSL, the
+                        R component is called <quote>P</quote> instead.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

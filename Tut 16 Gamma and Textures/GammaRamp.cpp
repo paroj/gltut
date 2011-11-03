@@ -81,9 +81,9 @@ void InitializeVertexData()
 	glBindVertexArray(g_vao);
 	glBindBuffer(GL_ARRAY_BUFFER, g_dataBufferObject);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, false, 8, (void*)0);
+	glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, 8, (void*)0);
 	glEnableVertexAttribArray(5);
-	glVertexAttribPointer(5, 2, GL_UNSIGNED_SHORT, true, 8, (void*)4);
+	glVertexAttribPointer(5, 2, GL_UNSIGNED_SHORT, GL_TRUE, 8, (void*)4);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -192,7 +192,6 @@ void display()
 	glBindSampler(g_gammaRampTextureUnit, 0);
 
 	glutSwapBuffers();
-	glutPostRedisplay();
 }
 
 //Called whenever the window is resized. The new window size is given, in pixels.
@@ -243,6 +242,8 @@ void keyboard(unsigned char key, int x, int y)
 	case 32:
 		break;
 	}
+
+	glutPostRedisplay();
 }
 
 

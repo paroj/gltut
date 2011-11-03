@@ -2487,6 +2487,7 @@
             <file name="Texturing.xml"/>
             <file name="Texturing/Tutorial%2014.xml"/>
             <file name="Texturing/Tutorial%2015.xml"/>
+            <file name="Texturing/Tutorial%2016.xml"/>
         </folder>
         <folder name="Appendices">
             <file name="Getting%20Started.xml"/>
