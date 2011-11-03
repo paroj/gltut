@@ -584,7 +584,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             meaningful and useful depends on what you are doing.</para>
         <para>Successive transformations can be seen as doing successive multiplication operations.
             For example, if S is a pure scale matrix, T is a pure translation matrix, and R is a
-            pure scale matrix, then the shader can compute the result of a transformation as
+            pure rotation matrix, then the shader can compute the result of a transformation as
             follows:</para>
         <programlisting language="glsl">vec4 temp;
 temp = T * position;
@@ -969,6 +969,11 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 <para>The order that successive transforms are applied in matters. Matrix
                     multiplication is not commutative, and neither is object transformation.</para>
             </listitem>
+            <listitem>
+                <para>Successive transformations can be used to build hierarchies of objects, each
+                    dependent on the accumulated transformations of lower ones. This is done using a
+                    matrix stack.</para>
+            </listitem>
         </itemizedlist>
         <section>
             <title>Further Study</title>
@@ -997,9 +1002,9 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                         drawn.</para>
                 </listitem>
                 <listitem>
-                    <para>Given the generalized Hierarchy code, remove the matrix stack. Use objects
-                        created on the C++ stack instead. The node render function would take a
-                        const&amp; to a matrix rather than a matrix stack reference.</para>
+                    <para>Given the generalized Hierarchy code, remove the matrix stack. Use matrix
+                        objects created on the C++ stack instead. The node render function would
+                        take a const&amp; to a matrix rather than a matrix stack reference.</para>
                 </listitem>
             </itemizedlist>
         </section>

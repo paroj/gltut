@@ -967,8 +967,9 @@ glEnable(GL_DEPTH_TEST);</programlisting>
             is enough to measure the size of atoms in inches at more than 60 miles away from the
             origin.</para>
         <para>However, you would be sacrificing a lot of performance to do this. Even though the
-            hardware <emphasis>can</emphasis> do double-precision math, it loses about 50% of its
-            speed in doing so. And why bother, when the real solution is much easier?</para>
+            hardware <emphasis>can</emphasis> do double-precision math, it loses quite a bit of
+            performance in doing so (anywhere between 25% and 75% or more, depending on the GPU).
+            And why bother, when the real solution is much easier?</para>
         <para>Let's look at our shader again.</para>
         <programlisting language="glsl">#version 330
 
