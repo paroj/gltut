@@ -227,11 +227,11 @@
             <para>Normals have many properties that positions do. Normals are vector directions, so
                 like position vectors, they exist in a certain coordinate system. It is usually a
                 good idea to have the normals for your vertices be in the same coordinate system as
-                the positions in those vertices. So that means mesh space.</para>
-            <para>This also means that normals must be transformed from mesh space to another space.
-                That other space needs to be the same space that the lighting direction is in;
-                otherwise, the two vectors cannot be compared. One might think that world space is a
-                fine choice. After all, the light direction is already defined in world
+                the positions in those vertices. So that means model space.</para>
+            <para>This also means that normals must be transformed from model space to another
+                space. That other space needs to be the same space that the lighting direction is
+                in; otherwise, the two vectors cannot be compared. One might think that world space
+                is a fine choice. After all, the light direction is already defined in world
                 space.</para>
             <para>You certainly could use world space to do lighting. However, for our purposes, we
                 will use camera space. The reason for this is partially illustrative: in later
@@ -251,7 +251,7 @@
                 the normal position transform), we:</para>
             <orderedlist>
                 <listitem>
-                    <para>Transform the normal from mesh space to camera space using the
+                    <para>Transform the normal from model space to camera space using the
                         model-to-camera transformation matrix.</para>
                 </listitem>
                 <listitem>
