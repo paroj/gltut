@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<lightenv atten="50">
+<lightenv atten="60">
     <sun time="48">
         <key time="0" ambient="1 1 1 1.0" intensity="12 12 12 1.0"
 			background="0.65 0.65 1.0 1.0" max-intensity="15" />
@@ -24,8 +24,29 @@
         <key time="20" ambient="1 1 1 1.0" intensity="12 12 12 1.0"
 			background="0.65 0.65 1.0 1.0" max-intensity="15" />
     </sun>
-    <light time="10" intensity="2 2 2 1.0">
-        <key>-100.0 25 0.0</key>
-        <key>100.0 25 0.0</key>
+    <light time="24" intensity="3 3 3 1.0">
+		<key>-40.0 40 -90.0</key>
+		<key>-35.0 30 -75.0</key>
+        <key>-30.0 15 -60.0</key>
+        <key>50.0 5 -30.0</key>
+        <key>30.0 5 20.0</key>
+        <key>0.0 0 30.0</key>
+        <key>-20.0 5 50.0</key>
+        <key>-10.0 15 80.0</key>
+        <key>60.0 10 90.0</key>
+        <key>70.0 10 -40.0</key>
+        <key>40.0 30 -80.0</key>
     </light>
+	<light time="12" intensity="2 1 4 1.0">
+		<key>-80 10 70</key>
+		<key>-80 10 40</key>
+		<key>-76 13 30</key>
+		<key>-70 13 8</key>
+		<key>-70 13 8</key>
+		<key>-77 10 3</key>
+		<key>-85 8 8</key>
+		<key>-85 8 8</key>
+		<key>-90 8 20</key>
+		<key>-90 8 40</key>
+	</light>
 </lightenv>

@@ -585,7 +585,9 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
                 here.</para>
             <para>Indeed, the repeating checkerboard texture was chosen specifically because it
                 highlights the issues in a very obvious way. A more traditional diffuse color
-                texture typically looks much better with reasonable filtering applied.</para>
+                texture typically looks much better with reasonable filtering applied. Also, there
+                is one issue that we are currently missing that will be applied in the next
+                tutorial.</para>
         </section>
         <section>
             <title>A Matter of EXT</title>

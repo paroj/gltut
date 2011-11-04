@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <exception>
 #include <math.h>
 #include <stdio.h>
 #include <sstream>
@@ -176,8 +177,8 @@ void LoadTextures()
 //View setup.
 glutil::ViewData g_initialView =
 {
-	glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::fquat(0.924f, 0.384f, 0.0f, 0.0f),
+	glm::vec3(-60.257084f, 10.947238f, 62.636356f),
+	glm::fquat(-0.972817f, -0.099283f, -0.211198f, -0.020028f),
 	30.0f,
 	0.0f
 };
@@ -264,7 +265,6 @@ using Framework::Timer;
 
 int g_currSampler = 0;
 
-bool g_drawGammaProgram = false;
 bool g_bDrawCameraPos = false;
 
 bool g_useGammaDisplay = true;
@@ -414,9 +414,6 @@ void keyboard(unsigned char key, int x, int y)
 		g_pLightEnv = NULL;
 		glutLeaveMainLoop();
 		return;
-	case 'a':
-		g_drawGammaProgram = !g_drawGammaProgram;
-		break;
 	case 32:
 		g_useGammaDisplay = !g_useGammaDisplay;
 		break;
@@ -425,15 +422,24 @@ void keyboard(unsigned char key, int x, int y)
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
 	case 'r':
 		{
-			bool isPaused = g_pLightEnv->IsPaused();
-			float elapsed = g_pLightEnv->GetElapsedTime();
-			delete g_pLightEnv;
+			try
+			{
+				LightEnv *pNewEnv = new LightEnv("LightEnv.xml");
+				bool isPaused = g_pLightEnv->IsPaused();
+				float elapsed = g_pLightEnv->GetElapsedTime();
+				delete g_pLightEnv;
+				g_pLightEnv = pNewEnv;
 
-			g_pLightEnv = new LightEnv("LightEnv.xml");
-			g_pLightEnv->SetPause(isPaused);
-			g_pLightEnv->FastForwardTime(elapsed);
+				g_pLightEnv->SetPause(isPaused);
+				g_pLightEnv->FastForwardTime(elapsed);
 
-			printf("Elapsed: %f\n", elapsed);
+				printf("Elapsed: %f\n", elapsed);
+			}
+			catch(std::runtime_error &e)
+			{
+				printf("Parse error in LightEnv.xml:\n%s\n", e.what());
+				break;
+			}
 		}
 		break;
 	case 'p':

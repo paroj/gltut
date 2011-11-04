@@ -992,10 +992,6 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
             </itemizedlist>
         </section>
         <section>
-            <title>Further Research</title>
-            <para/>
-        </section>
-        <section>
             <title>OpenGL Functions of Note</title>
             <glosslist>
                 <glossentry>

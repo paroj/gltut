@@ -1048,10 +1048,10 @@ uniform Material
                 <glossterm>interleaving</glossterm>
                 <glossdef>
                     <para>A way of storing vertex attributes in a buffer object. This involves
-                        entwining the attribute data, so that most or all of a vertex's attributes
-                        are spatially adjacent in the buffer object. This is as opposed to giving
-                        each vertex attribute its own array. Interleaving can lead to higher
-                        rendering performance in vertex transfer limited cases.</para>
+                        entwining the attribute data, so that most or all of each vertex's
+                        attributes are spatially adjacent in the buffer object. This is as opposed
+                        to giving each vertex attribute its own array. Interleaving can lead to
+                        higher rendering performance in vertex transfer limited cases.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

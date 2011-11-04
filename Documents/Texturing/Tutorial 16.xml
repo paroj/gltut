@@ -289,6 +289,7 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
         </note>
         <para>To see how this can affect rendering, load up the <phrase role="propername">Gamma
                 Checkers</phrase> tutorial.</para>
+        <para/>
     </section>
     <section>
         <?dbhtml filename="Tut16 Free Gamma Correction.html" ?>
@@ -327,6 +328,10 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
                     be sRGB encoded and other parts not.</para>
             </listitem>
         </itemizedlist>
+        <section>
+            <title>Further Research</title>
+            <para/>
+        </section>
         <section>
             <title>Further Study</title>
             <para>Try doing these things with the given programs.</para>
