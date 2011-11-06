@@ -463,9 +463,10 @@ void main()
 }]]></programlisting>
             </example>
             <para>We have a few new uniforms, but the code itself is only modestly complex.</para>
-            <para>The first statement simply applies the offset to get the camera space positions of
-                the vertices. This is here just to make it easier to position our object in camera
-                space.</para>
+            <para>The first statement simply applies an offset, just like the vertex shaders we have
+                seen before. It positions the object in camera space, so that it is offset from the
+                center of the view. This is here to make it easier to position the object for
+                projection.</para>
             <para>The next statement performs a scalar multiply of the camera-space X and Y
                 positions, storing them in a temporary 4-dimensional vector. From there, we compute
                 the clip Z position based on the formula discussed earlier.</para>
