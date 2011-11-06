@@ -519,8 +519,8 @@ void main()
                     </imageobject>
                 </mediaobject>
             </equation>
-            <para>If both vectors have a length of one, if they are unit vectors, then the result of
-                a dot product is just the cosine of the angle between the vectors.</para>
+            <para>If both vectors have a length of one (ie: they are unit vectors), then the result
+                of a dot product is just the cosine of the angle between the vectors.</para>
             <para>This is also part of the reason why the light direction is the direction
                     <emphasis>towards</emphasis> the light rather than from the light. Otherwise we
                 would have to negate the vector before performing the dot product.</para>
