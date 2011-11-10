@@ -43,7 +43,14 @@
             that were substantially different from what he expected.</para>
         <para>The same goes for textures, only much moreso. And that is for one very important
             reason. Load up the <phrase role="propername">Gamma Ramp</phrase> tutorial.</para>
-        <!--TODO: Picture of the Gamma Ramp tutorial.-->
+        <figure>
+            <title>Gamma Ramp </title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Gamma%20Ramp.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>These are just two rectangles with a texture mapped to them. The top one is rendered
             without the shader's gamma correction, and the bottom one is rendered with gamma
             correction. These textures are 320x64 in size, and they are rendered at exactly this
@@ -131,7 +138,14 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
         <para>To see what kind of effect this has on our rendering, you can switch between which
             texture is used. The <keycap>1</keycap> key switches the top texture between linear RGB
             and sRGB, while <keycap>2</keycap> does the same for the bottom.</para>
-        <!--TODO: Picture of sRGB version of the images.-->
+        <figure>
+            <title>Gamma Ramp with sRGB Images</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Gamma%20Ramp%20sRGB.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>When using the sRGB version for both the top and the bottom, we can see that the gamma
             correct bottom one is right.</para>
         <para>When a texture uses one of the sRGB formats, texture access functions to those
@@ -300,7 +314,14 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
         </note>
         <para>To see how this can affect rendering, load up the <phrase role="propername">Gamma
                 Checkers</phrase> project.</para>
-        <!--TODO: Picture of the Gamma Checkers tutorial.-->
+        <figure>
+            <title>Gamma Checkers</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Gamma%20Checkers.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This works like the filtering tutorials. The <keycap>1</keycap> and<keycap>2</keycap>
             keys respectively select linear mipmap filtering and anisotropic filtering (using the
             maximum possible anisotropy).</para>
@@ -317,7 +338,14 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
             correct colorspace.</para>
         <para>To switch to a texture who's mipmaps were properly generated, press the
                 <keycap>g</keycap> key.</para>
-        <!--TODO: Picture of Gamma Textures with both gamma correct and gamma mipmap, linear mipmap.-->
+        <figure>
+            <title>Gamma Correct with Gamma Mipmaps</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Gamma%20Checkers%20Gamma.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This still looks different from the last tutorial. Which naturally tells us that not
             rendering with gamma correction before was actually a problem, as this version looks
             much better. The take-home point here is that ensuring linearity in all stages of the
@@ -336,7 +364,14 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
         <para>Naturally, OpenGL provides both of these. To see how they work, load up the last
             project, <phrase role="propername">Gamma Landscape</phrase>. This shows off some
             textured terrain with a day/night cycle and a few lights running around.</para>
-        <!--TODO: Picture of Gamma Landscape-->
+        <figure>
+            <title>Gamma Landscape</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Gamma%20Landscape.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>It uses the standard mouse-based controls to move around. As before, the
                 <keycap>1</keycap> and<keycap>2</keycap> keys respectively select linear mipmap
             filtering and anisotropic filtering. The main feature is the non-shader-based gamma
