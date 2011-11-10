@@ -165,6 +165,13 @@
             <listitem>
                 <para><filename>Names/Of/Paths/And/Files</filename></para>
             </listitem>
+            <listitem>
+                <para><keycap>K</keycap>: The keyboard key <quote>K,</quote> which is not the same
+                    as the capital letter <quote>K</quote>. The latter is what you get by pressing <keycombo>
+                        <keycap>Shift</keycap>
+                        <keycap>K</keycap>
+                    </keycombo>.</para>
+            </listitem>
         </itemizedlist>
     </section>
 </preface>

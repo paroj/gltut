@@ -420,6 +420,7 @@ void keyboard(unsigned char key, int x, int y)
 	case '-': g_pLightEnv->RewindTime(1.0f); break;
 	case '=': g_pLightEnv->FastForwardTime(1.0f); break;
 	case 't': g_bDrawCameraPos = !g_bDrawCameraPos; break;
+/*
 	case 'r':
 		{
 			try
@@ -442,6 +443,7 @@ void keyboard(unsigned char key, int x, int y)
 			}
 		}
 		break;
+*/
 	case 'p':
 		g_pLightEnv->TogglePause();
 		break;
@@ -459,4 +461,7 @@ void keyboard(unsigned char key, int x, int y)
 	g_viewPole.CharPress(key);
 }
 
-unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode | GLUT_SRGB;}
+unsigned int defaults(unsigned int displayMode, int &width, int &height)
+{
+	return displayMode | GLUT_SRGB;
+}

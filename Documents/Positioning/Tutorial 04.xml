@@ -935,7 +935,8 @@ glUseProgram(0);]]></programlisting>
                     <glossdef>
                         <para>These functions activate or inactivate certain features of OpenGL.
                             There is a large list of possible features that can be enabled or
-                            disabled.</para>
+                            disabled. In this tutorial, <literal>GL_CULL_FACE</literal> was used to
+                            enable/disable face culling.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>

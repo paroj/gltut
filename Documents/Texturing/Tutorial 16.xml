@@ -139,21 +139,26 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
             linearizes the color from the sRGB colorspace. This is exactly what we want. And the
             best part is that the linearisation cost is negligible. So there is no need to play with
             the data or otherwise manually linearize it. OpenGL does it for us.</para>
+        <para>Note that the shader does not change. It still uses a regular <type>sampler2D</type>,
+            accesses it with a 2D texture coordinate and the <function>texture</function> function,
+            etc. The shader does not have to know or care whether the image data is in the sRGB
+            colorspace or a linear one. It simply calls the <function>texture</function> function
+            and expects it to return linear RGB color values.</para>
         <section>
             <title>Pixel Positioning</title>
             <para>There is an interesting thing to note about the rendering in this tutorial. Not
                 only does it use an orthographic projection (unlike most of our tutorials since
                 Tutorial 4), it does something special with its orthographic projection. In the
                 pre-perspective tutorials, the orthographic projection was used essentially by
-                default. There was no real camera space; the vertices were drawn directly in
-                clip-space. And since the W of those vertices was 1, clip-space is identical to NDC
-                space.</para>
-            <para>It is often useful to want to draw something certain meshes using window-space
-                pixel coordinates. This is often useful for drawing text, but it can also be used
+                default. We were drawing vertices directly in clip-space. And since the W of those
+                vertices was 1, clip-space is identical to NDC space, and we therefore had an
+                orthographic projection.</para>
+            <para>It is often useful to want to draw something certain objects using window-space
+                pixel coordinates. This is commonly used for drawing text, but it can also be used
                 for displaying images exactly as they appear in a texture, as we do here. Since a
                 vertex shader must output clip-space values, the key is to develop a matrix that
                 transforms window-space coordinates into clip-space. OpenGL will handle the
-                conversion back internally.</para>
+                conversion back to window-space internally.</para>
             <para>This is done via the <function>reshape</function> function, as with most of our
                 projection matrix functions. The computation is actually quite simple.</para>
             <example>
@@ -163,25 +168,27 @@ persMatrix.Translate(-1.0f, 1.0f, 0.0f);
 persMatrix.Scale(2.0f / w, -2.0f / h, 1.0f);</programlisting>
             </example>
             <para>The goal is to transform window-space coordinates into clip-space, which is
-                identical to NDC space if the W component remains 1.0. Window-space coordinates have
-                an X range of [0, w) and Y range of [0, h). NDC space has X and Y ranges of [-1,
-                1].</para>
+                identical to NDC space since the W component remains 1.0. Window-space coordinates
+                have an X range of [0, w) and Y range of [0, h). NDC space has X and Y ranges of
+                [-1, 1].</para>
             <para>The first step is to scale our two X and Y ranges from [0, w/h) to [0, 2]. The
                 next step is to apply a simply offset to shift it over to the [-1, 1] range. Don't
                 forget that the transforms are applied in the reverse order from how they are
                 applied to the matrix stack.</para>
             <para>There is one thing to note however. NDC space has +X going right and +Y going up.
-                OpenGL's window-space agrees with this; the origin of the window is at the
+                OpenGL's window-space agrees with this; the origin of window-space is at the
                 lower-left corner. That is nice and all, but many people are used to a top-left
                 origin, with +Y going down.</para>
             <para>In this tutorial, we use a top-left origin window-space. That is why the Y scale
-                is negated and why the Y offset is positive (for a lower-left origin, you would want
+                is negated and why the Y offset is positive (for a lower-left origin, we would want
                 a negative offset).</para>
             <note>
                 <para>By negating the Y scale, we flip the winding order of objects rendered. This
                     is normally not a concern; most of the time you are working in window-space, you
                     aren't relying on face culling to strip out certain triangles. In this tutorial,
-                    we do not even enable face culling. OpenGL defaults to no face culling.</para>
+                    we do not even enable face culling. And oftentimes, when you are rendering with
+                    pixel-accurate coordinates, face culling is irrelevant and should be
+                    disabled.</para>
             </note>
         </section>
         <section>
@@ -201,17 +208,16 @@ persMatrix.Scale(2.0f / w, -2.0f / h, 1.0f);</programlisting>
     410, 176,	65535,	0,
     410, 112,	65535,	65535,
 };</programlisting>
-            <para>This introduces several techniques one can use with vertex data. Our vertex data
-                has two attributes: position and texture coordinates. Our positions are 2D, as are
-                our texture coordinates. These attributes are interleaved, with the position coming
-                first. So the first two columns above are the positions and the second two columns
-                are the texture coordinates.</para>
-            <para>Our data is, instead of floats, composed of <type>GLushort</type>s, which are
+            <para>Our vertex data has two attributes: position and texture coordinates. Our
+                positions are 2D, as are our texture coordinates. These attributes are interleaved,
+                with the position coming first. So the first two columns above are the positions and
+                the second two columns are the texture coordinates.</para>
+            <para>Instead of floats, our data is composed of <type>GLushort</type>s, which are
                 2-byte integers. How OpenGL interprets them is specified by the parameters to
                     <function>glVertexAttribPointer</function>. It can interpret them in two ways
                 (technically 3, but we don't use that here):</para>
             <example>
-                <title>Vertex Interleaving</title>
+                <title>Vertex Format</title>
                 <programlisting language="cpp">glBindVertexArray(g_vao);
 glBindBuffer(GL_ARRAY_BUFFER, g_dataBufferObject);
 glEnableVertexAttribArray(0);
@@ -224,38 +230,40 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
             </example>
             <para>Attribute 0 is our position. We see that the type is not
                     <literal>GL_FLOAT</literal> but <literal>GL_UNSIGNED_SHORT</literal>. This
-                matches the type we use. But the attribute taken by the GLSL shader is a floating
-                point <type>vec2</type>, not an integer 2D vector (which would be <type>ivec2</type>
-                in GLSL). How does OpenGL reconcile this?</para>
-            <para>It depends on the fourth parameter, which explains if the integer value is
+                matches the C++ type we use. But the attribute taken by the GLSL shader is a
+                floating point <type>vec2</type>, not an integer 2D vector (which would be
+                    <type>ivec2</type> in GLSL). How does OpenGL reconcile this?</para>
+            <para>It depends on the fourth parameter, which defines whether the integer value is
                 normalized. If it is set to <literal>GL_FALSE</literal>, then it is not normalized.
-                Therefore, it is converted into a float as through by standard C/C++ casting. An
+                Therefore, it is converted into a float as though by standard C/C++ casting. An
                 integer value of 90 is cast into a floating-point value of 90.0f. And this is
                 exactly what we want.</para>
             <para>Well, that is what we want to for the position; the texture coordinate is a
-                different matter. Normalized texture coordinates should range from [0, 1]. To
-                accomplish this, integer texture coordinates are often, well, normalized. By passing
-                    <literal>GL_TRUE</literal> to the fourth parameter (which only works if the
-                third parameter is an integer type), we tell OpenGL to normalize the integer value
-                when converting it to a float.</para>
-            <para>Since the maximum value of a <type>GLushort</type> is 65535, that value is mapped
-                to 1.0f, while the value 0 is mapped to 0.0f. So this is just a slightly fancy way
-                of setting the texture coordinates to 0 and 1.</para>
+                different matter. Normalized texture coordinates should range from [0, 1] (unless we
+                want to employ wrapping of some form). To accomplish this, integer texture
+                coordinates are often, well, normalized. By passing <literal>GL_TRUE</literal> to
+                the fourth parameter (which only works if the third parameter is an integer type),
+                we tell OpenGL to normalize the integer value when converting it to a float.</para>
+            <para>This normalization works exactly as it does for texel value normalization. Since
+                the maximum value of a <type>GLushort</type> is 65535, that value is mapped to 1.0f,
+                while the minimum value 0 is mapped to 0.0f. So this is just a slightly fancy way of
+                setting the texture coordinates to 1 and 0.</para>
             <para>Note that all of this conversion is <emphasis>free</emphasis>, in terms of
                 performance. Indeed, it is often a useful performance optimization to compact vertex
                 attributes as small as is reasonable. It is better in terms of both memory and
                 rendering performance, since reading less data from memory takes less time.</para>
             <para>OpenGL is just fine with using normalized shorts alongside 32-bit floats,
-                normalized unsigned bytes (useful for colors), etc, all in the same vertex data. The
-                above array could have use <literal>GLubyte</literal> for the texture coordinate,
-                but it would have been difficult to write that directly into the code as a C-style
-                array. In a real application, one would generally not get meshes from C-style
-                arrays, but from files.</para>
+                normalized unsigned bytes (useful for colors), etc, all in the same vertex data
+                (though not within the same <emphasis>attribute</emphasis>). The above array could
+                have use <literal>GLubyte</literal> for the texture coordinate, but it would have
+                been difficult to write that directly into the code as a C-style array. In a real
+                application, one would generally not get meshes from C-style arrays, but from
+                files.</para>
         </section>
     </section>
     <section>
         <?dbhtml filename="Tut16 Mipmaps and Linearity.html" ?>
-        <title>Linearity and sRGB</title>
+        <title>sRGB and Mipmaps</title>
         <para>The principle reason lighting functions require linear RGB values is because they
             perform linear operations. They therefore produce inaccurate results on non-linear
             colors. This is not limited to lighting functions; <emphasis>all</emphasis> linear
@@ -268,33 +276,133 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
         <para>The answer is quite simple: filtering comes after linearizing. So it does the right
             thing.</para>
         <note>
-            <para>It's not quite that simple. OpenGL leaves it undefined. However, if your hardware
-                can run these tutorials without modifications (ie: is OpenGL 3.3 capable), then odds
-                are it will do the right thing. It is only on pre-3.3 hardware where this is a
-                problem.</para>
+            <para>It's not quite that simple. The OpenGL specification technically leaves it
+                undefined. However, if your hardware can run these tutorials without modifications
+                (ie: your hardware is OpenGL 3.3 capable), then odds are it will do the right thing.
+                It is only on pre-3.0 hardware where this is a problem.</para>
         </note>
-        <para>A bigger question is this: do you generate the right mipmaps for your textures? Mipmap
-            generation involves some form of linear operation on the colors. Therefore for correct
-            results, it needs delinearize the color values, perform its filtering on them, then
-            convert them back to sRGB for storage.</para>
+        <para>A bigger question is this: do you generate the mipmaps correctly for your textures?
+            Mipmap generation was somewhat glossed over in the last tutorial, as tools generally do
+            this for you. In general, mipmap generation involves some form of linear operation on
+            the colors. For this process to produce correct results for sRGB textures, it needs to
+            linearize the sRGB color values, perform its filtering on them, then convert them back
+            to sRGB for storage.</para>
         <para>Unless you are writing texture processing tools, this question is answered by asking
             your texture tools themselves. Most freely available texture tools are completely
             unaware of non-linear colorspaces. You can tell which ones are aware based on the
             options you are given at mipmap creation time. If you can specify a gamma for your
             texture, or if there is some setting to specify that the texture's colors are sRGB, then
-            the tool can do the right thing. If no such option exists, then it cannot.</para>
+            the tool can do the right thing. If no such option exists, then it cannot. For sRGB
+            textures, you should use a gamma of 2.2, which is what sRGB approximates.</para>
         <note>
             <para>The DDS plugin for GIMP is a good, free tool that is aware of linear colorspaces.
                 NVIDIA's command-line texture tools, also free, are as well.</para>
         </note>
         <para>To see how this can affect rendering, load up the <phrase role="propername">Gamma
-                Checkers</phrase> tutorial.</para>
-        <para/>
+                Checkers</phrase> project.</para>
+        <!--TODO: Picture of the Gamma Checkers tutorial.-->
+        <para>This works like the filtering tutorials. The <keycap>1</keycap> and<keycap>2</keycap>
+            keys respectively select linear mipmap filtering and anisotropic filtering (using the
+            maximum possible anisotropy).</para>
+        <para>We can see that this looks a bit different from the last time we saw it. The distanct
+            grey field is much darker than it was. This is because we are using sRGB colorspace
+            textures. While the white and black are the same in sRGB (1.0 and 0.0 respectively), a
+            50% blend of them (0.5) is not. The sRGB texture assumes the 0.5 color is the sRGB 0.5,
+            so it becomes darker than we would expect.</para>
+        <para>Initially, we render with no gamma correction. To toggle gamma correction, press the
+                <keycap>a</keycap> key. This restores the view to what we saw previously.</para>
+        <para>However, the texture we are using is actually wrong. 0.5, as previously stated, is not
+            the sRGB color for a 50% blend of black and white. In the sRGB colorspace, that color
+            would be ~0.73. The texture is wrong because its mipmaps were not generated in the
+            correct colorspace.</para>
+        <para>To switch to a texture who's mipmaps were properly generated, press the
+                <keycap>g</keycap> key.</para>
+        <!--TODO: Picture of Gamma Textures with both gamma correct and gamma mipmap, linear mipmap.-->
+        <para>This still looks different from the last tutorial. Which naturally tells us that not
+            rendering with gamma correction before was actually a problem, as this version looks
+            much better. The take-home point here is that ensuring linearity in all stages of the
+            pipeline is always important. This includes mipmap generation.</para>
     </section>
     <section>
         <?dbhtml filename="Tut16 Free Gamma Correction.html" ?>
-        <title>Free Gamma Correction</title>
-        <para/>
+        <title>sRGB and the Screen</title>
+        <para>Thus far, we have seen how to use sRGB textures to store gamma-corrected images, such
+            that they are automatically linearized upon being fetched from a shader. Since the sRGB
+            colorspace closely approximates a gamma of 2.2, if we could use an sRGB image as the
+            image we render to, we would automatically get gamma correction without having to put it
+            into our shaders. But this would require two things: the ability to specify that the
+            screen image is sRGB, and the ability to state that we are outputting linear values and
+            want them converted to the sRGB colorspace when stored.</para>
+        <para>Naturally, OpenGL provides both of these. To see how they work, load up the last
+            project, <phrase role="propername">Gamma Landscape</phrase>. This shows off some
+            textured terrain with a day/night cycle and a few lights running around.</para>
+        <!--TODO: Picture of Gamma Landscape-->
+        <para>It uses the standard mouse-based controls to move around. As before, the
+                <keycap>1</keycap> and<keycap>2</keycap> keys respectively select linear mipmap
+            filtering and anisotropic filtering. The main feature is the non-shader-based gamma
+            correction. This is enabled by default and can be toggled by pressing the
+                <keycap>SpaceBar</keycap>.</para>
+        <formalpara>
+            <title>sRGB Screen Image</title>
+            <para>The process for setting this up is a bit confusing, but is ultimately quite simple
+                for our tutorials. The OpenGL specification specifies how to use the OpenGL
+                rendering system, but it does not specify how to <emphasis>create</emphasis> the
+                OpenGL rendering system. That is relegated to platform-specific APIs. Therefore,
+                while code that uses OpenGL is platform-neutral, that code is ultimately dependent
+                on platform-specific initialization code to create the OpenGL context.</para>
+        </formalpara>
+        <para>These tutorials rely on FreeGLUT for setting up the OpenGL context and managing the
+            platform-specific APIs. The <filename>framework.cpp</filename> file is responsible for
+            doing the initialization setup work, telling FreeGLUT exactly how we want our screen
+            image set up. In order to allow different tutorials to adjust how we set up our FreeGLUT
+            screen image, the framework calls the <function>defaults</function> function.</para>
+        <example>
+            <title>Gamma Landscape defaults Function</title>
+            <programlisting language="cpp">unsigned int defaults(unsigned int displayMode, int &amp;width, int &amp;height)
+{
+    return displayMode | GLUT_SRGB;
+}</programlisting>
+        </example>
+        <para>The <varname>displayMode</varname> argument is a bitfield that contains the standard
+            FreeGLUT display mode flags set up by the framework. This function must return that
+            bitfield, and all of our prior tutorials have returned it unchanged. Here, we change it
+            to include the <literal>GLUT_SRGB</literal> flag. That flag tells FreeGLUT that we want
+            the screen image to be in the sRGB colorspace.</para>
+        <formalpara>
+            <title>Linear to sRGB Conversion</title>
+            <para>This alone is insufficient. We must also tell OpenGL that our shaders will be
+                writing linear colorspace values and that these values should be converted to sRGB
+                before being written to the screen. This is done with a simple
+                    <function>glEnable</function> command:</para>
+        </formalpara>
+        <example>
+            <title>Enable sRGB Conversion</title>
+            <programlisting language="cpp">if(g_useGammaDisplay)
+    glEnable(GL_FRAMEBUFFER_SRGB);
+else
+    glDisable(GL_FRAMEBUFFER_SRGB);</programlisting>
+        </example>
+        <para>The need for this is not entirely obvious, especially since we cannot manually turn
+            off sRGB-to-linear conversion when reading from textures. The ability to disable
+            linear-to-sRGB conversion for screen rendering is useful when we are drawing something
+            directly in the sRGB colorspace. For example, it is often useful to have parts of the
+            interface drawn directly in the sRGB colorspace, while the actual scene being rendered
+            uses color conversion.</para>
+        <para>Note that the color conversion is just as free in terms of performance as it is for
+            texture reads. So you should not fear using this as much and as often as
+            reasonable.</para>
+        <para>Having this automatic gamma correction is better than manual gamma correction because
+            it covers everything that is written to the screen. In prior tutorials, we had to
+            manually gamma correct the clear color and certain other colors used to render solid
+            objects. Here, we simply enable the conversion and everything is affected.</para>
+        <para>The process of ensuring a linear pipeline from texture creation, through lighting,
+            through to the screen is commonly called <glossterm>gamma-correct texturing.</glossterm>
+            The name is a bit of a misnomer, as <quote>texturing</quote> is not a requirement; we
+            have been gamma-correct since Tutorial 12's introduction of that concept (except for
+            Tutorial 15, where we looked at filtering). However, textures are the primary source of
+            potential failures to maintain a linear pipeline, as many image formats on disc have no
+            way of saying if the image data is in sRGB or linear. So the name still makes some
+            sense.</para>
     </section>
     <section>
         <?dbhtml filename="Tut16 In Review.html" ?>
@@ -329,29 +437,20 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
             </listitem>
         </itemizedlist>
         <section>
-            <title>Further Research</title>
-            <para/>
-        </section>
-        <section>
-            <title>Further Study</title>
-            <para>Try doing these things with the given programs.</para>
-            <itemizedlist>
-                <listitem>
-                    <para/>
-                </listitem>
-            </itemizedlist>
-        </section>
-        <section>
-            <title>Further Research</title>
-            <para/>
-        </section>
-        <section>
             <title>OpenGL Functions of Note</title>
-            <para/>
-        </section>
-        <section>
-            <title>GLSL Functions of Note</title>
-            <para/>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glEnable/glDisable(GL_FRAMEBUFFER_SRGB)</glossterm>
+                    <glossdef>
+                        <para>Enables/disables the conversion from linear to sRGB. When this is
+                            enabled, colors written by the fragment shader to an sRGB image are
+                            assumed to be linear. They are therefore converted into the sRGB
+                            colorspace. When this is disabled, the colors written by the fragment
+                            shader are assumed to already be in the sRGB colorspace; they are
+                            written exactly as given.</para>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
         </section>
         
     </section>
@@ -362,13 +461,26 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
             <glossentry>
                 <glossterm>sRGB colorspace</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A non-linear RGB colorspace, which approximates a gamma of 2.2. The
+                            <emphasis>vast</emphasis> majority of image editing programs and
+                        operating systems work in the sRGB colorspace by default. Therefore, most
+                        images you will encounter will be in the sRGB colorspace.</para>
+                    <para>OpenGL has the ability to work with sRGB textures and screen images
+                        directly. Accesses to sRGB textures will return linear RGB values, and
+                        writes to sRGB screen images can be converted from linear to sRGB
+                        values.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm>vertex attribute interleaving</glossterm>
+                <glossterm>gamma-correct texturing</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The process of ensuring that all textures, images, and other sources and
+                        destinations of colors (vertex attributes), either are in the linear
+                        colorspace or are converted to/from the linear colorspace as needed.
+                        Textures in the sRGB format are part of that, but so is rendering to an sRGB
+                        screen image (or manually doing gamma correction). These provide automatic
+                        correction. Manual correction may need to be applied to vertex color
+                        attributes.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
