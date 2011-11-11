@@ -2,16 +2,34 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="300px" >
-	<style type="text/css" ><![CDATA[.arrowhead
+	<style type="text/css" ><![CDATA[.__axis1
 {
-	fill: black;
 	stroke: black;
+	stroke-width: 2px;
+	fill: none;
 }
 
-.vector
+.vector-sum
 {
-	marker-end: url(#arrow);
-	stroke: black;
+	marker-end: url(#arrow-sum);
+	stroke: red;
+}
+
+.text-sum
+{
+	font-size: 25px;
+	font-weight: bold;
+	font-family: monospace;
+	stroke: none;
+	text-anchor: end;
+	fill: red;
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
 }
 
 .text
@@ -23,11 +41,10 @@
 	fill: black;
 }
 
-.__grid1
+.vector
 {
-	stroke: #CCC;
-	stroke-width: 1px;
-	fill: none;
+	marker-end: url(#arrow);
+	stroke: black;
 }
 
 .__axis_arrow_end1
@@ -35,27 +52,10 @@
 	marker-end: url(#__axis_arrow1);
 }
 
-.vector-sum
+.arrowhead
 {
-	marker-end: url(#arrow-sum);
-	stroke: red;
-}
-
-.__axis1
-{
+	fill: black;
 	stroke: black;
-	stroke-width: 2px;
-	fill: none;
-}
-
-.text-sum
-{
-	font-size: 25px;
-	font-weight: bold;
-	font-family: monospace;
-	stroke: none;
-	text-anchor: end;
-	fill: red;
 }
 
 .arrowhead-sum
@@ -86,8 +86,8 @@
 	<use xlink:href="#g_axes" y="0" x="0" height="300" width="300" />
 	<line x2="240" y2="120" y1="240" x1="150" class="vector" />
 	<text y="190" x="205" class="text" >A</text>
-	<line x2="90" y2="60" y1="120" x1="240" class="vector" />
-	<text y="85" x="170" class="text" >B</text>
-	<line x2="90" y2="60" y1="240" x1="150" class="vector-sum" />
-	<text y="170" x="115" class="text-sum" >A+B</text>
+	<line x2="120" y2="60" y1="120" x1="240" class="vector" />
+	<text y="85" x="185" class="text" >B</text>
+	<line x2="120" y2="60" y1="240" x1="150" class="vector-sum" />
+	<text y="170" x="130" class="text-sum" >A+B</text>
 </svg>

@@ -31,7 +31,7 @@ styleLib:AddStyle(nil, "vector-sum",
 styleLib:AddStyle(nil, "arrowhead-sum",
 	SvgWriter.Style():stroke(vectorSumColor):fill(vectorSumColor));
 styleLib:AddStyle(nil, "text-sum",
-	SvgWriter.Style():stroke("none"):fill(vectorSumColor):font_weight("bold"):font_size("25px"):font_family("monospace") );
+	SvgWriter.Style():stroke("none"):fill(vectorSumColor):font_weight("bold"):font_size("25px"):font_family("monospace"):text_anchor("end") );
 	
 local axisData = GridAxis.GridAxis2D(vp, nil, styleLib, true, nil);
 
@@ -44,7 +44,7 @@ local vectors =
 	vmath.vec2(-4, 2),
 
 	vmath.vec2(0, 0),
-	vmath.vec2(-2, 6),
+	vmath.vec2(-1, 6),
 };
 
 local labelOffset = vmath.vec2(5, -12);
@@ -53,7 +53,7 @@ local vectorLabels =
 {
 	"A", vmath.vec2(10, 10),
 	"B", vmath.vec2(5, -5),
-	"A+B", vmath.vec2(-7, -40),
+	"A+B", vmath.vec2(-20, -40),
 }
 
 local styles =

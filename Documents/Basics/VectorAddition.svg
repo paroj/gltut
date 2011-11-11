@@ -2,10 +2,20 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="300px" >
-	<style type="text/css" ><![CDATA[.vector
+	<style type="text/css" ><![CDATA[.text
 {
-	marker-end: url(#arrow);
+	font-size: 25px;
+	font-family: monospace;
+	stroke: none;
+	font-weight: bold;
+	fill: black;
+}
+
+.__axis1
+{
 	stroke: black;
+	stroke-width: 2px;
+	fill: none;
 }
 
 .__grid1
@@ -13,15 +23,6 @@
 	stroke: #CCC;
 	stroke-width: 1px;
 	fill: none;
-}
-
-.text
-{
-	font-size: 25px;
-	font-family: monospace;
-	stroke: none;
-	font-weight: bold;
-	fill: black;
 }
 
 .arrowhead
@@ -36,18 +37,15 @@
 	stroke: red;
 }
 
+.vector
+{
+	marker-end: url(#arrow);
+	stroke: black;
+}
+
 .__axis_arrow_end1
 {
 	marker-end: url(#__axis_arrow1);
-}
-
-.text-sum
-{
-	font-size: 25px;
-	font-family: monospace;
-	stroke: none;
-	font-weight: bold;
-	fill: red;
 }
 
 .arrowhead-sum
@@ -56,11 +54,14 @@
 	stroke: red;
 }
 
-.__axis1
+.text-sum
 {
-	stroke: black;
-	stroke-width: 2px;
-	fill: none;
+	font-size: 25px;
+	font-weight: bold;
+	font-family: monospace;
+	stroke: none;
+	text-anchor: end;
+	fill: red;
 }]]></style>
 	<defs >
 		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="__axis_arrow1" >
@@ -87,6 +88,6 @@
 	<text y="190" x="205" class="text" >A</text>
 	<line x2="30" y2="180" y1="240" x1="150" class="vector" />
 	<text y="205" x="95" class="text" >B</text>
-	<line x2="90" y2="60" y1="240" x1="150" class="vector-sum" />
-	<text y="110" x="113" class="text-sum" >A+B</text>
+	<line x2="120" y2="60" y1="240" x1="150" class="vector-sum" />
+	<text y="110" x="115" class="text-sum" >A+B</text>
 </svg>

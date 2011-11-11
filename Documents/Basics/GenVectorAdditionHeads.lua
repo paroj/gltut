@@ -41,10 +41,10 @@ local vectors =
 	vmath.vec2(3, 4),
 
 	vmath.vec2(3, 4),
-	vmath.vec2(-2, 6),
+	vmath.vec2(-1, 6),
 
 	vmath.vec2(0, 0),
-	vmath.vec2(-2, 6),
+	vmath.vec2(-1, 6),
 };
 
 local labelOffset = vmath.vec2(5, -12);
