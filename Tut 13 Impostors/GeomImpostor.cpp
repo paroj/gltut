@@ -4,12 +4,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
-#include "../framework/ObjectPole.h"
 #include "../framework/Timer.h"
 #include "../framework/UniformBlockArray.h"
 #include <glm/glm.hpp>
@@ -125,32 +125,44 @@ void InitializePrograms()
 	g_Unlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
 }
 
-Framework::RadiusDef radiusDef = {10.0f, 3.0f, 70.0f, 3.5f, 1.5f};
-glm::vec3 objectCenter = glm::vec3(0.0f, 30.0f, 25.0f);
+///////////////////////////////////////////////
+// View/Object Setup
+glutil::ViewData g_initialViewData =
+{
+	glm::vec3(0.0f, 30.0f, 25.0f),
+	glm::fquat(0.92387953f, 0.3826834f, 0.0f, 0.0f),
+	10.0f,
+	0.0f
+};
 
-Framework::MousePole g_mousePole(objectCenter, radiusDef);
-Framework::ObjectPole g_objectPole(objectCenter, &g_mousePole);
+glutil::ViewScale g_viewScale =
+{
+	3.0f, 70.0f,
+	3.5f, 1.5f,
+	5.0f, 1.0f,
+	90.0f/250.0f
+};
+
+glutil::ViewPole g_viewPole = glutil::ViewPole(g_initialViewData,
+											   g_viewScale, glutil::MB_LEFT_BTN);
 
 namespace
 {
 	void MouseMotion(int x, int y)
 	{
-		g_mousePole.GLUTMouseMove(glm::ivec2(x, y));
-		g_objectPole.GLUTMouseMove(glm::ivec2(x, y));
+		Framework::ForwardMouseMotion(g_viewPole, x, y);
 		glutPostRedisplay();
 	}
 
 	void MouseButton(int button, int state, int x, int y)
 	{
-		g_mousePole.GLUTMouseButton(button, state, glm::ivec2(x, y));
-		g_objectPole.GLUTMouseButton(button, state, glm::ivec2(x, y));
+		Framework::ForwardMouseButton(g_viewPole, button, state, x, y);
 		glutPostRedisplay();
 	}
 
 	void MouseWheel(int wheel, int direction, int x, int y)
 	{
-		g_mousePole.GLUTMouseWheel(direction, glm::ivec2(x, y));
-		g_objectPole.GLUTMouseWheel(direction, glm::ivec2(x, y));
+		Framework::ForwardMouseWheel(g_viewPole, wheel, direction, x, y);
 		glutPostRedisplay();
 	}
 }
@@ -304,11 +316,11 @@ void init()
 	CreateMaterials();
 }
 
-glm::vec3 GetSphereOrbitPos(Framework::MatrixStack &modelMatrix,
+glm::vec3 GetSphereOrbitPos(glutil::MatrixStack &modelMatrix,
 							const glm::vec3 &orbitCenter, const glm::vec3 &orbitAxis,
 							float orbitRadius, float orbitAlpha)
 {
-	Framework::MatrixStackPusher push(modelMatrix);
+	glutil::PushStack push(modelMatrix);
 
 	modelMatrix.Translate(orbitCenter);
 	modelMatrix.Rotate(orbitAxis, 360.0f * orbitAlpha);
@@ -368,8 +380,8 @@ void display()
 
 	if(g_pPlaneMesh && g_pSphereMesh && g_pCubeMesh)
 	{
-		Framework::MatrixStack modelMatrix;
-		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+		glutil::MatrixStack modelMatrix;
+		modelMatrix.SetMatrix(g_viewPole.CalcMatrix());
 		const glm::mat4 &worldToCamMat = modelMatrix.Top();
 
 		LightBlock lightData;
@@ -448,7 +460,7 @@ void display()
 
 		if(g_bDrawLights)
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 
 			modelMatrix.Translate(glm::vec3(CalcLightPosition()));
 			modelMatrix.Scale(0.5f);
@@ -464,10 +476,10 @@ void display()
 
 		if(g_bDrawCameraPos)
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 
 			modelMatrix.SetIdentity();
-			modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_mousePole.GetLookAtDistance()));
+			modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_viewPole.GetView().radius));
 
 			glDisable(GL_DEPTH_TEST);
 			glDepthMask(GL_FALSE);
@@ -491,8 +503,8 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	Framework::MatrixStack persMatrix;
-	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+	glutil::MatrixStack persMatrix;
+	persMatrix.Perspective(45.0f, (w / (float)h), g_fzNear, g_fzFar);
 
 	ProjectionBlock projData;
 	projData.cameraToClipMatrix = persMatrix.Top();
@@ -528,7 +540,7 @@ void keyboard(unsigned char key, int x, int y)
 	case 'g': g_bDrawLights = !g_bDrawLights; break;
 	}
 
-	g_mousePole.GLUTKeyOffset(key, 5.0f, 1.0f);
+	g_viewPole.CharPress(key);
 }
 
 unsigned int defaults(unsigned int displayMode, int &width, int &height) {return displayMode;}

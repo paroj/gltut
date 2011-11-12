@@ -5,6 +5,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include "../framework/framework.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/Mesh.h"
@@ -30,7 +31,7 @@ class Scene
 public:
 	Scene();
 
-	void Draw(Framework::MatrixStack &modelMatrix, int materialBlockIndex, float alphaTetra);
+	void Draw(glutil::MatrixStack &modelMatrix, int materialBlockIndex, float alphaTetra);
 
 	Framework::Mesh *GetCubeMesh() {return m_pCubeMesh.get();}
 	Framework::Mesh *GetSphereMesh() {return m_pSphereMesh.get();}
@@ -46,10 +47,10 @@ private:
 	GLuint m_materialUniformBuffer;
 
 	void DrawObject( const Framework::Mesh *pMesh, const ProgramData &prog,
-		int materialBlockIndex, int mtlIx, const Framework::MatrixStack &modelMatrix );
+		int materialBlockIndex, int mtlIx, const glutil::MatrixStack &modelMatrix );
 	void DrawObject(const Framework::Mesh *pMesh, const std::string &meshName, 
 		const ProgramData &prog, int materialBlockIndex, int mtlIx,
-		const Framework::MatrixStack &modelMatrix);
+		const glutil::MatrixStack &modelMatrix);
 };
 
 #include "../framework/framework.h"

@@ -76,11 +76,11 @@ Scene::Scene()
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, float alphaTetra )
+void Scene::Draw( glutil::MatrixStack &modelMatrix, int materialBlockIndex, float alphaTetra )
 {
 	//Render the ground plane.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.RotateX(-90);
 
 		DrawObject(m_pTerrainMesh.get(), GetProgram(LP_VERT_COLOR_DIFFUSE), materialBlockIndex, 0,
@@ -89,7 +89,7 @@ void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, f
 
 	//Render the tetrahedron object.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.Translate(75.0f, 5.0f, 75.0f);
 		modelMatrix.RotateY(360.0f * alphaTetra);
 		modelMatrix.Scale(10.0f, 10.0f, 10.0f);
@@ -102,7 +102,7 @@ void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, f
 
 	//Render the monolith object.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.Translate(88.0f, 5.0f, -80.0f);
 		modelMatrix.Scale(4.0f, 4.0f, 4.0f);
 		modelMatrix.Scale(4.0f, 9.0f, 1.0f);
@@ -114,7 +114,7 @@ void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, f
 
 	//Render the cube object.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.Translate(-52.5f, 14.0f, 65.0f);
 		modelMatrix.RotateZ(50.0f);
 		modelMatrix.RotateY(-10.0f);
@@ -126,7 +126,7 @@ void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, f
 
 	//Render the cylinder.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.Translate(-7.0f, 30.0f, -14.0f);
 		modelMatrix.Scale(15.0f, 55.0f, 15.0f);
 		modelMatrix.Translate(0.0f, 0.5f, 0.0f);
@@ -137,7 +137,7 @@ void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, f
 
 	//Render the sphere.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.Translate(-83.0f, 14.0f, -77.0f);
 		modelMatrix.Scale(20.0f, 20.0f, 20.0f);
 
@@ -148,7 +148,7 @@ void Scene::Draw( Framework::MatrixStack &modelMatrix, int materialBlockIndex, f
 
 void Scene::DrawObject( const Framework::Mesh *pMesh, const ProgramData &prog,
 					   int materialBlockIndex, int mtlIx,
-					   const Framework::MatrixStack &modelMatrix )
+					   const glutil::MatrixStack &modelMatrix )
 {
 	glBindBufferRange(GL_UNIFORM_BUFFER, materialBlockIndex, m_materialUniformBuffer,
 		mtlIx * m_sizeMaterialBlock, sizeof(MaterialBlock));
@@ -170,7 +170,7 @@ void Scene::DrawObject( const Framework::Mesh *pMesh, const ProgramData &prog,
 
 void Scene::DrawObject(const Framework::Mesh *pMesh, const std::string &meshName, 
 					   const ProgramData &prog, int materialBlockIndex, int mtlIx,
-					   const Framework::MatrixStack &modelMatrix)
+					   const glutil::MatrixStack &modelMatrix)
 {
 	glBindBufferRange(GL_UNIFORM_BUFFER, materialBlockIndex, m_materialUniformBuffer,
 		mtlIx * m_sizeMaterialBlock, sizeof(MaterialBlock));

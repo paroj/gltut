@@ -5,15 +5,15 @@
 #include <stdio.h>
 #include <sstream>
 #include <memory>
-#include <glimg/glimg.h>
-#include <glimg/TextureGenerator.h>
 #include <glload/gl_3_3.h>
 #include <GL/freeglut.h>
+#include <glimg/glimg.h>
+#include <glutil/glutil.h>
+#include <glimg/TextureGenerator.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
-#include "../framework/ObjectPole.h"
 #include "../framework/Timer.h"
 #include "../framework/UniformBlockArray.h"
 #include "../framework/directories.h"
@@ -281,36 +281,35 @@ void display()
 		float hOffset = cosf(cyclicAngle) * 0.25f;
 		float vOffset = sinf(cyclicAngle) * 0.25f;
 
-		Framework::MatrixStack modelMatrix;
+		glutil::MatrixStack modelMatrix;
+
 		const glm::mat4 &worldToCamMat = glm::lookAt(
 			glm::vec3(hOffset, 1.0f, -64.0f),
 			glm::vec3(hOffset, -5.0f + vOffset, -44.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
-		modelMatrix.ApplyMatrix(worldToCamMat);
+		modelMatrix *= worldToCamMat;
 
-		{
-			Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
-			glUseProgram(g_program.theProgram);
-			glUniformMatrix4fv(g_program.modelToCameraMatrixUnif, 1, GL_FALSE,
-				glm::value_ptr(modelMatrix.Top()));
+		glUseProgram(g_program.theProgram);
+		glUniformMatrix4fv(g_program.modelToCameraMatrixUnif, 1, GL_FALSE,
+			glm::value_ptr(modelMatrix.Top()));
 
- 			glActiveTexture(GL_TEXTURE0 + g_colorTexUnit);
-			glBindTexture(GL_TEXTURE_2D,
-				g_useMipmapTexture ? g_mipmapTestTexture : g_checkerTexture);
- 			glBindSampler(g_colorTexUnit, g_samplers[g_currSampler]);
+		glActiveTexture(GL_TEXTURE0 + g_colorTexUnit);
+		glBindTexture(GL_TEXTURE_2D,
+			g_useMipmapTexture ? g_mipmapTestTexture : g_checkerTexture);
+		glBindSampler(g_colorTexUnit, g_samplers[g_currSampler]);
 
-			if(g_drawCorridor)
-				g_pCorridor->Render("tex");
-			else
-				g_pPlane->Render("tex");
+		if(g_drawCorridor)
+			g_pCorridor->Render("tex");
+		else
+			g_pPlane->Render("tex");
 
- 			glBindSampler(g_colorTexUnit, 0);
- 			glBindTexture(GL_TEXTURE_2D, 0);
+		glBindSampler(g_colorTexUnit, 0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
-			glUseProgram(0);
-		}
+		glUseProgram(0);
 	}
 
 	glutPostRedisplay();
@@ -321,8 +320,8 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	Framework::MatrixStack persMatrix;
-	persMatrix.Perspective(90.0f, (h / (float)w), g_fzNear, g_fzFar);
+	glutil::MatrixStack persMatrix;
+	persMatrix.Perspective(90.0f, (w / (float)h), g_fzNear, g_fzFar);
 
 	ProjectionBlock projData;
 	projData.cameraToClipMatrix = persMatrix.Top();

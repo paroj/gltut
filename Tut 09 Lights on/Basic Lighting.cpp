@@ -4,12 +4,12 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
 #include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
-#include "../framework/ObjectPole.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -62,33 +62,56 @@ void InitializeProgram()
 
 Framework::Mesh *g_pCylinderMesh = NULL;
 Framework::Mesh *g_pPlaneMesh = NULL;
-Framework::RadiusDef radiusDef = {5.0f, 3.0f, 20.0f, 1.5f, 0.5f};
 
-glm::vec3 objectCenter = glm::vec3(0.0f, 0.5f, 0.0f);
+///////////////////////////////////////////////
+// View/Object Setup
+glutil::ViewData g_initialViewData =
+{
+	glm::vec3(0.0f, 0.5f, 0.0f),
+	glm::fquat(0.92387953f, 0.3826834f, 0.0f, 0.0f),
+	5.0f,
+	0.0f
+};
 
-Framework::MousePole g_mousePole(objectCenter, radiusDef);
-Framework::ObjectPole g_objectPole(objectCenter, &g_mousePole);
+glutil::ViewScale g_viewScale =
+{
+	3.0f, 20.0f,
+	1.5f, 0.5f,
+	0.0f, 0.0f,		//No camera movement.
+	90.0f/250.0f
+};
+
+glutil::ObjectData g_initialObjectData =
+{
+	glm::vec3(0.0f, 0.5f, 0.0f),
+	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
+};
+
+glutil::ViewPole g_viewPole = glutil::ViewPole(g_initialViewData,
+											   g_viewScale, glutil::MB_LEFT_BTN);
+glutil::ObjectPole g_objtPole = glutil::ObjectPole(g_initialObjectData,
+												   90.0f/250.0f, glutil::MB_RIGHT_BTN, &g_viewPole);
 
 namespace
 {
 	void MouseMotion(int x, int y)
 	{
-		g_mousePole.GLUTMouseMove(glm::ivec2(x, y));
-		g_objectPole.GLUTMouseMove(glm::ivec2(x, y));
+		Framework::ForwardMouseMotion(g_viewPole, x, y);
+		Framework::ForwardMouseMotion(g_objtPole, x, y);
 		glutPostRedisplay();
 	}
 
 	void MouseButton(int button, int state, int x, int y)
 	{
-		g_mousePole.GLUTMouseButton(button, state, glm::ivec2(x, y));
-		g_objectPole.GLUTMouseButton(button, state, glm::ivec2(x, y));
+		Framework::ForwardMouseButton(g_viewPole, button, state, x, y);
+		Framework::ForwardMouseButton(g_objtPole, button, state, x, y);
 		glutPostRedisplay();
 	}
 
 	void MouseWheel(int wheel, int direction, int x, int y)
 	{
-		g_mousePole.GLUTMouseWheel(direction, glm::ivec2(x, y));
-		g_objectPole.GLUTMouseWheel(direction, glm::ivec2(x, y));
+		Framework::ForwardMouseWheel(g_viewPole, wheel, direction, x, y);
+		Framework::ForwardMouseWheel(g_objtPole, wheel, direction, x, y);
 		glutPostRedisplay();
 	}
 }
@@ -156,8 +179,8 @@ void display()
 
 	if(g_pPlaneMesh && g_pCylinderMesh)
 	{
-		Framework::MatrixStack modelMatrix;
-		modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+		glutil::MatrixStack modelMatrix;
+		modelMatrix.SetMatrix(g_viewPole.CalcMatrix());
 
 		glm::vec4 lightDirCameraSpace = modelMatrix.Top() * g_lightDirection;
 
@@ -168,11 +191,11 @@ void display()
 		glUseProgram(0);
 
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 
 			//Render the ground plane.
 			{
-				Framework::MatrixStackPusher push(modelMatrix);
+				glutil::PushStack push(modelMatrix);
 
 				glUseProgram(g_WhiteDiffuseColor.theProgram);
 				glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
@@ -185,9 +208,9 @@ void display()
 
 			//Render the Cylinder
 			{
-				Framework::MatrixStackPusher push(modelMatrix);
+				glutil::PushStack push(modelMatrix);
 
-				modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
+				modelMatrix.ApplyMatrix(g_objtPole.CalcMatrix());
 
 				if(g_bDrawColoredCyl)
 				{
@@ -219,8 +242,8 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	Framework::MatrixStack persMatrix;
-	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+	glutil::MatrixStack persMatrix;
+	persMatrix.Perspective(45.0f, (w / (float)h), g_fzNear, g_fzFar);
 
 	ProjectionBlock projData;
 	projData.cameraToClipMatrix = persMatrix.Top();

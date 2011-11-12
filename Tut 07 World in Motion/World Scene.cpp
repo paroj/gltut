@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -114,11 +115,11 @@ static float g_fYAngle = 0.0f;
 static float g_fXAngle = 0.0f;
 
 //Trees are 3x3 in X/Z, and fTrunkHeight+fConeHeight in the Y.
-void DrawTree(Framework::MatrixStack &modelMatrix, float fTrunkHeight = 2.0f, float fConeHeight = 3.0f)
+void DrawTree(glutil::MatrixStack &modelMatrix, float fTrunkHeight = 2.0f, float fConeHeight = 3.0f)
 {
 	//Draw trunk.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Scale(glm::vec3(1.0f, fTrunkHeight, 1.0f));
 		modelMatrix.Translate(glm::vec3(0.0f, 0.5f, 0.0f));
@@ -132,7 +133,7 @@ void DrawTree(Framework::MatrixStack &modelMatrix, float fTrunkHeight = 2.0f, fl
 
 	//Draw the treetop
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Translate(glm::vec3(0.0f, fTrunkHeight, 0.0f));
 		modelMatrix.Scale(glm::vec3(3.0f, fConeHeight, 3.0f));
@@ -148,11 +149,11 @@ void DrawTree(Framework::MatrixStack &modelMatrix, float fTrunkHeight = 2.0f, fl
 const float g_fColumnBaseHeight = 0.25f;
 
 //Columns are 1x1 in the X/Z, and fHieght units in the Y.
-void DrawColumn(Framework::MatrixStack &modelMatrix, float fHeight = 5.0f)
+void DrawColumn(glutil::MatrixStack &modelMatrix, float fHeight = 5.0f)
 {
 	//Draw the bottom of the column.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Scale(glm::vec3(1.0f, g_fColumnBaseHeight, 1.0f));
 		modelMatrix.Translate(glm::vec3(0.0f, 0.5f, 0.0f));
@@ -166,7 +167,7 @@ void DrawColumn(Framework::MatrixStack &modelMatrix, float fHeight = 5.0f)
 
 	//Draw the top of the column.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Translate(glm::vec3(0.0f, fHeight - g_fColumnBaseHeight, 0.0f));
 		modelMatrix.Scale(glm::vec3(1.0f, g_fColumnBaseHeight, 1.0f));
@@ -181,7 +182,7 @@ void DrawColumn(Framework::MatrixStack &modelMatrix, float fHeight = 5.0f)
 
 	//Draw the main column.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Translate(glm::vec3(0.0f, g_fColumnBaseHeight, 0.0f));
 		modelMatrix.Scale(glm::vec3(0.8f, fHeight - (g_fColumnBaseHeight * 2.0f), 0.8f));
@@ -201,11 +202,11 @@ const float g_fParthenonColumnHeight = 5.0f;
 const float g_fParthenonBaseHeight = 1.0f;
 const float g_fParthenonTopHeight = 2.0f;
 
-void DrawParthenon(Framework::MatrixStack &modelMatrix)
+void DrawParthenon(glutil::MatrixStack &modelMatrix)
 {
 	//Draw base.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Scale(glm::vec3(g_fParthenonWidth, g_fParthenonBaseHeight, g_fParthenonLength));
 		modelMatrix.Translate(glm::vec3(0.0f, 0.5f, 0.0f));
@@ -219,7 +220,7 @@ void DrawParthenon(Framework::MatrixStack &modelMatrix)
 
 	//Draw top.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Translate(glm::vec3(0.0f, g_fParthenonColumnHeight + g_fParthenonBaseHeight, 0.0f));
 		modelMatrix.Scale(glm::vec3(g_fParthenonWidth, g_fParthenonTopHeight, g_fParthenonLength));
@@ -239,14 +240,14 @@ void DrawParthenon(Framework::MatrixStack &modelMatrix)
 	for(int iColumnNum = 0; iColumnNum < int(g_fParthenonWidth / 2.0f); iColumnNum++)
 	{
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 			modelMatrix.Translate(glm::vec3((2.0f * iColumnNum) - (g_fParthenonWidth / 2.0f) + 1.0f,
 				g_fParthenonBaseHeight, fFrontZVal));
 
 			DrawColumn(modelMatrix, g_fParthenonColumnHeight);
 		}
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 			modelMatrix.Translate(glm::vec3((2.0f * iColumnNum) - (g_fParthenonWidth / 2.0f) + 1.0f,
 				g_fParthenonBaseHeight, -fFrontZVal));
 
@@ -258,14 +259,14 @@ void DrawParthenon(Framework::MatrixStack &modelMatrix)
 	for(int iColumnNum = 1; iColumnNum < int((g_fParthenonLength - 2.0f) / 2.0f); iColumnNum++)
 	{
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 			modelMatrix.Translate(glm::vec3(fRightXVal,
 				g_fParthenonBaseHeight, (2.0f * iColumnNum) - (g_fParthenonLength / 2.0f) + 1.0f));
 
 			DrawColumn(modelMatrix, g_fParthenonColumnHeight);
 		}
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 			modelMatrix.Translate(glm::vec3(-fRightXVal,
 				g_fParthenonBaseHeight, (2.0f * iColumnNum) - (g_fParthenonLength / 2.0f) + 1.0f));
 
@@ -275,7 +276,7 @@ void DrawParthenon(Framework::MatrixStack &modelMatrix)
 
 	//Draw interior.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Translate(glm::vec3(0.0f, 1.0f, 0.0f));
 		modelMatrix.Scale(glm::vec3(g_fParthenonWidth - 6.0f, g_fParthenonColumnHeight,
@@ -290,7 +291,7 @@ void DrawParthenon(Framework::MatrixStack &modelMatrix)
 
 	//Draw headpiece.
 	{
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 
 		modelMatrix.Translate(glm::vec3(
 			0.0f,
@@ -422,13 +423,13 @@ static const TreeData g_forest[] =
 	{25.0f, 45.0f, 2.0f, 3.0f},
 };
 
-void DrawForest(Framework::MatrixStack &modelMatrix)
+void DrawForest(glutil::MatrixStack &modelMatrix)
 {
 	for(int iTree = 0; iTree < ARRAY_COUNT(g_forest); iTree++)
 	{
 		const TreeData &currTree = g_forest[iTree];
 
-		Framework::MatrixStackPusher push(modelMatrix);
+		glutil::PushStack push(modelMatrix);
 		modelMatrix.Translate(glm::vec3(currTree.fXPos, 0.0f, currTree.fZPos));
 		DrawTree(modelMatrix, currTree.fTrunkHeight, currTree.fConeHeight);
 	}
@@ -442,7 +443,7 @@ static glm::vec3 g_sphereCamRelPos(67.5f, -46.0f, 150.0f);
 
 glm::vec3 ResolveCamPosition()
 {
-	Framework::MatrixStack tempMat;
+	glutil::MatrixStack tempMat;
 
 	float phi = Framework::DegToRad(g_sphereCamRelPos.x);
 	float theta = Framework::DegToRad(g_sphereCamRelPos.y + 90.0f);
@@ -469,7 +470,7 @@ void display()
 	{
 		const glm::vec3 &camPos = ResolveCamPosition();
 
-		Framework::MatrixStack camMatrix;
+		glutil::MatrixStack camMatrix;
 		camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 		glUseProgram(UniformColor.theProgram);
@@ -480,11 +481,11 @@ void display()
 		glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
 		glUseProgram(0);
 
-		Framework::MatrixStack modelMatrix;
+		glutil::MatrixStack modelMatrix;
 
 		//Render the ground plane.
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 
 			modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
 
@@ -500,7 +501,7 @@ void display()
 
 		//Draw the building.
 		{
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 			modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
 
 			DrawParthenon(modelMatrix);
@@ -511,7 +512,7 @@ void display()
 			glDisable(GL_DEPTH_TEST);
 			glm::mat4 idenity(1.0f);
 
-			Framework::MatrixStackPusher push(modelMatrix);
+			glutil::PushStack push(modelMatrix);
 
 			glm::vec3 cameraAimVec = g_camTarget - camPos;
 			modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
@@ -533,8 +534,8 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	Framework::MatrixStack persMatrix;
-	persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+	glutil::MatrixStack persMatrix;
+	persMatrix.Perspective(45.0f, (w / (float)h), g_fzNear, g_fzFar);
 
 	glUseProgram(UniformColor.theProgram);
 	glUniformMatrix4fv(UniformColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));

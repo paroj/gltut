@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -46,7 +47,7 @@ void InitializePrograms()
 	g_SmoothInterp = LoadProgram("SmoothVertexColors.vert", "SmoothVertexColors.frag");
 	g_LinearInterp = LoadProgram("NoCorrectVertexColors.vert", "NoCorrectVertexColors.frag");
 
-	Framework::MatrixStack persMatrix;
+	glutil::MatrixStack persMatrix;
 	persMatrix.Perspective(60.0f, 1.0f, g_fzNear, g_fzFar);
 
 	glUseProgram(g_SmoothInterp.theProgram);

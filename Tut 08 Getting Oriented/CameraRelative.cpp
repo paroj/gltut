@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -114,7 +115,7 @@ static glm::vec3 g_sphereCamRelPos(90.0f, 0.0f, 66.0f);
 
 glm::vec3 ResolveCamPosition()
 {
-	Framework::MatrixStack tempMat;
+	glutil::MatrixStack tempMat;
 
 	float phi = Framework::DegToRad(g_sphereCamRelPos.x);
 	float theta = Framework::DegToRad(g_sphereCamRelPos.y + 90.0f);
@@ -159,14 +160,14 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Framework::MatrixStack currMatrix;
+	glutil::MatrixStack currMatrix;
 	const glm::vec3 &camPos = ResolveCamPosition();
 	currMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 	glUseProgram(theProgram);
 
 	{
-		Framework::MatrixStackPusher stack(currMatrix);
+		glutil::PushStack stack(currMatrix);
 		currMatrix.Scale(100.0f, 1.0f, 100.0f);
 
 		glUniform4f(baseColorUnif, 0.2f, 0.5f, 0.2f, 1.0f);
@@ -176,7 +177,7 @@ void display()
 	}
 
 	{
-		Framework::MatrixStackPusher stack(currMatrix);
+		glutil::PushStack stack(currMatrix);
 		currMatrix.Translate(g_camTarget);
 		currMatrix.ApplyMatrix(glm::mat4_cast(g_orientation));
 		currMatrix.RotateX(-90);

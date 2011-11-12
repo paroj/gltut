@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -115,7 +116,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Framework::MatrixStack currMatrix;
+	glutil::MatrixStack currMatrix;
 	currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
 	currMatrix.ApplyMatrix(glm::mat4_cast(g_orientation));
 

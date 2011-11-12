@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <glload/gl_3_3.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
@@ -78,12 +79,12 @@ const char *g_strGimbalNames[3] =
 
 bool g_bDrawGimbals = true;
 
-void DrawGimbal(Framework::MatrixStack &currMatrix, GimbalAxis eAxis, glm::vec4 baseColor)
+void DrawGimbal(glutil::MatrixStack &currMatrix, GimbalAxis eAxis, glm::vec4 baseColor)
 {
 	if(!g_bDrawGimbals)
 		return;
 
-	Framework::MatrixStackPusher pusher(currMatrix);
+	glutil::PushStack pusher(currMatrix);
 
 	switch(eAxis)
 	{
@@ -166,7 +167,7 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Framework::MatrixStack currMatrix;
+	glutil::MatrixStack currMatrix;
 	currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
 	currMatrix.RotateX(g_angles.fAngleX);
 	DrawGimbal(currMatrix, GIMBAL_X_AXIS, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));

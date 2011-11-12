@@ -7,6 +7,7 @@
 #include <glload/gl_3_3.h>
 #include <glm/glm.hpp>
 #include <glimg/glimg.h>
+#include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/MatrixStack.h"
@@ -198,7 +199,7 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	Framework::MatrixStack persMatrix;
+	glutil::MatrixStack persMatrix;
 	persMatrix.Translate(-1.0f, 1.0f, 0.0f);
 	persMatrix.Scale(2.0f / w, -2.0f / h, 1.0f);
 
