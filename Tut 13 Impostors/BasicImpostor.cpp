@@ -8,7 +8,6 @@
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
-#include "../framework/MatrixStack.h"
 #include "../framework/MousePole.h"
 #include "../framework/Timer.h"
 #include "../framework/UniformBlockArray.h"

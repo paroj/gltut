@@ -10,7 +10,6 @@
 #include <glutil/glutil.h>
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
-#include "../framework/MatrixStack.h"
 #include "../framework/directories.h"
 
 const int g_projectionBlockIndex = 0;

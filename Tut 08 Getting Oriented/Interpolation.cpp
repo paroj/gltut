@@ -8,7 +8,6 @@
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
-#include "../framework/MatrixStack.h"
 #include "../framework/Timer.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

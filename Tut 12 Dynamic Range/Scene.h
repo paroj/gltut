@@ -7,7 +7,6 @@
 #include <glload/gl_3_3.h>
 #include <glutil/glutil.h>
 #include "../framework/framework.h"
-#include "../framework/MatrixStack.h"
 #include "../framework/Mesh.h"
 
 struct ProgramData
@@ -55,7 +54,6 @@ private:
 
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
-#include "../framework/MatrixStack.h"
 
 
 enum LightingProgramTypes

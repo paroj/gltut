@@ -8,7 +8,6 @@
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 #include "../framework/Mesh.h"
-#include "../framework/MatrixStack.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
