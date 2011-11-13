@@ -873,10 +873,11 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
                 vertices; those vertices are just in different positions.</para>
             <para>Mapping an object onto a 2D plane generally means finding a way to slice the
                 object into pieces that fit onto that plane. However, a torus is, topologically
-                speaking, equivalent to a plane. It is rolled into a tube, and bent so that it
-                context end to end. Therefore, mapping a texture onto this means reversing the
-                process: cutting the torus lengthwise down an arbitrary line, much like a car tire.
-                Then, it is cut again along the side, so that it becomes a plane.</para>
+                speaking, equivalent to a plane. It is rolled into a tube, and bent around, so that
+                each side connects to its opposing side directly. Therefore, mapping a texture onto
+                this means reversing the process: cutting the torus lengthwise down an arbitrary
+                line, much like a car tire. Then, it is cut again along the side, so that it becomes
+                a plane.</para>
             <para>Exactly where those cuts need to be made is arbitrary. And because the specular
                 texture mirrors perfectly in the S and T directions, it is not possible to tell
                 exactly where the seams in the topology are.</para>
@@ -911,15 +912,15 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
             <para>If our intent was to show a smudged piece of metal or highly reflective black
                 surface, we could enhance the effect by also applying a texture that changed the
                 specular reflectance. Smudged areas don't tend to reflect as strongly as the shiny
-                ones. We could use the same texture mapping, the same texture coordinates, and the
-                specular texture would not even have to be the same size as our shininess
+                ones. We could use the same texture mapping (ie: the same texture coordinates) and
+                the specular texture would not even have to be the same size as our shininess
                 texture.</para>
             <para>There is one more thing to note about the shininess texture. The size of the
                 texture is 1024x256 in size. The reason for that is that the texture is intended to
                 be used on the infinity symbol. This object is longer in model space than it is
-                wide. By making the texture map 4x longer in the axis that is mapped to the S
-                coordinate, we are able to maintain the aspect ratio of the objects on the texture
-                more closely than the flat plane we see here. All of those oval smudge marks you see
+                around. By making the texture map 4x longer in the axis that is mapped to the S
+                coordinate, we are able to more closely maintain the aspect ratio of the objects on
+                the texture than the flat plane we see here. All of those oval smudge marks you see
                 are in fact round in the texture. They are still somewhat ovoid and distorted on the
                 infinity symbol though.</para>
             <para>It is generally the job of the artist creating the texture mapping to ensure that
