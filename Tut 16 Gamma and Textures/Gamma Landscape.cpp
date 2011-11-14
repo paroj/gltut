@@ -274,6 +274,9 @@ bool g_useGammaDisplay = true;
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
 void display()
 {
+    if(!g_pLightEnv)
+        return;
+
 	if(g_useGammaDisplay)
 		glEnable(GL_FRAMEBUFFER_SRGB);
 	else
@@ -399,7 +402,7 @@ void reshape (int w, int h)
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
-//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
+//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to
 //exit the program.
 void keyboard(unsigned char key, int x, int y)
 {

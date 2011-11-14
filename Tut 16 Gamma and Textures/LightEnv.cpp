@@ -1,4 +1,6 @@
 
+#include <exception>
+#include <stdexcept>
 #include <algorithm>
 #include <fstream>
 #include <sstream>

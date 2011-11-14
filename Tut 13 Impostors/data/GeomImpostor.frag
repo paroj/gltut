@@ -16,7 +16,7 @@ struct MaterialEntry
 {
 	vec4 diffuseColor;
 	vec4 specularColor;
-	float specularShininess;
+	vec4 specularShininess;		//ATI Array Bug fix. Not really a vec4.
 };
 
 const int NUMBER_OF_SPHERES = 4;
@@ -83,7 +83,7 @@ vec4 ComputeLighting(in PerLight lightData, in vec3 cameraSpacePosition,
 	
 	vec3 halfAngle = normalize(lightDir + viewDirection);
 	float angleNormalHalf = acos(dot(halfAngle, surfaceNormal));
-	float exponent = angleNormalHalf / material.specularShininess;
+	float exponent = angleNormalHalf / material.specularShininess.x;
 	exponent = -(exponent * exponent);
 	float gaussianTerm = exp(exponent);
 

@@ -1,5 +1,6 @@
 
 #include <string>
+#include <memory>
 #include <vector>
 #include <math.h>
 #include <stdio.h>
@@ -120,7 +121,7 @@ void LoadTextures()
 			pxTrans.format, pxTrans.type, image.GetImageData());
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet->GetMipmapCount() - 1);
-		
+
 		glBindTexture(GL_TEXTURE_2D, g_textures[1]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, dims.width, dims.height, 0,
 			pxTrans.format, pxTrans.type, image.GetImageData());
@@ -215,7 +216,7 @@ void reshape (int w, int h)
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
-//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
+//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to
 //exit the program.
 void keyboard(unsigned char key, int x, int y)
 {

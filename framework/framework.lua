@@ -55,11 +55,12 @@ function SetupProject(projName, ...)
 		
 		files {...}
 
-		UseLibs(usedLibs)
-
 		includedirs {"../tinyxml", "../framework"}
 			
 		links "framework"
+
+		--Must be after including framwork... because GCC is stupid.
+		UseLibs(usedLibs)
 
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}

@@ -187,7 +187,7 @@ struct LightBlock
 	PerLight lights[NUMBER_OF_LIGHTS];
 };
 
-struct MaterialBlock
+struct MaterialEntry
 {
 	glm::vec4 diffuseColor;
 	glm::vec4 specularColor;
@@ -208,7 +208,7 @@ const int NUMBER_OF_SPHERES = 4;
 
 void CreateMaterials()
 {
-	std::vector<MaterialBlock> ubArray(NUMBER_OF_SPHERES);
+	std::vector<MaterialEntry> ubArray(NUMBER_OF_SPHERES);
 
 	ubArray[0].diffuseColor = glm::vec4(0.1f, 0.1f, 0.8f, 1.0f);
 	ubArray[0].specularColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.0f);
@@ -229,14 +229,14 @@ void CreateMaterials()
 	glGenBuffers(1, &g_materialArrayUniformBuffer);
 	glGenBuffers(1, &g_materialTerrainUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_materialArrayUniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialBlock) * ubArray.size(), &ubArray[0], GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialEntry) * ubArray.size(), &ubArray[0], GL_STATIC_DRAW);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, g_materialTerrainUniformBuffer);
-	MaterialBlock mtl;
+	MaterialEntry mtl;
 	mtl.diffuseColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	mtl.specularColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
 	mtl.specularShininess = 0.6f;
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialBlock), &mtl, GL_STATIC_DRAW);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(MaterialEntry), &mtl, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
@@ -400,7 +400,7 @@ void display()
 
 		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialTerrainUniformBuffer,
-				0, sizeof(MaterialBlock));
+				0, sizeof(MaterialEntry));
 
 			glm::mat3 normMatrix(modelMatrix.Top());
 			normMatrix = glm::transpose(glm::inverse(normMatrix));
@@ -446,8 +446,8 @@ void display()
 
 		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, g_materialBlockIndex, g_materialArrayUniformBuffer,
-				0, sizeof(MaterialBlock) * NUMBER_OF_SPHERES);
-			
+				0, sizeof(MaterialEntry) * NUMBER_OF_SPHERES);
+
 			glUseProgram(g_litImpProg.theProgram);
 			glBindVertexArray(g_imposterVAO);
 			glDrawArrays(GL_POINTS, 0, NUMBER_OF_SPHERES);
@@ -518,7 +518,7 @@ void reshape (int w, int h)
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
-//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
+//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to
 //exit the program.
 void keyboard(unsigned char key, int x, int y)
 {

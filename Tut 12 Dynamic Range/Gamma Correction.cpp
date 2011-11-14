@@ -297,6 +297,9 @@ glm::vec4 GammaCorrect(const glm::vec4 &input, float gamma)
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
 void display()
 {
+    if(!g_pScene)
+        return;
+
 	g_lights.UpdateTime();
 
 	float gamma = g_isGammaCorrect ? g_gammaValue : 1.0f;
@@ -412,7 +415,7 @@ TimerTypes g_eTimerMode = TIMER_ALL;
 
 //Called whenever a key on the keyboard was pressed.
 //The key is given by the ''key'' parameter, which is in ASCII.
-//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to 
+//It's often a good idea to have the escape key (ASCII value 27) call glutLeaveMainLoop() to
 //exit the program.
 void keyboard(unsigned char key, int x, int y)
 {
@@ -425,7 +428,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_pScene = NULL;
 		glutLeaveMainLoop();
 		return;
-		
+
 	case 'p': g_lights.TogglePause(g_eTimerMode); break;
 	case '-': g_lights.RewindTime(g_eTimerMode, 1.0f); break;
 	case '=': g_lights.FastForwardTime(g_eTimerMode, 1.0f); break;
