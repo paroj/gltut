@@ -43,4 +43,5 @@
     </partintro>
     <xi:include href="Texturing/Tutorial 14.xml"/>
     <xi:include href="Texturing/Tutorial 15.xml"/>
+    <xi:include href="Texturing/Tutorial 16.xml"/>
 </part>
