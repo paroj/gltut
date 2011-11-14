@@ -854,7 +854,7 @@ struct MaterialEntry
 {
     vec4 diffuseColor;
     vec4 specularColor;
-    float specularShininess;
+    vec4 specularShininess;        //ATI Array Bug fix. Not really a vec4.
 };
 
 const int NUMBER_OF_SPHERES = 4;
@@ -874,6 +874,11 @@ uniform Material
                     <emphasis>contains</emphasis> an array. We bind all of the materials to the
                 shader, and let the shader pick which one it wants as needed. The source code to do
                 this is pretty straightforward.</para>
+            <note>
+                <para>Notice that the material <varname>specularShininess</varname> became a
+                        <type>vec4</type> instead of a simple <type>float</type>. This is due to an
+                    unfortunate bug in ATI's OpenGL implementation.</para>
+            </note>
             <para>As for how the material selection happens, that's simple. In our case, we use the
                 primitive identifier. The <varname>gl_PrimitiveID</varname> value written from the
                 vertex shader is used to index into the <varname>Mtl.material[]</varname>
