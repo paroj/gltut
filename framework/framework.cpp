@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -49,6 +50,8 @@ namespace Framework
 			fprintf(stderr, e.what());
 			throw;
 		}
+
+		std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 	}
 
 	float DegToRad(float fAngDeg)

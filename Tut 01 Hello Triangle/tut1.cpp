@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <stdio.h>
@@ -61,6 +62,9 @@ GLuint CreateProgram(const std::vector<GLuint> &shaderList)
 		delete[] strInfoLog;
 	}
 
+	for(size_t iLoop = 0; iLoop < shaderList.size(); iLoop++)
+		glDetachShader(program, shaderList[iLoop]);
+
 	return program;
 }
 
@@ -92,6 +96,8 @@ void InitializeProgram()
 	shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
 
 	theProgram = CreateProgram(shaderList);
+
+	std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 }
 
 const float vertexPositions[] = {
