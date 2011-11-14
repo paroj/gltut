@@ -208,7 +208,7 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	perspectiveMatrix[0] = fFrustumScale * (h / (float)w);
+	perspectiveMatrix[0] = fFrustumScale / (w / (float)h);
 	perspectiveMatrix[5] = fFrustumScale;
 
 	glUseProgram(theProgram);

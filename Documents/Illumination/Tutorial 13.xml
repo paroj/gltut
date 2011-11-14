@@ -171,9 +171,10 @@ void main()
                 not work; we must have a dummy attribute enabled and a dummy buffer object to pull
                 data from. We do this in the initialization function of this tutorial.</para>
             <note>
-                <para>The OpenGL 3.3 core specification says that it should be possible to render
-                    with no enabled attributes. Sadly, certain implementations of OpenGL
-                    (*cough*AMD*cough*) incorrectly forbid it.</para>
+                <para>The OpenGL 3.3 core specification is quite clear that it should be possible to
+                    render with no enabled attributes. Sadly, certain implementations of OpenGL
+                    (*cough*AMD*cough*) incorrectly forbid it, so our tutorial has to work around
+                    them.</para>
             </note>
         </section>
         <section>
@@ -252,16 +253,17 @@ void main()
                     executing. This is not necessarily the case.</para>
                 <para>Due to the way that shaders tend to work, multiple executions of the same
                     shader are often operating at the same time. All of them are running in
-                    lock-step with one another; they all execute instructions at the same time. If
-                    one of them does a discard, it still has to keep doing what it was doing,
-                    because the other three may not have discarded, since the discard was based on
-                    data that may be different between each shader. This is also why branches in
-                    shaders will often execute both sides rather than actually branching; it keeps
-                    the shader logic simpler.</para>
+                    lock-step with one another; they all execute instructions at the same time, just
+                    on different datasets. If one of them does a discard, it still has to keep doing
+                    what it was doing, because the other three may not have discarded, since the
+                    discard was based on data that may be different between each shader. This is
+                    also why branches in shaders will often execute both sides rather than actually
+                    branching; it keeps the shader logic simpler.</para>
                 <para>However, that does not mean <literal>discard</literal> is without use for
                     stopping unwanted processing. If all of the shaders that are running together
                     hit a <literal>discard</literal>, then they can all be aborted with no problems.
-                    And hardware often does this where possible.</para>
+                    And hardware often does this where possible. So if there is a great deal of
+                    spatial coherency with discard, this is useful.</para>
             </sidebar>
             <para>The computation of the normal is based on simple trigonometry. The normal of a
                 sphere does not change based on the sphere's radius. Therefore, we can compute the

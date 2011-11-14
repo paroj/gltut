@@ -8,127 +8,22 @@
     <para>Now that you understand at least the beginnings of graphics programming, it would be
         useful to discuss how to get started using OpenGL in your own projects. This discussion will
         assume that you know how to set up a build project in your build system of choice.</para>
-    <para>There are two ways to go about it: you can use the framework provided in the download, or
-        you can use whatever tools you wish. I don't advocate using the tutorial framework for any
-        serious application; it was intended to be used for only these tutorials, so it may not
-        serve your needs outside of this particular purpose.</para>
-    <section>
-        <?dbhtml filename="Started Tutorial Framework.html" ?>
-        <title>Tutorial Framework</title>
-        <para>If you intend to use the tutorial framework, the process is relatively simple, though
-            it is somewhat restricted.</para>
-        <para>The framework is intended to only be used in the directory it was downloaded into. So
-            if you want to use it in a project, you will need to make a new directory under the base
-            tutorial directory. Let us call this directory <filename>Project</filename>.</para>
-        <para>In the <filename>Framework</filename> directory, there is the file
-                <filename>empty.cpp</filename>. This file contains all of the functions that the
-            framework expects you to define. Copy this file to your <filename>Project</filename>
-            directory and rename it however you want. For the purpose of this example, let us call
-            it <filename>project.cpp</filename>.</para>
-        <para>In order to build this file, you will need to use Premake; therefore, you will need to
-            use a Premake build script. You will need to create a <filename>premake4.lua</filename>
-            file in the <filename>Project</filename> directory. This is a text file that contains
-            the following:</para>
-        <example>
-            <title>Solution Premake Build Script</title>
-            <programlisting>dofile("../framework/framework.lua")
-
-SetupSolution("Project")
-dofile("tutorials.lua");</programlisting>
-        </example>
-        <para>You can replace the <quote><literal>Project</literal></quote> with whatever name you
-            wish. This will be the name of the solution file (for those build tools that have
-                <quote>solution</quote> files).</para>
-        <para>Next you must make a <filename>tutorials.lua</filename> file, in the
-                <filename>Project</filename> directory. It should contain the following:</para>
-        <example>
-            <title>Tutorial Premake Build Script</title>
-            <programlisting>SetupProject("Project", "project.cpp")</programlisting>
-        </example>
-        <para>You can again replace the <quote><literal>Project</literal></quote> with whatever name
-            you wish. This is the name of the executable, as well as the name of the project build
-            file (again, for build tools that have <quote>project</quote> files). Lua allows for
-            arbitrary numbers of arguments. Following the project name can be any number of files
-            that will be included with the project. Premake even allows wildcards, so
-                    <quote><filename>*.cpp</filename></quote> would include every C++ source file in
-            this directory. You can include non-buildable files like shaders as well, but you have
-            to specify the directory for that.</para>
-        <section>
-            <title>Using the Framework Library</title>
-            <para>At this point, you should be able to build and run the project. The framework
-                includes a number of extra facilities, like shader loading, mesh loading, and so
-                forth.</para>
-            <para>All of the framework library headers should be included <emphasis>after</emphasis>
-                including the GLLoad header.</para>
-            <para>Shaders and mesh files are assumed to come from a subdirectory of the current
-                directory called <filename>data</filename>. When you call
-                    <function>Framework::LoadShader</function>, it will look in the
-                    <filename>data</filename> directory for the file. If it is not there, then it
-                will look in the <filename>data</filename> directory just off the root of the
-                tutorial distribution; this is used for common shaders that are used across multiple
-                tutorials.</para>
-            <para>Here is a quick runthrough of the available tools in the framework library.</para>
-            <formalpara>
-                <title>framework.h</title>
-                <para>Contains functions to load shader files. It also has functions for converting
-                    degrees to radians.</para>
-            </formalpara>
-            <formalpara>
-                <title>Mesh.h</title>
-                <para>Contains the <classname>Framework::Mesh</classname> class. This class loads
-                    meshes in an XML format, and it can be used to render them. The XML format can
-                    define named variations of the mesh, which represent different sets of vertex
-                    attributes. The particular named set can be rendered with the
-                        <function>Mesh::Render</function> function. Note that it will only load
-                    meshes from the <filename>Project/data</filename> directory.</para>
-            </formalpara>
-            <formalpara>
-                <title>MousePole.h</title>
-                <para>Contains the <classname>Framework::MousePole</classname> class. This is used
-                    to allow mouse-based movements to control the camera. This control allows
-                    rotating the view around a point in the world: the look-at point. The
-                    constructor takes a <classname>Framework::RadiusDef</classname> object, which
-                    defines the limits for how the distance from the look-at can change, as well as
-                    the initial distance. They must be given the input from FreeGLUT's mouse and
-                    keyboard callbacks; the tutorials show how to set this up.</para>
-            </formalpara>
-            <formalpara>
-                <title>ObjectPole.h</title>
-                <para>Contains the <classname>Framework::ObjectPole</classname> class. This is used
-                    to allow mouse-based movements to control an object. This control allows
-                    rotating the object in space. Again, many tutorials show how to set this
-                    up.</para>
-            </formalpara>
-            <formalpara>
-                <title>Timer.h</title>
-                <para>Contains the <classname>Framework::Timer</classname> class. The timer is used
-                    to keep accurate time. The <function>Timer::Update</function> function must be
-                    used to advance the time since the last time it was used. You should only do
-                    this once per frame. There are three kinds of timers: looping timers, single
-                    timers, and infinite timers. Looping and single timers have a set duration, and
-                    they return the time as a value on the range [0, 1] from
-                        <function>Timer::GetAlpha()</function>, depending on how far towards the
-                    duration they are. The duration starts the first time the update function is
-                    called. Infinite timers should use <function>Timer::GetDuration()</function>,
-                    which returns the time in seconds since the first update call.</para>
-            </formalpara>
-            <formalpara>
-                <title>MatrixStack.h</title>
-                <para>Contains the <classname>Framework::MatrixStack</classname> class. The use of
-                    this class is well documented in Tutorial 7.</para>
-            </formalpara>
-            <para>All of the other parts of the framework library are probably too advanced,
-                special-case, or cumbersome to use.</para>
-        </section>
-    </section>
+    <para>The easiest way is to just use the <link
+            xlink:href="http://glsdk.sourceforge.net/docs/html/index.html">Unofficial OpenGL
+            SDK</link>. It is a well-documented collection of tools for writing simple OpenGL
+        applications. It has functions for compiling shaders, the mouse-based controls we have used,
+        image loading tools, and various other utilities that are vital to making OpenGL
+        applications. Details for how to use it are found on the SDK's website.</para>
     <section>
         <?dbhtml filename="Started Necessary Tools.html" ?>
-        <title>Necessary Tools</title>
-        <para>In order to use OpenGL without the framework, you will need to do two things. You must
-            create a window and attach an OpenGL context to it, and you must load the OpenGL
-            functions for that context. There are a number of other tools you may want (vector math,
-            model loading, image loading, etc), but these tools are ones you need if you aren't
-            going to do them manually.</para>
+        <title>Manual Usage</title>
+        <para>If you choose not to use the SDK, then you will have to build a set of useful tools
+            yourself.</para>
+        <para>In order to use OpenGL, you will need to do two things. You must create a window and
+            attach an OpenGL context to it, and you must load the OpenGL functions for that context.
+            There are a number of other tools you may want (vector math, model loading, image
+            loading, etc), but these tools are ones you need if you aren't going to do them
+            manually.</para>
         <section>
             <title>Window and OpenGL Creation</title>
             <para>Windows, displayable surfaces in GUI operating environments, are very
@@ -138,9 +33,9 @@ dofile("tutorials.lua");</programlisting>
                 attached to these windows using the WGL API.</para>
             <para>Because window creation and OpenGL attachment are platform-specific, there are a
                 number of cross-platform tools that make it possible to write platform-neutral
-                OpenGL code. FreeGLUT is the tool that these tutorials use, and it is included in
-                the source distribution. There are a number of other tools available. We will
-                discuss many of the options here.</para>
+                OpenGL code. FreeGLUT is the tool that these tutorials use, and it is included as
+                part of the SDK in the source distribution. There are a number of other tools
+                available. We will discuss many of the options here.</para>
             <formalpara>
                 <title>FreeGLUT</title>
                 <para>FreeGLUT is based on the original GLUT, the OpenGL Utility Toolkit. You should
@@ -195,11 +90,13 @@ dofile("tutorials.lua");</programlisting>
                 MacOSX), possibly also supporting BSD or various other shades of UNIX. Unlike
                 DirectX, the multimedia libraries did not create their own 3D rendering system; they
                 instead simply provide a way to use OpenGL.</para>
-            <para>The two biggest multimedia libraries are SDL (Simple Directmedia Layer) and SFML
-                (Simple and Fast Multimedia Library). SDL is the older, but it is still receiving
-                updates. It is a C library, so if you are allergic to C-isms, you may wish to avoid
-                it. Work is being done on SDL 1.3, which will apparently have support for mobile
-                platforms. SDL uses the zLib license.</para>
+            <para>The two biggest multimedia libraries are <link xlink:href="http://www.libsdl.org/"
+                    >SDL (Simple Directmedia Layer)</link> and <link
+                    xlink:href="http://www.sfml-dev.org/">SFML (Simple and Fast Multimedia
+                    Library)</link>. SDL is the older, but it is still receiving updates. It is a C
+                library, so if you are allergic to C-isms, you may wish to avoid it. Work is being
+                done on SDL 1.3, which will apparently have support for mobile platforms. SDL uses
+                the zLib license.</para>
             <para>SFML is a newer library, which has a C++ API. While SDL is one big library (and
                 requires dependencies like DirectX on Windows), SFML is more of a choose-your-own
                 package. The base package contains just input and the ability to create a window,
@@ -207,10 +104,11 @@ dofile("tutorials.lua");</programlisting>
                 integrate SFML windows with other GUI toolkits (see below); this makes it easier to
                 build non-gaming applications that use actual GUI tools. SFML uses the zLib
                 license.</para>
-            <para>Allegro is a game-centric multimedia library. Version 5 has native support for
-                OpenGL in its graphics subsystem. It uses a C interface. It also has a number of
-                advanced 2D rendering functions. Allegro uses the <quote>giftware license,</quote>
-                which is rather like the MIT license.</para>
+            <para><link xlink:href="http://alleg.sourceforge.net/">Allegro</link> is a game-centric
+                multimedia library. Version 5 has native support for OpenGL in its graphics
+                subsystem. It uses a C interface. It also has a number of advanced 2D rendering
+                functions. Allegro uses the <quote>giftware license,</quote> which is rather like
+                the MIT license.</para>
             <formalpara>
                 <title>GUI Toolkits</title>
                 <para>There are a number of cross-platform GUI libraries that deal with detailed
@@ -272,9 +170,9 @@ dofile("tutorials.lua");</programlisting>
                 context creation tools is that there will be some series of commands to supply
                 parameters to the underlying system for context creation. And then a function is
                 called to use those parameters to create the context. It is only
-                    <emphasis>after</emphasis> this process is complete that one should call
-                whatever initialization function the OpenGL function loading system uses. Your
-                tools' documentation should explain this.</para>
+                    <emphasis>after</emphasis> this process has successfully completed that one
+                should call whatever initialization function the OpenGL function loading system
+                uses. Your tools' documentation should explain this.</para>
             <para>After doing both of these, you should be able to make OpenGL calls. The specifics
                 on how to swap framebuffers (which is not part of the OpenGL API) is again left up
                 to the window management tool.</para>

@@ -290,7 +290,9 @@ void main()
                 into something called <varname>gl_Position</varname>. This is a variable that is
                     <emphasis>not</emphasis> defined in the shader; that is because it is a standard
                 variable defined in every vertex shader. If you see an identifier in a GLSL shader
-                that starts with <quote>gl_</quote>, then it must be a built-in identifier.</para>
+                that starts with <quote>gl_</quote>, then it must be a built-in identifier. You
+                cannot make an identifier that begins with <quote>gl_</quote>; you can only use ones
+                that already exist.</para>
             <para><varname>gl_Position</varname> is defined as:</para>
             <programlisting language="glsl">out vec4 gl_Position;</programlisting>
             <para>Recall that the minimum a vertex shader must do is generate a clip-space position
@@ -477,12 +479,14 @@ void main()
     shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
     
     theProgram = CreateProgram(shaderList);
+
+    std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 }</programlisting>
         </example>
         <para>The first statement simply creates a list of the shader objects we intend to link
             together. The next two statements compile our two shader strings. The
-                <function>CreateShader</function> function is a utility function defined by the
-            tutorial that compiles a shader.</para>
+                <function>CreateShader</function> function is a function defined by the tutorial
+            that compiles a shader.</para>
         <para>Compiling a shader into a shader object is a lot like compiling source code. Most
             important of all, it involves error checking. This is the implementation of
                 <function>CreateShader</function>:</para>
@@ -609,6 +613,10 @@ void main()
                 may call <function>glGetAttribLocation</function> with the program object and a
                 string containing the attribute's name.</para>
         </note>
+        <para>After linking the program, the shader objects in the <type>vector</type> of shaders are
+            deleted using the C++ algorithm <function>std::for_each.</function> This line loops over
+            each of the shaders in the list and calls <function>glDeleteShader</function> on
+            them.</para>
         <formalpara>
             <title>Using Programs</title>
             <para>To tell OpenGL that rendering commands should use a particular program object, the
@@ -630,8 +638,8 @@ void main()
         <title>Cleanup</title>
         <para>The tutorial allocates a lot of OpenGL resources. It allocates a buffer object, which
             represents memory on the GPU. It creates two shader objects and a program object, all of
-            which stored in memory owned by OpenGL. But it never explicitly deletes any of
-            this.</para>
+            which stored in memory owned by OpenGL. But it only deletes the shader objects; nothing
+            else.</para>
         <para>Part of this is due to the nature of FreeGLUT, which does not provide hooks for a
             cleanup function. But part of it is also due to the nature of OpenGL itself. In a simple
             example such as this, there is no need to delete anything. OpenGL will clean up its own
@@ -753,7 +761,8 @@ void main()
                     </glossdef>
                 </glossentry>
                 <glossentry>
-                    <glossterm>glCreateShader, glShaderSource, glCompileShader</glossterm>
+                    <glossterm>glCreateShader, glShaderSource, glCompileShader,
+                        glDeleteShader</glossterm>
                     <glossdef>
                         <para>These functions create a working shader object.
                                 <function>glCreateShader</function> simply creates an empty shader
@@ -761,7 +770,9 @@ void main()
                             sets strings into that object; multiple calls to this function simply
                             overwrite the previously set strings.
                                 <function>glCompileShader</function> causes the shader object to be
-                            compiled with the previously set strings.</para>
+                            compiled with the previously set strings.
+                                <function>glDeleteShader</function> causes the shader object to be
+                            deleted.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>

@@ -309,10 +309,10 @@
                 <para>The object can be spun by right-clicking while holding <keycap>Alt</keycap>.
                     As with the other object movements, the spin is relative to the current
                     direction of the camera.</para>
-                <para>The code for these are contained in the framework objects
-                        <type>MousePole</type> and <type>ObjectPole</type>. The source code in them
-                    is, outside of how FreeGLUT handles mouse input, nothing that has not been seen
-                    previously.</para>
+                <para>The code for these are contained in the Unofficial SDK's GL Util library.
+                    Specifically, the objects <type>glutil::ViewPole</type> and
+                        <type>glutil::ObjectPole</type>. The source code in them is, outside of how
+                    FreeGLUT handles mouse input, nothing that has not been seen previously.</para>
             </sidebar>
             <para>Pressing the <keycap>Spacebar</keycap> will switch between a cylinder that has a
                 varying diffuse color and one that is pure white. This demonstrates the effect of
@@ -326,10 +326,8 @@
                 stack will have the camera matrix at the very bottom.</para>
             <example>
                 <title>Display Camera Code</title>
-                <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
-
-Framework::MatrixStack modelMatrix;
-modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+                <programlisting language="cpp">glutil::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_viewPole.CalcMatrix());
 
 glm::vec4 lightDirCameraSpace = modelMatrix.Top() * g_lightDirection;
 
@@ -359,7 +357,7 @@ glUseProgram(0);</programlisting>
             <para>To render the ground plane, we run this code:</para>
             <example>
                 <title>Ground Plane Lighting</title>
-                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+                <programlisting language="cpp">glutil::PushStack push(modelMatrix);
 
 glUseProgram(g_WhiteDiffuseColor.theProgram);
 glUniformMatrix4fv(g_WhiteDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
@@ -383,9 +381,9 @@ glUseProgram(0);</programlisting>
             <para>To render the cylinder, we run this code:</para>
             <example>
                 <title>Cylinder Lighting</title>
-                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+                <programlisting language="cpp">glutil::PushStack push(modelMatrix);
 
-modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
+modelMatrix.ApplyMatrix(g_objtPole.CalcMatrix());
 
 if(g_bDrawColoredCyl)
 {
@@ -681,9 +679,9 @@ void main()
             the inverse transpose. The rendering code for the cylinder is as follows:</para>
         <example>
             <title>Lighting with Proper Normal Transform</title>
-            <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+            <programlisting language="cpp">glutil::PushStack push(modelMatrix);
 
-modelMatrix.ApplyMatrix(g_objectPole.CalcMatrix());
+modelMatrix.ApplyMatrix(g_objtPole.CalcMatrix());
 
 if(g_bScaleCyl)
 {

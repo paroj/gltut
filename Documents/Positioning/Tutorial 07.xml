@@ -157,13 +157,14 @@
             <para>This world is more complicated than anything we've seen up until now. There are a
                 lot of objects being rendered, and most of them are composed out of multiple
                 objects.</para>
-            <para>This tutorial is the first to incorporate a number of the tutorial framework's
-                features. The <classname>Framework::MatrixStack</classname> class implements a
-                matrix stack very much like we saw in the last tutorial. The main difference is that
-                the stack class does not have public push/pop functions. To push a matrix onto the
-                stack, we use a stack object, <classname>Framework::MatrixStackPusher</classname>.
-                The constructor pushes the matrix and the destructor automatically pops. This way,
-                we can never stack overflow or underflow.<footnote>
+            <para>This tutorial is the first to incorporate some of the features of the Unofficial
+                OpenGL SDK. Specifically, it uses the GL Util library's
+                    <classname>glutil::MatrixStack</classname> class, which implements a matrix
+                stack very much like we saw in the last tutorial. The main difference is that we do
+                not use explicit push/pop functions. To push a matrix onto the stack, we instead use
+                a stack object, <classname>glutil::PushStack</classname>. The constructor pushes the
+                matrix and the destructor automatically pops it. This way, we can never stack
+                overflow or underflow.<footnote>
                     <para>This technique, using constructors and destructors to do this kind of
                         scope-bounded work, is called Resource Acquisition Is Initialization
                             (<acronym>RAII</acronym>). It is a common C++ resource management
@@ -171,12 +172,13 @@
                             xlink:href="http://www.hackcraft.net/raii/">online</link>. If you are
                         unfamiliar with it, I suggest you become familiar with it.</para>
                 </footnote></para>
-            <para>The <classname>Framework::Mesh</classname> class is much more complicated. It
-                implements mesh loading from an XML-based file format. We will discuss some of the
-                functioning of this class in detail in the next section. For now, let us say that
-                this class's <function>Mesh::Render</function> function is equivalent to binding a
-                vertex array object, rendering with one or more <function>glDraw*</function> calls,
-                and then unbinding the VAO. It expects a suitable program object to be bound to the
+            <para>The tutorial also is the first to use the Framework's mesh class:
+                    <classname>Framework::Mesh</classname>. It implements mesh loading from an
+                XML-based file format. We will discuss some of the functioning of this class in
+                detail in the next section. For now, let us say that this class's
+                    <function>Mesh::Render</function> function is equivalent to binding a vertex
+                array object, rendering with one or more <function>glDraw*</function> calls, and
+                then unbinding the VAO. It expects a suitable program object to be bound to the
                 context.</para>
         </section>
         <section>
@@ -198,18 +200,15 @@
                 <title>Window Resizing</title>
                 <programlisting language="cpp">void reshape (int w, int h)
 {
-    Framework::MatrixStack persMatrix;
-    persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+    glutil::MatrixStack persMatrix;
+    persMatrix.Perspective(45.0f, (w / (float)h), g_fzNear, g_fzFar);
     
     glUseProgram(UniformColor.theProgram);
-    glUniformMatrix4fv(UniformColor.cameraToClipMatrixUnif, 1, GL_FALSE,
-        glm::value_ptr(persMatrix.Top()));
+    glUniformMatrix4fv(UniformColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
     glUseProgram(ObjectColor.theProgram);
-    glUniformMatrix4fv(ObjectColor.cameraToClipMatrixUnif, 1, GL_FALSE,
-        glm::value_ptr(persMatrix.Top()));
+    glUniformMatrix4fv(ObjectColor.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
     glUseProgram(UniformColorTint.theProgram);
-    glUniformMatrix4fv(UniformColorTint.cameraToClipMatrixUnif, 1, GL_FALSE,
-        glm::value_ptr(persMatrix.Top()));
+    glUniformMatrix4fv(UniformColorTint.cameraToClipMatrixUnif, 1, GL_FALSE, glm::value_ptr(persMatrix.Top()));
     glUseProgram(0);
     
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
@@ -281,19 +280,15 @@ void main()
                 <title>Upload World to Camera Matrix</title>
                 <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
 
-Framework::MatrixStack camMatrix;
-camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget,
-    glm::vec3(0.0f, 1.0f, 0.0f)));
+glutil::MatrixStack camMatrix;
+camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 glUseProgram(UniformColor.theProgram);
-glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif,
-    1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+glUniformMatrix4fv(UniformColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
 glUseProgram(ObjectColor.theProgram);
-glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif,
-    1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+glUniformMatrix4fv(ObjectColor.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
 glUseProgram(UniformColorTint.theProgram);
-glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif,
-    1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
+glUniformMatrix4fv(UniformColorTint.worldToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(camMatrix.Top()));
 glUseProgram(0);</programlisting>
             </example>
             <para>The function <function>ResolveCamPosition</function> computes the camera position,
@@ -342,17 +337,17 @@ glUseProgram(0);</programlisting>
                 <title>Spherical to Euclidean Transform</title>
                 <programlisting language="cpp">glm::vec3 ResolveCamPosition()
 {
-    Framework::MatrixStack tempMat;
+    glutil::MatrixStack tempMat;
     
-    float rho = Framework::DegToRad(g_sphereCamRelPos.x);
+    float phi = Framework::DegToRad(g_sphereCamRelPos.x);
     float theta = Framework::DegToRad(g_sphereCamRelPos.y + 90.0f);
     
     float fSinTheta = sinf(theta);
     float fCosTheta = cosf(theta);
-    float fCosRho = cosf(rho);
-    float fSinRho = sinf(rho);
+    float fCosPhi = cosf(phi);
+    float fSinPhi = sinf(phi);
     
-    glm::vec3 dirToCamera(fSinTheta * fCosRho, fCosTheta, fSinTheta * fSinRho);
+    glm::vec3 dirToCamera(fSinTheta * fCosPhi, fCosTheta, fSinTheta * fSinPhi);
     return (dirToCamera * g_sphereCamRelPos.z) + g_camTarget;
 }</programlisting>
             </example>
@@ -402,13 +397,12 @@ glUseProgram(0);</programlisting>
                 being unit length. This is rendered by the following code:</para>
             <example>
                 <title>Draw the Ground</title>
-                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+                <programlisting language="cpp">glutil::PushStack push(modelMatrix);
 
 modelMatrix.Scale(glm::vec3(100.0f, 1.0f, 100.0f));
 
 glUseProgram(UniformColor.theProgram);
-glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE,
-    glm::value_ptr(modelMatrix.Top()));
+glUniformMatrix4fv(UniformColor.modelToWorldMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
 glUniform4f(UniformColor.baseColorUnif, 0.302f, 0.416f, 0.0589f, 1.0f);
 g_pPlaneMesh->Render();
 glUseProgram(0);</programlisting>
@@ -421,13 +415,13 @@ glUseProgram(0);</programlisting>
                 function.</para>
             <example>
                 <title>DrawForest Function</title>
-                <programlisting language="cpp">void DrawForest(Framework::MatrixStack &amp;modelMatrix)
+                <programlisting language="cpp">void DrawForest(glutil::MatrixStack &amp;modelMatrix)
 {
     for(int iTree = 0; iTree &lt; ARRAY_COUNT(g_forest); iTree++)
     {
         const TreeData &amp;currTree = g_forest[iTree];
         
-        Framework::MatrixStackPusher push(modelMatrix);
+        glutil::PushStack push(modelMatrix);
         modelMatrix.Translate(glm::vec3(currTree.fXPos, 0.0f, currTree.fZPos));
         DrawTree(modelMatrix, currTree.fTrunkHeight, currTree.fConeHeight);
     }
@@ -444,7 +438,7 @@ glUseProgram(0);</programlisting>
                 translation matrix to the stack.</para>
             <example>
                 <title>Call to DrawParthenon</title>
-                <programlisting language="cpp">Framework::MatrixStackPusher push(modelMatrix);
+                <programlisting language="cpp">glutil::PushStack push(modelMatrix);
 modelMatrix.Translate(glm::vec3(20.0f, 0.0f, -10.0f));
 
 DrawParthenon(modelMatrix);</programlisting>
@@ -465,7 +459,7 @@ DrawParthenon(modelMatrix);</programlisting>
                 <programlisting language="cpp">glDisable(GL_DEPTH_TEST);
 glm::mat4 idenity(1.0f);
 
-Framework::MatrixStackPusher push(modelMatrix);
+glutil::PushStack push(modelMatrix);
 
 glm::vec3 cameraAimVec = g_camTarget - camPos;
 modelMatrix.Translate(0.0f, 0.0, -glm::length(cameraAimVec));
@@ -494,7 +488,8 @@ glEnable(GL_DEPTH_TEST);</programlisting>
                 and hierarchy. Model space to world space to camera space to clip space. But the
                 important thing to remember is that this framework is only useful to you if it does
                 what you want. If you need to position an object directly in front of the camera,
-                then simply remove world space from the equation entirely.</para>
+                then simply remove world space from the equation entirely and deal directly with
+                camera space.</para>
             <para>We could even turn the depth test back on, and the camera target would interact
                 correctly with the rest of the world. It is a part of the world, even though it
                 seems like it goes through a different transform pipe.</para>
@@ -809,12 +804,11 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 <title>UBO-based Perspective Matrix</title>
                 <programlisting language="cpp">void reshape (int w, int h)
 {
-    Framework::MatrixStack persMatrix;
-    persMatrix.Perspective(45.0f, (h / (float)w), g_fzNear, g_fzFar);
+    glutil::MatrixStack persMatrix;
+    persMatrix.Perspective(45.0f, (w / (float)h), g_fzNear, g_fzFar);
     
     glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
-        glm::value_ptr(persMatrix.Top()));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(persMatrix.Top()));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     
     glViewport(0, 0, (GLsizei) w, (GLsizei) h);
@@ -830,12 +824,11 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 <title>UBO-based Camera Matrix</title>
                 <programlisting language="cpp">const glm::vec3 &amp;camPos = ResolveCamPosition();
 
-Framework::MatrixStack camMatrix;
+glutil::MatrixStack camMatrix;
 camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
 
 glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
-glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
-    glm::value_ptr(camMatrix.Top()));
+glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camMatrix.Top()));
 glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
             </example>
             <para>The world-to-camera matrix is the second matrix, so we start the upload at the end
@@ -919,7 +912,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 <title>Viewing Point with UBO</title>
                 <programlisting language="cpp">glDisable(GL_DEPTH_TEST);
 
-Framework::MatrixStackPusher push(modelMatrix);
+glutil::PushStack push(modelMatrix);
 
 modelMatrix.Translate(g_camTarget);
 modelMatrix.Scale(1.0f, 1.0f, 1.0f);

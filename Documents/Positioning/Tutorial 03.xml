@@ -251,6 +251,114 @@ void main()
                 <function>glUniform2f</function> to set the uniform's value. The buffer object's
             data is never changed; the shader simply does the hard work. Which is why those shader
             stages exist in the first place.</para>
+        <sidebar>
+            <title>Standard OpenGL Nomenclature</title>
+            <para>The function <function>glUniform2f</function> uses a special bit of OpenGL
+                nomenclature. Specifically, the <quote>2f</quote> part.</para>
+            <para>Uniforms can have different types. And because OpenGL is defined in terms of C
+                rather than C++, there is no concept of function overloading. So functions that do
+                the same thing which take different types must have different names. OpenGL has
+                standardized its naming convention for these.</para>
+            <para>Functions like <function>glUniform</function> have a suffix. The first part of the
+                suffix is the number of values it takes. In the above case,
+                    <function>glUniform2f</function> takes 2 values, in addition to the regular
+                parameters. The basic <function>glUniform</function> parameters are just the uniform
+                location, so <function>glUniform2f</function> takes a uniform location and two
+                values.</para>
+            <para>The type of values it takes is defined by the second part. The possible type names
+                and their associated types are:</para>
+            <informaltable frame="all">
+                <tgroup cols="4">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c3" colnum="3" colwidth="1.0*"/>
+                    <colspec colname="c4" colnum="4" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry/>
+                            <entry/>
+                            <entry/>
+                            <entry/>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry>
+                                <para>b</para>
+                            </entry>
+                            <entry>
+                                <para>signed byte</para>
+                            </entry>
+                            <entry>
+                                <para>ub</para>
+                            </entry>
+                            <entry>
+                                <para>unsigned byte</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>s</para>
+                            </entry>
+                            <entry>
+                                <para>signed short</para>
+                            </entry>
+                            <entry>
+                                <para>us</para>
+                            </entry>
+                            <entry>
+                                <para>unsigned short</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>i</para>
+                            </entry>
+                            <entry>
+                                <para>signed int</para>
+                            </entry>
+                            <entry>
+                                <para>ui</para>
+                            </entry>
+                            <entry>
+                                <para>unisgned int</para>
+                            </entry>
+                        </row>
+                        <row>
+                            <entry>
+                                <para>f</para>
+                            </entry>
+                            <entry>
+                                <para>float</para>
+                            </entry>
+                            <entry>
+                                <para>d</para>
+                            </entry>
+                            <entry>
+                                <para>double</para>
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </informaltable>
+            <para>Note that OpenGL has special typedefs for all of these types. <type>GLfloat</type>
+                is a typedef for <type>float</type>, for example. This is not particularly useful
+                for simple types, but for integer types, they can be very useful.</para>
+            <para>Not all functions that take multiple types take all possible types. For example,
+                    <function>glUniform</function> only comes in <literal>i</literal>,
+                    <literal>ui</literal>, and <literal>f</literal> variations (OpenGL 4.0
+                introduces <literal>d</literal> variants).</para>
+            <para>There are also vector forms, defined by adding a <quote>v</quote> after the type.
+                These take an array of values, with a parameter saying how many elements are in the
+                array. So the function <function>glUniform2fv</function> takes a uniform location, a
+                number of entries, and an array of that many entries. Each entry is <emphasis>two
+                    floats</emphasis> in size; the number of entries is not the number of floats or
+                other types. It is the number of values divided by the number of values per entry.
+                Since <quote>2f</quote> represents two floats, that is how many values are in each
+                entry.</para>
+            <para>Some OpenGL functions just take a type without a number. These functions take a
+                fixed number of parameters of that type, usually just one.</para>
+        </sidebar>
         <formalpara>
             <title>Vector Math</title>
             <para>You may be curious about how these lines work:</para>

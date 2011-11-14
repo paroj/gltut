@@ -305,14 +305,12 @@ void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
                     <literal>GL_ARRAY_BUFFER</literal> binding once, but the
                     <literal>GL_ELEMENT_ARRAY_BUFFER</literal> is set for each VAO.</para>
             <note>
-                <para>If you look at the vertex position attribute and the shader, you will notice
-                    that we now use a 3-component position vector rather than a 4-component one.
-                    This saves on data, yet our matrix math should not work, since you cannot
-                    multiply a 4x4 matrix with a 3-component vector.</para>
-                <para>This is a subtle feature of OpenGL. If you attempt to transform a matrix by a
-                    vector that is one size smaller than the matrix, it will assume that the last
-                    coordinate missing from the vector will be 1.0. This means that we do not have
-                    to spend precious buffer object memory on a value we know to be 1.0.</para>
+                <para>If you look at the vertex position attribute in our array, we have a
+                    3-component position vector. But the shader still uses a <type>vec4</type>. This
+                    works because OpenGL will fill in any missing vertex attribute components that
+                    the shader looks for but the attribute array doesn't provide. It fills them in
+                    with zeros, except for the fourth component, which is filled in with a
+                    1.0.</para>
             </note>
             <para>Though the initialization code has been expanded, the rendering code is quite
                 simple:</para>

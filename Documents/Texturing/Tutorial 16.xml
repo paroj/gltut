@@ -177,7 +177,7 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
                 projection matrix functions. The computation is actually quite simple.</para>
             <example>
                 <title>Window to Clip Matrix Computation</title>
-                <programlisting language="cpp">Framework::MatrixStack persMatrix;
+                <programlisting language="cpp">glutil::MatrixStack persMatrix;
 persMatrix.Translate(-1.0f, 1.0f, 0.0f);
 persMatrix.Scale(2.0f / w, -2.0f / h, 1.0f);</programlisting>
             </example>

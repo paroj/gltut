@@ -19,7 +19,6 @@ void InitializeProgram()
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "VertexColors.frag"));
 
 	theProgram = Framework::CreateProgram(shaderList);
-
 }
 
 const float vertexData[] = {

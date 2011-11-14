@@ -51,7 +51,7 @@
     <section>
         <title>Unofficial OpenGL SDK</title>
         <para>The <link xlink:href="http://glsdk.sourceforge.net/docs/html/index.html">Unofficial
-                OpenGL SDK</link> is a library aggregation, consisting of a number of tools for
+                OpenGL SDK</link> is an aggregation of libraries, unifying a number of tools for
             developing OpenGL applications, all bound together with a unified build system. A
             modified SDK distribution is bundled with these tutorials; this distro does not contain
             the documentation or GLFW that comes with the regular SDK.</para>
@@ -66,7 +66,7 @@
             makefile. To build for debug, use <userinput>make config=debug</userinput>; similarly,
             to build for release, use <userinput>make config=release</userinput>.</para>
         <para>Using the generated build files, compile for both debug and release. You should build
-            the entire solution; the tutorials use all of the libraries in the SDK.</para>
+            the entire solution; the tutorials use all of the libraries provided.</para>
         <para>Note that there is no execution of <userinput>make install</userinput> or similar
             constructs. The SDK is designed to be used where it is; it does not install itself to
             any system directories on your machine. Incidentally, neither do these tutorials.</para>
@@ -76,8 +76,9 @@
         <para><link xlink:href="http://sourceforge.net/projects/tinyxml/">TinyXML</link> is an XML
             parser. The framework uses an XML file format for loading complex 3D mesh data. This
             library simply makes the loading and parsing of this format easier.</para>
-        <para>Like the SDK, it uses Premake to generate its build files. So perform the steps as
-            above to build it.</para>
+        <para>Like the SDK, it uses Premake to generate its build files. So go to the
+                <filename>tinyxml</filename> directory and perform the steps as above to build
+            it.</para>
     </section>
     <section>
         <title>Tutorial Building</title>

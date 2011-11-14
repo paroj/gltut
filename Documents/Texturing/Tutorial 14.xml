@@ -612,6 +612,9 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
             rare, far more rare than <literal>flat</literal>. The important thing to understand from
             this section is that interpolation style matters. And <literal>smooth</literal> will be
             our default interpolation; fortunately, it is OpenGL's default too.</para>
+        <note>
+            <para>If you are interested in how the </para>
+        </note>
     </section>
     <section>
         <?dbhtml filename="Tut14 Texture Mapping.html" ?>

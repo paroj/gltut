@@ -846,7 +846,7 @@ glUseProgram(0);]]></programlisting>
             <title>Reshape with Aspect Ratio</title>
             <programlisting language="cpp"><![CDATA[void reshape (int w, int h)
 {
-    perspectiveMatrix[0] = fFrustumScale * (h / (float)w);
+    perspectiveMatrix[0] = fFrustumScale / (w / (float)h);
     perspectiveMatrix[5] = fFrustumScale;
     
     glUseProgram(theProgram);
@@ -860,8 +860,8 @@ glUseProgram(0);]]></programlisting>
         <para>The matrix, now a global variable called <varname>perspectiveMatrix</varname>, gets
             its other fields from the program initialization function just as before. The aspect
             ratio code is only interested in the XY scale values.</para>
-        <para>Here, we change the X scaling based on the ratio of height to width. The Y scaling is
-            left alone.</para>
+        <para>Here, we change the X scaling based on the ratio of the width to the height. The Y
+            scaling is left alone.</para>
         <para>Also, the offset used for positioning the prism was changed from (0.5, 0.5) to (1.5,
             0.5). This means that part of the object is off the side of the viewport until you
             resize the window. Changing the width shows more of the area; only by changing the

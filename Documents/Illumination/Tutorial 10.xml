@@ -53,17 +53,17 @@
             of the rendering function.</para>
         <example>
             <title>Per-Vertex Point Light Rendering</title>
-            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
-modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+            <programlisting language="cpp">glutil::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_viewPole.CalcMatrix());
 
 const glm::vec4 &amp;worldLightPos = CalcLightPosition();
 
 glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;
 
-glUseProgram(g_WhiteAmbDiffuseColor.theProgram);
-glUniform3fv(g_WhiteAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
-glUseProgram(g_VertexAmbDiffuseColor.theProgram);
-glUniform3fv(g_VertexAmbDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));</programlisting>
+glUseProgram(g_WhiteDiffuseColor.theProgram);
+glUniform3fv(g_WhiteDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));
+glUseProgram(g_VertexDiffuseColor.theProgram);
+glUniform3fv(g_VertexDiffuseColor.lightPosUnif, 1, glm::value_ptr(lightPosCameraSpace));</programlisting>
         </example>
         <para>The light is computed initially in world space, then transformed into camera space.
             The camera-space light position is given to both of the shaders. Rendering proceeds
@@ -359,8 +359,8 @@ void main()
             lighting instead of camera space. The start of the rendering looks as follows:</para>
         <example>
             <title>Initial Per-Fragment Rendering</title>
-            <programlisting language="cpp">Framework::MatrixStack modelMatrix;
-modelMatrix.SetMatrix(g_mousePole.CalcMatrix());
+            <programlisting language="cpp">glutil::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_viewPole.CalcMatrix());
 
 const glm::vec4 &amp;worldLightPos = CalcLightPosition();
 
@@ -377,9 +377,11 @@ glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;</programlisti
         <para>The ground plane is rendered with this code:</para>
         <example>
             <title>Ground Plane Per-Fragment Rendering</title>
-            <programlisting language="cpp">glUseProgram(pWhiteProgram->theProgram);
+            <programlisting language="cpp">glutil::PushStack push(modelMatrix);
+
+glUseProgram(pWhiteProgram->theProgram);
 glUniformMatrix4fv(pWhiteProgram->modelToCameraMatrixUnif, 1, GL_FALSE,
-    glm::value_ptr(modelMatrix.Top()));
+glm::value_ptr(modelMatrix.Top()));
 
 glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
 glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
