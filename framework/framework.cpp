@@ -34,7 +34,7 @@ namespace Framework
 		}
 		catch(std::exception &e)
 		{
-			fprintf(stderr, e.what());
+			fprintf(stderr, "%s\n", e.what());
 			throw;
 		}
 	}
@@ -47,7 +47,7 @@ namespace Framework
 		}
 		catch(std::exception &e)
 		{
-			fprintf(stderr, e.what());
+			fprintf(stderr, "%s\n", e.what());
 			throw;
 		}
 
