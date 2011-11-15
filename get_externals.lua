@@ -24,8 +24,6 @@ local externals =
 			"docs",
 			"examples",
 			"glfw",
-			"freeglut/progs",
-			"freeglut/doc",
 			"freeglut/VisualStudio2008",
 			"freeglut/VisualStudio2008Static",
 			"glm/bench",
