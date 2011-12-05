@@ -167,12 +167,12 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
                 default. We were drawing vertices directly in clip-space. And since the W of those
                 vertices was 1, clip-space is identical to NDC space, and we therefore had an
                 orthographic projection.</para>
-            <para>It is often useful to want to draw something certain objects using window-space
-                pixel coordinates. This is commonly used for drawing text, but it can also be used
-                for displaying images exactly as they appear in a texture, as we do here. Since a
-                vertex shader must output clip-space values, the key is to develop a matrix that
-                transforms window-space coordinates into clip-space. OpenGL will handle the
-                conversion back to window-space internally.</para>
+            <para>It is often useful to want to draw certain objects using window-space pixel
+                coordinates. This is commonly used for drawing text, but it can also be used for
+                displaying images exactly as they appear in a texture, as we do here. Since a vertex
+                shader must output clip-space values, the key is to develop a matrix that transforms
+                window-space coordinates into clip-space. OpenGL will handle the conversion back to
+                window-space internally.</para>
             <para>This is done via the <function>reshape</function> function, as with most of our
                 projection matrix functions. The computation is actually quite simple.</para>
             <example>
@@ -212,15 +212,15 @@ persMatrix.Scale(2.0f / w, -2.0f / h, 1.0f);</programlisting>
                 working in pixel coordinates, we want to specify vertex positions with integer pixel
                 coordinates. This is what the vertex data for the two rectangles look like:</para>
             <programlisting language="cpp">const GLushort vertexData[] = {
-     90, 80,	0,		0,
-     90, 16,	0,		65535,
-    410, 80,	65535,	0,
-    410, 16,	65535,	65535,
+     90, 80,	0,     0,
+     90, 16,	0,     65535,
+    410, 80,	65535, 0,
+    410, 16,	65535, 65535,
     
-     90, 176,	0,		0,
-     90, 112,	0,		65535,
-    410, 176,	65535,	0,
-    410, 112,	65535,	65535,
+     90, 176,   0,     0,
+     90, 112,   0,     65535,
+    410, 176,   65535, 0,
+    410, 112,   65535, 65535,
 };</programlisting>
             <para>Our vertex data has two attributes: position and texture coordinates. Our
                 positions are 2D, as are our texture coordinates. These attributes are interleaved,
@@ -285,7 +285,7 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
         <para>One important linear operation performed on texel values is filtering. Whether
             magnification or minification, non-nearest filtering does some kind of linear
             arithmetic. Since this is all handled by OpenGL, the question is this: if a texture is
-            in an sRGB format, does OpenGL's texture filtering <emphasis>before</emphasis>
+            in an sRGB format, does OpenGL's texture filtering occur <emphasis>before</emphasis>
             converting the texel values to linear RGB or after?</para>
         <para>The answer is quite simple: filtering comes after linearizing. So it does the right
             thing.</para>
@@ -322,10 +322,10 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>This works like the filtering tutorials. The <keycap>1</keycap> and<keycap>2</keycap>
+        <para>This works like the filtering tutorials. The <keycap>1</keycap> and <keycap>2</keycap>
             keys respectively select linear mipmap filtering and anisotropic filtering (using the
             maximum possible anisotropy).</para>
-        <para>We can see that this looks a bit different from the last time we saw it. The distanct
+        <para>We can see that this looks a bit different from the last time we saw it. The distant
             grey field is much darker than it was. This is because we are using sRGB colorspace
             textures. While the white and black are the same in sRGB (1.0 and 0.0 respectively), a
             50% blend of them (0.5) is not. The sRGB texture assumes the 0.5 color is the sRGB 0.5,
@@ -373,7 +373,7 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
             </mediaobject>
         </figure>
         <para>It uses the standard mouse-based controls to move around. As before, the
-                <keycap>1</keycap> and<keycap>2</keycap> keys respectively select linear mipmap
+                <keycap>1</keycap> and <keycap>2</keycap> keys respectively select linear mipmap
             filtering and anisotropic filtering. The main feature is the non-shader-based gamma
             correction. This is enabled by default and can be toggled by pressing the
                 <keycap>SpaceBar</keycap>.</para>

@@ -597,11 +597,11 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
             linear-interpolation.</para>
         <para>What happens is that the <keycap>S</keycap> key switches meshes. The
                 <quote>fake</quote> mesh is not really a hallway; it is perfectly flat. It is more
-            or less a mesh who's vertex positions are in clip-space, after multiplying the original
-            hallway by the perspective matrix. The difference is that the clip-space W is not
-            present. It's just a flat object, an optical illusion. There is no perspective
-            information for the perspective-correction logic to key on, so it looks just like
-            window-space linear interpolation.</para>
+            or less a mesh who's vertex positions are in NDC-space, after multiplying the original
+            hallway by the perspective matrix. The difference is that there is no W coordinate; it's
+            just a flat object, an optical illusion. There is no perspective information for the
+            perspective-correction logic to key on, so it looks just like window-space linear
+            interpolation.</para>
         <para>The switch used to turn on or off perspective-correct interpolation is the
             interpolation qualifier. Previously, we said that there were three qualifiers:
                 <literal>flat</literal>, <literal>smooth</literal>, and
@@ -612,9 +612,6 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
             rare, far more rare than <literal>flat</literal>. The important thing to understand from
             this section is that interpolation style matters. And <literal>smooth</literal> will be
             our default interpolation; fortunately, it is OpenGL's default too.</para>
-        <note>
-            <para>If you are interested in how the </para>
-        </note>
     </section>
     <section>
         <?dbhtml filename="Tut14 Texture Mapping.html" ?>
@@ -744,9 +741,9 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
         <section>
             <title>Image From a File</title>
             <para>Our Gaussian texture comes from data we compute, but the specular shininess
-                texture is defined by a file. For this, we use the GLImg library. While the GLImg
-                library has functions that will directly create textures for us, it is instructive
-                to see a more manual process.</para>
+                texture is defined by a file. For this, we use the GL Image library that is part of
+                the OpenGL SDK. While the GL Image library has functions that will directly create
+                textures for us, it is instructive to see a more manual process.</para>
             <example>
                 <title>CreateShininessTexture function</title>
                 <programlisting language="cpp">void CreateShininessTexture()
@@ -775,8 +772,8 @@ glSamplerParameteri(g_gaussSampler, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);</progr
     }
 }</programlisting>
             </example>
-            <para>The GLImg library has a number of loaders for different image formats; the one we
-                use in the first line of the try-block is the DDS loader. DDS stands for
+            <para>The GL Image library has a number of loaders for different image formats; the one
+                we use in the first line of the try-block is the DDS loader. DDS stands for
                     <quote>Direct Draw Surface,</quote> but it really has nothing to do with
                 Direct3D or DirectX. It is unique among image file formats </para>
             <para>The <classname>glimg::ImageSet</classname> object also supports all of the unique
@@ -876,14 +873,14 @@ glBindSampler(g_shineTexUnit, g_textureSampler);</programlisting>
                 vertices; those vertices are just in different positions.</para>
             <para>Mapping an object onto a 2D plane generally means finding a way to slice the
                 object into pieces that fit onto that plane. However, a torus is, topologically
-                speaking, equivalent to a plane. It is rolled into a tube, and bent around, so that
-                each side connects to its opposing side directly. Therefore, mapping a texture onto
-                this means reversing the process: cutting the torus lengthwise down an arbitrary
-                line, much like a car tire. Then, it is cut again along the side, so that it becomes
+                speaking, equivalent to a plane. This plane is rolled into a tube, and bent around,
+                so that each side connects to its opposing side directly. Therefore, mapping a
+                texture onto this means reversing the process. The tube is cut at one end, creating
+                a cylinder. Then, it is cut lengthwise, much like a car tire, and flattened out into
                 a plane.</para>
             <para>Exactly where those cuts need to be made is arbitrary. And because the specular
                 texture mirrors perfectly in the S and T directions, it is not possible to tell
-                exactly where the seams in the topology are.</para>
+                exactly where the seams in the topology are. But they do need to be there.</para>
             <para>What this does mean is that the vertices along the same have duplicate positions
                 and normals. Because they have different texture coordinates, their shared positions
                 and normals must be duplicated to match what OpenGL needs.</para>

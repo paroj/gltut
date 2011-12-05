@@ -102,12 +102,13 @@
         <programlisting language="cpp">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);</programlisting>
         <para>with this:</para>
         <programlisting language="cpp">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STREAM_DRAW);</programlisting>
-        <para>GL_STATIC_DRAW tells OpenGL that you intend to only set the data in this buffer object
-            once. GL_STREAM_DRAW tells OpenGL that you intend to set this data constantly, generally
-            once per frame. These parameters do not mean <emphasis>anything</emphasis> with regard to
-            the API; they are simply hints to the OpenGL implementation. Proper use of these hints
-            can be crucial for getting good buffer object performance when making frequent changes.
-            We will see more of these hints later.</para>
+        <para><literal>GL_STATIC_DRAW</literal> tells OpenGL that you intend to only set the data in
+            this buffer object once. <literal>GL_STREAM_DRAW</literal> tells OpenGL that you intend
+            to set this data constantly, generally once per frame. These parameters do not mean
+                <emphasis>anything</emphasis> with regard to the API; they are simply hints to the
+            OpenGL implementation. Proper use of these hints can be crucial for getting good buffer
+            object performance when making frequent changes. We will see more of these hints
+            later.</para>
         <para>The rendering function now has become this:</para>
         <example>
             <title>Updating and Drawing the Vertex Data</title>

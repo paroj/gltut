@@ -684,12 +684,12 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
             <para>Our initial pipeline discussion ignored this shader stage, because it is an
                 entirely optional part of the pipeline. If a program object does not contain a
                 geometry shader, then OpenGL just does its normal stuff.</para>
-            <para>The most confusing thing about geometry shaders is that they do not shade geometry.
-                Vertex shaders take a vertex as input and write a vertex as output. Fragment shader
-                take a fragment as input and write a fragment as output.</para>
-            <para>Geometry shaders take a <emphasis>primitive</emphasis> as input and write one or
-                more primitives as output. By all rights, they should be called <quote>primitive
-                    shaders.</quote></para>
+            <para>The most confusing thing about geometry shaders is that they do not shade
+                geometry. Vertex shaders take a vertex as input and write a vertex as output.
+                Fragment shader take a fragment as input and potentially writes a fragment as
+                output. Geometry shaders take a <emphasis>primitive</emphasis> as input and write
+                zero or more primitives as output. By all rights, they should be called
+                    <quote>primitive shaders.</quote></para>
             <para>In any case, geometry shaders are invoked just after the hardware that collects
                 vertex shader outputs into a primitive, but before any clipping, transforming or
                 rasterization happens. Geometry shaders get the values output from multiple vertex

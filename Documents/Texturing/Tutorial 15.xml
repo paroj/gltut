@@ -371,7 +371,7 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
             <para>The first two lines gets the old alignment, so that we can reset it once we are
                 finished. The last line uses <function>glPixelStorei</function>
             </para>
-            <para>Note that the GLImg library does provide an alignment value; it is part of the
+            <para>Note that the GL Image library does provide an alignment value; it is part of the
                     <classname>Dimensions</classname> structure of an image. We have simply not used
                 it yet. In the last tutorial, our row widths were aligned to 4 bytes, so there was
                 no chance of a problem. In this tutorial, our image data is 4-bytes in pixel size,
@@ -411,7 +411,7 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
                 however.</para>
             <sidebar>
                 <title>Filtering Nomenclature</title>
-                <para>If you are familiar with texture filtering from other materials, you may have
+                <para>If you are familiar with texture filtering from other sources, you may have
                     heard the terms <quote>bilinear filtering</quote> and <quote>trilinear
                         filtering</quote> before. Indeed, you may know that linear filtering between
                     mipmap levels is commonly called trilinear filtering.</para>
@@ -420,9 +420,9 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
                 <para>To understand the problem, it is important to understand what <quote>bilinear
                         filtering</quote> means. The <quote>bi</quote> in bilinear comes from doing
                     linear filtering along the two axes of a 2D texture. So there is linear
-                    filtering in the S and T directions (remember: proper OpenGL nomenclature calls
-                    the 2D texture coordinate axes S and T); since that is two directions, it is
-                    called <quote>bilinear filtering</quote>. Thus <quote>trilinear</quote> comes
+                    filtering in the S and T directions (remember: standard OpenGL nomenclature
+                    calls the 2D texture coordinate axes S and T); since that is two directions, it
+                    is called <quote>bilinear filtering</quote>. Thus <quote>trilinear</quote> comes
                     from adding a third direction of linear filtering: between mipmap levels.</para>
                 <para>Therefore, one could consider using <literal>GL_LINEAR</literal> mag and min
                     filtering to be bilinear, and using <literal>GL_LINEAR_MIPMAP_LINEAR</literal>
