@@ -279,14 +279,16 @@
                 there is a corresponding sampler type. So a texture that is of type
                     <literal>GL_TEXTURE_1D</literal> is paired with a sampler of type
                     <type>sampler1D</type>.</para>
-            <para>The GLSL sampler type is very unusual. You can use vectors of all kinds as inputs,
-                outputs, function parameters, etc. You can use matrices and even arrays as outputs
-                or inputs. But not samplers. The restrictions on samplers are:</para>
+            <para>The GLSL sampler type is very unusual. Indeed, it is probably best if you do not
+                think of it like a normal basic type. Think of it instead as a specific hook into
+                the shader that the user can use to supply a texture. The restrictions on sampler
+                types are:</para>
             <itemizedlist>
                 <listitem>
-                    <para>Samplers can only declared as <literal>uniform</literal> in function
-                        parameters with the <literal>in</literal> qualifier. They cannot even be
-                        declared as local variables.</para>
+                    <para>Samplers can only declared at the global scope as
+                            <literal>uniform</literal> or in function parameter lists with the
+                            <literal>in</literal> qualifier. They cannot even be declared as local
+                        variables.</para>
                 </listitem>
                 <listitem>
                     <para>Samplers cannot be members of structs or uniform blocks.</para>
@@ -300,7 +302,7 @@
                         variables.</para>
                 </listitem>
                 <listitem>
-                    <para>Variables of sampler type can only be used as parameters to functions.
+                    <para>The only use of variables of sampler type is as parameters to functions.
                         User-defined functions can take them as parameters, and there are a number
                         of built-in functions that take samplers.</para>
                 </listitem>
@@ -308,7 +310,9 @@
             <para>In the shader <filename>TextureGaussian.frag</filename>, we have an example of
                 creating a sampler:</para>
             <programlisting language="glsl">uniform sampler1D gaussianTexture;</programlisting>
-            <para>This sampler is used in our lighting computation function:</para>
+            <para>This creates a sampler for a 1D texture type; the user cannot use any other type
+                of texture with this sampler. This sampler is used in our lighting computation
+                function:</para>
             <example>
                 <title>Shader Texture Access</title>
                 <programlisting language="glsl">vec3 halfAngle = normalize(lightDir + viewDirection);

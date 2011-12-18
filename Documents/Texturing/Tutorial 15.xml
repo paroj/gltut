@@ -406,7 +406,7 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
                 to see where one mipmap ends and another begins.</para>
             <para>OpenGL actually allows all combinations of <literal>NEAREST</literal> and
                     <literal>LINEAR</literal> in minification filtering. Using nearest filtering
-                within levels while filtering between levels
+                within a mipmap level while linearly filtering between levels
                     (<literal>GL_NEAREST_MIPMAP_LINEAR</literal>) is not terribly useful
                 however.</para>
             <sidebar>

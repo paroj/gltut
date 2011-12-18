@@ -566,49 +566,40 @@ gl_FragDepth = ((gl_DepthRange.diff * ndcDepth) +
             that the user provided with <function>glDepthRange.</function></para>
         <para>We write the final depth to a built-in output variable
                 <varname>gl_FragDepth.</varname></para>
-        <section>
-            <section>
-                <sidebar>
-                    <title>Fragments and Depth</title>
-                    <para>The default behavior of OpenGL is, if a fragment shader does not write to
-                        the output depth, then simply take the <varname>gl_FragCoord.z</varname>
-                        depth as the depth of the fragment. Oh, you could do this manually. One
-                        could add the following statement to any fragment shader that uses the
-                        default depth value:</para>
-                    <programlisting language="glsl">gl_FragDepth = gl_FragCoord.z</programlisting>
-                    <para>This is, in terms of behavior a noop; it does nothing OpenGL would not have
-                        done itself. However, in terms of <emphasis>performance</emphasis>, this is
-                        a drastic change.</para>
-                    <para>The reason fragment shaders are not required to have this line in all of
-                        them is to allow for certain optimizations. If the OpenGL driver can see
-                        that you do not set <varname>gl_FragDepth</varname> anywhere in the fragment
-                        shader, then it can dramatically improve performance in certain
-                        cases.</para>
-                    <para>If the driver knows that the output fragment depth is the same as the
-                        generated one, it can do the whole depth test <emphasis>before</emphasis>
-                        executing the fragment shader. This is called <glossterm>early depth
-                            test</glossterm> or <glossterm>early-z</glossterm>. This means that it
-                        can discard fragments <emphasis>before</emphasis> wasting precious time
-                        executing potentially complex fragment shaders. Indeed, most hardware
-                        nowadays has complicated early z culling hardware that can discard multiple
-                        fragments with a single test.</para>
-                    <para>The moment your fragment shader writes anything to
-                            <varname>gl_FragDepth</varname>, all of those optimizations have to go
-                        away. So generally, you should only write a depth value yourself if you
-                            <emphasis>really</emphasis> need to do it.</para>
-                    <para>Also, if your shader writes <varname>gl_FragDepth</varname> anywhere, it
-                        must ensure that it is <emphasis>always</emphasis> written to, no matter
-                        what conditional branches your shader uses. The value is not initialized to
-                        a default; you either always write to it or never mention
-                                <quote><varname>gl_FragDepth</varname></quote> in your fragment
-                        shader at all. Obviously, you do not always have to write the same value; you
-                        can conditionally write different values. But you cannot write something in
-                        one path and not write something in another. Initialize it explicitly with
-                            <varname>gl_FragCoord.z</varname> if you want to do something like
-                        that.</para>
-                </sidebar>
-            </section>
-        </section>
+        <sidebar>
+            <title>Fragments and Depth</title>
+            <para>The default behavior of OpenGL is, if a fragment shader does not write to the
+                output depth, then simply take the <varname>gl_FragCoord.z</varname> depth as the
+                depth of the fragment. Oh, you could do this manually. One could add the following
+                statement to any fragment shader that uses the default depth value:</para>
+            <programlisting language="glsl">gl_FragDepth = gl_FragCoord.z</programlisting>
+            <para>This is, in terms of behavior a noop; it does nothing OpenGL would not have done
+                itself. However, in terms of <emphasis>performance</emphasis>, this is a drastic
+                change.</para>
+            <para>The reason fragment shaders are not required to have this line in all of them is
+                to allow for certain optimizations. If the OpenGL driver can see that you do not set
+                    <varname>gl_FragDepth</varname> anywhere in the fragment shader, then it can
+                dramatically improve performance in certain cases.</para>
+            <para>If the driver knows that the output fragment depth is the same as the generated
+                one, it can do the whole depth test <emphasis>before</emphasis> executing the
+                fragment shader. This is called <glossterm>early depth test</glossterm> or
+                    <glossterm>early-z</glossterm>. This means that it can discard fragments
+                    <emphasis>before</emphasis> wasting precious time executing potentially complex
+                fragment shaders. Indeed, most hardware nowadays has complicated early z culling
+                hardware that can discard multiple fragments with a single test.</para>
+            <para>The moment your fragment shader writes anything to
+                <varname>gl_FragDepth</varname>, all of those optimizations have to go away. So
+                generally, you should only write a depth value yourself if you
+                    <emphasis>really</emphasis> need to do it.</para>
+            <para>Also, if your shader writes <varname>gl_FragDepth</varname> anywhere, it must
+                ensure that it is <emphasis>always</emphasis> written to, no matter what conditional
+                branches your shader uses. The value is not initialized to a default; you either
+                always write to it or never mention <quote><varname>gl_FragDepth</varname></quote>
+                in your fragment shader at all. Obviously, you do not always have to write the same
+                value; you can conditionally write different values. But you cannot write something
+                in one path and not write something in another. Initialize it explicitly with
+                    <varname>gl_FragCoord.z</varname> if you want to do something like that.</para>
+        </sidebar>
     </section>
     <section>
         <?dbhtml filename="Tut13 Purloined Primitives.html" ?>
@@ -1002,6 +993,7 @@ uniform Material
             <funcsynopsis>
                 <funcprototype>
                     <funcdef>void <function>EmitVertex</function></funcdef>
+                    <paramdef/>
                 </funcprototype>
             </funcsynopsis>
             <para>Available on in the geometry shader, when this function is called, all output
