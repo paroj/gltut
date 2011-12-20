@@ -189,9 +189,10 @@
                 binary-identical to how the user specifies the data with
                     <function>glBuffer(Sub)Data</function> calls. The format of the data stored in a
                 buffer object is defined external to the buffer object itself. Buffer objects used
-                for vertex attributes have their formats defined by glVertexAttribPointer. The
-                format for buffer objects that store uniform data is defined by the arrangement of
-                types in a GLSL uniform block.</para>
+                for vertex attributes have their formats defined by
+                    <function>glVertexAttribPointer</function>. The format for buffer objects that
+                store uniform data is defined by the arrangement of types in a GLSL uniform
+                block.</para>
             <para>There are other ways that use buffer objects that allow OpenGL calls to fill them
                 with data. But even in these cases, the binary format of the data to be stored is
                 very strictly controlled by the user. In all cases, it is the
@@ -256,7 +257,10 @@
                 represents the components that are stored. Namely, the <quote>red</quote> component.
                 Since textures used to always represent image data, the components are named after
                 components of a color vec4. Each component takes up <quote>8</quote> bits. The
-                suffix of the format represents the </para>
+                suffix of the format represents the data type. Since unsigned normalized values are
+                so common, they get the <quote>no suffix</quote> suffix; all other data types have a
+                specific suffix. Float formats use <quote>f</quote>; a red, 32-bit float internal
+                format would use <literal>GL_R32F</literal>.</para>
             <para>Note that this perfectly matches the texture data that we generated. We tell
                 OpenGL to make the texture store unsigned normalized 8-bit integers, and we provide
                 unsigned normalized 8-bit integers.</para>
