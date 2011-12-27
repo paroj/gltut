@@ -587,6 +587,9 @@ void main()
         delete[] strInfoLog;
     }
     
+    for(size_t iLoop = 0; iLoop &lt; shaderList.size(); iLoop++)
+        glDetachShader(program, shaderList[iLoop]);
+
     return program;
 }</programlisting>
         </example>
@@ -613,10 +616,14 @@ void main()
                 may call <function>glGetAttribLocation</function> with the program object and a
                 string containing the attribute's name.</para>
         </note>
-        <para>After linking the program, the shader objects in the <type>vector</type> of shaders are
-            deleted using the C++ algorithm <function>std::for_each.</function> This line loops over
-            each of the shaders in the list and calls <function>glDeleteShader</function> on
-            them.</para>
+        <para>Once the program was successfully linked, the shader objects are removed from the
+            program with <function>glDetachShader</function>. The program's linking status and
+            functionality is not affected by the removal of the shaders. All it does is tell OpenGL
+            that these objects are no longer associated with the program.</para>
+        <para>After the program has successfully linked, and the shader objects removed from the
+            program, the shader objects are deleted using the C++ algorithm
+                <function>std::for_each.</function> This line loops over each of the shaders in the
+            list and calls <function>glDeleteShader</function> on them.</para>
         <formalpara>
             <title>Using Programs</title>
             <para>To tell OpenGL that rendering commands should use a particular program object, the
@@ -776,14 +783,18 @@ void main()
                     </glossdef>
                 </glossentry>
                 <glossentry>
-                    <glossterm>glCreateProgram, glAttachShader, glLinkProgram</glossterm>
+                    <glossterm>glCreateProgram, glAttachShader, glLinkProgram,
+                        glDetachShader</glossterm>
                     <glossdef>
                         <para>These functions create a working program object.
                                 <function>glCreateProgram</function> creates an empty program
                             object. <function>glAttachShader</function> attaches a shader object to
                             that program. Multiple calls attach multiple shader objects.
                                 <function>glLinkProgram</function> links all of the previously
-                            attached shaders into a complete program.</para>
+                            attached shaders into a complete program.
+                                <function>glDetachShader</function> is used to remove a shader
+                            object from the program object; this does not affect the behavior of the
+                            program.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry>
