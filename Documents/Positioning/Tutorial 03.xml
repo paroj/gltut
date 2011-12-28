@@ -719,11 +719,6 @@ void main()
                     <paramdef>vec <parameter>numerator</parameter></paramdef>
                     <paramdef>float <parameter>denominator</parameter></paramdef>
                 </funcprototype>
-                <funcprototype>
-                    <funcdef>vec <function>mod</function></funcdef>
-                    <paramdef>vec <parameter>numerator</parameter></paramdef>
-                    <paramdef>vec <parameter>denominator</parameter></paramdef>
-                </funcprototype>
             </funcsynopsis>
             <para>The <function>mod</function> function takes the modulus of the
                     <parameter>numerator</parameter> by the <parameter>denominator</parameter>. The

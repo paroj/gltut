@@ -487,12 +487,6 @@ void main()
                     <paramdef>vec <parameter>final</parameter></paramdef>
                     <paramdef>float <parameter>alpha</parameter></paramdef>
                 </funcprototype>
-                <funcprototype>
-                    <funcdef>vec <function>mix</function></funcdef>
-                    <paramdef>vec <parameter>initial</parameter></paramdef>
-                    <paramdef>vec <parameter>final</parameter></paramdef>
-                    <paramdef>vec <parameter>alpha</parameter></paramdef>
-                </funcprototype>
             </funcsynopsis>
             <para>Performs a linear interpolation between <parameter>initial</parameter>,
                     <parameter>final</parameter>, based on <parameter>alpha</parameter>. An
