@@ -482,7 +482,7 @@ void main()
             could do something time-based in the fragment shader. Fragment shaders cannot affect the
             position of the object, but they can control its color. And this is what
                 <filename>fragChangeColor.cpp</filename> does.</para>
-        <para>The fragment shader in this tutorial is also loaded from the file
+        <para>The fragment shader in this tutorial is loaded from the file
                 <filename>data\calcColor.frag</filename>:</para>
         <example>
             <title>Time-based Fragment Shader</title>
