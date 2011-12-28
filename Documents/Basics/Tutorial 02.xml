@@ -220,7 +220,7 @@ void main()
                 location to send the data to and the last parameter. The last parameter is the byte
                 offset into the buffer of where the data for this attribute starts. This offset, in
                 this case, is 4 (the size of a <type>float</type>) * 4 (the number of
-                    <type>float</type>s in a <type>vec4</type> * 3 (the number of
+                    <type>float</type>s in a <type>vec4</type>) * 3 (the number of
                 <type>vec4</type>'s in the position data).</para>
             <note>
                 <para>If you're wondering why it is <literal>(void*)48</literal> and not just
