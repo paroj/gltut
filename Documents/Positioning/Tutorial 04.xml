@@ -136,7 +136,7 @@
             plane on which the world is projected. For 2D to 1D, there is a bounded line that is the
             result of the projection.</para>
         <para>An <glossterm>orthographic projection</glossterm> is a very simplistic projection.
-            When projecting onto an axis-aligned surface, as above, the projection simply involves
+            When projecting onto an axis-aligned surface, as below, the projection simply involves
             throwing away the coordinate perpendicular to the surface.</para>
         <figure>
             <title>2D to 1D Orthographic Projection</title>
