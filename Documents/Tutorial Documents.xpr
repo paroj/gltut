@@ -2464,11 +2464,13 @@
     </meta>
     <projectTree name="Tutorial%20Documents.xpr">
         <folder name="1_Basics">
+            <file name="Basics.xml"/>
             <file name="Basics/Tutorial%2000.xml"/>
             <file name="Basics/Tutorial%2001.xml"/>
             <file name="Basics/Tutorial%2002.xml"/>
         </folder>
         <folder name="2_Positioning">
+            <file name="Positioning.xml"/>
             <file name="Positioning/Tutorial%2003.xml"/>
             <file name="Positioning/Tutorial%2004.xml"/>
             <file name="Positioning/Tutorial%2005.xml"/>
@@ -2477,6 +2479,7 @@
             <file name="Positioning/Tutorial%2008.xml"/>
         </folder>
         <folder name="3_Illumination">
+            <file name="Illumination.xml"/>
             <file name="Illumination/Tutorial%2009.xml"/>
             <file name="Illumination/Tutorial%2010.xml"/>
             <file name="Illumination/Tutorial%2011.xml"/>
@@ -2504,8 +2507,10 @@
             <file name="chunked.css"/>
             <file name="standard.css"/>
         </folder>
+        <file name="Advanced%20Lighting.xml"/>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>
+        <file name="Framebuffer.xml"/>
         <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
         <file name="preface.xml"/>

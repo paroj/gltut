@@ -5,7 +5,7 @@
     <info>
         <title>Learning Modern 3D Graphics Programming</title>
         <copyright>
-            <year>2011</year>
+            <year>2012</year>
             <holder>Jason L. McKesson</holder>
         </copyright>
         <author>
@@ -15,85 +15,12 @@
     </info>
     <xi:include href="preface.xml"/>
     <xi:include href="Building the Tutorials.xml"/>
-    <part>
-        <?dbhtml filename="Basics.html" dir="Basics"?>
-        <info>
-            <title>The Basics</title>
-        </info>
-        <partintro>
-            <para>These tutorials involve the most basic operations for OpenGL. They deal with the
-                core of the OpenGL pipeline. These provide core information about how OpenGL works,
-                how its pipeline works, what the basic flow of information is within OpenGL.</para>
-        </partintro>
-        <xi:include href="Basics/tutorial 00.xml"/>
-        <xi:include href="Basics/tutorial 01.xml"/>
-        <xi:include href="Basics/tutorial 02.xml"/>
-    </part>
-    <part>
-        <?dbhtml filename="Positioning.html" dir="Positioning" ?>
-        <info>
-            <title>Positioning</title>
-        </info>
-        <partintro>
-            <para>These tutorials give the reader information about how objects are positioned in 3D
-                graphics and OpenGL. These deal with transforming the position of objects, as well
-                as doing what is necessary to make those objects appear as though they are in a
-                3-dimensional space.</para>
-        </partintro>
-        <xi:include href="Positioning/tutorial 03.xml"/>
-        <xi:include href="Positioning/tutorial 04.xml"/>
-        <xi:include href="Positioning/tutorial 05.xml"/>
-        <xi:include href="Positioning/tutorial 06.xml"/>
-        <xi:include href="Positioning/tutorial 07.xml"/>
-        <xi:include href="Positioning/tutorial 08.xml"/>
-    </part>
-    <part>
-        <?dbhtml filename="Illumination.html" dir="Illumination" ?>
-        <info>
-            <title>Illumination</title>
-        </info>
-        <partintro>
-            <para>One of the most important aspects of rendering is lighting. Thus far, all of our
-                objects have had a color that is entirely part of the mesh data, pulled from a
-                uniform variable, or computed in an arbitrary way. This makes all of our objects
-                look very flat and unrealistic.</para>
-            <para>Properly modeling the interaction between light and a surface is vital in creating
-                a convincing world. Lighting defines how we see and understand shapes to a large
-                degree. This is the reason why the objects we have used thus far look fairly flat. A
-                curved surface appears curved to us because of how the light plays over the surface.
-                The same goes for a flat surface. Without this visual hinting, surfaces appear flat
-                even when they are modeled with many triangles and yield a seemingly-curved
-                polygonal mesh.</para>
-            <para>A proper lighting model makes objects appear real. A poor or inconsistent lighting
-                model shows the virtual world to be the forgery that it is. The tutorials in this
-                section will introduce some light/surface models and explain how to implement
-                them.</para>
-        </partintro>
-        <xi:include href="Illumination/tutorial 09.xml"/>
-        <xi:include href="Illumination/tutorial 10.xml"/>
-        <xi:include href="Illumination/tutorial 11.xml"/>
-        <xi:include href="Illumination/tutorial 12.xml"/>
-        <xi:include href="Illumination/tutorial 13.xml"/>
-    </part>
+    <xi:include href="Basics.xml"/>
+    <xi:include href="Positioning.xml"/>
+    <xi:include href="Illumination.xml"/>
     <xi:include href="Texturing.xml"/>
-    <part>
-        <?dbhtml filename="Framebuffer.html" dir="Framebuffer" ?>
-        <title>Framebuffer</title>
-        <partintro>
-            <para>Render targets and framebuffer blending are key components to many advanced
-                effects. These tutorials will cover many per-framebuffer operations, from blending
-                to render targets.</para>
-        </partintro>
-    </part>
-    <part>
-        <?dbhtml filename="Advanced Lighting.html" dir="Adv Lighting" ?>
-        <title>Advanced Lighting</title>
-        <partintro>
-            <para>Simple diffuse lighting and directional shadows are useful, but better, more
-                effective lighting models and patterns exist. These tutorials will explore those,
-                from Phong lighting to reflections to HDR and blooming.</para>
-        </partintro>
-    </part>
+    <xi:include href="Framebuffer.xml"/>
+    <xi:include href="Advanced Lighting.xml"/>
     <!--<xi:include href="Optimization.xml"/>-->
     <xi:include href="History of Graphics Hardware.xml"/>
     <xi:include href="Getting Started.xml"/>

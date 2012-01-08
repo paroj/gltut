@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<part>
+    <?dbhtml filename="Basics.html" dir="Basics"?>
+    <info>
+        <title>The Basics</title>
+    </info>
+    <partintro>
+        <para>These tutorials involve the most basic operations for OpenGL. They deal with the
+            core of the OpenGL pipeline. These provide core information about how OpenGL works,
+            how its pipeline works, what the basic flow of information is within OpenGL.</para>
+    </partintro>
+    <xi:include href="Basics/tutorial 00.xml"/>
+    <xi:include href="Basics/tutorial 01.xml"/>
+    <xi:include href="Basics/tutorial 02.xml"/>
+</part>

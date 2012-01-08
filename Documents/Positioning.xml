@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<part>
+    <?dbhtml filename="Positioning.html" dir="Positioning" ?>
+    <info>
+        <title>Positioning</title>
+    </info>
+    <partintro>
+        <para>These tutorials give the reader information about how objects are positioned in 3D
+            graphics and OpenGL. These deal with transforming the position of objects, as well
+            as doing what is necessary to make those objects appear as though they are in a
+            3-dimensional space.</para>
+    </partintro>
+    <xi:include href="Positioning/tutorial 03.xml"/>
+    <xi:include href="Positioning/tutorial 04.xml"/>
+    <xi:include href="Positioning/tutorial 05.xml"/>
+    <xi:include href="Positioning/tutorial 06.xml"/>
+    <xi:include href="Positioning/tutorial 07.xml"/>
+    <xi:include href="Positioning/tutorial 08.xml"/>
+</part>

@@ -141,7 +141,7 @@ glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</progr
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>The dot represents the texture coordinate's location on the texture. The square is the
+        <para>The dot represents the texture coordinate's location on the texture. The box is the
             area that the fragment covers. The problem happens because a fragment area mapped into
             the texture's space may cover some white area and some black area. Since nearest only
             picks a single texel, which is either black or white, it does not accurately represent
@@ -187,10 +187,10 @@ glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</programli
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>The inner square represents the nearest texels, while the outer square represents the
-            entire fragment mapped area. We can see that the value we get with nearest sampling will
-            be pure white, since the four nearest values are white. But the value we should get
-            based on the covered area is some shade of gray.</para>
+        <para>The inner box represents the nearest texels, while the outer box represents the entire
+            fragment mapped area. We can see that the value we get with nearest sampling will be
+            pure white, since the four nearest values are white. But the value we should get based
+            on the covered area is some shade of gray.</para>
         <para>In order to accurately represent this area of the texture, we would need to sample
             from more than just 4 texels. The GPU is certainly capable of detecting the fragment
             area and sampling enough values from the texture to be representative. But this would be
@@ -245,11 +245,11 @@ glBindTexture(GL_TEXTURE_2D, g_checkerTexture);
 
 for(int mipmapLevel = 0; mipmapLevel &lt; pImageSet->GetMipmapCount(); mipmapLevel++)
 {
-    std::auto_ptr&lt;glimg::SingleImage> pImage(pImageSet->GetImage(mipmapLevel, 0, 0));
+    glimg::SingleImage image = pImageSet->GetImage(mipmapLevel, 0, 0);
     glimg::Dimensions dims = pImage->GetDimensions();
     
     glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
-        GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pImage->GetImageData());
+        GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, image.GetImageData());
 }
 
 glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
@@ -261,9 +261,9 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
                 <function>GetDimensions</function> member of
                 <classname>glimg::SingleImage</classname> returns the size of the particular
             mipmap.</para>
-        <para>The <function>glTexImage2D</function> function takes a mipmap level as the second
-            parameter. The width and height parameters represent the size of the mipmap in question,
-            not the size of the base level.</para>
+        <para>The <function>glTexImage2D</function> function takes the mipmap level to load as the
+            second parameter. The width and height parameters represent the size of the mipmap in
+            question, not the size of the base level.</para>
         <para>Notice that the last statements have changed. The
                 <literal>GL_TEXTURE_BASE_LEVEL</literal> and <literal>GL_TEXTURE_MAX_LEVEL</literal>
             parameters tell OpenGL what mipmaps in our texture can be used. This represents a closed
@@ -284,11 +284,11 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
 glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);</programlisting>
         <para>The <literal>GL_LINEAR_MIPMAP_NEAREST</literal> minification filter means the
             following. For a particular call to the GLSL <function>texture</function> function, it
-            will detect which mipmap is the one that is closest to our fragment area. This detection
+            will detect which mipmap is the one that is nearest to our fragment area. This detection
             is based on the angle of the surface relative to the camera's view<footnote>
                 <para>This is a simplification; a more thorough discussion is forthcoming.</para>
             </footnote>. Then, when it samples from that mipmap, it will use linear filtering of the
-            four nearest samples within that mipmap.</para>
+            four nearest samples within that one mipmap.</para>
         <para>If you press the <keycap>3</keycap> key in the tutorial, you can see the effects of
             this filtering mode.</para>
         <figure>
@@ -319,11 +319,11 @@ glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEARE
         </figure>
         <para>Now we can really see where the different mipmaps are. They don't quite line up on the
             corners. But remember: this just shows the mipmap boundaries, not the texture
-            coordinates.</para>
+            coordinates themselves.</para>
         <section>
             <title>Special Texture Generation</title>
-            <para>The special mipmap viewing texture is interesting, as it shows an issue you may
-                need to work with when uploading certain textures. Alignment.</para>
+            <para>The special mipmap viewing texture is interesting, as it demonstrates an issue you
+                may need to work with when uploading certain textures: alignment.</para>
             <para>The checkerboard texture, though it only stores black and white values, actually
                 has all three color channels, plus a fourth value. Since each channel is stored as
                 8-bit unsigned normalized integers, each pixel takes up 4 * 8 or 32 bits, which is 4
@@ -407,8 +407,8 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
             <para>OpenGL actually allows all combinations of <literal>NEAREST</literal> and
                     <literal>LINEAR</literal> in minification filtering. Using nearest filtering
                 within a mipmap level while linearly filtering between levels
-                    (<literal>GL_NEAREST_MIPMAP_LINEAR</literal>) is not terribly useful
-                however.</para>
+                    (<literal>GL_NEAREST_MIPMAP_LINEAR</literal>) is possible but not terribly
+                useful in practice.</para>
             <sidebar>
                 <title>Filtering Nomenclature</title>
                 <para>If you are familiar with texture filtering from other sources, you may have
@@ -444,9 +444,9 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
                         <literal>GL_LINEAR_MIPMAP_LINEAR</literal> always has a well-defined meaning
                     regardless of the texture's type.</para>
                 <para>Unlike geometry shaders, which ought to have been called primitive shaders,
-                    OpenGL does not enshrine this misnomer into its API. There is no
-                        <literal>GL_TRILINEAR_FILTERING</literal> enum. Therefore, in this book, we
-                    can and will use the proper terms for these.</para>
+                    OpenGL does not enshrine this common misnomer into its API. There is no
+                        <literal>GL_TRILINEAR</literal> enum. Therefore, in this book, we can and
+                    will use the proper terms for these.</para>
             </sidebar>
         </section>
     </section>
@@ -494,10 +494,10 @@ glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</programlisting>
                 </imageobject>
             </mediaobject>
         </figure>
-        <para>The large square represents the effective filtering box, while the smaller area is the
-            one that we are actually sampling from. Mipmap filtering can often combine texel values
-            from outside of the sample area, and in this particularly degenerate case, it pulls in
-            texel values from very far outside of the sample area.</para>
+        <para>The large square represents the effective filtering box, while the diagonal area is
+            the one that we are actually sampling from. Mipmap filtering can often combine texel
+            values from outside of the sample area, and in this particularly degenerate case, it
+            pulls in texel values from very far outside of the sample area.</para>
         <para>This happens when the filter box is not a square. A square filter box is said to be
             isotropic: uniform in all directions. Therefore, a non-square filter box is anisotropic.
             Filtering that takes into account the anisotropic nature of a particular filter box is
@@ -658,18 +658,20 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
         <para>Very carefully.</para>
         <para>Imagine a 2x2 pixel area of the screen. Now imagine that four fragment shaders, all
             from the same triangle, are executing for that screen area. Since the fragment shaders
-            are all guaranteed to have the same uniforms and the same code, the only thing that is
-            different is the fragment inputs. And because they are executing the same code, you can
-            conceive of them executing in lockstep. That is, each of them executes the same
-            instruction, on their individual dataset, at the same time.</para>
+            from the same triangle are all guaranteed to have the same uniforms and the same code,
+            the only thing that is different among them is the fragment inputs. And because they are
+            executing the same code, you can conceive of them executing in lockstep. That is, each
+            of them executes the same instruction, on their individual dataset, at the same
+            time.</para>
         <para>Under that assumption, for any particular value in a fragment shader, you can pick the
             corresponding 3 other values in the other fragment shaders executing alongside it. If
             that value is based solely on uniform or constant data, then each shader will have the
-            same value. But if it is based in part on input values, then each shader may have a
-            different value, based on how it was computed and what those inputs were.</para>
+            same value. But if it is based on input values (in part or in whole), then each shader
+            may have a different value, based on how it was computed and what those inputs
+            were.</para>
         <para>So, let's look at the texture coordinate value; the particular value used to access
-            the texture. Each shader has one. If that value is associated with the position of the
-            object, via perspective-correct interpolation and so forth, then the
+            the texture. Each shader has one. If that value is associated with the triangle's
+            vertices, via perspective-correct interpolation and so forth, then the
                 <emphasis>difference</emphasis> between the shaders' values will represent the
             window space geometry of the triangle. There are two dimensions for a difference, and
             therefore there are two differences: the difference in the window space X axis, and the
@@ -686,12 +688,13 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
             that you have 4 fragment shaders all running in lock-step. There are two circumstances
             where that might not happen.</para>
         <para>The most obvious is on the edge of a triangle, where a 2x2 block of neighboring
-            fragments is not possible without being outside of the fragment. This case is actually
-            trivially covered by GPUs. No matter what, the GPU will rasterize each triangle in 2x2
-            blocks. Even if some of those blocks are not actually part of the triangle of interest,
-            they will still get fragment shader time. This may seem inefficient, but it's reasonable
-            enough in cases where triangles are not incredibly tiny or thin, which is quite often.
-            The results produced by fragment shaders outside of the triangle are discarded.</para>
+            fragments is not possible without being outside of the triangle area. This case is
+            actually trivially covered by GPUs. No matter what, the GPU will rasterize each triangle
+            in 2x2 blocks. Even if some of those blocks are not actually part of the triangle of
+            interest, they will still get fragment shader time. This may seem inefficient, but it's
+            reasonable enough in cases where triangles are not incredibly tiny or thin, which is
+            quite often. The results produced by fragment shaders outside of the triangle are simply
+            discarded.</para>
         <para>The other circumstance is through deliberate user intervention. Each fragment shader
             running in lockstep has the same uniforms but different inputs. Since they have
             different inputs, it is possible for them to execute a conditional branch based on these
@@ -700,14 +703,14 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
             different code. The 4 fragment shaders are no longer in lock-step. How does the GPU
             handle it?</para>
         <para>Well... it doesn't. Dealing with this requires manual user intervention, and it is a
-            topic we will discuss later. Suffice it to say, it screws everything up.</para>
+            topic we will discuss later. Suffice it to say, it makes everything complicated.</para>
     </section>
     <section>
         <?dbhtml filename="Tut15 Performace.html" ?>
         <title>Performance</title>
         <para>Mipmapping has some unexpected performance characteristics. A texture with a full
             mipmap pyramid will take up ~33% more space than just the base level. So there is some
-            memory overhead. The unexpected part is that this is actually a memory vs. performance
+            memory overhead. The unexpected part is that this is actually a memory vs. speed
             tradeoff, as mipmapping usually improves performance.</para>
         <para>If a texture is going to be minified significantly, providing mipmaps is a performance
             benefit. The reason is this: for a highly minified texture, the texture accesses for
@@ -740,7 +743,7 @@ glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pr
             <listitem>
                 <para>Visual artifacts can appear on objects that have textures mapped to them due
                     to the discrete nature of textures. These artifacts are most pronounced when the
-                    texture's apparent size is larger than its actual size or smaller.</para>
+                    texture's mapped size is larger or smaller than its actual size.</para>
             </listitem>
             <listitem>
                 <para>Filtering techniques can reduce these artifacts, transforming visual popping

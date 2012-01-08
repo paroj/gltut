@@ -29,8 +29,8 @@
                     surface.</para>
             </listitem>
         </itemizedlist>
-        <para>Without this knowledge, one could not effectively use those textures. It is vital to
-            know what data a texture stores and what its texture coordinates mean.</para>
+        <para>It is vital to know what data a texture stores and what its texture coordinates mean.
+            Without this knowledge, one could not effectively use those textures.</para>
         <para>Earlier, we discussed how important colors in a linear colorspace was to getting
             accurate color reproduction in lighting and rendering. Gamma correction was applied to
             the output color, to map the linear RGB values to the gamma-correct RGB values the
@@ -75,10 +75,10 @@
             values.</para>
         <para>This means that the color values have <emphasis>already been</emphasis> gamma
             corrected. They cannot be in a linear colorspace, because the person creating the image
-            selected colors based on their appearance. Since the appearance of a color is affected
-            by the non-linearity of the display, the texture artist was effectively selected
-            post-gamma corrected color values. To put it simply, the colors in the texture are
-            already in a non-linear color space.</para>
+            selected colors based the colors on their appearance. Since the appearance of a color is
+            affected by the non-linearity of the display, the texture artist was effectively
+            selected post-gamma corrected color values. To put it simply, the colors in the texture
+            are already in a non-linear color space.</para>
         <para>Since the top rectangle does not use gamma correction, it is simply passing the
             pre-gamma corrected color values to the display. It simply works itself out. The bottom
             rectangle effectively performs gamma correction twice.</para>
@@ -87,7 +87,7 @@
             surface as part of the lighting equation, then there is a major problem. The color
             values retrieved from the texture are non-linear, and all of our lighting equations
                 <emphasis>need</emphasis> the input values to be linear.</para>
-        <para>We could gamma uncorrect the texture values manually, either at load time or in the
+        <para>We could un-gamma correct the texture values manually, either at load time or in the
             shader. But that is entirely unnecessary and wasteful. Instead, we can just tell OpenGL
             the truth: that the texture is not in a linear colorspace.</para>
         <para>Virtually every image editing program you will ever encounter, from the almighty
@@ -348,8 +348,10 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
         </figure>
         <para>This still looks different from the last tutorial. Which naturally tells us that not
             rendering with gamma correction before was actually a problem, as this version looks
-            much better. The take-home point here is that ensuring linearity in all stages of the
-            pipeline is always important. This includes mipmap generation.</para>
+            much better. The grey blends much better with the checkerboard, as the grey is now
+            correctly halfway between white and black. The take-home point here is that ensuring
+            linearity in all stages of the pipeline is always important. This includes mipmap
+            generation.</para>
     </section>
     <section>
         <?dbhtml filename="Tut16 Free Gamma Correction.html" ?>
