@@ -8,10 +8,15 @@
         <title>Positioning</title>
     </info>
     <partintro>
-        <para>These tutorials give the reader information about how objects are positioned in 3D
-            graphics and OpenGL. These deal with transforming the position of objects, as well
-            as doing what is necessary to make those objects appear as though they are in a
-            3-dimensional space.</para>
+        <para>Vertex positions are perhaps the most important part of a vertex's information. The
+            only data that a vertex shader must produce is the computation of a clip-space vertex
+            position; everything else is user-defined.</para>
+        <para>Computing proper vertex positions can turn an assemblage of triangles into something
+            that resembles a real object. This section of the book will detail how to make objects
+            move around, as well as presenting them as a three-dimensional object. It covers how to
+            manipulate vertex positions through a series of spaces, to allow for concepts like a
+            change of viewer orientation. And it covers how to position and orient objects
+            arbitrarily, to achieve many different kinds of movement and animation.</para>
     </partintro>
     <xi:include href="Positioning/tutorial 03.xml"/>
     <xi:include href="Positioning/tutorial 04.xml"/>

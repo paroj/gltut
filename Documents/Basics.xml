@@ -8,9 +8,14 @@
         <title>The Basics</title>
     </info>
     <partintro>
-        <para>These tutorials involve the most basic operations for OpenGL. They deal with the
-            core of the OpenGL pipeline. These provide core information about how OpenGL works,
-            how its pipeline works, what the basic flow of information is within OpenGL.</para>
+        <para>Graphics programming can be a daunting task when starting out. The rendering pipeline
+            involves a large number of steps, each dealing with a variety of math operations. It has
+            stages that run actual programs to compute results for the next. Mastering this
+            pipeline, being able to use it as a tool to achieve a visual effect, is the essence of
+            being a graphics programmer.</para>
+        <para>This section of the book will introduce the basic math necessary for 3D graphics. It
+            will introduce the rendering pipeline as defined by OpenGL. And it will demonstrate how
+            data flows through the graphics pipeline.</para>
     </partintro>
     <xi:include href="Basics/tutorial 00.xml"/>
     <xi:include href="Basics/tutorial 01.xml"/>

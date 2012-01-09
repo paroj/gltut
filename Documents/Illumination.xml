@@ -12,17 +12,19 @@
             objects have had a color that is entirely part of the mesh data, pulled from a
             uniform variable, or computed in an arbitrary way. This makes all of our objects
             look very flat and unrealistic.</para>
-        <para>Properly modeling the interaction between light and a surface is vital in creating
-            a convincing world. Lighting defines how we see and understand shapes to a large
-            degree. This is the reason why the objects we have used thus far look fairly flat. A
-            curved surface appears curved to us because of how the light plays over the surface.
-            The same goes for a flat surface. Without this visual hinting, surfaces appear flat
-            even when they are modeled with many triangles and yield a seemingly-curved
-            polygonal mesh.</para>
-        <para>A proper lighting model makes objects appear real. A poor or inconsistent lighting
-            model shows the virtual world to be the forgery that it is. The tutorials in this
-            section will introduce some light/surface models and explain how to implement
-            them.</para>
+        <para>Properly modeling the interaction between light and a surface is vital in creating a
+            convincing world. Lighting defines how we see and understand shapes to a large degree.
+            The lack of lighting is the reason why the objects we have used thus far look fairly
+            flat. A curved surface appears curved to us because of how the light plays over the
+            surface. The same goes for a flat surface.</para>
+        <para>Without this visual hinting, surfaces appear flat even when they are modeled with many
+            triangles and yield a seemingly-curved polygonal mesh. A proper lighting model makes
+            objects appear real. A poor or inconsistent lighting model shows the virtual world to be
+            the forgery that it is.</para>
+        <para>This section of the book will cover lighting, using a variety of light/surface
+            modelling techniques. It will cover dynamic range and linear colorspaces in lighting
+            equations. Also, it will cover techniques to use lighting to produce entirely fake
+            surfaces.</para>
     </partintro>
     <xi:include href="Illumination/tutorial 09.xml"/>
     <xi:include href="Illumination/tutorial 10.xml"/>
