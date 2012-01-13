@@ -167,7 +167,7 @@ void main()
     glGenBuffers(1, &vertexBufferObject);
     
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }]]></programlisting>
             </example>
@@ -220,7 +220,7 @@ void main()
                 location to send the data to and the last parameter. The last parameter is the byte
                 offset into the buffer of where the data for this attribute starts. This offset, in
                 this case, is 4 (the size of a <type>float</type>) * 4 (the number of
-                    <type>float</type>s in a <type>vec4</type> * 3 (the number of
+                    <type>float</type>s in a <type>vec4</type>) * 3 (the number of
                 <type>vec4</type>'s in the position data).</para>
             <note>
                 <para>If you're wondering why it is <literal>(void*)48</literal> and not just
@@ -486,12 +486,6 @@ void main()
                     <paramdef>vec <parameter>initial</parameter></paramdef>
                     <paramdef>vec <parameter>final</parameter></paramdef>
                     <paramdef>float <parameter>alpha</parameter></paramdef>
-                </funcprototype>
-                <funcprototype>
-                    <funcdef>vec <function>mix</function></funcdef>
-                    <paramdef>vec <parameter>initial</parameter></paramdef>
-                    <paramdef>vec <parameter>final</parameter></paramdef>
-                    <paramdef>vec <parameter>alpha</parameter></paramdef>
                 </funcprototype>
             </funcsynopsis>
             <para>Performs a linear interpolation between <parameter>initial</parameter>,
