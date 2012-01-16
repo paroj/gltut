@@ -581,18 +581,18 @@
                 you would create it and access it like this:</para>
             <programlisting language="cpp">struct Object
 {
-    int anInteger;
-    float aFloat;
-    char *aString;
+    int count;
+    float opacity;
+    char *name;
 };
 
 //Create the storage for the object.
 Object newObject;
 
 //Put data into the object.
-newObject.anInteger = 5;
-newObject.aFloat = 0.4f;
-newObject.aString = "Some String";
+newObject.count = 5;
+newObject.opacity = 0.4f;
+newObject.name = "Some String";
 </programlisting>
             <para>In OpenGL, you would use an API that looks more like this:</para>
             <programlisting language="cpp">//Create the storage for the object
@@ -601,9 +601,9 @@ glGenObject(1, &amp;objectName);
 
 //Put data into the object.
 glBindObject(GL_MODIFY, objectName);
-glObjectParameteri(GL_MODIFY, GL_OBJECT_AN_INTEGER, 5);
-glObjectParameterf(GL_MODIFY, GL_OBJECT_A_FLOAT, 0.4f);
-glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlisting>
+glObjectParameteri(GL_MODIFY, GL_OBJECT_COUNT, 5);
+glObjectParameterf(GL_MODIFY, GL_OBJECT_OPACITY, 0.4f);
+glObjectParameters(GL_MODIFY, GL_OBJECT_NAME, "Some String");</programlisting>
             <para>None of these are actual OpenGL commands, of course. This is simply an example of
                 what the interface to such an object would look like.</para>
             <para>OpenGL owns the storage for all OpenGL objects. Because of this, the user can only
@@ -619,8 +619,13 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_A_STRING, "Some String");</programlistin
                 some have only one. In the above example, the fictitious target
                     <quote>GL_MODIFY</quote> is the location where <varname>objectName</varname> is
                 bound.</para>
-            <para>The functions that actually change values within the object are given a target
-                parameter, so that they could modify objects bound to different targets.</para>
+            <para>The enumerators <literal>GL_OBJECT_*</literal> all name fields in the object that
+                can be set. The <function>glObjectParameter</function> family of functions set
+                parameters within the object bound to the given target. Note that since OpenGL is a
+                C API, it has to name each of the differently typed variations differently. So there
+                is <function>glObjectParameteri</function> for integer parameters,
+                    <function>glObjectParameterf</function> for floating-point parameters, and so
+                forth.</para>
             <para>Note that all OpenGL objects are not as simple as this example, and the functions
                 that change object state do not all follow these naming conventions. Also, exactly
                 what it means to bind an object to the context is explained below.</para>
