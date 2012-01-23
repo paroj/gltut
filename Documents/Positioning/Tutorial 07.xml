@@ -32,7 +32,9 @@
             <para>All objects will be transformed into world space. The camera itself will also have
                 a particular position and orientation in world space. And since the camera has a
                 known space, with a known position and orientation relative to world space, we have
-                a transformation from world space to camera space.</para>
+                a transformation from world space to camera space. This also neatly explains why
+                camera space is so named: it is the space where the world is expressed relative to
+                the camera.</para>
             <para>So, how do we define world space? Well, we defined model space by fiat: it's the
                 space the vertex positions are in. Clip-space was defined for us. The only space
                 thus far that we have had a real choice about is camera space. And we defined that

@@ -127,10 +127,15 @@
     <section xml:id="ShaderPerspective">
         <?dbhtml filename="Tut04 Perspective Projection.html" ?>
         <title>Perspective Projection</title>
-        <para>A <glossterm>projection</glossterm>, for the purposes of rendering, is a way to
-            transform a world from one dimensionality to another. Our destination image is two
-            dimensional, and our initial world is three dimensional. Thus, we need a way to
-            transform this 3D world into a 2D one.</para>
+        <para>Recall that our destination image, the screen, is just a two dimensional array of
+            pixels. The 3D rendering pipeline we are using defines transformations of vertex
+            positions that go from clip-space to window space. Once the positions are in window
+            space, 2D triangles are rendered.</para>
+        <para>A <glossterm>projection</glossterm>, in terms of the rendering pipeline is a way to
+            transform a world from one dimensionality to another. Our initial world is three
+            dimensional, and therefore, the rendering pipeline defines a projection from this 3D
+            world into the 2D one that we see. It is the 2D world in which the triangles are
+            actually rendered.</para>
         <para>Finite projections, which are the ones we are interested in, only project objects onto
             a finite space of the lower dimensionality. For a 3D to 2D projection, there is a finite
             plane on which the world is projected. For 2D to 1D, there is a bounded line that is the
@@ -279,17 +284,28 @@
                 automatic, by the nature of how OpenGL uses the clip space vertices output by the
                 vertex shader. The perspective projection transform is a bit more involved. Indeed,
                 it fundamentally changes the nature of the world.</para>
-            <para>Previously, we were dealing directly in clip space. If we are to use a perspective
-                projection to transform vertices <emphasis>into</emphasis> clip space, rather than
-                using clip-space vertices directly, we must first define what the space of our
-                vertices are in <emphasis>before</emphasis> the transform. This definition will help
-                us to define how we do the perspective projection transformation.</para>
-            <para>Thus, we define a new space called <glossterm>camera space.</glossterm> This is
-                not a space that OpenGL recognizes; it is purely an arbitrary user construction.
-                However, it can be useful to define a particular camera space based on what we know
-                of our perspective projection. This minimizes the differences between camera space
-                and the perspective form of clip space, and it can simplify our perspective
-                projection logic.</para>
+            <para>Our vertex positions before now have been stored directly in clip space. We did on
+                occasion add an offset to the positions to move them to more convenient locations.
+                But for all intents and purposes, the position values stored in the buffer object
+                are exactly what our vertex shader outputs: clip space positions.</para>
+            <para>Recall that the divide-by-W is part of the OpenGL-defined transform from clip
+                space positions to NDC positions. Perspective projection defines a process for
+                transforming positions <emphasis>into</emphasis> clip space, such that these clip
+                space positions will appear to be a perspective projection of a 3D world. This
+                transformation has well-defined outputs: clip space positions. But what exactly are
+                its <emphasis>input</emphasis> values?</para>
+            <para>We therefore define a new space for positions; let us call this space
+                    <glossterm>camera space.</glossterm><footnote>
+                    <para>The reason it is called <quote>camera</quote> space will be discussed
+                        later.</para>
+                </footnote> This is not a space that OpenGL recognizes (unlike clip-space which is
+                explicitly defined by GL); it is purely an arbitrary user construction. The
+                definition of camera space will affect the exact process of perspective projection,
+                since that projection must produce proper clip space positions. Therefore, it can be
+                useful to define camera space based on what we know of the general process of
+                perspective projection. This minimizes the differences between camera space and the
+                perspective form of clip space, and it can simplify our perspective projection
+                logic.</para>
             <para>The volume of camera space will range from positive infinity to negative infinity
                 in all directions. Positive X extends right, positive Y extends up, and positive Z
                 is <emphasis>forward</emphasis>. The last one is a change from clip space, where
@@ -1047,7 +1063,9 @@ glUseProgram(0);]]></programlisting>
                     <para>In camera space, the eye position of the perspective projection is assumed
                         to be at (0, 0, 1), and the plane of projection is a [-1, 1] plane in X and
                         Y, which passes through the 3D origin. Thus, all points that have a positive
-                        Z are considered to be behind the camera and thus out of view.</para>
+                        Z are considered to be behind the camera and thus out of view. Positions in
+                        camera space are defined relative to the camera's location, since the camera
+                        has a fixed point of origin.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
