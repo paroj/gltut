@@ -137,7 +137,8 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
             in the sRGB colorspace.</para>
         <para>To see what kind of effect this has on our rendering, you can switch between which
             texture is used. The <keycap>1</keycap> key switches the top texture between linear RGB
-            and sRGB, while <keycap>2</keycap> does the same for the bottom.</para>
+            (which from now on will be called <acronym>lRGB</acronym>) and sRGB, while
+                <keycap>2</keycap> does the same for the bottom.</para>
         <figure>
             <title>Gamma Ramp with sRGB Images</title>
             <mediaobject>
@@ -157,7 +158,7 @@ glBindTexture(GL_TEXTURE_2D, 0);</programlisting>
             accesses it with a 2D texture coordinate and the <function>texture</function> function,
             etc. The shader does not have to know or care whether the image data is in the sRGB
             colorspace or a linear one. It simply calls the <function>texture</function> function
-            and expects it to return linear RGB color values.</para>
+            and expects it to return lRGB color values.</para>
         <section>
             <title>Pixel Positioning</title>
             <para>There is an interesting thing to note about the rendering in this tutorial. Not
@@ -278,15 +279,15 @@ glBindBuffer(GL_ARRAY_BUFFER, 0);</programlisting>
     <section>
         <?dbhtml filename="Tut16 Mipmaps and Linearity.html" ?>
         <title>sRGB and Mipmaps</title>
-        <para>The principle reason lighting functions require linear RGB values is because they
-            perform linear operations. They therefore produce inaccurate results on non-linear
-            colors. This is not limited to lighting functions; <emphasis>all</emphasis> linear
-            operations on colors require a linear RGB value to produce a reasonable result.</para>
+        <para>The principle reason lighting functions require lRGB values is because they perform
+            linear operations. They therefore produce inaccurate results on non-linear colors. This
+            is not limited to lighting functions; <emphasis>all</emphasis> linear operations on
+            colors require a lRGB value to produce a reasonable result.</para>
         <para>One important linear operation performed on texel values is filtering. Whether
             magnification or minification, non-nearest filtering does some kind of linear
             arithmetic. Since this is all handled by OpenGL, the question is this: if a texture is
             in an sRGB format, does OpenGL's texture filtering occur <emphasis>before</emphasis>
-            converting the texel values to linear RGB or after?</para>
+            converting the texel values to lRGB or after?</para>
         <para>The answer is quite simple: filtering comes after linearizing. So it does the right
             thing.</para>
         <note>
@@ -460,9 +461,9 @@ else
             </listitem>
             <listitem>
                 <para>Similarly, the generation of mipmaps, a linear operation, must perform
-                    conversion from sRGB to linear RGB, do the filtering, and then convert back.
-                    Since OpenGL does not (usually) generate mipmaps, it is incumbent upon the
-                    creator of the image to ensure that the mipmaps were generated properly.</para>
+                    conversion from sRGB to lRGB, do the filtering, and then convert back. Since
+                    OpenGL does not (usually) generate mipmaps, it is incumbent upon the creator of
+                    the image to ensure that the mipmaps were generated properly.</para>
             </listitem>
             <listitem>
                 <para>Lighting operations need linear values.</para>
@@ -503,21 +504,22 @@ else
                         operating systems work in the sRGB colorspace by default. Therefore, most
                         images you will encounter will be in the sRGB colorspace.</para>
                     <para>OpenGL has the ability to work with sRGB textures and screen images
-                        directly. Accesses to sRGB textures will return linear RGB values, and
-                        writes to sRGB screen images can be converted from linear to sRGB
-                        values.</para>
+                        directly. Accesses to sRGB textures will return lRGB values, and writes to
+                        sRGB screen images can be converted from linear to sRGB values, so long as a
+                        proper enable is used.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>gamma-correct texturing</glossterm>
                 <glossdef>
                     <para>The process of ensuring that all textures, images, and other sources and
-                        destinations of colors (vertex attributes), either are in the linear
-                        colorspace or are converted to/from the linear colorspace as needed.
-                        Textures in the sRGB format are part of that, but so is rendering to an sRGB
-                        screen image (or manually doing gamma correction). These provide automatic
+                        destinations of colors (such as vertex attributes) are either already in
+                        lRGB or are converted to/from the linear colorspace as needed. Textures in
+                        the sRGB format are part of that, but so is rendering to an sRGB screen
+                        image (or manually doing gamma correction). These provide automatic
                         correction. Manual correction may need to be applied to vertex color
-                        attributes.</para>
+                        attributes, and for proper interpolation, this correction needs to be
+                        applied before interpolation.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
