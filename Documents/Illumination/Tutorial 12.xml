@@ -398,8 +398,10 @@ else
                 without the other.</para>
         </note>
         <para>The first step is to end the myth that lights themselves have a global maximum
-            brightness. That is, light intensity is no longer on the range [0, 1]; lights can now
-            have any positive intensity value.</para>
+            brightness. In all previous examples, our light intensity values lived with the range
+            [0, 1]. Clamping light intensity to this range simply does not mirror reality. In
+            reality, the sun is many orders of magnitude brighter than a flashlight. We must allow
+            for this in our lighting equation.</para>
         <para>This also means that our accumulated lighting intensity, the value we originally wrote
             to the fragment shader output, is no longer on the [0, 1] range. And that poses a
             problem. We can perform lighting computations with a high dynamic range, but monitors

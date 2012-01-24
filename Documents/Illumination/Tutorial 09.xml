@@ -878,48 +878,88 @@ else
             future.</para>
     </section>
     <section>
-        <?dbhtml filename="Tut09 Intensity of Light.html" ?>
-        <title>Intensity of Light</title>
-        <para>There are many, many things wrong with the rather primitive lighting models introduced
-            thus far. But one of the most important is the treatment of the lighting
-            intensity.</para>
-        <para>Thus far, we have used light intensity like a color. We clamp it to the range [0, 1].
-            We even make sure that combined intensities from different lighting models always are
-            within that range.</para>
-        <para>What this effectively means is that the light does not brighten the scene. The scene
-            without the light is fully lit; our lights simply <emphasis>darken</emphasis> parts of
-            the scene. They take the diffuse color and make it smaller, because multiplying with a
-            number on the range [0, 1] can only ever make a number smaller (or the same).</para>
-        <para>This is of course not realistic. In reality, there is no such thing as a
-                <quote>maximum</quote> illumination or brightness. There is no such thing as a (1,
-            1, 1) light intensity. The actual range of light intensity per wavelength is on the
-            range [0, ∞). This also means that the range of intensity for reflected light is [0, ∞);
-            after all, if you shine a really bright light on a surface, it will reflect a lot of it.
-            A surface that looks dark blue under dim light can appear light blue under very bright
-            light.</para>
-        <para>Of course in the real world, things tend to catch on fire if you shine <emphasis>too
-                much</emphasis> light at them, but that's not something we need to model.</para>
-        <para>The concept of lighting darkening a scene was common for a long time in real-time
-            applications. It is another part of the reason why, for so many years, 3D games tended
-            to avoid the bright outdoors, preferring corridors with darker lighting. The sun is a
-            powerful light source; binding lighting intensity to the [0, 1] range does not lead to a
-            realistic vision of the outdoors.</para>
-        <para>One obvious way to correct this is to take all of the diffuse colors and divide them by
-            a value like 2. Then increase your light intensity range from [0, 1] to [0, 2]. This is
-            a workable solution, to some extent. Lights can be brighter than 1.0, and lighting can
-            serve to increase the brightness of the diffuse color as well as decrease it. Of course,
-            2 is just as far from infinity as 1 is, so it is not technically any closer to proper
-            lighting. But it is an improvement.</para>
-        <para>This technique does have its flaws. As we will see in later tutorials, you often will
-            want to render the same object multiple times and combine the results. This method
-            does not work when adding contributions from multiple light sources this way, unless you
-            limit the sum total of all lights to the same value. Just as we did for diffuse when
-            combining it with an ambient term.</para>
-        <para>It is certainly possible on modern hardware to model light intensity correctly. And we
-            will eventually do that. But these more primitive lighting models do still have their
-            uses in some cases. And it is illustrative to see what an improvement having proper
-            lighting intensity can make on the result. The lighting computations themselves do not
-            change; what changes are the numbers fed into them.</para>
+        <?dbhtml filename="Tut09 Mesh Topology.html" ?>
+        <title>Mesh Topology</title>
+        <para>Thus far, we have seen three different kinds of vertex attributes. We have used
+            positions, colors, and now normals. Before we can continue, we need to discuss the
+            ramifications of having three independent vertex attributes on our meshes.</para>
+        <para>A mesh's <glossterm baseform="mesh topology">topology</glossterm> defines the
+            connectedness between the vertices. However, each vertex attribute can have its own
+            separate topology. How is this possible?</para>
+        <para>Consider a simple cube. It has 8 vertex positions. The topology between the positions
+            of the cube is as follows:</para>
+        <!--TODO: diagram of cube position topology.-->
+        <para>The topology diagram has the 8 different positions, with each position connected to
+            three neighbors. The connections represent the edges of the cube faces, and the area
+            bounded by connections represent the faces themselves. So each face has four edges and
+            four positions.</para>
+        <para>Now consider the topology of the normals of a cube. A cube has 6 faces, each of which
+            has a distinct normal. The topology is a bit unorthodox:</para>
+        <!--TODO: diagram of cube normal topology. Which is 6 points, each with four tightly curved edges that point to themselves.-->
+        <para>Here, the points represent distinct normals, not positions in space. The connections
+            between normals all loop back on themselves. That's because each vertex of each face
+            uses the same normal. While the front face and the top face share two vertex positions
+            in common, they share no vertex normals at all. Therefore, there is no topological
+            relation between the front normal and the top normal. Each normal is connected to
+            itself, but to nothing else.</para>
+        <para>We have 8 positions and 6 normals. They each have a unique topology over the mesh. How
+            do we turn this into something we can render?</para>
+        <para>If we knew nothing about OpenGL, this would be simple. We simply use the topologies to
+            build the meshes. Each face is broken down into two triangles. We would have an array of
+            8 positions and 6 normals. And for each vertex we render, we would have a list of
+            indices that fetch values from these two arrays.</para>
+        <para>The index list for two faces of the cube might look like this (using a C++-style
+            multidimensional list):</para>
+        <programlisting language="cpp">{
+  {0, 0}, {1, 0}, {2, 0}, {1, 0}, {3, 0}, {2, 0},
+  {0, 1}, {4, 1}, {1, 1}, {4, 1}, {6, 1}, {1, 1},
+}</programlisting>
+        <para>The first index in each element of the list pulls from the position array, and the
+            second index pulls from the normal array. This list explicitly specifies the
+            relationship between faces and topology: the first face contains 4 positions, but uses
+            the same normal for all vertices. The second face shares two positions with the first,
+            but no normals.</para>
+        <para>This is complicated in OpenGL because of one simple reason: we only get
+                <emphasis>one</emphasis> index list. When we render with an index array, every
+            attribute array uses the same index. Therefore, what we need to do is convert the above
+            index list into a list of unique combinations of vertex attributes. So each pair of
+            indices must refer to a unique index.</para>
+        <para>Consider the first face. It consists of 4 unique vertices; the index pairs {1, 0} and
+            {2, 0} are repeated. Since these pairs are repeats, we can collapse them; they will
+            refer to the same index. However, the fact that each vertex uses the same normal must be
+            ignored entirely. Therefore, the final index list we use for the first face is:</para>
+        <programlisting language="cpp">{ 0, 1, 2, 1, 3, 2 }</programlisting>
+        <para>The attribute arrays for this one face contain 4 positions and 4 normals. But while
+            the positions are all different, the normals must all be the same value. Even though
+            they are stored in four separate locations. This seems like a waste of memory.</para>
+        <para>This gets worse once we move on to the next face. Because we can only collapse index
+            pairs that are identical, absolutely none of the vertices in the second face share
+            indices with the first face. The fact that we reuse two positions in the next face is
+            irrelevant: we must have the following index list:</para>
+        <programlisting language="cpp">{ 4, 5, 6, 5, 7, 6 }</programlisting>
+        <para>The attribute array for both faces contains 8 positions and 8 normals. Again, the
+            normals for the second face are all duplicates of each other. And there are two
+            positions that are duplicated. Topologically speaking, our cube vertex topology looks
+            like the following:</para>
+        <!--TODO: Diagram of vertex topology of a cube, with 6 separate faces.-->
+        <para>Each face is entirely distinct topologically from the rest. The two triangles in each
+            face share an edge, but that is all.</para>
+        <para>In the end, this gives us 24 positions and 24 normals in our arrays. There will only
+            be 6 distinct normals and 8 distinct positions in the array, but there will be 24 of
+            each. So this represents significant bloat.</para>
+        <para>Do not be too concerned about the increase in data however. A cube, or other faceted
+            object, represents the worst-case scenario for this kind of conversion. Most actual
+            meshes of smooth objects have much more interconnected topologies.</para>
+        <para>Mesh topology is something to be aware of, as is the ability to convert attribute
+            topologies into forms that OpenGL can directly process. Each attribute has its own
+            topology which affects how the index list is built. Different attributes can share the
+            same topology. For example, we could have colors associated with each face of the cube.
+            The color topology would be identical to the normal topology.</para>
+        <para>Most of the details are usually hidden behind various command-line tools that are used
+            to generate proper meshes from files exported from modelling programs. Many videogame
+            developers have complex asset conditioning pipelines that process exported files into
+            binary formats suitable for loading and direct upload into buffer objects. But it is
+            important to understand how mesh topologies work.</para>
     </section>
     <section>
         <?dbhtml filename="Tut09 In Review.html" ?>
@@ -941,8 +981,11 @@ else
                     operation.</para>
             </listitem>
             <listitem>
-                <para>Light interreflection can be approximated by adding a single light that has no
-                    direction.</para>
+                <para>Light interreflection can be approximated by adding a single light intensity
+                    that has no direction.</para>
+            </listitem>
+            <listitem>
+                <para>Each vertex attribute has its own topology. In order </para>
             </listitem>
         </itemizedlist>
         <section>
@@ -1134,6 +1177,12 @@ else
                     <para>A lighting model that models all contributions from interreflection as a
                         single light intensity that does not originate from any particular
                         direction.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>mesh topology</glossterm>
+                <glossdef>
+                    <para/>
                 </glossdef>
             </glossentry>
         </glosslist>
