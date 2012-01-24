@@ -946,7 +946,7 @@ else
             face share an edge, but that is all.</para>
         <para>In the end, this gives us 24 positions and 24 normals in our arrays. There will only
             be 6 distinct normals and 8 distinct positions in the array, but there will be 24 of
-            each. So this represents significant bloat.</para>
+            each. So this represents a significant increase in our data size.</para>
         <para>Do not be too concerned about the increase in data however. A cube, or other faceted
             object, represents the worst-case scenario for this kind of conversion. Most actual
             meshes of smooth objects have much more interconnected topologies.</para>
@@ -985,7 +985,9 @@ else
                     that has no direction.</para>
             </listitem>
             <listitem>
-                <para>Each vertex attribute has its own topology. In order </para>
+                <para>Each vertex attribute has its own topology. In order to render these vertices
+                    in OpenGL, attribute data must be replicated so that each unique combination of
+                    attributes has a topology.</para>
             </listitem>
         </itemizedlist>
         <section>
@@ -1182,7 +1184,11 @@ else
             <glossentry>
                 <glossterm>mesh topology</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The interconnected nature between different values of a vertex attribute
+                        in a mesh. Each attribute has its own separate topology. Rendering in OpenGL
+                        requires finding all of the unique combinations of attributes and building a
+                        new topology out of it, where each attributes topology is the same. This can
+                        require replicating attribute data.</para>
                 </glossdef>
             </glossentry>
         </glosslist>
