@@ -130,8 +130,17 @@
             presented in the tutorial. It will also contain suggestions for playing with the source
             code itself; these are intended to further your understanding of these concepts. If the
             tutorial introduced new OpenGL functions or functions for the OpenGL shading language,
-            they will be reviewed here as well. Each tutorial ends with a glossary of defined
-            terms.</para>
+            they will be reviewed here as well.</para>
+        <para>This is a book for beginning graphics programmers. Graphics is a huge topic, and this
+            book will not cover every possible effect, feature, or technique. This book will also
+            not cover every technique in full detail. Sometimes techniques will be revisited in
+            later materials, but there simply isn't enough space to say everything about everything.
+            Therefore, when certain techniques are introduced, there will be a section at the end
+            providing some cursory examination of more advanced techniques. This will help you
+            further your own research into graphics programming, as you will know what to search for
+            online or in other books.</para>
+        <para>Each tutorial ends with a glossary of all of the terms defined in that
+            tutorial.</para>
         <note condition="web">
             <title>Browser Note</title>
             <para>This website and these tutorials make extensive use of SVG images. Basic SVG

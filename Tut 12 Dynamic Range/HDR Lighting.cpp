@@ -96,7 +96,8 @@ ProgramData LoadLitProgram(const std::string &strVertexShader, const std::string
 	GLuint lightBlock = glGetUniformBlockIndex(data.theProgram, "Light");
 	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
 
-	glUniformBlockBinding(data.theProgram, materialBlock, g_materialBlockIndex);
+	if(materialBlock != GL_INVALID_INDEX) //Can be optimized out.
+		glUniformBlockBinding(data.theProgram, materialBlock, g_materialBlockIndex);
 	glUniformBlockBinding(data.theProgram, lightBlock, g_lightBlockIndex);
 	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
 

@@ -2513,9 +2513,12 @@
             <file name="chunked.css"/>
             <file name="standard.css"/>
         </folder>
+        <folder name="Schemas">
+            <file name="meshFormat.rnc"/>
+            <file name="sceneFormat.rnc"/>
+        </folder>
         <file name="Building%20the%20Tutorials.xml"/>
         <file name="cssDoc.txt"/>
-        <file name="meshFormat.rnc"/>
         <file name="Outline.xml"/>
         <file name="preface.xml"/>
         <file name="Tutorials.xml"/>

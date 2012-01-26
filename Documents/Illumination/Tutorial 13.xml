@@ -166,16 +166,13 @@ void main()
                 we transform the camera-space position to clip-space as normal.</para>
             <para>The output <varname>mapping</varname> is a value that is used by the fragment
                 shader, as we will see below.</para>
-            <para>Since this vertex shader takes no inputs, you might think that you could get away
-                with binding a vertex array object that had no enabled attributes. Alas, this does
-                not work; we must have a dummy attribute enabled and a dummy buffer object to pull
-                data from. We do this in the initialization function of this tutorial.</para>
-            <note>
-                <para>The OpenGL 3.3 core specification is quite clear that it should be possible to
-                    render with no enabled attributes. Sadly, certain implementations of OpenGL
-                    (*cough*AMD*cough*) incorrectly forbid it, so our tutorial has to work around
-                    them.</para>
-            </note>
+            <para>Since this vertex shader takes no inputs, our vertex array object does not need to
+                contain anything either. That is, we never call
+                    <function>glEnableVertexAttribArray</function> on the VAO. Since no attribute
+                arrays are enabled, we also have no need for a buffer object to store vertex array
+                data. So we never call <function>glVertexAttribPointer</function>. We simply
+                generate an empty VAO with <function>glGenVertexArrays</function> and use it without
+                modification.</para>
         </section>
         <section>
             <title>Racketeering Rasterization</title>
@@ -917,6 +914,12 @@ uniform Material
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
                 <listitem>
+                    <para>The first version of our impostors was a sphere approximation. It was not
+                        useful for relatively large spheres, but it could be useful for small ones.
+                        However, that approximation did not compute the depth of the fragment
+                        correctly. Make a version of it that does.</para>
+                </listitem>
+                <listitem>
                     <para>Change the geometry impostor tutorial to take another vertex input: the
                         material to use. The vertex shader should pass it along to the geometry
                         shader, and the geometry shader should hand it to the fragment shader. You
@@ -939,9 +942,11 @@ uniform Material
             <para>There are other impostor-based solutions. Most particle systems (a large and
                 vibrant topic that you should investigate) use flat-cards to draw pictures that move
                 through space. These images can animate, changing from one image to another based on
-                time, and large groups of these particle can be used to simulate various phenomena
+                time, and large groups of these particles can be used to simulate various phenomena
                 like smoke, fire, and the like.</para>
-            <para>All of these subjects are worthy of your time.</para>
+            <para>All of these subjects are worthy of your time. Of course, moving pictures through
+                space requires being able to draw pictures. That means textures, which
+                coincidentally is the topic for our next section.</para>
         </section>
         <section>
             <title>GLSL Features of Note</title>
