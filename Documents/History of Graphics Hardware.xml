@@ -549,18 +549,18 @@
                 stage.</para>
             <para>Another feature is the ability to have a shader arbitrarily read
                     <emphasis>and</emphasis> write to images in textures. This is not merely
-                sampling from a texture; it uses a different interface, and it means very different
-                things. This form of image data access breaks many of the rules around OpenGL, and
-                it is very easy to use the feature wrong.</para>
+                sampling from a texture; it uses a different interface (no filtering), and it means
+                very different things. This form of image data access breaks many of the rules
+                around OpenGL, and it is very easy to use the feature wrongly.</para>
             <para>These are not covered in this book for a few reasons. First, there is not as much
                 hardware out there that supports it (though this is increasing daily). Sticking to
-                OpenGL 3.3 meant casting a wider net; requiring OpenGL 4.2 (which includes
-                tessellation) would have meant fewer people could run those tutorials.</para>
+                OpenGL 3.3 meant casting a wider net; requiring OpenGL 4.2 would have meant fewer
+                people could run those tutorials.</para>
             <para>Second, these features are quite complicated to use. Any discussion of
                 tessellation would require discussing tessellation algorithms, which are all quite
                 complicated. Any discussion of image reading/writing would require talking about
-                shader hardware at a level of depth that is pretty well beyond the beginner
-                level.</para>
+                shader hardware at a level of depth that is well beyond the beginner level. These
+                are useful features, to be sure, but they are also very complex features.</para>
         </sidebar>
     </section>
 </appendix>
