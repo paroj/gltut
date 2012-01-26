@@ -1,0 +1,177 @@
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace scn = "http://www.arcsynthesis.com/gltut/scene"
+
+##Structure and elements
+div
+{
+    start = sc.rootelements
+    
+    sc.rootelements =
+        sc.scene
+        
+    sc.scene =
+        ##The root element. Contains the meshes, programs, and nodes.
+        element scn:scene { sc.scene.content }
+
+    sc.scene.content =
+        (sc.mesh | sc.prog | sc.node)+
+        
+    sc.mesh =
+        ##A mesh to load. Meshes have names and filenames.
+        element scn:mesh { sc.mesh.content }
+        
+    sc.mesh.content =
+        sc.mesh.attlist
+        
+    sc.prog =
+        ##A shader program. It represents a number of shaders, as well as uniforms and pre-4.20
+        ##bindings.
+        element scn:prog { sc.prog.content }
+        
+    sc.prog.content =
+        sc.prog.attlist, (sc.sampler | sc.block)*
+    
+    sc.sampler =
+        ##Associates a sampler uniform with a texture unit.
+        element scn:sampler { sc.sampler.content }
+        
+    sc.sampler.content =
+        sc.sampler.attlist
+        
+    sc.block =
+        ##Associates a uniform block with a block binding
+        element scn:block { sc.block.content }
+        
+    sc.block.content =
+        sc.block.attlist
+        
+    sc.node =
+        ##Defines a named instance of a mesh, program, and other node attributes. 
+        element scn:node { sc.node.content }
+        
+    sc.node.content =
+        sc.node.attlist, (sc.note)*
+        
+    sc.note =
+        ##User-defined strings that can be queried.
+        element scn:note { sc.note.content }
+        
+    sc.note.content =
+        sc.note.attlist, text
+}
+
+##Attributes
+div
+{
+    sc.mesh.attlist =
+        sc.xml.id.attribute, sc.mesh.file.attribute
+    
+    sc.prog.attlist =
+        sc.xml.id.attribute,
+        sc.prog.vert.attribute,
+        sc.prog.frag.attribute,
+        sc.prog.geom.attribute?,
+        sc.prog.model-to-camera.attribute,
+        sc.prog.normal-model-to-camera.attribute?
+        
+    sc.sampler.attlist =
+        sc.sampler.name.attribute, sc.sampler.unit.attribute
+        
+    sc.block.attlist =
+        sc.block.name.attribute, sc.block.binding.attribute
+    
+    sc.node.attlist =
+        sc.node.name.attribute,
+        sc.node.mesh.attribute,
+        sc.node.prog.attribute,
+        sc.node.pos.attribute,
+        sc.node.orient.attribute?,
+        sc.node.scale.attribute?
+    
+    sc.note.attlist =
+        sc.note.name.attribute
+    
+    sc.xml.id.attribute =
+        ##Uniquely named object
+        attribute xml:id { xsd:ID }
+    
+    sc.mesh.file.attribute =
+        ##The mesh's filename.
+        attribute file { acc.filename.type }
+    
+    sc.prog.vert.attribute =
+        ##The vertex shader filename for this program
+        attribute vert { acc.filename.type }
+    
+    sc.prog.frag.attribute =
+        ##The fragment shader filename for this program
+        attribute frag { acc.filename.type }
+    
+    sc.prog.geom.attribute =
+        ##The geometry shader filename for this program
+        attribute geom { acc.filename.type }
+
+    sc.prog.model-to-camera.attribute =
+        ##The uniform name of a mat4 that represents the model-to-camera transform.
+        attribute model-to-camera { acc.uniform.type }
+    
+    sc.prog.normal-model-to-camera.attribute =
+        ##The uniform name of a mat3 that represents the normal model-to-camera transform.
+        attribute normal-model-to-camera { acc.uniform.type }
+
+    sc.sampler.name.attribute =
+        ##The name of a sampler uniform.
+        attribute name { acc.uniform.type }
+    
+    sc.sampler.unit.attribute =
+        ##The texture unit to use with the uniform sampler
+        attribute unit { acc.texture-unit.type }
+    
+    sc.block.name.attribute =
+        ##The name of a uniform block.
+        attribute name { acc.uniform.type }
+
+    sc.block.binding.attribute =
+        ##The uniform buffer binding point to use with this uniform block name. 
+        attribute binding { acc.block-binding.type }
+        
+    sc.node.name.attribute =
+        ##The name of a node. It must be unique.
+        attribute name { text }
+        
+    sc.node.mesh.attribute =
+        ##The name of a mesh. If no mesh is found with this name, an error results.
+        attribute mesh { xsd:IDREF }
+        
+    sc.node.prog.attribute =
+        ##The name of a program. If no program is found, an error rsults.
+        attribute prog { xsd:IDREF }
+        
+    sc.node.pos.attribute =
+        ##The position of the object in world-space.
+        attribute pos { text }
+        
+    sc.node.orient.attribute =
+        ##The orientation of the object in world-space, as a quaternion. In XYZW format.
+        attribute orient { text }
+        
+    sc.node.scale.attribute =
+        ##The scale of the object in world-space. Can be one float or 3.
+        attribute scale { text }
+        
+    sc.note.name.attribute =
+        ##The name of an annotation in a node. The note name must be unique within the node.
+        attribute name { text }
+}
+
+## Accessories
+div
+{
+    acc.texture-unit.type = xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "80"}
+    acc.block-binding.type = xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "80"}
+    acc.uniform.type = text
+    acc.filename.type = text
+    acc.attribute.type =
+        xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "16"}
+}
