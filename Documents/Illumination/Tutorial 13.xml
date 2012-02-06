@@ -166,8 +166,11 @@ void main()
                 we transform the camera-space position to clip-space as normal.</para>
             <para>The output <varname>mapping</varname> is a value that is used by the fragment
                 shader, as we will see below.</para>
-            <para>Since this vertex shader takes no inputs, our vertex array object does not need to
-                contain anything either. That is, we never call
+            <para><indexterm>
+                    <primary>Vertex Array Object</primary>
+                    <secondary>empty</secondary>
+                </indexterm>Since this vertex shader takes no inputs, our vertex array object does
+                not need to contain anything either. That is, we never call
                     <function>glEnableVertexAttribArray</function> on the VAO. Since no attribute
                 arrays are enabled, we also have no need for a buffer object to store vertex array
                 data. So we never call <function>glVertexAttribPointer</function>. We simply

@@ -25,6 +25,7 @@ function SetupSolution(slnName)
 		
 		files  "../framework/*.cpp"
 		files  "../framework/*.h"
+		files  "../framework/*.hpp"
 		excludes "../framework/empty.cpp"
 		
 		targetdir "../framework/lib"

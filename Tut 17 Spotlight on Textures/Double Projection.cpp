@@ -18,6 +18,7 @@
 #include "../framework/Scene.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
@@ -172,7 +173,7 @@ void LoadTextures()
 //View setup.
 glutil::ViewData g_initialView =
 {
-	glm::vec3(-60.257084f, 10.947238f, 62.636356f),
+	glm::vec3(0.0f, 0.0f, 0.0f),
 	glm::fquat(-0.972817f, -0.099283f, -0.211198f, -0.020028f),
 	30.0f,
 	0.0f
@@ -196,21 +197,55 @@ namespace
 }
 
 Framework::Scene *g_pScene = NULL;
+std::vector<Framework::NodeRef> g_nodes;
+Framework::Timer g_timer(Framework::Timer::TT_LOOP, 10.0f);
+
+class ColorUniformBinder : public Framework::StateBinder
+{
+public:
+	ColorUniformBinder()
+		: m_clrUnif(-1)
+		, m_clr(0.0f, 0.0f, 0.0f, 1.0f)	{}
+
+	void AssociateWithProgram(GLuint prog, const std::string &unifName)
+	{
+		m_clrUnif = glGetUniformLocation(prog, unifName.c_str());
+	}
+
+	void SetColor(const glm::vec4 &clr)	{ m_clr = clr; }
+
+	virtual void BindState() const
+	{
+		glUniform4fv(m_clrUnif, 1, glm::value_ptr(m_clr));
+	}
+
+	virtual void UnbindState() const {}
+
+private:
+	GLint m_clrUnif;
+	glm::vec4 m_clr;
+};
+
+ColorUniformBinder g_clrUnif;
+
+void LoadAndSetupScene()
+{
+	g_nodes.clear();
+	g_pScene = new Framework::Scene("sceneTest.xml");
+	g_nodes.push_back(g_pScene->FindNode("blue"));
+	g_nodes.push_back(g_pScene->FindNode("user"));
+
+	GLuint colorProg = g_pScene->FindProgram("p_colored");
+
+	//No more things that can throw.
+	g_clrUnif.AssociateWithProgram(colorProg, "objectColor");
+	g_nodes[1].SetStateBinder(&g_clrUnif);
+	g_clrUnif.SetColor(glm::vec4(0.1f, 1.0f, 0.1f, 1.0f));
+}
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
 {
-	try
-	{
-		g_pScene = new Framework::Scene("test.scene");
-//		InitializePrograms();
-	}
-	catch(std::exception &except)
-	{
-		printf("%s\n", except.what());
-		throw;
-	}
-
 	glutMouseFunc(MouseButton);
 	glutMotionFunc(MouseMotion);
 	glutMouseWheelFunc(MouseWheel);
@@ -227,6 +262,7 @@ void init()
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(depthZNear, depthZFar);
 	glEnable(GL_DEPTH_CLAMP);
+	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	//Setup our Uniform Buffers
 	glGenBuffers(1, &g_projectionUniformBuffer);
@@ -235,6 +271,17 @@ void init()
 
 	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
 		0, sizeof(ProjectionBlock));
+
+	try
+	{
+		LoadAndSetupScene();
+//		InitializePrograms();
+	}
+	catch(std::exception &except)
+	{
+		printf("%s\n", except.what());
+		throw;
+	}
 
 /*
 	glGenBuffers(1, &g_lightUniformBuffer);
@@ -265,9 +312,16 @@ void display()
 	if(!g_pScene)
 		return;
 
+	g_timer.Update();
+
 	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	g_nodes[0].NodeSetOrient(glm::rotate(glm::fquat(),
+		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+	g_pScene->Render(g_viewPole.CalcMatrix());
 /*
     if(!g_pLightEnv)
         return;
@@ -368,8 +422,9 @@ void display()
 		}
 	}
 
-	glutPostRedisplay();
-*/
+	*/
+
+    glutPostRedisplay();
 	glutSwapBuffers();
 }
 
@@ -406,6 +461,34 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		return;
 	case 32:
+		g_nodes[0].NodeSetTrans(glm::vec3(0.0f, 0.0f, 0.0f));
+		break;
+	case 'i':
+		g_nodes[0].NodeOffset(glm::vec3(0.0f, 1.0f, 0.0f));
+		break;
+	case 'j':
+		g_nodes[0].NodeOffset(glm::vec3(0.0f, -1.0f, 0.0f));
+		break;
+	case '\r':
+		{
+			std::auto_ptr<Framework::Scene> pOldScene(g_pScene);
+			g_pScene = NULL;
+			std::vector<Framework::NodeRef> tmpNodes;
+			tmpNodes.swap(g_nodes);
+			try
+			{
+				LoadAndSetupScene();
+			}
+			catch(std::exception &except)
+			{
+				printf("Failed to reload, due to: %s\n", except.what());
+				if(g_pScene)
+					delete g_pScene;
+				g_pScene = pOldScene.release();
+				g_nodes.swap(tmpNodes);
+				return;
+			}
+		}
 		break;
 	}
 

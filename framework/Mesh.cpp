@@ -260,7 +260,6 @@ namespace Framework
 			}
 
 			strStream.flush();
-			const std::string &strTest = strStream.str();
 
 			//Parse the text stream.
 			pAttribType->ParseFunc(dataArray, strStream);

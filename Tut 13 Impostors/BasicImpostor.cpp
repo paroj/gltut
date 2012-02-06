@@ -272,7 +272,6 @@ void CreateMaterials()
 }
 
 GLuint g_imposterVAO;
-GLuint g_imposterVBO;
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -326,17 +325,8 @@ void init()
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-	glGenBuffers(1, &g_imposterVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, g_imposterVBO);
-	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float), NULL, GL_STATIC_DRAW);
-
+	//Empty Vertex Array Object.
 	glGenVertexArrays(1, &g_imposterVAO);
-//	glBindVertexArray(g_imposterVAO);
-//	glEnableVertexAttribArray(0);
-//	glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, (void*)(0));
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	CreateMaterials();
 }
