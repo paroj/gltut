@@ -8,17 +8,38 @@
 #include <stdexcept>
 #include <functional>
 #include <algorithm>
+#include <iostream>
 #include <glload/gl_3_2_comp.h>
 #include <glload/gll.h>
 #include <GL/freeglut.h>
-#include <tinyxml.h>
 #include "framework.h"
 #include "Mesh.h"
 #include "directories.h"
+#include "rapidxml.hpp"
+#include "rapidxml_helpers.h"
 
+#define USE_RAPIDXML_PARSER
+
+#define PARSE_THROW(cond, message)\
+	if(!(cond))\
+	throw std::runtime_error((message));
 
 namespace Framework
 {
+	using rapidxml::xml_document;
+	using rapidxml::xml_node;
+	using rapidxml::xml_attribute;
+	using rapidxml::make_string;
+
+	namespace
+	{
+		void ThrowAttrib(const xml_attribute<> &attrib, const std::string &msg)
+		{
+			std::string name = make_string(attrib);
+			throw std::runtime_error("Attribute " + name + " " + msg);
+		}
+	}
+
 	struct RenderCmd
 	{
 		bool bIsIndexedCmd;
@@ -203,33 +224,25 @@ namespace Framework
 			, bIsIntegral(false)
 		{}
 
-		explicit Attribute(const TiXmlElement *pAttribElem)
+		explicit Attribute(const xml_node<> &attribElem)
 		{
-			int iAttributeIndex;
-			if(pAttribElem->QueryIntAttribute("index", &iAttributeIndex) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'index' attribute in an 'attribute' element.");
+			int iAttributeIndex = rapidxml::get_attrib_int(attribElem, "index", ThrowAttrib);
 			if(!((0 <= iAttributeIndex) && (iAttributeIndex < 16)))
 				throw std::runtime_error("Attribute index must be between 0 and 16.");
 			iAttribIx = iAttributeIndex;
 
-			int iVectorSize;
-			if(pAttribElem->QueryIntAttribute("size", &iVectorSize) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'size' attribute in an 'attribute' element.");
+			int iVectorSize = rapidxml::get_attrib_int(attribElem, "size", ThrowAttrib);
 			if(!((1 <= iVectorSize) && (iVectorSize < 5)))
 				throw std::runtime_error("Attribute size must be between 1 and 4.");
 			iSize = iVectorSize;
 
-			std::string strType;
-			if(pAttribElem->QueryStringAttribute("type", &strType) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'type' attribute in an 'attribute' element.");
+			pAttribType = GetAttribType(rapidxml::get_attrib_string(attribElem, "type"));
 
-			pAttribType = GetAttribType(strType);
-
-			std::string strIntegral;
-			if(pAttribElem->QueryStringAttribute("integral", &strIntegral) != TIXML_SUCCESS)
-				bIsIntegral = false;
-			else
+			bIsIntegral = false;
+			const xml_attribute<> *pIntegralAttrib = attribElem.first_attribute("integral");
+			if(pIntegralAttrib)
 			{
+				std::string strIntegral = make_string(*pIntegralAttrib);
 				if(strIntegral == "true")
 					bIsIntegral = true;
 				else if(strIntegral == "false")
@@ -246,25 +259,19 @@ namespace Framework
 					throw std::runtime_error("Attribute cannot be both 'integral' and a floating-point 'type'.");
 			}
 
-			//Read the text data.
+			//Parse text
 			std::stringstream strStream;
-			for(const TiXmlNode *pNode = pAttribElem->FirstChild();
-				pNode;
-				pNode = pNode->NextSibling())
+			for(const xml_node<> *pChild = attribElem.first_node();
+				pChild; pChild = pChild->next_sibling())
 			{
-				const TiXmlText *pText = pNode->ToText();
-				if(pText)
-				{
-					strStream << pText->ValueStr() << " ";
-				}
+				strStream.write(pChild->value(), pChild->value_size());
 			}
 
 			strStream.flush();
-
-			//Parse the text stream.
 			pAttribType->ParseFunc(dataArray, strStream);
+
 			if(dataArray.empty())
-				throw std::runtime_error("The attribute's must have an array of values.");
+				throw std::runtime_error("The attribute must have an array of values.");
 			if(dataArray.size() % iSize != 0)
 				throw std::runtime_error("The attribute's data must be a multiple of its size in elements.");
 		}
@@ -326,53 +333,38 @@ namespace Framework
 		std::vector<AttribData> dataArray;
 	};
 
-	void ProcessVAO(const TiXmlElement *pVaoElem, std::string &strName, std::vector<GLuint> &attributes)
+	void ProcessVAO(const xml_node<> &vaoElem, std::string &strName, std::vector<GLuint> &attributes)
 	{
-		if(pVaoElem->QueryStringAttribute("name", &strName) != TIXML_SUCCESS)
-			throw std::runtime_error("Missing 'name' attribute in a 'vao' element.");
+		strName = rapidxml::get_attrib_string(vaoElem, "name");
 
-		for(const TiXmlElement *pNode = pVaoElem->FirstChildElement();
-			pNode;
-			pNode = pNode->NextSiblingElement())
+		for(const xml_node<> *pSource = vaoElem.first_node("source");
+			pSource;
+			pSource = pSource->next_sibling("source"))
 		{
-			int iAttrib = -1;
-			if(pNode->QueryIntAttribute("attrib", &iAttrib) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'attrib' attribute in a 'source' element.");
-
-			attributes.push_back(iAttrib);
+			attributes.push_back(rapidxml::get_attrib_int(*pSource, "attrib", ThrowAttrib));
 		}
 	}
 
+
 	struct IndexData
 	{
-		IndexData(const TiXmlElement *pIndexElem)
+		IndexData(const xml_node<> &indexElem)
 		{
-			std::string strType;
-			if(pIndexElem->QueryStringAttribute("type", &strType) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'type' attribute in an 'index' element.");
+			std::string strType = rapidxml::get_attrib_string(indexElem, "type");
 
 			if(strType != "uint" && strType != "ushort" && strType != "ubyte")
 				throw std::runtime_error("Improper 'type' attribute value on 'index' element.");
 
 			pAttribType = GetAttribType(strType);
 
-			//Read the text data.
+			//Read the text
 			std::stringstream strStream;
-			for(const TiXmlNode *pNode = pIndexElem->FirstChild();
-				pNode;
-				pNode = pNode->NextSibling())
+			for(const xml_node<> *pChild = indexElem.first_node();
+				pChild; pChild = pChild->next_sibling())
 			{
-				const TiXmlText *pText = pNode->ToText();
-				if(pText)
-				{
-					strStream << pText->ValueStr() << " ";
-				}
+				strStream.write(pChild->value(), pChild->value_size());
 			}
-
 			strStream.flush();
-			const std::string &strTest = strStream.str();
-
-			//Parse the text stream.
 			pAttribType->ParseFunc(dataArray, strStream);
 			if(dataArray.empty())
 				throw std::runtime_error("The index element must have an array of values.");
@@ -409,14 +401,11 @@ namespace Framework
 		std::vector<AttribData> dataArray;
 	};
 
-	RenderCmd ProcessRenderCmd(const TiXmlElement *pCmdElem)
+	RenderCmd ProcessRenderCmd(const xml_node<> &cmdElem)
 	{
 		RenderCmd cmd;
 
-		std::string strCmdName;
-		if(pCmdElem->QueryStringAttribute("cmd", &strCmdName) != TIXML_SUCCESS)
-			throw std::runtime_error("Missing 'cmd' attribute in an 'arrays' or 'indices' element.");
-
+		const std::string strCmdName = rapidxml::get_attrib_string(cmdElem, "cmd");
 		int iArrayCount = ARRAY_COUNT(g_allPrimitiveTypes);
 		const PrimitiveType *pPrim = std::find_if(
 			g_allPrimitiveTypes, &g_allPrimitiveTypes[iArrayCount],
@@ -427,38 +416,25 @@ namespace Framework
 
 		cmd.ePrimType = pPrim->eGLPrimType;
 
-		if(pCmdElem->ValueStr() == "indices")
+		const std::string strElemName = make_string_name(cmdElem);
+		if(strElemName == "indices")
 		{
 			cmd.bIsIndexedCmd = true;
-			int iPrimRestart;
-			if(pCmdElem->QueryIntAttribute("prim-restart", &iPrimRestart) == TIXML_SUCCESS)
-			{
-				if(iPrimRestart < 0)
-					throw std::runtime_error("Attribute 'start' must be between 0 or greater.");
-			}
-			else
-				iPrimRestart = -1;
-			cmd.primRestart = iPrimRestart;
-		}
-		else if(pCmdElem->ValueStr() == "arrays")
+			cmd.primRestart = rapidxml::get_attrib_int(cmdElem, "prim-restart", -1);
+		} 
+		else if(strElemName == "arrays")
 		{
 			cmd.bIsIndexedCmd = false;
-			int iStart;
-			if(pCmdElem->QueryIntAttribute("start", &iStart) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'start' attribute in an 'arrays' element.");
-			if(iStart < 0)
-				throw std::runtime_error("Attribute 'start' must be between 0 or greater.");
-			cmd.start = iStart;
+			cmd.start = rapidxml::get_attrib_int(cmdElem, "start", ThrowAttrib);
+			if(cmd.start < 0)
+				throw std::runtime_error("`array` 'start' index must be between 0 or greater.");
 
-			int iCount;
-			if(pCmdElem->QueryIntAttribute("count", &iCount) != TIXML_SUCCESS)
-				throw std::runtime_error("Missing 'count' attribute in an 'arrays' element.");
-			if(iCount <= 0)
-				throw std::runtime_error("Attribute 'count' must be between 0 or greater.");
-			cmd.elemCount = iCount;
+			cmd.elemCount = rapidxml::get_attrib_int(cmdElem, "count", ThrowAttrib);
+			if(cmd.elemCount <= 0)
+				throw std::runtime_error("`array` 'count' must be between 0 or greater.");
 		}
 		else
-			throw std::runtime_error("Bad element. Must be 'indices' or 'arrays'.");
+			throw std::runtime_error("Bad command element " + strElemName + ". Must be 'indices' or 'arrays'.");
 
 		return cmd;
 	}
@@ -498,39 +474,57 @@ namespace Framework
 			std::string strDataFilename = FindFileOrThrow(strFilename);
 			std::ifstream fileStream(strDataFilename.c_str());
 			if(!fileStream.is_open())
-				throw std::runtime_error("Could not find the mesh file.");
+				throw std::runtime_error("Could not find the mesh file: " + strDataFilename);
 
-			TiXmlDocument theDoc;
+			std::vector<char> fileData;
+			fileData.reserve(2*1024*1024);
+			fileData.insert(fileData.end(), std::istreambuf_iterator<char>(fileStream),
+				std::istreambuf_iterator<char>());
+			fileData.push_back('\0');
 
-			fileStream >> theDoc;
-			fileStream.close();
+			xml_document<> doc;
 
-			if(theDoc.Error())
-				throw std::runtime_error(theDoc.ErrorDesc());
-
-			TiXmlHandle docHandle(&theDoc);
-
-			const TiXmlElement *pProcNode = docHandle.FirstChild("mesh").FirstChild().ToElement();
-			while(pProcNode->ValueStr() == "attribute")
+			try
 			{
-				attribs.push_back(Attribute(pProcNode));
-				attribIndexMap[attribs.back().iAttribIx] = attribs.size() - 1;
-				pProcNode = pProcNode->NextSiblingElement();
+				doc.parse<0>(&fileData[0]);
+			}
+			catch(rapidxml::parse_error &e)
+			{
+				std::cout << strDataFilename << ": Parse error in the mesh file." << std::endl;
+				std::cout << e.what() << std::endl << e.where<char>() << std::endl;
+				throw;
 			}
 
-			while(pProcNode->ValueStr() == "vao")
+			xml_node<> *pRootNode = doc.first_node("mesh");
+			PARSE_THROW(pRootNode, ("`mesh` node not found in mesh file: " + strDataFilename));
+
+			const xml_node<> *pNode = pRootNode->first_node("attribute");
+			PARSE_THROW(pNode, ("`mesh` node must have at least one `attribute` child. File: " + strDataFilename));
+
+			for(;
+				pNode && (make_string_name(*pNode) == "attribute");
+				pNode = rapidxml::next_element(pNode))
+			{
+				attribs.push_back(Attribute(*pNode));
+				attribIndexMap[attribs.back().iAttribIx] = attribs.size() - 1;
+			}
+
+			for(;
+				pNode && (make_string_name(*pNode) == "vao");
+				pNode = rapidxml::next_element(pNode))
 			{
 				namedVaoList.push_back(std::pair<std::string, std::vector<GLuint> >());
 				std::pair<std::string, std::vector<GLuint> > &namedVao = namedVaoList.back();
-				ProcessVAO(pProcNode, namedVao.first, namedVao.second);
-				pProcNode = pProcNode->NextSiblingElement();
+				ProcessVAO(*pNode, namedVao.first, namedVao.second);
 			}
 
-			for(; pProcNode; pProcNode = pProcNode->NextSiblingElement())
+			for(;
+				pNode;
+				pNode = rapidxml::next_element(pNode))
 			{
-				m_pData->primatives.push_back(ProcessRenderCmd(pProcNode));
-				if(pProcNode->ValueStr() == "indices")
-					indexData.push_back(IndexData(pProcNode));
+				m_pData->primatives.push_back(ProcessRenderCmd(*pNode));
+				if(make_string_name(*pNode) == "indices")
+					indexData.push_back(IndexData(*pNode));
 			}
 		}
 

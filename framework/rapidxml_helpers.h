@@ -10,14 +10,32 @@
 
 namespace rapidxml
 {
-	std::string make_string(const rapidxml::xml_base<> &data)
+	inline std::string make_string(const rapidxml::xml_base<> &data)
 	{
 		return std::string(data.value(), data.value_size());
 	}
 
-	std::string make_string_name(const rapidxml::xml_base<> &data)
+	inline std::string make_string_name(const rapidxml::xml_base<> &data)
 	{
 		return std::string(data.name(), data.name_size());
+	}
+
+	inline xml_node<> *next_element(xml_node<> *pNode)
+	{
+		pNode = pNode->next_sibling();
+		while(pNode && pNode->type() != node_element)
+			pNode = pNode->next_sibling();
+
+		return pNode;
+	}
+
+	inline const xml_node<> *next_element(const xml_node<> *pNode)
+	{
+		pNode = pNode->next_sibling();
+		while(pNode && pNode->type() != node_element)
+			pNode = pNode->next_sibling();
+
+		return pNode;
 	}
 
 	template<typename Callable>
@@ -32,7 +50,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	int attrib_to_int_opt(const xml_attribute<> &attrib, int optRet)
+	inline int attrib_to_int_opt(const xml_attribute<> &attrib, int optRet)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		int ret;
@@ -42,6 +60,26 @@ namespace rapidxml
 
 		return ret;
 	}
+
+	template<typename Callable>
+	int get_attrib_int(const xml_node<> &node, const std::string &attribName, Callable FailFunc)
+	{
+		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
+		if(!pAttrib)
+			throw std::runtime_error(attribName + " not found on node: " + make_string_name(node));
+
+		return attrib_to_int(*pAttrib, FailFunc);
+	}
+
+	inline int get_attrib_int(const xml_node<> &node, const std::string &attribName, int optRet)
+	{
+		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
+		if(!pAttrib)
+			return optRet;
+
+		return attrib_to_int_opt(*pAttrib, optRet);
+	}
+
 
 	template<typename Callable>
 	float attrib_to_float(const xml_attribute<> &attrib, Callable FailFunc)
@@ -55,7 +93,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	float attrib_to_float_opt(const xml_attribute<> &attrib, float optRet)
+	inline float attrib_to_float_opt(const xml_attribute<> &attrib, float optRet)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		float ret;
@@ -76,7 +114,7 @@ namespace rapidxml
 		return attrib_to_float(*pAttrib, FailFunc);
 	}
 
-	float get_attrib_float(const xml_node<> &node, const std::string &attribName, float optRet)
+	inline float get_attrib_float(const xml_node<> &node, const std::string &attribName, float optRet)
 	{
 		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
 		if(!pAttrib)
@@ -98,7 +136,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	glm::vec3 attrib_to_vec3_opt(const xml_attribute<> &attrib, const glm::vec3 &optRet)
+	inline glm::vec3 attrib_to_vec3_opt(const xml_attribute<> &attrib, const glm::vec3 &optRet)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		inData >> std::skipws;
@@ -110,7 +148,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	bool attrib_is_vec3(const xml_attribute<> &attrib)
+	inline bool attrib_is_vec3(const xml_attribute<> &attrib)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		inData >> std::skipws;
@@ -135,7 +173,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	glm::vec4 attrib_to_vec4_opt(const xml_attribute<> &attrib, const glm::vec4 &optRet)
+	inline glm::vec4 attrib_to_vec4_opt(const xml_attribute<> &attrib, const glm::vec4 &optRet)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		inData >> std::skipws;
@@ -147,7 +185,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	bool attrib_is_vec4(const xml_attribute<> &attrib)
+	inline bool attrib_is_vec4(const xml_attribute<> &attrib)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		inData >> std::skipws;
@@ -160,7 +198,7 @@ namespace rapidxml
 	}
 
 	template<typename Callable>
-	glm::vec4 get_attrib_vec4(const xml_node<> &node, const std::string &attribName, Callable FailFunc)
+	inline glm::vec4 get_attrib_vec4(const xml_node<> &node, const std::string &attribName, Callable FailFunc)
 	{
 		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
 		if(!pAttrib)
@@ -169,7 +207,7 @@ namespace rapidxml
 		return attrib_to_vec4(*pAttrib, FailFunc);
 	}
 
-	glm::vec4 get_attrib_vec4(const xml_node<> &node, const std::string &attribName,
+	inline glm::vec4 get_attrib_vec4(const xml_node<> &node, const std::string &attribName,
 		const glm::vec4 &optRet)
 	{
 		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
@@ -193,7 +231,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	glm::fquat attrib_to_quat_opt(const xml_attribute<> &attrib, const glm::fquat &optRet)
+	inline glm::fquat attrib_to_quat_opt(const xml_attribute<> &attrib, const glm::fquat &optRet)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());
 		inData >> std::skipws;
@@ -205,7 +243,7 @@ namespace rapidxml
 		return ret;
 	}
 
-	std::string get_attrib_string(const xml_node<> &node, const std::string &attribName)
+	inline std::string get_attrib_string(const xml_node<> &node, const std::string &attribName)
 	{
 		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
 		if(!pAttrib)
@@ -214,7 +252,7 @@ namespace rapidxml
 		return make_string(*pAttrib);
 	}
 
-	std::string get_attrib_string(const xml_node<> &node, const std::string &attribName,
+	inline std::string get_attrib_string(const xml_node<> &node, const std::string &attribName,
 		const std::string &optRet)
 	{
 		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
