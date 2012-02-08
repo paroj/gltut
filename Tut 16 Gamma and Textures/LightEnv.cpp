@@ -6,12 +6,17 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+#include <iostream>
 #include "LightEnv.h"
-#include "tinyxml.h"
 #include <glload/gl_all.h>
 #include "../framework/framework.h"
+#include "rapidxml.hpp"
+#include "rapidxml_helpers.h"
 #include <glm/gtc/matrix_transform.hpp>
 
+#define PARSE_THROW(cond, message)\
+	if(!(cond))\
+	throw std::runtime_error((message));
 
 typedef std::pair<float, float> MaxIntensityData;
 typedef std::vector<MaxIntensityData> MaxIntensityVector;
@@ -28,9 +33,19 @@ float distance(const glm::vec3 &lhs, const glm::vec3 &rhs)
 	return glm::length(rhs - lhs);
 }
 
+using rapidxml::xml_document;
+using rapidxml::xml_node;
+using rapidxml::xml_attribute;
+using rapidxml::make_string;
 
 namespace
 {
+	void ThrowAttrib(const xml_attribute<> &attrib, const std::string &msg)
+	{
+		std::string name = make_string(attrib);
+		throw std::runtime_error("Attribute " + name + " " + msg);
+	}
+
 	glm::vec4 ParseVec4(const std::string &strVec4)
 	{
 		std::stringstream strStream;
@@ -59,66 +74,61 @@ LightEnv::LightEnv( const std::string& envFilename )
 	if(!fileStream.is_open())
 		throw std::runtime_error("Could not find the mesh file.");
 
-	TiXmlDocument theDoc;
+	std::vector<char> fileData;
+	fileData.reserve(2000);
+	fileData.insert(fileData.end(), std::istreambuf_iterator<char>(fileStream),
+		std::istreambuf_iterator<char>());
+	fileData.push_back('\0');
 
-	fileStream >> theDoc;
-	fileStream.close();
+	xml_document<> doc;
 
-	if(theDoc.Error())
-		throw std::runtime_error(theDoc.ErrorDesc());
+	try
+	{
+		doc.parse<0>(&fileData[0]);
+	}
+	catch(rapidxml::parse_error &e)
+	{
+		std::cout << envFilename << ": Parse error in light environment file." << std::endl;
+		std::cout << e.what() << std::endl << e.where<char>() << std::endl;
+		throw;
+	}
 
-	TiXmlHandle docHandle(&theDoc);
+	xml_node<> *pRootNode = doc.first_node("lightenv");
+	PARSE_THROW(pRootNode, ("lightenv node not found in light environment file: " + envFilename));
 
-	const TiXmlElement *pRootNode = docHandle.FirstChild("lightenv").ToElement();
-
-	if(!pRootNode)
-		throw std::runtime_error("The root node must be a 'lightenv' element.");
-
-	pRootNode->QueryFloatAttribute("atten", &m_fLightAttenuation);
+	m_fLightAttenuation = rapidxml::get_attrib_float(*pRootNode, "atten", m_fLightAttenuation);
 	m_fLightAttenuation = 1.0f / (m_fLightAttenuation * m_fLightAttenuation);
 
-	const TiXmlElement *pSunNode = docHandle.FirstChild("lightenv").FirstChild("sun").ToElement();
+	xml_node<> *pSunNode = pRootNode->first_node("sun");
+	PARSE_THROW(pSunNode, "lightenv node must have a first child that is called `sun`.");
 
-	if(!pSunNode)
-		throw std::runtime_error("There must be a 'lightenv' element that has a 'sun' element as a child.");
-
-	float timerTime = 0;
-	if(pSunNode->QueryFloatAttribute("time", &timerTime) != TIXML_SUCCESS)
-		throw std::runtime_error("'sun' elements must have a 'time' attribute that is a float.");
-
-	m_sunTimer = Framework::Timer(Framework::Timer::TT_LOOP, timerTime);
+	m_sunTimer = Framework::Timer(Framework::Timer::TT_LOOP,
+		rapidxml::get_attrib_float(*pSunNode, "time", ThrowAttrib));
 
 	LightVector ambient;
 	LightVector light;
 	LightVector background;
 	MaxIntensityVector maxIntensity;
 
-	for(const TiXmlElement *pKeyElem = pSunNode->FirstChildElement("key");
-		pKeyElem;
-		pKeyElem = pKeyElem->NextSiblingElement("key"))
+	for(const xml_node<> *pKeyNode = pSunNode->first_node("key");
+		pKeyNode;
+		pKeyNode = pKeyNode->next_sibling("key"))
 	{
-		float keyTime = 0;
-		if(pKeyElem->QueryFloatAttribute("time", &keyTime) != TIXML_SUCCESS)
-			throw std::runtime_error("'key' elements must have a 'time' attribute that is a float.");
+		float keyTime = rapidxml::get_attrib_float(*pKeyNode, "time", ThrowAttrib);
 		//Convert from hours to normalized time.
 		keyTime = keyTime / 24.0f;
 
-		std::string strVec4;
-		if(pKeyElem->QueryStringAttribute("ambient", &strVec4) != TIXML_SUCCESS)
-			throw std::runtime_error("'key' elements must have an 'ambient' attribute.");
-		ambient.push_back(LightData(ParseVec4(strVec4), keyTime));
+		ambient.push_back(LightData(
+			rapidxml::get_attrib_vec4(*pKeyNode, "ambient", ThrowAttrib), keyTime));
 
-		if(pKeyElem->QueryStringAttribute("intensity", &strVec4) != TIXML_SUCCESS)
-			throw std::runtime_error("'key' elements must have a 'intensity' attribute.");
-		light.push_back(LightData(ParseVec4(strVec4), keyTime));
+		light.push_back(LightData(
+			rapidxml::get_attrib_vec4(*pKeyNode, "intensity", ThrowAttrib), keyTime));
 
-		if(pKeyElem->QueryStringAttribute("background", &strVec4) != TIXML_SUCCESS)
-			throw std::runtime_error("'key' elements must have a 'background' attribute.");
-		background.push_back(LightData(ParseVec4(strVec4), keyTime));
+		background.push_back(LightData(
+			rapidxml::get_attrib_vec4(*pKeyNode, "background", ThrowAttrib), keyTime));
 
-		maxIntensity.push_back(MaxIntensityData(0.0f, keyTime));
-		if(pKeyElem->QueryFloatAttribute("max-intensity", &maxIntensity.back().first) != TIXML_SUCCESS)
-			throw std::runtime_error("'key' elements must have a 'max-intensity' attribute that is a float.");
+		maxIntensity.push_back(MaxIntensityData(
+			rapidxml::get_attrib_float(*pKeyNode, "max-intensity", ThrowAttrib), keyTime));
 	}
 
 	if(ambient.empty())
@@ -129,29 +139,26 @@ LightEnv::LightEnv( const std::string& envFilename )
 	m_backgroundInterpolator.SetValues(background);
 	m_maxIntensityInterpolator.SetValues(maxIntensity);
 
-	const TiXmlElement *pLightNode = docHandle.FirstChild("lightenv").FirstChild("light").ToElement();
-	for(; pLightNode; pLightNode = pLightNode->NextSiblingElement("light"))
+	for(xml_node<> *pLightNode = pRootNode->first_node("light");
+		pLightNode;
+		pLightNode = pLightNode->next_sibling("light"))
 	{
 		if(m_lightPos.size() + 1 == MAX_NUMBER_OF_LIGHTS)
 			throw std::runtime_error("Too many lights specified.");
 
-		float lightTime = 0;
-		if(pLightNode->QueryFloatAttribute("time", &lightTime) != TIXML_SUCCESS)
-			throw std::runtime_error("'light' elements must have a 'time' attribute that is a float.");
+		m_lightTimers.push_back(Framework::Timer(
+			Framework::Timer::TT_LOOP,
+			rapidxml::get_attrib_float(*pLightNode, "time", ThrowAttrib)));
 
-		m_lightTimers.push_back(Framework::Timer(Framework::Timer::TT_LOOP, lightTime));
-
-		std::string strVec4;
-		if(pLightNode->QueryStringAttribute("intensity", &strVec4) != TIXML_SUCCESS)
-			throw std::runtime_error("'light' elements must have an 'intensity' attribute.");
-		m_lightIntensity.push_back(ParseVec4(strVec4));
+		m_lightIntensity.push_back(rapidxml::get_attrib_vec4(
+			*pLightNode, "intensity", ThrowAttrib));
 
 		std::vector<glm::vec3> posValues;
-		for(const TiXmlElement *pKeyElem = pLightNode->FirstChildElement("key");
-			pKeyElem;
-			pKeyElem = pKeyElem->NextSiblingElement("key"))
+		for(xml_node<> *pKeyNode = pLightNode->first_node("key");
+			pKeyNode;
+			pKeyNode = pKeyNode->next_sibling("key"))
 		{
-			posValues.push_back(ParseVec3(pKeyElem->GetText()));
+			posValues.push_back(ParseVec3(make_string(*pKeyNode)));
 		}
 
 		if(posValues.empty())

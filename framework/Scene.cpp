@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <exception>
+#include <stdexcept>
 #include <algorithm>
 #include <memory>
 
