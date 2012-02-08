@@ -72,15 +72,6 @@
             any system directories on your machine. Incidentally, neither do these tutorials.</para>
     </simplesect>
     <simplesect>
-        <title>TinyXML</title>
-        <para><link xlink:href="http://sourceforge.net/projects/tinyxml/">TinyXML</link> is an XML
-            parser. The framework uses an XML file format for loading complex 3D mesh data. This
-            library simply makes the loading and parsing of this format easier.</para>
-        <para>Like the SDK, it uses Premake to generate its build files. So go to the
-                <filename>tinyxml</filename> directory and perform the steps as above to build
-            it.</para>
-    </simplesect>
-    <simplesect>
         <title>Tutorial Building</title>
         <para>Each tutorial directory has a <filename>premake4.lua</filename> file; this file is
             used by Premake to generate the build files for that tutorial. Therefore, to build any

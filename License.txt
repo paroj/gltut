@@ -3,7 +3,7 @@ This distributions contain source code from several sources. Each of these sourc
 
 The various components of the Unofficial OpenGL SDK, found under the "glsdk" directory, are mostly distributed under the MIT License. Details can be found in the "glsdk/License.txt" file.
 
-The TinyXML library is distributed under the terms of the ZLib License, as specified in the "tinyxml/readme.txt" file.
+The RapidXML library is distributed under the terms of the MIT License, as specified in the "framework/rapidxml-license.txt" file.
 
 With a few exceptions exceptions, all other materials in this distribution are copywritten and distributed under the terms of the MIT License, as specified in the "./MIT License.txt" file. The following files are not distributed under this copyright:
 

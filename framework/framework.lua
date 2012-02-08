@@ -31,7 +31,7 @@ function SetupSolution(slnName)
 		targetdir "../framework/lib"
 		objdir "../framework/lib"
 
-		includedirs {"../tinyxml", "../framework"}
+		includedirs {"../framework"}
 		
 		UseLibs(usedLibs)
 		
@@ -56,7 +56,7 @@ function SetupProject(projName, ...)
 		
 		files {...}
 
-		includedirs {"../tinyxml", "../framework"}
+		includedirs {"../framework"}
 			
 		links "framework"
 
@@ -66,15 +66,11 @@ function SetupProject(projName, ...)
 		configuration "Debug"
 			defines {"DEBUG", "_DEBUG"}
 			flags "Symbols"
-			libdirs {"../tinyxml/lib"}
-			links "tinyxml_pmD"
 			targetname(projName .. "D")
 		
 		configuration "Release"
 			defines {"RELEASE", "NDEBUG"};
 			flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
-			libdirs {"../tinyxml/lib"}
-			links "tinyxml_pm"
 			targetname(projName)
 
 		configuration {"windows"}
