@@ -15,6 +15,7 @@
 #include <glload/gl_all.h>
 #include "framework.h"
 #include "Scene.h"
+#include "SceneBinders.h"
 #include "Mesh.h"
 #include <glutil/Shader.h>
 
@@ -176,8 +177,8 @@ namespace Framework
 
 			if(m_pProg->GetNormalMatLoc() != -1)
 			{
-				glm::mat4 normMat = glm::transpose(glm::inverse(objMat));
-				glUniformMatrix4fv(m_pProg->GetNormalMatLoc(), 1, GL_FALSE,
+				glm::mat3 normMat = glm::mat3(glm::transpose(glm::inverse(objMat)));
+				glUniformMatrix3fv(m_pProg->GetNormalMatLoc(), 1, GL_FALSE,
 					glm::value_ptr(normMat));
 			}
 
@@ -201,6 +202,12 @@ namespace Framework
 		{
 			m_binders.push_back(pBinder);
 		}
+
+		GLuint GetProgram() const
+		{
+			return m_pProg->GetProgram();
+		}
+
 
 	private:
 		SceneMesh *m_pMesh;		//Unmanaged. We are deleted first, so these should always be real values.
@@ -632,6 +639,11 @@ namespace Framework
 	void NodeRef::SetStateBinder( StateBinder *pBinder )
 	{
 		m_pNode->SetStateBinder(pBinder);
+	}
+
+	GLuint NodeRef::GetProgram() const
+	{
+		return m_pNode->GetProgram();
 	}
 
 	Scene::Scene( const std::string &filename )

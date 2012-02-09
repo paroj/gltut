@@ -16,7 +16,6 @@
 #include "../framework/MousePole.h"
 #include "../framework/Interpolators.h"
 #include "../framework/Scene.h"
-#include "../framework/SceneBinders.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -24,12 +23,81 @@
 
 #define ARRAY_COUNT( array ) (sizeof( array ) / (sizeof( array[0] ) * (sizeof( array ) != sizeof(void*) || sizeof( array[0] ) <= sizeof(void*))))
 
-const float g_fzNear = 1.0f;
-const float g_fzFar = 1000.0f;
+struct ProgramData
+{
+	GLuint theProgram;
+
+	GLuint modelToCameraMatrixUnif;
+	GLuint numberOfLightsUnif;
+};
+
+struct UnlitProgData
+{
+	GLuint theProgram;
+
+	GLuint modelToCameraMatrixUnif;
+	GLuint objectColorUnif;
+};
+
+float g_fzNear = 1.0f;
+float g_fzFar = 1000.0f;
+
+ProgramData g_progStandard;
+UnlitProgData g_progUnlit;
 
 const int g_projectionBlockIndex = 0;
 const int g_lightBlockIndex = 1;
 const int g_colorTexUnit = 0;
+
+ProgramData LoadProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
+{
+	std::vector<GLuint> shaderList;
+
+	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, strVertexShader));
+	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, strFragmentShader));
+
+	ProgramData data;
+	data.theProgram = Framework::CreateProgram(shaderList);
+	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
+	data.numberOfLightsUnif = glGetUniformLocation(data.theProgram, "numberOfLights");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
+
+	GLuint lightBlockIndex = glGetUniformBlockIndex(data.theProgram, "Light");
+	glUniformBlockBinding(data.theProgram, lightBlockIndex, g_lightBlockIndex);
+
+	GLuint colorTextureUnif = glGetUniformLocation(data.theProgram, "diffuseColorTex");
+	glUseProgram(data.theProgram);
+	glUniform1i(colorTextureUnif, g_colorTexUnit);
+	glUseProgram(0);
+
+	return data;
+}
+
+UnlitProgData LoadUnlitProgram(const std::string &strVertexShader, const std::string &strFragmentShader)
+{
+	std::vector<GLuint> shaderList;
+
+	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, strVertexShader));
+	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, strFragmentShader));
+
+	UnlitProgData data;
+	data.theProgram = Framework::CreateProgram(shaderList);
+	data.modelToCameraMatrixUnif = glGetUniformLocation(data.theProgram, "modelToCameraMatrix");
+	data.objectColorUnif = glGetUniformLocation(data.theProgram, "objectColor");
+
+	GLuint projectionBlock = glGetUniformBlockIndex(data.theProgram, "Projection");
+	glUniformBlockBinding(data.theProgram, projectionBlock, g_projectionBlockIndex);
+
+	return data;
+}
+
+void InitializePrograms()
+{
+	g_progStandard = LoadProgram("PNT.vert", "litTexture.frag");
+	g_progUnlit = LoadUnlitProgram("Unlit.vert", "Unlit.frag");
+}
 
 struct ProjectionBlock
 {
@@ -38,6 +106,8 @@ struct ProjectionBlock
 
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_lightUniformBuffer = 0;
+GLuint g_linearTexture = 0;
+// GLuint g_gammaTexture = 0;
 
 const int NUM_SAMPLERS = 2;
 GLuint g_samplers[NUM_SAMPLERS];
@@ -69,7 +139,6 @@ void LoadTextures()
 {
 	try
 	{
-/*
 		std::string filename(Framework::FindFileOrThrow("terrain_tex.dds"));
 
 		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
@@ -92,7 +161,6 @@ void LoadTextures()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet->GetMipmapCount() - 1);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
-*/
 	}
 	catch(std::exception &e)
 	{
@@ -106,81 +174,73 @@ void LoadTextures()
 glutil::ViewData g_initialView =
 {
 	glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::fquat(0.98481f, 0.173648f, 0.0f, 0.0f),
-	15.0f,
+	glm::fquat(-0.972817f, -0.099283f, -0.211198f, -0.020028f),
+	30.0f,
 	0.0f
 };
 
 glutil::ViewScale g_initialViewScale =
 {
-	5.0f, 40.0f,
+	5.0f, 90.0f,
 	2.0f, 0.5f,
 	4.0f, 1.0f,
 	90.0f/250.0f
 };
 
-
-glutil::ViewData g_initPersView =
-{
-	glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
-	5.0f,
-	0.0f
-};
-
-glutil::ViewScale g_initPersViewScale =
-{
-	0.05f, 10.0f,
-	0.1f, 0.05f,
-	4.0f, 1.0f,
-	90.0f/250.0f
-};
-
 glutil::ViewPole g_viewPole(g_initialView, g_initialViewScale, glutil::MB_LEFT_BTN);
-glutil::ViewPole g_persViewPole(g_initPersView, g_initPersViewScale, glutil::MB_RIGHT_BTN);
 
 namespace
 {
-	void MouseMotion(int x, int y)
-	{
-		Framework::ForwardMouseMotion(g_viewPole, x, y);
-		Framework::ForwardMouseMotion(g_persViewPole, x, y);
-	}
-
-	void MouseButton(int button, int state, int x, int y)
-	{
-		Framework::ForwardMouseButton(g_viewPole, button, state, x, y);
-		Framework::ForwardMouseButton(g_persViewPole, button, state, x, y);
-	}
-
-	void MouseWheel(int wheel, int direction, int x, int y)
-	{
-		Framework::ForwardMouseWheel(g_viewPole, wheel, direction, x, y);
-	}
+	void MouseMotion(int x, int y) { Framework::ForwardMouseMotion(g_viewPole, x, y); }
+	void MouseButton(int button, int state, int x, int y) { Framework::ForwardMouseButton(g_viewPole, button, state, x, y); }
+	void MouseWheel(int wheel, int direction, int x, int y) { Framework::ForwardMouseWheel(g_viewPole, wheel, direction, x, y); }
 }
 
 Framework::Scene *g_pScene = NULL;
 std::vector<Framework::NodeRef> g_nodes;
 Framework::Timer g_timer(Framework::Timer::TT_LOOP, 10.0f);
 
-Framework::UniformVec4Binder g_blueBinder;
-Framework::UniformVec4Binder g_redBinder;
+class ColorUniformBinder : public Framework::StateBinder
+{
+public:
+	ColorUniformBinder()
+		: m_clrUnif(-1)
+		, m_clr(0.0f, 0.0f, 0.0f, 1.0f)	{}
+
+	void AssociateWithProgram(GLuint prog, const std::string &unifName)
+	{
+		m_clrUnif = glGetUniformLocation(prog, unifName.c_str());
+	}
+
+	void SetColor(const glm::vec4 &clr)	{ m_clr = clr; }
+
+	virtual void BindState() const
+	{
+		glUniform4fv(m_clrUnif, 1, glm::value_ptr(m_clr));
+	}
+
+	virtual void UnbindState() const {}
+
+private:
+	GLint m_clrUnif;
+	glm::vec4 m_clr;
+};
+
+ColorUniformBinder g_clrUnif;
 
 void LoadAndSetupScene()
 {
 	g_nodes.clear();
-	g_pScene = new Framework::Scene("dp_scene.xml");
+	g_pScene = new Framework::Scene("sceneTest.xml");
+	g_nodes.push_back(g_pScene->FindNode("blue"));
+	g_nodes.push_back(g_pScene->FindNode("user"));
 
-	g_nodes.push_back(g_pScene->FindNode("blueSphere"));
-	g_nodes.push_back(g_pScene->FindNode("redSphere"));
+	GLuint colorProg = g_pScene->FindProgram("p_colored");
 
 	//No more things that can throw.
-	g_blueBinder.AssociateWithProgram(g_nodes[0].GetProgram(), "objectColor");
-	g_blueBinder.SetValue(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
-	g_nodes[0].SetStateBinder(&g_blueBinder);
-	g_redBinder.AssociateWithProgram(g_nodes[1].GetProgram(), "objectColor");
-	g_redBinder.SetValue(glm::vec4(1.0f, 0.1f, 0.1f, 1.0f));
-	g_nodes[1].SetStateBinder(&g_redBinder);
+	g_clrUnif.AssociateWithProgram(colorProg, "objectColor");
+	g_nodes[1].SetStateBinder(&g_clrUnif);
+	g_clrUnif.SetColor(glm::vec4(0.1f, 1.0f, 0.1f, 1.0f));
 }
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
@@ -215,6 +275,7 @@ void init()
 	try
 	{
 		LoadAndSetupScene();
+//		InitializePrograms();
 	}
 	catch(std::exception &except)
 	{
@@ -243,9 +304,6 @@ int g_currSampler = 0;
 
 bool g_bDrawCameraPos = false;
 
-int g_displayWidth = 700;
-int g_displayHeight = 350;
-
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
@@ -263,40 +321,7 @@ void display()
 	g_nodes[0].NodeSetOrient(glm::rotate(glm::fquat(),
 		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 1.0f, 0.0f)));
 
-	glm::ivec2 displaySize(g_displayWidth / 2, g_displayHeight);
-
-	{
-		glutil::MatrixStack persMatrix;
-		persMatrix.Perspective(60.0f, (displaySize.x / (float)displaySize.y), g_fzNear, g_fzFar);
-
-		ProjectionBlock projData;
-		projData.cameraToClipMatrix = persMatrix.Top();
-
-		glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
-
-	glViewport(0, 0, (GLsizei)displaySize.x, (GLsizei)displaySize.y);
 	g_pScene->Render(g_viewPole.CalcMatrix());
-
-	{
-		glutil::MatrixStack persMatrix;
-		persMatrix.ApplyMatrix(glm::mat4(glm::mat3(g_persViewPole.CalcMatrix())));
-		persMatrix.Perspective(60.0f, (displaySize.x / (float)displaySize.y), g_fzNear, g_fzFar);
-
-		ProjectionBlock projData;
-		projData.cameraToClipMatrix = persMatrix.Top();
-
-		glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
-
-	glViewport(displaySize.x + (g_displayWidth % 2), 0,
-		(GLsizei)displaySize.x, (GLsizei)displaySize.y);
-	g_pScene->Render(g_viewPole.CalcMatrix());
-
 /*
     if(!g_pLightEnv)
         return;
@@ -407,8 +432,17 @@ void display()
 //This is an opportunity to call glViewport or glScissor to keep up with the change in size.
 void reshape (int w, int h)
 {
-	g_displayWidth = w;
-	g_displayHeight = h;
+	glutil::MatrixStack persMatrix;
+	persMatrix.Perspective(60.0f, (w / (float)h), g_fzNear, g_fzFar);
+
+	ProjectionBlock projData;
+	projData.cameraToClipMatrix = persMatrix.Top();
+
+	glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(ProjectionBlock), &projData);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
 	glutPostRedisplay();
 }
 
@@ -427,16 +461,13 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		return;
 	case 32:
-		g_persViewPole.Reset();
+		g_nodes[0].NodeSetTrans(glm::vec3(0.0f, 0.0f, 0.0f));
 		break;
-	case 'p':
-		{
-			glm::mat4 tm = g_persViewPole.CalcMatrix();
-			printf("%f\t%f\t%f\t%f\n", tm[0][0], tm[1][0], tm[2][0], tm[3][0]);
-			printf("%f\t%f\t%f\t%f\n", tm[0][1], tm[1][1], tm[2][1], tm[3][1]);
-			printf("%f\t%f\t%f\t%f\n", tm[0][2], tm[1][2], tm[2][2], tm[3][2]);
-			printf("%f\t%f\t%f\t%f\n", tm[0][3], tm[1][3], tm[2][3], tm[3][3]);
-		}
+	case 'i':
+		g_nodes[0].NodeOffset(glm::vec3(0.0f, 1.0f, 0.0f));
+		break;
+	case 'j':
+		g_nodes[0].NodeOffset(glm::vec3(0.0f, -1.0f, 0.0f));
 		break;
 	case '\r':
 		{
@@ -466,7 +497,7 @@ void keyboard(unsigned char key, int x, int y)
 
 unsigned int defaults(unsigned int displayMode, int &width, int &height)
 {
-	width = g_displayWidth;
-	height = g_displayHeight;
+	width = 700;
+	height = 350;
 	return displayMode | GLUT_SRGB;
 }

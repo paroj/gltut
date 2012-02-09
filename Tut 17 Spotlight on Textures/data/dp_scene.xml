@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/sceneFormat.rnc" type="compact"?>
+<scene xmlns="http://www.arcsynthesis.com/gltut/scene">
+    <mesh xml:id="m_sphere" file="UnitSphere.xml"/>
+    <mesh xml:id="m_cube" file="UnitCube.xml"/>
+    <prog
+        xml:id="p_untex"
+        vert="Unlit.vert"
+        frag="Unlit.frag"
+        model-to-camera="modelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+    </prog>
+    <prog
+        xml:id="p_lit"
+        vert="litTexture.vert"
+        frag="litTexture.frag"
+        model-to-camera="modelToCameraMatrix"
+        normal-model-to-camera="normalModelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+    </prog>
+    <node
+        name="blueSphere"
+        mesh="m_cube"
+        prog="p_lit"
+        pos="0 1 0"
+        orient="0.0 0.0 0.0 1.0"
+        scale="3"/>
+    <node
+        name="redSphere"
+        mesh="m_cube"
+        prog="p_lit"
+        pos="7 0 0"
+        orient="0.0 0.0 0.0 1.0"
+        scale="3 3 9"/>
+    
+</scene>

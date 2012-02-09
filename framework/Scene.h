@@ -3,7 +3,6 @@
 #define FRAMEWORK_SCENE_H
 
 #include <string>
-#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -12,17 +11,7 @@ namespace Framework
 	class SceneImpl;
 	class SceneNode;
 
-	class StateBinder
-	{
-	public:
-		virtual ~StateBinder() {}
-
-		//The current program will be in use when this is called.
-		virtual void BindState() const = 0;
-
-		//The current program will be in use when this is called.
-		virtual void UnbindState() const = 0;
-	};
+	class StateBinder;
 
 	class NodeRef
 	{
@@ -43,6 +32,8 @@ namespace Framework
 		//This object does *NOT* claim ownership of the pointer.
 		//You must ensure that it stays around so long as this Scene exists.
 		void SetStateBinder(StateBinder *pBinder);
+
+		GLuint GetProgram() const;
 
 	private:
 		NodeRef();	//No default-construction.
@@ -67,7 +58,6 @@ namespace Framework
 	private:
 		SceneImpl *m_pImpl;
 	};
-
 }
 
 #endif //FRAMEWORK_SCENE_H
