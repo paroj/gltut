@@ -165,23 +165,70 @@ Framework::Timer g_timer(Framework::Timer::TT_LOOP, 10.0f);
 
 Framework::UniformVec4Binder g_blueBinder;
 Framework::UniformVec4Binder g_redBinder;
+Framework::UniformIntBinder g_lightNumBinder;
+
+GLint g_unlitModelToCameraMatrixUnif;
+GLint g_unlitObjectColorUnif;
+GLuint g_unlitProg;
+Framework::Mesh *g_pSphereMesh = NULL;
 
 void LoadAndSetupScene()
 {
 	g_nodes.clear();
-	g_pScene = new Framework::Scene("dp_scene.xml");
 
-	g_nodes.push_back(g_pScene->FindNode("blueSphere"));
-	g_nodes.push_back(g_pScene->FindNode("redSphere"));
+	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("dp_scene.xml"));
+
+	std::vector<Framework::NodeRef> nodes;
+	nodes.push_back(pScene->FindNode("blueSphere"));
+	nodes.push_back(pScene->FindNode("redSphere"));
+
+	GLuint unlit = pScene->FindProgram("p_unlit");
+	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
+
+	g_lightNumBinder.AssociateWithProgram(nodes[0].GetProgram(), "numberOfLights");
+	g_lightNumBinder.AssociateWithProgram(nodes[1].GetProgram(), "numberOfLights");
+	nodes[0].SetStateBinder(&g_lightNumBinder);
+	nodes[1].SetStateBinder(&g_lightNumBinder);
+
+	g_blueBinder.AssociateWithProgram(nodes[0].GetProgram(), "objectColor");
+	g_blueBinder.SetValue(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
+	nodes[0].SetStateBinder(&g_blueBinder);
+	g_redBinder.AssociateWithProgram(nodes[1].GetProgram(), "objectColor");
+	g_redBinder.SetValue(glm::vec4(1.0f, 0.1f, 0.1f, 1.0f));
+	nodes[1].SetStateBinder(&g_redBinder);
 
 	//No more things that can throw.
-	g_blueBinder.AssociateWithProgram(g_nodes[0].GetProgram(), "objectColor");
-	g_blueBinder.SetValue(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
-	g_nodes[0].SetStateBinder(&g_blueBinder);
-	g_redBinder.AssociateWithProgram(g_nodes[1].GetProgram(), "objectColor");
-	g_redBinder.SetValue(glm::vec4(1.0f, 0.1f, 0.1f, 1.0f));
-	g_nodes[1].SetStateBinder(&g_redBinder);
+	g_unlitProg = unlit;
+	g_unlitModelToCameraMatrixUnif = glGetUniformLocation(unlit, "modelToCameraMatrix");
+	g_unlitObjectColorUnif = glGetUniformLocation(unlit, "objectColor");
+
+	std::swap(nodes, g_nodes);
+	nodes.clear();	//If something was there already, delete it.
+
+	std::swap(pSphereMesh, g_pSphereMesh);
+
+	Framework::Scene *pOldScene = g_pScene;
+	g_pScene = pScene.release();
+	pScene.reset(pOldScene);	//If something was there already, delete it.
 }
+
+struct PerLight
+{
+	glm::vec4 cameraSpaceLightPos;
+	glm::vec4 lightIntensity;
+};
+
+const int MAX_NUMBER_OF_LIGHTS = 4;
+
+struct LightBlock
+{
+	glm::vec4 ambientIntensity;
+	float lightAttenuation;
+	float maxIntensity;
+	float padding[2];
+	PerLight lights[MAX_NUMBER_OF_LIGHTS];
+};
+
 
 //Called after the window and OpenGL are initialized. Called exactly once, before the main loop.
 void init()
@@ -222,7 +269,6 @@ void init()
 		throw;
 	}
 
-/*
 	glGenBuffers(1, &g_lightUniformBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), NULL, GL_STREAM_DRAW);
@@ -231,7 +277,6 @@ void init()
 		0, sizeof(LightBlock));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-*/
 
 //	LoadTextures();
 //	CreateSamplers();
@@ -246,6 +291,25 @@ bool g_bDrawCameraPos = false;
 int g_displayWidth = 700;
 int g_displayHeight = 350;
 
+void BuildLights( const glm::mat4 &camMatrix )
+{
+	LightBlock lightData;
+	lightData.ambientIntensity = glm::vec4(0.2, 0.2, 0.2, 1.0);
+	lightData.lightAttenuation = 1.0f / (5.0f * 5.0f);
+	lightData.maxIntensity = 3.0f;
+	lightData.lights[0].lightIntensity = glm::vec4(2.0, 2.0, 2.5, 1.0);
+	lightData.lights[0].cameraSpaceLightPos = camMatrix *
+		glm::normalize(glm::vec4(0.0f, 0.5f, 0.5f, 0.0f));
+	lightData.lights[1].lightIntensity = glm::vec4(7.0, 9.0, 6.5, 1.0);
+	lightData.lights[1].cameraSpaceLightPos = camMatrix *
+		glm::vec4(5.0f, 4.0f, 0.5f, 1.0f);
+
+	g_lightNumBinder.SetValue(2);
+
+	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), &lightData, GL_STREAM_DRAW);
+}
+
 //Called to update the display.
 //You should call glutSwapBuffers after all of your rendering to display what you rendered.
 //If you need continuous updates of the screen, call glutPostRedisplay() at the end of the function.
@@ -259,6 +323,11 @@ void display()
 	glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glutil::MatrixStack modelMatrix;
+	modelMatrix *= g_viewPole.CalcMatrix();
+
+	BuildLights(modelMatrix.Top());
 
 	g_nodes[0].NodeSetOrient(glm::rotate(glm::fquat(),
 		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -278,7 +347,27 @@ void display()
 	}
 
 	glViewport(0, 0, (GLsizei)displaySize.x, (GLsizei)displaySize.y);
-	g_pScene->Render(g_viewPole.CalcMatrix());
+	g_pScene->Render(modelMatrix.Top());
+
+	if(g_bDrawCameraPos)
+	{
+		glutil::PushStack stackPush(modelMatrix);
+		//Draw lookat point.
+		modelMatrix.SetIdentity();
+		modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_viewPole.GetView().radius));
+
+		glDisable(GL_DEPTH_TEST);
+		glDepthMask(GL_FALSE);
+		glUseProgram(g_unlitProg);
+		glUniformMatrix4fv(g_unlitModelToCameraMatrixUnif, 1, GL_FALSE,
+			glm::value_ptr(modelMatrix.Top()));
+		glUniform4f(g_unlitObjectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
+		g_pSphereMesh->Render("flat");
+		glDepthMask(GL_TRUE);
+		glEnable(GL_DEPTH_TEST);
+		glUniform4f(g_unlitObjectColorUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+		g_pSphereMesh->Render("flat");
+	}
 
 	{
 		glutil::MatrixStack persMatrix;
@@ -295,109 +384,7 @@ void display()
 
 	glViewport(displaySize.x + (g_displayWidth % 2), 0,
 		(GLsizei)displaySize.x, (GLsizei)displaySize.y);
-	g_pScene->Render(g_viewPole.CalcMatrix());
-
-/*
-    if(!g_pLightEnv)
-        return;
-
-	glEnable(GL_FRAMEBUFFER_SRGB);
-
-	g_pLightEnv->UpdateTime();
-
-	glm::vec4 bgColor = g_pLightEnv->GetBackgroundColor();
-	glClearColor(bgColor.x, bgColor.y, bgColor.z, bgColor.w);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glutil::MatrixStack modelMatrix;
-	modelMatrix.ApplyMatrix(g_viewPole.CalcMatrix());
-
-	LightBlock lightData = g_pLightEnv->GetLightBlock(g_viewPole.CalcMatrix());
-
-	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), &lightData, GL_STREAM_DRAW);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-	if(g_pSphere && g_pTerrain)
-	{
-		glutil::PushStack push(modelMatrix);
-		modelMatrix.RotateX(-90.0f);
-
-		glUseProgram(g_progStandard.theProgram);
-		glUniformMatrix4fv(g_progStandard.modelToCameraMatrixUnif, 1, GL_FALSE,
-			glm::value_ptr(modelMatrix.Top()));
-		glUniform1i(g_progStandard.numberOfLightsUnif, g_pLightEnv->GetNumLights());
-
-		glActiveTexture(GL_TEXTURE0 + g_colorTexUnit);
-		glBindTexture(GL_TEXTURE_2D, g_linearTexture);
-		glBindSampler(g_colorTexUnit, g_samplers[g_currSampler]);
-
-		g_pTerrain->Render("lit-tex");
-
-		glBindSampler(g_colorTexUnit, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glUseProgram(0);
-
-
-		push.ResetStack();
-
-		//Render the sun
-		{
-			glm::vec3 sunlightDir(g_pLightEnv->GetSunlightDirection());
-			modelMatrix.Translate(sunlightDir * 500.0f);
-			modelMatrix.Scale(30.0f, 30.0f, 30.0f);
-
-			glUseProgram(g_progUnlit.theProgram);
-			glUniformMatrix4fv(g_progUnlit.modelToCameraMatrixUnif, 1, GL_FALSE,
-				glm::value_ptr(modelMatrix.Top()));
-
-			glm::vec4 lightColor = g_pLightEnv->GetSunlightScaledIntensity(), gamma;
-			glUniform4fv(g_progUnlit.objectColorUnif, 1, glm::value_ptr(lightColor));
-			g_pSphere->Render("flat");
-		}
-
-		//Draw lights
-		for(int light = 0; light < g_pLightEnv->GetNumPointLights(); light++)
-		{
-			push.ResetStack();
-
-			modelMatrix.Translate(g_pLightEnv->GetPointLightWorldPos(light));
-
-			glUseProgram(g_progUnlit.theProgram);
-			glUniformMatrix4fv(g_progUnlit.modelToCameraMatrixUnif, 1, GL_FALSE,
-				glm::value_ptr(modelMatrix.Top()));
-
-			glm::vec4 lightColor = g_pLightEnv->GetPointLightScaledIntensity(light);
-			glUniform4fv(g_progUnlit.objectColorUnif, 1, glm::value_ptr(lightColor));
-			g_pSphere->Render("flat");
-		}
-
-
-		push.ResetStack();
-
-		if(g_bDrawCameraPos)
-		{
-			//Draw lookat point.
-			modelMatrix.SetIdentity();
-			modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_viewPole.GetView().radius));
-
-			glDisable(GL_DEPTH_TEST);
-			glDepthMask(GL_FALSE);
-			glUseProgram(g_progUnlit.theProgram);
-			glUniformMatrix4fv(g_progUnlit.modelToCameraMatrixUnif, 1, GL_FALSE,
-				glm::value_ptr(modelMatrix.Top()));
-			glUniform4f(g_progUnlit.objectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
-			g_pSphere->Render("flat");
-			glDepthMask(GL_TRUE);
-			glEnable(GL_DEPTH_TEST);
-			glUniform4f(g_progUnlit.objectColorUnif, 1.0f, 1.0f, 1.0f, 1.0f);
-			g_pSphere->Render("flat");
-		}
-	}
-
-	*/
+	g_pScene->Render(modelMatrix.Top());
 
     glutPostRedisplay();
 	glutSwapBuffers();
@@ -429,21 +416,14 @@ void keyboard(unsigned char key, int x, int y)
 	case 32:
 		g_persViewPole.Reset();
 		break;
-	case 'p':
-		{
-			glm::mat4 tm = g_persViewPole.CalcMatrix();
-			printf("%f\t%f\t%f\t%f\n", tm[0][0], tm[1][0], tm[2][0], tm[3][0]);
-			printf("%f\t%f\t%f\t%f\n", tm[0][1], tm[1][1], tm[2][1], tm[3][1]);
-			printf("%f\t%f\t%f\t%f\n", tm[0][2], tm[1][2], tm[2][2], tm[3][2]);
-			printf("%f\t%f\t%f\t%f\n", tm[0][3], tm[1][3], tm[2][3], tm[3][3]);
-		}
+	case 'y':
+		g_bDrawCameraPos = !g_bDrawCameraPos;
 		break;
-	case '\r':
+	case 'p':
+		g_timer.TogglePause();
+		break;
+	case '\r': //Enter key.
 		{
-			std::auto_ptr<Framework::Scene> pOldScene(g_pScene);
-			g_pScene = NULL;
-			std::vector<Framework::NodeRef> tmpNodes;
-			tmpNodes.swap(g_nodes);
 			try
 			{
 				LoadAndSetupScene();
@@ -451,10 +431,6 @@ void keyboard(unsigned char key, int x, int y)
 			catch(std::exception &except)
 			{
 				printf("Failed to reload, due to: %s\n", except.what());
-				if(g_pScene)
-					delete g_pScene;
-				g_pScene = pOldScene.release();
-				g_nodes.swap(tmpNodes);
 				return;
 			}
 		}
@@ -470,3 +446,4 @@ unsigned int defaults(unsigned int displayMode, int &width, int &height)
 	height = g_displayHeight;
 	return displayMode | GLUT_SRGB;
 }
+

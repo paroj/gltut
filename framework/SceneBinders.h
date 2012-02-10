@@ -3,6 +3,7 @@
 #define FRAMEWORK_SCENE_BINDERS_H
 
 #include <string>
+#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
@@ -14,27 +15,34 @@ namespace Framework
 		virtual ~StateBinder() {}
 
 		//The current program will be in use when this is called.
-		virtual void BindState() const = 0;
+		virtual void BindState(GLuint prog) const = 0;
 
 		//The current program will be in use when this is called.
-		virtual void UnbindState() const = 0;
+		virtual void UnbindState(GLuint prog) const = 0;
 	};
 
 	class UniformBinderBase : public StateBinder
 	{
 	public:
-		UniformBinderBase() : m_unifLoc(-1) {}
+		UniformBinderBase() {}
 
 		void AssociateWithProgram(GLuint prog, const std::string &unifName)
 		{
-			m_unifLoc = glGetUniformLocation(prog, unifName.c_str());
+			m_progUnifLoc[prog] = glGetUniformLocation(prog, unifName.c_str());
 		}
 
 	protected:
-		GLint GetUniformLoc() const {return m_unifLoc;}
+		GLint GetUniformLoc(GLuint prog) const
+		{
+			std::map<GLuint, GLint>::const_iterator loc = m_progUnifLoc.find(prog);
+			if(loc == m_progUnifLoc.end())
+				return -1;
+
+			return loc->second;
+		}
 
 	private:
-		GLint m_unifLoc;
+		std::map<GLuint, GLint> m_progUnifLoc;
 	};
 
 	class UniformVec4Binder : public UniformBinderBase
@@ -45,12 +53,12 @@ namespace Framework
 
 		void SetValue(const glm::vec4 &val)	{ m_val = val; }
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
-			glUniform4fv(GetUniformLoc(), 1, glm::value_ptr(m_val));
+			glUniform4fv(GetUniformLoc(prog), 1, glm::value_ptr(m_val));
 		}
 
-		virtual void UnbindState() const {}
+		virtual void UnbindState(GLuint prog) const {}
 
 	private:
 		glm::vec4 m_val;
@@ -64,12 +72,12 @@ namespace Framework
 
 		void SetValue(const glm::vec3 &val)	{ m_val = val; }
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
-			glUniform3fv(GetUniformLoc(), 1, glm::value_ptr(m_val));
+			glUniform3fv(GetUniformLoc(prog), 1, glm::value_ptr(m_val));
 		}
 
-		virtual void UnbindState() const {}
+		virtual void UnbindState(GLuint prog) const {}
 
 	private:
 		glm::vec3 m_val;
@@ -83,12 +91,12 @@ namespace Framework
 
 		void SetValue(const glm::vec2 &val)	{ m_val = val; }
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
-			glUniform2fv(GetUniformLoc(), 1, glm::value_ptr(m_val));
+			glUniform2fv(GetUniformLoc(prog), 1, glm::value_ptr(m_val));
 		}
 
-		virtual void UnbindState() const {}
+		virtual void UnbindState(GLuint prog) const {}
 
 	private:
 		glm::vec2 m_val;
@@ -102,12 +110,12 @@ namespace Framework
 
 		void SetValue(const float &val)	{ m_val = val; }
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
-			glUniform1f(GetUniformLoc(), m_val);
+			glUniform1f(GetUniformLoc(prog), m_val);
 		}
 
-		virtual void UnbindState() const {}
+		virtual void UnbindState(GLuint prog) const {}
 
 	private:
 		float m_val;
@@ -121,12 +129,12 @@ namespace Framework
 
 		void SetValue(const int &val)	{ m_val = val; }
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
-			glUniform1i(GetUniformLoc(), m_val);
+			glUniform1i(GetUniformLoc(prog), m_val);
 		}
 
-		virtual void UnbindState() const {}
+		virtual void UnbindState(GLuint prog) const {}
 
 	private:
 		int m_val;
@@ -150,14 +158,14 @@ namespace Framework
 			m_samplerObj = samplerObj;
 		}
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
 			glActiveTexture(GL_TEXTURE0 + m_texUnit);
 			glBindTexture(m_texType, m_texObj);
 			glBindSampler(m_texUnit, m_samplerObj);
 		}
 
-		virtual void UnbindState() const
+		virtual void UnbindState(GLuint prog) const
 		{
 			glActiveTexture(GL_TEXTURE0 + m_texUnit);
 			glBindTexture(m_texType, 0);
@@ -185,13 +193,13 @@ namespace Framework
 			m_buffSize = buffSize;
 		}
 
-		virtual void BindState() const
+		virtual void BindState(GLuint prog) const
 		{
 			glBindBufferRange(GL_UNIFORM_BUFFER, m_blockIndex, m_unifBuffer,
 				m_buffOffset, m_buffSize);
 		}
 
-		virtual void UnbindState() const
+		virtual void UnbindState(GLuint prog) const
 		{
 			glBindBufferBase(GL_UNIFORM_BUFFER, m_blockIndex, 0);
 		}

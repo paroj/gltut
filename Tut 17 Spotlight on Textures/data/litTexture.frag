@@ -16,8 +16,6 @@ struct PerLight
 
 uniform vec4 objectColor;
 
-/*
-
 uniform Light
 {
 	vec4 ambientIntensity;
@@ -38,19 +36,15 @@ float CalcAttenuation(in vec3 cameraSpacePosition,
 	
 	return (1 / ( 1.0 + Lgt.lightAttenuation * lightDistanceSqr));
 }
-*/
 
 vec4 ComputeLighting(in vec4 diffuseColor, in PerLight lightData)
 {
 	vec3 lightDir;
 	vec4 lightIntensity;
-	/*
 	if(lightData.cameraSpaceLightPos.w == 0.0)
 	{
-	*/
 		lightDir = vec3(lightData.cameraSpaceLightPos);
 		lightIntensity = lightData.lightIntensity;
-		/*
 	}
 	else
 	{
@@ -58,7 +52,6 @@ vec4 ComputeLighting(in vec4 diffuseColor, in PerLight lightData)
 			lightData.cameraSpaceLightPos.xyz, lightDir);
 		lightIntensity = atten * lightData.lightIntensity;
 	}
-	*/
 	
 	vec3 surfaceNormal = normalize(cameraSpaceNormal);
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
@@ -69,7 +62,7 @@ vec4 ComputeLighting(in vec4 diffuseColor, in PerLight lightData)
 	return lighting;
 }
 
-uniform sampler2D diffuseColorTex;
+//uniform sampler2D diffuseColorTex;
 
 void main()
 {
@@ -79,10 +72,13 @@ void main()
 	currLight.cameraSpaceLightPos = normalize(vec4(0.0, 0.5, 0.5, 0.0));
 	currLight.lightIntensity = vec4(2.0, 2.0, 2.5, 1.0);
 	
-	vec4 accumLighting = vec4(0.2, 0.2, 0.2, 1.0);
-	accumLighting += ComputeLighting(objectColor, currLight);
+	vec4 accumLighting = objectColor * Lgt.ambientIntensity;
+	for(int light = 0; light < numberOfLights; light++)
+	{
+		accumLighting += ComputeLighting(objectColor, Lgt.lights[light]);
+	}
 	
-	outputColor = accumLighting / 3.0;
+	outputColor = accumLighting / Lgt.maxIntensity;
 
 //	outputColor = diffuseColor;
 }

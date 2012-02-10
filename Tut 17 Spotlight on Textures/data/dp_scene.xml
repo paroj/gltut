@@ -4,7 +4,7 @@
     <mesh xml:id="m_sphere" file="UnitSphere.xml"/>
     <mesh xml:id="m_cube" file="UnitCube.xml"/>
     <prog
-        xml:id="p_untex"
+        xml:id="p_unlit"
         vert="Unlit.vert"
         frag="Unlit.frag"
         model-to-camera="modelToCameraMatrix">
@@ -17,6 +17,7 @@
         model-to-camera="modelToCameraMatrix"
         normal-model-to-camera="normalModelToCameraMatrix">
         <block name="Projection" binding="0"/>
+		<block name="Light" binding="1"/>
     </prog>
     <node
         name="blueSphere"

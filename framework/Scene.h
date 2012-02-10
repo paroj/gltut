@@ -11,6 +11,8 @@ namespace Framework
 	class SceneImpl;
 	class SceneNode;
 
+	class Mesh;
+
 	class StateBinder;
 
 	class NodeRef
@@ -54,6 +56,8 @@ namespace Framework
 		NodeRef FindNode(const std::string &nodeName);
 
 		GLuint FindProgram(const std::string &progName);
+
+		Mesh *FindMesh(const std::string &meshName);
 
 	private:
 		SceneImpl *m_pImpl;

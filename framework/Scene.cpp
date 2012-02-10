@@ -58,8 +58,19 @@ namespace Framework
 		template<typename DeleteType>
 		void DeleteThis(DeleteType &value) { delete value; }
 
-		void BindBinder(const StateBinder *pState) {pState->BindState();}
-		void UnbindBinder(const StateBinder *pState) {pState->UnbindState();}
+		struct BindBinder
+		{
+			BindBinder(GLuint prog) : m_prog(prog){}
+			void operator()(const StateBinder *pState) const {pState->BindState(m_prog);}
+			GLuint m_prog;
+		};
+
+		struct UnbindBinder
+		{
+			UnbindBinder(GLuint prog) : m_prog(prog){}
+			void operator()(const StateBinder *pState) const {pState->UnbindState(m_prog);}
+			GLuint m_prog;
+		};
 	}
 
 	class SceneMesh
@@ -79,8 +90,10 @@ namespace Framework
 			m_pMesh->Render();
 		}
 
+		Mesh *GetMesh() {return m_pMesh;}
+
 	private:
-		Framework::Mesh *m_pMesh;
+		Mesh *m_pMesh;
 	};
 
 	class SceneProgram
@@ -182,9 +195,9 @@ namespace Framework
 					glm::value_ptr(normMat));
 			}
 
-			std::for_each(m_binders.begin(), m_binders.end(), BindBinder);
+			std::for_each(m_binders.begin(), m_binders.end(), BindBinder(m_pProg->GetProgram()));
 			m_pMesh->Render();
-			std::for_each(m_binders.rbegin(), m_binders.rend(), UnbindBinder);
+			std::for_each(m_binders.rbegin(), m_binders.rend(), UnbindBinder(m_pProg->GetProgram()));
 			glUseProgram(0);
 		}
 
@@ -313,6 +326,16 @@ namespace Framework
 			return theIt->second->GetProgram();
 		}
 
+		Mesh *FindMesh(const std::string &meshName)
+		{
+			MeshMap::iterator theIt = m_meshes.find(meshName);
+			if(theIt == m_meshes.end())
+				throw std::runtime_error("Could not find the mesh named: " + meshName);
+
+			return theIt->second->GetMesh();
+		}
+
+
 
 	private:
 
@@ -343,9 +366,6 @@ namespace Framework
 			SceneMesh *pMesh = new SceneMesh(make_string(*pFilenameNode));
 
 			m_meshes[name] = pMesh;
-
-			std::cout << "Mesh: \"" << pNameNode->value() << "\", \"" << pFilenameNode->value()
-				<< "\"" << std::endl;
 		}
 
 		void ReadPrograms(const xml_node<> &scene)
@@ -423,15 +443,6 @@ namespace Framework
 
 			m_progs[name] = new SceneProgram(program, matrixLoc, normalMatLoc);
 
-			std::cout << "Program: \"" << pNameNode->value() << "\"" << std::endl;
-			std::cout << "\tVertex Shader: \"" << pVertexShaderNode->value() << "\"" << std::endl;
-			if(pGeometryShaderNode)
-				std::cout << "\tGeometry Shader: \"" << pGeometryShaderNode->value() << "\"" << std::endl;
-			std::cout << "\tFragment Shader: \"" << pFragmentShaderNode->value() << "\"" << std::endl;
-			std::cout << "\tModel Matrix uniform: \"" << pModelMatrixNode->value() << "\"" << std::endl;
-			if(pNormalMatrixNode)
-				std::cout << "\tNormal Matrix uniform: \"" << pNormalMatrixNode->value() << "\"" << std::endl;
-
 			ReadProgramContents(program, progNode);
 		}
 
@@ -468,9 +479,6 @@ namespace Framework
 
 					int bindPoint = rapidxml::attrib_to_int(*pBindingNode, ThrowAttrib);
 					glUniformBlockBinding(program, blockIx, bindPoint);
-
-					std::cout << "\t->Block: \"" << pNameNode->value() << "\", "
-						<< bindPoint << std::endl;
 				}
 				else if(childName == "sampler")
 				{
@@ -494,9 +502,6 @@ namespace Framework
 					glUseProgram(program);
 					glUniform1i(samplerLoc, textureUnit);
 					glUseProgram(0);
-
-					std::cout << "\t->Sampler: \"" << pNameNode->value() << "\", "
-						<<textureUnit << std::endl;
 				}
 				else
 				{
@@ -577,16 +582,6 @@ namespace Framework
 				}
 			}
 
-			std::cout << "Node: \"" << pNameNode->value() << "\"";
-			std::cout << "\tMesh: \"" << pMeshNode->value() << "\"";
-			std::cout << "\tProgram: \"" << pProgNode->value() << "\"" << std::endl;
-
-			std::cout << "\tPosition:    " << pPositionNode->value() << "\"" << std::endl;
-			if(pOrientNode)
-				std::cout << "\tOrientation: " << pOrientNode->value() << "\"" << std::endl;
-			if(pScaleNode)
-				std::cout << "\tScale:       " << pScaleNode->value() << "\"" << std::endl;
-
 			ReadNodeNotes(nodeNode);
 		}
 
@@ -599,9 +594,6 @@ namespace Framework
 				const xml_node<> &noteNode = *pNoteNode;
 				const xml_attribute<> *pNameNode = noteNode.first_attribute("name");
 				PARSE_THROW(pNameNode, "Notations on nodes must have a `name` attribute.");
-
-				std::cout << "\t->Note: \"" << pNameNode->value() << "\"" << std::endl;
-				std::cout << "\t\t->" << noteNode.value() << "<-" << std::endl;
 			}
 		}
 	};
@@ -668,5 +660,10 @@ namespace Framework
 	GLuint Scene::FindProgram( const std::string &progName )
 	{
 		return m_pImpl->FindProgram(progName);
+	}
+
+	Mesh * Scene::FindMesh( const std::string &meshName )
+	{
+		return m_pImpl->FindMesh(meshName);
 	}
 }
