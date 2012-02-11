@@ -5,10 +5,16 @@ The various components of the Unofficial OpenGL SDK, found under the "glsdk" dir
 
 The RapidXML library is distributed under the terms of the MIT License, as specified in the "framework/rapidxml-license.txt" file.
 
-With a few exceptions exceptions, all other materials in this distribution are copywritten and distributed under the terms of the MIT License, as specified in the "./MIT License.txt" file. The following files are not distributed under this copyright:
+Most of the materials in this distribution are copywritten and distributed under the terms of the MIT License, as specified in the "./MIT License.txt" file. All exceptions are listed below.
+
+The following files are in the public domain and therefore are not copywritten:
 
 * Documents/Positioning/Coord_system_SZ_0.svg
 * Documents/Illumination/GammaCorrectFunc.svg
 * Documents/Texturing/Torus.png
 
-These files have been released in the public domain and therefore are not copywritten.
+The following files are copywritten and distributed under the Creative Commons Attribution 3.0 Unported (CC BY 3.0) license, as described in the "./CC BY 3.0 legalcode.txt" file. Attribution for these works is presented here:
+
+
+
+

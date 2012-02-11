@@ -46,3 +46,4 @@ Shaders/*
 *.depend
 *.sln
 *.vcproj
+*.cbTemp
