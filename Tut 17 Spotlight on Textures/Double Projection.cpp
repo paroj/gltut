@@ -38,6 +38,7 @@ struct ProjectionBlock
 
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_lightUniformBuffer = 0;
+GLuint g_stoneTex;
 
 const int NUM_SAMPLERS = 2;
 GLuint g_samplers[NUM_SAMPLERS];
@@ -69,30 +70,10 @@ void LoadTextures()
 {
 	try
 	{
-/*
-		std::string filename(Framework::FindFileOrThrow("terrain_tex.dds"));
+		std::string filename(Framework::FindFileOrThrow("seamless_rock1_small.dds"));
 
 		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-
-		glGenTextures(1, &g_linearTexture);
-		glBindTexture(GL_TEXTURE_2D, g_linearTexture);
-
-		glimg::OpenGLPixelTransferParams xfer = glimg::GetUploadFormatType(pImageSet->GetFormat(), 0);
-
-		for(int mipmapLevel = 0; mipmapLevel < pImageSet->GetMipmapCount(); mipmapLevel++)
-		{
-			glimg::SingleImage image = pImageSet->GetImage(mipmapLevel, 0, 0);
-			glimg::Dimensions dims = image.GetDimensions();
-
-			glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_SRGB8_ALPHA8, dims.width, dims.height, 0,
-				xfer.format, xfer.type, image.GetImageData());
-		}
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet->GetMipmapCount() - 1);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-*/
+		g_stoneTex = glimg::CreateTexture(pImageSet.get(), 0);
 	}
 	catch(std::exception &e)
 	{
@@ -166,6 +147,7 @@ Framework::Timer g_timer(Framework::Timer::TT_LOOP, 10.0f);
 Framework::UniformVec4Binder g_blueBinder;
 Framework::UniformVec4Binder g_redBinder;
 Framework::UniformIntBinder g_lightNumBinder;
+Framework::TextureBinder g_stoneTexBinder;
 
 GLint g_unlitModelToCameraMatrixUnif;
 GLint g_unlitObjectColorUnif;
@@ -179,8 +161,8 @@ void LoadAndSetupScene()
 	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("dp_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
-	nodes.push_back(pScene->FindNode("blueSphere"));
-	nodes.push_back(pScene->FindNode("redSphere"));
+	nodes.push_back(pScene->FindNode("blueObj"));
+	nodes.push_back(pScene->FindNode("redObj"));
 
 	GLuint unlit = pScene->FindProgram("p_unlit");
 	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
@@ -196,6 +178,10 @@ void LoadAndSetupScene()
 	g_redBinder.AssociateWithProgram(nodes[1].GetProgram(), "objectColor");
 	g_redBinder.SetValue(glm::vec4(1.0f, 0.1f, 0.1f, 1.0f));
 	nodes[1].SetStateBinder(&g_redBinder);
+
+	g_stoneTexBinder.SetTexture(0, GL_TEXTURE_2D, g_stoneTex, g_samplers[1]);
+	nodes[0].SetStateBinder(&g_stoneTexBinder);
+	nodes[1].SetStateBinder(&g_stoneTexBinder);
 
 	//No more things that can throw.
 	g_unlitProg = unlit;
@@ -259,6 +245,9 @@ void init()
 	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
 		0, sizeof(ProjectionBlock));
 
+	CreateSamplers();
+	LoadTextures();
+
 	try
 	{
 		LoadAndSetupScene();
@@ -278,8 +267,6 @@ void init()
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-//	LoadTextures();
-//	CreateSamplers();
 }
 
 using Framework::Timer;
@@ -300,9 +287,9 @@ void BuildLights( const glm::mat4 &camMatrix )
 	lightData.lights[0].lightIntensity = glm::vec4(2.0, 2.0, 2.5, 1.0);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
 		glm::normalize(glm::vec4(0.0f, 0.5f, 0.5f, 0.0f));
-	lightData.lights[1].lightIntensity = glm::vec4(7.0, 9.0, 6.5, 1.0);
+	lightData.lights[1].lightIntensity = glm::vec4(3.5, 6.5, 3.0, 1.0);
 	lightData.lights[1].cameraSpaceLightPos = camMatrix *
-		glm::vec4(5.0f, 4.0f, 0.5f, 1.0f);
+		glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
 
 	g_lightNumBinder.SetValue(2);
 

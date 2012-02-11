@@ -18,16 +18,17 @@
         normal-model-to-camera="normalModelToCameraMatrix">
         <block name="Projection" binding="0"/>
 		<block name="Light" binding="1"/>
+        <sampler name="diffuseColorTex" unit="0"/>
     </prog>
     <node
-        name="blueSphere"
+        name="blueObj"
         mesh="m_cube"
         prog="p_lit"
         pos="0 1 0"
         orient="0.0 0.0 0.0 1.0"
         scale="3"/>
     <node
-        name="redSphere"
+        name="redObj"
         mesh="m_cube"
         prog="p_lit"
         pos="7 0 0"

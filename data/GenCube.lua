@@ -32,7 +32,7 @@ local positions =
 	vmath.vec3(-0.5,  0.5, -0.5),
 	vmath.vec3( 0.5,  0.5, -0.5),
 
-	--Left
+	--Right
 	vmath.vec3( 0.5,  0.5,  0.5),
 	vmath.vec3( 0.5,  0.5, -0.5),
 	vmath.vec3( 0.5, -0.5, -0.5),
@@ -50,7 +50,7 @@ local positions =
 	vmath.vec3(-0.5, -0.5, -0.5),
 	vmath.vec3(-0.5, -0.5,  0.5),
 
-	--Right
+	--Left
 	vmath.vec3(-0.5,  0.5,  0.5),
 	vmath.vec3(-0.5, -0.5,  0.5),
 	vmath.vec3(-0.5, -0.5, -0.5),
@@ -71,7 +71,7 @@ local normals =
 	vmath.vec3(0.0,  1.0,  0.0),
 	vmath.vec3(0.0,  1.0,  0.0),
 
-	--Left
+	--Right
 	vmath.vec3(1.0,  0.0,  0.0),
 	vmath.vec3(1.0,  0.0,  0.0),
 	vmath.vec3(1.0,  0.0,  0.0),
@@ -89,7 +89,7 @@ local normals =
 	vmath.vec3(0.0, -1.0,  0.0),
 	vmath.vec3(0.0, -1.0,  0.0),
 
-	--Right
+	--Left
 	vmath.vec3(-1.0,  0.0,  0.0),
 	vmath.vec3(-1.0,  0.0,  0.0),
 	vmath.vec3(-1.0,  0.0,  0.0),
@@ -129,6 +129,39 @@ local colors =
 	vmath.vec4(1.0, 0.5, 1.0, 1.0),
 }
 
+local texCoords =
+{
+	vmath.vec2(1.0, 1.0),
+	vmath.vec2(1.0, 0.0),
+	vmath.vec2(0.0, 0.0),
+	vmath.vec2(0.0, 1.0),
+
+	vmath.vec2(1.0, 1.0),
+	vmath.vec2(1.0, 0.0),
+	vmath.vec2(0.0, 0.0),
+	vmath.vec2(0.0, 1.0),
+
+	vmath.vec2(0.0, 1.0),
+	vmath.vec2(1.0, 1.0),
+	vmath.vec2(1.0, 0.0),
+	vmath.vec2(0.0, 0.0),
+	
+	vmath.vec2(0.0, 1.0),
+	vmath.vec2(1.0, 1.0),
+	vmath.vec2(1.0, 0.0),
+	vmath.vec2(0.0, 0.0),
+	
+	vmath.vec2(1.0, 1.0),
+	vmath.vec2(1.0, 0.0),
+	vmath.vec2(0.0, 0.0),
+	vmath.vec2(0.0, 1.0),
+
+	vmath.vec2(1.0, 1.0),
+	vmath.vec2(1.0, 0.0),
+	vmath.vec2(0.0, 0.0),
+	vmath.vec2(0.0, 1.0),
+}
+
 local indices =
 {
 	vmath.vec3(0, 1, 2),
@@ -149,6 +182,19 @@ local indices =
 	vmath.vec3(20, 21, 22),
 	vmath.vec3(22, 23, 20),
 };
+
+local function WriteVAO(writer, name, ...)
+	local attribs = {...}
+	
+	writer:PushElement("vao");
+		writer:AddAttribute("name", name);
+		for i, attrib in ipairs(attribs) do
+			writer:PushElement("source");
+			writer:AddAttribute("attrib", tostring(attrib));
+			writer:PopElement();
+		end
+	writer:PopElement();
+end
 
 do
 	local writer = XmlWriter.XmlWriter("UnitCube.xml");
@@ -172,26 +218,20 @@ do
 			writer:AddAttribute("size", "3");
 			writer:AddText(GenStringFromArray(normals));
 		writer:PopElement();
-		writer:PushElement("vao");
-			writer:AddAttribute("name", "lit");
-			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
-			writer:PushElement("source"); writer:AddAttribute("attrib", "2"); writer:PopElement();
+		writer:PushElement("attribute");
+			writer:AddAttribute("index", "5");
+			writer:AddAttribute("type", "float");
+			writer:AddAttribute("size", "2");
+			writer:AddText(GenStringFromArray(texCoords));
 		writer:PopElement();
-		writer:PushElement("vao");
-			writer:AddAttribute("name", "lit-color");
-			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
-			writer:PushElement("source"); writer:AddAttribute("attrib", "1"); writer:PopElement();
-			writer:PushElement("source"); writer:AddAttribute("attrib", "2"); writer:PopElement();
-		writer:PopElement();
-		writer:PushElement("vao");
-			writer:AddAttribute("name", "color");
-			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
-			writer:PushElement("source"); writer:AddAttribute("attrib", "1"); writer:PopElement();
-		writer:PopElement();
-		writer:PushElement("vao");
-			writer:AddAttribute("name", "flat");
-			writer:PushElement("source"); writer:AddAttribute("attrib", "0"); writer:PopElement();
-		writer:PopElement();
+		WriteVAO(writer, "lit", 0, 2);
+		WriteVAO(writer, "lit-color", 0, 1, 2);
+		WriteVAO(writer, "color", 0, 1);
+		WriteVAO(writer, "lit-tex", 0, 2, 5);
+		WriteVAO(writer, "lit-color-tex", 0, 1, 2, 5);
+		WriteVAO(writer, "color-tex", 0, 1, 5);
+		WriteVAO(writer, "tex", 0, 5);
+		WriteVAO(writer, "flat", 0);
 		writer:PushElement("indices");
 			writer:AddAttribute("cmd", "triangles");
 			writer:AddAttribute("type", "ushort");

@@ -77,6 +77,31 @@
         -1 0 0
         -1 0 0
         -1 0 0</attribute>
+	<attribute index="5" type="float" size="2" > 
+        1 1
+        1 0
+        0 0
+        0 1
+        1 1
+        1 0
+        0 0
+        0 1
+        0 1
+        1 1
+        1 0
+        0 0
+        0 1
+        1 1
+        1 0
+        0 0
+        1 1
+        1 0
+        0 0
+        0 1
+        1 1
+        1 0
+        0 0
+        0 1</attribute>
 	<vao name="lit" >
 		<source attrib="0" />
 		<source attrib="2" />
@@ -89,6 +114,26 @@
 	<vao name="color" >
 		<source attrib="0" />
 		<source attrib="1" />
+	</vao>
+	<vao name="lit-tex" >
+		<source attrib="0" />
+		<source attrib="2" />
+		<source attrib="5" />
+	</vao>
+	<vao name="lit-color-tex" >
+		<source attrib="0" />
+		<source attrib="1" />
+		<source attrib="2" />
+		<source attrib="5" />
+	</vao>
+	<vao name="color-tex" >
+		<source attrib="0" />
+		<source attrib="1" />
+		<source attrib="5" />
+	</vao>
+	<vao name="tex" >
+		<source attrib="0" />
+		<source attrib="5" />
 	</vao>
 	<vao name="flat" >
 		<source attrib="0" />
