@@ -88,7 +88,7 @@ glutil::ViewData g_initialView =
 {
 	glm::vec3(0.0f, 0.0f, 0.0f),
 	glm::fquat(0.98481f, 0.173648f, 0.0f, 0.0f),
-	15.0f,
+	25.0f,
 	0.0f
 };
 
@@ -153,6 +153,7 @@ GLint g_unlitModelToCameraMatrixUnif;
 GLint g_unlitObjectColorUnif;
 GLuint g_unlitProg;
 Framework::Mesh *g_pSphereMesh = NULL;
+glm::fquat g_spinBarOrient;
 
 void LoadAndSetupScene()
 {
@@ -161,29 +162,25 @@ void LoadAndSetupScene()
 	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("dp_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
-	nodes.push_back(pScene->FindNode("blueObj"));
-	nodes.push_back(pScene->FindNode("redObj"));
+	nodes.push_back(pScene->FindNode("cube"));
+	nodes.push_back(pScene->FindNode("rightBar"));
+	nodes.push_back(pScene->FindNode("leaningBar"));
+	nodes.push_back(pScene->FindNode("spinBar"));
 
-	GLuint unlit = pScene->FindProgram("p_unlit");
-	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
-
-	g_lightNumBinder.AssociateWithProgram(nodes[0].GetProgram(), "numberOfLights");
-	g_lightNumBinder.AssociateWithProgram(nodes[1].GetProgram(), "numberOfLights");
-	nodes[0].SetStateBinder(&g_lightNumBinder);
-	nodes[1].SetStateBinder(&g_lightNumBinder);
-
-	g_blueBinder.AssociateWithProgram(nodes[0].GetProgram(), "objectColor");
-	g_blueBinder.SetValue(glm::vec4(0.3f, 0.3f, 1.0f, 1.0f));
-	nodes[0].SetStateBinder(&g_blueBinder);
-	g_redBinder.AssociateWithProgram(nodes[1].GetProgram(), "objectColor");
-	g_redBinder.SetValue(glm::vec4(1.0f, 0.1f, 0.1f, 1.0f));
-	nodes[1].SetStateBinder(&g_redBinder);
+	AssociateUniformWithNodes(nodes, g_lightNumBinder, "numberOfLights");
+	SetStateBinderWithNodes(nodes, g_lightNumBinder);
 
 	g_stoneTexBinder.SetTexture(0, GL_TEXTURE_2D, g_stoneTex, g_samplers[1]);
 	nodes[0].SetStateBinder(&g_stoneTexBinder);
 	nodes[1].SetStateBinder(&g_stoneTexBinder);
+	nodes[2].SetStateBinder(&g_stoneTexBinder);
+	nodes[3].SetStateBinder(&g_stoneTexBinder);
+
+	GLuint unlit = pScene->FindProgram("p_unlit");
+	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
 
 	//No more things that can throw.
+	g_spinBarOrient = nodes[3].NodeGetOrient();
 	g_unlitProg = unlit;
 	g_unlitModelToCameraMatrixUnif = glGetUniformLocation(unlit, "modelToCameraMatrix");
 	g_unlitObjectColorUnif = glGetUniformLocation(unlit, "objectColor");
@@ -266,7 +263,6 @@ void init()
 		0, sizeof(LightBlock));
 
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 }
 
 using Framework::Timer;
@@ -286,7 +282,7 @@ void BuildLights( const glm::mat4 &camMatrix )
 	lightData.maxIntensity = 3.0f;
 	lightData.lights[0].lightIntensity = glm::vec4(2.0, 2.0, 2.5, 1.0);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
-		glm::normalize(glm::vec4(0.0f, 0.5f, 0.5f, 0.0f));
+		glm::normalize(glm::vec4(-0.2f, 0.5f, 0.5f, 0.0f));
 	lightData.lights[1].lightIntensity = glm::vec4(3.5, 6.5, 3.0, 1.0);
 	lightData.lights[1].cameraSpaceLightPos = camMatrix *
 		glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
@@ -318,6 +314,9 @@ void display()
 
 	g_nodes[0].NodeSetOrient(glm::rotate(glm::fquat(),
 		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+	g_nodes[3].NodeSetOrient(g_spinBarOrient * glm::rotate(glm::fquat(),
+		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 0.0f, 1.0f)));
 
 	glm::ivec2 displaySize(g_displayWidth / 2, g_displayHeight);
 

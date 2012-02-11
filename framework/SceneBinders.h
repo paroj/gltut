@@ -6,6 +6,7 @@
 #include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Scene.h"
 
 namespace Framework
 {
@@ -211,7 +212,39 @@ namespace Framework
 		GLsizeiptr m_buffSize;
 	};
 
+	template<typename NodeForwardIterator, typename AssociationBinder>
+	void AssociateUniformWithNodes(NodeForwardIterator start, NodeForwardIterator final,
+		AssociationBinder &binder, const std::string &unifName)
+	{
+		for(NodeForwardIterator currIt = start; currIt != final; ++currIt)
+		{
+			binder.AssociateWithProgram(currIt->GetProgram(), unifName);
+		}
+	}
 
+	template<typename NodeForwardRange>
+	void AssociateUniformWithNodes(const NodeForwardRange &range,
+		UniformBinderBase &binder, const std::string &unifName)
+	{
+		AssociateUniformWithNodes(range.begin(), range.end(), binder, unifName);
+	}
+
+	template<typename NodeForwardIterator>
+	void SetStateBinderWithNodes(NodeForwardIterator start, NodeForwardIterator final,
+		StateBinder &binder)
+	{
+		for(NodeForwardIterator currIt = start; currIt != final; ++currIt)
+		{
+			currIt->SetStateBinder(&binder);
+		}
+	}
+
+	template<typename NodeForwardRange>
+	void SetStateBinderWithNodes(NodeForwardRange &range,
+		StateBinder &binder)
+	{
+		SetStateBinderWithNodes(range.begin(), range.end(), binder);
+	}
 }
 
 

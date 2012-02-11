@@ -170,6 +170,8 @@ namespace Framework
 			m_nodeTm.m_orient = orient;
 		}
 
+		glm::fquat NodeGetOrient() const {return m_nodeTm.m_orient;}
+
 		void SetNodeOrient(const glm::fquat &nodeOrient)
 		{
 			m_nodeTm.m_orient = glm::normalize(nodeOrient);
@@ -616,6 +618,11 @@ namespace Framework
 	void NodeRef::NodeSetOrient( const glm::fquat &orient )
 	{
 		m_pNode->NodeSetOrient(orient);
+	}
+
+	glm::fquat NodeRef::NodeGetOrient() const
+	{
+		return m_pNode->NodeGetOrient();
 	}
 
 	void NodeRef::NodeOffset( const glm::vec3 &offset )

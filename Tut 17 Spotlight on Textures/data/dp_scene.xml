@@ -3,6 +3,8 @@
 <scene xmlns="http://www.arcsynthesis.com/gltut/scene">
     <mesh xml:id="m_sphere" file="UnitSphere.xml"/>
     <mesh xml:id="m_cube" file="UnitCube.xml"/>
+	<mesh xml:id="m_shortBar" file="ShortBar.xml"/>
+	<mesh xml:id="m_longBar" file="LongBar.xml"/>
     <prog
         xml:id="p_unlit"
         vert="Unlit.vert"
@@ -21,18 +23,31 @@
         <sampler name="diffuseColorTex" unit="0"/>
     </prog>
     <node
-        name="blueObj"
+        name="cube"
         mesh="m_cube"
         prog="p_lit"
         pos="0 1 0"
         orient="0.0 0.0 0.0 1.0"
         scale="3"/>
     <node
-        name="redObj"
-        mesh="m_cube"
+        name="rightBar"
+        mesh="m_shortBar"
         prog="p_lit"
-        pos="7 0 0"
+        pos="13 -2 0"
         orient="0.0 0.0 0.0 1.0"
-        scale="3 3 9"/>
-    
+        scale="3"/>
+    <node
+        name="leaningBar"
+        mesh="m_longBar"
+        prog="p_lit"
+        pos="3 -7 -10"
+        orient="0.64278 0 0 0.76604"
+        scale="5"/>
+    <node
+        name="spinBar"
+        mesh="m_longBar"
+        prog="p_lit"
+        pos="-7 0 8"
+        orient="-0.148446 0.554035 0.212003 0.791242"
+        scale="4"/>
 </scene>

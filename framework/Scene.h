@@ -26,6 +26,8 @@ namespace Framework
 		//Sets the current orientation to the given one.
 		void NodeSetOrient(const glm::fquat &orient);
 
+		glm::fquat NodeGetOrient() const;
+
 		//Adds the offset to the current translation.
 		void NodeOffset(const glm::vec3 &offset);
 		//Sets the current translation to the given one.

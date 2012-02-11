@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/meshFormat.rnc" type="compact"?>
+
+<mesh xmlns="http://www.arcsynthesis.com/gltut/mesh" >
+	<attribute index="0" type="float" size="3" > 
+        0.5 0.5 1.5
+        0.5 -0.5 1.5
+        -0.5 -0.5 1.5
+        -0.5 0.5 1.5
+        0.5 0.5 1.5
+        -0.5 0.5 1.5
+        -0.5 0.5 -1.5
+        0.5 0.5 -1.5
+        0.5 0.5 1.5
+        0.5 0.5 -1.5
+        0.5 -0.5 -1.5
+        0.5 -0.5 1.5
+        0.5 0.5 -1.5
+        -0.5 0.5 -1.5
+        -0.5 -0.5 -1.5
+        0.5 -0.5 -1.5
+        0.5 -0.5 1.5
+        0.5 -0.5 -1.5
+        -0.5 -0.5 -1.5
+        -0.5 -0.5 1.5
+        -0.5 0.5 1.5
+        -0.5 -0.5 1.5
+        -0.5 -0.5 -1.5
+        -0.5 0.5 -1.5</attribute>
+	<attribute index="2" type="float" size="3" > 
+        0 0 1
+        0 0 1
+        0 0 1
+        0 0 1
+        0 1 0
+        0 1 0
+        0 1 0
+        0 1 0
+        1 0 0
+        1 0 0
+        1 0 0
+        1 0 0
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 0 -1
+        0 -1 0
+        0 -1 0
+        0 -1 0
+        0 -1 0
+        -1 0 0
+        -1 0 0
+        -1 0 0
+        -1 0 0</attribute>
+	<attribute index="5" type="float" size="2" > 
+        1 1
+        1 0
+        0 0
+        0 1
+        3 1
+        3 0
+        0 0
+        0 1
+        0 1
+        3 1
+        3 0
+        0 0
+        0 1
+        1 1
+        1 0
+        0 0
+        1 3
+        1 0
+        0 0
+        0 3
+        3 1
+        3 0
+        0 0
+        0 1</attribute>
+	<vao name="lit" >
+		<source attrib="0" />
+		<source attrib="2" />
+	</vao>
+	<vao name="lit-tex" >
+		<source attrib="0" />
+		<source attrib="2" />
+		<source attrib="5" />
+	</vao>
+	<vao name="tex" >
+		<source attrib="0" />
+		<source attrib="5" />
+	</vao>
+	<vao name="flat" >
+		<source attrib="0" />
+	</vao>
+	<indices cmd="triangles" type="ushort" > 
+        0 1 2
+        2 3 0
+        4 5 6
+        6 7 4
+        8 9 10
+        10 11 8
+        12 13 14
+        14 15 12
+        16 17 18
+        18 19 16
+        20 21 22
+        22 23 20</indices>
+</mesh>
