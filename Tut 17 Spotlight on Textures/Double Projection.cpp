@@ -87,16 +87,16 @@ void LoadTextures()
 glutil::ViewData g_initialView =
 {
 	glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::fquat(0.98481f, 0.173648f, 0.0f, 0.0f),
+	glm::fquat(0.909845f, 0.16043f, -0.376867f, -0.0664516f),
 	25.0f,
 	0.0f
 };
 
 glutil::ViewScale g_initialViewScale =
 {
-	5.0f, 40.0f,
+	5.0f, 70.0f,
 	2.0f, 0.5f,
-	4.0f, 1.0f,
+	2.0f, 0.5f,
 	90.0f/250.0f
 };
 
@@ -169,12 +169,6 @@ void LoadAndSetupScene()
 
 	AssociateUniformWithNodes(nodes, g_lightNumBinder, "numberOfLights");
 	SetStateBinderWithNodes(nodes, g_lightNumBinder);
-
-	g_stoneTexBinder.SetTexture(0, GL_TEXTURE_2D, g_stoneTex, g_samplers[1]);
-	nodes[0].SetStateBinder(&g_stoneTexBinder);
-	nodes[1].SetStateBinder(&g_stoneTexBinder);
-	nodes[2].SetStateBinder(&g_stoneTexBinder);
-	nodes[3].SetStateBinder(&g_stoneTexBinder);
 
 	GLuint unlit = pScene->FindProgram("p_unlit");
 	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
@@ -277,13 +271,13 @@ int g_displayHeight = 350;
 void BuildLights( const glm::mat4 &camMatrix )
 {
 	LightBlock lightData;
-	lightData.ambientIntensity = glm::vec4(0.2, 0.2, 0.2, 1.0);
+	lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	lightData.lightAttenuation = 1.0f / (5.0f * 5.0f);
 	lightData.maxIntensity = 3.0f;
-	lightData.lights[0].lightIntensity = glm::vec4(2.0, 2.0, 2.5, 1.0);
+	lightData.lights[0].lightIntensity = glm::vec4(2.0f, 2.0f, 2.5f, 1.0f);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
 		glm::normalize(glm::vec4(-0.2f, 0.5f, 0.5f, 0.0f));
-	lightData.lights[1].lightIntensity = glm::vec4(3.5, 6.5, 3.0, 1.0);
+	lightData.lights[1].lightIntensity = glm::vec4(3.5f, 6.5f, 3.0f, 1.0f) * 1.2f;
 	lightData.lights[1].cameraSpaceLightPos = camMatrix *
 		glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
 

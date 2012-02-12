@@ -5,6 +5,7 @@
     <mesh xml:id="m_cube" file="UnitCube.xml"/>
 	<mesh xml:id="m_shortBar" file="ShortBar.xml"/>
 	<mesh xml:id="m_longBar" file="LongBar.xml"/>
+    <texture xml:id="t_stone" file="seamless_rock1_small.dds"/>
     <prog
         xml:id="p_unlit"
         vert="Unlit.vert"
@@ -28,26 +29,34 @@
         prog="p_lit"
         pos="0 1 0"
         orient="0.0 0.0 0.0 1.0"
-        scale="3"/>
+        scale="3">
+        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+    </node>
     <node
         name="rightBar"
         mesh="m_shortBar"
         prog="p_lit"
         pos="13 -2 0"
         orient="0.0 0.0 0.0 1.0"
-        scale="3"/>
+        scale="3">
+        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+    </node>
     <node
         name="leaningBar"
         mesh="m_longBar"
         prog="p_lit"
         pos="3 -7 -10"
         orient="0.64278 0 0 0.76604"
-        scale="5"/>
+        scale="5">
+        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+    </node>
     <node
         name="spinBar"
         mesh="m_longBar"
         prog="p_lit"
         pos="-7 0 8"
         orient="-0.148446 0.554035 0.212003 0.791242"
-        scale="4"/>
+        scale="4">
+        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+    </node>
 </scene>

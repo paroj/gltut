@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <memory>
+#include <ctype.h>
 
 #include <istream>
 #include <fstream>
@@ -25,6 +26,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glimg/glimg.h>
 
 
 #define PARSE_THROW(cond, message)\
@@ -71,6 +73,20 @@ namespace Framework
 			void operator()(const StateBinder *pState) const {pState->UnbindState(m_prog);}
 			GLuint m_prog;
 		};
+
+		std::string GetExtension(const std::string &filename)
+		{
+			size_t dotLoc = filename.rfind('.');
+			if(dotLoc == std::string::npos)
+				throw std::runtime_error("Texture must have an extension. " + filename + " does not.");
+
+			std::string ext = filename.substr(dotLoc + 1);
+
+			//Make lowercase.
+			std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+
+			return ext;
+		}
 	}
 
 	class SceneMesh
@@ -94,6 +110,42 @@ namespace Framework
 
 	private:
 		Mesh *m_pMesh;
+	};
+
+	class SceneTexture
+	{
+	public:
+		SceneTexture(const std::string &filename)
+		{
+			std::string pathname(Framework::FindFileOrThrow("seamless_rock1_small.dds"));
+
+			std::auto_ptr<glimg::ImageSet> pImageSet;
+			std::string ext = GetExtension(pathname);
+			if(ext == "dds")
+			{
+				pImageSet.reset(glimg::loaders::dds::LoadFromFile(pathname.c_str()));
+			}
+			else
+			{
+				pImageSet.reset(glimg::loaders::stb::LoadFromFile(pathname.c_str()));
+			}
+
+			m_texObj = glimg::CreateTexture(pImageSet.get(), 0);
+			//TODO: FIX THIS!!
+			m_texType = GL_TEXTURE_2D;
+		}
+
+		~SceneTexture()
+		{
+			glDeleteTextures(1, &m_texObj);
+		}
+
+		GLuint GetTexture() const {return m_texObj;}
+		GLenum GetType() const {return m_texType;}
+
+	private:
+		GLuint m_texObj;
+		GLenum m_texType;
 	};
 
 	class SceneProgram
@@ -145,12 +197,93 @@ namespace Framework
 		glm::vec3 m_trans;
 	};
 
+	enum SamplerTypes
+	{
+		SPL_NEAREST,
+		SPL_LINEAR,
+		SPL_MIPMAP_NEAREST,
+		SPL_MIPMAP_LINEAR,
+		SPL_ANISOTROPIC,
+		SPL_HALF_ANISOTROPIC,
+
+		MAX_SAMPLERS,
+	};
+
+	SamplerTypes GetTypeFromName(const std::string &name)
+	{
+		const char *samplerNames[MAX_SAMPLERS] =
+		{
+			"nearest",
+			"linear",
+			"mipmap nearest",
+			"mipmap linear",
+			"anisotropic",
+			"half anisotropic",
+		};
+
+		const char **theName = std::find(samplerNames, samplerNames + MAX_SAMPLERS, name);
+
+		for(int spl = 0; spl < MAX_SAMPLERS; ++spl)
+		{
+			if(name == samplerNames[spl])
+				return SamplerTypes(spl);
+		}
+
+		throw std::runtime_error("Unknown sampler name: " + name);
+	}
+
+	void MakeSamplerObjects(std::vector<GLuint> &samplers)
+	{
+		samplers.resize(MAX_SAMPLERS);
+		glGenSamplers(MAX_SAMPLERS, &samplers[0]);
+
+		//Always repeat.
+		for(int samplerIx = 0; samplerIx < MAX_SAMPLERS; samplerIx++)
+		{
+			glSamplerParameteri(samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glSamplerParameteri(samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);
+			glSamplerParameteri(samplers[samplerIx], GL_TEXTURE_WRAP_R, GL_REPEAT);
+		}
+
+		glSamplerParameteri(samplers[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glSamplerParameteri(samplers[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glSamplerParameteri(samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		glSamplerParameteri(samplers[2], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glSamplerParameteri(samplers[2], GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+
+		glSamplerParameteri(samplers[3], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(samplers[3], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		GLfloat maxAniso = 0.0f;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+
+		glSamplerParameteri(samplers[4], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(samplers[4], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glSamplerParameterf(samplers[4], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso / 2.0f);
+
+		glSamplerParameteri(samplers[5], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(samplers[5], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glSamplerParameterf(samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);
+	}
+
+	struct TextureBinding
+	{
+		SceneTexture *pTex;
+		GLuint texUnit;
+		SamplerTypes sampler;
+	};
+
 	class SceneNode
 	{
 	public:
-		SceneNode(SceneMesh *pMesh, SceneProgram *pProg, const glm::vec3 &nodePos)
+		SceneNode(SceneMesh *pMesh, SceneProgram *pProg, const glm::vec3 &nodePos,
+			const std::vector<TextureBinding> &texBindings)
 			: m_pMesh(pMesh)
 			, m_pProg(pProg)
+			, m_texBindings(texBindings)
 		{
 			m_nodeTm.m_trans = nodePos;
 		}
@@ -182,7 +315,7 @@ namespace Framework
 			m_nodeTm.m_scale = nodeScale;
 		}
 
-		void Render(glm::mat4 baseMat) const
+		void Render(const std::vector<GLuint> &samplers, glm::mat4 baseMat) const
 		{
 			baseMat *= m_nodeTm.GetMatrix();
 			glm::mat4 objMat = baseMat * m_objTm.GetMatrix();
@@ -198,7 +331,23 @@ namespace Framework
 			}
 
 			std::for_each(m_binders.begin(), m_binders.end(), BindBinder(m_pProg->GetProgram()));
+			for(size_t texIx = 0; texIx < m_texBindings.size(); ++texIx)
+			{
+				const TextureBinding &binding = m_texBindings[texIx];
+				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
+				glBindTexture(binding.pTex->GetType(), binding.pTex->GetTexture());
+				glBindSampler(binding.texUnit, samplers[binding.sampler]);
+			}
+
 			m_pMesh->Render();
+
+			for(size_t texIx = 0; texIx < m_texBindings.size(); ++texIx)
+			{
+				const TextureBinding &binding = m_texBindings[texIx];
+				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
+				glBindTexture(binding.pTex->GetType(), 0);
+				glBindSampler(binding.texUnit, 0);
+			}
 			std::for_each(m_binders.rbegin(), m_binders.rend(), UnbindBinder(m_pProg->GetProgram()));
 			glUseProgram(0);
 		}
@@ -228,13 +377,15 @@ namespace Framework
 		SceneMesh *m_pMesh;		//Unmanaged. We are deleted first, so these should always be real values.
 		SceneProgram *m_pProg;	//Unmanaged. We are deleted first, so these should always be real values.
 
-		std::vector<StateBinder*> m_binders;
+		std::vector<StateBinder*> m_binders;	//Unmanaged. These live beyond us.
+		std::vector<TextureBinding> m_texBindings;
 
 		Transform m_nodeTm;
 		Transform m_objTm;
 	};
 
 	typedef std::map<std::string, SceneMesh*> MeshMap;
+	typedef std::map<std::string, SceneTexture*> TextureMap;
 	typedef std::map<std::string, SceneProgram*> ProgramMap;
 	typedef std::map<std::string, SceneNode*> NodeMap;
 
@@ -242,10 +393,13 @@ namespace Framework
 	{
 	private:
 		MeshMap m_meshes;
+		TextureMap m_textures;
 		ProgramMap m_progs;
 		NodeMap m_nodes;
 
 		std::vector<SceneNode *> m_rootNodes;
+
+		std::vector<GLuint> m_samplers;
 
 	public:
 		SceneImpl(const std::string &filename)
@@ -281,22 +435,30 @@ namespace Framework
 			try
 			{
 				ReadMeshes(*pSceneNode);
+				ReadTextures(*pSceneNode);
 				ReadPrograms(*pSceneNode);
 				ReadNodes(NULL, *pSceneNode);
 			}
 			catch(...)
 			{
-				std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<typename MeshMap::value_type>);
-				std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<typename ProgramMap::value_type>);
 				std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<typename NodeMap::value_type>);
+				std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<typename ProgramMap::value_type>);
+				std::for_each(m_textures.begin(), m_textures.end(), DeleteSecond<typename TextureMap::value_type>);
+				std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<typename MeshMap::value_type>);
 				throw;
 			}
+
+			MakeSamplerObjects(m_samplers);
 		}
 
 		~SceneImpl()
 		{
+			glDeleteSamplers(m_samplers.size(), &m_samplers[0]);
+			m_samplers.clear();
+
 			std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<typename NodeMap::value_type>);
 			std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<typename ProgramMap::value_type>);
+			std::for_each(m_textures.begin(), m_textures.end(), DeleteSecond<typename TextureMap::value_type>);
 			std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<typename MeshMap::value_type>);
 		}
 
@@ -306,7 +468,7 @@ namespace Framework
 				theIt != m_nodes.end();
 				++theIt)
 			{
-				theIt->second->Render(cameraMatrix);
+				theIt->second->Render(m_samplers, cameraMatrix);
 			}
 		}
 
@@ -337,7 +499,14 @@ namespace Framework
 			return theIt->second->GetMesh();
 		}
 
+		std::pair<GLuint, GLenum> FindTexture(const std::string &textureName)
+		{
+			TextureMap::iterator theIt = m_textures.find(textureName);
+			if(theIt == m_textures.end())
+				throw std::runtime_error("Could not find the texture named: " + textureName);
 
+			return std::make_pair(theIt->second->GetTexture(), theIt->second->GetType());
+		}
 
 	private:
 
@@ -368,6 +537,35 @@ namespace Framework
 			SceneMesh *pMesh = new SceneMesh(make_string(*pFilenameNode));
 
 			m_meshes[name] = pMesh;
+		}
+
+		void ReadTextures(const xml_node<> &scene)
+		{
+			for(const xml_node<> *pTexNode = scene.first_node("texture");
+				pTexNode;
+				pTexNode = pTexNode->next_sibling("texture"))
+			{
+				ReadTexture(*pTexNode);
+			}
+		}
+
+		void ReadTexture(const xml_node<> &TexNode)
+		{
+			const xml_attribute<> *pNameNode = TexNode.first_attribute("xml:id");
+			const xml_attribute<> *pFilenameNode = TexNode.first_attribute("file");
+
+			PARSE_THROW(pNameNode, "Texture found with no `xml:id` name specified.");
+			PARSE_THROW(pFilenameNode, "Texture found with no `file` filename specified.");
+
+			std::string name = make_string(*pNameNode);
+			if(m_textures.find(name) != m_textures.end())
+				throw std::runtime_error("The texture named \"" + name + "\" already exists.");
+
+			m_textures[name] = NULL;
+
+			SceneTexture *pTexture = new SceneTexture(make_string(*pFilenameNode));
+
+			m_textures[name] = pTexture;
 		}
 
 		void ReadPrograms(const xml_node<> &scene)
@@ -563,7 +761,8 @@ namespace Framework
 
 			glm::vec3 nodePos = rapidxml::attrib_to_vec3(*pPositionNode, ThrowAttrib);
 
-			SceneNode *pNode = new SceneNode(meshIt->second, progIt->second, nodePos);
+			SceneNode *pNode = new SceneNode(meshIt->second, progIt->second, nodePos,
+				ReadNodeTextures(nodeNode));
 			m_nodes[name] = pNode;
 
 			//TODO: parent/child nodes.
@@ -597,6 +796,49 @@ namespace Framework
 				const xml_attribute<> *pNameNode = noteNode.first_attribute("name");
 				PARSE_THROW(pNameNode, "Notations on nodes must have a `name` attribute.");
 			}
+		}
+
+		std::vector<TextureBinding> ReadNodeTextures(const xml_node<> &nodeNode)
+		{
+			std::vector<TextureBinding> texBindings;
+			std::set<GLuint> texUnits;
+
+			for(const xml_node<> *pTexNode = nodeNode.first_node("texture");
+				pTexNode;
+				pTexNode = pTexNode->next_sibling("texture"))
+			{
+				const xml_node<> &texNode = *pTexNode;
+				const xml_attribute<> *pNameNode = texNode.first_attribute("name");
+				const xml_attribute<> *pUnitName = texNode.first_attribute("unit");
+				const xml_attribute<> *pSamplerName = texNode.first_attribute("sampler");
+
+				PARSE_THROW(pNameNode, "Textures on nodes must have a `name` attribute.");
+				PARSE_THROW(pUnitName, "Textures on nodes must have a `unit` attribute.");
+				PARSE_THROW(pSamplerName, "Textures on nodes must have a `sampler` attribute.");
+
+				std::string textureName = make_string(*pNameNode);
+				TextureMap::iterator texIt = m_textures.find(textureName);
+				if(texIt == m_textures.end())
+				{
+					throw std::runtime_error("The node texture named \"" + textureName + 
+						"\" is a texture which does not exist.");
+				}
+
+				TextureBinding binding;
+
+				binding.pTex = texIt->second;
+				binding.texUnit = rapidxml::attrib_to_int(*pUnitName, ThrowAttrib);
+				binding.sampler = GetTypeFromName(make_string(*pSamplerName));
+
+				if(texUnits.find(binding.texUnit) != texUnits.end())
+					throw std::runtime_error("Multiply bound texture unit in node texture " + textureName);
+
+				texBindings.push_back(binding);
+
+				texUnits.insert(binding.texUnit);
+			}
+
+			return texBindings;
 		}
 	};
 

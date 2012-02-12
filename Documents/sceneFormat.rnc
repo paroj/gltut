@@ -15,14 +15,21 @@ div
         element scn:scene { sc.scene.content }
 
     sc.scene.content =
-        (sc.mesh | sc.prog | sc.node)+
+        (sc.mesh | sc.texture | sc.prog | sc.node)+
         
     sc.mesh =
-        ##A mesh to load. Meshes have names and filenames.
+        ##A mesh to load. Meshes have a name and a filename.
         element scn:mesh { sc.mesh.content }
         
     sc.mesh.content =
         sc.mesh.attlist
+        
+    sc.texture =
+        ##A texture to load. Textures have a name and a filename.
+        element scn:texture { sc.texture.content }
+        
+    sc.texture.content =
+        sc.texture.attlist
         
     sc.prog =
         ##A shader program. It represents a number of shaders, as well as uniforms and pre-4.20
@@ -51,7 +58,7 @@ div
         element scn:node { sc.node.content }
         
     sc.node.content =
-        sc.node.attlist, (sc.note)*
+        sc.node.attlist, (sc.note | sc.node.texture)*
         
     sc.note =
         ##User-defined strings that can be queried.
@@ -59,6 +66,13 @@ div
         
     sc.note.content =
         sc.note.attlist, text
+
+    sc.node.texture =
+        ##Associates a loaded texture with a sampler and texture unit for this node.
+        element scn:texture { sc.node.texture.content }
+        
+    sc.node.texture.content =
+        sc.node.texture.attlist
 }
 
 ##Attributes
@@ -66,6 +80,9 @@ div
 {
     sc.mesh.attlist =
         sc.xml.id.attribute, sc.mesh.file.attribute
+        
+    sc.texture.attlist =
+        sc.xml.id.attribute, sc.texture.file.attribute
     
     sc.prog.attlist =
         sc.xml.id.attribute,
@@ -91,6 +108,11 @@ div
     
     sc.note.attlist =
         sc.note.name.attribute
+        
+    sc.node.texture.attlist =
+        sc.node.texture.name.attribute,
+        sc.node.texture.unit.attribute,
+        sc.node.texture.sampler.attribute
     
     sc.xml.id.attribute =
         ##Uniquely named object
@@ -98,6 +120,10 @@ div
     
     sc.mesh.file.attribute =
         ##The mesh's filename.
+        attribute file { acc.filename.type }
+        
+    sc.texture.file.attribute =
+        ##The texture's filename.
         attribute file { acc.filename.type }
     
     sc.prog.vert.attribute =
@@ -145,7 +171,7 @@ div
         attribute mesh { xsd:IDREF }
         
     sc.node.prog.attribute =
-        ##The name of a program. If no program is found, an error rsults.
+        ##The name of a program. If no program is found, an error results.
         attribute prog { xsd:IDREF }
         
     sc.node.pos.attribute =
@@ -163,11 +189,31 @@ div
     sc.note.name.attribute =
         ##The name of an annotation in a node. The note name must be unique within the node.
         attribute name { text }
+
+    sc.node.texture.name.attribute =
+        ##The name of a texture. If no program is found, an error results.
+        attribute name { xsd:IDREF }
+    
+    sc.node.texture.unit.attribute =
+        ##The texture unit to use when binding this texture.
+        attribute unit { acc.texture-unit.type }
+        
+    sc.node.texture.sampler.attribute =
+        ##The sample filtering to use for this texture.
+        attribute sampler { acc.samplers.type }
 }
 
 ## Accessories
 div
 {
+    acc.samplers.type =
+        "nearest" |
+        "linear" |
+        "mipmap nearest" |
+        "mipmap linear" |
+        "anisotropic" |
+        "half anisotropic"
+        
     acc.texture-unit.type = xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "80"}
     acc.block-binding.type = xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "80"}
     acc.uniform.type = text
