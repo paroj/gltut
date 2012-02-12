@@ -2,6 +2,7 @@
 #include <vector>
 #include <exception>
 #include <memory>
+#include <stdio.h>
 #include <glimg/glimg.h>
 #include <glimg/TextureGenerator.h>
 #include <glload/gl_3_3.h>
