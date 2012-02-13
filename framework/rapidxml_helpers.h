@@ -38,6 +38,20 @@ namespace rapidxml
 		return pNode;
 	}
 
+	//If it's not there
+	inline bool get_attrib_bool(const xml_node<> &node, const std::string &attribName, bool optRet = false)
+	{
+		const xml_attribute<> *pAttrib = node.first_attribute(attribName.c_str());
+		if(!pAttrib)
+			return optRet;
+
+		const std::string &test = make_string(*pAttrib);
+		if(test == "true")
+			return true;
+
+		return false;
+	}
+
 	template<typename Callable>
 	int attrib_to_int(const xml_attribute<> &attrib, Callable FailFunc)
 	{

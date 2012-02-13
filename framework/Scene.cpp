@@ -115,7 +115,7 @@ namespace Framework
 	class SceneTexture
 	{
 	public:
-		SceneTexture(const std::string &filename)
+		SceneTexture(const std::string &filename, unsigned int creationFlags)
 		{
 			std::string pathname(Framework::FindFileOrThrow(filename));
 
@@ -130,7 +130,7 @@ namespace Framework
 				pImageSet.reset(glimg::loaders::stb::LoadFromFile(pathname.c_str()));
 			}
 
-			m_texObj = glimg::CreateTexture(pImageSet.get(), 0);
+			m_texObj = glimg::CreateTexture(pImageSet.get(), creationFlags);
 			//TODO: FIX THIS!!
 			m_texType = GL_TEXTURE_2D;
 		}
@@ -557,13 +557,19 @@ namespace Framework
 			PARSE_THROW(pNameNode, "Texture found with no `xml:id` name specified.");
 			PARSE_THROW(pFilenameNode, "Texture found with no `file` filename specified.");
 
+			const xml_attribute<> *pSrgbNode = TexNode.first_attribute("srgb");
+
 			std::string name = make_string(*pNameNode);
 			if(m_textures.find(name) != m_textures.end())
 				throw std::runtime_error("The texture named \"" + name + "\" already exists.");
 
 			m_textures[name] = NULL;
 
-			SceneTexture *pTexture = new SceneTexture(make_string(*pFilenameNode));
+			unsigned int creationFlags = 0;
+			if(get_attrib_bool(TexNode, "srgb"))
+				creationFlags |= glimg::FORCE_SRGB_COLORSPACE_FMT;
+
+			SceneTexture *pTexture = new SceneTexture(make_string(*pFilenameNode), creationFlags);
 
 			m_textures[name] = pTexture;
 		}

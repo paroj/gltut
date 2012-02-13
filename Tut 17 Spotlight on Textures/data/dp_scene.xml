@@ -7,11 +7,11 @@
 	<mesh xml:id="m_longBar" file="LongBar.xml"/>
 	<mesh xml:id="m_diorama" file="UnitDiorama.xml"/>
 	<mesh xml:id="m_floor" file="UnitPlane.xml"/>
-    <texture xml:id="t_stone" file="seamless_rock1_small.dds"/>
-    <texture xml:id="t_concrete_wall" file="concrete649_small.dds"/>
-    <texture xml:id="t_sandy_ground" file="dsc_1621_small.dds"/>
-    <texture xml:id="t_stone_pillar" file="rough645_small.dds"/>
-    <texture xml:id="t_wood_pillar" file="wood4_rotate.dds"/>
+    <texture xml:id="t_stone" file="seamless_rock1_small.dds" srgb="true"/>
+    <texture xml:id="t_concrete_wall" file="concrete649_small.dds" srgb="true"/>
+    <texture xml:id="t_sandy_ground" file="dsc_1621_small.dds" srgb="true"/>
+    <texture xml:id="t_stone_pillar" file="rough645_small.dds" srgb="true"/>
+    <texture xml:id="t_wood_pillar" file="wood4_rotate.dds" srgb="true"/>
     <prog
         xml:id="p_unlit"
         vert="Unlit.vert"

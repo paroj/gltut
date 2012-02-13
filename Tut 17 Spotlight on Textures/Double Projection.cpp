@@ -277,7 +277,7 @@ void BuildLights( const glm::mat4 &camMatrix )
 	LightBlock lightData;
 	lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	lightData.lightAttenuation = 1.0f / (5.0f * 5.0f);
-	lightData.maxIntensity = 4.0f;
+	lightData.maxIntensity = 3.0f;
 	lightData.lights[0].lightIntensity = glm::vec4(2.0f, 2.0f, 2.5f, 1.0f);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
 		glm::normalize(glm::vec4(-0.2f, 0.5f, 0.5f, 0.0f));

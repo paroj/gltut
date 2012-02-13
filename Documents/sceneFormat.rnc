@@ -82,7 +82,7 @@ div
         sc.xml.id.attribute, sc.mesh.file.attribute
         
     sc.texture.attlist =
-        sc.xml.id.attribute, sc.texture.file.attribute
+        sc.xml.id.attribute, sc.texture.file.attribute, sc.texture.srgb.attribute?
     
     sc.prog.attlist =
         sc.xml.id.attribute,
@@ -125,6 +125,10 @@ div
     sc.texture.file.attribute =
         ##The texture's filename.
         attribute file { acc.filename.type }
+        
+    sc.texture.srgb.attribute =
+        ##True if the texture if in the srgb format.
+        attribute srgb { xsd:boolean }
     
     sc.prog.vert.attribute =
         ##The vertex shader filename for this program
