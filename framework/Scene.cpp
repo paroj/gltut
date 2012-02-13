@@ -117,7 +117,7 @@ namespace Framework
 	public:
 		SceneTexture(const std::string &filename)
 		{
-			std::string pathname(Framework::FindFileOrThrow("seamless_rock1_small.dds"));
+			std::string pathname(Framework::FindFileOrThrow(filename));
 
 			std::auto_ptr<glimg::ImageSet> pImageSet;
 			std::string ext = GetExtension(pathname);
