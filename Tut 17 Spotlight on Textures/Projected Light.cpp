@@ -30,7 +30,7 @@ const float g_fzFar = 1000.0f;
 
 const int g_projectionBlockIndex = 0;
 const int g_lightBlockIndex = 1;
-const int g_colorTexUnit = 0;
+const int g_lightProjTexUnit = 3;
 
 struct ProjectionBlock
 {
@@ -39,13 +39,50 @@ struct ProjectionBlock
 
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_lightUniformBuffer = 0;
+GLuint g_lightProjTex;
+
+const int NUM_SAMPLERS = 1;
+GLuint g_samplers[NUM_SAMPLERS];
+
+void CreateSamplers()
+{
+	glGenSamplers(NUM_SAMPLERS, &g_samplers[0]);
+
+	for(int samplerIx = 0; samplerIx < NUM_SAMPLERS; samplerIx++)
+	{
+		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	}
+
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+	glSamplerParameterfv(g_samplers[0], GL_TEXTURE_BORDER_COLOR, color);
+}
+
+void LoadTextures()
+{
+	try
+	{
+		std::string filename(Framework::FindFileOrThrow("testLightImg.dds"));
+
+		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+		g_lightProjTex = glimg::CreateTexture(pImageSet.get(), 0);
+	}
+	catch(std::exception &e)
+	{
+		printf("%s\n", e.what());
+		throw;
+	}
+}
 
 ////////////////////////////////
 //View setup.
 glutil::ViewData g_initialView =
 {
-	glm::vec3(0.0f, 0.0f, 0.0f),
-	glm::fquat(0.909845f, 0.16043f, -0.376867f, -0.0664516f),
+	glm::vec3(0.0f, 0.0f, 10.0f),
+ 	glm::fquat(0.909845f, 0.16043f, -0.376867f, -0.0664516f),
 	25.0f,
 	0.0f
 };
@@ -59,15 +96,15 @@ glutil::ViewScale g_initialViewScale =
 };
 
 
-glutil::ViewData g_initPersView =
+glutil::ViewData g_initLightView =
 {
-	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 0.0f, 20.0f),
 	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
 	5.0f,
 	0.0f
 };
 
-glutil::ViewScale g_initPersViewScale =
+glutil::ViewScale g_initLightViewScale =
 {
 	0.05f, 10.0f,
 	0.1f, 0.05f,
@@ -76,20 +113,20 @@ glutil::ViewScale g_initPersViewScale =
 };
 
 glutil::ViewPole g_viewPole(g_initialView, g_initialViewScale, glutil::MB_LEFT_BTN);
-glutil::ViewPole g_persViewPole(g_initPersView, g_initPersViewScale, glutil::MB_RIGHT_BTN);
+glutil::ViewPole g_lightViewPole(g_initLightView, g_initLightViewScale, glutil::MB_RIGHT_BTN);
 
 namespace
 {
 	void MouseMotion(int x, int y)
 	{
 		Framework::ForwardMouseMotion(g_viewPole, x, y);
-		Framework::ForwardMouseMotion(g_persViewPole, x, y);
+		Framework::ForwardMouseMotion(g_lightViewPole, x, y);
 	}
 
 	void MouseButton(int button, int state, int x, int y)
 	{
 		Framework::ForwardMouseButton(g_viewPole, button, state, x, y);
-		Framework::ForwardMouseButton(g_persViewPole, button, state, x, y);
+		Framework::ForwardMouseButton(g_lightViewPole, button, state, x, y);
 	}
 
 	void MouseWheel(int wheel, int direction, int x, int y)
@@ -104,28 +141,44 @@ Framework::Timer g_timer(Framework::Timer::TT_LOOP, 10.0f);
 
 Framework::UniformIntBinder g_lightNumBinder;
 Framework::TextureBinder g_stoneTexBinder;
+Framework::UniformMat4Binder g_lightProjMatBinder;
+Framework::UniformVec3Binder g_camLightPosBinder;
+
+glm::fquat g_spinBarOrient;
 
 GLint g_unlitModelToCameraMatrixUnif;
 GLint g_unlitObjectColorUnif;
 GLuint g_unlitProg;
 Framework::Mesh *g_pSphereMesh = NULL;
-glm::fquat g_spinBarOrient;
+
+GLint g_coloredModelToCameraMatrixUnif;
+GLuint g_colroedProg;
+Framework::Mesh *g_pAxesMesh = NULL;
 
 void LoadAndSetupScene()
 {
-	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("dp_scene.xml"));
+	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("proj2d_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
 	nodes.push_back(pScene->FindNode("cube"));
 	nodes.push_back(pScene->FindNode("rightBar"));
 	nodes.push_back(pScene->FindNode("leaningBar"));
 	nodes.push_back(pScene->FindNode("spinBar"));
+	nodes.push_back(pScene->FindNode("diorama"));
+	nodes.push_back(pScene->FindNode("floor"));
 
 	AssociateUniformWithNodes(nodes, g_lightNumBinder, "numberOfLights");
 	SetStateBinderWithNodes(nodes, g_lightNumBinder);
-
+	AssociateUniformWithNodes(nodes, g_lightProjMatBinder, "cameraToLightProjMatrix");
+	SetStateBinderWithNodes(nodes, g_lightProjMatBinder);
+	AssociateUniformWithNodes(nodes, g_camLightPosBinder, "cameraSpaceProjLightPos");
+	SetStateBinderWithNodes(nodes, g_camLightPosBinder);
+	
 	GLuint unlit = pScene->FindProgram("p_unlit");
 	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
+
+	GLuint colored = pScene->FindProgram("p_colored");
+	Framework::Mesh *pAxesMesh = pScene->FindMesh("m_axes");
 
 	//No more things that can throw.
 	g_spinBarOrient = nodes[3].NodeGetOrient();
@@ -133,10 +186,14 @@ void LoadAndSetupScene()
 	g_unlitModelToCameraMatrixUnif = glGetUniformLocation(unlit, "modelToCameraMatrix");
 	g_unlitObjectColorUnif = glGetUniformLocation(unlit, "objectColor");
 
+	g_colroedProg = colored;
+	g_coloredModelToCameraMatrixUnif = glGetUniformLocation(colored, "modelToCameraMatrix");
+
 	std::swap(nodes, g_nodes);
 	nodes.clear();	//If something was there already, delete it.
 
 	std::swap(pSphereMesh, g_pSphereMesh);
+	std::swap(pAxesMesh, g_pAxesMesh);
 
 	Framework::Scene *pOldScene = g_pScene;
 	g_pScene = pScene.release();
@@ -190,6 +247,9 @@ void init()
 	glBindBufferRange(GL_UNIFORM_BUFFER, g_projectionBlockIndex, g_projectionUniformBuffer,
 		0, sizeof(ProjectionBlock));
 
+	CreateSamplers();
+	LoadTextures();
+
 	try
 	{
 		LoadAndSetupScene();
@@ -217,19 +277,19 @@ int g_currSampler = 0;
 bool g_bDrawCameraPos = false;
 bool g_bDepthClampProj = true;
 
-int g_displayWidth = 700;
-int g_displayHeight = 350;
+int g_displayWidth = 500;
+int g_displayHeight = 500;
 
 void BuildLights( const glm::mat4 &camMatrix )
 {
 	LightBlock lightData;
 	lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	lightData.lightAttenuation = 1.0f / (5.0f * 5.0f);
+	lightData.lightAttenuation = 1.0f / (20.0f * 20.0f);
 	lightData.maxIntensity = 3.0f;
 	lightData.lights[0].lightIntensity = glm::vec4(2.0f, 2.0f, 2.5f, 1.0f);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
 		glm::normalize(glm::vec4(-0.2f, 0.5f, 0.5f, 0.0f));
-	lightData.lights[1].lightIntensity = glm::vec4(3.5f, 6.5f, 3.0f, 1.0f) * 1.2f;
+	lightData.lights[1].lightIntensity = glm::vec4(3.5f, 6.5f, 3.0f, 1.0f) * 1.5f;
 	lightData.lights[1].cameraSpaceLightPos = camMatrix *
 		glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
 
@@ -253,10 +313,13 @@ void display()
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glutil::MatrixStack modelMatrix;
-	modelMatrix *= g_viewPole.CalcMatrix();
+	const glm::mat4 &cameraMatrix = g_viewPole.CalcMatrix();
+	const glm::mat4 &lightView = g_lightViewPole.CalcMatrix();
 
-	BuildLights(modelMatrix.Top());
+	glutil::MatrixStack modelMatrix;
+	modelMatrix *= cameraMatrix;
+
+	BuildLights(cameraMatrix);
 
 	g_nodes[0].NodeSetOrient(glm::rotate(glm::fquat(),
 		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 1.0f, 0.0f)));
@@ -264,11 +327,9 @@ void display()
 	g_nodes[3].NodeSetOrient(g_spinBarOrient * glm::rotate(glm::fquat(),
 		360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 0.0f, 1.0f)));
 
-	glm::ivec2 displaySize(g_displayWidth / 2, g_displayHeight);
-
 	{
 		glutil::MatrixStack persMatrix;
-		persMatrix.Perspective(60.0f, (displaySize.x / (float)displaySize.y), g_fzNear, g_fzFar);
+		persMatrix.Perspective(60.0f, (g_displayWidth / (float)g_displayHeight), g_fzNear, g_fzFar);
 
 		ProjectionBlock projData;
 		projData.cameraToClipMatrix = persMatrix.Top();
@@ -278,13 +339,49 @@ void display()
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
-	glViewport(0, 0, (GLsizei)displaySize.x, (GLsizei)displaySize.y);
+	glActiveTexture(GL_TEXTURE0 + g_lightProjTexUnit);
+	glBindTexture(GL_TEXTURE_2D, g_lightProjTex);
+	glBindSampler(g_lightProjTexUnit, g_samplers[0]);
+
+	{
+		glutil::MatrixStack lightProjStack;
+		//Texture-space transform
+		lightProjStack.Translate(0.5f, 0.5f, 0.0f);
+		lightProjStack.Scale(0.5f);
+		//Project. Z-range is irrelevant.
+		lightProjStack.Perspective(45.0f, 1.0f, 1.0f, 100.0f);
+		//Transform from main camera space to light camera space.
+		lightProjStack.ApplyMatrix(lightView);
+		lightProjStack.ApplyMatrix(glm::inverse(cameraMatrix));
+
+		g_lightProjMatBinder.SetValue(lightProjStack.Top());
+
+		glm::vec4 worldLightPos = glm::inverse(lightView)[3];
+		glm::vec3 lightPos = glm::vec3(cameraMatrix * worldLightPos);
+
+		g_camLightPosBinder.SetValue(lightPos);
+	}
+
+	glViewport(0, 0, (GLsizei)g_displayWidth, (GLsizei)g_displayHeight);
 	g_pScene->Render(modelMatrix.Top());
+
+	{
+		//Draw axes
+		glutil::PushStack stackPush(modelMatrix);
+		modelMatrix.ApplyMatrix(glm::inverse(lightView));
+		modelMatrix.Scale(15.0f);
+		modelMatrix.Scale(1.0f, 1.0f, -1.0f); //Invert the Z-axis so that it points in the right direction.
+
+		glUseProgram(g_colroedProg);
+		glUniformMatrix4fv(g_coloredModelToCameraMatrixUnif, 1, GL_FALSE,
+			glm::value_ptr(modelMatrix.Top()));
+		g_pAxesMesh->Render();
+	}
 
 	if(g_bDrawCameraPos)
 	{
-		glutil::PushStack stackPush(modelMatrix);
 		//Draw lookat point.
+		glutil::PushStack stackPush(modelMatrix);
 		modelMatrix.SetIdentity();
 		modelMatrix.Translate(glm::vec3(0.0f, 0.0f, -g_viewPole.GetView().radius));
 		modelMatrix.Scale(0.5f);
@@ -302,25 +399,6 @@ void display()
 		g_pSphereMesh->Render("flat");
 	}
 
-	{
-		glutil::MatrixStack persMatrix;
-		persMatrix.ApplyMatrix(glm::mat4(glm::mat3(g_persViewPole.CalcMatrix())));
-		persMatrix.Perspective(60.0f, (displaySize.x / (float)displaySize.y), g_fzNear, g_fzFar);
-
-		ProjectionBlock projData;
-		projData.cameraToClipMatrix = persMatrix.Top();
-
-		glBindBuffer(GL_UNIFORM_BUFFER, g_projectionUniformBuffer);
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(ProjectionBlock), &projData, GL_STREAM_DRAW);
-		glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	}
-
-	if(!g_bDepthClampProj)
-		glDisable(GL_DEPTH_CLAMP);
-	glViewport(displaySize.x + (g_displayWidth % 2), 0,
-		(GLsizei)displaySize.x, (GLsizei)displaySize.y);
-	g_pScene->Render(modelMatrix.Top());
-	glEnable(GL_DEPTH_CLAMP);
 
     glutPostRedisplay();
 	glutSwapBuffers();
@@ -350,7 +428,7 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		return;
 	case 32:
-		g_persViewPole.Reset();
+		g_lightViewPole.Reset();
 		break;
 	case 't':
 		g_bDrawCameraPos = !g_bDrawCameraPos;
@@ -381,8 +459,8 @@ void keyboard(unsigned char key, int x, int y)
 
 unsigned int defaults(unsigned int displayMode, int &width, int &height)
 {
-	width = g_displayWidth;
-	height = g_displayHeight;
+	g_displayWidth = width;
+	g_displayHeight = height;
 	return displayMode | GLUT_SRGB;
 }
 

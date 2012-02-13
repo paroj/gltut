@@ -3,6 +3,7 @@
 in vec2 colorCoord;
 in vec3 cameraSpacePosition;
 in vec3 cameraSpaceNormal;
+in vec4 lightProjPosition;
 
 out vec4 outputColor;
 
@@ -50,7 +51,7 @@ vec4 ComputeLighting(in vec4 diffuseColor, in PerLight lightData)
 			lightData.cameraSpaceLightPos.xyz, lightDir);
 		lightIntensity = atten * lightData.lightIntensity;
 	}
-	
+
 	vec3 surfaceNormal = normalize(cameraSpaceNormal);
 	float cosAngIncidence = dot(surfaceNormal, lightDir);
 	cosAngIncidence = cosAngIncidence < 0.0001 ? 0.0 : cosAngIncidence;
@@ -61,18 +62,32 @@ vec4 ComputeLighting(in vec4 diffuseColor, in PerLight lightData)
 }
 
 uniform sampler2D diffuseColorTex;
+uniform sampler2D lightProjTex;
+
+uniform vec3 cameraSpaceProjLightPos;
 
 void main()
 {
 	vec4 diffuseColor = texture(diffuseColorTex, colorCoord);
 
+	PerLight currLight;
+	currLight.cameraSpaceLightPos = vec4(cameraSpaceProjLightPos, 1.0);
+	currLight.lightIntensity =
+		textureProj(lightProjTex, lightProjPosition.xyw) * 2.0;
+		
+	currLight.lightIntensity = lightProjPosition.z > 0 ?
+		currLight.lightIntensity : vec4(0.0);
+	
 	vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
 	for(int light = 0; light < numberOfLights; light++)
 	{
 		accumLighting += ComputeLighting(diffuseColor, Lgt.lights[light]);
 	}
-	
-	outputColor = accumLighting / Lgt.maxIntensity;
 
+	
+	accumLighting += ComputeLighting(diffuseColor, currLight);
+
+	outputColor = accumLighting / Lgt.maxIntensity;
+	
 //	outputColor = diffuseColor;
 }

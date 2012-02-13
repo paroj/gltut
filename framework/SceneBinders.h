@@ -141,6 +141,25 @@ namespace Framework
 		int m_val;
 	};
 
+	class UniformMat4Binder : public UniformBinderBase
+	{
+	public:
+		UniformMat4Binder()
+			: m_val(1.0f)	{}
+
+		void SetValue(const glm::mat4 &val)	{ m_val = val; }
+
+		virtual void BindState(GLuint prog) const
+		{
+			glUniformMatrix4fv(GetUniformLoc(prog), 1, GL_FALSE, glm::value_ptr(m_val));
+		}
+
+		virtual void UnbindState(GLuint prog) const {}
+
+	private:
+		glm::mat4 m_val;
+	};
+
 	class TextureBinder : public StateBinder
 	{
 	public:

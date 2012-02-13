@@ -681,7 +681,10 @@ namespace Framework
 
 					GLuint blockIx = glGetUniformBlockIndex(program, name.c_str());
 					if(blockIx == GL_INVALID_INDEX)
-						throw std::runtime_error("The uniform block " + name + " could not be found.");
+					{
+						std::cout << "Warning: the uniform block " << name << " could not be found." << std::endl;
+						continue;
+					}
 
 					int bindPoint = rapidxml::attrib_to_int(*pBindingNode, ThrowAttrib);
 					glUniformBlockBinding(program, blockIx, bindPoint);
@@ -702,7 +705,10 @@ namespace Framework
 
 					GLint samplerLoc = glGetUniformLocation(program, name.c_str());
 					if(samplerLoc == -1)
-						throw std::runtime_error("The sampler " + name + " could not be found.");
+					{
+						std::cout << "Warning: the sampler " << name << " could not be found." << std::endl;
+						continue;
+					}
 
 					GLint textureUnit = rapidxml::attrib_to_int(*pTexunitNode, ThrowAttrib);
 					glUseProgram(program);
