@@ -464,7 +464,7 @@ namespace Framework
 
 		void Render(const glm::mat4 &cameraMatrix) const
 		{
-			for(NodeMap::const_iterator &theIt = m_nodes.begin();
+			for(NodeMap::const_iterator theIt = m_nodes.begin();
 				theIt != m_nodes.end();
 				++theIt)
 			{
