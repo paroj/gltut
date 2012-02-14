@@ -73,7 +73,7 @@ void main()
 	PerLight currLight;
 	currLight.cameraSpaceLightPos = vec4(cameraSpaceProjLightPos, 1.0);
 	currLight.lightIntensity =
-		textureProj(lightProjTex, lightProjPosition.xyw) * 2.0;
+		textureProj(lightProjTex, lightProjPosition.xyw) * 4.0f;
 		
 	currLight.lightIntensity = lightProjPosition.z > 0 ?
 		currLight.lightIntensity : vec4(0.0);
@@ -84,7 +84,7 @@ void main()
 		accumLighting += ComputeLighting(diffuseColor, Lgt.lights[light]);
 	}
 
-	
+//	accumLighting = vec4(0.0f);
 	accumLighting += ComputeLighting(diffuseColor, currLight);
 
 	outputColor = accumLighting / Lgt.maxIntensity;

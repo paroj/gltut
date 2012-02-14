@@ -39,9 +39,8 @@ struct ProjectionBlock
 
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_lightUniformBuffer = 0;
-GLuint g_lightProjTex;
 
-const int NUM_SAMPLERS = 1;
+const int NUM_SAMPLERS = 2;
 GLuint g_samplers[NUM_SAMPLERS];
 
 void CreateSamplers()
@@ -50,25 +49,44 @@ void CreateSamplers()
 
 	for(int samplerIx = 0; samplerIx < NUM_SAMPLERS; samplerIx++)
 	{
-		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 
-	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glSamplerParameteri(g_samplers[0], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
 	float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	glSamplerParameterfv(g_samplers[0], GL_TEXTURE_BORDER_COLOR, color);
+	glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);
 }
+
+struct TexDef { const char *filename; const char *name; };
+
+TexDef g_texDefs[] =
+{
+	{"Flashlight.dds", "Flashlight"},
+	{"PointsOfLight.dds", "Multiple Point Lights"},
+	{"Bands.dds", "Light Bands"},
+};
+
+GLuint g_lightTextures[ARRAY_COUNT(g_texDefs)];
+const int NUM_LIGHT_TEXTURES = ARRAY_COUNT(g_texDefs);
+int g_currTextureIndex = 0;
 
 void LoadTextures()
 {
 	try
 	{
-		std::string filename(Framework::FindFileOrThrow("testLightImg.dds"));
+		for(int tex = 0; tex < NUM_LIGHT_TEXTURES; ++tex)
+		{
+			std::string filename(Framework::FindFileOrThrow(g_texDefs[tex].filename));
 
-		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-		g_lightProjTex = glimg::CreateTexture(pImageSet.get(), 0);
+			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+			g_lightTextures[tex] = glimg::CreateTexture(pImageSet.get(), 0);
+		}
 	}
 	catch(std::exception &e)
 	{
@@ -154,6 +172,7 @@ Framework::Mesh *g_pSphereMesh = NULL;
 GLint g_coloredModelToCameraMatrixUnif;
 GLuint g_colroedProg;
 Framework::Mesh *g_pAxesMesh = NULL;
+
 
 void LoadAndSetupScene()
 {
@@ -274,8 +293,11 @@ using Framework::Timer;
 
 int g_currSampler = 0;
 
+const float g_lightFOVs[] = { 10.0f, 20.0f, 45.0f, 75.0f, 90.0f, 120.0f, 150.0f, 170.0f };
+int g_currFOVIndex = 3;
+
 bool g_bDrawCameraPos = false;
-bool g_bDepthClampProj = true;
+bool g_bShowOtherLights = true;
 
 int g_displayWidth = 500;
 int g_displayHeight = 500;
@@ -284,16 +306,19 @@ void BuildLights( const glm::mat4 &camMatrix )
 {
 	LightBlock lightData;
 	lightData.ambientIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
-	lightData.lightAttenuation = 1.0f / (20.0f * 20.0f);
-	lightData.maxIntensity = 3.0f;
-	lightData.lights[0].lightIntensity = glm::vec4(2.0f, 2.0f, 2.5f, 1.0f);
+	lightData.lightAttenuation = 1.0f / (30.0f * 30.0f);
+	lightData.maxIntensity = 2.0f;
+	lightData.lights[0].lightIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
 		glm::normalize(glm::vec4(-0.2f, 0.5f, 0.5f, 0.0f));
-	lightData.lights[1].lightIntensity = glm::vec4(3.5f, 6.5f, 3.0f, 1.0f) * 1.5f;
+	lightData.lights[1].lightIntensity = glm::vec4(3.5f, 6.5f, 3.0f, 1.0f) * 0.5f;
 	lightData.lights[1].cameraSpaceLightPos = camMatrix *
 		glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
 
-	g_lightNumBinder.SetValue(2);
+	if(g_bShowOtherLights)
+		g_lightNumBinder.SetValue(2);
+	else
+		g_lightNumBinder.SetValue(0);
 
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), &lightData, GL_STREAM_DRAW);
@@ -340,8 +365,8 @@ void display()
 	}
 
 	glActiveTexture(GL_TEXTURE0 + g_lightProjTexUnit);
-	glBindTexture(GL_TEXTURE_2D, g_lightProjTex);
-	glBindSampler(g_lightProjTexUnit, g_samplers[0]);
+	glBindTexture(GL_TEXTURE_2D, g_lightTextures[g_currTextureIndex]);
+	glBindSampler(g_lightProjTexUnit, g_samplers[g_currSampler]);
 
 	{
 		glutil::MatrixStack lightProjStack;
@@ -349,7 +374,7 @@ void display()
 		lightProjStack.Translate(0.5f, 0.5f, 0.0f);
 		lightProjStack.Scale(0.5f);
 		//Project. Z-range is irrelevant.
-		lightProjStack.Perspective(45.0f, 1.0f, 1.0f, 100.0f);
+		lightProjStack.Perspective(g_lightFOVs[g_currFOVIndex], 1.0f, 1.0f, 100.0f);
 		//Transform from main camera space to light camera space.
 		lightProjStack.ApplyMatrix(lightView);
 		lightProjStack.ApplyMatrix(glm::inverse(cameraMatrix));
@@ -433,8 +458,11 @@ void keyboard(unsigned char key, int x, int y)
 	case 't':
 		g_bDrawCameraPos = !g_bDrawCameraPos;
 		break;
-	case 'y':
-		g_bDepthClampProj = !g_bDepthClampProj;
+	case 'g':
+		g_bShowOtherLights = !g_bShowOtherLights;
+		break;
+	case 'h':
+		g_currSampler = (g_currSampler + 1) % NUM_SAMPLERS;
 		break;
 	case 'p':
 		g_timer.TogglePause();
@@ -452,6 +480,24 @@ void keyboard(unsigned char key, int x, int y)
 			}
 		}
 		break;
+	case 'y':
+		g_currFOVIndex = std::min(g_currFOVIndex + 1, int(ARRAY_COUNT(g_lightFOVs) - 1));
+		printf("Curr FOV: %f\n", g_lightFOVs[g_currFOVIndex]);
+		break;
+	case 'n':
+		g_currFOVIndex = std::max(g_currFOVIndex - 1, 0);
+		printf("Curr FOV: %f\n", g_lightFOVs[g_currFOVIndex]);
+		break;
+
+	}
+
+	{
+		int possibleIndex = (int)key - (int)'1';
+		if((0 <= possibleIndex) && (possibleIndex < NUM_LIGHT_TEXTURES))
+		{
+			g_currTextureIndex = key - '1';
+			printf("%s\n", g_texDefs[g_currTextureIndex].name);
+		}
 	}
 
 	g_viewPole.CharPress(key);

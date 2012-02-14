@@ -1,6 +1,6 @@
 #version 330
 
-in vec4 objectColor;
+smooth in vec4 objectColor;
 
 out vec4 outputColor;
 
