@@ -13,11 +13,11 @@ require "_FindFileInPath"
 local externals =
 {
 	{
-		"OpenGL SDK 0.4.1",		--The name of the component.
+		"OpenGL SDK 0.4.2",		--The name of the component.
 		"glsdk",				--The output directory to copy the component's data.
 		"glsdk.7z",				--The filename that will be created in the download director.
-		"glsdk_0.4.1",			--If the zip file has a base directory, then name it here. If it doesn't, then just use ""
-		[==[https://downloads.sourceforge.net/project/glsdk/GLSDK%200.4.0/glsdk_0.4.1.7z?r=&ts=1321260316&use_mirror=master]==],
+		"glsdk_0.4.2",			--If the zip file has a base directory, then name it here. If it doesn't, then just use ""
+		[==[https://downloads.sourceforge.net/project/glsdk/GLSDK%200.4.0/glsdk_0.4.2.7z?r=&ts=1329264406&use_mirror=iweb]==],
 		
 		--Files/ to delete, relative to the output directory of this component.
 		{

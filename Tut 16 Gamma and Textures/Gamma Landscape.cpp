@@ -6,9 +6,8 @@
 #include <stdio.h>
 #include <sstream>
 #include <memory>
-#include <glimg/glimg.h>
-#include <glimg/TextureGenerator.h>
 #include <glload/gl_3_3.h>
+#include <glimg/glimg.h>
 #include <GL/freeglut.h>
 #include <glutil/MatrixStack.h>
 #include <glutil/MousePoles.h>
