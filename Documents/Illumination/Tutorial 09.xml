@@ -869,11 +869,11 @@ else
         <para>In the pure-diffuse case, the light intensity is full white. But in the ambient case,
             we deliberately set the diffuse intensity to less than full white. This is very
             intensional.</para>
-        <para>We will talk more about this issue in the near future, but it is very critical that
-            light intensity values not exceed 1.0. This includes <emphasis>combined</emphasis>
-            lighting intensity values. OpenGL clamps colors that it writes to the output image to
-            the range [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined
-            with other lights, can cause unpleasant visual effects.</para>
+        <para>We will talk more about this issue in the future, but it is very critical that light
+            intensity values not exceed 1.0. This includes <emphasis>combined</emphasis> lighting
+            intensity values. OpenGL clamps colors that it writes to the output image to the range
+            [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined with other
+            lights, can cause unpleasant visual effects.</para>
         <para>There are ways around this, and those ways will be discussed in the eventual
             future.</para>
     </section>
