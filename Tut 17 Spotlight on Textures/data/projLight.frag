@@ -75,7 +75,7 @@ void main()
 	currLight.lightIntensity =
 		textureProj(lightProjTex, lightProjPosition.xyw) * 4.0f;
 		
-	currLight.lightIntensity = lightProjPosition.z > 0 ?
+	currLight.lightIntensity = lightProjPosition.z > -2.0202 ?
 		currLight.lightIntensity : vec4(0.0);
 	
 	vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
@@ -89,5 +89,5 @@ void main()
 
 	outputColor = accumLighting / Lgt.maxIntensity;
 	
-//	outputColor = diffuseColor;
+//	outputColor = currLight.lightIntensity;
 }

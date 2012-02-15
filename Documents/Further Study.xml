@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <title>Further Study</title>
+    <para>G</para>
+    <section>
+        <title>Topics of Interest</title>
+        <para>This book should provide a firm foundation for understanding graphics development.
+            However, there are many subjects that it does not cover which are also important in
+            rendering. Here is a list of topics that you should investigate, with a quick
+            introduction to the basic concepts. This, like this book, is not intended to be a
+            comprehensive tour of graphical effects. It is simply an introduction to a few concepts
+            that you should spend some time investigating.</para>
+        <formalpara>
+            <title>Vertex Weighting</title>
+            <para>All of our meshes have had fairly simple linear transformations applied to them
+                (outside of the perspective projection). However, the mesh for a human or human-like
+                character needs to be able to deform based on animations. The transformation for the
+                upper arm and the lower arm are different, but they both affect vertices at the
+                elbow in some way.</para>
+        </formalpara>
+        <para>The system for dealing with this is called vertex weighting or skinning (note:
+                <quote>skinning</quote>, as a term, has also been applied to mapping a texture on an
+            object. So be aware of that when doing searches). A character is made of a hierarchy of
+            transformations; each transform is called a bone. Vertices are weighted to particular
+            bones. Where it gets interesting is that vertices can have weights to multiple bones.
+            This means that the vertex's final position is determined by combining the transforms by
+            two (or more) matrices.</para>
+        <para>Vertex shaders generally do this by taking an array of matrices as a uniform block.
+            Each matrix is a bone. Each vertex contains a <type>vec4</type> which contains up to 4
+            indices in the bone matrix array, and another <type>vec4</type> that contains the weight
+            to use with the corresponding bone. The vertex is multiplied by each of the four
+            matrices, and the results are averaged together.</para>
+        <para>This process is made more complicated by normals and the tangent-space basis necessary
+            for bump mapping. And it is complicated even further by a technique called dual
+            quaternion skinning. This is done primarily to avoid issues with certain bones rotating
+            relative to one another. It prevents the wrist bone from pinching inwards when it spins
+            relative to the forearm.</para>
+        <formalpara>
+            <title>BRDFs</title>
+            <para>The term Bidirectional Reflectance Distribution Function (<acronym>BRDF</acronym>)
+                refers to a special kind of function. It is a function of two directions: the
+                direction towards the incident light and the direction towards the viewer, both of
+                which are specified relative to the surface normal. This last part makes the BRDF
+                independent of the surface normal, as it is an implicit parameter in the equation.
+                The output of the BRDF is the percentage of light from the light source that is
+                reflected along the view direction. Thus, the output of the BRDF is multipled into
+                the incident light intensity to produce the output light intensity.</para>
+        </formalpara>
+        <para>By all rights, this sounds like a lighting equation. And it is. Indeed, every lighting
+            equation in this book can be expressed in the form of a BRDF. One of the things that
+            make BRDFs as a class of equations interesting is that you can actually take a material
+            into a lab, perform a series of tests on it, and produce a BRDF table out of them. This
+            BRDF table, typically expressed as a texture, can then be used to reflect how a surface
+            in the real world actually behaves under lighting conditions. This can provide much more
+            accurate results than using models as we have done.</para>
+        <formalpara>
+            <title>Scalable Alpha Testing</title>
+            <para>We have seen how alpha-test works via <literal>discard</literal>: a fragment is
+                culled if its alpha is beneath a certain threshold. However, when magnifying a
+                texture providing that alpha, it can create an unfortunate stair-step effect along
+                the border between the culled and unculled part. It is possible to avoid these
+                artifacts, if one preprocesses the texture correctly.</para>
+        </formalpara>
+        <para>Valve software's Chris Green wrote a paper entitled <citetitle>Improved Alpha-Tested
+                Magnification for Vector Textures and Special Effects</citetitle>. This paper
+            describes a way to take a high-resolution version of the alpha and convert it into a
+            distance field. Since distances interpolate much better in a spatial domain like images,
+            using distance-based culling instead of edge-based culling produces a much smoother
+            result even with a heavily magnified image.</para>
+        <para>The depth field can also be used to do other effects, like draw outlines around
+            objects or drop shadows. And the best part is that it is a very inexpensive technique to
+            implement. It requires some up-front preprocessing, but what you get in the end is quite
+            powerful and very performance-friendly.</para>
+        <formalpara>
+            <title>Screen-Space Ambient Occlusion</title>
+            <para>One of the many difficult processes when doing rasterization-based rendering is
+                dealing with interreflection. That is, light reflected from one object that reflects
+                off of another. We covered this by providing a single ambient light as something of
+                a hack. A useful one, but a hack nonetheless.</para>
+        </formalpara>
+        <para>Screen-space ambient occlusion (<acronym>SSAO</acronym>) is the term given to a hacky
+            modification of this already hacky concept. The idea works like this. If two objects
+            form an interior corner, then the amount of interreflected light for the pixels around
+            that interior corner will be less than the general level of interreflection. This is a
+            generally true statement. What SSAO does is find all of those corners, in screen-space,
+            and decreases the ambient light intensity for them proportionately.</para>
+        <para>Doing this in screen space requires access to the screen space depth for each pixel.
+            So it combines very nicely with deferred rendering techniques. Indeed, it can simply be
+            folded into the ambient lighting pass of deferred rendering, though getting it to
+            perform reasonably fast is the biggest challenge. But the results can look good enough
+            to be worth the effort.</para>
+        <formalpara>
+            <title>Light Scattering</title>
+            <para>When light passes through the atmosphere, it can be absorbed and reflected by the
+                atmosphere itself. After all, this is why the sky is blue: because it absorbs some
+                of the light coming from the sun, tinting the sunlight blue. Clouds are also a form
+                of this: light that hits the water vapor that comprises clouds is reflected around
+                and scattered. Thin clouds appear white because much of the light still makes it
+                through. Thick clouds appear dark because they scatter and absorb so much light that
+                not much passes through them.</para>
+        </formalpara>
+        <para>All of these are light scattering effects. The most common in real-time scenarios is
+            fog, which meteorologically speaking, is simply a low-lying cloud. Ground fog is
+            commonly approximated in graphics by applying a change to the intensity of the light
+            reflected from a surface towards the viewer. The farther the light travels, the more of
+            it is absorbed and reflected, converting it into the fog's color. So objects that are
+            extremely distant from the viewer would be indistinguishable from the fog itself. The
+            thickness of the fog is based on the distance light has to travel before it becomes just
+            more fog.</para>
+        <para>Fog can also be volumetric, localized in a specific region in space. This is often
+            done to create the effect of a room full of steam, smoke, or other particulate aerosols.
+            Volumetric fog is much more complex to implement than distance-based fog. This is
+            complicated even more by objects that have to move through the fog region.</para>
+        <para>Fog system deal with the light reflected from a surface to the viewer. Generalized
+            light scattering systems deal with light from a light source that is scattered through
+            fog. Think about car headlights in a fog: you can see the beam reflecting off of the fog
+            itself. That is an entirely different can of worms and a general implementation is very
+            difficult to pull off. Specific implementations, sometimes called <quote>God
+                rays</quote> for the effect of strong sunlight on dust particles in a dark room, can
+            provide some form of this. But they generally have to be special cased for every
+            occurrence, rather than a generalized technique that can be applied.</para>
+        <formalpara>
+            <title>Non-Photorealistic Rendering</title>
+            <para>Talking about non-photorealistic rendering (<acronym>NPR</acronym>) as one thing
+                is like talking about non-Elephant biology as one thing. Photorealism may have the
+                majority of the research effort in it, but the depth of non-photorealistic
+                possibilities with modern hardware is extensive.</para>
+        </formalpara>
+        <para>These techniques often extend beyond mere rendering, into how textures are created and
+            what they store, to exaggerated models, to various other things. Once you leave the
+            comfort of approximately realistic lighting models, all bets are off.</para>
+        <para>In terms of just the rendering part, the most well-known NPR technique is probably
+            cartoon rendering, or cel shading. The idea with realistic lighting is to light a curved
+            object so that it appears curved. With cel shading, the idea is often to light a curved
+            object so that it appears <emphasis>flat</emphasis>. Or at least, so that it
+            approximates one of the many different styles of cartoons, some of which are more flat
+            than others. This generally means that light has only a few intensities: on and off.
+            Where the edge is between being lit and being unlit depends on how you want the object
+            to look.</para>
+        <para>Coupled with cartoon rendering is some form of outline rendering. This is a bit more
+            difficult to pull off in an aesthetically pleasing way. When an artist is drawing cel
+            animation, they have the ability to fudge things in arbitrary ways to achieve the best
+            result. Computers have to use an algorithm, which is more likely to be a compromise than
+            a perfect solution for every case. What looks good for outlines in one case may not work
+            in another. So testing the various outlining techniques is vital for pulling off a
+            convincing effect.</para>
+        <para>Other NPR techniques include drawing objects that look like pencil sketches, which
+            require more texture work than rendering system work. Some find ways to make what could
+            have been a photorealistic rendering look like an oil painting of some form, or in some
+            cases, the glossy colors of a comic book. And so on. NPR has as its limits the user's
+            imagination. And the cleverness of the programmer to find a way to make it work, of
+            course.</para>
+    </section>
+</appendix>

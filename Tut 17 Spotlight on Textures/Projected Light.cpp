@@ -130,7 +130,7 @@ glutil::ViewScale g_initLightViewScale =
 };
 
 glutil::ViewPole g_viewPole(g_initialView, g_initialViewScale, glutil::MB_LEFT_BTN);
-glutil::ViewPole g_lightViewPole(g_initLightView, g_initLightViewScale, glutil::MB_RIGHT_BTN);
+glutil::ViewPole g_lightViewPole(g_initLightView, g_initLightViewScale, glutil::MB_RIGHT_BTN, true);
 
 namespace
 {
@@ -371,7 +371,7 @@ void display()
 		glutil::MatrixStack lightProjStack;
 		//Texture-space transform
 		lightProjStack.Translate(0.5f, 0.5f, 0.0f);
-		lightProjStack.Scale(0.5f);
+		lightProjStack.Scale(0.5f, 0.5f, 1.0f);
 		//Project. Z-range is irrelevant.
 		lightProjStack.Perspective(g_lightFOVs[g_currFOVIndex], 1.0f, 1.0f, 100.0f);
 		//Transform from main camera space to light camera space.
@@ -500,6 +500,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 
 	g_viewPole.CharPress(key);
+	g_lightViewPole.CharPress(key);
 }
 
 unsigned int defaults(unsigned int displayMode, int &width, int &height)

@@ -131,8 +131,7 @@ namespace Framework
 			}
 
 			m_texObj = glimg::CreateTexture(pImageSet.get(), creationFlags);
-			//TODO: FIX THIS!!
-			m_texType = GL_TEXTURE_2D;
+			m_texType = glimg::GetTextureType(pImageSet.get(), creationFlags);
 		}
 
 		~SceneTexture()
