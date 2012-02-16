@@ -7,8 +7,7 @@ dofile("file_copyright_info.lua")
 
 local alwaysIgnorePattern =
 {
-	"stb_image%.c$",
-	"stb_image%.h$",
+	"rapidxml.*%.hpp$",
 }
 
 local function CopywriteFile(filename)
