@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/sceneFormat.rnc" type="compact"?>
+<scene xmlns="http://www.arcsynthesis.com/gltut/scene">
+    <mesh xml:id="m_sphere" file="UnitSphere.xml"/>
+    <mesh xml:id="m_cube" file="UnitCube.xml"/>
+	<mesh xml:id="m_shortBar" file="ShortBar.xml"/>
+	<mesh xml:id="m_longBar" file="LongBar.xml"/>
+	<mesh xml:id="m_diorama" file="UnitDiorama.xml"/>
+	<mesh xml:id="m_floor" file="UnitPlane.xml"/>
+    <mesh xml:id="m_axes" file="UnitAxes.xml"/>
+    <texture xml:id="t_stone" file="seamless_rock1_small.dds" srgb="true"/>
+    <texture xml:id="t_concrete_wall" file="concrete649_small.dds" srgb="true"/>
+    <texture xml:id="t_sandy_ground" file="dsc_1621_small.dds" srgb="true"/>
+    <texture xml:id="t_stone_pillar" file="rough645_small.dds" srgb="true"/>
+    <texture xml:id="t_wood_pillar" file="wood4_rotate.dds" srgb="true"/>
+    <prog
+        xml:id="p_unlit"
+        vert="Unlit.vert"
+        frag="Unlit.frag"
+        model-to-camera="modelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+    </prog>
+    <prog
+        xml:id="p_colored"
+        vert="Colored.vert"
+        frag="Colored.frag"
+        model-to-camera="modelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+    </prog>
+    <prog
+        xml:id="p_proj"
+        vert="cubeLight.vert"
+        frag="cubeLight.frag"
+        model-to-camera="modelToCameraMatrix"
+        normal-model-to-camera="normalModelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+		<block name="Light" binding="1"/>
+        <sampler name="diffuseColorTex" unit="0"/>
+        <sampler name="lightCubeTex" unit="3"/>
+    </prog>
+    <node
+        name="cube"
+        mesh="m_cube"
+        prog="p_proj"
+        pos="0 1 0"
+        orient="0.0 0.0 0.0 1.0"
+        scale="3">
+        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+    </node>
+    <node
+        name="rightBar"
+        mesh="m_shortBar"
+        prog="p_proj"
+        pos="13 -2 0"
+        orient="0.0 0.0 0.0 1.0"
+        scale="3">
+        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+    </node>
+    <node
+        name="leaningBar"
+        mesh="m_longBar"
+        prog="p_proj"
+        pos="3 -7 -10"
+        orient="0.64278 0 0 0.76604"
+        scale="5">
+        <texture name="t_wood_pillar" unit="0" sampler="anisotropic"/>
+    </node>
+    <node
+        name="spinBar"
+        mesh="m_longBar"
+        prog="p_proj"
+        pos="-7 0 8"
+        orient="-0.148446 0.554035 0.212003 0.791242"
+        scale="4">
+        <texture name="t_stone_pillar" unit="0" sampler="anisotropic"/>
+    </node>
+	<node
+		name="diorama"
+        mesh="m_diorama"
+        prog="p_proj"
+        pos="0 -10 0"
+        scale="47">
+        <texture name="t_concrete_wall" unit="0" sampler="anisotropic"/>
+	</node>
+	<node
+		name="floor"
+        mesh="m_floor"
+        prog="p_proj"
+        pos="0 -33.5 0"
+        scale="47">
+        <texture name="t_sandy_ground" unit="0" sampler="anisotropic"/>
+	</node>
+</scene>

@@ -39,7 +39,7 @@ struct ProjectionBlock
 GLuint g_projectionUniformBuffer = 0;
 GLuint g_lightUniformBuffer = 0;
 
-const int NUM_SAMPLERS = 2;
+const int NUM_SAMPLERS = 1;
 GLuint g_samplers[NUM_SAMPLERS];
 
 void CreateSamplers()
@@ -54,21 +54,15 @@ void CreateSamplers()
 
 	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-	glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-
-	float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
-	glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);
+	glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 struct TexDef { const char *filename; const char *name; };
 
 TexDef g_texDefs[] =
 {
-	{"Flashlight.dds", "Flashlight"},
-	{"PointsOfLight.dds", "Multiple Point Lights"},
-	{"Bands.dds", "Light Bands"},
+	{"IrregularPoint.dds", "Irregular Point Light"},
+	{"Planetarium.dds", "Planetarium"},
 };
 
 GLuint g_lightTextures[ARRAY_COUNT(g_texDefs)];
@@ -79,12 +73,30 @@ void LoadTextures()
 {
 	try
 	{
+		glGenTextures(NUM_LIGHT_TEXTURES, g_lightTextures);
+
 		for(int tex = 0; tex < NUM_LIGHT_TEXTURES; ++tex)
 		{
 			std::string filename(Framework::FindFileOrThrow(g_texDefs[tex].filename));
 
 			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
-			g_lightTextures[tex] = glimg::CreateTexture(pImageSet.get(), 0);
+
+			glBindTexture(GL_TEXTURE_CUBE_MAP, g_lightTextures[tex]);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+			glimg::Dimensions dims = pImageSet->GetDimensions();
+			GLenum imageFormat = (GLenum)glimg::GetInternalFormat(pImageSet->GetFormat(), 0);
+			
+			for(int face = 0; face < 6; ++face)
+			{
+				glimg::SingleImage img = pImageSet->GetImage(0, 0, face);
+				glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+					0, imageFormat, dims.width, dims.height, 0,
+					img.GetImageByteSize(), img.GetImageData());
+			}
+
+			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		}
 	}
 	catch(std::exception &e)
@@ -112,43 +124,33 @@ glutil::ViewScale g_initialViewScale =
 	90.0f/250.0f
 };
 
-
-glutil::ViewData g_initLightView =
+glutil::ObjectData g_initLightData =
 {
-	glm::vec3(0.0f, 0.0f, 20.0f),
+	glm::vec3(0.0f, 0.0f, 0.0f),
 	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
-	5.0f,
-	0.0f
-};
-
-glutil::ViewScale g_initLightViewScale =
-{
-	0.05f, 10.0f,
-	0.1f, 0.05f,
-	4.0f, 1.0f,
-	90.0f/250.0f
 };
 
 glutil::ViewPole g_viewPole(g_initialView, g_initialViewScale, glutil::MB_LEFT_BTN);
-glutil::ViewPole g_lightViewPole(g_initLightView, g_initLightViewScale, glutil::MB_RIGHT_BTN, true);
+glutil::ObjectPole g_lightPole(g_initLightData, 90.0f/250.0f, glutil::MB_RIGHT_BTN, &g_viewPole);
 
 namespace
 {
 	void MouseMotion(int x, int y)
 	{
 		Framework::ForwardMouseMotion(g_viewPole, x, y);
-		Framework::ForwardMouseMotion(g_lightViewPole, x, y);
+		Framework::ForwardMouseMotion(g_lightPole, x, y);
 	}
 
 	void MouseButton(int button, int state, int x, int y)
 	{
 		Framework::ForwardMouseButton(g_viewPole, button, state, x, y);
-		Framework::ForwardMouseButton(g_lightViewPole, button, state, x, y);
+		Framework::ForwardMouseButton(g_lightPole, button, state, x, y);
 	}
 
 	void MouseWheel(int wheel, int direction, int x, int y)
 	{
 		Framework::ForwardMouseWheel(g_viewPole, wheel, direction, x, y);
+		Framework::ForwardMouseWheel(g_lightPole, wheel, direction, x, y);
 	}
 }
 
@@ -175,7 +177,7 @@ Framework::Mesh *g_pAxesMesh = NULL;
 
 void LoadAndSetupScene()
 {
-	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("proj2d_scene.xml"));
+	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("projCube_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
 	nodes.push_back(pScene->FindNode("cube"));
@@ -338,7 +340,7 @@ void display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	const glm::mat4 &cameraMatrix = g_viewPole.CalcMatrix();
-	const glm::mat4 &lightView = g_lightViewPole.CalcMatrix();
+	const glm::mat4 &lightView = g_lightPole.CalcMatrix();
 
 	glutil::MatrixStack modelMatrix;
 	modelMatrix *= cameraMatrix;
@@ -364,23 +366,24 @@ void display()
 	}
 
 	glActiveTexture(GL_TEXTURE0 + g_lightProjTexUnit);
-	glBindTexture(GL_TEXTURE_2D, g_lightTextures[g_currTextureIndex]);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, g_lightTextures[g_currTextureIndex]);
 	glBindSampler(g_lightProjTexUnit, g_samplers[g_currSampler]);
 
 	{
 		glutil::MatrixStack lightProjStack;
 		//Texture-space transform
-		lightProjStack.Translate(0.5f, 0.5f, 0.0f);
-		lightProjStack.Scale(0.5f, 0.5f, 1.0f);
+//		lightProjStack.Translate(0.5f, 0.5f, 0.0f);
+//		lightProjStack.Scale(0.5f, 0.5f, 1.0f);
 		//Project. Z-range is irrelevant.
-		lightProjStack.Perspective(g_lightFOVs[g_currFOVIndex], 1.0f, 1.0f, 100.0f);
+//		lightProjStack.Perspective(g_lightFOVs[g_currFOVIndex], 1.0f, 1.0f, 100.0f);
 		//Transform from main camera space to light camera space.
-		lightProjStack.ApplyMatrix(lightView);
+		lightProjStack.ApplyMatrix(glm::inverse(lightView));
 		lightProjStack.ApplyMatrix(glm::inverse(cameraMatrix));
 
 		g_lightProjMatBinder.SetValue(lightProjStack.Top());
 
-		glm::vec4 worldLightPos = glm::inverse(lightView)[3];
+//		glm::vec4 worldLightPos = glm::inverse(lightView)[3];
+		glm::vec4 worldLightPos = lightView[3];
 		glm::vec3 lightPos = glm::vec3(cameraMatrix * worldLightPos);
 
 		g_camLightPosBinder.SetValue(lightPos);
@@ -392,9 +395,8 @@ void display()
 	{
 		//Draw axes
 		glutil::PushStack stackPush(modelMatrix);
-		modelMatrix.ApplyMatrix(glm::inverse(lightView));
+		modelMatrix.ApplyMatrix(lightView);
 		modelMatrix.Scale(15.0f);
-		modelMatrix.Scale(1.0f, 1.0f, -1.0f); //Invert the Z-axis so that it points in the right direction.
 
 		glUseProgram(g_colroedProg);
 		glUniformMatrix4fv(g_coloredModelToCameraMatrixUnif, 1, GL_FALSE,
@@ -424,7 +426,7 @@ void display()
 	}
 
 	glActiveTexture(GL_TEXTURE0 + g_lightProjTexUnit);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	glBindSampler(g_lightProjTexUnit, 0);
 
     glutPostRedisplay();
@@ -455,7 +457,7 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		return;
 	case 32:
-		g_lightViewPole.Reset();
+		g_lightPole.Reset();
 		break;
 	case 't':
 		g_bDrawCameraPos = !g_bDrawCameraPos;
@@ -464,7 +466,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_bShowOtherLights = !g_bShowOtherLights;
 		break;
 	case 'h':
-		g_currSampler = (g_currSampler + 1) % NUM_SAMPLERS;
+//		g_currSampler = (g_currSampler + 1) % NUM_SAMPLERS;
 		break;
 	case 'p':
 		g_timer.TogglePause();
@@ -503,7 +505,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 
 	g_viewPole.CharPress(key);
-	g_lightViewPole.CharPress(key);
+	g_lightPole.CharPress(key);
 }
 
 unsigned int defaults(unsigned int displayMode, int &width, int &height)
