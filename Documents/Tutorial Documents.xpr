@@ -2491,6 +2491,7 @@
             <file name="Texturing/Tutorial%2014.xml"/>
             <file name="Texturing/Tutorial%2015.xml"/>
             <file name="Texturing/Tutorial%2016.xml"/>
+            <file name="Texturing/Tutorial%2017.xml"/>
         </folder>
         <folder name="5_Framebuffer">
             <file name="Framebuffer.xml"/>
@@ -2499,6 +2500,7 @@
             <file name="Advanced%20Lighting.xml"/>
         </folder>
         <folder name="Appendices">
+            <file name="Further%20Study.xml"/>
             <file name="Getting%20Started.xml"/>
             <file name="History%20of%20Graphics%20Hardware.xml"/>
             <file name="Optimization.xml"/>

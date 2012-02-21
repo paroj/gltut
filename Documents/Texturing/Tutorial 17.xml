@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng" type="xml"?>
+<?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
+<chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Tutorial 17.html" ?>
+    <title>Variable Lighting</title>
+    <para>Previously, we have seen textures used to vary surface parameters. But we can use textures
+        to vary something else: light intensity. In this way, we can simulate light sources who's
+        intensity changes with something more than just distance from the light.</para>
+    <para>Our first effort in varying light intensity with textures will be to build an incandescent
+        flashlight. The light beam from a flashlight is not a single solid intensity, due to the way
+        the mirrors focus the light. A texture is the simplest way to define this pattern of light
+        intensity.</para>
+    <section>
+        <?dbhtml filename="Tut17 Post Projection Space.html" ?>
+        <title>Post-Projection Space</title>
+        <para>Before we can look at how to use a texture to make a flashlight, we need to understand
+            a special piece of mathematics. We need to revisit perspective projection. Specifically,
+            we need to look at what happens when transforming after a projection operation.</para>
+        <para/>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut17 Projective Texture.html" ?>
+        <title>Projective Texture</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut17 Variable Point Light.html" ?>
+        <title>Variable Point Light</title>
+        <para/>
+    </section>
+    <section>
+        <?dbhtml filename="Tut17 In Review.html" ?>
+        <title>In Review</title>
+        <para>In this tutorial, you have learned the following:</para>
+        <itemizedlist>
+            <listitem>
+                <para>Vertex positions can be further manipulated after a perspective projection.
+                    Thus the perspective transform is not special. The shape of objects in
+                    post-projective space can be unusual and unexpected.</para>
+            </listitem>
+            <listitem>
+                <para>Textures can be projected onto meshes. This is done by transforming those
+                    meshes into the space of the texture, which is equivalent to transforming the
+                    texture into the space of the meshes. The transform is governed by its own
+                    camera matrix, as well as a projection matrix and a post-projective
+                    transform.</para>
+            </listitem>
+            <listitem>
+                <para>Cube maps are textures that have 6 face images for every mipmap level. The 6
+                    faces are arranged in a cube. Texture coordinates are effectively directions of
+                    a vector centered within the cube. Thus a cube map can provide a varying value
+                    based on a direction in space.</para>
+            </listitem>
+        </itemizedlist>
+        <section>
+            <title>Further Study</title>
+            <para>Try doing these things with the given programs.</para>
+            <itemizedlist>
+                <listitem>
+                    <para>Instead of using a projective texture, build a lighting system for spot
+                        lights entirely within the shader. It should have a maximum angle; the
+                        larger the angle, the wider the spotlight. It should also have an inner
+                        angle that is smaller than the maximum angle. This the the point where the
+                        light starts falling off. At the maximum angle, the light intensity goes to
+                        zero; at the minimum angle, the light intensity is full. The key here is
+                        remembering that the dot product between the spotlight's direction and the
+                        direction from the surface to the light is the cosine of the angle between
+                        the two vectors. The <function>acos</function> function can be used to
+                        compute the angle (in radians) from the cosine.</para>
+                </listitem>
+            </itemizedlist>
+        </section>
+        <section>
+            <title>OpenGL Functions of Note</title>
+            <para/>
+        </section>
+        <section>
+            <title>GLSL Functions of Note</title>
+            <funcsynopsis>
+                <funcprototype>
+                    <funcdef>vec4 <function>textureProj</function></funcdef>
+                    <paramdef>sampler <parameter>texSampler</parameter></paramdef>
+                    <paramdef>vec texCoord</paramdef>
+                </funcprototype>
+            </funcsynopsis>
+            <para>Accesses the texture associated with <parameter>texSampler</parameter>, using
+                post-projective texture coordinates specified by <parameter>texCoord</parameter>.
+                The <type>sampler</type> type can be many of the sampler types, but not
+                    <type>samplerCube</type>, among a few others. The texture coordinates are in
+                homogeneous space, so they have one more components than the number of dimensions of
+                the texture. Thus, the number of components in <parameter>texCoord</parameter> for a
+                sampler of type <type>sampler1D</type> is <type>vec2</type>. For
+                    <type>sampler2D</type>, it is <type>vec3</type>.</para>
+        </section>
+        
+    </section>
+    <section>
+        <?dbhtml filename="Tut17 Glossary.html" ?>
+        <title>Glossary</title>
+        <glosslist>
+            <glossentry>
+                <glossterm/>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+        </glosslist>
+        
+    </section>
+</chapter>
