@@ -177,7 +177,8 @@ pScene.reset(pOldScene);	//If something was there already, delete it.</programli
                 Specifically in this case, the number of lights is a uniform, not a uniform block.
                 To do this, we need to use a uniform state binder,
                     <varname>g_lightNumBinder</varname>, and set it into all of the nodes in the
-                scene. Also, we need references to those nodes to do rotation animations.</para>
+                scene. This binder allows us to set the uniform for all of the objects (regardless
+                of which program they use).</para>
             <para>The <literal>p_unlit</literal> shader is never actually used in the scene graph;
                 we just use the scene graph as a convenient way to load the shader. Similarly, the
                     <literal>m_sphere</literal> mesh is not used in a scene graph node. We pull
@@ -195,7 +196,8 @@ pScene.reset(pOldScene);	//If something was there already, delete it.</programli
                     loaded and an error message is displayed.</para>
             </note>
             <para>Two of the objects in the scene rotate. This is easily handled using our list of
-                objects. In the <function>display</function> method:</para>
+                objects. In the <function>display</function> method, we access certain nodes and
+                change their transforms them:</para>
             <programlisting language="cpp">g_nodes[0].NodeSetOrient(glm::rotate(glm::fquat(),
     360.0f * g_timer.GetAlpha(), glm::vec3(0.0f, 1.0f, 0.0f)));
 
@@ -209,11 +211,11 @@ g_nodes[3].NodeSetOrient(g_spinBarOrient * glm::rotate(glm::fquat(),
             <title>Multiple Scenes</title>
             <para>The split-screen trick used here is actually quite simple to pull off. It's also
                 one of the advantages of the scene graph: the ability to easily re-render the same
-                scene from a different perspective.</para>
+                scene multiple times.</para>
             <para>The first thing that must change is that the projection matrix cannot be set in
-                the old <function>reshape</function> function. It simply sets the width and height
-                of the screen into global variables. This is important because we will be using two
-                projection matrices.</para>
+                the old <function>reshape</function> function. That function now only sets the new
+                width and height of the screen into global variables. This is important because we
+                will be using two projection matrices.</para>
             <para>The projection matrix used for the left scene is set up like this:</para>
             <example>
                 <title>Left Projection Matrix</title>
@@ -288,27 +290,22 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
                 we must prove that:</para>
             <!--TODO: Equation of: T * (v/w) == (T * v)/w'-->
             <para>This might look like a simple proof by inspection due to the associative nature of
-                these, but it is not. Vector math and matrix math simply don't combine that way.
-                However, it does provide a clue to the real proof.</para>
-            <para>This last part is really where much of the confusion dissipates. See, W (the W
-                component of the post-projection vertex) is not the same as W' on the other side of
-                the equation. W' is the W component of V <emphasis>after</emphasis> the
-                transformation by T.</para>
-            <para>So let us look at things symbolically. For the sake of simplicity, let's look at
-                just the X component of the output. The X component of the left side of the equation
-                is as follows:</para>
-            <!--TODO: Show what T*(v/w) equals, just for the X component
-The X component looks like this: m00*(x/w) + m10*(y/w) + m20*(z/w) + m30(w/w)-->
-            <para>The right side looks like this:</para>
-            <!--TODO: Show what T*(v/w) equals, just for the X component
-The X component looks like this: (m00*x + m10*y + m20*z + m30w)/(m03*x + m13*y + m23*z + m33*w)-->
-            <para>This tells us that the above equation is true if, and only if, the bottom row of T
-                is the vector (0, 0, 0, 1). If it is anything else, then we get different numbers.
-                Fortunately, the only matrix we have that has a different bottom row is the
-                projection matrix, and T is the rotation matrix we apply after translation.</para>
+                these, but it is not. The reason is quite simple: W and W' may not be the same. W is
+                the fourth component of v; W' is the fourth component of what results from T*v. If T
+                changes W, then the equation is not true. But at the same time, if T doesn't change
+                W, if W == W', then the equation is true.</para>
+            <para>Well, that makes things quite simple. We simply need to ensure that our T does not
+                alter W. Matrix multiplication tells us that W' is the dot product of V and the
+                bottom row of T.</para>
+            <!--TODO: Equation of: (m03*x + m13*y + m23*z + m33*w)-->
+            <para>Therefore, if the bottom row of T is (0, 0, 0, 1), then W == W'. And therefore, we
+                can use T before the division. Fortunately, the only matrix we have that has a
+                different bottom row is the projection matrix, and T is the rotation matrix we apply
+                after projection.</para>
             <para>So this works, as long as we use the right matrices. We can rotate, translate, and
-                scale post-projective clip-space exactly as we would post-projective NDC
-                space.</para>
+                scale post-projective clip-space exactly as we would post-projective NDC space.
+                Which is good, because we get to preserve the W component for perspective-correct
+                interpolation.</para>
             <para>The take-home lesson here is very simple: projections are not that special as far
                 as transforms are concerned. Post-projective space is mostly just another space. It
                 may be a 4-dimensional homogeneous coordinate system, and that may be an odd thing
@@ -319,9 +316,191 @@ The X component looks like this: (m00*x + m10*y + m20*z + m30w)/(m03*x + m13*y +
     <section>
         <?dbhtml filename="Tut17 Projective Texture.html" ?>
         <title>Projective Texture</title>
-        <para/>
-        <para/>
-        <para/>
+        <para>In order to create our flashlight effect, we need to do something called
+                <glossterm>projective texturing</glossterm>. Projective texturing is a special form
+            of texture mapping. It is a way of generating texture coordinates for a texture, such
+            that it appears that the texture is being projected onto a scene, in much the same way
+            that a film projector projects light. Therefore, we need to do two things: implement
+            projective texturing, and then use the value we sample from the projected texture as the
+            light intensity.</para>
+        <para>The key to understanding projected texturing is to think backwards, compared to the
+            visual effect we are trying to achieve. We want to take a 2D texture and make it look
+            like it is projected onto the scene. To do this, we therefore do the opposite: we
+            project the <emphasis>scene</emphasis> onto the 2D texture. We want to take the vertex
+            positions of every object in the scene and project them into the space of the
+            texture.</para>
+        <para>Since this is a perspective projection operation, and it involves transforming vertex
+            positions, naturally we need a matrix. This is math we already know: we have vertex
+            positions in model space. We transform them to a camera space, one that is different
+            from the one we use to view the scene. Then we use a perspective projection matrix to
+            transform them to clip-space; both the matrix and this clip-space are again different
+            spaces from what we use to render the scene. Once perspective divide later, and we're
+            done.</para>
+        <para>That last part is the small stumbling block. See, after the perspective divide, the
+            visible world, the part of the world that is projected onto the texture, lives in a [-1,
+            1] sized cube. That is the size of NDC space, though it is again a different NDC space
+            from the one we use to render. The problem is that the range of the texture coordinates,
+            the space of the 2D texture itself, is [0, 1].</para>
+        <para>This is why we needed the prior discussion of post-projective transforms. Because we
+            need to do a post-projective transform here: we have to transform the XY coordinates of
+            the projected position from [-1, 1] to [0, 1] space. And again, we do not want to have
+            to perform the perspective divide ourselves; OpenGL has special functions for texture
+            accesses with a divide. Therefore, we encode the translation and scale as a
+            post-projective transformation. As previously demonstrated, this is mathematically
+            identical to doing the transform after the division.</para>
+        <para>This is done in the <phrase role="propername">Projected Light</phrase> project. This
+            tutorial uses a similar scene to the one before, though with slightly different numbers
+            for lighting. The main difference, scene wise, is the addition of a textured background
+            box.</para>
+        <!--TODO: Add image of the Projected Light tutorial.-->
+        <para>The camera controls work the same way as before. The projected flashlight, represented
+            by the red, green, and blue axes, is moved with the IJKL keyboard keys, with O and U
+            moving up and down, respectively. The right mouse button rotates the flashlight around;
+            the blue line points in the direction of the light. The flashlight's position and
+            orientation are built around the camera controls, so it rotates around a point in front
+            of the flashlight. It translates relative to its current facing as well. As usual,
+            holding down the <keycap>Shift</keycap> key will cause the flashlight to move more
+            slowly.</para>
+        <para>Pressing the <keycap>G</keycap> key will toggle all of the regular lighting on and
+            off. This makes it easier to see just the light from our projected texture.</para>
+        <section>
+            <title>Flashing the Light</title>
+            <para>Let us first look at how we achieve the projected texture effect. We want to take
+                the model space positions of the vertices and project them onto the texture.
+                However, there is one minor problem: the scene graph system provides a transform
+                from model space into the visible camera space. We need a transform to our special
+                projected texture camera space, which has a different position and
+                orientation.</para>
+            <para>We resolve this by being clever. We already have positions in the viewing camera
+                space. So we simply start there and construct a matrix from view camera space into
+                our texture camera space.</para>
+            <example>
+                <title>View Camera to Projected Texture Transform</title>
+                <programlisting language="cpp">glutil::MatrixStack lightProjStack;
+//Texture-space transform
+lightProjStack.Translate(0.5f, 0.5f, 0.0f);
+lightProjStack.Scale(0.5f, 0.5f, 1.0f);
+//Project. Z-range is irrelevant.
+lightProjStack.Perspective(g_lightFOVs[g_currFOVIndex], 1.0f, 1.0f, 100.0f);
+//Transform from main camera space to light camera space.
+lightProjStack.ApplyMatrix(lightView);
+lightProjStack.ApplyMatrix(glm::inverse(cameraMatrix));
+
+g_lightProjMatBinder.SetValue(lightProjStack.Top());</programlisting>
+            </example>
+            <para>Reading the modifications to <varname>lightProjStack</varname> in bottom-to-top
+                order, we begin by using the inverse of the view camera matrix. This transforms all
+                of our vertex positions back to world space, since the view camera matrix is a
+                world-to-camera matrix. We then apply the world-to-texture-camera matrix. This is
+                followed by a projection matrix, which uses an aspect ratio of 1.0. The last two
+                transforms move us from [-1, 1] NDC space to the [0, 1] texture space.</para>
+            <para>We use a matrix uniform binder to associate that transformation matrix with all of
+                the objects in the scene. Our shader takes care of things in the obvious way:</para>
+            <programlisting language="glsl">lightProjPosition = cameraToLightProjMatrix * vec4(cameraSpacePosition, 1.0);</programlisting>
+            <para>Note that this line is part of the vertex shader;
+                    <varname>lightProjPosition</varname> is passed to the fragment shader. One might
+                think that the projection would work best in the fragment shader, but doing it
+                per-vertex is actually just fine. The only time one would need to do the projection
+                per-fragment would be if one was using imposters or was otherwise modifying the
+                depth of the fragment. Indeed, because it works per-vertex, projected textures were
+                a preferred way of doing cheap lighting in many situations.</para>
+            <para>In the fragment shader, we want to use the projected texture as a light. We have
+                the <function>ComputeLighting</function> function in this shader from prior
+                tutorials. All we need to do is make our projected light appear to be a regular
+                light.</para>
+            <programlisting language="glsl">PerLight currLight;
+currLight.cameraSpaceLightPos = vec4(cameraSpaceProjLightPos, 1.0);
+currLight.lightIntensity =
+    textureProj(lightProjTex, lightProjPosition.xyw) * 4.0;
+
+currLight.lightIntensity = lightProjPosition.w > 0 ?
+	currLight.lightIntensity : vec4(0.0);</programlisting>
+            <para>We create a simple structure that we fill in. Later, we pass this structure to
+                    <function>ComputeLighting</function>, and it does the usual thing.</para>
+            <para>The view camera space position of the projected light is passed in as a uniform.
+                It is necessary for our flashlight to properly obey attenuation, as well as to find
+                the direction towards the light.</para>
+            <para>The next line is where we do the actual texture projection. The
+                    <function>textureProj</function> is a texture accessing function that does
+                projective texturing. Even though <varname>lightProjTex</varname> is a
+                    <type>sampler2D</type> (for 2D textures), the texture coordinate has three
+                dimensions. All forms of <function>textureProj</function> take one extra texture
+                coordinate compared to the regular <function>texture</function> function. This extra
+                texture coordinate is divided into the previous one before being used to access the
+                texture. Thus, it performs the perspective divide for us.</para>
+            <note>
+                <para>Mathematically, there is virtually no difference between using
+                        <function>textureProj</function> and doing the divide ourselves and calling
+                        <function>texture</function> with the results. While there may not be a
+                    mathematical difference, there very well may be a performance difference. There
+                    may be specialized hardware that does the division much faster than the
+                    general-purpose opcodes in the shader. Then again, there may not. However, using
+                        <function>textureProj</function> will certainly be no slower than
+                        <function>texture</function> in the general case, so it's still a good
+                    idea.</para>
+            </note>
+            <para>Notice that the value pulled from the texture is scaled by 4.0. This is done
+                because the color values stored in the texture are clamped to the [0, 1] range. To
+                bring it up to our high dynamic range, we need to scale the intensity
+                appropriately.</para>
+            <para>The last statement is special. It compares the W component of the interpolated
+                position against zero, and sets the light intensity to zero if the W component is
+                less than or equal to 0. What is the purpose of this?</para>
+            <para>It stops this from happening:</para>
+            <!--TODO: Add image of Projected Light without the back-projection prevention code.-->
+            <para>The projection math doesn't care what side of the center of projection an object
+                is on; it will work either way. And since we do not actually do clipping on our
+                texture projection, we need some way to prevent this from happening. We effectively
+                need to do some form of clipping.</para>
+            <para>Recall that, given the standard projection transform, the W component is the
+                negation of the camera-space Z. Since the camera in our camera space is looking down
+                the negative Z axis, all positions that are in front of the camera must have a W >
+                0. Therefore, if W is less than or equal to 0, then the position is behind the
+                camera.</para>
+        </section>
+        <section>
+            <title>Spotlight Tricks</title>
+            <para>The size of the flashlight can be changed simply by modifying the field of view in
+                the texture projection matrix. Pressing the <keycap>Y</keycap> key will increase the
+                FOV, and pressing the <keycap>N</keycap> key will decrease it. An increase to the
+                FOV means that the light is projected over a greater area. At a large FOV, we
+                effectively have an entire hemisphere of light.</para>
+            <para>Another interesting trick we can play is to have multi-colored lights. Press the
+                    <keycap>2</keycap>; this will change to a texture that contains spots of various
+                different colors.</para>
+            <!--TODO: Add image of Projected Light with image 2.-->
+            <para>This kind of complex light emitter would not be possible without using a texture.
+                Well it could be possible without textures, but it would require a lot more
+                processing power than a few matrix multiplies, a division in the fragment shader,
+                and a texture access. Press the <keycap>1</keycap> key to go back to the flashlight
+                texture.</para>
+            <para>There is one final issue that can and will crop up with projected textures: what
+                happens when the texture coordinates are outside of the [0, 1] boundary. With
+                previous textures, we used either <literal>GL_CLAMP_TO_EDGE</literal> or
+                    <literal>GL_REPEAT</literal> for the S and T texture coordinate wrap modes.
+                Repeat is obviously not a good idea here; thus far, our sampler objects have been
+                clamping to the texture's edge. That worked fine because our edge texels have all
+                been zero. To see what happens when they are not, press the <keycap>3</keycap>
+                key.</para>
+            <!--TODO: Add image of Projected Light with image 3, in the dark, using edge clamping.-->
+            <para>That rather ruins the effect. Fortunately, OpenGL does provide a way to resolve
+                this. It gives us a way to say that texels fetched outside of the [0, 1] range
+                should return a particular color. As before, this is set up with the sampler
+                object:</para>
+            <example>
+                <title>Border Clamp Sampler Objects</title>
+                <programlisting language="cpp">glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+glSamplerParameteri(g_samplers[1], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+float color[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlisting>
+            </example>
+            <para>The S and T wrap modes are set to <literal>GL_CLAMP_TO_BORDER</literal>. Then the
+                border's color is set to zero. To toggle between the edge clamping sampler and the
+                border clamping one, press the <keycap>H</keycap> key.</para>
+            <!--TODO: Add image of Projected Light with image 3, in the dark, but with border clamping.-->
+            <para>That's much better now.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut17 Variable Point Light.html" ?>
@@ -356,6 +535,20 @@ The X component looks like this: (m00*x + m10*y + m20*z + m30w)/(m03*x + m13*y +
             <title>Further Study</title>
             <para>Try doing these things with the given programs.</para>
             <itemizedlist>
+                <listitem>
+                    <para>In the spotlight project, change the projection texture coordinate from a
+                        full 4D coordinate to a 2D. Do this by performing the divide-by-W step
+                        directly in the vertex shader, and simply pass the ST coordinates to the
+                        fragment shader. Just use <function>texture</function> instead of
+                            <function>textureProj</function> in the fragment shader. See how that
+                        affects things. Also, try doing the perspective divide in the fragment
+                        shader and see how this differs from doing it in the vertex shader.</para>
+                </listitem>
+                <listitem>
+                    <para>In the spotlight project, change the interpolation style from
+                            <literal>smooth</literal> to <literal>noperspective</literal>. See how
+                        non-perspective-correct interpolation changes the projection.</para>
+                </listitem>
                 <listitem>
                     <para>Instead of using a projective texture, build a lighting system for spot
                         lights entirely within the shader. It should have a maximum angle; the
@@ -400,6 +593,12 @@ The X component looks like this: (m00*x + m10*y + m20*z + m30w)/(m03*x + m13*y +
         <glosslist>
             <glossentry>
                 <glossterm>scene graph</glossterm>
+                <glossdef>
+                    <para/>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>projective texturing</glossterm>
                 <glossdef>
                     <para/>
                 </glossdef>

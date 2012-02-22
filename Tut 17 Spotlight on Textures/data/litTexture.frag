@@ -73,6 +73,4 @@ void main()
 	}
 	
 	outputColor = accumLighting / Lgt.maxIntensity;
-
-//	outputColor = diffuseColor;
 }

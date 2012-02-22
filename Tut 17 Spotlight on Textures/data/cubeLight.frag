@@ -83,10 +83,7 @@ void main()
 		accumLighting += ComputeLighting(diffuseColor, Lgt.lights[light]);
 	}
 
-//	accumLighting = vec4(0.0f);
 	accumLighting += ComputeLighting(diffuseColor, currLight);
 
 	outputColor = accumLighting / Lgt.maxIntensity;
-	
-//	outputColor = currLight.lightIntensity;
 }
