@@ -27,8 +27,8 @@
             object. So be aware of that when doing searches). A character is made of a hierarchy of
             transformations; each transform is called a bone. Vertices are weighted to particular
             bones. Where it gets interesting is that vertices can have weights to multiple bones.
-            This means that the vertex's final position is determined by combining the transforms by
-            two (or more) matrices.</para>
+            This means that the vertex's final position is determined by a weighted combination of
+            two (or more) transforms.</para>
         <para>Vertex shaders generally do this by taking an array of matrices as a uniform block.
             Each matrix is a bone. Each vertex contains a <type>vec4</type> which contains up to 4
             indices in the bone matrix array, and another <type>vec4</type> that contains the weight
@@ -37,8 +37,8 @@
         <para>This process is made more complicated by normals and the tangent-space basis necessary
             for bump mapping. And it is complicated even further by a technique called dual
             quaternion skinning. This is done primarily to avoid issues with certain bones rotating
-            relative to one another. It prevents the wrist bone from pinching inwards when it spins
-            relative to the forearm.</para>
+            relative to one another. It prevents vertices from pinching inwards when the wrist bone
+            is rotated 180 degrees from the forearm.</para>
         <formalpara>
             <title>BRDFs</title>
             <para>The term Bidirectional Reflectance Distribution Function (<acronym>BRDF</acronym>)
@@ -47,16 +47,17 @@
                 which are specified relative to the surface normal. This last part makes the BRDF
                 independent of the surface normal, as it is an implicit parameter in the equation.
                 The output of the BRDF is the percentage of light from the light source that is
-                reflected along the view direction. Thus, the output of the BRDF is multipled into
+                reflected along the view direction. Thus, the output of the BRDF is multiples into
                 the incident light intensity to produce the output light intensity.</para>
         </formalpara>
         <para>By all rights, this sounds like a lighting equation. And it is. Indeed, every lighting
             equation in this book can be expressed in the form of a BRDF. One of the things that
-            make BRDFs as a class of equations interesting is that you can actually take a material
-            into a lab, perform a series of tests on it, and produce a BRDF table out of them. This
-            BRDF table, typically expressed as a texture, can then be used to reflect how a surface
-            in the real world actually behaves under lighting conditions. This can provide much more
-            accurate results than using models as we have done.</para>
+            make BRDFs as a class of equations interesting is that you can actually take a physical
+            object into a lab, perform a series of tests on it, and produce a BRDF table out of
+            them. This BRDF table, typically expressed as a texture, can then be directly used by a
+            shader to show how a surface in the real world actually behaves under lighting
+            conditions. This can provide much more accurate results than using models as we have
+            done.</para>
         <formalpara>
             <title>Scalable Alpha Testing</title>
             <para>We have seen how alpha-test works via <literal>discard</literal>: a fragment is
