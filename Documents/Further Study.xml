@@ -10,9 +10,10 @@
         <para>This book should provide a firm foundation for understanding graphics development.
             However, there are many subjects that it does not cover which are also important in
             rendering. Here is a list of topics that you should investigate, with a quick
-            introduction to the basic concepts. This, like this book, is not intended to be a
-            comprehensive tour of graphical effects. It is simply an introduction to a few concepts
-            that you should spend some time investigating.</para>
+            introduction to the basic concepts.</para>
+        <para>This list is not intended to be a comprehensive tour of all interesting graphical
+            effects. It is simply an introduction to a few concepts that you should spend some time
+            investigating. There may be others not on this list that are worthy of your time.</para>
         <formalpara>
             <title>Vertex Weighting</title>
             <para>All of our meshes have had fairly simple linear transformations applied to them
@@ -129,17 +130,17 @@
                 majority of the research effort in it, but the depth of non-photorealistic
                 possibilities with modern hardware is extensive.</para>
         </formalpara>
-        <para>These techniques often extend beyond mere rendering, into how textures are created and
+        <para>These techniques often extend beyond mere rendering, from how textures are created and
             what they store, to exaggerated models, to various other things. Once you leave the
             comfort of approximately realistic lighting models, all bets are off.</para>
         <para>In terms of just the rendering part, the most well-known NPR technique is probably
-            cartoon rendering, or cel shading. The idea with realistic lighting is to light a curved
-            object so that it appears curved. With cel shading, the idea is often to light a curved
-            object so that it appears <emphasis>flat</emphasis>. Or at least, so that it
-            approximates one of the many different styles of cartoons, some of which are more flat
-            than others. This generally means that light has only a few intensities: on and off.
-            Where the edge is between being lit and being unlit depends on how you want the object
-            to look.</para>
+            cartoon rendering, also known as cel shading. The idea with realistic lighting is to
+            light a curved object so that it appears curved. With cel shading, the idea is often to
+            light a curved object so that it appears <emphasis>flat</emphasis>. Or at least, so that
+            it approximates one of the many different styles of cel animation, some of which are
+            more flat than others. This generally means that light has only a few intensities: on,
+            perhaps a slightly less on, and off. This creates a sharp highlight edge in the model,
+            which can give the appearance of curvature without a full gradient of intensity.</para>
         <para>Coupled with cartoon rendering is some form of outline rendering. This is a bit more
             difficult to pull off in an aesthetically pleasing way. When an artist is drawing cel
             animation, they have the ability to fudge things in arbitrary ways to achieve the best

@@ -348,10 +348,17 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
             accesses with a divide. Therefore, we encode the translation and scale as a
             post-projective transformation. As previously demonstrated, this is mathematically
             identical to doing the transform after the division.</para>
-        <para>This is done in the <phrase role="propername">Projected Light</phrase> project. This
-            tutorial uses a similar scene to the one before, though with slightly different numbers
-            for lighting. The main difference, scene wise, is the addition of a textured background
-            box.</para>
+        <para>This entire process represents a new kind of light. We have seen directional lights,
+            which are represented by a light intensity coming from a single direction. And we have
+            seen point lights, which are represented by a position in the world which casts light in
+            all directions. What we are defining now is typically called a
+                <glossterm>spotlight</glossterm>: a light that has a position, direction, and
+            oftentimes a few other fields that limit the size and nature of the spot effect.
+            Spotlights cast light on a cone-shaped area.</para>
+        <para>We implement spotlights via projected textures in the <phrase role="propername"
+                >Projected Light</phrase> project. This tutorial uses a similar scene to the one
+            before, though with slightly different numbers for lighting. The main difference, scene
+            wise, is the addition of a textured background box.</para>
         <!--TODO: Add image of the Projected Light tutorial.-->
         <para>The camera controls work the same way as before. The projected flashlight, represented
             by the red, green, and blue axes, is moved with the IJKL keyboard keys, with O and U
@@ -394,8 +401,15 @@ g_lightProjMatBinder.SetValue(lightProjStack.Top());</programlisting>
                 world-to-camera matrix. We then apply the world-to-texture-camera matrix. This is
                 followed by a projection matrix, which uses an aspect ratio of 1.0. The last two
                 transforms move us from [-1, 1] NDC space to the [0, 1] texture space.</para>
+            <para>The zNear and zFar for the projection matrix are almost entirely irrelevant. They
+                need to be within the allowed ranges (strictly greater than 0, and zFar must be
+                larger than zNear), but the values themselves are meaningless. We will discard the Z
+                coordinate entirely later on.</para>
             <para>We use a matrix uniform binder to associate that transformation matrix with all of
-                the objects in the scene. Our shader takes care of things in the obvious way:</para>
+                the objects in the scene. This is all we need to do to set up the projection, as far
+                as the matrix math is concerned.</para>
+            <para>Our vertex shader (<filename>projLight.vert</filename>) takes care of things in
+                the obvious way:</para>
             <programlisting language="glsl">lightProjPosition = cameraToLightProjMatrix * vec4(cameraSpacePosition, 1.0);</programlisting>
             <para>Note that this line is part of the vertex shader;
                     <varname>lightProjPosition</varname> is passed to the fragment shader. One might
@@ -404,10 +418,10 @@ g_lightProjMatBinder.SetValue(lightProjStack.Top());</programlisting>
                 per-fragment would be if one was using imposters or was otherwise modifying the
                 depth of the fragment. Indeed, because it works per-vertex, projected textures were
                 a preferred way of doing cheap lighting in many situations.</para>
-            <para>In the fragment shader, we want to use the projected texture as a light. We have
-                the <function>ComputeLighting</function> function in this shader from prior
-                tutorials. All we need to do is make our projected light appear to be a regular
-                light.</para>
+            <para>In the fragment shader, <filename>projLight.frag</filename>, we want to use the
+                projected texture as a light. We have the <function>ComputeLighting</function>
+                function in this shader from prior tutorials. All we need to do is make our
+                projected light appear to be a regular light.</para>
             <programlisting language="glsl">PerLight currLight;
 currLight.cameraSpaceLightPos = vec4(cameraSpaceProjLightPos, 1.0);
 currLight.lightIntensity =
@@ -443,6 +457,10 @@ currLight.lightIntensity = lightProjPosition.w > 0 ?
                 because the color values stored in the texture are clamped to the [0, 1] range. To
                 bring it up to our high dynamic range, we need to scale the intensity
                 appropriately.</para>
+            <para>The texture being projected is bound to a known texture unit globally; the scene
+                graph already associates the projective shader with that texture unit. So there is
+                no need to do any special work in the scene graph to make objects use the
+                texture.</para>
             <para>The last statement is special. It compares the W component of the interpolated
                 position against zero, and sets the light intensity to zero if the W component is
                 less than or equal to 0. What is the purpose of this?</para>
@@ -503,9 +521,264 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
         </section>
     </section>
     <section>
-        <?dbhtml filename="Tut17 Variable Point Light.html" ?>
-        <title>Variable Point Light</title>
-        <para/>
+        <?dbhtml filename="Tut17 Pointing Projections.html" ?>
+        <title>Pointing Projections</title>
+        <para>Spotlights represent a light that has position, direction, and perhaps an FOV and some
+            kind of aspect ratio. Through projective texturing, we can make spotlights that have
+            arbitrary light intensities, rather than relying on uniform values or shader functions
+            to compute light intensity. That is all well and good for spotlights, but there are
+            other forms of light that might want varying intensities.</para>
+        <para>It doesn't really make sense to vary the light intensity from a directional light.
+            After all, the while point of directional lights is that they are infinitely far away,
+            so all of the light from them is uniform, in both intensity and direction.</para>
+        <para>Varying the intensity of a point light is a more reasonable possibility. We can vary
+            the point light's intensity based on one of two possible parameters: the position of the
+            light and the direction from the light towards a point in the scene. The latter seems
+            far more useful; it represents a light that may cast more or less brightly in different
+            directions.</para>
+        <para>To do this, what we need is a texture that we can effectively access via a direction.
+            While there are ways to convert a 3D vector direction into a 2D texture coordinate, we
+            will not use any of them. We will instead use a special texture type creates
+            specifically for exactly this sort of thing.</para>
+        <para>The common term for this kind of texture is <glossterm>cube map</glossterm>, even
+            though it is a texture rather than a mapping of a texture. A cube map texture is a
+            texture where every mipmap level is 6 2D images, not merely one. Each of the 6 images
+            represents one of the 6 faces of a cube. The texture coordinates for a cube map are a 3D
+            vector direction; the texture sampling hardware selects which face to sample from and
+            which texel to pick based on the direction.</para>
+        <para>It is important to know how the 6 faces of the cube map fit together. OpenGL defines
+            the 6 faces based on the X, Y, and Z axes, in the positive and negative directions. This
+            diagram explains the orientation of the S and T coordinate axes of each of the faces,
+            relative to the direction of the faces in the cube.</para>
+        <!--TODO: Diagram of the 6 cube faces, showing the ST orientation of each cube face relative to the cube.-->
+        <para>This information is vital for knowing how to construct a cube map.</para>
+        <para>To use a cube map to specify the light intensity changes for a point light, we simply
+            need to do the following. First, we get the direction from the light to the surface
+            point of interest. Then we use that direction to sample from the cube map. From there,
+            everything is normal.</para>
+        <para>The issue is getting the direction from the light to the surface point. Before, a
+            point light had no orientation, and this made sense. It cast light uniformly in all
+            directions, so even if it had an orientation, you would never be able to tell it was
+            there. Now that our light intensity can vary, the point light now needs to be able to
+            orient the cube map.</para>
+        <para>The easiest way to handle this is a simple transformation trick. The position and
+            orientation of the light represents a space. If we transform the position of objects
+            into that space, then the direction from the light can easily be obtained. The light's
+            position relative to itself is zero, after all. So we need to transform positions from
+            some space into the light's space. We will see exactly how this is done
+            momentarily.</para>
+        <para>Cube map point lights are implemented in the <phrase role="propername">Cube Point
+                Light</phrase> project. This puts a fixed point light using a cube map in the middle
+            of the scene. The orientation of the light can be changed with the right mouse
+            button.</para>
+        <!--TODO: Image of Cube Point Light.-->
+        <para>This cube texture has various different light arrangements on the different sides. One
+            side even has green text on it. As before, you can use the <keycap>G</keycap> key to
+            toggle the non-cube map lights off.</para>
+        <para>Pressing the <keycap>2</keycap> key switches to a texture that looks somewhat
+            resembles a planetarium show. Pressing <keycap>1</keycap> switches back to the first
+            texture.</para>
+        <section>
+            <title>Cube Texture Loading</title>
+            <para>We have seen how 2D textures get loaded over the course of 3 tutorials now, so we
+                use GL Image's functions for creating a texture directly from <type>ImageSet</type>.
+                Cube map textures require special handling, so let's look at this now.</para>
+            <example>
+                <title>Cube Texture Loading</title>
+                <programlisting language="cpp">std::string filename(Framework::FindFileOrThrow(g_texDefs[tex].filename));
+std::auto_ptr&lt;glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+
+glBindTexture(GL_TEXTURE_CUBE_MAP, g_lightTextures[tex]);
+glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+
+glimg::Dimensions dims = pImageSet->GetDimensions();
+GLenum imageFormat = (GLenum)glimg::GetInternalFormat(pImageSet->GetFormat(), 0);
+
+for(int face = 0; face &lt; 6; ++face)
+{
+    glimg::SingleImage img = pImageSet->GetImage(0, 0, face);
+    glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+        0, imageFormat, dims.width, dims.height, 0,
+        img.GetImageByteSize(), img.GetImageData());
+}
+
+glBindTexture(GL_TEXTURE_CUBE_MAP, 0);</programlisting>
+            </example>
+            <para>The DDS format is one of the few image file formats that can actually store all of
+                the faces of a cube map. Similarly, the <type>glimg::ImageSet</type> class can store
+                cube map faces.</para>
+            <para>The first step after loading the cube map faces is to bind the texture to the
+                    <literal>GL_TEXTURE_CUBE_MAP</literal> texture binding target. Since this cube
+                map is not mipmapped (yes, cube maps can have mipmaps), we set the base and max
+                mipmap levels to zero. The call to <function>glimg::GetInternalFormat</function> is
+                used to allow GL Image to tell us the OpenGL image format that corresponds to the
+                format of the loaded texture data.</para>
+            <para>From there, we loop over the 6 faces of the texture, get the
+                    <type>SingleImage</type> for that face, and load each face into the OpenGL
+                texture. For the moment, pretend the call to
+                    <function>glCompressedTexImage2D</function> is a call to
+                    <function>glTexImage2D</function>; they do similar things, but the final few
+                parameters are different. It may seem odd to call a TexImage2D function when we are
+                uploading to a cube map texture. After all, a cube map texture is a completely
+                different texture type from 2D textures.</para>
+            <para>However, the <quote>TexImage</quote> family of functions specify the
+                dimensionality of the image data they are allocating an uploading, not the specific
+                texture type. Since a cube map is simply 6 sets of 2D image images, it uses the
+                    <quote>TexImage2D</quote> functions to allocate the faces and mipmaps. Which
+                face is specified by the first parameter.</para>
+            <para>OpenGL has six enumerators of the form
+                    <literal>GL_TEXTURE_CUBE_MAP_POSITIVE/NEGATIVE_X/Y/Z</literal>. These
+                enumerators are ordered, starting with positive X, so we can loop through all of
+                them by adding the numbers [0, 5] to the positive X enumerator. That is what we do
+                above. The order of these enumerators is:</para>
+            <orderedlist>
+                <listitem>
+                    <para>POSITIVE_X</para>
+                </listitem>
+                <listitem>
+                    <para>NEGATIVE_X</para>
+                </listitem>
+                <listitem>
+                    <para>POSITIVE_Y</para>
+                </listitem>
+                <listitem>
+                    <para>NEGATIVE_Y</para>
+                </listitem>
+                <listitem>
+                    <para>POSITIVE_Z</para>
+                </listitem>
+                <listitem>
+                    <para>NEGATIVE_Z</para>
+                </listitem>
+            </orderedlist>
+            <para>This mirrors the order that the <type>ImageSet</type> stores them in (and DDS
+                files, for that matter).</para>
+            <para>The samplers for cube map textures also needs some adjustment:</para>
+            <programlisting language="cpp">glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);</programlisting>
+            <para>Cube maps take 3D texture coordinates, so wrap modes must be specified for each of
+                the three dimensions of texture coordinates. Since this cube map has no mipmaps, the
+                filtering is simply set to <literal>GL_LINEAR</literal>.</para>
+        </section>
+        <section>
+            <title>Texture Compression</title>
+            <para>Now we will take a look at why we are using
+                    <function>glCompressedTexImage2D</function>. And that requires a discussion of
+                image formats and sizes.</para>
+            <para>Images take up a lot of memory. And while disk space and even main memory are
+                fairly generous these days, GPU memory is always at a premium. Especially if you
+                have lots of textures and those textures are quite large.</para>
+            <para>The first stop for making this data smaller is to use a smaller image format. For
+                example, the standard RGB color format stores each channel as an 8-bit unsigned
+                integer. This is usually padded out to make it 4-byte aligned, or a fourth component
+                (alpha) is added, making for an RGBA color. That's 32-bits per texel, which is what
+                    <literal>GL_RGBA8</literal> specifies. A first pass for making this data smaller
+                is to store it with fewer bits. OpenGL provides <literal>GL_RGB565</literal> for
+                those who do not need the fourth component, or <literal>GL_RGBA4</literal> for those
+                who do. Both of these use 16-bits per texel.</para>
+            <para>They both also can produce unpleasant visual artifacts for the textures. Plus,
+                OpenGL does not allow such textures to be in the sRGB colorspace; there is no
+                    <literal>GL_SRGB565</literal> format.</para>
+            <para>For files, this is a solved problem. There are a number of traditional compressed
+                image formats: PNG, JPEG, GIF, etc. Some are lossless, meaning that the exact input
+                image can be reconstructed. Others are lossy, which means that only an approximation
+                of the image can be returned. Either way, these all formats have their benefits and
+                downsides. But they are all better, in terms of visual quality and space storage,
+                than using 16-bit per texel image formats.</para>
+            <para>They also have one other thing in common: they are absolutely terrible for
+                    <emphasis>textures</emphasis>, in terms of GPU hardware. These formats are
+                designed to be decompressed all at once; you decompress the entire image when you
+                want to see it. GPUs don't want to do that. GPUs generally access textures in
+                pieces; they access certain sections of a mipmap level, then access other sections,
+                etc. GPUs gain their performance by being incredibly parallel: multiple different
+                invocations of fragment shaders can be running simultaneously. All of them can be
+                accessing different textures and so forth.</para>
+            <para>Stopping that processes to decompress a 50KB PNG would pretty much destroy
+                rendering performance entirely. These formats may be fine for storing files on disk.
+                But they are simply not good formats for being stored compressed in graphics
+                memory.</para>
+            <para>Instead, there are special formats designed specifically for compressing textures.
+                These <glossterm>texture compression</glossterm> formats are designed specifically
+                to be friendly for texture accesses. It is easy to find the exact piece of memory
+                that stores the data for a specific texel. It takes no more than 64 bits of data to
+                decompress any one texel. And so forth. These all combine to make texture
+                compression formats useful for saving graphics card memory, while maintaining
+                reasonable image quality.</para>
+            <para>The regular <function>glTexImage2D</function> function is not capable of directly
+                uploading compressed texture data. The pixel transfer information, the last three
+                parameters of <function>glTexImage2D</function>, is simply not appropriate for
+                dealing with compressed texture data. Therefore, OpenGL uses a different function
+                for uploading texture data that is already compressed.</para>
+            <programlisting>glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+    0, imageFormat, dims.width, dims.height, 0,
+    img.GetImageByteSize(), img.GetImageData());</programlisting>
+            <para>Instead of taking OpenGL enums that define what the format of the compressed data
+                is, <function>glCompressedTexImage2D</function>'s last two parameters are very
+                simple. They specify how big the compressed image data is in bytes and provide a
+                pointer to that image data. That is because
+                    <function>glCompressedTexImage2D</function> does not allow for format
+                conversion; the format of the pixel data passed to it must exactly match what the
+                image format says it is. This also means that the
+                    <literal>GL_UNPACK_ALIGNMENT</literal> has no effect on compressed texture
+                uploads.</para>
+        </section>
+        <section>
+            <title>Cube Texture Space</title>
+            <para>Creating the cube map texture was just the first step. The next step is to do the
+                necessary transformations. Recall that the goal is to transform the vertex positions
+                into the space of the texture, defined relative to world space by a position and
+                orientation. However, we ran into a problem previously, because the scene graph only
+                provides a model-to-camera transformation matrix.</para>
+            <para>This problem still exists, and we will solve it in exactly the same way. We will
+                generate a matrix that goes from camera space to our cube map light's space.</para>
+            <example>
+                <title>View Camera to Light Cube Texture</title>
+                <programlisting language="cpp">glutil::MatrixStack lightProjStack;
+lightProjStack.ApplyMatrix(glm::inverse(lightView));
+lightProjStack.ApplyMatrix(glm::inverse(cameraMatrix));
+
+g_lightProjMatBinder.SetValue(lightProjStack.Top());
+
+glm::vec4 worldLightPos = lightView[3];
+glm::vec3 lightPos = glm::vec3(cameraMatrix * worldLightPos);
+
+g_camLightPosBinder.SetValue(lightPos);</programlisting>
+            </example>
+            <para>This code is rather simpler than the prior time. Again reading bottom up, we
+                transform by the inverse of the world-to-camera matrix, then we transform by the
+                inverse of the light matrix. The <varname>lightView</varname> matrix is inverted
+                because the matrix is ordinarily designed to go from light space to world space. So
+                we invert it to get the world-to-light transform. The light's position in world
+                space is taken similarly.</para>
+            <para>The vertex shader (cubeLight.vert) is about what you would expect:</para>
+            <programlisting language="glsl">lightSpacePosition = (cameraToLightProjMatrix * vec4(cameraSpacePosition, 1.0)).xyz;</programlisting>
+            <para>The <varname>lightSpacePosition</varname> is output from the vertex shader and
+                interpolated. Again we find that this interpolates just fine, so there is no need to
+                do this transformation per-fragment.</para>
+            <para>The fragment shader code (<filename>cubeLight.frag</filename>) is pretty simple.
+                First, we have to define our GLSL samplers:</para>
+            <programlisting language="glsl">uniform sampler2D diffuseColorTex;
+uniform samplerCube lightCubeTex;</programlisting>
+            <para>Because cube maps are a different texture type, they have a different GLSL sampler
+                type as well. Attempting to use texture with the one type on a sampler that uses a
+                different type results in unpleasantness. It's usually easy enough to keep these
+                things straight, but it can be a source of errors or non-rendering.</para>
+            <para>The code that fetches from the cube texture is as follows:</para>
+            <programlisting language="glsl">PerLight currLight;
+currLight.cameraSpaceLightPos = vec4(cameraSpaceProjLightPos, 1.0);
+	
+vec3 dirFromLight = normalize(lightSpacePosition);
+currLight.lightIntensity =
+    texture(lightCubeTex, dirFromLight) * 6.0f;</programlisting>
+            <para>We simply normalize the light-space position, since the cube map's space has the
+                light position at the origin. We then use the <function>texture</function> to access
+                the cubemap, the same one we used for 2D textures. This is possible because GLSL
+                overloads the <function>texture</function> based on the type of sampler. So when
+                    <function>texture</function> is passed a <type>samplerCube</type>, it expects a
+                    <type>vec3</type> texture coordinate.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="Tut17 In Review.html" ?>
@@ -521,8 +794,8 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
                 <para>Textures can be projected onto meshes. This is done by transforming those
                     meshes into the space of the texture, which is equivalent to transforming the
                     texture into the space of the meshes. The transform is governed by its own
-                    camera matrix, as well as a projection matrix and a post-projective
-                    transform.</para>
+                    camera matrix, as well as a projection matrix and a post-projective transform
+                    that transforms it into the [0, 1] range of the texture.</para>
             </listitem>
             <listitem>
                 <para>Cube maps are textures that have 6 face images for every mipmap level. The 6
@@ -564,8 +837,38 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             </itemizedlist>
         </section>
         <section>
+            <title>Further Research</title>
+            <para>Cube maps are fairly old technology. The version used in GPUs today derive from
+                the Renderman standard and earlier works. However, before hardware that allowed
+                cubemaps became widely available, there were alternative techniques that were used
+                to achieve similar effects.</para>
+            <para>The basic idea behind all of these is to transform a 3D vector direction into a 2D
+                texture coordinate. Note that converting a 3D direction into a 2D plane is a problem
+                that was encountered long before computer graphics. It is effectively the global
+                mapping problem: how you create a 2D map of a 3D spherical surface. All of these
+                techniques introduce some distance distortion into the 2D map. Some distortion is
+                more acceptable in certain circumstances than others.</para>
+            <para>One of the more common pre-cube map techniques was sphere mapping. This required a
+                very heavily distorted 2D texture, so the results left something to be desired. But
+                the 3D-to-2D computations were simple enough to be encoded into early graphics
+                hardware, or performed quickly on the CPU, so it was acceptable as a stop-gap. Other
+                techniques, such as dual paraboloid mapping, were also used. The latter used a pair
+                of textures, so they ate up more resources. But they required less heavy distortions
+                of the texture, so in some cases, they were a better tradeoff.</para>
+        </section>
+        <section>
             <title>OpenGL Functions of Note</title>
-            <para/>
+            <glosslist>
+                <glossentry>
+                    <glossterm>glCompressedTexImage2D</glossterm>
+                    <glossdef>
+                        <para>Allocates a 2D image of the given size and mipmap for the current
+                            texture, using the given compressed image format, and uploads compressed
+                            pixel data. The pixel data must exactly match the format of the data
+                            defined by the compressed image format.</para>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
         </section>
         <section>
             <title>GLSL Functions of Note</title>
@@ -594,19 +897,49 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             <glossentry>
                 <glossterm>scene graph</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>The general term for a data structure that holds the objects within a
+                        particular scene. Objects in a scene graph often have parent-child
+                        relationships for their transforms, as well as references to the shaders,
+                        meshes, and textures needed to render them.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
                 <glossterm>projective texturing</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A texture mapping technique that generates texture coordinates to make a
+                        2D texture appear to have been projected onto a surface. This is done by
+                        transforming the vertex positions of objects into the scene through a
+                        projective series of transformations into the space of the texture
+                        itself.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
-                <glossterm/>
+                <glossterm>spotlight source</glossterm>
                 <glossdef>
-                    <para/>
+                    <para>A light source that emits from a position in the world in a generally
+                        conical shape along a particular direction. Some spot lights have a full
+                        orientation, while others only need a direction. Spotlights can be
+                        implemented in shader code, or more generally via projective texturing
+                        techniques.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>cube map texture</glossterm>
+                <glossdef>
+                    <para>A type of texture that uses 6 2D images to represent faces of a cube. It
+                        takes 3D texture coordinates that represent a direction from the center of a
+                        cube onto one of these faces. Thus, each texel on each of the 6 faces comes
+                        from a unique direction. Cube maps allow data based on directions to vary
+                        based on stored texture data.</para>
+                </glossdef>
+            </glossentry>
+            <glossentry>
+                <glossterm>texture compression</glossterm>
+                <glossdef>
+                    <para>A set of image formats that stores texel data in a small format that is
+                        optimized for texture access. These formats are not as small as specialized
+                        image file formats, but they are designed for fast GPU texture fetch access,
+                        while still saving significant graphics memory.</para>
                 </glossdef>
             </glossentry>
         </glosslist>

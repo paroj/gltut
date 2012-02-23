@@ -70,7 +70,6 @@ void LoadTextures()
 		for(int tex = 0; tex < NUM_LIGHT_TEXTURES; ++tex)
 		{
 			std::string filename(Framework::FindFileOrThrow(g_texDefs[tex].filename));
-
 			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 
 			glBindTexture(GL_TEXTURE_CUBE_MAP, g_lightTextures[tex]);
@@ -110,7 +109,7 @@ glutil::ViewData g_initialView =
 
 glutil::ViewScale g_initialViewScale =
 {
-	5.0f, 70.0f,
+	5.0f, 70.0f,	
 	2.0f, 0.5f,
 	2.0f, 0.5f,
 	90.0f/250.0f
@@ -118,7 +117,7 @@ glutil::ViewScale g_initialViewScale =
 
 glutil::ObjectData g_initLightData =
 {
-	glm::vec3(0.0f, 0.0f, 0.0f),
+	glm::vec3(0.0f, 0.0f, 10.0f),
 	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
 };
 
@@ -363,18 +362,11 @@ void display()
 
 	{
 		glutil::MatrixStack lightProjStack;
-		//Texture-space transform
-//		lightProjStack.Translate(0.5f, 0.5f, 0.0f);
-//		lightProjStack.Scale(0.5f, 0.5f, 1.0f);
-		//Project. Z-range is irrelevant.
-//		lightProjStack.Perspective(g_lightFOVs[g_currFOVIndex], 1.0f, 1.0f, 100.0f);
-		//Transform from main camera space to light camera space.
 		lightProjStack.ApplyMatrix(glm::inverse(lightView));
 		lightProjStack.ApplyMatrix(glm::inverse(cameraMatrix));
 
 		g_lightProjMatBinder.SetValue(lightProjStack.Top());
 
-//		glm::vec4 worldLightPos = glm::inverse(lightView)[3];
 		glm::vec4 worldLightPos = lightView[3];
 		glm::vec3 lightPos = glm::vec3(cameraMatrix * worldLightPos);
 
@@ -457,9 +449,6 @@ void keyboard(unsigned char key, int x, int y)
 	case 'g':
 		g_bShowOtherLights = !g_bShowOtherLights;
 		break;
-	case 'h':
-//		g_currSampler = (g_currSampler + 1) % NUM_SAMPLERS;
-		break;
 	case 'p':
 		g_timer.TogglePause();
 		break;
@@ -476,15 +465,6 @@ void keyboard(unsigned char key, int x, int y)
 			}
 		}
 		break;
-	case 'y':
-		g_currFOVIndex = std::min(g_currFOVIndex + 1, int(ARRAY_COUNT(g_lightFOVs) - 1));
-		printf("Curr FOV: %f\n", g_lightFOVs[g_currFOVIndex]);
-		break;
-	case 'n':
-		g_currFOVIndex = std::max(g_currFOVIndex - 1, 0);
-		printf("Curr FOV: %f\n", g_lightFOVs[g_currFOVIndex]);
-		break;
-
 	}
 
 	{

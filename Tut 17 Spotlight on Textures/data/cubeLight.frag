@@ -75,7 +75,7 @@ void main()
 	
 	vec3 dirFromLight = normalize(lightSpacePosition);
 	currLight.lightIntensity =
-		texture(lightCubeTex, dirFromLight) * 4.0f;
+		texture(lightCubeTex, dirFromLight) * 6.0f;
 
 	vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
 	for(int light = 0; light < numberOfLights; light++)
