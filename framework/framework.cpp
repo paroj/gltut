@@ -139,11 +139,19 @@ int main(int argc, char** argv)
 #endif
 	glutInitWindowSize (width, height); 
 	glutInitWindowPosition (300, 200);
-	glutCreateWindow (argv[0]);
+	int window = glutCreateWindow (argv[0]);
+
+	glload::LoadFunctions();
 
 	glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_CONTINUE_EXECUTION);
 
-	glload::LoadFunctions();
+	if(!glload::IsVersionGEQ(3, 3))
+	{
+		printf("Your OpenGL version is %i, %i. You must have at least OpenGL 3.3 to run this tutorial.\n",
+			glload::GetMajorVersion(), glload::GetMinorVersion());
+		glutDestroyWindow(window);
+		return 0;
+	}
 
 	if(glext_ARB_debug_output)
 	{
