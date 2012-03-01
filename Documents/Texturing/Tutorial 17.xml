@@ -551,7 +551,8 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             diagram explains the orientation of the S and T coordinate axes of each of the faces,
             relative to the direction of the faces in the cube.</para>
         <!--TODO: Diagram of the 6 cube faces, showing the ST orientation of each cube face relative to the cube.-->
-        <para>This information is vital for knowing how to construct a cube map.</para>
+        <para>This information is vital for knowing how to construct the various faces of a cube
+            map.</para>
         <para>To use a cube map to specify the light intensity changes for a point light, we simply
             need to do the following. First, we get the direction from the light to the surface
             point of interest. Then we use that direction to sample from the cube map. From there,
@@ -669,7 +670,8 @@ glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);</progra
                 image formats and sizes.</para>
             <para>Images take up a lot of memory. And while disk space and even main memory are
                 fairly generous these days, GPU memory is always at a premium. Especially if you
-                have lots of textures and those textures are quite large.</para>
+                have lots of textures and those textures are quite large. The smaller that texture
+                data can be, the more and larger textures you can have in a complex scene.</para>
             <para>The first stop for making this data smaller is to use a smaller image format. For
                 example, the standard RGB color format stores each channel as an 8-bit unsigned
                 integer. This is usually padded out to make it 4-byte aligned, or a fourth component
