@@ -23,7 +23,14 @@
         <para>Open up the project called <phrase role="propername">Double Projection</phrase>. It
             renders four objects, using various textures, in a scene with a single directional light
             and a green point light.</para>
-        <!--TODO: Add image of Double Projection tutorial.-->
+        <figure>
+            <title>Double Projection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="DoubleProjection.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This tutorial displays two images of the same scene. The image on the left is the view
             of the scene from one camera, while the image on the right is the view of the scene from
             another camera. The difference between the two cameras is mainly in where the camera
@@ -48,7 +55,14 @@
         <para>For example, if we rotate the right camera to an above view, relative to whatever the
             left camera is, we see that all of the objects seems to shrink down into a very small
             width.</para>
-        <!--TODO: Add image of Double Projection, with right camera from the top, relatively far from the scene.-->
+        <figure>
+            <title>Top View Projection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ProjectTopView.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This is due to the particulars of the perspective projection's work on the Z
             coordinate. The Z coordinate in NDC space is the result of the clip-space Z divided by
             the negative of the camera-space Z. This forces it into the [-1, 1] range, but the
@@ -59,8 +73,14 @@
             away.</para>
         <para>This can be seen by moving the left camera close to an object. The right camera, from
             a top-down view, has a much thicker view of that object in the Z direction.</para>
-        <!--TODO: Add image of Double Projection, with the right camera from the top, really close to an object.
-This will let us see that the object takes up a large part of the [-1, 1] Z range.-->
+        <figure>
+            <title>Near View Projection</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="ProjectCloseObject.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>Pressing the <keycap>Y</keycap> key will toggle depth clamping in the right camera.
             This can explain some of the unusual things that will be seen there. Sometimes the wrong
             objects will appear on top of each other; when this happens, it is almost always due to
@@ -287,24 +307,36 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
                 shader to divide the clip-space values by W, then do the rotation?</para>
             <para>Obviously not, since this code works. But just because code happens to work
                 doesn't mean that it should. So let's see if we can prove that it does. To do this,
-                we must prove that:</para>
-            <!--TODO: Equation of: T * (v/w) == (T * v)/w'-->
+                we must prove this:</para>
+            <informalequation>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="PostProjectTransform.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </informalequation>
             <para>This might look like a simple proof by inspection due to the associative nature of
-                these, but it is not. The reason is quite simple: W and W' may not be the same. W is
-                the fourth component of v; W' is the fourth component of what results from T*v. If T
-                changes W, then the equation is not true. But at the same time, if T doesn't change
-                W, if W == W', then the equation is true.</para>
+                these, but it is not. The reason is quite simple: w and w' may not be the same. The
+                value of w is the fourth component of v; w' is the fourth component of what results
+                from T*v. If T changes w, then the equation is not true. But at the same time, if T
+                doesn't change w, if w == w', then the equation is true.</para>
             <para>Well, that makes things quite simple. We simply need to ensure that our T does not
-                alter W. Matrix multiplication tells us that W' is the dot product of V and the
+                alter w. Matrix multiplication tells us that w' is the dot product of V and the
                 bottom row of T.</para>
-            <!--TODO: Equation of: (m03*x + m13*y + m23*z + m33*w)-->
-            <para>Therefore, if the bottom row of T is (0, 0, 0, 1), then W == W'. And therefore, we
+            <informalequation>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="PostProjectTransform_2.svg"/>
+                    </imageobject>
+                </mediaobject>
+            </informalequation>
+            <para>Therefore, if the bottom row of T is (0, 0, 0, 1), then w == w'. And therefore, we
                 can use T before the division. Fortunately, the only matrix we have that has a
                 different bottom row is the projection matrix, and T is the rotation matrix we apply
                 after projection.</para>
             <para>So this works, as long as we use the right matrices. We can rotate, translate, and
                 scale post-projective clip-space exactly as we would post-projective NDC space.
-                Which is good, because we get to preserve the W component for perspective-correct
+                Which is good, because we get to preserve the w component for perspective-correct
                 interpolation.</para>
             <para>The take-home lesson here is very simple: projections are not that special as far
                 as transforms are concerned. Post-projective space is mostly just another space. It
@@ -359,7 +391,14 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
                 >Projected Light</phrase> project. This tutorial uses a similar scene to the one
             before, though with slightly different numbers for lighting. The main difference, scene
             wise, is the addition of a textured background box.</para>
-        <!--TODO: Add image of the Projected Light tutorial.-->
+        <figure>
+            <title>Projected Light</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Projected%20Light.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>The camera controls work the same way as before. The projected flashlight, represented
             by the red, green, and blue axes, is moved with the IJKL keyboard keys, with O and U
             moving up and down, respectively. The right mouse button rotates the flashlight around;
@@ -465,7 +504,14 @@ currLight.lightIntensity = lightProjPosition.w > 0 ?
                 position against zero, and sets the light intensity to zero if the W component is
                 less than or equal to 0. What is the purpose of this?</para>
             <para>It stops this from happening:</para>
-            <!--TODO: Add image of Projected Light without the back-projection prevention code.-->
+            <figure>
+                <title>Back Projected Light</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="LightBackProjection.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>The projection math doesn't care what side of the center of projection an object
                 is on; it will work either way. And since we do not actually do clipping on our
                 texture projection, we need some way to prevent this from happening. We effectively
@@ -486,7 +532,14 @@ currLight.lightIntensity = lightProjPosition.w > 0 ?
             <para>Another interesting trick we can play is to have multi-colored lights. Press the
                     <keycap>2</keycap>; this will change to a texture that contains spots of various
                 different colors.</para>
-            <!--TODO: Add image of Projected Light with image 2.-->
+            <figure>
+                <title>Colored Spotlight</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="ColoredProjectLights.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>This kind of complex light emitter would not be possible without using a texture.
                 Well it could be possible without textures, but it would require a lot more
                 processing power than a few matrix multiplies, a division in the fragment shader,
@@ -500,7 +553,14 @@ currLight.lightIntensity = lightProjPosition.w > 0 ?
                 clamping to the texture's edge. That worked fine because our edge texels have all
                 been zero. To see what happens when they are not, press the <keycap>3</keycap>
                 key.</para>
-            <!--TODO: Add image of Projected Light with image 3, in the dark, using edge clamping.-->
+            <figure>
+                <title>Edge Clamped Light</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="EdgeClampLight.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>That rather ruins the effect. Fortunately, OpenGL does provide a way to resolve
                 this. It gives us a way to say that texels fetched outside of the [0, 1] range
                 should return a particular color. As before, this is set up with the sampler
@@ -516,7 +576,14 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             <para>The S and T wrap modes are set to <literal>GL_CLAMP_TO_BORDER</literal>. Then the
                 border's color is set to zero. To toggle between the edge clamping sampler and the
                 border clamping one, press the <keycap>H</keycap> key.</para>
-            <!--TODO: Add image of Projected Light with image 3, in the dark, but with border clamping.-->
+            <figure>
+                <title>Border Clamped Light</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="BorderClampLight.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
             <para>That's much better now.</para>
         </section>
     </section>
@@ -572,7 +639,14 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
                 Light</phrase> project. This puts a fixed point light using a cube map in the middle
             of the scene. The orientation of the light can be changed with the right mouse
             button.</para>
-        <!--TODO: Image of Cube Point Light.-->
+        <figure>
+            <title>Cube Point Light</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="Cube%20Point%20Light.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This cube texture has various different light arrangements on the different sides. One
             side even has green text on it. As before, you can use the <keycap>G</keycap> key to
             toggle the non-cube map lights off.</para>

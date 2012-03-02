@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" overflow="scroll">
+    <mi mathvariant="bold">T</mi>
+    <mo>*</mo>
+    <mfrac>
+      <mover>
+        <mi>v</mi>
+        <mo>&#x21C0;</mo>
+      </mover>
+      <mi>w</mi>
+    </mfrac>
+    <mo>=</mo>
+    <mo>=</mo>
+    <mfrac>
+      <mrow>
+        <mi mathvariant="bold">T</mi>
+        <mo>*</mo>
+        <mover>
+          <mi>v</mi>
+          <mo>&#x21C0;</mo>
+        </mover>
+      </mrow>
+      <mrow>
+        <mi>w</mi>
+        <mi>'</mi>
+      </mrow>
+    </mfrac>
+    <mspace linebreak="newline"/>
+</math>
+
