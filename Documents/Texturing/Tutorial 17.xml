@@ -86,12 +86,12 @@
             objects will appear on top of each other; when this happens, it is almost always due to
             a clamped depth.</para>
         <para>The reason why depth clamping matters so much in the right screen is obvious if you
-            think about it. NDC space is a [-1, 1] square. But that is not the NDC space we actually
+            think about it. NDC space is a [-1, 1] cube. But that is not the NDC space we actually
             render to. We are rendering to a rotated portion of this space. So the actual [-1, 1]
             space that gets clipped or clamped is different from the one we see. We are effectively
-            rotating a square and cutting off any parts of it that happen to be outside of the
-            square viewing area. This is easy to see in the X and Y directions, but in Z, it results
-            in some unusual views.</para>
+            rotating a cube and cutting off any parts of it that happen to be outside of the cubic
+            viewing area. And since the initial cube is so skewed to far Z values, often times large
+            chunks of the world fall out of the viewing cube.</para>
         <section>
             <title>Scene Graphs</title>
             <para>This is the first code in the tutorial to use the scene graph part of the
