@@ -43,15 +43,16 @@ namespace Framework
 	{
 		try
 		{
-			return glutil::LinkProgram(shaderList);
+			GLuint prog = glutil::LinkProgram(shaderList);
+			std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
+			return prog;
 		}
 		catch(std::exception &e)
 		{
+			std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 			fprintf(stderr, "%s\n", e.what());
 			throw;
 		}
-
-		std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
 	}
 
 	float DegToRad(float fAngDeg)
