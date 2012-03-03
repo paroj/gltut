@@ -585,6 +585,25 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
                 </mediaobject>
             </figure>
             <para>That's much better now.</para>
+            <sidebar>
+                <title>Line Drawing</title>
+                <para>You may have noticed that the position and orientation of the light was shown
+                    by three lines forming the three directions of an axis. These are a new
+                    primitive type: lines.</para>
+                <para>Lines have a uniform width no matter how close or far away they are from the
+                    camera. Point primitives are defined by one vertex, triangle primitives by 3. So
+                    it makes sense that lines are defined by two vertices.</para>
+                <para>Just as triangles can come in strips and fans, lines have their own
+                    variations. <literal>GL_LINES</literal> are like
+                    <literal>GL_TRIANGLES</literal>: a list of independent lines, with each line
+                    coming from individual pairs of vertices. <literal>GL_LINE_STRIP</literal>
+                    represents a sequence of lines attached head to tail; every vertex has a line to
+                    the previous vertex and the next in the list. <literal>GL_LINE_LOOP</literal> is
+                    like a strip, except the last and first vertices are also connected by a
+                    line.</para>
+                <para>This is all encapsulated in the Framework's <function>Mesh</function> class.
+                    The axis used here (and later on in the tutorials) is a simple </para>
+            </sidebar>
         </section>
     </section>
     <section>
@@ -617,7 +636,14 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             the 6 faces based on the X, Y, and Z axes, in the positive and negative directions. This
             diagram explains the orientation of the S and T coordinate axes of each of the faces,
             relative to the direction of the faces in the cube.</para>
-        <!--TODO: Diagram of the 6 cube faces, showing the ST orientation of each cube face relative to the cube.-->
+        <figure>
+            <title>Cube Map Face Orientation</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="CubeMapAxes.svg"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para>This information is vital for knowing how to construct the various faces of a cube
             map.</para>
         <para>To use a cube map to specify the light intensity changes for a point light, we simply
