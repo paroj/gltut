@@ -813,7 +813,7 @@ glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);</progra
                 parameters of <function>glTexImage2D</function>, is simply not appropriate for
                 dealing with compressed texture data. Therefore, OpenGL uses a different function
                 for uploading texture data that is already compressed.</para>
-            <programlisting>glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
+            <programlisting language="cpp">glCompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face,
     0, imageFormat, dims.width, dims.height, 0,
     img.GetImageByteSize(), img.GetImageData());</programlisting>
             <para>Instead of taking OpenGL enums that define what the format of the compressed data
