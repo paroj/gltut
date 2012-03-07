@@ -321,7 +321,7 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
                 from T*v. If T changes w, then the equation is not true. But at the same time, if T
                 doesn't change w, if w == w', then the equation is true.</para>
             <para>Well, that makes things quite simple. We simply need to ensure that our T does not
-                alter w. Matrix multiplication tells us that w' is the dot product of V and the
+                alter w. Matrix multiplication tells us that w' is the dot product of v and the
                 bottom row of T.</para>
             <informalequation>
                 <mediaobject>
@@ -366,7 +366,7 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
             positions in model space. We transform them to a camera space, one that is different
             from the one we use to view the scene. Then we use a perspective projection matrix to
             transform them to clip-space; both the matrix and this clip-space are again different
-            spaces from what we use to render the scene. Once perspective divide later, and we're
+            spaces from what we use to render the scene. One perspective divide later, and we're
             done.</para>
         <para>That last part is the small stumbling block. See, after the perspective divide, the
             visible world, the part of the world that is projected onto the texture, lives in a [-1,
@@ -440,10 +440,10 @@ g_lightProjMatBinder.SetValue(lightProjStack.Top());</programlisting>
                 world-to-camera matrix. We then apply the world-to-texture-camera matrix. This is
                 followed by a projection matrix, which uses an aspect ratio of 1.0. The last two
                 transforms move us from [-1, 1] NDC space to the [0, 1] texture space.</para>
-            <para>The zNear and zFar for the projection matrix are almost entirely irrelevant. They
-                need to be within the allowed ranges (strictly greater than 0, and zFar must be
-                larger than zNear), but the values themselves are meaningless. We will discard the Z
-                coordinate entirely later on.</para>
+            <para>The zNear and zFar for the projection matrix are entirely irrelevant. They need to
+                be legal values for your perspective matrix (strictly greater than 0, and zFar must
+                be larger than zNear), but the values themselves are meaningless. We will discard
+                the Z coordinate entirely later on.</para>
             <para>We use a matrix uniform binder to associate that transformation matrix with all of
                 the objects in the scene. This is all we need to do to set up the projection, as far
                 as the matrix math is concerned.</para>
@@ -455,8 +455,9 @@ g_lightProjMatBinder.SetValue(lightProjStack.Top());</programlisting>
                 think that the projection would work best in the fragment shader, but doing it
                 per-vertex is actually just fine. The only time one would need to do the projection
                 per-fragment would be if one was using imposters or was otherwise modifying the
-                depth of the fragment. Indeed, because it works per-vertex, projected textures were
-                a preferred way of doing cheap lighting in many situations.</para>
+                depth of the fragment. Indeed, because it works so well with a simple per-vertex
+                matrix transform, projected textures were once a preferred way of doing cheap
+                lighting in many situations.</para>
             <para>In the fragment shader, <filename>projLight.frag</filename>, we want to use the
                 projected texture as a light. We have the <function>ComputeLighting</function>
                 function in this shader from prior tutorials. All we need to do is make our
@@ -514,9 +515,9 @@ currLight.lightIntensity = lightProjPosition.w > 0 ?
             </figure>
             <para>The projection math doesn't care what side of the center of projection an object
                 is on; it will work either way. And since we do not actually do clipping on our
-                texture projection, we need some way to prevent this from happening. We effectively
-                need to do some form of clipping.</para>
-            <para>Recall that, given the standard projection transform, the W component is the
+                texture projection, we need some way to prevent back projection from happening. We
+                effectively need to do some form of clipping.</para>
+            <para>Recall that, given the standard perspective transform, the W component is the
                 negation of the camera-space Z. Since the camera in our camera space is looking down
                 the negative Z axis, all positions that are in front of the camera must have a W >
                 0. Therefore, if W is less than or equal to 0, then the position is behind the
@@ -645,7 +646,8 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             </mediaobject>
         </figure>
         <para>This information is vital for knowing how to construct the various faces of a cube
-            map.</para>
+            map. Notice that the four sides of the cube, not the top and bottom, are actually upside
+            down. The T coordinate goes towards -Y rather than the more intuitive +Y.</para>
         <para>To use a cube map to specify the light intensity changes for a point light, we simply
             need to do the following. First, we get the direction from the light to the surface
             point of interest. Then we use that direction to sample from the cube map. From there,
@@ -724,10 +726,11 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, 0);</programlisting>
                 uploading to a cube map texture. After all, a cube map texture is a completely
                 different texture type from 2D textures.</para>
             <para>However, the <quote>TexImage</quote> family of functions specify the
-                dimensionality of the image data they are allocating an uploading, not the specific
-                texture type. Since a cube map is simply 6 sets of 2D image images, it uses the
-                    <quote>TexImage2D</quote> functions to allocate the faces and mipmaps. Which
-                face is specified by the first parameter.</para>
+                dimensionality of the image data they are allocating and uploading, not the specific
+                texture type. This is a bit confusing; it's easiest to think of it as creating an
+                    <quote>Image</quote> of a given dimensionality. Since a cube map is simply 6
+                sets of 2D image images, it uses the <quote>TexImage2D</quote> functions to allocate
+                the faces and mipmaps. Which face is specified by the first parameter.</para>
             <para>OpenGL has six enumerators of the form
                     <literal>GL_TEXTURE_CUBE_MAP_POSITIVE/NEGATIVE_X/Y/Z</literal>. These
                 enumerators are ordered, starting with positive X, so we can loop through all of
@@ -753,8 +756,8 @@ glBindTexture(GL_TEXTURE_CUBE_MAP, 0);</programlisting>
                     <para>NEGATIVE_Z</para>
                 </listitem>
             </orderedlist>
-            <para>This mirrors the order that the <type>ImageSet</type> stores them in (and DDS
-                files, for that matter).</para>
+            <para>This mirrors the order that the <type>ImageSet</type> stores them in (and stored
+                in DDS files, for that matter).</para>
             <para>The samplers for cube map textures also needs some adjustment:</para>
             <programlisting language="cpp">glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 glSamplerParameteri(g_samplers[0], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
