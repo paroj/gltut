@@ -440,10 +440,10 @@ namespace Framework
 			}
 			catch(...)
 			{
-				std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<typename NodeMap::value_type>);
-				std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<typename ProgramMap::value_type>);
-				std::for_each(m_textures.begin(), m_textures.end(), DeleteSecond<typename TextureMap::value_type>);
-				std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<typename MeshMap::value_type>);
+				std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<NodeMap::value_type>);
+				std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<ProgramMap::value_type>);
+				std::for_each(m_textures.begin(), m_textures.end(), DeleteSecond<TextureMap::value_type>);
+				std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<MeshMap::value_type>);
 				throw;
 			}
 
@@ -455,10 +455,10 @@ namespace Framework
 			glDeleteSamplers(m_samplers.size(), &m_samplers[0]);
 			m_samplers.clear();
 
-			std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<typename NodeMap::value_type>);
-			std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<typename ProgramMap::value_type>);
-			std::for_each(m_textures.begin(), m_textures.end(), DeleteSecond<typename TextureMap::value_type>);
-			std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<typename MeshMap::value_type>);
+			std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<NodeMap::value_type>);
+			std::for_each(m_progs.begin(), m_progs.end(), DeleteSecond<ProgramMap::value_type>);
+			std::for_each(m_textures.begin(), m_textures.end(), DeleteSecond<TextureMap::value_type>);
+			std::for_each(m_meshes.begin(), m_meshes.end(), DeleteSecond<MeshMap::value_type>);
 		}
 
 		void Render(const glm::mat4 &cameraMatrix) const
