@@ -569,6 +569,13 @@
                 Interface (<acronym>API</acronym>). The OpenGL API has been exposed to a number of
                 languages. But the one that they all ultimately use at their lowest level is the C
                 API.</para>
+            <para>The OpenGL API is defined as a state machine. Almost all of the OpenGL functions
+                set or retrieve some state in OpenGL. The only functions that do not change state
+                are functions that use the currently set state to cause rendering to happen.</para>
+            <para>You can think of the state machine as a very large struct with a great many
+                different fields. This struct is called the <glossterm>OpenGL context</glossterm>,
+                and each field in the context represents some information necessary for
+                rendering.</para>
             <para>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
                 functions. The typedefs define basic GL types like <type>GLint</type>,
                     <type>GLfloat</type> and so forth. These are defined to have a specific bit
@@ -612,77 +619,42 @@ glObjectParameters(GL_MODIFY, GL_OBJECT_NAME, "Some String");</programlisting>
                 form <function>glGen*</function>, where * is the type of the object. The first
                 parameter is the number of objects to create, and the second is a
                     <type>GLuint*</type> array that receives the newly created object names.</para>
-            <para>To modify most objects, they must first be bound to the context. Many objects can
+            <para>To modify most objects, we must first bind them to the context. Many objects can
                 be bound to different locations in the context; this allows the same object to be
                 used in different ways. These different locations are called
                     <glossterm>targets</glossterm>; all objects have a list of valid targets, and
                 some have only one. In the above example, the fictitious target
                     <quote>GL_MODIFY</quote> is the location where <varname>objectName</varname> is
                 bound.</para>
+            <para>Think of a target like a global pointer. So in our case, the
+                    <literal>GL_MODIFY</literal> target is just a global pointer that can store an
+                object of this type. Calling <literal>glBindObject(GL_MODIFY, objectName)</literal>
+                is similar to doing this:</para>
+            <programlisting language="cpp">Object *GL_MODIFY = NULL;
+
+//glBindObject:
+GL_MODIFY = ptr(objectName); //Convert object into pointer.</programlisting>
+            <para>OpenGL functions that modify these objects only modify an object that is bound to
+                the context. Those function take, as their first parameter, the target of the object
+                to modify. This references one of the bound objects.</para>
             <para>The enumerators <literal>GL_OBJECT_*</literal> all name fields in the object that
                 can be set. The <function>glObjectParameter</function> family of functions set
                 parameters within the object bound to the given target. Note that since OpenGL is a
                 C API, it has to name each of the differently typed variations differently. So there
                 is <function>glObjectParameteri</function> for integer parameters,
                     <function>glObjectParameterf</function> for floating-point parameters, and so
-                forth.</para>
+                forth. In terms of code, you can think of these functions as follows:</para>
+            <programlisting>//glObjectParameteri(GL_MODIFY, GL_OBJECT_COUNT, 5);
+GL_MODIFY->count = 5;
+//glObjectParameterf(GL_MODIFY, GL_OBJECT_OPACITY, 0.4f);
+GL_MODIFY->opacity = 0.4f;
+...</programlisting>
+            <para>Binding the object 0 to the a target in the context is the equivalent of setting
+                that target's global pointer to <literal>NULL</literal>. It unbinds whatever object
+                is currently bound to that target.</para>
             <para>Note that all OpenGL objects are not as simple as this example, and the functions
-                that change object state do not all follow these naming conventions. Also, exactly
-                what it means to bind an object to the context is explained below.</para>
-        </section>
-        <section>
-            <title>The Structure of OpenGL</title>
-            <para>The OpenGL API is defined as a state machine. Almost all of the OpenGL functions
-                set or retrieve some state in OpenGL. The only functions that do not change state
-                are functions that use the currently set state to cause rendering to happen.</para>
-            <para>You can think of the state machine as a very large struct with a great many
-                different fields. This struct is called the <glossterm>OpenGL context</glossterm>,
-                and each field in the context represents some information necessary for
-                rendering.</para>
-            <para>Objects in OpenGL are thus defined as a list of fields in this struct that can be
-                saved and restored. <glossterm>Binding</glossterm> an object to a target within the
-                context causes the data in this object to replace some of the context's state. Thus
-                after the binding, future function calls that read from or modify this context state
-                will read or modify the state within the object.</para>
-            <para>Objects are usually represented as <type>GLuint</type> integers; these are handles
-                to the actual OpenGL objects. The integer value 0 is special; it acts as the object
-                equivalent of a NULL pointer. Binding object 0 means to unbind the currently bound
-                object. This means that the original context state, the state that was in place
-                before the binding took place, now becomes the context state.</para>
-            <para>Let us say that this represents some part of an OpenGL context's state:</para>
-            <example>
-                <title>OpenGL Object State</title>
-                <programlisting language="cpp">struct Values
-{
-    int iValue1;
-    int iValue2;
-};
-
-struct OpenGL_Context
-{
-    ...
-    Values *pMainValues;
-    Values *pOtherValues;
-    ...
-};
-
-OpenGL_Context context;</programlisting>
-            </example>
-            <para>To create a <classname>Values</classname> object, you would call something like
-                    <function>glGenValues</function>. You could bind the
-                    <classname>Values</classname> object to one of two targets:
-                    <literal>GL_MAIN_VALUES</literal> which represents the pointer
-                    <varname>context.pMainValues</varname>, and <literal>GL_OTHER_VALUES</literal>
-                which represents the pointer <varname>context.pOtherValues</varname>. You would bind
-                the object with a call to <function>glBindValues</function>, passing one of the two
-                targets and the object. This would set that target's pointer to the object that you
-                created.</para>
-            <para>There would be a function to set values in a bound object. Say,
-                    <function>glValueParam</function>. It would take the target of the object, which
-                represents the pointer in the context. It would also take an enum representing which
-                value in the object to change. The value <literal>GL_VALUE_ONE</literal> would
-                represent <varname>iValue1</varname>, and <literal>GL_VALUE_TWO</literal> would
-                represent <varname>iValue2</varname>.</para>
+                that change object state do not always follow these naming conventions. We will
+                discuss exceptions as we get to them.</para>
         </section>
         <section>
             <title>The OpenGL Specification</title>
@@ -967,10 +939,10 @@ OpenGL_Context context;</programlisting>
                 <glossterm>object binding</glossterm>
                 <glossdef>
                     <para>Objects can be bound to a particular location in the OpenGL context. When
-                        this happens, the state within the object takes the place of a certain set
-                        of state in the context. There are multiple binding points for objects, and
-                        each kind of object can be bound to certain binding points. Which bind point
-                        an object is bound to determines what state the object overrides.</para>
+                        this happens, the state within the object replaces a certain set of state in
+                        the context. There are multiple binding points for most objects, and each
+                        kind of object can be bound to certain binding points. Which bind point an
+                        object is bound to determines what state the object overrides.</para>
                 </glossdef>
             </glossentry>
             <glossentry>

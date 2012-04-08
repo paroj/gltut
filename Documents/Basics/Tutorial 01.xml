@@ -147,7 +147,9 @@ glutSwapBuffers();</programlisting>
                 object to the <literal>GL_ARRAY_BUFFER</literal> binding target. As mentioned in
                     <link linkend="OpenGLObjects">the introduction</link>, objects in OpenGL usually
                 have to be bound to the context in order for them to do anything, and buffer objects
-                are no exception.</para>
+                are no exception. Later commands that affect to the buffer bound to
+                    <literal>GL_ARRAY_BUFFER</literal> will affect this particular object, until a
+                new buffer object is bound to <literal>GL_ARRAY_BUFFER</literal>.</para>
             <para>The <function>glBufferData</function> function performs two operations. It
                 allocates memory for the buffer currently bound to
                     <literal>GL_ARRAY_BUFFER</literal>, which is the one we just created and bound.

@@ -988,18 +988,20 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                         this will require applying more than one rotation transformation.</para>
                 </listitem>
                 <listitem>
-                    <para>Reverse the order of rotations on the wrist in the Hierarchy tutorial.
-                        Note how this affects the ability to adjust the wrist.</para>
+                    <para>Reverse the order that the two rotations on the wrist are applied in the
+                        Hierarchy tutorial. Note how this affects the ability to adjust the
+                        wrist.</para>
                 </listitem>
                 <listitem>
                     <para>Reimplement the Hierarchy tutorial, instead using a more generic data
-                        structure. Have each node be a struct/class that can be attached to an
-                        arbitrary node. The scene will simply be the root node. The individual angle
-                        values should be stored in the node object. The node should have a render
-                        function that will render this node, given the matrix stack. It would render
-                        itself, then recursively render its children. The node would also have a way
-                        to define the size (in world-space) and origin point of the rectangle to be
-                        drawn.</para>
+                        structure. Have each node be a struct/class that can be attached as a child
+                        to another node. Each node has one parent, but multiple children. The scene
+                        will simply be the root node: the node that has no parent. The individual
+                        angle values should be stored in the node object. The node should have a
+                        render function that will render this node, given the matrix stack. It would
+                        render itself, then recursively render its children. The node would also
+                        have a way to define the size (in world-space) and origin point of the
+                        rectangle to be drawn.</para>
                 </listitem>
                 <listitem>
                     <para>Given the generalized Hierarchy code, remove the matrix stack. Use matrix
