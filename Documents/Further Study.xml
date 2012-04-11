@@ -7,8 +7,8 @@
     <para>G</para>
     <section>
         <title>Topics of Interest</title>
-        <para>This book should provide a firm foundation for understanding graphics development.
-            However, there are many subjects that it does not cover which are also important in
+        <para>This book should provide a firm foundation for understanding graphics development. But
+            there are many subjects that are not covered in this book which are also important in
             rendering. Here is a list of topics that you should investigate, with a quick
             introduction to the basic concepts.</para>
         <para>This list is not intended to be a comprehensive tour of all interesting graphical
@@ -84,16 +84,16 @@
                 a hack. A useful one, but a hack nonetheless.</para>
         </formalpara>
         <para>Screen-space ambient occlusion (<acronym>SSAO</acronym>) is the term given to a hacky
-            modification of this already hacky concept. The idea works like this. If two objects
-            form an interior corner, then the amount of interreflected light for the pixels around
-            that interior corner will be less than the general level of interreflection. This is a
+            modification of this already hacky concept. The idea works like this. If an object has
+            an interior corner, then the amount of interreflected light for the pixels around that
+            interior corner will be less than the general level of interreflection. This is a
             generally true statement. What SSAO does is find all of those corners, in screen-space,
             and decreases the ambient light intensity for them proportionately.</para>
         <para>Doing this in screen space requires access to the screen space depth for each pixel.
             So it combines very nicely with deferred rendering techniques. Indeed, it can simply be
-            folded into the ambient lighting pass of deferred rendering, though getting it to
-            perform reasonably fast is the biggest challenge. But the results can look good enough
-            to be worth the effort.</para>
+            folded directly into the ambient lighting pass of deferred rendering, though getting it
+            to perform reasonably fast is the biggest challenge. But the results can look good
+            enough to be worth the effort.</para>
         <formalpara>
             <title>Light Scattering</title>
             <para>When light passes through the atmosphere, it can be absorbed and reflected by the
