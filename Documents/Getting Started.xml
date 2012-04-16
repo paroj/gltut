@@ -65,8 +65,7 @@
             <formalpara>
                 <title>GLFW</title>
                 <para>GLFW is an alternative to FreeGLUT. Like FreeGLUT, GLFW is fairly bare-bones.
-                    It provides a way to create windows or full-screen displays. It provides ways to
-                    get keyboard and mouse input.</para>
+                    It provides a way to create windows or full-screen displays.</para>
             </formalpara>
             <para>The biggest difference between them is that, while FreeGLUT owns the message
                 processing loop, GLFW does not. GLFW requires that the user poll it to process
@@ -74,8 +73,16 @@
                 While this makes GLFW programs a bit more complicated than FreeGLUT ones (which is
                 why these tutorials use FreeGLUT), it does mean that GLFW would be more useful in
                 serious applications.</para>
-            <para>GLFW also provides more robust input support as well as </para>
-            <para>GLFW uses the zLib license.</para>
+            <para>Additionally, GLFW offers more robust support in a number of areas. Both FreeGLUT
+                and GLFW can create full-screen applications, but GLFW provides a means to query the
+                available resolutions. They both offer time querying, but GLFW offers much higher
+                resolution timers, while FreeGLUT timers only have millisecond resolution. They both
+                offer support for joystick input, but GLFW allows the ability to query basic
+                information about the joysticks (number of buttons and axes), as well as supporting
+                an arbitrary number of buttons and axes.</para>
+            <para>Overall, it is a more game-centric API than FreeGLUT. One thing that is
+                (currently) missing from GLFW is the ability to create an sRGB default framebuffer.
+                GLFW uses the zLib license.</para>
             <formalpara>
                 <title>Multimedia Libraries</title>
                 <para>A multimedia library is a library that handles, in a cross-platform way,
@@ -114,7 +121,8 @@
                 <para>There are a number of cross-platform GUI libraries that deal with detailed
                     window management, provide controls, and generally act like a full-fledged
                     windowing system. Most of them have support for using OpenGL in one or more of
-                    their windows.</para>
+                    their windows. Qt, wxWidgets, GTK, all have some form of OpenGL window that you
+                    can use.</para>
             </formalpara>
             <para>Which window creation tools you use are entirely up to you; the possible needs
                 that you might have are well beyond the scope of this book.</para>
@@ -131,22 +139,26 @@
                 do it for you.</para>
             <formalpara>
                 <title>GL Load</title>
-                <para>This comes with the Unofficial OpenGL SDK. And while most of the SDK is not
-                    intended for high-performance use, GL Load is still perfectly serviceable in
-                    that capacity. After all, this is generally a one-time initialization step, so
+                <para>This comes with the Unofficial OpenGL SDK. While most of the SDK is not
+                    intended for high-performance use, GL Load is still perfectly functional in that
+                    capacity. After all, this is generally a one-time initialization step, so
                     performance is ultimately irrelevant.</para>
             </formalpara>
-            <para>GL Load works with core and compatibility contexts equally well. GL Load uses the
-                MIT License.</para>
+            <para>GL Load works with core and compatibility contexts equally well. Indeed, unlike
+                most OpenGL loading libraries, it separates not just core and compatibility headers,
+                but it also separates headers by OpenGL version. So if you work in OpenGL 3.3, you
+                won't see functions or enumerators from later versions (except when they are exposed
+                as OpenGL extensions).</para>
+            <para>GL Load uses the MIT License.</para>
             <formalpara>
                 <title>GLEW</title>
-                <para>GLEW (the OpenGL Extension Wrangler) is perhaps the most widely used
-                    alternative. While it is technically intended for loading extension functions,
-                    it works just as well on the OpenGL core functions.</para>
+                <para>GLEW (the OpenGL Extension Wrangler) is perhaps the most widely used OpenGL
+                    loading library. While it is technically intended for loading extension
+                    functions, it works just as well on the OpenGL core functions.</para>
             </formalpara>
-            <para>The principle downside of GLEW is that it does not work well with
-                non-compatibility contexts. There is some experimental support to make this work,
-                but it is experimental. GLEW uses the MIT license.</para>
+            <para>The principle downside of GLEW is that it does not work well with core contexts.
+                There is some experimental support to make this work, but it is experimental. GLEW
+                uses the MIT license.</para>
             <formalpara>
                 <title>GL3W</title>
                 <para>GL3W is unique in that it is not technically a library. It is a Python script
@@ -157,8 +169,8 @@
             </formalpara>
             <para>GL3W is intended specifically for core contexts, and it does not work with
                 compatibility or older OpenGL versions. Being a Python script, it requires a Python
-                2.6 environment; it is unknown if it works with later Python versions. GL3W is
-                public domain software.</para>
+                environment. Specifically it requires Python 2.6; it is unknown if it works with
+                later Python versions. GL3W is public domain software.</para>
         </section>
         <section>
             <title>Initialization</title>

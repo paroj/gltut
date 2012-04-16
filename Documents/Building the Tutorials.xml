@@ -52,8 +52,8 @@
         <title>Unofficial OpenGL SDK</title>
         <para>Distributed with the tutorials is the Unofficial OpenGL SDK. This is an aggregation of
             libraries, unifying a number of tools for developing OpenGL applications, all bound
-            together with a unified build system. You do not need to download it; a modified SDK
-            distribution is bundled with these tutorials. The copy that comes with these tutorials
+            together with a unified build system. You do not need to download it; a modified version
+            of the SDK is bundled with these tutorials. The copy that comes with these tutorials
             does not contain the documentation or GLFW.</para>
         <para>The SDK library uses Premake to generate its build files. So, with
                 <command>premake4.exe</command> in your path, go to the <filename>glsdk</filename>

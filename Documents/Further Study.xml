@@ -3,9 +3,85 @@
 <?oxygen SCHSchema="http://docbook.org/xml/5.0/rng/docbookxi.rng"?>
 <appendix xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
+    <?dbhtml filename="Further Study.html" ?>
     <title>Further Study</title>
     <para>G</para>
     <section>
+        <?dbhtml filename="Further Study Debugging.html" ?>
+        <title>Debugging</title>
+        <para>This book provides functioning code to solve various problems and implement a variety
+            of effects. However, it does not talk about how to get code from a non-working state
+            into a working one. That is, debugging.</para>
+        <para>Debugging OpenGL code is very difficult. Frequently when there is an OpenGL bug, the
+            result is a massively unhelpful blank screen. If the problem is localized to a single
+            shader or state used to render an object, the result is a black object. Compounding this
+            problem is the fact that OpenGL has a lot of global state. One of the reasons this book
+            will often bind objects, do something with them, and then unbind them, is to reduce the
+            amount of state dependencies. It ensures that every object is rendered with a specific
+            program, a set of textures, a certain VAO, etc. It may be slightly slower to do this,
+            but for a simple application, getting it working is more important.</para>
+        <para>Debugging shaders is even more problematic; there are no breakpoints or watches you
+            can put on GLSL shaders. Fragment shaders offer the possibility of
+                <function>printf</function>-style debugging: one can always write some values to the
+            framebuffer and see something. Vertex or other shader stages require passing their data
+            through another stage before the outcome can be seen. And even then, it is an
+            interpolated version.</para>
+        <para>Because of the difficulty in debugging, the general tactics for doing so revolve
+            around bug prevention rather than bug finding. Therefore, the most important tactic for
+            debugging is this: always start with working code. Begin development with something that
+            actually functions, even if it is not drawing what you ultimately intend for it to. Once
+            you have working code, you can change it to render what you need it to.</para>
+        <para>The second tip is to minimize the amount of code/data that could be causing any
+            problem you encounter. This means making small changes in a working application and
+            immediately testing to see if they work or not. If they do not, then it must be because
+            of those small changes. If you make big changes, then the size of the code/data you have
+            to look through is much larger. The more code you have to debug, the harder it is to do
+            so effectively.</para>
+        <para>Along with the last tip is to use a distributed version control system and check in
+            your code often, preferably after each small change. This will allow you to revert any
+            changes that do not work, as well as see the actual differences between the last working
+            version and the now non-functional version. This will save you from inadvertent
+            keystrokes and the like.</para>
+        <para>The next step is to avail yourself of debugging tools, where they exist for your
+            platform(s) of interest. OpenGL itself can help here. The OpenGL specification defines
+            what functions should do in the case of malformed input. Specifically, they will place
+            errors into the OpenGL error queue. After every OpenGL function call, you may want to
+            check to see if an error has been added to the queue. This is done with code as
+            follows:</para>
+        <programlisting language="cpp">for(GLenum currError = glGetError(); currError != GL_NO_ERROR; currError = glGetError())
+{
+  //Do something with `currError`.
+}</programlisting>
+        <para>It would be very tedious to put this after every function. But since the errors are
+            all stored in a queue, they are not associated with the actual function that caused the
+            error. If <function>glGetError</function> is not called frequently, it becomes very
+            difficult to know where any particular error came from. Therefore, there is a special
+            OpenGL extension specifically for aiding in debugging: ARB_debug_output. This extension
+            is only available when creating an OpenGL context with a special debug flag. The
+            framework used here automatically uses this extension in debug builds.</para>
+        <para>The debug output extension allows the user to register a function that will be called
+            whenever errors happen. It can also be called when less erroneous circumstances occur;
+            this depends on the OpenGL implementation. When set up for synchronous error messages,
+            the callback will be called before the function that created the error returned. So it
+            is possible to breakpoint inside the callback function and see exactly which function
+            caused it.</para>
+        <para>Setting up the callback is somewhat complex. The Unofficial OpenGL SDK offers, as part
+            of its GL Utilities sub-library, a registration function for setting up the debug output
+            properly. Also, the framework for this book's code offers similar functionality. It is
+            located in <filename>framework/framework.cpp</filename>.</para>
+        <para>There are alternatives for catching OpenGL errors. The utility glIntercept (it works
+            in Linux and Windows, but the Linux port is slightly iffy) is capable of hooking into
+            OpenGL without any code modifications and tracking every OpenGL function call. It can
+            dump every OpenGL call to a file, as well as the given parameters. This is very useful
+            for debugging, as it tells you more about what may have caused certain error or visual
+            glitches. It also automatically checks for errors after every function call, alleviating
+            the need to do so manually. Any errors are logged with the function that produced
+            them.</para>
+        <para>The gDebugger tool, Windows only, offers similar features, though unlike glIntercept,
+            it is not open-source.</para>
+    </section>
+    <section>
+        <?dbhtml filename="Further Study Topics.html" ?>
         <title>Topics of Interest</title>
         <para>This book should provide a firm foundation for understanding graphics development. But
             there are many subjects that are not covered in this book which are also important in

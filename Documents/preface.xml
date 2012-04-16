@@ -92,9 +92,10 @@
     <section>
         <?dbhtml filename="About Need.html" ?>
         <title>What You Need</title>
-        <para>This is a book for beginning graphics programmers; it can also serve as a book for
-            those familiar with fixed functionality who want to understand programmable rendering
-            better. But this is not a book for beginning programmers.</para>
+        <para>This is a book for beginning graphics programmers; it can also serve as a good
+            introductory text for those familiar with fixed function-based graphics who want to
+            understand programmable rendering better.</para>
+        <para>What this book is not is a book for beginning <emphasis>programmers</emphasis>.</para>
         <para>You are expected to be able to read C and reasonable C++ code. If <quote>Hello,
                 world!</quote> is the extent of your C/C++ knowledge, then perhaps you should write
             some more substantial code before proceeding with trying to render images. 3D graphics
@@ -106,16 +107,38 @@
             tutorials.</para>
         <para>Any substantial discussion of 3D rendering requires a discussion of mathematics, which
             are at the foundation of all 3D graphics. This book expects you to know basic geometry
-            and algebra.</para>
-        <para>The tutorials will present the more advanced math needed for graphics as it becomes
-            necessary, but you should have at least a working knowledge of geometry and algebra.
-            Linear algebra is not required, though it would be helpful.</para>
-        <para>The code tutorials in this book use OpenGL as their rendering API. You do not need to
-            know OpenGL, but to execute the code, you must have a programming environment that
-            allows OpenGL. Specifically, you will need hardware capable of running OpenGL version
-            3.3. This means any GeForce 8xxx or better, or any Radeon HD-class card. These are also
+            and algebra. This book will present the more advanced math needed for graphics as it
+            becomes necessary. But you should have at least a working knowledge of geometry and
+            algebra. Linear algebra is not required.</para>
+        <para>The source code in this book use OpenGL as its rendering API. You do not need to know
+            OpenGL when starting, but in order to compile and run any of this code, you must have a
+            development environment that allows OpenGL.</para>
+        <para>Specifically, you will need graphics hardware capable of running OpenGL version 3.3.
+            This means any GeForce 8xxx or better, or any Radeon HD-class card. These are also
             called <quote>Direct3D 10</quote> cards, but you do not need Windows Vista or 7 to use
-            their advanced features through OpenGL.</para>
+            their advanced features through OpenGL. You should have the most recent version of
+            graphics drivers installed, available on the home page of your graphics card
+            manufacturer. Outside of drivers and the actual tutorial distribution, you will not need
+            to download or install anything else to work with OpenGL.</para>
+        <section>
+            <title>Be Open</title>
+            <para>This book is intended to teach graphics programmers the basics of graphics
+                development. The most important thing you can bring within yourself is a willingness
+                to learn. This also means leaving preconceived notions, and most importantly of all,
+                not trying to learn anything in particular.</para>
+            <para>Often, programmers will scour the internet or pour over books, looking for
+                information about how to perform some specific task. Once they find it, they will
+                try to copy that code into their application and see if they can make it work. This
+                method can achieve results faster, but it impairs learning by focusing on achieving
+                a certain effect goal instead of truly understanding how it works.</para>
+            <para>When first approaching this book, you should try to avoid thinking about any
+                specific problem. You may keep a particular problem in the back of your mind, but do
+                not allow the search for a solution to drive your reading. Instead, focus on the
+                material being presented. Once you have finished the book, then you can look back
+                and see if you understand how to solve that problem you wanted to solve.</para>
+            <para>You may find that you have a better solution than you would have thought of
+                otherwise.</para>
+        </section>
     </section>
     <section>
         <?dbhtml filename="About Organization.html" ?>
@@ -131,10 +154,10 @@
             code itself; these are intended to further your understanding of these concepts. If the
             tutorial introduced new OpenGL functions or functions for the OpenGL shading language,
             they will be reviewed here as well.</para>
-        <para>This is a book for beginning graphics programmers. Graphics is a huge topic, and this
-            book will not cover every possible effect, feature, or technique. This book will also
-            not cover every technique in full detail. Sometimes techniques will be revisited in
-            later materials, but there simply isn't enough space to say everything about everything.
+        <para>This is a book for beginning graphics programmers. Graphics is a huge topic, and no
+            book could cover every possible effect, feature, or technique. This book will also not
+            cover every technique in full detail. Sometimes techniques will be revisited in later
+            materials, but there simply isn't enough space to say everything about everything.
             Therefore, when certain techniques are introduced, there will be a section at the end
             providing some cursory examination of more advanced techniques. This will help you
             further your own research into graphics programming, as you will know what to search for
