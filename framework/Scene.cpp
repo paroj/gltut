@@ -275,15 +275,24 @@ namespace Framework
 		SamplerTypes sampler;
 	};
 
+	struct Variation
+	{
+		SceneProgram *pProg;
+		std::vector<TextureBinding> texBindings;
+	};
+
+	typedef std::map<std::string, Variation> VariantMap;
+
 	class SceneNode
 	{
 	public:
 		SceneNode(SceneMesh *pMesh, SceneProgram *pProg, const glm::vec3 &nodePos,
-			const std::vector<TextureBinding> &texBindings)
+			const std::vector<TextureBinding> &texBindings, const VariantMap &variants)
 			: m_pMesh(pMesh)
-			, m_pProg(pProg)
-			, m_texBindings(texBindings)
+			, m_variants(variants)
 		{
+			m_baseVariant.pProg = pProg;
+			m_baseVariant.texBindings = texBindings;
 			m_nodeTm.m_trans = nodePos;
 		}
 
@@ -316,39 +325,20 @@ namespace Framework
 
 		void Render(const std::vector<GLuint> &samplers, glm::mat4 baseMat) const
 		{
-			baseMat *= m_nodeTm.GetMatrix();
-			glm::mat4 objMat = baseMat * m_objTm.GetMatrix();
+			if(m_baseVariant.pProg)
+				Render(m_baseVariant, samplers, baseMat);
 
-			m_pProg->UseProgram();
-			glUniformMatrix4fv(m_pProg->GetMatrixLoc(), 1, GL_FALSE, glm::value_ptr(objMat));
+			RecurseRenderNodes();
+		}
 
-			if(m_pProg->GetNormalMatLoc() != -1)
-			{
-				glm::mat3 normMat = glm::mat3(glm::transpose(glm::inverse(objMat)));
-				glUniformMatrix3fv(m_pProg->GetNormalMatLoc(), 1, GL_FALSE,
-					glm::value_ptr(normMat));
-			}
+		void Render(const std::string &variation, const std::vector<GLuint> &samplers,
+			glm::mat4 baseMat) const
+		{
+			const Variation *pVar = GetActiveVariation(variation);
+			if(pVar)
+				Render(*pVar, samplers, baseMat);
 
-			std::for_each(m_binders.begin(), m_binders.end(), BindBinder(m_pProg->GetProgram()));
-			for(size_t texIx = 0; texIx < m_texBindings.size(); ++texIx)
-			{
-				const TextureBinding &binding = m_texBindings[texIx];
-				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
-				glBindTexture(binding.pTex->GetType(), binding.pTex->GetTexture());
-				glBindSampler(binding.texUnit, samplers[binding.sampler]);
-			}
-
-			m_pMesh->Render();
-
-			for(size_t texIx = 0; texIx < m_texBindings.size(); ++texIx)
-			{
-				const TextureBinding &binding = m_texBindings[texIx];
-				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
-				glBindTexture(binding.pTex->GetType(), 0);
-				glBindSampler(binding.texUnit, 0);
-			}
-			std::for_each(m_binders.rbegin(), m_binders.rend(), UnbindBinder(m_pProg->GetProgram()));
-			glUseProgram(0);
+			RecurseRenderNodes();
 		}
 
 		void NodeOffset(const glm::vec3 &offset)
@@ -368,16 +358,89 @@ namespace Framework
 
 		GLuint GetProgram() const
 		{
-			return m_pProg->GetProgram();
+			if(m_baseVariant.pProg)
+				return m_baseVariant.pProg->GetProgram();
+
+			return GL_INVALID_INDEX;
+		}
+
+		GLuint GetProgram(const std::string &variation) const
+		{
+			const Variation *pVar = GetActiveVariation(variation);
+			if(pVar)
+				return pVar->pProg->GetProgram();
+
+			return GL_INVALID_INDEX;
 		}
 
 
 	private:
+		const Variation *GetActiveVariation(const std::string &variation) const
+		{
+			VariantMap::const_iterator theIt = m_variants.find(variation);
+			if(theIt != m_variants.end())
+			{
+				if(theIt->second.pProg)
+					return &theIt->second;
+				else
+				{
+					if(m_baseVariant.pProg)
+						return &m_baseVariant;
+				}
+			}
+
+			return NULL;
+		}
+
+		void Render(const Variation &theVariant, const std::vector<GLuint> &samplers,
+			glm::mat4 baseMat) const
+		{
+			baseMat *= m_nodeTm.GetMatrix();
+			glm::mat4 objMat = baseMat * m_objTm.GetMatrix();
+
+			theVariant.pProg->UseProgram();
+			glUniformMatrix4fv(theVariant.pProg->GetMatrixLoc(), 1, GL_FALSE, glm::value_ptr(objMat));
+
+			if(theVariant.pProg->GetNormalMatLoc() != -1)
+			{
+				glm::mat3 normMat = glm::mat3(glm::transpose(glm::inverse(objMat)));
+				glUniformMatrix3fv(theVariant.pProg->GetNormalMatLoc(), 1, GL_FALSE,
+					glm::value_ptr(normMat));
+			}
+
+			std::for_each(m_binders.begin(), m_binders.end(), BindBinder(theVariant.pProg->GetProgram()));
+			for(size_t texIx = 0; texIx < theVariant.texBindings.size(); ++texIx)
+			{
+				const TextureBinding &binding = theVariant.texBindings[texIx];
+				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
+				glBindTexture(binding.pTex->GetType(), binding.pTex->GetTexture());
+				glBindSampler(binding.texUnit, samplers[binding.sampler]);
+			}
+
+			m_pMesh->Render();
+
+			for(size_t texIx = 0; texIx < theVariant.texBindings.size(); ++texIx)
+			{
+				const TextureBinding &binding = theVariant.texBindings[texIx];
+				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
+				glBindTexture(binding.pTex->GetType(), 0);
+				glBindSampler(binding.texUnit, 0);
+			}
+			std::for_each(m_binders.rbegin(), m_binders.rend(), UnbindBinder(theVariant.pProg->GetProgram()));
+			glUseProgram(0);
+		}
+
+		void RecurseRenderNodes() const
+		{
+			//TODO: implement child nodes.
+		}
+
+
 		SceneMesh *m_pMesh;		//Unmanaged. We are deleted first, so these should always be real values.
-		SceneProgram *m_pProg;	//Unmanaged. We are deleted first, so these should always be real values.
+		Variation m_baseVariant;
 
 		std::vector<StateBinder*> m_binders;	//Unmanaged. These live beyond us.
-		std::vector<TextureBinding> m_texBindings;
+		VariantMap m_variants;
 
 		Transform m_nodeTm;
 		Transform m_objTm;
@@ -468,6 +531,16 @@ namespace Framework
 				++theIt)
 			{
 				theIt->second->Render(m_samplers, cameraMatrix);
+			}
+		}
+
+		void Render(const std::string &variation, const glm::mat4 &cameraMatrix) const
+		{
+			for(NodeMap::const_iterator theIt = m_nodes.begin();
+				theIt != m_nodes.end();
+				++theIt)
+			{
+				theIt->second->Render(variation, m_samplers, cameraMatrix);
 			}
 		}
 
@@ -736,12 +809,11 @@ namespace Framework
 		{
 			const xml_attribute<> *pNameNode = nodeNode.first_attribute("name");
 			const xml_attribute<> *pMeshNode = nodeNode.first_attribute("mesh");
-			const xml_attribute<> *pProgNode = nodeNode.first_attribute("prog");
 
 			PARSE_THROW(pNameNode, "Node found with no `name` name specified.");
 			PARSE_THROW(pMeshNode, "Node found with no `mesh` name specified.");
-			PARSE_THROW(pProgNode, "Node found with no `prog` name specified.");
 
+			const xml_attribute<> *pProgNode = nodeNode.first_attribute("prog");
 			const xml_attribute<> *pPositionNode = nodeNode.first_attribute("pos");
 			const xml_attribute<> *pOrientNode = nodeNode.first_attribute("orient");
 			const xml_attribute<> *pScaleNode = nodeNode.first_attribute("scale");
@@ -762,18 +834,24 @@ namespace Framework
 					"\" references the mesh \"" + meshName + "\" which does not exist.");
 			}
 
-			std::string progName = make_string(*pProgNode);
-			ProgramMap::iterator progIt = m_progs.find(progName);
-			if(progIt == m_progs.end())
+			SceneProgram *pProg = NULL;
+			if(pProgNode)
 			{
-				throw std::runtime_error("The node named \"" + name + 
-					"\" references the program \"" + progName + "\" which does not exist.");
+				std::string progName = make_string(*pProgNode);
+				ProgramMap::iterator progIt = m_progs.find(progName);
+				if(progIt == m_progs.end())
+				{
+					throw std::runtime_error("The node named \"" + name + 
+						"\" references the program \"" + progName + "\" which does not exist.");
+				}
+
+				pProg = progIt->second;
 			}
 
 			glm::vec3 nodePos = rapidxml::attrib_to_vec3(*pPositionNode, ThrowAttrib);
 
-			SceneNode *pNode = new SceneNode(meshIt->second, progIt->second, nodePos,
-				ReadNodeTextures(nodeNode));
+			SceneNode *pNode = new SceneNode(meshIt->second, pProg, nodePos,
+				ReadNodeTextures(nodeNode), ReadNodeVariants(nodeNode));
 			m_nodes[name] = pNode;
 
 			//TODO: parent/child nodes.
@@ -851,6 +929,46 @@ namespace Framework
 
 			return texBindings;
 		}
+
+		VariantMap ReadNodeVariants(const xml_node<> &nodeNode)
+		{
+			VariantMap variants;
+
+			for(const xml_node<> *pVarNode = nodeNode.first_node("variant");
+				pVarNode;
+				pVarNode = pVarNode->next_sibling("variant"))
+			{
+				const xml_node<> &variantNode = *pVarNode;
+				const xml_attribute<> *pNameNode = variantNode.first_attribute("name");
+				const xml_attribute<> *pProgName = variantNode.first_attribute("prog");
+				const xml_attribute<> *pBaseNode = variantNode.first_attribute("base");
+
+				PARSE_THROW(pNameNode, "Variant on nodes must have a `name` attribute.");
+				PARSE_THROW(pBaseNode || pProgName, "Variant must have either a `prog` or `base` attribute.");
+
+				std::string name = make_string(*pNameNode);
+				if(variants.find(name) != variants.end())
+					throw std::runtime_error("The variant named \"" + name + "\" already exists on this node.");
+
+				Variation &ret = variants[name];
+				ret.pProg = NULL;
+				if(pProgName)
+				{
+					std::string programName = make_string(*pNameNode);
+					ProgramMap::iterator progIt = m_progs.find(programName);
+					if(progIt == m_progs.end())
+					{
+						throw std::runtime_error("The variant program named \"" + programName + 
+							"\" is a program which does not exist.");
+					}
+					ret.pProg = progIt->second;
+				}
+
+				ret.texBindings = ReadNodeTextures(variantNode);
+			}
+
+			return variants;
+		}
 	};
 
 	void NodeRef::NodeSetScale( const glm::vec3 &scale )
@@ -898,6 +1016,11 @@ namespace Framework
 		return m_pNode->GetProgram();
 	}
 
+	GLuint NodeRef::GetProgram(const std::string &variation) const
+	{
+		return m_pNode->GetProgram(variation);
+	}
+
 	Scene::Scene( const std::string &filename )
 		: m_pImpl(new SceneImpl(filename))
 	{}
@@ -910,6 +1033,11 @@ namespace Framework
 	void Scene::Render( const glm::mat4 &cameraMatrix ) const
 	{
 		m_pImpl->Render(cameraMatrix);
+	}
+
+	void Scene::Render( const std::string &variation, const glm::mat4 &cameraMatrix ) const
+	{
+		m_pImpl->Render(variation, cameraMatrix);
 	}
 
 	Framework::NodeRef Scene::FindNode( const std::string &nodeName )

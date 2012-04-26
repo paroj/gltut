@@ -58,7 +58,7 @@ div
         element scn:node { sc.node.content }
         
     sc.node.content =
-        sc.node.attlist, (sc.note | sc.node.texture)*
+        sc.node.attlist, (sc.note | sc.node.texture | sc.node.variant)*
         
     sc.note =
         ##User-defined strings that can be queried.
@@ -73,6 +73,13 @@ div
         
     sc.node.texture.content =
         sc.node.texture.attlist
+        
+    sc.node.variant =
+        element scn:variant { sc.node.variant.content }
+        
+    sc.node.variant.content =
+        sc.node.variant.attlist, sc.node.texture*
+       
 }
 
 ##Attributes
@@ -101,7 +108,7 @@ div
     sc.node.attlist =
         sc.node.name.attribute,
         sc.node.mesh.attribute,
-        sc.node.prog.attribute,
+        sc.node.prog.attribute?,
         sc.node.pos.attribute,
         sc.node.orient.attribute?,
         sc.node.scale.attribute?
@@ -113,6 +120,10 @@ div
         sc.node.texture.name.attribute,
         sc.node.texture.unit.attribute,
         sc.node.texture.sampler.attribute
+        
+    sc.node.variant.attlist =
+        sc.variant.name.attribute,
+        (sc.node.prog.attribute | sc.variant.base.attribute)
     
     sc.xml.id.attribute =
         ##Uniquely named object
@@ -205,6 +216,14 @@ div
     sc.node.texture.sampler.attribute =
         ##The sample filtering to use for this texture.
         attribute sampler { acc.samplers.type }
+        
+    sc.variant.name.attribute =
+        ##The name of a variant node.
+        attribute name { text }
+        
+    sc.variant.base.attribute =
+        ##The presence of this attribute means that the default variant should be used.
+        attribute base { empty }
 }
 
 ## Accessories

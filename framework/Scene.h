@@ -38,6 +38,7 @@ namespace Framework
 		void SetStateBinder(StateBinder *pBinder);
 
 		GLuint GetProgram() const;
+		GLuint GetProgram(const std::string &variation) const;
 
 	private:
 		NodeRef();	//No default-construction.
@@ -54,6 +55,7 @@ namespace Framework
 		~Scene();
 
 		void Render(const glm::mat4 &cameraMatrix) const;
+		void Render(const std::string &variation, const glm::mat4 &cameraMatrix) const;
 
 		NodeRef FindNode(const std::string &nodeName);
 
