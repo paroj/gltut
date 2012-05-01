@@ -27,6 +27,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glimg/glimg.h>
+#include <glutil/MousePoles.h>
 
 
 #define PARSE_THROW(cond, message)\
@@ -141,6 +142,14 @@ namespace Framework
 
 		GLuint GetTexture() const {return m_texObj;}
 		GLenum GetType() const {return m_texType;}
+
+		GLuint SetTexture(GLuint newTexObj, GLenum newTexType)
+		{
+			GLuint ret = m_texObj;
+			m_texObj = newTexObj;
+			m_texType = newTexType;
+			return ret;
+		}
 
 	private:
 		GLuint m_texObj;
@@ -282,6 +291,14 @@ namespace Framework
 	};
 
 	typedef std::map<std::string, Variation> VariantMap;
+
+	struct SceneCamera
+	{
+		glutil::ViewData initialData;
+		glutil::ViewScale scale;
+	};
+
+	typedef std::map<std::string, SceneCamera> CameraMap;
 
 	class SceneNode
 	{
@@ -458,6 +475,7 @@ namespace Framework
 		TextureMap m_textures;
 		ProgramMap m_progs;
 		NodeMap m_nodes;
+		CameraMap m_cameras;
 
 		std::vector<SceneNode *> m_rootNodes;
 
@@ -499,6 +517,7 @@ namespace Framework
 				ReadMeshes(*pSceneNode);
 				ReadTextures(*pSceneNode);
 				ReadPrograms(*pSceneNode);
+				ReadCameras(*pSceneNode);
 				ReadNodes(NULL, *pSceneNode);
 			}
 			catch(...)
@@ -553,6 +572,20 @@ namespace Framework
 			return NodeRef(theIt->second);
 		}
 
+		std::vector<NodeRef> GetAllNodes()
+		{
+			std::vector<NodeRef> ret;
+
+			for(NodeMap::iterator theIt = m_nodes.begin();
+				theIt != m_nodes.end();
+				++theIt)
+			{
+				ret.push_back(NodeRef(theIt->second));
+			}
+
+			return ret;
+		}
+
 		GLuint FindProgram(const std::string &progName)
 		{
 			ProgramMap::iterator theIt = m_progs.find(progName);
@@ -578,6 +611,26 @@ namespace Framework
 				throw std::runtime_error("Could not find the texture named: " + textureName);
 
 			return std::make_pair(theIt->second->GetTexture(), theIt->second->GetType());
+		}
+
+		GLuint ReplaceTexture(const std::string &textureName, GLuint newTexObj, GLenum newTexType)
+		{
+			TextureMap::iterator theIt = m_textures.find(textureName);
+			if(theIt == m_textures.end())
+				return 0;
+
+			return theIt->second->SetTexture(newTexObj, newTexType);
+		}
+
+		glutil::ViewPole *CreateCamera(const std::string &cameraName,
+			glutil::MouseButtons actionButton, bool bRightKeyboardCtrls) const
+		{
+			CameraMap::const_iterator theIt = m_cameras.find(cameraName);
+			if(theIt == m_cameras.end())
+				return NULL;
+
+			return new glutil::ViewPole(theIt->second.initialData, theIt->second.scale,
+				actionButton, bRightKeyboardCtrls);
 		}
 
 	private:
@@ -793,6 +846,64 @@ namespace Framework
 					throw std::runtime_error("Unknown element found in program.");
 				}
 			}
+		}
+
+		void ReadCameras(const xml_node<> &scene)
+		{
+			for(const xml_node<> *pCamNode = scene.first_node("camera");
+				pCamNode;
+				pCamNode = pCamNode->next_sibling("camera"))
+			{
+				ReadCamera(*pCamNode);
+			}
+		}
+
+		void ReadCamera(const xml_node<> &cameraNode)
+		{
+			const xml_attribute<> *pNameNode = cameraNode.first_attribute("xml:id");
+			const xml_attribute<> *pStartPosNode = cameraNode.first_attribute("start-pos");
+			const xml_attribute<> *pStartOrientNode = cameraNode.first_attribute("start-orient");
+			const xml_attribute<> *pStartRadiusNode = cameraNode.first_attribute("start-radius");
+			const xml_attribute<> *pStartUpSpinNode = cameraNode.first_attribute("start-up-spin");
+
+			const xml_attribute<> *pRadiusLimitNode = cameraNode.first_attribute("radius-limits");
+			const xml_attribute<> *pRadiusDeltaNode = cameraNode.first_attribute("radius-deltas");
+			const xml_attribute<> *pPosDeltaNode = cameraNode.first_attribute("pos-deltas");
+			const xml_attribute<> *pRotScaleNode = cameraNode.first_attribute("rotation-scale");
+
+			PARSE_THROW(pNameNode, "Camera found with no `xml:id` name specified.");
+			PARSE_THROW(pStartPosNode, "Camera found with no `start-pos` attribute specified.");
+			PARSE_THROW(pStartOrientNode, "Camera found with no `start-orient` attribute specified.");
+			PARSE_THROW(pStartRadiusNode, "Camera found with no `start-radius` attribute specified.");
+			PARSE_THROW(pStartUpSpinNode, "Camera found with no `start-up-spin` attribute specified.");
+
+			PARSE_THROW(pRadiusLimitNode, "Camera found with no `radius-limits` attribute specified.");
+			PARSE_THROW(pRadiusDeltaNode, "Camera found with no `radius-deltas` attribute specified.");
+			PARSE_THROW(pPosDeltaNode, "Camera found with no `pos-deltas` attribute specified.");
+			PARSE_THROW(pRotScaleNode, "Camera found with no `rotation-scale` attribute specified.");
+
+			std::string name = make_string(*pNameNode);
+			if(m_cameras.find(name) != m_cameras.end())
+				throw std::runtime_error("The camera named \"" + name + "\" already exists.");
+
+			SceneCamera &theCam = m_cameras[name];
+
+			theCam.initialData.targetPos = rapidxml::attrib_to_vec3(*pStartPosNode, ThrowAttrib);
+			theCam.initialData.orient = glm::normalize(rapidxml::attrib_to_quat(*pStartOrientNode, ThrowAttrib));
+			theCam.initialData.radius = rapidxml::attrib_to_float(*pStartRadiusNode, ThrowAttrib);
+			theCam.initialData.degSpinRotation = rapidxml::attrib_to_float(*pStartOrientNode, ThrowAttrib);
+
+			glm::vec2 pairVec;
+			pairVec = rapidxml::attrib_to_vec2(*pRadiusLimitNode, ThrowAttrib);
+			theCam.scale.minRadius = pairVec.x;
+			theCam.scale.maxRadius = pairVec.y;
+			pairVec = rapidxml::attrib_to_vec2(*pRadiusDeltaNode, ThrowAttrib);
+			theCam.scale.smallRadiusDelta = pairVec.x;
+			theCam.scale.largeRadiusDelta = pairVec.y;
+			pairVec = rapidxml::attrib_to_vec2(*pPosDeltaNode, ThrowAttrib);
+			theCam.scale.smallPosOffset = pairVec.x;
+			theCam.scale.largePosOffset = pairVec.y;
+			theCam.scale.rotationScale = rapidxml::attrib_to_float(*pRotScaleNode, ThrowAttrib);
 		}
 
 		void ReadNodes(SceneNode *pParent, const xml_node<> &scene)
@@ -1045,6 +1156,11 @@ namespace Framework
 		return m_pImpl->FindNode(nodeName);
 	}
 
+	std::vector<NodeRef> Scene::GetAllNodes()
+	{
+		return m_pImpl->GetAllNodes();
+	}
+
 	GLuint Scene::FindProgram( const std::string &progName )
 	{
 		return m_pImpl->FindProgram(progName);
@@ -1053,5 +1169,16 @@ namespace Framework
 	Mesh * Scene::FindMesh( const std::string &meshName )
 	{
 		return m_pImpl->FindMesh(meshName);
+	}
+
+	GLuint Scene::ReplaceTexture( const std::string &textureName, GLuint newTexObj, GLenum newTexType )
+	{
+		return m_pImpl->ReplaceTexture(textureName, newTexObj, newTexType);
+	}
+
+	glutil::ViewPole * Scene::CreateCamera( const std::string &cameraName,
+		glutil::MouseButtons actionButton, bool bRightKeyboardCtrls ) const
+	{
+		return m_pImpl->CreateCamera(cameraName, actionButton, bRightKeyboardCtrls);
 	}
 }

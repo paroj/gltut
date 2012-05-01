@@ -3,8 +3,10 @@
 #define FRAMEWORK_SCENE_H
 
 #include <string>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glutil/MousePoles.h>
 
 namespace Framework
 {
@@ -59,9 +61,19 @@ namespace Framework
 
 		NodeRef FindNode(const std::string &nodeName);
 
+		std::vector<NodeRef> GetAllNodes();
+
 		GLuint FindProgram(const std::string &progName);
 
 		Mesh *FindMesh(const std::string &meshName);
+
+		//Returns the old texture name, or 0 if not found.
+		GLuint ReplaceTexture(const std::string &textureName, GLuint newTexObj, GLenum newTexType);
+
+		//Constructs a camera. Note that this is *constructs*, not retrieves a stored one.
+		//Every call creates a new, *independent* camera.
+		glutil::ViewPole *CreateCamera(const std::string &cameraName,
+			glutil::MouseButtons actionButton = glutil::MB_LEFT_BTN, bool bRightKeyboardCtrls = false) const;
 
 	private:
 		SceneImpl *m_pImpl;

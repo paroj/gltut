@@ -450,6 +450,18 @@ namespace Framework
 			, oVAO(0)
 		{}
 
+		~MeshData()
+		{
+			glDeleteBuffers(1, &oAttribArraysBuffer);
+			glDeleteBuffers(1, &oIndexBuffer);
+			glDeleteVertexArrays(1, &oVAO);
+
+			for(VAOMap::iterator curr = namedVAOs.begin(); curr != namedVAOs.end(); ++curr)
+			{
+				glDeleteVertexArrays(1, &curr->second);
+			}
+		}
+
 		GLuint oAttribArraysBuffer;
 		GLuint oIndexBuffer;
 		GLuint oVAO;

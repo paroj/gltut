@@ -138,6 +138,32 @@ namespace rapidxml
 	}
 
 	template<typename Callable>
+	glm::vec2 attrib_to_vec2(const xml_attribute<> &attrib, Callable FailFunc)
+	{
+		std::istrstream inData(attrib.value(), attrib.value_size());
+		inData >> std::skipws;
+		glm::vec2 ret;
+		inData >> ret.x >> ret.y;
+		if(inData.fail())
+			FailFunc(attrib, "must be a vec2.");
+
+		return ret;
+	}
+
+	inline glm::vec2 attrib_to_vec2_opt(const xml_attribute<> &attrib, const glm::vec2 &optRet)
+	{
+		std::istrstream inData(attrib.value(), attrib.value_size());
+		inData >> std::skipws;
+		glm::vec2 ret;
+		inData >> ret.x >> ret.y;
+		if(inData.fail())
+			return optRet;
+
+		return ret;
+	}
+
+
+	template<typename Callable>
 	glm::vec3 attrib_to_vec3(const xml_attribute<> &attrib, Callable FailFunc)
 	{
 		std::istrstream inData(attrib.value(), attrib.value_size());

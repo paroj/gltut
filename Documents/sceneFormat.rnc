@@ -15,7 +15,7 @@ div
         element scn:scene { sc.scene.content }
 
     sc.scene.content =
-        (sc.mesh | sc.texture | sc.prog | sc.node)+
+        (sc.mesh | sc.texture | sc.prog | sc.node | sc.camera )+
         
     sc.mesh =
         ##A mesh to load. Meshes have a name and a filename.
@@ -75,11 +75,18 @@ div
         sc.node.texture.attlist
         
     sc.node.variant =
+        ##Associates a named variant, which can have different shaders and textures.
         element scn:variant { sc.node.variant.content }
         
     sc.node.variant.content =
         sc.node.variant.attlist, sc.node.texture*
        
+    sc.camera =
+        ##Defines the attributes of a named camera.
+        element scn:camera { sc.camera.content }
+        
+    sc.camera.content =
+        sc.camera.attlist
 }
 
 ##Attributes
@@ -124,6 +131,17 @@ div
     sc.node.variant.attlist =
         sc.variant.name.attribute,
         (sc.node.prog.attribute | sc.variant.base.attribute)
+    
+    sc.camera.attlist =
+        sc.xml.id.attribute,
+        sc.camera.start-pos.attribute,
+        sc.camera.start-orient.attribute,
+        sc.camera.start-radius.attribute,
+        sc.camera.start-up-spin.attribute,
+        sc.camera.radius-limits.attribute,
+        sc.camera.radius-deltas.attribute,
+        sc.camera.pos-deltas.attribute,
+        sc.camera.rotation-scale.attribute
     
     sc.xml.id.attribute =
         ##Uniquely named object
@@ -191,15 +209,15 @@ div
         
     sc.node.pos.attribute =
         ##The position of the object in world-space.
-        attribute pos { text }
+        attribute pos { acc.position3d.type }
         
     sc.node.orient.attribute =
         ##The orientation of the object in world-space, as a quaternion. In XYZW format.
-        attribute orient { text }
+        attribute orient { acc.quaternion.type }
         
     sc.node.scale.attribute =
         ##The scale of the object in world-space. Can be one float or 3.
-        attribute scale { text }
+        attribute scale { acc.position3d.type }
         
     sc.note.name.attribute =
         ##The name of an annotation in a node. The note name must be unique within the node.
@@ -222,8 +240,40 @@ div
         attribute name { text }
         
     sc.variant.base.attribute =
-        ##The presence of this attribute means that the default variant should be used.
+        ##The presence of this attribute means that the default variant's data should be used.
         attribute base { empty }
+        
+    sc.camera.start-pos.attribute =
+        ##Initial camera position
+        attribute start-pos { acc.position3d.type }
+        
+    sc.camera.start-orient.attribute =
+        ##Initial camera orientation
+        attribute start-orient { acc.quaternion.type }
+        
+    sc.camera.start-radius.attribute =
+        ##Initial distance from rotate position
+        attribute start-radius { xsd:decimal }
+        
+    sc.camera.start-up-spin.attribute =
+        ##Initial up vector spin, in degrees, relative to the start-orient
+        attribute start-up-spin { xsd:decimal }
+        
+    sc.camera.radius-limits.attribute =
+        ##The smallest and largest allowed radius values.
+        attribute radius-limits { text }
+        
+    sc.camera.radius-deltas.attribute =
+        ##The small and large values incremented with wheel up/down motions.
+        attribute radius-deltas { text }
+        
+    sc.camera.pos-deltas.attribute =
+        ##The large and small values added to the camera position.
+        attribute pos-deltas { text }
+        
+    sc.camera.rotation-scale.attribute =
+        ##The scale factor for rotations. Larger means faster rotation.
+        attribute rotation-scale { xsd:decimal }
 }
 
 ## Accessories
@@ -243,4 +293,7 @@ div
     acc.filename.type = text
     acc.attribute.type =
         xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "16"}
+        
+    acc.position3d.type = text
+    acc.quaternion.type = text
 }

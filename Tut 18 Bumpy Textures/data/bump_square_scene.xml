@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?oxygen RNGSchema="../../Documents/sceneFormat.rnc" type="compact"?>
+<scene xmlns="http://www.arcsynthesis.com/gltut/scene">
+    <mesh xml:id="m_sphere" file="UnitSphere.xml"/>
+    <mesh xml:id="m_cube" file="UnitCube.xml"/>
+    <mesh xml:id="m_plane" file="UnitPlane.xml"/>
+    <mesh xml:id="m_square" file="UnitPlane.xml"/>
+    
+    <texture xml:id="t_sandy_ground" file="dsc_1621_small.dds"/>
+    <texture xml:id="t_bump_texture" file="dsc_1621_small.dds"/>
+    <prog
+        xml:id="p_litBump"
+        vert="litBump.vert"
+        frag="litBump.frag"
+        model-to-camera="modelToCameraMatrix"
+        normal-model-to-camera="normalModelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+        <block name="Light" binding="1"/>
+        <sampler name="normalTex" unit="0"/>
+    </prog>
+    <prog
+        xml:id="p_lit"
+        vert="litTexture.vert"
+        frag="litTexture.frag"
+        model-to-camera="modelToCameraMatrix"
+        normal-model-to-camera="normalModelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+		<block name="Light" binding="1"/>
+        <sampler name="diffuseColorTex" unit="0"/>
+    </prog>
+    <prog
+        xml:id="p_unlit"
+        vert="Unlit.vert"
+        frag="Unlit.frag"
+        model-to-camera="modelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+    </prog>
+    
+    <camera xml:id="c_main"
+        start-pos="0.0 1.0 0.0"
+        start-orient="0.074608 -0.137399 -0.010379 0.987647"
+        start-radius="5.0"
+        start-up-spin="0"
+
+        radius-limits="0.5 10.0"
+        radius-deltas="1.0 0.5"
+        pos-deltas="0.5 0.25"
+        rotation-scale="0.36"/>
+    
+
+    <node
+        name="object"
+        mesh="m_square"
+        prog="p_litBump"
+        orient="0.707 0 0 0.707"
+        pos="0 1 -1"
+        scale="1">
+        <texture name="t_bump_texture" unit="0" sampler="anisotropic"/>
+    </node>
+    
+    <node
+        name="floor"
+        mesh="m_plane"
+        prog="p_lit"
+        pos="0 0 0"
+        scale="20">
+        <texture name="t_sandy_ground" unit="0" sampler="anisotropic"/>
+    </node>
+</scene>
