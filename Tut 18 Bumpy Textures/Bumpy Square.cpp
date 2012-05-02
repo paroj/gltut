@@ -88,27 +88,41 @@ void LoadTextures()
 	}
 }
 */
+glutil::ObjectData g_objectData =
+{
+	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
+};
 
 glutil::ViewPole *g_pViewPole = NULL;
+glutil::ObjectPole *g_pObjPole = NULL;
 
 namespace
 {
 	void MouseMotion(int x, int y)
 	{
 		if(g_pViewPole)
+		{
 			Framework::ForwardMouseMotion(*g_pViewPole, x, y);
+			Framework::ForwardMouseMotion(*g_pObjPole, x, y);
+		}
 	}
 
 	void MouseButton(int button, int state, int x, int y)
 	{
 		if(g_pViewPole)
+		{
 			Framework::ForwardMouseButton(*g_pViewPole, button, state, x, y);
+			Framework::ForwardMouseButton(*g_pObjPole, button, state, x, y);
+		}
 	}
 
 	void MouseWheel(int wheel, int direction, int x, int y)
 	{
 		if(g_pViewPole)
+		{
 			Framework::ForwardMouseWheel(*g_pViewPole, wheel, direction, x, y);
+		}
 	}
 }
 
@@ -122,6 +136,8 @@ GLint g_unlitModelToCameraMatrixUnif;
 GLint g_unlitObjectColorUnif;
 GLuint g_unlitProg;
 Framework::Mesh *g_pSphereMesh = NULL;
+
+
 
 void LoadAndSetupScene()
 {
@@ -139,6 +155,9 @@ void LoadAndSetupScene()
 	if(pViewPole.get() == NULL)
 		throw std::runtime_error("Could not find the main camera in the scene.");
 
+	std::auto_ptr<glutil::ObjectPole> pObjPole(new glutil::ObjectPole(g_objectData, 0.36f,
+		glutil::MB_RIGHT_BTN, pViewPole.get()));
+
 	//No more things that can throw.
 	g_unlitProg = unlit;
 	g_unlitModelToCameraMatrixUnif = glGetUniformLocation(unlit, "modelToCameraMatrix");
@@ -152,6 +171,10 @@ void LoadAndSetupScene()
 	glutil::ViewPole *pTemp = g_pViewPole;
 	g_pViewPole = pViewPole.release();
 	pViewPole.reset(pTemp);		//If something was there already, delete it.
+
+	glutil::ObjectPole *pTempObj = g_pObjPole;
+	g_pObjPole = pObjPole.release();
+	pObjPole.reset(pTempObj);		//If something was there already, delete it.
 
 	Framework::Scene *pOldScene = g_pScene;
 	g_pScene = pScene.release();
@@ -233,10 +256,12 @@ using Framework::Timer;
 // int g_currSampler = 0;
 
 bool g_bDrawCameraPos = false;
-bool g_bShowOtherLights = true;
+bool g_bDrawLightPos = true;
 
 int g_displayWidth = 500;
 int g_displayHeight = 500;
+
+const glm::vec4 g_lightPosOffset = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
 void BuildLights( const glm::mat4 &camMatrix )
 {
@@ -247,9 +272,19 @@ void BuildLights( const glm::mat4 &camMatrix )
 	lightData.lights[0].lightIntensity = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
 	lightData.lights[0].cameraSpaceLightPos = camMatrix *
 		glm::normalize(glm::vec4(-0.2f, 0.5f, 0.5f, 0.0f));
+
 	lightData.lights[1].lightIntensity = glm::vec4(5.0f, 5.0f, 5.0f, 1.0f);
-	lightData.lights[1].cameraSpaceLightPos = camMatrix *
-		glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
+
+	if(g_pObjPole)
+	{
+		lightData.lights[1].cameraSpaceLightPos = camMatrix * g_pObjPole->CalcMatrix() *
+			g_lightPosOffset;
+	}
+	else
+	{
+		lightData.lights[1].cameraSpaceLightPos = camMatrix *
+			glm::vec4(5.0f, 6.0f, 0.5f, 1.0f);
+	}
 
 	g_lightNumBinder.SetValue(2);
 
@@ -292,6 +327,20 @@ void display()
 	}
 
 	g_pScene->Render(modelMatrix.Top());
+
+	if(g_pObjPole && g_bDrawLightPos)
+	{
+		glutil::PushStack stackPush(modelMatrix);
+		modelMatrix.ApplyMatrix(g_pObjPole->CalcMatrix());
+		modelMatrix.Translate(glm::vec3(g_lightPosOffset.x, g_lightPosOffset.y, g_lightPosOffset.z));
+		modelMatrix.Scale(0.0625f);
+
+		glUseProgram(g_unlitProg);
+		glUniformMatrix4fv(g_unlitModelToCameraMatrixUnif, 1, GL_FALSE,
+			glm::value_ptr(modelMatrix.Top()));
+		glUniform4f(g_unlitObjectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
+		g_pSphereMesh->Render("flat");
+	}
 
 	if(g_bDrawCameraPos)
 	{
@@ -354,7 +403,7 @@ void keyboard(unsigned char key, int x, int y)
 		g_bDrawCameraPos = !g_bDrawCameraPos;
 		break;
 	case 'g':
-		g_bShowOtherLights = !g_bShowOtherLights;
+		g_bDrawLightPos = !g_bDrawLightPos;
 		break;
 	case 'p':
 		g_timer.TogglePause();
@@ -375,7 +424,10 @@ void keyboard(unsigned char key, int x, int y)
 	}
 
 	if(g_pViewPole)
+	{
 		g_pViewPole->CharPress(key);
+		g_pObjPole->CharPress(key);
+	}
 }
 
 unsigned int defaults(unsigned int displayMode, int &width, int &height)

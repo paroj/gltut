@@ -156,13 +156,19 @@ namespace Framework
 		GLenum m_texType;
 	};
 
+	struct ExtraProgUniforms
+	{
+		GLint normalMatLoc;
+		GLint invNormalMatLoc;
+	};
+
 	class SceneProgram
 	{
 	public:
-		SceneProgram(GLuint programObj, GLint matrixLoc, GLint normalMatLoc)
+		SceneProgram(GLuint programObj, GLint matrixLoc, ExtraProgUniforms extras)
 			: m_programObj(programObj)
 			, m_matrixLoc(matrixLoc)
-			, m_normalMatLoc(normalMatLoc)
+			, m_extras(extras)
 		{}
 
 		~SceneProgram()
@@ -171,7 +177,8 @@ namespace Framework
 		}
 
 		GLint GetMatrixLoc() const {return m_matrixLoc;}
-		GLint GetNormalMatLoc() const {return m_normalMatLoc;}
+		GLint GetNormalMatLoc() const {return m_extras.normalMatLoc;}
+		GLint GetInvNormalMatLoc() const {return m_extras.invNormalMatLoc;}
 
 		void UseProgram() const {glUseProgram(m_programObj);}
 
@@ -180,7 +187,7 @@ namespace Framework
 	private:
 		GLuint m_programObj;
 		GLint m_matrixLoc;
-		GLint m_normalMatLoc;
+		ExtraProgUniforms m_extras;
 	};
 
 	struct Transform
@@ -423,6 +430,12 @@ namespace Framework
 				glm::mat3 normMat = glm::mat3(glm::transpose(glm::inverse(objMat)));
 				glUniformMatrix3fv(theVariant.pProg->GetNormalMatLoc(), 1, GL_FALSE,
 					glm::value_ptr(normMat));
+			}
+			if(theVariant.pProg->GetInvNormalMatLoc() != -1)
+			{
+				glm::mat3 invNormMat = glm::inverse(glm::mat3(glm::transpose(glm::inverse(objMat))));
+				glUniformMatrix3fv(theVariant.pProg->GetInvNormalMatLoc(), 1, GL_FALSE,
+					glm::value_ptr(invNormMat));
 			}
 
 			std::for_each(m_binders.begin(), m_binders.end(), BindBinder(theVariant.pProg->GetProgram()));
@@ -723,6 +736,7 @@ namespace Framework
 
 			//Optional.
 			const xml_attribute<> *pNormalMatrixNode = progNode.first_attribute("normal-model-to-camera");
+			const xml_attribute<> *pInvNormalMatrixNode = progNode.first_attribute("normal-camera-to-model");
 			const xml_attribute<> *pGeometryShaderNode = progNode.first_attribute("geom");
 
 			std::string name = make_string(*pNameNode);
@@ -759,12 +773,13 @@ namespace Framework
 					" in program " + name);
 			}
 
-			GLint normalMatLoc = -1;
+			ExtraProgUniforms extras;
+			extras.normalMatLoc = -1;
 			if(pNormalMatrixNode)
 			{
 				matrixName = make_string(*pNormalMatrixNode);
-				normalMatLoc = glGetUniformLocation(program, matrixName.c_str());
-				if(normalMatLoc == -1)
+				extras.normalMatLoc = glGetUniformLocation(program, matrixName.c_str());
+				if(extras.normalMatLoc == -1)
 				{
 					glDeleteProgram(program);
 					throw std::runtime_error("Could not find the normal matrix uniform " + matrixName +
@@ -772,7 +787,20 @@ namespace Framework
 				}
 			}
 
-			m_progs[name] = new SceneProgram(program, matrixLoc, normalMatLoc);
+			extras.invNormalMatLoc = -1;
+			if(pInvNormalMatrixNode)
+			{
+				matrixName = make_string(*pInvNormalMatrixNode);
+				extras.invNormalMatLoc = glGetUniformLocation(program, matrixName.c_str());
+				if(extras.invNormalMatLoc == -1)
+				{
+					glDeleteProgram(program);
+					throw std::runtime_error("Could not find the inverse normal matrix uniform " + matrixName +
+						" in program " + name);
+				}
+			}
+
+			m_progs[name] = new SceneProgram(program, matrixLoc, extras);
 
 			ReadProgramContents(program, progNode);
 		}

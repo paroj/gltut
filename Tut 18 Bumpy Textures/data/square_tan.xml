@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mesh xmlns="http://www.arcsynthesis.com/gltut/mesh">
+	<attribute index="0" type="float" size="3">
+		1 1 0
+		-0.999999 1 0
+		-1 -0.999999 0
+		1 -1 0</attribute>
+	<attribute index="2" type="float" size="3">
+		0 0 1
+		0 0 1
+		0 0 1
+		0 0 1</attribute>
+	<attribute index="3" type="float" size="3">
+		1 -1.58946e-007 0
+		1 0 0
+		1 -1.58946e-007 0
+		1 -4.76837e-007 0</attribute>
+	<attribute index="4" type="float" size="3">
+		3.17892e-007 1 -0
+		4.76837e-007 1 -0
+		3.17892e-007 1 -0
+		-0 1 -0</attribute>
+	<attribute index="5" type="float" size="2">
+		1 1
+		0 1
+		0 0
+		1 0</attribute>
+	<indices cmd="triangles" type="ushort">
+		2 1 0
+		3 2 0</indices>
+</mesh>

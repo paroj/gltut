@@ -104,7 +104,8 @@ div
         sc.prog.frag.attribute,
         sc.prog.geom.attribute?,
         sc.prog.model-to-camera.attribute,
-        sc.prog.normal-model-to-camera.attribute?
+        sc.prog.normal-model-to-camera.attribute?,
+        sc.prog.normal-camera-to-model.attribute?
         
     sc.sampler.attlist =
         sc.sampler.name.attribute, sc.sampler.unit.attribute
@@ -178,6 +179,11 @@ div
     sc.prog.normal-model-to-camera.attribute =
         ##The uniform name of a mat3 that represents the normal model-to-camera transform.
         attribute normal-model-to-camera { acc.uniform.type }
+        
+    sc.prog.normal-camera-to-model.attribute =
+        ##The uniform name of a mat3 that represent the normal camera-to-model transform
+        ##(inverse of the model to camera).
+        attribute normal-camera-to-model { acc.uniform.type }
 
     sc.sampler.name.attribute =
         ##The name of a sampler uniform.
