@@ -196,20 +196,26 @@ namespace Framework
 			: m_orient(1.0f, 0.0f, 0.0f, 0.0f)
 			, m_scale(1.0f, 1.0f, 1.0f)
 			, m_trans(0.0f, 0.0f, 0.0f)
+			, m_postTransform(1.0f)
+			, m_preTransform(1.0f)
 		{}
 
 		glm::mat4 GetMatrix() const
 		{
-			glm::mat4 ret;
+			glm::mat4 ret = m_postTransform;
 			ret = glm::translate(ret, m_trans);
 			ret *= glm::mat4_cast(m_orient);
 			ret = glm::scale(ret, m_scale);
+			ret *= m_preTransform;
 			return ret;
 		}
 
 		glm::fquat m_orient;
 		glm::vec3 m_scale;
 		glm::vec3 m_trans;
+
+		glm::mat4 m_postTransform;
+		glm::mat4 m_preTransform;
 	};
 
 	enum SamplerTypes
@@ -345,6 +351,16 @@ namespace Framework
 		void SetNodeScale(const glm::vec3 &nodeScale)
 		{
 			m_nodeTm.m_scale = nodeScale;
+		}
+
+		void SetNodePreTransform(const glm::mat4 &preTransform)
+		{
+			m_nodeTm.m_preTransform = preTransform;
+		}
+
+		void SetNodePostTransform(const glm::mat4 &postTransform)
+		{
+			m_nodeTm.m_postTransform = postTransform;
 		}
 
 		void Render(const std::vector<GLuint> &samplers, glm::mat4 baseMat) const
@@ -1143,6 +1159,16 @@ namespace Framework
 	void NodeRef::NodeSetTrans( const glm::vec3 &offset )
 	{
 		m_pNode->NodeSetTrans(offset);
+	}
+
+	void NodeRef::SetNodePreTransform( const glm::mat4 &preTransform )
+	{
+		m_pNode->SetNodePreTransform(preTransform);
+	}
+
+	void NodeRef::SetNodePostTransform( const glm::mat4 &postTransform )
+	{
+		m_pNode->SetNodePostTransform(postTransform);
 	}
 
 	void NodeRef::SetStateBinder( StateBinder *pBinder )

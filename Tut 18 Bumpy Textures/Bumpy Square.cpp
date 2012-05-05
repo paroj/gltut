@@ -326,6 +326,11 @@ void display()
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
+	{
+		glm::mat4 temp(1.0f);
+		g_nodes[0].SetNodePreTransform(glm::rotate(temp, 20.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+	}
+
 	g_pScene->Render(modelMatrix.Top());
 
 	if(g_pObjPole && g_bDrawLightPos)
@@ -338,7 +343,7 @@ void display()
 		glUseProgram(g_unlitProg);
 		glUniformMatrix4fv(g_unlitModelToCameraMatrixUnif, 1, GL_FALSE,
 			glm::value_ptr(modelMatrix.Top()));
-		glUniform4f(g_unlitObjectColorUnif, 0.25f, 0.25f, 0.25f, 1.0f);
+		glUniform4f(g_unlitObjectColorUnif, 0.01f, 0.01f, 0.01f, 1.0f);
 		g_pSphereMesh->Render("flat");
 	}
 

@@ -35,6 +35,11 @@ namespace Framework
 		//Sets the current translation to the given one.
 		void NodeSetTrans(const glm::vec3 &offset);
 
+		//Sets the pre-transform matrix.
+		void SetNodePreTransform(const glm::mat4 &preTransform);
+		//Sets the post-transform matrix.
+		void SetNodePostTransform(const glm::mat4 &postTransform);
+
 		//This object does *NOT* claim ownership of the pointer.
 		//You must ensure that it stays around so long as this Scene exists.
 		void SetStateBinder(StateBinder *pBinder);
