@@ -8,11 +8,8 @@ layout(location = 3) in vec3 tangent;
 layout(location = 4) in vec3 bitangent;
 layout(location = 5) in vec2 texCoord;
 
-out vec2 normalCoord;
 out vec3 cameraSpacePosition;
-out vec3 cameraToTangentX;
-out vec3 cameraToTangentY;
-out vec3 cameraToTangentZ;
+out vec3 cameraSpaceNormal;
 
 uniform Projection
 {
@@ -20,19 +17,11 @@ uniform Projection
 };
 
 uniform mat4 modelToCameraMatrix;
-uniform mat3 normalCameraToModelMatrix;
+uniform mat3 normalModelToCameraMatrix;
 
 void main()
 {
 	cameraSpacePosition = (modelToCameraMatrix * vec4(position, 1.0)).xyz;
 	gl_Position = cameraToClipMatrix * vec4(cameraSpacePosition, 1.0);
-	
-	mat3 modelToTangent = mat3(tangent, bitangent, normal);
-	mat3 cameraToTangent = modelToTangent * normalCameraToModelMatrix;
-	
-	cameraToTangentX = cameraToTangent[0];
-	cameraToTangentY = cameraToTangent[1];
-	cameraToTangentZ = cameraToTangent[2];
-
-	normalCoord = texCoord;
+	cameraSpaceNormal = normalize(normalModelToCameraMatrix * normal);
 }
