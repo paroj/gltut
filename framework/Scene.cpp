@@ -1126,6 +1126,10 @@ namespace Framework
 		}
 	};
 
+	NodeRef::NodeRef()
+		: m_pNode(NULL)
+	{}
+
 	void NodeRef::NodeSetScale( const glm::vec3 &scale )
 	{
 		m_pNode->NodeSetScale(scale);

@@ -20,6 +20,8 @@ namespace Framework
 	class NodeRef
 	{
 	public:
+		NodeRef();
+
 		void NodeSetScale(const glm::vec3 &scale);
 		void NodeSetScale(float scale);
 
@@ -48,7 +50,6 @@ namespace Framework
 		GLuint GetProgram(const std::string &variation) const;
 
 	private:
-		NodeRef();	//No default-construction.
 		explicit NodeRef(SceneNode *pNode) : m_pNode(pNode) {}
 		SceneNode *m_pNode;
 

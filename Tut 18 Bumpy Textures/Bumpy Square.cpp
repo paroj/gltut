@@ -90,7 +90,7 @@ void LoadTextures()
 */
 glutil::ObjectData g_objectData =
 {
-	glm::vec3(0.0f, 1.0f, 0.0f),
+	glm::vec3(0.0f, 1.0f, 2.0f),
 	glm::fquat(1.0f, 0.0f, 0.0f, 0.0f),
 };
 
@@ -136,6 +136,7 @@ GLint g_unlitModelToCameraMatrixUnif;
 GLint g_unlitObjectColorUnif;
 GLuint g_unlitProg;
 Framework::Mesh *g_pSphereMesh = NULL;
+Framework::NodeRef g_bumpMapNode;
 
 
 
@@ -147,6 +148,8 @@ void LoadAndSetupScene()
 
 	AssociateUniformWithNodes(nodes, g_lightNumBinder, "numberOfLights");
 	SetStateBinderWithNodes(nodes, g_lightNumBinder);
+
+	Framework::NodeRef bumpMapNode = pScene->FindNode("object");
 	
 	GLuint unlit = pScene->FindProgram("p_unlit");
 	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
@@ -162,6 +165,7 @@ void LoadAndSetupScene()
 	g_unlitProg = unlit;
 	g_unlitModelToCameraMatrixUnif = glGetUniformLocation(unlit, "modelToCameraMatrix");
 	g_unlitObjectColorUnif = glGetUniformLocation(unlit, "objectColor");
+	g_bumpMapNode = bumpMapNode;
 
 	std::swap(nodes, g_nodes);
 	nodes.clear();	//If something was there already, delete it.
@@ -257,11 +261,18 @@ using Framework::Timer;
 
 bool g_bDrawCameraPos = false;
 bool g_bDrawLightPos = true;
+bool g_bLongLightRange = false;
 
 int g_displayWidth = 500;
 int g_displayHeight = 500;
 
-const glm::vec4 g_lightPosOffset = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+inline glm::vec4 GetLightOffset()
+{
+	const glm::vec4 g_lightOffsetShort = glm::vec4(-2.0f, 0.0f, 0.0f, 1.0f);
+	const glm::vec4 g_lightOffsetLong = glm::vec4(-4.0f, 0.0f, 0.0f, 1.0f);
+
+	return g_bLongLightRange ? g_lightOffsetLong : g_lightOffsetShort;
+}
 
 void BuildLights( const glm::mat4 &camMatrix )
 {
@@ -278,7 +289,7 @@ void BuildLights( const glm::mat4 &camMatrix )
 	if(g_pObjPole)
 	{
 		lightData.lights[1].cameraSpaceLightPos = camMatrix * g_pObjPole->CalcMatrix() *
-			g_lightPosOffset;
+			GetLightOffset();
 	}
 	else
 	{
@@ -327,8 +338,12 @@ void display()
 	}
 
 	{
-		glm::mat4 temp(1.0f);
-		g_nodes[0].SetNodePreTransform(glm::rotate(temp, 20.0f, glm::vec3(0.0f, 1.0f, 0.0f)));
+		glm::mat4 temp(
+			glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+			glm::vec4(1.0f, 1.0f, 0.0f, 0.0f),
+			glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+		g_bumpMapNode.SetNodePreTransform(temp);
 	}
 
 	g_pScene->Render(modelMatrix.Top());
@@ -337,8 +352,8 @@ void display()
 	{
 		glutil::PushStack stackPush(modelMatrix);
 		modelMatrix.ApplyMatrix(g_pObjPole->CalcMatrix());
-		modelMatrix.Translate(glm::vec3(g_lightPosOffset.x, g_lightPosOffset.y, g_lightPosOffset.z));
-		modelMatrix.Scale(0.0625f);
+		modelMatrix.Translate(glm::vec3(GetLightOffset()));
+		modelMatrix.Scale(0.125f);
 
 		glUseProgram(g_unlitProg);
 		glUniformMatrix4fv(g_unlitModelToCameraMatrixUnif, 1, GL_FALSE,
@@ -409,6 +424,9 @@ void keyboard(unsigned char key, int x, int y)
 		break;
 	case 'g':
 		g_bDrawLightPos = !g_bDrawLightPos;
+		break;
+	case 'i':
+		g_bLongLightRange = !g_bLongLightRange;
 		break;
 	case 'p':
 		g_timer.TogglePause();
