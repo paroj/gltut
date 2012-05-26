@@ -1,10 +1,7 @@
 #version 330
 
-in vec2 normalCoord;
 in vec3 cameraSpacePosition;
-in vec3 cameraToTangentX;
-in vec3 cameraToTangentY;
-in vec3 cameraToTangentZ;
+in vec3 cameraSpaceNormal;
 
 out vec4 outputColor;
 
@@ -37,14 +34,6 @@ float CalcAttenuation(in vec3 cameraSpacePosition,
 	return (1 / ( 1.0 + Lgt.lightAttenuation * lightDistanceSqr));
 }
 
-vec3 CalcLightDir(in vec3 lightDir)
-{
-	vec3 ret = normalize(cameraToTangentX) * lightDir.x;
-	ret += normalize(cameraToTangentY) * lightDir.y;
-	ret += normalize(cameraToTangentZ) * lightDir.z;
-	return ret;
-}
-
 vec4 ComputeLighting(in vec4 diffuseColor, in vec3 normal, in PerLight lightData)
 {
 	vec3 lightDir;
@@ -61,8 +50,6 @@ vec4 ComputeLighting(in vec4 diffuseColor, in vec3 normal, in PerLight lightData
 		lightIntensity = atten * lightData.lightIntensity;
 	}
 	
-	lightDir = CalcLightDir(lightDir);
-	
 	float cosAngIncidence = dot(normal, lightDir);
 	cosAngIncidence = cosAngIncidence < 0.0001 ? 0.0 : cosAngIncidence;
 	
@@ -71,20 +58,15 @@ vec4 ComputeLighting(in vec4 diffuseColor, in vec3 normal, in PerLight lightData
 	return lighting;
 }
 
-uniform sampler2D normalTex;
-
 void main()
 {
 	vec4 diffuseColor = vec4(0.8, 0.8, 1.0, 1.0);
 	
-	vec3 normal = texture(normalTex, normalCoord).xyz;
-	normal = (normal * 2.0) - 1.0;
-	normal = normalize(normal); 
-
 	vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
 	for(int light = 0; light < numberOfLights; light++)
 	{
-		accumLighting += ComputeLighting(diffuseColor, normal, Lgt.lights[light]);
+		accumLighting += ComputeLighting(diffuseColor, cameraSpaceNormal,
+			Lgt.lights[light]);
 	}
 	
 	outputColor = accumLighting / Lgt.maxIntensity;

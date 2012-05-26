@@ -237,7 +237,8 @@ namespace Framework
 	{
 		for(NodeForwardIterator currIt = start; currIt != final; ++currIt)
 		{
-			binder.AssociateWithProgram(currIt->GetProgram(), unifName);
+			currIt->AssociateWithBinder(binder, unifName);
+//			binder.AssociateWithProgram(currIt->GetProgram(), unifName);
 		}
 	}
 

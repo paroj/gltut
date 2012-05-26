@@ -413,6 +413,20 @@ namespace Framework
 			return GL_INVALID_INDEX;
 		}
 
+		void AssociateWithBinder(UniformBinderBase &binder, const std::string &unifName) const
+		{
+			if(m_baseVariant.pProg)
+				binder.AssociateWithProgram(m_baseVariant.pProg->GetProgram(), unifName);
+
+			for(VariantMap::const_iterator currIt = m_variants.begin();
+				currIt != m_variants.end();
+				++currIt)
+			{
+				if(currIt->second.pProg)
+					binder.AssociateWithProgram(currIt->second.pProg->GetProgram(), unifName);
+			}
+		}
+
 
 	private:
 		const Variation *GetActiveVariation(const std::string &variation) const
@@ -515,6 +529,10 @@ namespace Framework
 		{
 			std::string pathname = FindFileOrThrow(filename);
 
+#ifdef DEBUG
+			std::cout << "Loading scene: " << pathname << std::endl;
+#endif
+
 			std::ifstream fileStream(pathname.c_str());
 			if(!fileStream.is_open())
 				throw std::runtime_error("Could not open the scene file.");
@@ -559,6 +577,10 @@ namespace Framework
 			}
 
 			MakeSamplerObjects(m_samplers);
+#ifdef DEBUG
+			std::cout << "Loading complete."<< std::endl;
+#endif
+
 		}
 
 		~SceneImpl()
@@ -1100,6 +1122,7 @@ namespace Framework
 
 				PARSE_THROW(pNameNode, "Variant on nodes must have a `name` attribute.");
 				PARSE_THROW(pBaseNode || pProgName, "Variant must have either a `prog` or `base` attribute.");
+				PARSE_THROW(!(pBaseNode && pProgName), "Variant cannot have both a `prog` and `base` attribute.")
 
 				std::string name = make_string(*pNameNode);
 				if(variants.find(name) != variants.end())
@@ -1109,7 +1132,7 @@ namespace Framework
 				ret.pProg = NULL;
 				if(pProgName)
 				{
-					std::string programName = make_string(*pNameNode);
+					std::string programName = make_string(*pProgName);
 					ProgramMap::iterator progIt = m_progs.find(programName);
 					if(progIt == m_progs.end())
 					{
@@ -1188,6 +1211,11 @@ namespace Framework
 	GLuint NodeRef::GetProgram(const std::string &variation) const
 	{
 		return m_pNode->GetProgram(variation);
+	}
+
+	void NodeRef::AssociateWithBinder( UniformBinderBase &binder, const std::string &unifName ) const
+	{
+		m_pNode->AssociateWithBinder(binder, unifName);
 	}
 
 	Scene::Scene( const std::string &filename )

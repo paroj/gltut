@@ -16,6 +16,7 @@ namespace Framework
 	class Mesh;
 
 	class StateBinder;
+	class UniformBinderBase;
 
 	class NodeRef
 	{
@@ -48,6 +49,8 @@ namespace Framework
 
 		GLuint GetProgram() const;
 		GLuint GetProgram(const std::string &variation) const;
+
+		void AssociateWithBinder(UniformBinderBase &binder, const std::string &unifName) const;
 
 	private:
 		explicit NodeRef(SceneNode *pNode) : m_pNode(pNode) {}

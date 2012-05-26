@@ -137,6 +137,7 @@ GLint g_unlitObjectColorUnif;
 GLuint g_unlitProg;
 Framework::Mesh *g_pSphereMesh = NULL;
 Framework::NodeRef g_bumpMapNode;
+Framework::NodeRef g_highPolyNode;
 
 
 
@@ -150,6 +151,7 @@ void LoadAndSetupScene()
 	SetStateBinderWithNodes(nodes, g_lightNumBinder);
 
 	Framework::NodeRef bumpMapNode = pScene->FindNode("object");
+	Framework::NodeRef highPolyNode = pScene->FindNode("high_poly");
 	
 	GLuint unlit = pScene->FindProgram("p_unlit");
 	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
@@ -166,6 +168,7 @@ void LoadAndSetupScene()
 	g_unlitModelToCameraMatrixUnif = glGetUniformLocation(unlit, "modelToCameraMatrix");
 	g_unlitObjectColorUnif = glGetUniformLocation(unlit, "objectColor");
 	g_bumpMapNode = bumpMapNode;
+	g_highPolyNode = highPolyNode;
 
 	std::swap(nodes, g_nodes);
 	nodes.clear();	//If something was there already, delete it.
@@ -262,6 +265,7 @@ using Framework::Timer;
 bool g_bDrawCameraPos = false;
 bool g_bDrawLightPos = true;
 bool g_bLongLightRange = false;
+bool g_bDrawBumpmap = true;
 
 int g_displayWidth = 500;
 int g_displayHeight = 500;
@@ -301,6 +305,14 @@ void BuildLights( const glm::mat4 &camMatrix )
 
 	glBindBuffer(GL_UNIFORM_BUFFER, g_lightUniformBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(LightBlock), &lightData, GL_STREAM_DRAW);
+}
+
+std::string GetRenderName()
+{
+	if(g_bDrawBumpmap)
+		return "bump_regular";
+	else
+		return "high_regular";
 }
 
 //Called to update the display.
@@ -344,9 +356,10 @@ void display()
 			glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 		g_bumpMapNode.SetNodePreTransform(temp);
+		g_highPolyNode.SetNodePreTransform(temp);
 	}
 
-	g_pScene->Render(modelMatrix.Top());
+	g_pScene->Render(GetRenderName(), modelMatrix.Top());
 
 	if(g_pObjPole && g_bDrawLightPos)
 	{
@@ -411,13 +424,7 @@ void keyboard(unsigned char key, int x, int y)
 		glutLeaveMainLoop();
 		return;
 	case 32:
-/*
-		if(g_pViewPole)
-		{
-			const glutil::ViewData &view = g_pViewPole->GetView();
-			printf("%f  %f  %f  %f\n", view.orient.x, view.orient.y, view.orient.z, view.orient.w);
-		}
-*/
+		g_bDrawBumpmap = !g_bDrawBumpmap;
 		break;
 	case 't':
 		g_bDrawCameraPos = !g_bDrawCameraPos;

@@ -5,6 +5,7 @@
     <mesh xml:id="m_cube" file="UnitCube.xml"/>
     <mesh xml:id="m_plane" file="UnitPlane.xml"/>
     <mesh xml:id="m_square" file="square_tan.xml"/>
+	<mesh xml:id="m_high_poly_square" file="square_high.xml"/>
     
     <texture xml:id="t_sandy_ground" file="dsc_1621_small.dds"/>
     <texture xml:id="t_bump_texture" file="square_normal.png"/>
@@ -20,6 +21,15 @@
     </prog>
     <prog
         xml:id="p_lit"
+        vert="lit.vert"
+        frag="lit.frag"
+        model-to-camera="modelToCameraMatrix"
+        normal-model-to-camera="normalModelToCameraMatrix">
+        <block name="Projection" binding="0"/>
+        <block name="Light" binding="1"/>
+    </prog>
+    <prog
+        xml:id="p_litTexture"
         vert="litTexture.vert"
         frag="litTexture.frag"
         model-to-camera="modelToCameraMatrix"
@@ -35,10 +45,11 @@
         model-to-camera="modelToCameraMatrix">
         <block name="Projection" binding="0"/>
     </prog>
-    
+    <!--        start-orient="0.074608 -0.137399 -0.010379 0.987647"-->
+        
     <camera xml:id="c_main"
         start-pos="0 1 -1"
-        start-orient="0.074608 -0.137399 -0.010379 0.987647"
+        start-orient="0 0 0 1"
         start-radius="5.0"
         start-up-spin="0"
 
@@ -46,22 +57,31 @@
         radius-deltas="1.0 0.5"
         pos-deltas="0.5 0.25"
         rotation-scale="0.36"/>
-    
 
     <node
         name="object"
         mesh="m_square"
-        prog="p_litBump"
         orient="0 0 0 1"
         pos="0 1 -1"
         scale="1">
         <texture name="t_bump_texture" unit="2" sampler="linear"/>
+        <variant name="bump_regular" prog="p_litBump">
+            <texture name="t_bump_texture" unit="2" sampler="linear"/>
+        </variant>
     </node>
-    
+    <node
+        name="high_poly"
+        mesh="m_high_poly_square"
+        orient="0 0 0 1"
+        pos="0 1 -1"
+        scale="1">
+        <variant name="high_regular" prog="p_lit"/>
+    </node>
+	
     <node
         name="floor"
         mesh="m_plane"
-        prog="p_lit"
+        prog="p_litTexture"
         pos="0 0 0"
         scale="20">
         <texture name="t_sandy_ground" unit="0" sampler="anisotropic"/>
