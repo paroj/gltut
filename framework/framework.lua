@@ -4,6 +4,8 @@ dofile("../glsdk/links.lua")
 local myPath = os.getcwd();
 local usedLibs = {"glload", "glimage", "glm", "glutil", "glmesh", "freeglut"}
 
+local SetupFrameworkProj = function() end
+
 function SetupSolution(slnName)
 	solution(slnName)
 		configurations {"Debug", "Release"}
@@ -17,36 +19,39 @@ function SetupSolution(slnName)
     	    defines {"LOAD_X11"}
 		
 	local currPath = os.getcwd();
-	os.chdir(myPath);
-		
-	project "framework"
-		kind "StaticLib"
-		language "c++"
-		
-		files  "../framework/*.cpp"
-		files  "../framework/*.h"
-		files  "../framework/*.hpp"
-		excludes "../framework/empty.cpp"
-		
-		targetdir "../framework/lib"
-		objdir "../framework/lib"
 
-		includedirs {"../framework"}
-		
-		UseLibs(usedLibs)
-		
-		configuration "Debug"
-			defines {"DEBUG", "_DEBUG"}
-			flags "Symbols"
-			targetname("frameworkD")
+	SetupFrameworkProj = 
+	function ()
+		os.chdir(myPath);
 
-		configuration "Release"
-			defines {"RELEASE", "NDEBUG"};
-			flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
-			targetname("framework")
+		project "framework"
+			kind "StaticLib"
+			language "c++"
+			
+			files  "../framework/*.cpp"
+			files  "../framework/*.h"
+			files  "../framework/*.hpp"
+			excludes "../framework/empty.cpp"
+			
+			targetdir "../framework/lib"
+			objdir "../framework/lib"
 
+			includedirs {"../framework"}
+			
+			UseLibs(usedLibs)
+			
+			configuration "Debug"
+				defines {"DEBUG", "_DEBUG"}
+				flags "Symbols"
+				targetname("frameworkD")
 
-	os.chdir(currPath);
+			configuration "Release"
+				defines {"RELEASE", "NDEBUG"};
+				flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
+				targetname("framework")
+
+		os.chdir(currPath);
+	end
 end
 
 function SetupProject(projName, ...)
@@ -79,5 +84,9 @@ function SetupProject(projName, ...)
 	    configuration "linux"
 	        links {"GL", "GLU"}
 
+	SetupFrameworkProj()
+
+	--Only set the framework once.
+	SetupFrameworkProj = function() end
 end
 
