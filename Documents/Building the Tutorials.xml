@@ -74,7 +74,9 @@
             the entire solution; the tutorials use all of the libraries provided.</para>
         <para>Note that there is no execution of <userinput>make install</userinput> or similar
             constructs. The SDK is designed to be used where it is; it does not install itself to
-            any system directories on your machine. Incidentally, neither do these tutorials.</para>
+            any system directories on your machine. Incidentally, neither do these tutorials. Also,
+            you should not run the SDK from your the IDE; it's just a library. Successfully
+            compiling it in debug and release is sufficient.</para>
     </simplesect>
     <simplesect>
         <title>Tutorial Building</title>
@@ -96,5 +98,9 @@
             in the <filename>framework</filename> directory is shared by every tutorial. It does the
             basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source
             files to focus on the useful OpenGL-specific code.</para>
+        <para>Note that the framework project is a library, not an executable. So attempting to run
+            the framework from your IDE of choice will not work. You must select one of the tutorial
+            projects and set it to be the active project. Then you will be able to run that tutorial
+            from the IDE.</para>
     </simplesect>
 </article>
