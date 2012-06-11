@@ -5,30 +5,35 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Building the Tutorials.html" ?>
     <title>Building the Tutorials</title>
-    <para>These tutorials require a number of external libraries in order to function. The specific
-        version of these libraries that the tutorials use are distributed with the tutorials. The
-        tutorial <link xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source
-            distribution</link> can be found online. This section will describe each of the external
-        libraries, how to build them, and how to build the tutorials themselves. Windows and Linux
-        builds are supported.</para>
+    <para>This section describes how to build the tutorials.</para>
+    <formalpara>
+        <title>What You Need</title>
+        <para>Obviously, you will need a C++ compiler and build environment. You will also need the
+            Windows or Linux operating systems, as these are the only OS's supported by the
+            tutorials.</para>
+    </formalpara>
+    <para>You will need to download the <link
+            xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source distribution</link>.
+        All of the libraries needed to build the tutorials are bundled as part of the distribution,
+        so this is the only source code download you will need.</para>
     <para>You will need minimal familiarity with using the command line in order to build these
         tutorials. Also, any mention of directories is always relative to where you unzipped this
         distribution.</para>
     <simplesect>
-        <title>File Structure</title>
+        <title>Distribution File Layout</title>
         <para>The layout of the files in the tutorial directory is quite simple. The
                 <filename>framework</filename> directory and all directories of the form
-                <filename>Tut*</filename> contain all of the source code for the tutorials
-            themselves. Each <filename>Tut*</filename> directory has the code for the various
-            tutorials. The <filename>framework</filename> directory simply contains utility code
-            that is commonly used by each tutorial.</para>
+                <filename>Tut*</filename> contain the source code for the tutorials themselves. Each
+                <filename>Tut*</filename> directory has the code for the various tutorials. The
+                <filename>framework</filename> directory simply contains utility code that is
+            commonly used by each tutorial.</para>
         <para>Each tutorial contains one or more projects; each project is referenced in the text
             for that tutorial.</para>
         <para>The <filename>Documents</filename> directory contains the source for the text
             documentation explaining how these tutorials work. This source is in xml files using the
             DocBook 5.0 format.</para>
-        <para>Every other directory contains the code and build files for a library that the
-            tutorials require.</para>
+        <para>The other directories either contain libraries used by the tutorials or data files
+            that the tutorials load.</para>
     </simplesect>
     <simplesect>
         <title>Necessary Utilities</title>
@@ -52,9 +57,9 @@
         <title>Unofficial OpenGL SDK</title>
         <para>Distributed with the tutorials is the Unofficial OpenGL SDK. This is an aggregation of
             libraries, unifying a number of tools for developing OpenGL applications, all bound
-            together with a unified build system. You do not need to download it; a modified version
-            of the SDK is bundled with these tutorials. The copy that comes with these tutorials
-            does not contain the documentation or GLFW.</para>
+            together with a unified build system. You do not need to download it; a version of the
+            SDK is part of the tutorial distribution. The copy that comes with these tutorials does
+            not contain the documentation or GLFW.</para>
         <para>The SDK library uses Premake to generate its build files. So, with
                 <command>premake4.exe</command> in your path, go to the <filename>glsdk</filename>
             directory. Type <userinput>premake4 <replaceable>plat</replaceable></userinput>, where
