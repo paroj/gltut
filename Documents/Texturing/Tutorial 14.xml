@@ -234,8 +234,10 @@
                 data, is all OpenGL needs to read our data.</para>
             <para>That describes the data format as we are providing it. The format parameter, the
                 third parameter to the <function>glTexImage*</function> functions, describes the
-                format of the texture's internal storage. The texture's format defines the
-                properties of the texels stored in that texture:</para>
+                format of the texture's internal storage. This is how OpenGL
+                    <emphasis>itself</emphasis> will store the texel data; this does not have to
+                exactly match the format provided. The texture's format defines the properties of
+                the texels stored in that texture:</para>
             <itemizedlist>
                 <listitem>
                     <para>The components stored in the texel. Multiple components can be used, but
@@ -267,9 +269,10 @@
                 unsigned normalized 8-bit integers as the input data.</para>
             <para>This is not strictly necessary. We could have used <literal>GL_R16</literal> as
                 our format instead. OpenGL would have created a texture that contained 16-bit
-                unsigned normalized integers. OpenGL would then have had to convert our input data
-                to the 16-bit format. It is good practice to try to match the texture's format with
-                the format of the data that you upload to OpenGL.</para>
+                unsigned normalized integers. OpenGL would then have had to convert our 8-bit input
+                data to the 16-bit format. It is good practice for the sake of performance to try to
+                match the texture's format with the format of the data that you upload to OpenGL, so
+                as to avoid conversion.</para>
             <para>The calls to <function>glTexParameter</function> set parameters on the texture
                 object. These parameters define certain properties of the texture. Exactly what
                 these parameters are doing is something that will be discussed in the next

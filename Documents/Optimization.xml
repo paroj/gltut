@@ -12,20 +12,25 @@
         where performance is lacking.</para>
     <para>This appendix will instead cover the most basic optimizations. These are not guaranteed to
         improve performance in any particular program, but they almost never hurt. They are also
-        things you can implement relatively easily. These of these as the default standard practice
+        things you can implement relatively easily. Think of these as the default standard practice
         you should start with before performing real optimizations. For the sake of clarity, most of
         the code in this book did not use these practices, so many of them will be new.</para>
+    <para>Do as I say, not as I do.</para>
     <section>
         <title>Vertex Format</title>
-        <para>Interleave vertex arrays for objects where possible. Obviously, if you need to
-            overwrite some vertex data frequently while other data remains static, then you will
-            need to separate that data. But unless you have some specific need to do so, interleave
-            your vertex data.</para>
-        <para>Equally importantly, use the smallest vertex data possible. In the tutorials, the
-            vertex data was almost always 32-bit floats. You should only use 32-bit floats when you
-            absolutely need that much precision.</para>
-        <para>The biggest key to this is the use of normalized integer values for attributes. Here
-            is the definition of <function>glVertexAttribPointer</function>:</para>
+        <para>Interleave vertex attribute arrays for objects where possible. Obviously, if you need
+            to overwrite certain attributes frequently while other attributes remains static, then
+            you will need to separate that data. But unless you have some specific need to do so,
+            interleave your vertex data.</para>
+        <para>Equally importantly, try to use the smallest vertex data possible. Small data means
+            that GPU caches are more efficient; they store more vertex attributes per cache line.
+            This means fewer direct memory accesses, which means increasing the performance that
+            vertex shaders receive their attributes. In this book, the vertex data was almost always
+            32-bit floats. You should only use 32-bit floats when you absolutely need that much
+            precision.</para>
+        <para>The biggest key to this is the use of normalized integer values for attributes. As a
+            reminder for how this works, here is the definition of
+                <function>glVertexAttribPointer</function>:</para>
         <funcsynopsis>
             <funcprototype>
                 <funcdef>void <function>glVertexAttribPointer</function></funcdef>
@@ -54,15 +59,16 @@
         <para>The best part is that all of this is free; it costs no actual performance. Note
             however that 32-bit integers cannot be normalized.</para>
         <para>Sometimes, color values need higher precision than 8-bits, but less than 16-bits. If a
-            color is a linear RGB color, it is often desirable to give them greater than 8-bit
-            precision. If the alpha of the color is negligible or non-existent, then a special
+            color is in the linear RGB colorspace, it is often desirable to give them greater than
+            8-bit precision. If the alpha of the color is negligible or non-existent, then a special
                 <varname>type</varname> can be used. This type is
                 <literal>GL_UNSIGNED_INT_2_10_10_10_REV</literal>. It takes 32-bit unsigned
             normalized integers and pulls the four components of the attributes out of each integer.
             This type can only be used with normalization:</para>
         <programlisting language="cpp">glVertexAttribPointer(#, 4, GL_UNSIGNED_BYTE, GL_TRUE, ...);</programlisting>
         <para>The most significant 2 bits of each integer is the Alpha. The next 10 bits are the
-            Blue, then Green, and finally red. It is equivalent to this struct in C:</para>
+            Blue, then Green, and finally Red. Make note of the fact that it is reversed. It is
+            equivalent to this bitfield struct in C:</para>
         <programlisting language="cpp">struct RGB10_A2
 {
   unsigned int alpha    : 2;
@@ -77,9 +83,10 @@
                 to be on the [-1, 1] range. So signed normalized integers are appropriate here.
                 8-bits of precision are sometimes enough, but 10-bit precision is going to be an
                 improvement. 16-bit precision, <literal>GL_SHORT</literal>, may be overkill, so
-                stick with <literal>GL_INT_2_10_10_10_REV</literal>. Because this format provides 4
-                values, you will still need to use 4 as the size of the attribute, but you can still
-                use <type>vec3</type> in the shader as the normal's input variable.</para>
+                stick with <literal>GL_INT_2_10_10_10_REV</literal> (the signed version of the
+                above). Because this format provides 4 values, you will need to use 4 as the size of
+                the attribute, but you can still use <type>vec3</type> in the shader as the normal's
+                input variable.</para>
         </formalpara>
         <formalpara>
             <title>Texture Coordinates</title>
@@ -93,8 +100,12 @@
             well. There is no native 16-bit float type, unlike virtually every other type. Even the
             10-bit format can be built using bit selectors in structs, as above. Generating a 16-bit
             float from a 32-bit float requires care, as well as an understanding of how
-            floating-point values work. The details of that are beyond the scope of this work,
-            however.</para>
+            floating-point values work.</para>
+        <para>This is where the GLM math library comes in handy. It has the <type>glm::thalf</type>,
+            which is a type that represents a 16-bit floating-point value. It has overloaded
+            operators, so that it can be used like a regular <type>float</type>. GLM also provides
+                <type>glm::hvec</type> and <type>glm::hmat</type> types for vectors and matrices,
+            respectively.</para>
         <formalpara>
             <title>Positions</title>
             <para>In general, positions are the least likely attribute to be easily optimized
@@ -102,14 +113,14 @@
                 of approximately [-6550.4, 6550.4]. They also lack some precision, which may be
                 necessary depending on the size and detail of the object in model space.</para>
         </formalpara>
-        <para>If 16-bit floats are insufficient, there are things that can be done. The process is
-            as follows:</para>
+        <para>If 16-bit floats are insufficient, a certain form of compression can be used. The
+            process is as follows:</para>
         <orderedlist>
             <listitem>
                 <para>When loading the mesh data, find the bounding volume of the mesh in model
                     space. To do this, find the maximum and minimum values in the X, Y and Z
                     directions independently. This represents a rectangle in model space that
-                    contains all of the vertices. This rectangle is defined by two vectors: the
+                    contains all of the vertices. This rectangle is defined by two 3D vectors: the
                     maximum vector (containing the max X, Y and Z values), and the minimum vector.
                     These are named <varname>max</varname> and <varname>min</varname>.</para>
             </listitem>
@@ -157,111 +168,251 @@ matrixStack.Scale(halfSize);</programlisting>
                 attributes begin on a 4-byte boundary. This is true for attributes that are smaller
                 than 4-bytes, such as a 3-vector of 8-bit values. While OpenGL will allow you to use
                 arbitrary alignments, hardware may have problems making it work. So if you make your
-                position data 16-bit floats or signed normalized integers, you will still waste 2
-                bytes from every position. You may want to try making your position values
-                4-dimensional values and using the last value for something useful.</para>
+                3D position data 16-bit floats or 16-bit signed normalized integers, you will still
+                waste 2 bytes from every position. You may want to try making your position values
+                4-dimensional values and putting something useful in the W component.</para>
         </formalpara>
-    </section>
-    <section>
-        <title>Image Formats</title>
-        <para>As with vertex formats, try to use the smallest format that you can get away with.
-            Also, as with vertex formats, what you can get away with tends to be defined by what you
-            are trying to store in the texture.</para>
-        <formalpara>
-            <title>Normals</title>
-            <para>Textures containing normals can use <literal>GL_RGB10_A2_SNORM</literal>, which is
-                the texture equivalent to the 10-bit signed normalized format we used for attribute
-                normals. However, this can be made more precise if the normals are for a
-                tangent-space bump map. Since the tangent-space normals always have a positive Z
-                coordinate, and since the normals are normalized, the actual Z value can be computed
-                from the other two. So you only need to store 2 values;
-                    <literal>GL_RG16_SNORM</literal> is sufficient for these needs. To compute the
-                third value, do this:</para>
-        </formalpara>
-        <programlisting language="glsl">vec2 norm2d = texture(tangentBumpTex, texCoord).xy;
-vec3 tanSpaceNormal = sqrt(1.0 - dot(norm2d, norm2d));</programlisting>
-        <para>Obviously this costs some performance, so the added precision may not be worthwhile.
-            On the plus side, you will not have to do any normalization of the tangent-space
-            normal.</para>
-        <para>The <literal>GL_RG16_SNORM</literal> format can be made even smaller with texture
-            compression. The <literal>GL_COMPRESSED_SIGNED_RG_RGTC1</literal> compressed texture
-            format is a 2-channel signed integer format. It only takes up 8-bits per pixel.</para>
-        <formalpara>
-            <title>Floating-point Intensity</title>
-            <para>There are two unorthodox formats for floating-point textures, both of which have
-                important uses. The <literal>GL_R11F_G11F_B10F</literal> format is potentially a
-                good format to use for HDR render targets. As the name suggests, it takes up only
-                32-bits. The downside is the relative loss of precision compared to
-                    <literal>GL_RGB16F</literal>. They can store approximately the same magnitude of
-                values, but the smaller format loses some precision. This may or may not impact the
-                overall visual quality of the scene. It should be fairly simple to test to see which
-                is better.</para>
-        </formalpara>
-        <para>The <literal>GL_RGB9_E5</literal> format is used for input floating-point textures. If
-            you have a texture that represents light intensity in HDR situations, this format can be
-            quite handy. The way it works is that each of the RGB colors get 9 bits for their
-            values, but they all share the same exponent. This has to do with how floating-point
-            numbers work, but what it boils down to is that the values have to be relatively close
-            to one another in magnitude. They do not have to be that close; there's still some
-            leeway. Values that are too small relative to larger ones become zero. This is
-            oftentimes an acceptable tradeoff, depending on the particular magnitude in
-            question.</para>
-        <para>This format is useful for textures that are generated offline by tools. You cannot
-            render to a texture in this format.</para>
-        <formalpara>
-            <title>Colors</title>
-            <para>Storing colors that are clamped to [0, 1] can be done with good precision with
-                    <literal>GL_RGBA8</literal> or <literal>GL_SRGB8_ALPHA8</literal> as needed.
-                However, compressed texture formats are available. The S3TC formats are good choices
-                if the compression works reasonably well for the texture. There are sRGB versions of
-                the S3TC formats as well.</para>
-        </formalpara>
-        <para>The difference in the various S3TC formats are how much alpha you need. The choices
-            are as follows:</para>
-        <glosslist>
-            <glossentry>
-                <glossterm>GL_COMPRESSED_RGB_S3TC_DXT1_EXT</glossterm>
-                <glossdef>
-                    <para>No alpha.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT1_EXT</glossterm>
-                <glossdef>
-                    <para>Binary alpha. Either zero or one for each texel. The RGB color for any
-                        alpha of zero will also be zero.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT3_EXT</glossterm>
-                <glossdef>
-                    <para>4-bits of alpha per pixel.</para>
-                </glossdef>
-            </glossentry>
-            <glossentry>
-                <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT5_EXT</glossterm>
-                <glossdef>
-                    <para>Alpha is compressed in an S3TC block, much like RG texture
-                        compression.</para>
-                </glossdef>
-            </glossentry>
-        </glosslist>
-        <para>If a variable alpha matters for a texture, the primary difference will be between DXT3
-            and DXT5. DXT5 has the potential for better results, but if the alpha does not compress
-            well with the S3TC algorithm, the results will be rather worse.</para>
     </section>
     <section>
         <title>Textures</title>
-        <para>Mipmapping improves performance when textures are mapped to regions that are larger in
-            texel space than in window space. That is, when texture minification happens. Mipmapping
-            improves performance because it keeps the locality of texture accesses near each other.
-            Texture hardware is optimized for accessing regions of textures, so improving locality
-            of texture data will help performance.</para>
-        <para>How much this matters depends on how the texture is mapped to the surface. Static
-            mapping with explicit texture coordinates, or with linear computation based on surface
-            properties, can use mipmapping to improve locality of texture access. For more unusual
-            mappings or for pure-lookup tables, mipmapping may not help locality at all.</para>
-        <para/>
+        <para>There are various techniques you can use to improve the performance of texture
+            accesses.</para>
+        <section>
+            <title>Image Formats</title>
+            <para>The smaller the data, the faster it can be fetched into a shader. As with vertex
+                formats, try to use the smallest format that you can get away with. As with vertex
+                formats, what you can get away with tends to be defined by what you are trying to
+                store in the texture.</para>
+            <formalpara>
+                <title>Normals</title>
+                <para>Textures containing normals can use <literal>GL_RGB10_A2_SNORM</literal>,
+                    which is the texture equivalent to the 10-bit signed normalized format we used
+                    for attribute normals. However, this can be made more precise if the normals are
+                    for a tangent-space normal map. Since the tangent-space normals always have a
+                    positive Z coordinate, and since the normals are normalized, the actual Z value
+                    can be computed from the other two. So you only need to store 2 values;
+                        <literal>GL_RG16_SNORM</literal> is sufficient for these needs. To compute
+                    the third value, do this:</para>
+            </formalpara>
+            <programlisting language="glsl">vec2 norm2d = texture(tangentBumpTex, texCoord).xy;
+vec3 tanSpaceNormal = vec3(norm2d, sqrt(1.0 - dot(norm2d, norm2d)));</programlisting>
+            <para>Obviously this costs some performance, so it's a question of how much precision
+                you actually need. On the plus side, using this method means that you will not have
+                to normalize the tangent-space normal fetched from the texture.</para>
+            <para>The <literal>GL_RG16_SNORM</literal> format can be made even smaller with texture
+                compression. The <literal>GL_COMPRESSED_SIGNED_RG_RGTC1</literal> compressed texture
+                format is a 2-channel signed integer format. It only takes up 8-bits per
+                pixel.</para>
+            <formalpara>
+                <title>Floating-point Intensity</title>
+                <para>There are two unorthodox formats for floating-point textures, both of which
+                    have important uses. The <literal>GL_R11F_G11F_B10F</literal> format is
+                    potentially a good format to use for HDR render targets. As the name suggests,
+                    it takes up only 32-bits. The downside is the relative loss of precision
+                    compared to <literal>GL_RGB16F</literal> (as well as the complete loss of a
+                    destination alpha). They can store approximately the same magnitude of values,
+                    but the smaller format loses some precision. This may or may not impact the
+                    overall visual quality of the scene. It should be fairly simple to test to see
+                    which is better.</para>
+            </formalpara>
+            <para>The <literal>GL_RGB9_E5</literal> format is used for input floating-point
+                textures. If you have a texture that represents light intensity in HDR situations,
+                this format can be quite handy. The way it works is that each of the RGB colors get
+                9 bits for their values, but they all share the same exponent. This has to do with
+                how floating-point numbers work, but what it boils down to is that the values have
+                to be relatively close to one another in magnitude. They do not have to be that
+                close; there's still some leeway. Values that are too small relative to larger ones
+                become zero. This is oftentimes an acceptable tradeoff, depending on the particular
+                magnitude in question.</para>
+            <para>This format is useful for textures that are generated offline by tools. You cannot
+                render to a texture in this format.</para>
+            <formalpara>
+                <title>Colors</title>
+                <para>Storing colors that are clamped to [0, 1] can be done with good precision with
+                        <literal>GL_RGBA8</literal> or <literal>GL_SRGB8_ALPHA8</literal> as needed.
+                    However, compressed texture formats are available. The S3TC formats are good
+                    choices if the compression artifacts are not too noticable. There are sRGB
+                    versions of the S3TC formats as well.</para>
+            </formalpara>
+            <para>The difference in the various S3TC formats are how much alpha you need. The
+                choices are as follows:</para>
+            <glosslist>
+                <glossentry>
+                    <glossterm>GL_COMPRESSED_RGB_S3TC_DXT1_EXT</glossterm>
+                    <glossdef>
+                        <para>No alpha.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT1_EXT</glossterm>
+                    <glossdef>
+                        <para>Binary alpha. Either zero or one for each texel. The RGB color for any
+                            texel with a zero alpha will also be zero.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT3_EXT</glossterm>
+                    <glossdef>
+                        <para>4-bits of alpha per pixel.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry>
+                    <glossterm>GL_COMPRESSED_RGBA_S3TC_DXT5_EXT</glossterm>
+                    <glossdef>
+                        <para>Alpha is compressed in an S3TC block, much like RG texture
+                            compression.</para>
+                    </glossdef>
+                </glossentry>
+            </glosslist>
+            <para>If an image needs to have a varying alpha, the primary difference will be between
+                DXT3 and DXT5. DXT5 has the potential for better results, but if the alpha does not
+                compress well with the S3TC algorithm, the results will be rather worse than
+                DXT3.</para>
+        </section>
+        <section>
+            <title>Use Mipmaps Often</title>
+            <para>Mipmapping improves performance when textures are mapped to regions that are
+                larger in texel space than in window space. That is, when texture minification
+                happens. Mipmapping improves performance because it keeps the locality of texture
+                accesses near each other. Texture hardware is optimized for accessing regions of
+                textures, so improving locality of texture data will help performance.</para>
+            <para>How much this matters depends on how the texture is mapped to the surface. Static
+                mapping with explicit texture coordinates, or with linear computation based on
+                surface properties, can use mipmapping to improve locality of texture access. For
+                more unusual mappings or for pure-lookup tables, mipmapping may not help locality at
+                all.</para>
+            <para>Ultimately, mipmaps are more likely to help performance when the texture in
+                question represents some characteristic of a surface, and is therefore mapped
+                directly to that surface. So diffuse textures, normal maps, specular maps, and other
+                surface characteristics are all very likely to gain some performance from using
+                mipmaps. Projective lights are less likely to gain from this, as it depends on the
+                geometry that they are projected onto.</para>
+        </section>
+    </section>
+    <section>
+        <?dbhtml filename="Optimize Core.html"?>
+        <title>Object Optimizations</title>
+        <para>These optimizations all have to do with the concept of objects. An object, for the
+            purpose of this discussion, is a combination of a mesh, program, uniform data, and set
+            of textures used to render some specific thing in the world.</para>
+        <section>
+            <title>Object Culling</title>
+            <para>A virtual world consists of many objects. The more objects we draw, the longer
+                rendering takes.</para>
+            <para>One major optimization is also a very simple one: render only what must be
+                rendered. There is no point in drawing an object in the world that is not actually
+                visible. Thus, the task here is to, for each object, detect if it would be visible;
+                if it is not, then it is not rendered. This process is called visiblity culling or
+                object culling.</para>
+            <para>As a first pass, we can say that objects that are not within the view frustum are
+                not visible. This is called frustum culling, for obvious reasons. Determining that
+                an object is off screen is generally a CPU task. Each object must be represented by
+                a simple volume, such as a sphere or camera-space box. These objects are used
+                because they are relatively easy to test against the view frustum; if they are
+                within the frustum, then the corresponding object is considered visible.</para>
+            <para>Of course, this only boils the scene down to the objects in front of the camera.
+                Objects that are entirely occluded by other objects will still be rendered. There
+                are a number of techniques for detecting whether objects obstruct the view of other
+                objects. Portals, BSPs, and a variety of other techniques involve preprocessing
+                certain static terrain to determine visibility sets. Therefore it can be known that,
+                when the camera is in a certain region of the world, objects in certain other
+                regions cannot be visible even if they are within the view frustum.</para>
+            <para>A more fine-grained solution involves using a hardware feature called occlusion
+                queries. This is a way to render an object and then ask how many fragments of that
+                object were actually rasterized. If even one fragment passed the depth test
+                (assuming all possible occluding surfaces have been rendered), then the object is
+                visible and must be rendered.</para>
+            <para>It is generally preferred to render simple test objects, such that if any part of
+                the test object is visible, then the real object will be visible. Drawing a test
+                object is much faster than drawing a complex hierarchial model with specialized
+                skinning vertex shaders. Write masks (set with <function>glColorMask</function> and
+                    <function>glDepthMask</function>) are used to prevent writing the fragment
+                shader outputs of the test object to the framebuffer. Thus, the test object is only
+                tested against the depth buffer, not actually rendered.</para>
+            <para>Occlusion queries in OpenGL are objects that have state. They are created with the
+                    <function>glGenQueries</function> function. To start rendering a test object for
+                occlusion queries, the object generated from <function>glGenQueries</function> is
+                passed to the <function>glBeginQuery</function> function, along with the mode of
+                    <literal>GL_SAMPLES_PASSED</literal>. All rendering commands between
+                    <function>glBeginQuery</function> and the corresponding
+                    <function>glEndQuery</function> are part of the test object. If all of the
+                fragments of the object were discarded (via depth buffer or something else), then
+                the query failed. If even one fragment was rendered, then it passed.</para>
+            <para>This can be used with a concept called conditional rendering. This is exactly what
+                it says: rendering an object conditionally. It allows a series of rendering
+                commands, bracketed by
+                    <function>glBeginConditionalRender</function>/<function>glEndConditionalRender</function>
+                functions, to cause the execution of those rendering commands to happen or not
+                happen based on the status of an occlusion query object. If the occlusion query
+                passed, then the rendering commands will be executed. If it did not, then they will
+                not be.</para>
+            <para>Of course, conditional rendering can cause pipeline stalls; OpenGL still requires
+                that operations execute in-order, even conditional ones. So all later operations
+                will be held up if a conditional render is waiting for its occlusion query to
+                finish. To avoid this, you can specify <literal>GL_QUERY_NO_WAIT</literal> when
+                beginning the conditional render. This will cause OpenGL to render if the query has
+                not completed before this conditional render is ready to be rendered. To gain the
+                maximum benefit from this, it is best to render the conditional objects well after
+                the test objects they are conditioned on.</para>
+        </section>
+        <section>
+            <title>Model LOD</title>
+            <para>When a model is far away, it does not need to look as detailed, since most of the
+                details will be lost due to lack of resolution. Therefore, one can substitute more
+                detailed models for less detailed ones. This is commonly referred to as Level of
+                Detail (<acronym>LOD</acronym>).</para>
+            <para>Of course in modern rendering, detail means more than just the number of polygons
+                in a mesh. It can often mean what shader to use, what textures to use with it, etc.
+                So while meshes will often have LODs, so will shaders. Textures have their own
+                built-in LODing mechanism in mip-mapping. But it is often the case that low-LOD
+                shaders (those used from far away) do not need as many textures as the closer LOD
+                shaders. You might be able to get away with per-vertex lighting for distant models,
+                while you need per-fragment lighting for those close up.</para>
+            <para>The problem with this visually is how to deal with the transitions between LOD
+                levels. If you change them too close to the camera, then the user will notice a pop.
+                If you do them too far away, you lose much of the performance gain from rendering a
+                low-detail mesh far away. Finding a good middle-ground is key.</para>
+        </section>
+        <section>
+            <title>State Changes</title>
+            <para>OpenGL has three kinds of functions: those that actually do rendering, those that
+                retrieve information from OpenGL, and those that modify some information stored in
+                OpenGL. The vast majority of OpenGL functions are the latter. OpenGL's information
+                is generally called <quote>state,</quote> and needlessly changing state can be
+                expensive.</para>
+            <para>Therefore, this optimization rule is to, as best as possible, minimize the number
+                of state changes. For simple scenes, this can be trivial. But in a complicated,
+                data-driven environment, this can be exceedingly complex.</para>
+            <para>The general idea is to gather up a list of all objects that need to be rendered
+                (after culling non-visible objects and performing any LOD work), then sort them
+                based on their shared state. Objects that use the same program share program state,
+                for example. By doing this, if you render the objects in state order, you will
+                minimize the number of changes to OpenGL state.</para>
+            <para>The three most important pieces of state to sort by are the ones that change most
+                frequently: programs (and their associated uniforms), textures, and VAO state.
+                Global state, such as face culling, blending, etc, are less expensive because they
+                don't change as often. Generally, all meshes use the same culling parameters,
+                viewport settings, depth comparison state, and so forth.</para>
+            <para>Minimizing vertex array state changes generally requires more than just sorting;
+                it requires changing how mesh data is stored. This book usually gives every mesh its
+                own VAO, which represents its own separate state. This is certainly very convenient,
+                but it can work against performance if the CPU is a bottleneck.</para>
+            <para>To avoid this, try to group meshes that have the same vertex data formats in the
+                same buffer objects and VAOs. This makes it possible to render several objects, with
+                several different <function>glDraw*</function> commands, all using the same VAO
+                state. <function>glDrawElementsBaseVertex</function> is very useful for this purpose
+                when rendering with indexed data. The fewer VAO binds, the better.</para>
+            <para>There is less information on how harmful uniform state changes are to performance,
+                or the performance difference between changing in-program uniforms and buffer-based
+                uniforms.</para>
+            <para>Be advised that state sorting cannot help when dealing with blending, because
+                blending correctness requires sorting based on depth. Thus, it is necessary to avoid
+                that.</para>
+            <para>There are also certain tricky states that can hurt, depending on hardware. For
+                example, it is best to avoid changing the direction of the depth test once you have
+                cleared the depth buffer and started rendering to it. This is for reasons having to
+                do with specific hardware optimizations of depth buffering.</para>
+        </section>
     </section>
     <section>
         <title>Finding the Bottleneck</title>
@@ -297,13 +448,12 @@ vec3 tanSpaceNormal = sqrt(1.0 - dot(norm2d, norm2d));</programlisting>
                 milliseconds to spend performing all rendering tasks.</para>
             <para>One thing that confounds performance metrics is the fact that the GPU is both
                 pipelined and asynchronous. When running regular code, if you call a function,
-                you're usually assured that the action the function took has completed when it
+                you're usually assured that the actions the function took have all completed when it
                 returns. When you issue a rendering call (any <function>glDraw*</function>
                 function), not only is it likely that rendering has not completed by the time it has
-                returned, it is very possible that rendering has not even
-                    <emphasis>started</emphasis>. Not even doing a buffer swap will ensure that the
-                GPU has finished, as GPUs can wait to actual perform the buffer swap until
-                later.</para>
+                returned, it is very likely that rendering has not even
+                <emphasis>started</emphasis>. Not even doing a buffer swap will ensure that the GPU
+                has finished, as GPUs can wait to actual perform the buffer swap until later.</para>
             <para>If you specifically want to time the GPU, then you must force the GPU to finish
                 its work. To do that in OpenGL, you call a function cleverly titled
                     <function>glFinish</function>. It will return sometime after the GPU finishes.
@@ -339,8 +489,9 @@ vec3 tanSpaceNormal = sqrt(1.0 - dot(norm2d, norm2d));</programlisting>
                     the time to render doubles, then you are fragment processing bound.</para>
                 <para>Note that rendering time will go up when you increase the resolution. What you
                     are interested in is whether it goes up linearly with the number of fragments
-                    rendered. If the render time only goes up by 1.2x with a 2x increase in number
-                    of fragments, then the code was not fragment processing bound.</para>
+                    rendered. If the rendering time only goes up by 1.2x with a 2x increase in
+                    number of fragments, then the code was not entirely fragment processing
+                    bound.</para>
             </section>
             <section>
                 <title>Vertex Processing</title>
@@ -350,11 +501,10 @@ vec3 tanSpaceNormal = sqrt(1.0 - dot(norm2d, norm2d));</programlisting>
                     significantly (there will generally be some change), then you were vertex
                     processing bound.</para>
                 <para>To turn off fragment processing, simply
-                        <function>glEnable</function>(<literal>GL_CULL_FACE</literal>) and set
-                        <function>glCullFace</function> to <literal>GL_FRONT_AND_BACK</literal>.
-                    That will cause the clipping system to cull all triangles before rasterization.
-                    Obviously, nothing will be rendered, but your performance timings will be for
-                    vertex processing alone.</para>
+                        <function>glEnable</function>(<literal>GL_RASTERIZER_DISCARD​</literal>).
+                    This will cause all fragments to be discarded. Obviously, nothing will be
+                    rendered, but all of the steps before rasterization will still be executed.
+                    Therefore, your performance timings will be for vertex processing alone.</para>
             </section>
             <section>
                 <title>CPU</title>
@@ -371,125 +521,11 @@ vec3 tanSpaceNormal = sqrt(1.0 - dot(norm2d, norm2d));</programlisting>
                 way to avoid a vertex-processing heavy section of your renderer. Perhaps you need
                 all of that fragment processing in a certain area of rendering.</para>
             <para>If there is some bottleneck that cannot be optimized away, then turn it to your
-                advantage. If you have a CPU bottleneck, then render more detailed models. If you
-                have a vertex-shader bottleneck, improve your lighting by adding some
-                fragment-shader complexity. And so forth. Just make sure that you do not increase
-                complexity to the point where you move the bottleneck.</para>
-        </section>
-    </section>
-    <section>
-        <?dbhtml filename="Optimize Core.html" ?>
-        <title>Core Optimizations</title>
-        <para/>
-        <section>
-            <title>State Changes</title>
-            <para>This rule is designed to decrease CPU bottlenecks. The rule itself is simple:
-                minimize the number of state changes. Actually doing it is a complex exercise in
-                graphics engine design.</para>
-            <para>What is a state change? Any OpenGL function that changes the state of the current
-                context is a state change. This includes any function that changes the state of
-                objects bound to the current context.</para>
-            <para>What you should do is gather all of the things you need to render and sort them
-                based on state changes. Objects with similar state will be rendered one after the
-                other. But not all state changes are equal to one another; some state changes are
-                more expensive than others.</para>
-            <para>Vertex array state, for example, is generally considered quite expensive. Try to
-                group many objects that have the same vertex attribute data formats in the same
-                buffer objects. Use glDrawElementsBaseVertex to help when using indexed
-                rendering.</para>
-            <para>The currently bound texture state is also somewhat expensive. Program state is
-                analogous to this.</para>
-            <para>Global state, such as face culling, blending, etc, are generally considered less
-                expensive. You should still only change it when necessary, but buffer object and
-                texture state are much more important in state sorting.</para>
-            <para>There are also certain tricky states that can hurt you. For example, it is best to
-                avoid changing the direction of the depth test once you have cleared the depth
-                buffer and started rendering to it. This is for reasons having to do with specific
-                hardware optimizations of depth buffering.</para>
-            <para>It is less well-understood how important uniform state is, or how uniform buffer
-                objects compare with traditional uniform values.</para>
-        </section>
-        <section>
-            <title>Object Culling</title>
-            <para>The fastest object is one not drawn. And there's no point in drawing something
-                that is not seen.</para>
-            <para>The simplest form of object culling is frustum culling: choosing not to render
-                objects that are entirely outside of the view frustum. Determining that an object is
-                off screen is a CPU task. You generally have to represent each object as a sphere or
-                camera-space box; then you test the sphere or box to see if it is partially within
-                the view space.</para>
-            <para>There are also a number of techniques for dealing with knowing whether the view to
-                certain objects are obstructed by other objects. Portals, BSPs, and a variety of
-                other techniques involve preprocessing terrain to determine visibility sets.
-                Therefore, it can be known that, when the camera is in a certain region of the
-                world, objects in certain other regions cannot be visible, even if they are within
-                the view frustum.</para>
-            <para>A level beyond that involves using something called occlusion queries. This is a
-                way to render an object with the GPU and then ask how many fragments of that object
-                were rasterized. It is generally preferred to render simple test objects, such that
-                if any part of the test object is visible, then the real object will be visible.
-                Color masks (with <function>glColorMask</function>) are used to prevent writing the
-                fragment shader outputs of the test object to the framebuffer.</para>
-            <para>Occlusion queries in OpenGL are objects that have state. They are created with the
-                    <function>glGenQueries</function> function. To start rendering a test object for
-                occlusion queries, the object generated from <function>glGenQueries</function> is
-                passed to the <function>glBeginQuery</function> function, along with the mode of
-                    <literal>GL_SAMPLES_PASSED</literal>. All rendering commands between
-                    <function>glBeginQuery</function> and the corresponding
-                    <function>glEndQuery</function> are part of the test object. If all of the
-                fragments of the object were discarded (via depth buffer or something else), then
-                the query failed. If even one fragment was rendered, then it passed.</para>
-            <para>This can be used with conditional rendering. Conditional rendering allows a series
-                of rendering commands, bracketed by
-                    <function>glBeginConditionalRender</function>/<function>glEndConditionalRender</function>
-                functions, to cause rendering of an object to happen or not happen based on the
-                status of an occlusion query object. If the occlusion query passed, then the
-                rendering commands will be executed. If it did not, then they will not be.</para>
-            <para>Of course, conditional rendering can cause pipeline stalls; OpenGL still requires
-                that operations execute in-order, even conditional ones. So all later operations
-                will be held up if a conditional render is waiting for its occlusion query to
-                finish. To avoid this, you can specify <literal>GL_QUERY_NO_WAIT</literal> when
-                beginning the conditional render. This will cause OpenGL to render if the query has
-                not completed before this conditional render is ready to be rendered.</para>
-        </section>
-        <section>
-            <title>Model LOD</title>
-            <para>When a model is far away, it does not need to look as detailed. Therefore, one can
-                substitute more detailed models for less detailed ones. This is commonly referred to
-                as Level of Detail (<acronym>LOD</acronym>).</para>
-            <para>Of course in modern rendering, detail means more than just the number of polygons
-                in a mesh. It can often mean what shader to use, what textures to use with it, etc.
-                So while meshes will often have LODs, so will shaders. Textures have their own
-                built-in LODing mechanism in mip-mapping. But it is often the case that low-LOD
-                shaders (those used from far away) do not need as many textures as the closer LOD
-                shaders. You might be able to get away with per-vertex lighting for distant models,
-                while you need per-fragment lighting for those close up.</para>
-            <para>The general problem is how to deal with the transitions between LOD levels. If you
-                change them too close to the camera, then the user will notice the pop. If you do
-                them too far away, you lose much of the performance impact. Finding a good
-                middle-ground is key.</para>
-        </section>
-        <section>
-            <title>Mipmapping</title>
-            <para>For any texture that represents a surface property of an object, strongly consider
-                giving it mipmaps. This includes bump maps, diffuse textures, specular textures,
-                etc. This is primarily for performance reasons.</para>
-            <para>When you fetch a texel from a texture, the texture unit hardware will usually
-                fetch the neighboring textures at the mip LOD(s) in question. These texels will be
-                stored in local memory called the texture cache. This means that, when the next
-                fragment on the surface comes along, that texel will already be in the cache. But
-                this only works for texels that are near each other.</para>
-            <para>When an object is far from the camera or angled sharply relative to the view, then
-                the two texture coordinates for two neighboring fragments can be quite different
-                from one another. When fetching from a low mipmap (remember: 0 is the biggest
-                mipmap), then the two fragments will get texels that are far apart. Neither one will
-                fetch texels near each other.</para>
-            <para>But if they are fetching from a high mipmap, then the large texture coordinate
-                difference between them translates into a small texel-space difference. With proper
-                mipmaping, neighboring texels can feed on the cache and do fewer memory accesses.
-                This speeds up texturing performance.</para>
-            <para>This also means that biasing the mipmap LOD lower (to larger mipmaps) can cause
-                serious performance problems in addition to aliasing.</para>
+                advantage by increasing the complexity of the other stages in the pipeline. If you
+                have an unfixable CPU bottleneck, then render more detailed models. If you have a
+                vertex-shader bottleneck, improve your lighting by adding some fragment-shader
+                complexity. And so forth. Just make sure that you do not increase complexity to the
+                point where you move the bottleneck and make things slower.</para>
         </section>
     </section>
     <section>

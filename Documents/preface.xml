@@ -60,25 +60,24 @@
             but they are often ignored by most introductory material because they do not work with
             the fixed function pipeline.</para>
         <para>This book is first and foremost about learning how to be a graphics programmer.
-            Therefore, whenever it is possible and practical, this book will present material in a
+            Therefore whenever it is possible and practical, this book will present material in a
             way that encourages the reader to examine what graphics hardware can do in new and
             interesting ways. A good graphics programmer sees the graphics hardware as a set of
             tools to fulfill their needs, and this book tries to encourage this kind of
             thinking.</para>
-        <para>One thing this book is not, however, is a book on graphics APIs. While it does use
-            OpenGL and out of necessity teach rendering concepts in terms of OpenGL, it is not truly
-            a book that is <emphasis>about</emphasis> OpenGL. It is not the purpose of this book to
-            teach you all of the ins and outs of the OpenGL API.There will be parts of OpenGL
-            functionality that are not dealt with because they are not relevant to any of the
-            lessons that this book teaches. If you already know graphics and are in need of a book
-            that teaches modern OpenGL programming, this is not it. It may be useful to you in that
-            capacity, but that is not this book's main thrust.</para>
+        <para>One thing this book is not however, is a book on graphics APIs. While it does use
+            OpenGL and out of necessity teach rendering concepts in terms of OpenGL, it is not a
+            comprehensive guide to the OpenGL API. It will cover much of the API, as needed for
+            various graphics concepts, but there will be many pieces of functionality supported by
+            the API that will not be covered. If you already know graphics and are in need of a book
+            that teaches modern OpenGL programming, this book may be too basic for you. This book
+            will teach you the lion's share of the API, but this book is primarily focused on
+            graphics more than the API itself.</para>
         <para>This book is intended to teach you how to be a graphics programmer. It is not aimed at
             any particular graphics field; it is designed to cover most of the basics of 3D
             rendering. So if you want to be a game developer, a CAD program designer, do some
             computer visualization, or any number of things, this book can still be an asset for
-            you.</para>
-        <para>This does not mean that it covers everything there is about 3D graphics. Hardly. It
+            you. This does not mean that it covers everything there is about 3D graphics. Hardly. It
             tries to provide a sound foundation for your further exploration in whatever field of 3D
             graphics you are interested in.</para>
         <para>One topic this book does not cover in depth is optimization. The reason for this is

@@ -692,19 +692,8 @@ void main()
                     <para>Change the positions of the vertex data. Keep position values in the [-1,
                         1] range, then see what happens when triangles go outside this range. Notice
                         what happens when you change the Z value of the positions (note: nothing
-                        should happen while they're within the range). Keep W at 1.0 for now.</para>
-                </listitem>
-                <listitem>
-                    <para>Change the values that <function>reshape</function> gives to
-                            <function>glViewport</function>. Make them bigger or smaller than the
-                        window and see what happens. Shift them around to different quadrants within
-                        the window.</para>
-                </listitem>
-                <listitem>
-                    <para>Change the <function>reshape</function> function so that it respects
-                        aspect ratio. This means that the area rendered to may be smaller than the
-                        window area. Also, try to make it so that it always centers the area within
-                        the window.</para>
+                        should happen while they're within the range). Keep the W values at 1.0 for
+                        now.</para>
                 </listitem>
                 <listitem>
                     <para>Change the clear color, using values in the range [0, 1]. Notice how this
@@ -714,6 +703,18 @@ void main()
                     <para>Add another 3 vertices to the list, and change the number of vertices sent
                         in the <function>glDrawArrays</function> call from 3 to 6. Add more and play
                         with them.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the values that <function>reshape</function> gives to
+                            <function>glViewport</function>. Make them bigger or smaller than the
+                        window and see what happens. Shift them around to different quadrants within
+                        the window.</para>
+                </listitem>
+                <listitem>
+                    <para>Change the <function>reshape</function> function so that changing the
+                        window size does not stretch the triangle. This means that the area rendered
+                        to, the viewport, may be smaller than the window area. Also, try to make it
+                        so that it always centers the area within the window.</para>
                 </listitem>
             </itemizedlist>
         </section>

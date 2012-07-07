@@ -7,19 +7,24 @@
     <title>Building the Tutorials</title>
     <para>This section describes how to build the tutorials.</para>
     <formalpara>
-        <title>What You Need</title>
+        <title>What You Need to Download</title>
         <para>Obviously, you will need a C++ compiler and build environment. You will also need the
             Windows or Linux operating systems, as these are the only OS's supported by the
-            tutorials.</para>
+            tutorials. Supported build environments include Visual Studio 2008/2010, Code::Blocks,
+            and Linux-based GNU Makefiles. Other build systems may work, but they are not regularly
+            tested.</para>
     </formalpara>
     <para>You will need to download the <link
             xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source distribution</link>.
         All of the libraries needed to build the tutorials are bundled as part of the distribution,
         so this is the only source code download you will need.</para>
+    <para>You will also need to download the <link xlink:href="http://industriousone.com/premake"
+            >Premake 4</link> utility for your platform of choice. Place the executable somewhere in
+        your command path.</para>
     <para>You will need minimal familiarity with using the command line in order to build these
         tutorials. Also, any mention of directories is always relative to where you unzipped this
         distribution.</para>
-    <simplesect>
+    <formalpara>
         <title>Distribution File Layout</title>
         <para>The layout of the files in the tutorial directory is quite simple. The
                 <filename>framework</filename> directory and all directories of the form
@@ -27,80 +32,78 @@
                 <filename>Tut*</filename> directory has the code for the various tutorials. The
                 <filename>framework</filename> directory simply contains utility code that is
             commonly used by each tutorial.</para>
-        <para>Each tutorial contains one or more projects; each project is referenced in the text
-            for that tutorial.</para>
-        <para>The <filename>Documents</filename> directory contains the source for the text
-            documentation explaining how these tutorials work. This source is in xml files using the
-            DocBook 5.0 format.</para>
-        <para>The other directories either contain libraries used by the tutorials or data files
-            that the tutorials load.</para>
-    </simplesect>
-    <simplesect>
-        <title>Necessary Utilities</title>
-        <para>In order to build everything, you will need to download the <link
-                xlink:href="http://industriousone.com/premake">Premake 4</link> utility for your
-            platform of choice.</para>
+    </formalpara>
+    <para>Each tutorial contains one or more projects; each project is referenced in the text for
+        that tutorial.</para>
+    <para>The <filename>Documents</filename> directory contains the source for the text
+        documentation explaining how these tutorials work. This source is in xml files using the
+        DocBook 5.0 format.</para>
+    <para>The other directories either contain libraries used by the tutorials or data files that
+        the tutorials load.</para>
+    <formalpara>
+        <title>Premake 4</title>
         <para>Premake is a utility like <link xlink:href="http://www.cmake.org/">CMake</link>: it
             generates build files for a specific platform. Unlike CMake, Premake is strictly a
             command-line utility. Premake's build scripts are written in the <link
                 xlink:href="http://www.lua.org/home.html">Lua language</link>, unlike CMake's build
             scripts that use their own language.</para>
-        <para>Note that Premake only generates build files; once the build files are created, you
-            can use them as normal. It can generate project files for Visual Studio, <link
-                xlink:href="http://www.codeblocks.org/">Code::Blocks</link>, and XCode, as well as
-            GNU Makefiles. And unless you want to modify one of the tutorials, you only need to run
-            Premake once for each tutorial.</para>
-        <para>The Premake download comes as a pre-built executable for all platforms of interest,
-            including Linux.</para>
-    </simplesect>
-    <simplesect>
+    </formalpara>
+    <para>Note that Premake only generates build files; once the build files are created, you can
+        use them as normal. It can generate project files for Visual Studio, <link
+            xlink:href="http://www.codeblocks.org/">Code::Blocks</link>, as well as GNU Makefiles.
+        And unless you want to modify one of the tutorials, you only need to run Premake once for
+        each tutorial.</para>
+    <para>The Premake download comes as a pre-built executable for all platforms of interest,
+        including Linux.</para>
+    <formalpara>
         <title>Unofficial OpenGL SDK</title>
-        <para>Distributed with the tutorials is the Unofficial OpenGL SDK. This is an aggregation of
-            libraries, unifying a number of tools for developing OpenGL applications, all bound
-            together with a unified build system. You do not need to download it; a version of the
-            SDK is part of the tutorial distribution. The copy that comes with these tutorials does
-            not contain the documentation or GLFW.</para>
-        <para>The SDK library uses Premake to generate its build files. So, with
-                <command>premake4.exe</command> in your path, go to the <filename>glsdk</filename>
-            directory. Type <userinput>premake4 <replaceable>plat</replaceable></userinput>, where
-                <replaceable>plat</replaceable> is the name of the platform of choice. For Visual
-            Studio 2008, this would be <quote>vs2008</quote>; for VS2010, this would be
-                <quote>vs2010.</quote> This will generate Visual Studio projects and solution files
-            for that particular version.</para>
-        <para>For GNU and makefile-based builds, this is <quote>gmake</quote>. This will generate a
-            makefile. To build for debug, use <userinput>make config=debug</userinput>; similarly,
-            to build for release, use <userinput>make config=release</userinput>.</para>
-        <para>Using the generated build files, compile for both debug and release. You should build
-            the entire solution; the tutorials use all of the libraries provided.</para>
-        <para>Note that there is no execution of <userinput>make install</userinput> or similar
-            constructs. The SDK is designed to be used where it is; it does not install itself to
-            any system directories on your machine. Incidentally, neither do these tutorials. Also,
-            you should not run the SDK from your the IDE; it's just a library. Successfully
-            compiling it in debug and release is sufficient.</para>
-    </simplesect>
-    <simplesect>
-        <title>Tutorial Building</title>
-        <para>Each tutorial directory has a <filename>premake4.lua</filename> file; this file is
-            used by Premake to generate the build files for that tutorial. Therefore, to build any
-            tutorial, you need only go to that directory and type <userinput>premake4
-                    <replaceable>plat</replaceable></userinput>, then use those build files to build
-            the tutorial.</para>
-        <para>Each tutorial will generally have more than one source file and generate multiple
-            executables. Each executable represents a different section of the tutorial, as
-            explained in that tutorial's documentation.</para>
-        <para>If you want to build all of the tutorials at once, go to the root directory of the
-            distribution and use Premake on the <filename>premake4.lua</filename> file in that
-            directory. It will put all of the tutorials into one giant project that you can
-            build.</para>
-        <para>If you look at any of the tutorial source files, you will not find the
-                <function>main</function> function defined anywhere. This function is defined in
-                <filename>framework/framework.cpp</filename>; it and all of the other source files
-            in the <filename>framework</filename> directory is shared by every tutorial. It does the
-            basic boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source
-            files to focus on the useful OpenGL-specific code.</para>
-        <para>Note that the framework project is a library, not an executable. So attempting to run
-            the framework from your IDE of choice will not work. You must select one of the tutorial
-            projects and set it to be the active project. Then you will be able to run that tutorial
-            from the IDE.</para>
-    </simplesect>
+        <para>Bundled with the tutorials is the Unofficial OpenGL SDK (you do not need to download
+            it separately). This is an aggregation of libraries, unifying a number of tools for
+            developing OpenGL applications, all bound together with a unified build system. You do
+            not need to download it; a version of the SDK is part of the tutorial distribution. The
+            copy that comes with these tutorials does not contain the documentation or GLFW.</para>
+    </formalpara>
+    <para>The SDK library uses Premake to generate its build files. So, with
+            <command>premake4.exe</command> in your path, open your command prompt and go to the
+            <filename>glsdk</filename> directory. Type <userinput>premake4
+                <replaceable>plat</replaceable></userinput>, where <replaceable>plat</replaceable>
+        is the name of the platform of choice. For Visual Studio 2008, this would be
+            <quote>vs2008</quote>; for VS2010, this would be <quote>vs2010.</quote> This will
+        generate Visual Studio projects and solution files for that particular version.</para>
+    <para>For GNU and makefile-based builds, this is <quote>gmake</quote>. This will generate a
+        makefile. To build for debug, use <userinput>make config=debug</userinput>; similarly, to
+        build for release, use <userinput>make config=release</userinput>.</para>
+    <para>Using the generated build files, compile for both debug and release. You should build the
+        entire solution; the tutorials use all of the libraries provided. Do not attempt to run the
+        SDK from your IDE; it's just a set of libraries. All you have to do is compile them for
+        debug and release.</para>
+    <para>That there is also no need to execute <userinput>make install</userinput> or similar
+        commands after building the SDK. The SDK is designed to be used where it is; it does not
+        install itself to any system directories on your machine. Incidentally, neither do these
+        tutorials.</para>
+    <formalpara>
+        <title>Tutorial Building and Running</title>
+    </formalpara>
+    <para>Each tutorial directory has a <filename>premake4.lua</filename> file; this file is used by
+        Premake to generate the build files for that tutorial. Therefore, to build any tutorial, you
+        need only go to that directory and type <userinput>premake4
+            <replaceable>plat</replaceable></userinput>, then use those build files to build the
+        tutorial.</para>
+    <para>Each tutorial will generally have more than one source file and generate multiple
+        executables. Each executable represents a different section of the tutorial, as explained in
+        that tutorial's documentation.</para>
+    <para>If you want to build all of the tutorials at once, go to the root directory of the
+        distribution and use Premake on the <filename>premake4.lua</filename> file in that
+        directory. It will put all of the tutorials into one giant project that you can
+        build.</para>
+    <para>If you look at any of the tutorial source files, you will not find the
+            <function>main</function> function defined anywhere. This function is defined in
+            <filename>framework/framework.cpp</filename>; it and all of the other source files in
+        the <filename>framework</filename> directory is shared by every tutorial. It does the basic
+        boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source files to
+        focus on the useful OpenGL-specific code.</para>
+    <para>Note that the framework project is a library, not an executable. So attempting to run the
+        framework from your IDE of choice will not work. You must select one of the tutorial
+        projects and set it to be the active project. Then you will be able to run that tutorial
+        from the IDE.</para>
 </article>

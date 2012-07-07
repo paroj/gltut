@@ -41,14 +41,13 @@
             the texture's alpha value. The alpha of the output was controlled with a separate math
             function, thus allowing the user to generate the alpha with different math than the RGB
             portion of the output color. This was the sum total of its fragment processing.</para>
-        <para>It had framebuffer blending support. Its framebuffer could even support a
-            destination alpha value, though you had to give up having a depth buffer to get it.
-            Probably not a good tradeoff. Outside of that issue, its blending support was superior
-            even to OpenGL 1.1. It could use different source and destination factors for the alpha
-            component than the RGB component; the old GL 1.1 forced the RGB and A to be blended with
-            the same factors.</para>
-        <para>The blending was even performed with full 24-bit color precision and then downsampled
-            to the 16-bit precision of the output upon writing.</para>
+        <para>It had framebuffer blending support. Its framebuffer could even support a destination
+            alpha value, though you had to give up having a depth buffer to get it. Probably not a
+            good tradeoff. Outside of that issue, its blending support was superior even to OpenGL
+            1.1. It could use different source and destination factors for the alpha component than
+            the RGB component; the old GL 1.1 forced the RGB and A to be blended with the same
+            factors. The blending was even performed with full 24-bit color precision and then
+            downsampled to the 16-bit precision of the output upon writing.</para>
         <para>From a modern perspective, spoiled with our full programmability, this all looks
             incredibly primitive. And, to some degree, it is. But compared to the pure CPU solutions
             to 3D rendering of the day, the Voodoo Graphics card was a monster.</para>
@@ -67,8 +66,7 @@
         <para>The next phase of hardware came, not from 3Dfx, but from a new company, NVIDIA. While
             3Dfx's Voodoo II was much more popular than NVIDIA's product, the NVIDIA Riva TNT
             (released in 1998) was more interesting in terms of what it brought to the table for
-            programmers. Voodoo II was purely a performance improvement; TNT was the next step in
-            the evolution of graphics hardware.</para>
+            programmers.</para>
         <para>Like other graphics cards of the day, the TNT hardware had no vertex processing.
             Vertex data was in clip-space, as normal, so the CPU had to do all of the transformation
             and lighting. Where the TNT shone was in its fragment processing. The power of the TNT
@@ -76,8 +74,8 @@
             <acronym>T</acronym>exel. It could access from two textures at once. And while the
             Voodoo II could do that as well, the TNT had much more flexibility to its fragment
             processing pipeline.</para>
-        <para>In order to accomidate two textures, the vertex input was expanded. Two textures meant
-            two texture coordinates, since each texture coordinate was directly bound to a
+        <para>In order to accommodate two textures, the vertex input was expanded. Two textures
+            meant two texture coordinates, since each texture coordinate was directly bound to a
             particular texture. While they were allowing two of things, NVIDIA also allowed for two
             per-vertex colors. The idea here has to do with lighting equations.</para>
         <para>For regular diffuse lighting, the CPU-computed color would simply be dot(N, L),
@@ -99,20 +97,28 @@
             single <quote>constant</quote> color. The latter, in modern parlance, is the equivalent
             of a shader uniform value.</para>
         <para>That's a lot of potential inputs. The solution NVIDIA came up with to produce a final
-            color was a bit of fixed functionality that we will call the texture environment. It is
-            directly analogous to the OpenGL 1.1 fixed-function pipeline, but with extensions for
-            multiple textures and some TNT-specific features.</para>
-        <para>The idea is that each texture has an environment. The environment is a specific math
-            function, such as addition, subtraction, multiplication, and linear interpolation. The
-            operands to this function could be taken from any of the fragment inputs, as well as a
-            constant zero color value.</para>
-        <para>It can also use the result from the previous environment as one of its arguments.
-            Textures and environments are numbered, from zero to one (two textures, two
-            environments). The first one executes, followed by the second.</para>
-        <para>If you look at it from a hardware perspective, what you have is a two-opcode assembly
-            language. The available registers for the language are two vertex colors, a single
-            uniform color, two texture colors, and a zero register. There is also a single temporary
-            register to hold the output from the first opcode.</para>
+            color was a bit of fixed functionality that NVIDIA calls texture combiners. It is
+            directly analogous to the OpenGL 1.1 fixed-function pipeline texture environment
+            concept, but with extensions for multiple textures and some TNT-specific
+            features.</para>
+        <para>The idea is that each texture has an <quote>environment</quote>. The environment is a
+            specific math function, such as addition, subtraction, multiplication, and linear
+            interpolation. The standard GL fixed-function pipeline only allowed the environment
+            functions to use as parameters the per-vertex color, the color sampled from that
+            particular texture, and a constant color. For multiple textures, the environments are
+            executed in sequence: the environment function for texture 0 executes, then for texture
+            1. The texture 1 environment used the output from texture 0 instead of the per-vertex
+            color.</para>
+        <para>NVIDIA's texture combiners augmented this significantly. The standard environment
+            functions were very limited in terms of operations. For example, the previous color
+            could be multiplied or added to the texture color, but it could not simply ignore the
+            texture color and multiply with the constant color instead. NVIDIA's texture combiners
+            could do this.</para>
+        <para>If you look at it from a hardware perspective, what texture combiners provide is a
+            two-opcode assembly language. The available registers for the language are two vertex
+            colors, a single uniform color, the current opcode's texture color, and a zero register.
+            There is also a single temporary register to hold the output from the first
+            opcode.</para>
         <para>Graphics programmers, by this point, had gotten used to multipass-based algorithms.
             After all, until TNT, that was the only way to apply multiple textures to a single
             surface. And even with TNT, it had a pretty confining limit of two textures and two
@@ -148,11 +154,11 @@
                 8x8 depth buffers, so you can use very fast, on-chip memory for it. Rather than
                 having to deal with caches, DRAM, and large bandwidth memory channels, you just have
                 a small block of memory where you do all of your logic. You still need memory for
-                textures and the output image, but your bandwidth needs can be devoted solely to
-                textures.</para>
-            <para>For a time, these cards were competitive with the other graphics chip makers.
-                However, the tile-based approach simply did not scale well with resolution or
-                geometry complexity. Also, they missed the geometry processing bandwagon, which
+                textures, the vertex buffer, and the output image, but your bandwidth needs can be
+                devoted to textures and the vertex buffer.</para>
+            <para>For a time, these cards were competitive with those from the other graphics chip
+                makers. However, the tile-based approach simply did not scale well with resolution
+                or geometry complexity. Also, they missed the geometry processing bandwagon, which
                 really hurt their standing. They fell farther and farther behind the other major
                 players, until they stopped making desktop parts altogether.</para>
             <para>However, they may ultimately have the last laugh; unlike 3Dfx and so many others,
@@ -164,7 +170,7 @@
                 longer-lasting mobile devices. Embedded devices tend to use smaller resolutions,
                 which their platform excels at. And with low resolutions, you are not trying to push
                 nearly as much geometry.</para>
-            <para>Thanks to these facts, PowerVR graphics chips power the vast majority of mobile
+            <para>Thanks to these facts, PowerVR's graphics chips power the vast majority of mobile
                 platforms that have any 3D rendering in them. Just about every iPhone, Droid, iPad,
                 or similar device is running PowerVR technology. And that's a growth market these
                 days.</para>
@@ -174,8 +180,8 @@
         <?dbhtml filename="History GeForce.html" ?>
         <title>Vertices and Registers</title>
         <para>The next stage in the evolution of graphics hardware again came from NVIDIA. While
-            3Dfx released competing cards, they were again behind the curve. The NVIDIA GeForce 256
-            (not to be confused with the GeForce GT250, a much more modern card), released in 1999,
+            3Dfx released competing cards, they were behind the curve. The NVIDIA GeForce 256 (not
+            to be confused with the GeForce GT250, a much more modern card), released in 1999,
             provided something truly new: a vertex processing pipeline.</para>
         <para>The OpenGL API has always defined a vertex processing pipeline (it was fixed-function
             in those days rather than shader-based). And NVIDIA implemented it in their TNT-era
@@ -197,13 +203,13 @@
             themselves can perform operations that generate negative values. Opcodes can even
             scale/bias their inputs, which allow them to turn unsigned colors into signed
             values.</para>
-        <para>Because of this, the GeForce 256 was the first hardware to be able to do functional
-            bump mapping, without hacks or tricks. A single register combiner stage could do 2
-            3-vector dot-products at a time. Textures could store normals by compressing them to a
-            [0, 1] range. The light direction could either be a constant or interpolated per-vertex
-            in texture space.</para>
+        <para>Because of this, the GeForce 256 was the first hardware to be able to do true normal
+            mapping, without hacks or tricks. A single register combiner stage could do 2 3-vector
+            dot-products at a time. Textures could store normals by compressing them to a [0, 1]
+            range. The light direction could either be a constant or interpolated per-vertex in
+            texture space.</para>
         <para>Now granted, this still was a primitive form of bump mapping. There was no way to
-            correct for texture-space values with binormals and tangents. But this was at least
+            correct for tangent-space values with bitantent and tangents. But this was at least
             something. And it really was the first step towards programmability; it showed that
             textures could truly represent values other than colors.</para>
         <para>There was also a single final combiner stage. This was a much more limited stage than
@@ -264,10 +270,7 @@
             to provide this level of programmability. While GeForce 3 hardware did indeed have the
             fixed-function vertex pipeline, it also had very flexible programmable pipeline. The
             retaining of the fixed-function code was a performance need; the vertex shader was not
-            as fast as the fixed-function one. It should be noted that the original X-Box's GPU,
-            designed in tandem with the GeForce 3, eschewed the fixed-functionality altogether in
-            favor of having multiple vertex shaders that could compute several vertices at a time.
-            This was eventually adopted for later GeForces.</para>
+            as fast as the fixed-function one.</para>
         <para>Vertex shaders were pretty powerful, even in their first incarnation. While there was
             no conditional branching, there was conditional logic, the equivalent of the ?:
             operator. These vertex shaders exposed up to 128 <type>vec4</type> uniforms, up to 16
@@ -287,9 +290,9 @@
             more tricks. But the main change was something that, in OpenGL terminology, would be
             called <quote>texture shaders.</quote></para>
         <para>What texture shaders did was allow the user to, instead of accessing a texture,
-            perform a computation on that texture's texture unit. This was much like the old texture
-            environment functionality, except only for texture coordinates. The textures were
-            arranged in a sequence. And instead of accessing a texture, you could perform a
+            perform a computation using that texture's texture unit. This was much like the old
+            texture environment functionality, except only for texture coordinates. The textures
+            were arranged in a sequence. And instead of accessing a texture, you could perform a
             computation between that texture unit's coordinate and possibly the coordinate from the
             previous texture shader operation, if there was one.</para>
         <para>It was not very flexible functionality. It did allow for full texture-space bump
@@ -344,8 +347,8 @@
                 but the base API was the same. Not so in OpenGL land.</para>
             <para>NVIDIA and ATI released entirely separate proprietary extensions for specifying
                 fragment shaders. NVIDIA's extensions built on the register combiner extension they
-                released with the GeForce 256. They were completely incompatible. And worse, they
-                were not even string-based.</para>
+                released with the GeForce 256. ATI's was brand new. They were completely
+                incompatible, and worse, they were not even string-based.</para>
             <para>Imagine having to call a C++ function to write every opcode of a shader. Now
                 imagine having to call <emphasis>three</emphasis> functions to write each opcode.
                 That's what using those APIs was like.</para>

@@ -5,21 +5,25 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Further Study.html" ?>
     <title>Further Study</title>
-    <para>G</para>
+    <para>This book provides a firm foundation for you to get started in your adventures as a
+        graphics programmer. However, it ultimately cannot cover everything. What follows will be a
+        general overview of other topics that you should investigate now that you have a general
+        understanding of how graphics work.</para>
     <section>
         <?dbhtml filename="Further Study Debugging.html" ?>
         <title>Debugging</title>
         <para>This book provides functioning code to solve various problems and implement a variety
             of effects. However, it does not talk about how to get code from a non-working state
             into a working one. That is, debugging.</para>
-        <para>Debugging OpenGL code is very difficult. Frequently when there is an OpenGL bug, the
-            result is a massively unhelpful blank screen. If the problem is localized to a single
-            shader or state used to render an object, the result is a black object. Compounding this
-            problem is the fact that OpenGL has a lot of global state. One of the reasons this book
-            will often bind objects, do something with them, and then unbind them, is to reduce the
-            amount of state dependencies. It ensures that every object is rendered with a specific
-            program, a set of textures, a certain VAO, etc. It may be slightly slower to do this,
-            but for a simple application, getting it working is more important.</para>
+        <para>Debugging OpenGL code is very difficult. Frequently when there is a bug in graphics
+            code, the result is a massively unhelpful blank screen. If the problem is localized to a
+            single shader or state used to render an object, the result is a black object or general
+            garbage. Compounding this problem is the fact that OpenGL has a lot of global state. One
+            of the reasons this book will often bind objects, do something with them, and then
+            unbind them, is to reduce the amount of state dependencies. It ensures that every object
+            is rendered with a specific program, a set of textures, a certain VAO, etc. It may be
+            slightly slower to do this, but for a simple application, getting it working is more
+            important.</para>
         <para>Debugging shaders is even more problematic; there are no breakpoints or watches you
             can put on GLSL shaders. Fragment shaders offer the possibility of
                 <function>printf</function>-style debugging: one can always write some values to the
@@ -100,11 +104,11 @@
         </formalpara>
         <para>The system for dealing with this is called vertex weighting or skinning (note:
                 <quote>skinning</quote>, as a term, has also been applied to mapping a texture on an
-            object. So be aware of that when doing searches). A character is made of a hierarchy of
-            transformations; each transform is called a bone. Vertices are weighted to particular
-            bones. Where it gets interesting is that vertices can have weights to multiple bones.
-            This means that the vertex's final position is determined by a weighted combination of
-            two (or more) transforms.</para>
+            object. Be aware of that when doing Internet searches). A character is made of a
+            hierarchy of transformations; each transform is called a bone. Vertices are weighted to
+            particular bones. Where it gets interesting is that vertices can have weights to
+            multiple bones. This means that the vertex's final position is determined by a weighted
+            combination of two (or more) transforms.</para>
         <para>Vertex shaders generally do this by taking an array of matrices as a uniform block.
             Each matrix is a bone. Each vertex contains a <type>vec4</type> which contains up to 4
             indices in the bone matrix array, and another <type>vec4</type> that contains the weight
@@ -123,8 +127,9 @@
                 which are specified relative to the surface normal. This last part makes the BRDF
                 independent of the surface normal, as it is an implicit parameter in the equation.
                 The output of the BRDF is the percentage of light from the light source that is
-                reflected along the view direction. Thus, the output of the BRDF is multiples into
-                the incident light intensity to produce the output light intensity.</para>
+                reflected along the view direction. Thus, the output of the BRDF, when multiplied by
+                the incident light intensity, produces the reflected light intensity towards the
+                viewer.</para>
         </formalpara>
         <para>By all rights, this sounds like a lighting equation. And it is. Indeed, every lighting
             equation in this book can be expressed in the form of a BRDF. One of the things that
@@ -132,8 +137,8 @@
             object into a lab, perform a series of tests on it, and produce a BRDF table out of
             them. This BRDF table, typically expressed as a texture, can then be directly used by a
             shader to show how a surface in the real world actually behaves under lighting
-            conditions. This can provide much more accurate results than using models as we have
-            done.</para>
+            conditions. This can provide much more accurate results than using lighting models as we
+            have done here.</para>
         <formalpara>
             <title>Scalable Alpha Testing</title>
             <para>We have seen how alpha-test works via <literal>discard</literal>: a fragment is
@@ -154,7 +159,7 @@
             powerful and very performance-friendly.</para>
         <formalpara>
             <title>Screen-Space Ambient Occlusion</title>
-            <para>One of the many difficult processes when doing rasterization-based rendering is
+            <para>One of the many difficult issues when doing rasterization-based rendering is
                 dealing with interreflection. That is, light reflected from one object that reflects
                 off of another. We covered this by providing a single ambient light as something of
                 a hack. A useful one, but a hack nonetheless.</para>
@@ -180,14 +185,14 @@
                 through. Thick clouds appear dark because they scatter and absorb so much light that
                 not much passes through them.</para>
         </formalpara>
-        <para>All of these are light scattering effects. The most common in real-time scenarios is
-            fog, which meteorologically speaking, is simply a low-lying cloud. Ground fog is
-            commonly approximated in graphics by applying a change to the intensity of the light
-            reflected from a surface towards the viewer. The farther the light travels, the more of
-            it is absorbed and reflected, converting it into the fog's color. So objects that are
-            extremely distant from the viewer would be indistinguishable from the fog itself. The
-            thickness of the fog is based on the distance light has to travel before it becomes just
-            more fog.</para>
+        <para>All of these are atmospheric light scattering effects. The most common in real-time
+            scenarios is fog, which meteorologically speaking, is simply a low-lying cloud. Ground
+            fog is commonly approximated in graphics by applying a change to the intensity of the
+            light reflected from a surface towards the viewer. The farther the light travels, the
+            more of it is absorbed and reflected, converting it into the fog's color. So objects
+            that are extremely distant from the viewer would be indistinguishable from the fog
+            itself. The thickness of the fog is based on the distance light has to travel before it
+            becomes just more fog.</para>
         <para>Fog can also be volumetric, localized in a specific region in space. This is often
             done to create the effect of a room full of steam, smoke, or other particulate aerosols.
             Volumetric fog is much more complex to implement than distance-based fog. This is
@@ -228,8 +233,8 @@
         <para>Other NPR techniques include drawing objects that look like pencil sketches, which
             require more texture work than rendering system work. Some find ways to make what could
             have been a photorealistic rendering look like an oil painting of some form, or in some
-            cases, the glossy colors of a comic book. And so on. NPR has as its limits the user's
-            imagination. And the cleverness of the programmer to find a way to make it work, of
-            course.</para>
+            cases, the glossy colors of a comic book. And so on. NPR is limited only by the graphics
+            programmer's imagination. And the cleverness of said programmer to find a way to make it
+            work, of course.</para>
     </section>
 </appendix>
