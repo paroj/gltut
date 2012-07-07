@@ -45,7 +45,7 @@
         pos="0 1 0"
         orient="0.0 0.0 0.0 1.0"
         scale="3">
-        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+        <texture name="t_stone" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
     </node>
     <node
         name="rightBar"
@@ -54,7 +54,7 @@
         pos="13 -2 0"
         orient="0.0 0.0 0.0 1.0"
         scale="3">
-        <texture name="t_stone" unit="0" sampler="anisotropic"/>
+        <texture name="t_stone" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
     </node>
     <node
         name="leaningBar"
@@ -63,7 +63,7 @@
         pos="3 -7 -10"
         orient="0.64278 0 0 0.76604"
         scale="5">
-        <texture name="t_wood_pillar" unit="0" sampler="anisotropic"/>
+        <texture name="t_wood_pillar" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
     </node>
     <node
         name="spinBar"
@@ -72,7 +72,7 @@
         pos="-7 0 8"
         orient="-0.148446 0.554035 0.212003 0.791242"
         scale="4">
-        <texture name="t_stone_pillar" unit="0" sampler="anisotropic"/>
+        <texture name="t_stone_pillar" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
     </node>
 	<node
 		name="diorama"
@@ -80,7 +80,7 @@
         prog="p_proj"
         pos="0 -10 0"
         scale="47">
-        <texture name="t_concrete_wall" unit="0" sampler="anisotropic"/>
+	    <texture name="t_concrete_wall" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
 	</node>
 	<node
 		name="floor"
@@ -88,6 +88,6 @@
         prog="p_proj"
         pos="0 -33.5 0"
         scale="47">
-        <texture name="t_sandy_ground" unit="0" sampler="anisotropic"/>
+	    <texture name="t_sandy_ground" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
 	</node>
 </scene>

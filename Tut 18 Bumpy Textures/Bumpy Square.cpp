@@ -360,6 +360,7 @@ void display()
 	}
 
 	g_pScene->Render(GetRenderName(), modelMatrix.Top());
+	g_pScene->Render(modelMatrix.Top());
 
 	if(g_pObjPole && g_bDrawLightPos)
 	{

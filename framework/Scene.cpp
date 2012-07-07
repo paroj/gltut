@@ -88,6 +88,133 @@ namespace Framework
 
 			return ext;
 		}
+
+		struct SamplerHash
+		{
+			unsigned int anisotropy : 5;
+			unsigned int filter : 2;
+			unsigned int edgeSample : 2;
+		};
+
+		const char *g_filterNames[] =
+		{
+			"nearest",
+			"linear",
+			"mipmap nearest",
+			"mipmap linear",
+		};
+
+		const char *g_edgeNames[] =
+		{
+			"clamp edge",
+			"clamp border",
+			"repeat",
+			"mirror repeat",
+		};
+
+		unsigned int GetFilterIx(const std::string &filterName)
+		{
+			const char **pLoc = std::find(g_filterNames, g_filterNames + ARRAY_COUNT(g_filterNames), filterName);
+			ptrdiff_t diff = pLoc - g_filterNames;
+			if(diff == ARRAY_COUNT(g_filterNames))
+				throw std::runtime_error("Could not find filter mode " + filterName);
+
+			return (unsigned int)diff;
+		}
+
+		unsigned int GetEdgeIx(const std::string &edgeName)
+		{
+			const char **pLoc = std::find(g_edgeNames, g_edgeNames + ARRAY_COUNT(g_edgeNames), edgeName);
+			ptrdiff_t diff = pLoc - g_edgeNames;
+			if(diff == ARRAY_COUNT(g_edgeNames))
+				throw std::runtime_error("Could not find edge mode " + edgeName);
+
+			return (unsigned int)diff;
+		}
+
+		unsigned int GetAnisotropy(const std::string &anisotropy)
+		{
+			if(anisotropy == "none")
+				return 0;
+
+			GLfloat maxAniso = 0.0f;
+			glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAniso);
+
+			if(anisotropy == "half" || anisotropy == "max")
+			{
+				if(anisotropy == "half")
+					maxAniso = maxAniso / 2.0f;
+
+				return (unsigned int)maxAniso;
+			}
+
+			//Convert to integer.
+			std::istrstream convStream(anisotropy.c_str());
+			unsigned int ret;
+			convStream >> ret;
+			if(convStream.fail())
+				throw std::runtime_error("The anisotropy " + anisotropy + " is not a valid value.");
+
+			if(ret > maxAniso)
+				return (unsigned int)maxAniso;
+
+			return ret;
+		}
+
+		const GLenum g_magFilterGLNames[] =
+		{
+			GL_NEAREST,
+			GL_LINEAR,
+			GL_NEAREST,
+			GL_LINEAR,
+		};
+
+		const GLenum g_minFilterGLNames[] =
+		{
+			GL_NEAREST,
+			GL_LINEAR,
+			GL_NEAREST_MIPMAP_NEAREST,
+			GL_LINEAR_MIPMAP_LINEAR,
+		};
+
+		const GLenum g_edgeGLNames[] =
+		{
+			GL_CLAMP_TO_EDGE,
+			GL_CLAMP_TO_BORDER,
+			GL_REPEAT,
+			GL_MIRRORED_REPEAT,
+		};
+
+		GLuint CreateSampler(const SamplerHash data)
+		{
+			GLuint ret;
+			glGenSamplers(1, &ret);
+			glSamplerParameteri(ret, GL_TEXTURE_WRAP_S, g_edgeGLNames[data.edgeSample]);
+			glSamplerParameteri(ret, GL_TEXTURE_WRAP_T, g_edgeGLNames[data.edgeSample]);
+			glSamplerParameteri(ret, GL_TEXTURE_WRAP_R, g_edgeGLNames[data.edgeSample]);
+
+			glSamplerParameteri(ret, GL_TEXTURE_MAG_FILTER, g_magFilterGLNames[data.filter]);
+			glSamplerParameteri(ret, GL_TEXTURE_MIN_FILTER, g_minFilterGLNames[data.filter]);
+
+			if(data.anisotropy)
+				glSamplerParameterf(ret, GL_TEXTURE_MAX_ANISOTROPY_EXT, (float)data.anisotropy);
+
+			return ret;
+		}
+
+		union HashConvert
+		{
+			unsigned int hash;
+			SamplerHash data;
+		};
+
+		unsigned int ToHash(SamplerHash data)
+		{
+			HashConvert conv;
+			conv.hash = 0;
+			conv.data = data;
+			return conv.hash; //Undefined behavior.
+		}
 	}
 
 	class SceneMesh
@@ -294,7 +421,8 @@ namespace Framework
 	{
 		SceneTexture *pTex;
 		GLuint texUnit;
-		SamplerTypes sampler;
+		unsigned int sampler;
+//		SamplerTypes sampler;
 	};
 
 	struct Variation
@@ -312,6 +440,7 @@ namespace Framework
 	};
 
 	typedef std::map<std::string, SceneCamera> CameraMap;
+	typedef std::map<unsigned int, GLuint> SamplerMap;
 
 	class SceneNode
 	{
@@ -363,7 +492,7 @@ namespace Framework
 			m_nodeTm.m_postTransform = postTransform;
 		}
 
-		void Render(const std::vector<GLuint> &samplers, glm::mat4 baseMat) const
+		void Render(const SamplerMap &samplers, glm::mat4 baseMat) const
 		{
 			if(m_baseVariant.pProg)
 				Render(m_baseVariant, samplers, baseMat);
@@ -371,7 +500,7 @@ namespace Framework
 			RecurseRenderNodes();
 		}
 
-		void Render(const std::string &variation, const std::vector<GLuint> &samplers,
+		void Render(const std::string &variation, const SamplerMap &samplers,
 			glm::mat4 baseMat) const
 		{
 			const Variation *pVar = GetActiveVariation(variation);
@@ -446,7 +575,7 @@ namespace Framework
 			return NULL;
 		}
 
-		void Render(const Variation &theVariant, const std::vector<GLuint> &samplers,
+		void Render(const Variation &theVariant, const SamplerMap &samplers,
 			glm::mat4 baseMat) const
 		{
 			baseMat *= m_nodeTm.GetMatrix();
@@ -474,7 +603,7 @@ namespace Framework
 				const TextureBinding &binding = theVariant.texBindings[texIx];
 				glActiveTexture(GL_TEXTURE0 + binding.texUnit);
 				glBindTexture(binding.pTex->GetType(), binding.pTex->GetTexture());
-				glBindSampler(binding.texUnit, samplers[binding.sampler]);
+				glBindSampler(binding.texUnit, samplers.find(binding.sampler)->second);
 			}
 
 			m_pMesh->Render();
@@ -522,7 +651,8 @@ namespace Framework
 
 		std::vector<SceneNode *> m_rootNodes;
 
-		std::vector<GLuint> m_samplers;
+		SamplerMap m_samplers;
+//		std::vector<GLuint> m_samplers;
 
 	public:
 		SceneImpl(const std::string &filename)
@@ -576,7 +706,7 @@ namespace Framework
 				throw;
 			}
 
-			MakeSamplerObjects(m_samplers);
+//			MakeSamplerObjects(m_samplers);
 #ifdef DEBUG
 			std::cout << "Loading complete."<< std::endl;
 #endif
@@ -585,7 +715,13 @@ namespace Framework
 
 		~SceneImpl()
 		{
-			glDeleteSamplers(m_samplers.size(), &m_samplers[0]);
+			typedef SamplerMap::iterator SamplerIterator;
+			for(SamplerIterator theIt = m_samplers.begin(); theIt != m_samplers.end(); ++theIt)
+			{
+				glDeleteSamplers(1, &theIt->second);
+			}
+
+//			glDeleteSamplers(m_samplers.size(), &m_samplers[0]);
 			m_samplers.clear();
 
 			std::for_each(m_nodes.begin(), m_nodes.end(), DeleteSecond<NodeMap::value_type>);
@@ -1064,6 +1200,36 @@ namespace Framework
 			}
 		}
 
+		unsigned int ReadSamplerHash(const xml_node<> &texNode)
+		{
+			const xml_attribute<> *pFilterType = texNode.first_attribute("sampler-filter");
+			PARSE_THROW(pFilterType, "Textures on nodes must have a `sampler-filter` attribute.");
+			
+			SamplerHash data;
+			data.filter = GetFilterIx(make_string(*pFilterType));
+
+			const xml_attribute<> *pEdgeMode = texNode.first_attribute("sampler-edge");
+			if(!pEdgeMode)
+				data.edgeSample = 2; //Repeat by default
+			else
+				data.edgeSample = GetEdgeIx(make_string(*pEdgeMode));
+
+			const xml_attribute<> *pAnisotropy = texNode.first_attribute("sampler-aniso");
+			if(!pAnisotropy)
+				data.anisotropy = 0; //No anisotropy by default.
+			else
+				data.anisotropy = GetAnisotropy(make_string(*pAnisotropy));
+
+			unsigned int hash = ToHash(data);
+			if(m_samplers.find(hash) == m_samplers.end())
+			{
+				//Must create.
+				m_samplers[hash] = CreateSampler(data);
+			}
+
+			return hash;
+		}
+
 		std::vector<TextureBinding> ReadNodeTextures(const xml_node<> &nodeNode)
 		{
 			std::vector<TextureBinding> texBindings;
@@ -1076,11 +1242,9 @@ namespace Framework
 				const xml_node<> &texNode = *pTexNode;
 				const xml_attribute<> *pNameNode = texNode.first_attribute("name");
 				const xml_attribute<> *pUnitName = texNode.first_attribute("unit");
-				const xml_attribute<> *pSamplerName = texNode.first_attribute("sampler");
 
 				PARSE_THROW(pNameNode, "Textures on nodes must have a `name` attribute.");
 				PARSE_THROW(pUnitName, "Textures on nodes must have a `unit` attribute.");
-				PARSE_THROW(pSamplerName, "Textures on nodes must have a `sampler` attribute.");
 
 				std::string textureName = make_string(*pNameNode);
 				TextureMap::iterator texIt = m_textures.find(textureName);
@@ -1094,7 +1258,7 @@ namespace Framework
 
 				binding.pTex = texIt->second;
 				binding.texUnit = rapidxml::attrib_to_int(*pUnitName, ThrowAttrib);
-				binding.sampler = GetTypeFromName(make_string(*pSamplerName));
+				binding.sampler = ReadSamplerHash(texNode);
 
 				if(texUnits.find(binding.texUnit) != texUnits.end())
 					throw std::runtime_error("Multiply bound texture unit in node texture " + textureName);

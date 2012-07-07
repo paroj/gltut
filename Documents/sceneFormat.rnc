@@ -127,7 +127,9 @@ div
     sc.node.texture.attlist =
         sc.node.texture.name.attribute,
         sc.node.texture.unit.attribute,
-        sc.node.texture.sampler.attribute
+        sc.node.texture.sampler-filter.attribute,
+        sc.node.texture.sampler-edge.attribute?,
+        sc.node.texture.sampler-aniso.attribute?
         
     sc.node.variant.attlist =
         sc.variant.name.attribute,
@@ -237,10 +239,20 @@ div
         ##The texture unit to use when binding this texture.
         attribute unit { acc.texture-unit.type }
         
-    sc.node.texture.sampler.attribute =
-        ##The sample filtering to use for this texture.
-        attribute sampler { acc.samplers.type }
+    sc.node.texture.sampler-filter.attribute =
+        ##The sample filtering mode to use for this texture access.
+        attribute sampler-filter { acc.sampler.filter }
         
+    sc.node.texture.sampler-edge.attribute =
+        ##The edge sampling behavior for this texture access.
+        ##Defaults to repeat.
+        attribute sampler-edge { acc.sampler.edge }
+        
+    sc.node.texture.sampler-aniso.attribute =
+        ##The max anisotropy for this texture access.
+        ##Defauts to 0.
+        attribute sampler-aniso { acc.sampler.aniso }
+
     sc.variant.name.attribute =
         ##The name of a variant node.
         attribute name { text }
@@ -285,13 +297,23 @@ div
 ## Accessories
 div
 {
-    acc.samplers.type =
+    acc.sampler.filter =
         "nearest" |
         "linear" |
         "mipmap nearest" |
-        "mipmap linear" |
-        "anisotropic" |
-        "half anisotropic"
+        "mipmap linear"
+        
+    acc.sampler.edge =
+        "clamp edge" |
+        "clamp border" |
+        "repeat" |
+        "mirror repeat"
+        
+    acc.sampler.aniso =
+        "max" |
+        "half" |
+        "none" |
+        xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "32"}
         
     acc.texture-unit.type = xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "80"}
     acc.block-binding.type = xsd:nonNegativeInteger { minInclusive = "0" maxExclusive = "80"}

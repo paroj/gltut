@@ -64,9 +64,8 @@
         orient="0 0 0 1"
         pos="0 1 -1"
         scale="1">
-        <texture name="t_bump_texture" unit="2" sampler="linear"/>
         <variant name="bump_regular" prog="p_litBump">
-            <texture name="t_bump_texture" unit="2" sampler="linear"/>
+            <texture name="t_bump_texture" unit="2" sampler-filter="linear"/>
         </variant>
     </node>
     <node
@@ -84,6 +83,6 @@
         prog="p_litTexture"
         pos="0 0 0"
         scale="20">
-        <texture name="t_sandy_ground" unit="0" sampler="anisotropic"/>
+        <texture name="t_sandy_ground" unit="0" sampler-filter="mipmap linear" sampler-aniso="max"/>
     </node>
 </scene>
