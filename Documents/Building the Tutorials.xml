@@ -15,9 +15,10 @@
             tested.</para>
     </formalpara>
     <para>You will need to download the <link
-            xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source distribution</link>.
-        All of the libraries needed to build the tutorials are bundled as part of the distribution,
-        so this is the only source code download you will need.</para>
+            xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source distribution</link>;
+        download the .7z file with the highest version number. All of the libraries needed to build
+        the tutorials are bundled as part of the distribution, so this is the only source code
+        download you will need.</para>
     <para>You will also need to download the <link xlink:href="http://industriousone.com/premake"
             >Premake 4</link> utility for your platform of choice. Place the executable somewhere in
         your command path.</para>
