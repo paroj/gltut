@@ -372,7 +372,7 @@ glUseProgram(0);</programlisting>
                 looking.</para>
             <para>The implementation of this function is non-trivial. We will not go into detail
                 explaining how it works, as it involves a lot of complex math concepts that have not
-                been introduced. Using the function is is much easier than understanding how it
+                been introduced. Using the function is much easier than understanding how it
                 works. Even so, there is one major caveat with this function (and any function of
                 the like).</para>
             <para>It is very important that the <quote>up</quote> direction is not along the same
