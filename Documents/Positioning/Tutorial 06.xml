@@ -508,7 +508,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
                 <emphasis>orientation</emphasis> matrix. It defines the orientation of one space
             relative to another space. Remember this, and you will avoid many pitfalls when you
             start dealing with more complex transformations.</para>
-        <para>For any two spaces, the orientation transformation between then can be expressed as
+        <para>For any two spaces, the orientation transformation between them can be expressed as
             rotating the source space by some angle around a particular axis (specified in the
             initial space). This is true for any change of orientation.</para>
         <para>A common rotation question is to therefore compute a rotation around an arbitrary

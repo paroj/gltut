@@ -616,7 +616,7 @@ glSamplerParameterfv(g_samplers[1], GL_TEXTURE_BORDER_COLOR, color);</programlis
             to compute light intensity. That is all well and good for spotlights, but there are
             other forms of light that might want varying intensities.</para>
         <para>It doesn't really make sense to vary the light intensity from a directional light.
-            After all, the while point of directional lights is that they are infinitely far away,
+            After all, the whole point of directional lights is that they are infinitely far away,
             so all of the light from them is uniform, in both intensity and direction.</para>
         <para>Varying the intensity of a point light is a more reasonable possibility. We can vary
             the point light's intensity based on one of two possible parameters: the position of the

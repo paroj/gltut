@@ -169,7 +169,7 @@
                     <function>glBufferData</function>, though it has many more parameters. The first
                 specifies the type of the currently bound texture. As with buffer objects, multiple
                 textures can be bound to different texture type locations. So you could have a
-                texture bound to <literal>GL_TEXTURE_1D</literal> and another boudn to
+                texture bound to <literal>GL_TEXTURE_1D</literal> and another bound to
                     <literal>GL_TEXTURE_2D</literal>. But it's really bad form to try to exploit
                 this. It is best to just have one target bound at a time.</para>
             <para>The second parameter is something we will talk about in the next tutorial. The
