@@ -5,7 +5,7 @@ require "_util"
 local data = dofile("_buildConfig.lua");
 
 local outputDir = ...;
-outputDir = outputDir or "../fo/";
+outputDir = outputDir or "../";
 local foFilename = "../computerfo.fo";
 
 --Parameters
@@ -17,8 +17,6 @@ params["page.margin.inner"] = "0.25in";
 params["page.margin.outer"] = "0.25in";
 params["paper.type"] = "USLetter";
 params["body.start.indent"] = "0pt";
---params["highlight.source"] = "1";
---params["highlight.xslthl.config"] = "file:highlighting/xslthl-config.xml";
 
 
 --Auto-generate the main specialization file.
@@ -28,14 +26,10 @@ local hFile = io.open(filename, "wt");
 hFile:write(
 [[<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet  
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-    xmlns:s6hl="java:net.sf.xslthl.ConnectorSaxon6"
-    xmlns:xslthl="http://xslthl.sf.net"
-    extension-element-prefixes="s6hl xslthl">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 ]]);
 
 hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "fo/docbook.xsl"), "\"/>\n");
-hFile:write([[    <xsl:import href="colorfo-highlights.xsl"/>]], "\n");
 hFile:write([[    <xsl:import href="fo-common.xsl"/>]], "\n");
 
 WriteParamsToFile(hFile, dofile("_commonParams.lua"));
@@ -51,7 +45,7 @@ hFile:close();
 local command = {};
 command[#command + 1] = "java"
 command[#command + 1] = "-cp"
-command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars, data.xslthlFilepath}, ":") .. "\""
+command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars}, ":") .. "\""
 command[#command + 1] = "-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"
 command[#command + 1] = "-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl"
 command[#command + 1] = "-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration"

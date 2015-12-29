@@ -46,12 +46,9 @@ pre.programlisting
     font-size: 12pt;
     margin-left: 5%;
     margin-right: 5%;
-    background-color: #dbeded;
-    background-image: -moz-linear-gradient(left, #dbeded, #fff6e7);
     padding: 7px;
-    border: 2px dashed black;
-    -moz-border-radius: 7px;
-    -webkit-border-radius: 7px;
+    border: 2px black;
+    border-radius: 7px;
 }
 
 code

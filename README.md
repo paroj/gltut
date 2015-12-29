@@ -12,7 +12,7 @@ The [License.txt](License.txt) file contains the licensing information for the m
 
 ## Rebuilding the HTML Documentation
 
-- `apt-get install lua-filesystem libxerces2-java libsaxon-java docbook-xsl libxslthl-java`
+- `apt-get install lua-filesystem libxerces2-java libsaxon-java docbook-xsl`
 - run `lua CopyWebsite.lua`
 
 ## Rebuilding the PDF Documentation

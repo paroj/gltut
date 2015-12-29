@@ -13,9 +13,6 @@ params["base.dir"] = ToUnix(outputDir);
 params["chunk.quietly"] = "1";
 params["html.stylesheet"] = "chunked.css";
 params["ignore.image.scaling"] = "1";
-params["highlight.source"] = "1";
-params["highlight.xslthl.config"] = "file:highlighting/xslthl-config.xml";
-
 
 --Auto-generate the main specialization file.
 local filename = "website.xsl";
@@ -24,14 +21,10 @@ local hFile = io.open(filename, "wt");
 hFile:write(
 [[<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet  
-    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-    xmlns:s6hl="java:net.sf.xslthl.ConnectorSaxon6"
-    xmlns:xslthl="http://xslthl.sf.net"
-    extension-element-prefixes="s6hl xslthl">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
 ]]);
 
 hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "html/chunkfast.xsl"), "\"/>\n");
-hFile:write([[    <xsl:import href="html-highlights.xsl"/>]], "\n");
 
 WriteParamsToFile(hFile, dofile("_commonParams.lua"));
 WriteParamsToFile(hFile, params);
@@ -43,6 +36,18 @@ hFile:write([[
           src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML">
         </script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/zenburn.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/languages/glsl.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script>
 	</xsl:template>
 	<xsl:template name="generate.html.title"/>
 ]]);
@@ -67,7 +72,7 @@ hFile:close();
 command = {};
 command[#command + 1] = "java"
 command[#command + 1] = "-cp"
-command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars, data.xslthlFilepath}, ":") .. "\""
+command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars}, ":") .. "\""
 command[#command + 1] = "-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"
 command[#command + 1] = "-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl"
 command[#command + 1] = "-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration"
