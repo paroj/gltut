@@ -5,7 +5,7 @@ require "_util"
 local data = dofile("_buildConfig.lua");
 
 local outputDir = ...;
-outputDir = outputDir or "..\\web\\";
+outputDir = outputDir or "../web/";
 
 --Parameters
 local params = {}
@@ -30,7 +30,7 @@ hFile:write(
     extension-element-prefixes="s6hl xslthl">
 ]]);
 
-hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "html\\chunkfast.xsl"), "\"/>\n");
+hFile:write([[    <xsl:import href="]], ToUnix(data.docbookXSLBasepath .. "html/chunkfast.xsl"), "\"/>\n");
 hFile:write([[    <xsl:import href="html-highlights.xsl"/>]], "\n");
 
 WriteParamsToFile(hFile, dofile("_commonParams.lua"));
@@ -52,14 +52,14 @@ hFile:close();
 command = {};
 command[#command + 1] = "java"
 command[#command + 1] = "-cp"
-command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars, data.xslthlFilepath}, ";") .. "\""
+command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars, data.xslthlFilepath}, ":") .. "\""
 command[#command + 1] = "-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"
 command[#command + 1] = "-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl"
 command[#command + 1] = "-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration"
 command[#command + 1] = "com.icl.saxon.StyleSheet"
 command[#command + 1] = "-o"
 command[#command + 1] = "\"" .. outputDir .. "nothing.html\""
-command[#command + 1] = "\"..\\Tutorials.xml\""
+command[#command + 1] = "\"../Tutorials.xml\""
 command[#command + 1] = filename
 
 finalCmd = table.concat(command, " ");

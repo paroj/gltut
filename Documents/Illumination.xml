@@ -26,9 +26,9 @@
             equations. Also, it will cover techniques to use lighting to produce entirely fake
             surfaces.</para>
     </partintro>
-    <xi:include href="Illumination/tutorial 09.xml"/>
-    <xi:include href="Illumination/tutorial 10.xml"/>
-    <xi:include href="Illumination/tutorial 11.xml"/>
-    <xi:include href="Illumination/tutorial 12.xml"/>
-    <xi:include href="Illumination/tutorial 13.xml"/>
+    <xi:include href="Illumination/Tutorial 09.xml"/>
+    <xi:include href="Illumination/Tutorial 10.xml"/>
+    <xi:include href="Illumination/Tutorial 11.xml"/>
+    <xi:include href="Illumination/Tutorial 12.xml"/>
+    <xi:include href="Illumination/Tutorial 13.xml"/>
 </part>

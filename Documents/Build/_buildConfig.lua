@@ -1,10 +1,10 @@
 
 return {
-	saxonFilepath = "\\Projects\\XMLTools\\Saxon6\\saxon.jar",
-	xercesFilepath = "\\Projects\\XMLTools\\Xerces\\xercesImpl.jar",
-	xercesJars = "\\Projects\\XMLTools\\Xerces\\xercesImpl.jar;\\Projects\\XMLTools\\Xerces\\xml-apis.jar",
-	fopFilepath = "\\Projects\\XMLTools\\FOP\\fop.jar",
-	fopBatch = "\\Projects\\XMLTools\\FOP\\fop.bat",
-	docbookXSLBasepath = "\\Projects\\XMLTools\\DocBookXSL\\",
-	xslthlFilepath = "\\Projects\\XMLTools\\XSLTHL\\xslthl-2.0.2.jar"
+	saxonFilepath = "/usr/share/java/saxon.jar",
+	xercesFilepath = "/usr/share/java/xercesImpl.jar",
+	xercesJars = "/usr/share/java/xercesImpl.jar:/usr/share/java/xmlParserAPIs.jar",
+	fopFilepath = "/usr/share/java/fop.jar",
+	fopBatch = "fop",
+	docbookXSLBasepath = "/usr/share/xml/docbook/stylesheet/docbook-xsl/",
+	xslthlFilepath = "/usr/share/java/xslthl.jar"
 }
