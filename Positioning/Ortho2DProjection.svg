@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="500px" width="600px" >
+	<style type="text/css" ><![CDATA[.dashed
+{
+	stroke-dasharray: 4,8;
+}
+
+.background
+{
+	stroke: none;
+	fill: #E0E0E0;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.line_of_proj
+{
+	stroke: red;
+	stroke-dasharray: 4,8;
+	stroke-width: 1px;
+}
+
+.fill_transluscent
+{
+	fill-opacity: 0.1;
+	fill: blue;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.object
+{
+	stroke-width: 1px;
+	stroke: #00C000;
+}
+
+.object_projected
+{
+	stroke-width: 8px;
+	stroke: #00C000;
+}
+
+.red
+{
+	stroke: red;
+}
+
+.black
+{
+	stroke: black;
+}
+
+.projected
+{
+	stroke-width: 8px;
+}
+
+.line_standard
+{
+	stroke-width: 1px;
+}]]></style>
+	<defs />
+	<rect y="0" x="175" height="375" width="250" class="background" />
+	<line x2="400" y2="250" y1="375" x1="400" class="line_of_proj" />
+	<line x2="362.5" y2="250" y1="375" x1="362.5" class="line_of_proj" />
+	<line x2="362.5" y2="375" y1="375" x1="400" class="object_projected" />
+	<line x2="262.5" y2="375" y1="281.25" x1="262.5" class="line_of_proj" />
+	<line x2="81.25" y2="375" y1="93.75" x1="81.25" class="line_of_proj" />
+	<line x2="81.25" y2="375" y1="375" x1="262.5" class="object_projected" />
+	<rect y="62.5" x="362.5" height="187.5" width="37.5" class="object fill_none" />
+	<line x2="81.25" y2="93.75" y1="281.25" x1="262.5" class="object" />
+	<line x2="425" y2="375" y1="375" x1="175" class="black line_standard" />
+	<line x2="50" y2="375" y1="375" x1="175" class="black line_standard dashed" />
+	<line x2="550" y2="375" y1="375" x1="425" class="black line_standard dashed" />
+</svg>

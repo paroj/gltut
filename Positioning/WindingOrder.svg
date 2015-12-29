@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="700px" >
+	<style type="text/css" ><![CDATA[.arrows
+{
+	marker-end: url(#arrow);
+	marker-mid: url(#arrow);
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.text
+{
+	font-size: 30px;
+	font-family: monospace;
+}
+
+.wide_black
+{
+	stroke-width: 3px;
+	stroke: black;
+}
+
+.black
+{
+	stroke-width: 1px;
+	stroke: black;
+}
+
+.pointed
+{
+	marker: url(#point);
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="10" refX="5" refY="5" markerUnits="userSpaceOnUse" orient="auto" id="point" >
+			<circle r="5" cy="5" cx="5" class="fill_black black" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="0" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black black" />
+		</marker>
+		<g id="g_triangle" >
+			<polygon points="90,60 240,180 30,240" />
+		</g>
+		<g id="g_cwCircle" >
+			<path d="M 152.475 141.25 A 37.5 37.5 0 0 1 120 197.5 A 37.5 37.5 0 0 1 87.525 141.25 A 37.5 37.5 0 0 1 152.475 141.25" class="arrows" />
+		</g>
+		<g id="g_ccwCircle" >
+			<path d="M 152.475 178.75 A 37.5 37.5 0 0 0 120 122.5 A 37.5 37.5 0 0 0 87.525 178.75 A 37.5 37.5 0 0 0 152.475 178.75" class="arrows" />
+		</g>
+		<g id="g_cwLabels" >
+			<text y="48" x="83" >1</text>
+			<text y="187" x="249" >2</text>
+			<text y="265" x="5" >3</text>
+		</g>
+		<g id="g_ccwLabels" >
+			<text y="48" x="83" >1</text>
+			<text y="265" x="5" >2</text>
+			<text y="187" x="249" >3</text>
+		</g>
+	</defs>
+	<use xlink:href="#g_triangle" y="0" x="0" height="300" width="300" class="black fill_none pointed" />
+	<use xlink:href="#g_triangle" y="0" x="400" height="300" width="300" class="black fill_none pointed" />
+	<use xlink:href="#g_cwLabels" y="0" x="0" height="300" width="300" class="black text" />
+	<use xlink:href="#g_cwCircle" y="0" x="0" height="300" width="300" class="black fill_none" />
+	<use xlink:href="#g_ccwLabels" y="0" x="400" height="300" width="300" class="black text" />
+	<use xlink:href="#g_ccwCircle" y="0" x="400" height="300" width="300" class="black fill_none" />
+</svg>

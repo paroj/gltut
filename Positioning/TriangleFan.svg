@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="350px" width="350px" >
+	<style type="text/css" ><![CDATA[.main_triangle
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.stream_edge
+{
+	stroke-opacity: 0.5;
+	stroke-width: 4px;
+	stroke-linejoin: round;
+	stroke: red;
+	stroke-linecap: round;
+	fill: none;
+}
+
+.border
+{
+	fill: none;
+	stroke: black;
+}
+
+.text
+{
+	font-family: monospace;
+	stroke-width: 1px;
+	stroke: black;
+	text-anchor: middle;
+	font-size: 20px;
+}]]></style>
+	<defs >
+		<g id="g_point" >
+			<circle r="4.5" cy="0" cx="0" class="point" />
+		</g>
+	</defs>
+	<use xlink:href="#g_point" y="35" x="262.5" />
+	<use xlink:href="#g_point" y="256.66918973864" x="313.67636486323" />
+	<use xlink:href="#g_point" y="295.54336480585" x="230.50929735615" />
+	<use xlink:href="#g_point" y="168.56757514464" x="179.03771588327" />
+	<use xlink:href="#g_point" y="185.83706145479" x="69.437365366353" />
+	<use xlink:href="#g_point" y="82.239721412212" x="57.882286395101" />
+	<polygon points="262.5,35 313.67636486323,256.66918973864 230.50929735615,295.54336480585" class="main_triangle" />
+	<polygon points="262.5,35 230.50929735615,295.54336480585 179.03771588327,168.56757514464" class="main_triangle" />
+	<polygon points="262.5,35 179.03771588327,168.56757514464 69.437365366353,185.83706145479" class="main_triangle" />
+	<polygon points="262.5,35 69.437365366353,185.83706145479 57.882286395101,82.239721412212" class="main_triangle" />
+	<polyline points="262.5,35 313.67636486323,256.66918973864 230.50929735615,295.54336480585 179.03771588327,168.56757514464 69.437365366353,185.83706145479 57.882286395101,82.239721412212" class="stream_edge" />
+	<text y="27" x="270.5" class="text" >0</text>
+	<text y="281.02844135827" x="319.30014122183" class="text" >1</text>
+	<text y="320.35701859688" x="227.46256377102" class="text" >2</text>
+	<text y="189.76877754855" x="165.78973427744" class="text" >3</text>
+	<text y="201.22859833793" x="49.737096526185" class="text" >4</text>
+	<text y="87.863497770808" x="33.52303477547" class="text" >5</text>
+</svg>

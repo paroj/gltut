@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="450px" width="900px" >
+	<style type="text/css" ><![CDATA[.wide_black
+{
+	stroke-width: 3px;
+	stroke: black;
+}
+
+.arrow_ended
+{
+	marker-end: url(#arrow);
+}
+
+.axis_label
+{
+	font-size: 30px;
+	stroke: black;
+	font-family: monospace;
+}
+
+.fill_frustum
+{
+	fill: #E0E0E0;
+}
+
+.pointed
+{
+	marker: url(#point);
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.image_label
+{
+	font-size: 40px;
+	stroke: black;
+	text-anchor: middle;
+	font-family: serif;
+}
+
+.object_lines
+{
+	stroke: #00C000;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.double_arrowheaded
+{
+	marker-end: url(#arrow);
+	marker-start: url(#arrow);
+}
+
+.text
+{
+	font-size: 30px;
+	font-family: monospace;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.arrows
+{
+	marker-end: url(#arrow);
+	marker-mid: url(#arrow);
+}
+
+.stroke_none
+{
+	stroke: none;
+}
+
+.black
+{
+	stroke-width: 1px;
+	stroke: black;
+}
+
+.object_circles
+{
+	stroke: black;
+	stroke-width: 0.5px;
+	fill: #00C000;
+}
+
+.radial_eye
+{
+	stroke-dasharray: 3,3;
+	stroke: black;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="10" refX="5" refY="5" markerUnits="userSpaceOnUse" orient="auto" id="point" >
+			<circle r="5" cy="5" cx="5" class="fill_black black" />
+		</marker>
+		<marker markerWidth="16" markerHeight="12" refX="16" refY="6" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 16 6 L 0 0 L 0 12 Z" class="fill_black black" />
+		</marker>
+	</defs>
+	<path d="M 100 250 L 300 250 L 400 150 L 400 50 L 0 50 L 0 150 Z" class="stroke_none fill_frustum" />
+	<rect y="100" x="600" height="200" width="200" class="stroke_none fill_frustum" />
+	<line x2="400" y2="150" y1="350" x1="200" class="radial_eye" />
+	<line x2="0" y2="150" y1="350" x1="200" class="radial_eye" />
+	<line x2="200" y2="0" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="200" y2="400" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="0" y2="350" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="400" y2="350" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="192" y2="50" y1="50" x1="208" class="black" />
+	<line x2="188" y2="100" y1="100" x1="212" class="black" />
+	<line x2="192" y2="150" y1="150" x1="208" class="black" />
+	<line x2="188" y2="200" y1="200" x1="212" class="black" />
+	<line x2="192" y2="250" y1="250" x1="208" class="black" />
+	<line x2="188" y2="300" y1="300" x1="212" class="black" />
+	<line x2="192" y2="350" y1="350" x1="208" class="black" />
+	<line x2="50" y2="342" y1="358" x1="50" class="black" />
+	<line x2="100" y2="338" y1="362" x1="100" class="black" />
+	<line x2="150" y2="342" y1="358" x1="150" class="black" />
+	<line x2="200" y2="338" y1="362" x1="200" class="black" />
+	<line x2="250" y2="342" y1="358" x1="250" class="black" />
+	<line x2="300" y2="338" y1="362" x1="300" class="black" />
+	<line x2="350" y2="342" y1="358" x1="350" class="black" />
+	<line x2="700" y2="400" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="700" y2="0" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="500" y2="200" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="900" y2="200" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="692" y2="350" y1="350" x1="708" class="black" />
+	<line x2="688" y2="300" y1="300" x1="712" class="black" />
+	<line x2="692" y2="250" y1="250" x1="708" class="black" />
+	<line x2="688" y2="200" y1="200" x1="712" class="black" />
+	<line x2="692" y2="150" y1="150" x1="708" class="black" />
+	<line x2="688" y2="100" y1="100" x1="712" class="black" />
+	<line x2="692" y2="50" y1="50" x1="708" class="black" />
+	<line x2="550" y2="208" y1="192" x1="550" class="black" />
+	<line x2="600" y2="212" y1="188" x1="600" class="black" />
+	<line x2="650" y2="208" y1="192" x1="650" class="black" />
+	<line x2="700" y2="212" y1="188" x1="700" class="black" />
+	<line x2="750" y2="208" y1="192" x1="750" class="black" />
+	<line x2="800" y2="212" y1="188" x1="800" class="black" />
+	<line x2="850" y2="208" y1="192" x1="850" class="black" />
+	<path d="M 350 225 L 350 275 L 250 275 L 250 225 M 350 175 L 350 225 L 250 225 L 250 175 M 350 125 L 350 175 L 250 175 L 250 125 M 350 75 L 350 125 L 250 125 L 250 75 M 350 25 L 350 75 L 250 75 L 250 25 Z" class="object_lines" />
+	<path d="M 820 240 L 900 400 L 766.66666666667 400 L 740 240 M 785.71428571429 171.42857142857 L 820 240 L 740 240 L 728.57142857143 171.42857142857 M 766.66666666667 133.33333333333 L 785.71428571429 171.42857142857 L 728.57142857143 171.42857142857 L 722.22222222222 133.33333333333 M 754.54545454545 109.09090909091 L 766.66666666667 133.33333333333 L 722.22222222222 133.33333333333 L 718.18181818182 109.09090909091 M 746.15384615385 92.307692307692 L 754.54545454545 109.09090909091 L 718.18181818182 109.09090909091 L 715.38461538462 92.307692307692 Z" class="object_lines" />
+	<circle r="5" cy="275" cx="350" class="object_circles" />
+	<circle r="5" cy="400" cx="900" class="object_circles" />
+	<circle r="5" cy="275" cx="250" class="object_circles" />
+	<circle r="5" cy="400" cx="766.66666666667" class="object_circles" />
+	<circle r="5" cy="225" cx="350" class="object_circles" />
+	<circle r="5" cy="240" cx="820" class="object_circles" />
+	<circle r="5" cy="225" cx="250" class="object_circles" />
+	<circle r="5" cy="240" cx="740" class="object_circles" />
+	<circle r="5" cy="175" cx="350" class="object_circles" />
+	<circle r="5" cy="171.42857142857" cx="785.71428571429" class="object_circles" />
+	<circle r="5" cy="175" cx="250" class="object_circles" />
+	<circle r="5" cy="171.42857142857" cx="728.57142857143" class="object_circles" />
+	<circle r="5" cy="125" cx="350" class="object_circles" />
+	<circle r="5" cy="133.33333333333" cx="766.66666666667" class="object_circles" />
+	<circle r="5" cy="125" cx="250" class="object_circles" />
+	<circle r="5" cy="133.33333333333" cx="722.22222222222" class="object_circles" />
+	<circle r="5" cy="75" cx="350" class="object_circles" />
+	<circle r="5" cy="109.09090909091" cx="754.54545454545" class="object_circles" />
+	<circle r="5" cy="75" cx="250" class="object_circles" />
+	<circle r="5" cy="109.09090909091" cx="718.18181818182" class="object_circles" />
+	<circle r="5" cy="25" cx="350" class="object_circles" />
+	<circle r="5" cy="92.307692307692" cx="746.15384615385" class="object_circles" />
+	<circle r="5" cy="25" cx="250" class="object_circles" />
+	<circle r="5" cy="92.307692307692" cx="715.38461538462" class="object_circles" />
+	<text y="340" x="355" class="axis_label" >+X</text>
+	<text y="30" x="150" class="axis_label" >-Z</text>
+	<text y="190" x="855" class="axis_label" >+X</text>
+	<text y="30" x="650" class="axis_label" >+Z</text>
+	<text y="440" x="200" class="image_label" >Camera Space</text>
+	<text y="440" x="700" class="image_label" >Norm. Device Coord.</text>
+</svg>

@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="600"
+   height="250"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.2 r9819"
+   sodipodi:docname="CubePositionTopology.svg">
+  <title
+     id="title3767">Cube Position Topology</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="381.76883"
+     inkscape:cy="143.32856"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1609"
+     inkscape:window-height="862"
+     inkscape:window-x="276"
+     inkscape:window-y="130"
+     inkscape:window-maximized="0"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-midpoints="false"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Cube Position Topology</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Lines"
+     transform="translate(0,-100)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 75.5,200.5 c 100,0 100,0 100,0 l 0,100 -100,0 z"
+       id="path3800"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 75.5,200.5 -40,-30 100,0 40,30"
+       id="path3802"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 35.5,170.5 0,100 40,30"
+       id="path3806"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0"
+       d="m 35.5,270.5 100,0 40,30"
+       id="path3808"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0"
+       d="m 135.5,270.5 0,-100"
+       id="path3810"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 335,135 c 40,-15 140,-15 180,0"
+       id="path3900"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3900"
+       id="use3913"
+       transform="matrix(-1,0,0,-1,850,450)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3913"
+       id="use3915"
+       transform="matrix(0,-1,1,0,200,650)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3915"
+       id="use3917"
+       transform="matrix(-1,0,0,-1,849.5,450.5)"
+       width="700"
+       height="350" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 375,175 c 30,-10 70,-10 100,0"
+       id="path3919"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3919"
+       id="use3921"
+       transform="matrix(-1,0,0,-1,850,450)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path3919"
+       id="use3923"
+       transform="matrix(0,-1,1,0,200,650)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3923"
+       id="use3925"
+       transform="matrix(-1,0,0,-1,850,450)"
+       width="700"
+       height="350" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 335,135 40,40"
+       id="path3927"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 375,275 -40,40"
+       id="path3929"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 475,275 40,40"
+       id="path3931"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 475,175 40,-40"
+       id="path3933"
+       inkscape:connector-curvature="0" />
+  </g>
+  <g
+     inkscape:label="Dots"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-802.36215)">
+    <path
+       transform="translate(110,877.36215)"
+       d="m -30,125 c 0,2.76142 -2.238576,5 -5,5 -2.761424,0 -5,-2.23858 -5,-5 0,-2.76142 2.238576,-5 5,-5 2.761424,0 5,2.23858 5,5 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="125"
+       sodipodi:cx="-35"
+       id="use3773"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title3937">Position Dot</title>
+    </path>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3773"
+       id="use3775"
+       transform="translate(100,0)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3773"
+       id="use3777"
+       transform="translate(0,-100)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3775"
+       id="use3779"
+       transform="translate(0,-100)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3777"
+       id="use3792"
+       transform="translate(-40,-30)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3792"
+       id="use3794"
+       transform="translate(0,100)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3794"
+       id="use3796"
+       transform="translate(100,0)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3796"
+       id="use3798"
+       transform="translate(0,-100)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3779"
+       id="use3884"
+       transform="translate(200,-25)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3884"
+       id="use3886"
+       transform="translate(100,0)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3884"
+       id="use3888"
+       transform="translate(0,100)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3886"
+       id="use3890"
+       transform="translate(0,100)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3884"
+       id="use3892"
+       transform="translate(-40,-40)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3892"
+       id="use3894"
+       transform="translate(0,180)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3892"
+       id="use3896"
+       transform="translate(180,0)"
+       width="700"
+       height="350" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use3894"
+       id="use3898"
+       transform="translate(180,0)"
+       width="700"
+       height="350" />
+  </g>
+</svg>

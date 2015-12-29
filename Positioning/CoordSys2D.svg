@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="700px" width="300px" >
+	<style type="text/css" ><![CDATA[.x_axis
+{
+	marker-end: url(#big_arrow_x_axis);
+	stroke: green;
+	stroke-width: 3px;
+}
+
+.thin
+{
+	stroke-width: 1px;
+}
+
+.x_axis_marker
+{
+	stroke: green;
+	stroke-width: 3px;
+	fill: none;
+}
+
+.arrow_end
+{
+	marker-end: url(#arrow);
+}
+
+.wide
+{
+	stroke-width: 2px;
+}
+
+.y_axis_marker
+{
+	stroke: red;
+	stroke-width: 3px;
+	fill: none;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.line_currColor
+{
+	stroke: currentColor;
+}
+
+.y_axis
+{
+	marker-end: url(#big_arrow_y_axis);
+	stroke: red;
+	stroke-width: 3px;
+}
+
+.black
+{
+	stroke: black;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="10" refX="5" refY="5" markerUnits="userSpaceOnUse" orient="auto" id="point" >
+			<circle r="5" cy="5" cx="5" class="fill_black black" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_y_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="y_axis_marker" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_x_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="x_axis_marker" />
+		</marker>
+	</defs>
+	<line x2="150" y2="300" y1="150" x1="150" class="black thin arrow_end" />
+	<line x2="150" y2="0" y1="150" x1="150" class="black thin arrow_end" />
+	<line x2="300" y2="150" y1="150" x1="150" class="black thin arrow_end" />
+	<line x2="0" y2="150" y1="150" x1="150" class="black thin arrow_end" />
+	<line x2="187.5" y2="150" y1="150" x1="150" class="x_axis" />
+	<line x2="225" y2="150" y1="150" x1="187.5" class="x_axis" />
+	<circle r="5" cy="75" cx="225" class="fill_black black" />
+	<line x2="225" y2="112.5" y1="150" x1="225" class="y_axis" />
+	<line x2="225" y2="75" y1="112.5" x1="225" class="y_axis" />
+	<line x2="111.17714323462" y2="694.88887394336" y1="550" x1="150" class="black thin arrow_end" />
+	<line x2="188.82285676538" y2="405.11112605664" y1="550" x1="150" class="black thin arrow_end" />
+	<line x2="294.88887394336" y2="511.17714323462" y1="550" x1="150" class="black thin arrow_end" />
+	<line x2="5.1111260566398" y2="588.82285676538" y1="550" x1="150" class="black thin arrow_end" />
+	<line x2="186.22221848584" y2="540.29428580866" y1="550" x1="150" class="x_axis" />
+	<line x2="222.44443697168" y2="530.58857161731" y1="540.29428580866" x1="186.22221848584" class="x_axis" />
+	<circle r="5" cy="458.14413464563" cx="241.85586535437" class="fill_black black" />
+	<line x2="232.15015116302" y2="494.36635313147" y1="530.58857161731" x1="222.44443697168" class="y_axis" />
+	<line x2="241.85586535437" y2="458.14413464563" y1="494.36635313147" x1="232.15015116302" class="y_axis" />
+</svg>

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="350px" width="350px" >
+	<style type="text/css" ><![CDATA[.sample_box
+{
+	stroke: #4B4;
+	stroke-width: 4px;
+	fill: none;
+}
+
+.color_0
+{
+	fill: #000000;
+	stroke: none;
+}
+
+.color_1
+{
+	fill: #FFFFFF;
+	stroke: none;
+}
+
+.grid
+{
+	stroke: #888;
+	stroke-width: 1.5px;
+	fill: none;
+}
+
+.frag_area
+{
+	stroke-opacity: 0.7;
+	stroke-width: 7px;
+	stroke-linejoin: round;
+	stroke: red;
+	fill: none;
+}
+
+.sample_pt
+{
+	fill: goldenrod;
+	stroke: none;
+}]]></style>
+	<defs />
+	<rect y="0" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="0" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="0" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="21.875" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="21.875" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="43.75" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="43.75" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="65.625" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="65.625" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="87.5" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="87.5" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="109.375" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="109.375" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="131.25" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="131.25" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="153.125" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="153.125" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="175" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="175" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="196.875" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="196.875" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="218.75" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="218.75" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="0" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="21.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="43.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="65.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="87.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="109.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="131.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="153.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="175" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="196.875" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="218.75" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="240.625" height="21.875" width="21.875" class="color_1" />
+	<rect y="240.625" x="262.5" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="284.375" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="306.25" height="21.875" width="21.875" class="color_0" />
+	<rect y="240.625" x="328.125" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="262.5" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="262.5" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="284.375" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="284.375" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="306.25" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="306.25" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="0" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="21.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="43.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="65.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="87.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="109.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="131.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="153.125" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="175" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="196.875" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="218.75" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="240.625" height="21.875" width="21.875" class="color_0" />
+	<rect y="328.125" x="262.5" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="284.375" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="306.25" height="21.875" width="21.875" class="color_1" />
+	<rect y="328.125" x="328.125" height="21.875" width="21.875" class="color_1" />
+	<path d="M 0 21.875 h 350 M 0 43.75 h 350 M 0 65.625 h 350 M 0 87.5 h 350 M 0 109.375 h 350 M 0 131.25 h 350 M 0 153.125 h 350 M 0 175 h 350 M 0 196.875 h 350 M 0 218.75 h 350 M 0 240.625 h 350 M 0 262.5 h 350 M 0 284.375 h 350 M 0 306.25 h 350 M 0 328.125 h 350 M 21.875 0 v 350 M 43.75 0 v 350 M 65.625 0 v 350 M 87.5 0 v 350 M 109.375 0 v 350 M 131.25 0 v 350 M 153.125 0 v 350 M 175 0 v 350 M 196.875 0 v 350 M 218.75 0 v 350 M 240.625 0 v 350 M 262.5 0 v 350 M 284.375 0 v 350 M 306.25 0 v 350 M 328.125 0 v 350" class="grid" />
+	<path d="M 72.1875 312.8125 L 37.1875 277.8125 L 277.8125 37.1875 L 312.8125 72.1875 Z" class="frag_area" />
+	<circle r="5.46875" cy="175" cx="175" class="sample_pt" />
+</svg>

@@ -1,0 +1,929 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="600"
+   height="250"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.2 r9819"
+   sodipodi:docname="CubeTotalTopology.svg"
+   inkscape:export-filename="D:\Projects\OpenGL Tutorials\Documents\Illumination\CubeTotalTopology.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <title
+     id="title3767">Cube Position Topology</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="480.34088"
+     inkscape:cy="-75.288245"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1609"
+     inkscape:window-height="862"
+     inkscape:window-x="276"
+     inkscape:window-y="130"
+     inkscape:window-maximized="0"
+     inkscape:snap-bbox="true"
+     inkscape:snap-bbox-midpoints="false"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Cube Position Topology</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Lines"
+     transform="translate(0,-100)">
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 75.5,200.5 c 100,0 100,0 100,0 l 0,100 -100,0 z"
+       id="path3800"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 75.5,200.5 -40,-30 100,0 40,30"
+       id="path3802"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 35.5,170.5 0,100 40,30"
+       id="path3806"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0"
+       d="m 35.5,270.5 100,0 40,30"
+       id="path3808"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:2, 4;stroke-dashoffset:0"
+       d="m 135.5,270.5 0,-100"
+       id="path3810"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 531.99997,161.00012 C 529,150 517,137 512,135 c -6.75452,-2.70181 -10,-8 -10,-12 0,-4 1.02692,-5.90808 8,-8 10,-3 40,-3 50,0 7.18573,2.15572 8,4 8,8 0,4 -3.28632,9.31453 -10,12 -5,2 -17,15 -20.00003,26.00012"
+       id="path5428"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cssssssc" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 490,120 c 30,-10 60,-10 90,0"
+       id="path5529"
+       inkscape:connector-curvature="0" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5531"
+       transform="matrix(-1,0,0,-1,1070,330.00012)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5533"
+       transform="matrix(-1,0,0,-1,1070,330.00012)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5535"
+       transform="matrix(0,-1,1,0,369.99988,699.99997)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5537"
+       transform="matrix(0,-1,1,0,369.99988,699.99997)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5539"
+       transform="matrix(0,1,-1,0,700.00012,-369.99997)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5541"
+       transform="matrix(0,1,-1,0,700.00012,-369.99997)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5543"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5545"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5531"
+       id="use5547"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5533"
+       id="use5549"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5535"
+       id="use5551"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5537"
+       id="use5553"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5539"
+       id="use5555"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5541"
+       id="use5557"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5569"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5571"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5531"
+       id="use5573"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5533"
+       id="use5575"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5535"
+       id="use5577"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5537"
+       id="use5579"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5539"
+       id="use5581"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5541"
+       id="use5583"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5595"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5597"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5531"
+       id="use5599"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5533"
+       id="use5601"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5535"
+       id="use5603"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5537"
+       id="use5605"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5539"
+       id="use5607"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5541"
+       id="use5609"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5621"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5623"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5531"
+       id="use5625"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5533"
+       id="use5627"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5535"
+       id="use5629"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5537"
+       id="use5631"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5539"
+       id="use5633"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5541"
+       id="use5635"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5428"
+       id="use5647"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#path5529"
+       id="use5649"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5531"
+       id="use5651"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5533"
+       id="use5653"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5535"
+       id="use5655"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5537"
+       id="use5657"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5539"
+       id="use5659"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5541"
+       id="use5661"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+  </g>
+  <g
+     inkscape:label="Dots"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-802.36215)"
+     style="display:inline">
+    <rect
+       rx="2"
+       ry="2"
+       y="947.36212"
+       x="120"
+       height="10"
+       width="10"
+       id="use3943"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5747">Normal Point</title>
+    </rect>
+    <rect
+       rx="2"
+       ry="2"
+       y="917.36212"
+       x="80"
+       height="10"
+       width="10"
+       id="use5410"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5723">Normal Point</title>
+    </rect>
+    <rect
+       rx="2.4000001"
+       ry="2.4924483"
+       transform="matrix(1,0,0.79863337,0.60181787,0,0)"
+       y="1634.4017"
+       x="-1211.2642"
+       height="12.462242"
+       width="12"
+       id="use5412"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5727">Normal Point</title>
+    </rect>
+    <rect
+       rx="2.4000001"
+       ry="2.4924483"
+       transform="matrix(1,0,0.79863337,0.60181787,0,0)"
+       y="1468.2385"
+       x="-1078.5607"
+       height="12.462242"
+       width="12"
+       id="use5416"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5731">Normal Point</title>
+    </rect>
+    <rect
+       rx="2.0304251"
+       ry="2.2"
+       transform="matrix(0.78801233,0.61565946,0,1,0,0)"
+       y="888.89166"
+       x="64.719803"
+       height="11"
+       width="10.152125"
+       id="use5418"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5735">Normal Point</title>
+    </rect>
+    <rect
+       rx="2.0304251"
+       ry="2.2"
+       transform="matrix(0.78801233,0.61565946,0,1,0,0)"
+       y="810.76349"
+       x="191.62137"
+       height="11"
+       width="10.152125"
+       id="use5420"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5739">Normal Point</title>
+    </rect>
+    <rect
+       rx="2"
+       ry="2"
+       y="862.36224"
+       x="530"
+       height="10"
+       width="10"
+       id="use5424"
+       style="fill:#000000;fill-opacity:1;stroke:none">
+      <title
+         id="title5743">Normal Point</title>
+    </rect>
+    <path
+       transform="translate(115,767.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5500"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5675">Position Point</title>
+    </path>
+    <path
+       transform="translate(215,767.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5502"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5679">Position Point</title>
+    </path>
+    <path
+       transform="translate(75,737.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5504"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5683">Position Point</title>
+    </path>
+    <path
+       transform="translate(175,737.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5506"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5687">Position Point</title>
+    </path>
+    <path
+       transform="translate(75,837.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5508"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5691">Position Point</title>
+    </path>
+    <path
+       transform="translate(115,867.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5510"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5695">Position Point</title>
+    </path>
+    <path
+       transform="translate(175,837.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5512"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5699">Position Point</title>
+    </path>
+    <path
+       transform="translate(215,867.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5514"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5703">Position Point</title>
+    </path>
+    <path
+       transform="translate(530,687.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5516"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5707">Position Point</title>
+    </path>
+    <path
+       transform="translate(620,687.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5518"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5711">Position Point</title>
+    </path>
+    <path
+       transform="translate(620,777.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5520"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5715">Position Point</title>
+    </path>
+    <path
+       transform="translate(530,777.36215)"
+       d="m -35,135 a 5,5 0 1 1 -10,0 5,5 0 1 1 10,0 z"
+       sodipodi:ry="5"
+       sodipodi:rx="5"
+       sodipodi:cy="135"
+       sodipodi:cx="-40"
+       id="use5522"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       sodipodi:type="arc">
+      <title
+         id="title5719">Position Point</title>
+    </path>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5424"
+       id="use5559"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5516"
+       id="use5561"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5518"
+       id="use5563"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5520"
+       id="use5565"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5522"
+       id="use5567"
+       transform="translate(0.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5424"
+       id="use5585"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5516"
+       id="use5587"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5518"
+       id="use5589"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5520"
+       id="use5591"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5522"
+       id="use5593"
+       transform="translate(-119.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5424"
+       id="use5611"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5516"
+       id="use5613"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5518"
+       id="use5615"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5520"
+       id="use5617"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5522"
+       id="use5619"
+       transform="translate(-120,120)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5424"
+       id="use5637"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5516"
+       id="use5639"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5518"
+       id="use5641"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5520"
+       id="use5643"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5522"
+       id="use5645"
+       transform="translate(-239.5,-0.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5424"
+       id="use5663"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5516"
+       id="use5665"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5518"
+       id="use5667"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5520"
+       id="use5669"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#use5522"
+       id="use5671"
+       transform="translate(-239.5,119.5)"
+       width="600"
+       height="250" />
+  </g>
+</svg>

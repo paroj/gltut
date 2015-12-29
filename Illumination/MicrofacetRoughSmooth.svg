@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="225px" width="400px" >
+	<style type="text/css" ><![CDATA[.surface
+{
+	fill: lightblue;
+	stroke: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+		<g id="g_smooth_surface" >
+			<path d="M 400 100 L 2.8421709430404e-014 100 L 2.8421709430404e-014 50 L 30.769230769231 43.333333333333 L 61.538461538462 55 L 92.307692307692 46.666666666667 L 123.07692307692 43.333333333333 L 153.84615384615 46.666666666667 L 184.61538461538 51.666666666667 L 215.38461538462 49 L 246.15384615385 54.333333333333 L 276.92307692308 56 L 307.69230769231 43.333333333333 L 338.46153846154 54.333333333333 L 369.23076923077 51.333333333333 L 400 50 Z" class="surface" />
+		</g>
+		<g id="g_rough_surface" >
+			<path d="M 400 100 L 2.8421709430404e-014 100 L 2.8421709430404e-014 50 L 30.769230769231 23.333333333333 L 61.538461538462 56.666666666667 L 92.307692307692 23.333333333333 L 123.07692307692 36.666666666667 L 153.84615384615 40 L 184.61538461538 73.333333333333 L 215.38461538462 36.666666666667 L 246.15384615385 56.666666666667 L 276.92307692308 53.333333333333 L 307.69230769231 20 L 338.46153846154 66.666666666667 L 369.23076923077 56.666666666667 L 400 36.666666666667 Z" class="surface" />
+		</g>
+	</defs>
+	<use xlink:href="#g_smooth_surface" y="0" x="0" height="100" width="400" />
+	<use xlink:href="#g_rough_surface" y="125" x="0" height="100" width="400" />
+</svg>

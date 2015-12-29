@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="450px" width="900px" >
+	<style type="text/css" ><![CDATA[.axis_label
+{
+	font-size: 30px;
+	stroke: none;
+	font-family: monospace;
+	fill: black;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.arrows
+{
+	marker-end: url(#arrow);
+	marker-mid: url(#arrow);
+}
+
+.fill_frustum
+{
+	fill: #E0E0E0;
+}
+
+.arrow_ended
+{
+	marker-end: url(#arrow);
+}
+
+.middle_lines
+{
+	stroke: #800000;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.object_lines
+{
+	stroke: #00C000;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.wide_black
+{
+	stroke-width: 3px;
+	stroke: black;
+}
+
+.text
+{
+	font-size: 30px;
+	font-family: monospace;
+}
+
+.radial_eye
+{
+	stroke-dasharray: 3,3;
+	stroke: black;
+}
+
+.line_label
+{
+	font-family: monospace;
+	font-size: 16pt;
+	stroke: none;
+	text-anchor: start;
+	fill: black;
+}
+
+.double_arrowheaded
+{
+	marker-end: url(#arrow);
+	marker-start: url(#arrow);
+}
+
+.stroke_none
+{
+	stroke: none;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.image_label
+{
+	font-family: serif;
+	font-size: 40px;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}
+
+.middle_circles
+{
+	stroke: black;
+	stroke-width: 0.5px;
+	fill: #800000;
+}
+
+.black
+{
+	stroke-width: 1px;
+	stroke: black;
+}
+
+.pointed
+{
+	marker: url(#point);
+}
+
+.object_circles
+{
+	stroke: black;
+	stroke-width: 0.5px;
+	fill: #00C000;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="10" refX="5" refY="5" markerUnits="userSpaceOnUse" orient="auto" id="point" >
+			<circle r="5" cy="5" cx="5" class="fill_black black" />
+		</marker>
+		<marker markerWidth="16" markerHeight="12" refX="16" refY="6" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 16 6 L 0 0 L 0 12 Z" class="fill_black black" />
+		</marker>
+	</defs>
+	<path d="M 100 250 L 300 250 L 400 150 L 400 50 L 0 50 L 0 150 Z" class="stroke_none fill_frustum" />
+	<rect y="100" x="600" height="200" width="200" class="stroke_none fill_frustum" />
+	<line x2="400" y2="150" y1="350" x1="200" class="radial_eye" />
+	<line x2="0" y2="150" y1="350" x1="200" class="radial_eye" />
+	<line x2="200" y2="0" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="200" y2="400" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="0" y2="350" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="400" y2="350" y1="350" x1="200" class="black arrow_ended" />
+	<line x2="192" y2="50" y1="50" x1="208" class="black" />
+	<line x2="188" y2="100" y1="100" x1="212" class="black" />
+	<line x2="192" y2="150" y1="150" x1="208" class="black" />
+	<line x2="188" y2="200" y1="200" x1="212" class="black" />
+	<line x2="192" y2="250" y1="250" x1="208" class="black" />
+	<line x2="188" y2="300" y1="300" x1="212" class="black" />
+	<line x2="192" y2="350" y1="350" x1="208" class="black" />
+	<line x2="50" y2="342" y1="358" x1="50" class="black" />
+	<line x2="100" y2="338" y1="362" x1="100" class="black" />
+	<line x2="150" y2="342" y1="358" x1="150" class="black" />
+	<line x2="200" y2="338" y1="362" x1="200" class="black" />
+	<line x2="250" y2="342" y1="358" x1="250" class="black" />
+	<line x2="300" y2="338" y1="362" x1="300" class="black" />
+	<line x2="350" y2="342" y1="358" x1="350" class="black" />
+	<line x2="700" y2="400" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="700" y2="0" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="500" y2="200" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="900" y2="200" y1="200" x1="700" class="black arrow_ended" />
+	<line x2="692" y2="350" y1="350" x1="708" class="black" />
+	<line x2="688" y2="300" y1="300" x1="712" class="black" />
+	<line x2="692" y2="250" y1="250" x1="708" class="black" />
+	<line x2="688" y2="200" y1="200" x1="712" class="black" />
+	<line x2="692" y2="150" y1="150" x1="708" class="black" />
+	<line x2="688" y2="100" y1="100" x1="712" class="black" />
+	<line x2="692" y2="50" y1="50" x1="708" class="black" />
+	<line x2="550" y2="208" y1="192" x1="550" class="black" />
+	<line x2="600" y2="212" y1="188" x1="600" class="black" />
+	<line x2="650" y2="208" y1="192" x1="650" class="black" />
+	<line x2="700" y2="212" y1="188" x1="700" class="black" />
+	<line x2="750" y2="208" y1="192" x1="750" class="black" />
+	<line x2="800" y2="212" y1="188" x1="800" class="black" />
+	<line x2="850" y2="208" y1="192" x1="850" class="black" />
+	<path d="M 350 175 L 350 250 L 250 250 L 250 175 M 350 100 L 350 175 L 250 175 L 250 100 Z" class="object_lines" />
+	<path d="M 785.71428571429 171.42857142857 L 850 300 L 750 300 L 728.57142857143 171.42857142857 M 760 120 L 785.71428571429 171.42857142857 L 728.57142857143 171.42857142857 L 720 120 Z" class="object_lines" />
+	<circle r="5" cy="250" cx="350" class="object_circles" />
+	<circle r="5" cy="300" cx="850" class="object_circles" />
+	<circle r="5" cy="250" cx="250" class="object_circles" />
+	<circle r="5" cy="300" cx="750" class="object_circles" />
+	<circle r="5" cy="175" cx="350" class="object_circles" />
+	<circle r="5" cy="171.42857142857" cx="785.71428571429" class="object_circles" />
+	<circle r="5" cy="175" cx="250" class="object_circles" />
+	<circle r="5" cy="171.42857142857" cx="728.57142857143" class="object_circles" />
+	<circle r="5" cy="100" cx="350" class="object_circles" />
+	<circle r="5" cy="120" cx="760" class="object_circles" />
+	<circle r="5" cy="100" cx="250" class="object_circles" />
+	<circle r="5" cy="120" cx="720" class="object_circles" />
+	<line x2="250" y2="207.14285714286" y1="207.14285714286" x1="350" class="middle_lines" />
+	<line x2="735" y2="210" y1="210" x1="805" class="middle_lines" />
+	<circle r="5" cy="207.14285714286" cx="350" class="middle_circles" />
+	<circle r="5" cy="207.14285714286" cx="250" class="middle_circles" />
+	<circle r="5" cy="210" cx="805" class="middle_circles" />
+	<circle r="5" cy="210" cx="735" class="middle_circles" />
+	<text y="340" x="355" class="axis_label" >+X</text>
+	<text y="30" x="150" class="axis_label" >-Z</text>
+	<text y="190" x="855" class="axis_label" >+X</text>
+	<text y="30" x="650" class="axis_label" >+Z</text>
+	<text y="254" x="358" class="line_label" >A</text>
+	<text y="304" x="858" class="line_label" >A</text>
+	<text y="179" x="358" class="line_label" >C</text>
+	<text y="175.42857142857" x="793.71428571429" class="line_label" >C</text>
+	<text y="104" x="358" class="line_label" >B</text>
+	<text y="124" x="768" class="line_label" >B</text>
+	<text y="220" x="814" class="line_label" >D</text>
+	<text y="213.14285714286" x="358" class="line_label" >D</text>
+	<text y="440" x="200" class="image_label" >Camera Space</text>
+	<text y="440" x="700" class="image_label" >Norm. Device Coord.</text>
+</svg>

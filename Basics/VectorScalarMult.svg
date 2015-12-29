@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="300px" >
+	<style type="text/css" ><![CDATA[.arrowhead
+{
+	fill: black;
+	stroke: black;
+}
+
+.text
+{
+	font-size: 25px;
+	font-family: monospace;
+	stroke: none;
+	font-weight: bold;
+	fill: black;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.vector-sum
+{
+	marker-end: url(#arrow-sum);
+	stroke: red;
+}
+
+.vector
+{
+	marker-end: url(#arrow);
+	stroke: black;
+}
+
+.text-sum
+{
+	font-size: 25px;
+	font-family: monospace;
+	stroke: none;
+	font-weight: bold;
+	fill: red;
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.arrowhead-sum
+{
+	fill: red;
+	stroke: red;
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="__axis_arrow1" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<g id="g_axes" >
+			<path d="M 0 300 V 0 M 21.428571428571 300 V 0 M 42.857142857143 300 V 0 M 64.285714285714 300 V 0 M 85.714285714286 300 V 0 M 107.14285714286 300 V 0 M 128.57142857143 300 V 0 M 150 300 V 0 M 171.42857142857 300 V 0 M 192.85714285714 300 V 0 M 214.28571428571 300 V 0 M 235.71428571429 300 V 0 M 257.14285714286 300 V 0 M 278.57142857143 300 V 0 M 300 300 V 0 M 0 300 H 300 M 0 278.57142857143 H 300 M 0 257.14285714286 H 300 M 0 235.71428571429 H 300 M 0 214.28571428571 H 300 M 0 192.85714285714 H 300 M 0 171.42857142857 H 300 M 0 150 H 300 M 0 128.57142857143 H 300 M 0 107.14285714286 H 300 M 0 85.714285714286 H 300 M 0 64.285714285714 H 300 M 0 42.857142857143 H 300 M 0 21.428571428571 H 300 M 0 0 H 300" class="__grid1" />
+			<line x2="150" y2="300" y1="235.71428571429" x1="150" class="__axis1 __axis_arrow_end1" />
+			<line x2="150" y2="0" y1="235.71428571429" x1="150" class="__axis1 __axis_arrow_end1" />
+			<line x2="300" y2="235.71428571429" y1="235.71428571429" x1="150" class="__axis1 __axis_arrow_end1" />
+			<line x2="0" y2="235.71428571429" y1="235.71428571429" x1="150" class="__axis1 __axis_arrow_end1" />
+		</g>
+	</defs>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow-sum" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead-sum" />
+		</marker>
+	</defs>
+	<use xlink:href="#g_axes" y="0" x="0" height="300" width="300" />
+	<line x2="192.85714285714" y2="171.42857142857" y1="235.71428571429" x1="150" class="vector" />
+	<text y="208.57142857143" x="151.42857142857" class="text" >A</text>
+	<line x2="192.85714285714" y2="42.857142857143" y1="235.71428571429" x1="64.285714285714" class="vector-sum" />
+	<text y="134.28571428571" x="78.571428571429" class="text-sum" >3*A</text>
+	<line x2="235.71428571429" y2="203.57142857143" y1="235.71428571429" x1="214.28571428571" class="vector-sum" />
+	<text y="199.64285714286" x="218" class="text-sum" >0.5*A</text>
+</svg>

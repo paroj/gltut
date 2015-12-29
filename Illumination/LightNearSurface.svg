@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="200px" width="500px" >
+	<style type="text/css" ><![CDATA[.arrowhead
+{
+	fill: darkblue;
+	stroke: darkblue;
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.light
+{
+	fill: yellow;
+	stroke: none;
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.ray
+{
+	marker-end: url(#arrow);
+	stroke: darkblue;
+	stroke-dasharray: 3,3;
+	stroke-width: 1px;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="0" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+		<g id="g_surface" >
+			<rect y="140" x="-2.8421709430404e-014" height="60" width="500" class="surface" />
+		</g>
+	</defs>
+	<use xlink:href="#g_surface" y="0" x="0" height="200" width="500" />
+	<circle r="10" cy="50" cx="250" class="light" />
+	<line x2="62.076250086125" y2="127.31719996457" y1="140" x1="31.25" class="ray" />
+	<line x2="92.550768582276" y2="125.57563108051" y1="140" x1="62.5" class="ray" />
+	<line x2="122.63438686989" y2="123.36259316294" y1="140" x1="93.75" class="ray" />
+	<line x2="152.05114471505" y2="120.52317580516" y1="140" x1="125" class="ray" />
+	<line x2="180.29624403437" y2="116.91560572701" y1="140" x1="156.25" class="ray" />
+	<line x2="206.51319364984" y2="112.62100114422" y1="140" x1="187.5" class="ray" />
+	<line x2="229.68372296568" y2="108.51087785884" y1="140" x1="218.75" class="ray" />
+	<line x2="250" y2="106.66666666667" y1="140" x1="250" class="ray" />
+	<line x2="270.31627703432" y2="108.51087785884" y1="140" x1="281.25" class="ray" />
+	<line x2="293.48680635016" y2="112.62100114422" y1="140" x1="312.5" class="ray" />
+	<line x2="319.70375596563" y2="116.91560572701" y1="140" x1="343.75" class="ray" />
+	<line x2="347.94885528495" y2="120.52317580516" y1="140" x1="375" class="ray" />
+	<line x2="377.36561313011" y2="123.36259316294" y1="140" x1="406.25" class="ray" />
+	<line x2="407.44923141772" y2="125.57563108051" y1="140" x1="437.5" class="ray" />
+	<line x2="437.92374991388" y2="127.31719996457" y1="140" x1="468.75" class="ray" />
+</svg>

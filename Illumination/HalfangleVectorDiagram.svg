@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="150px" width="400px" >
+	<style type="text/css" ><![CDATA[.point
+{
+	fill: black;
+	stroke: none;
+}
+
+.src_arrowhead
+{
+	fill: black;
+	stroke: black;
+}
+
+.dir_arrowhead
+{
+	fill: green;
+	stroke: green;
+}
+
+.normal_direction
+{
+	marker-end: url(#dir_arrow);
+	stroke: green;
+	stroke-width: 1px;
+}
+
+.label
+{
+	font-size: 14pt;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.src_direction
+{
+	marker-end: url(#src_arrow);
+	stroke: black;
+	stroke-width: 1px;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="dir_arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="dir_arrowhead" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="src_arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="src_arrowhead" />
+		</marker>
+	</defs>
+	<rect y="112.5" x="0" height="37.5" width="400" class="surface" />
+	<line x2="200" y2="37.5" y1="112.5" x1="200" class="src_direction" />
+	<line x2="68.75" y2="75" y1="112.5" x1="200" class="src_direction" />
+	<line x2="237.5" y2="37.5" y1="112.5" x1="200" class="src_direction" />
+	<line x2="272.11429607306" y2="91.895915407697" y1="112.5" x1="200" class="normal_direction" />
+	<line x2="169.80025691674" y2="43.848885531952" y1="112.5" x1="200" class="normal_direction" />
+	<text y="37.5" x="210" class="label" >N</text>
+	<text y="79" x="58.75" class="label" >L</text>
+	<text y="37.5" x="245.5" class="label" >V</text>
+	<text y="83.895915407697" x="276.11429607306" class="label" >R</text>
+	<text y="39.848885531952" x="165.80025691674" class="label" >H</text>
+</svg>

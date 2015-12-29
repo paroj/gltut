@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="200px" width="300px" >
+	<style type="text/css" ><![CDATA[.line_standard
+{
+	stroke-width: 1px;
+}
+
+.background
+{
+	stroke: none;
+	fill: #E0E0E0;
+}
+
+.line_of_proj
+{
+	stroke: red;
+	stroke-dasharray: 4,8;
+	stroke-width: 1px;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.fill_transluscent
+{
+	fill-opacity: 0.1;
+	fill: blue;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.circle_plane
+{
+	stroke-width: 2px;
+	stroke: black;
+}
+
+.object_projected
+{
+	stroke-width: 8px;
+	stroke: #00C000;
+}
+
+.object
+{
+	stroke-width: 1px;
+	stroke: #00C000;
+}
+
+.black
+{
+	stroke: black;
+}
+
+.projected
+{
+	stroke-width: 8px;
+}
+
+.red
+{
+	stroke: red;
+}
+
+.dashed
+{
+	stroke-dasharray: 4,8;
+}]]></style>
+	<defs />
+	<polygon points="112.5,137.5 187.5,137.5 325,2.1316282072803e-014 -25,2.1316282072803e-014" class="background" />
+	<line x2="143.75" y2="137.5" y1="62.5" x1="131.25" class="line_of_proj" />
+	<line x2="118.75" y2="137.5" y1="62.5" x1="56.25" class="line_of_proj" />
+	<line x2="118.75" y2="137.5" y1="137.5" x1="143.75" class="object_projected" />
+	<circle r="37.5" cy="62.5" cx="93.75" class="object fill_none" />
+	<line x2="56.25" y2="62.5" y1="62.5" x1="131.25" class="circle_plane" />
+	<line x2="187.5" y2="137.5" y1="137.5" x1="112.5" class="black line_standard" />
+	<line x2="0" y2="137.5" y1="137.5" x1="112.5" class="black line_standard dashed" />
+	<line x2="212.5" y2="137.5" y1="137.5" x1="187.5" class="black line_standard dashed" />
+	<circle r="3" cy="175" cx="150" class="black fill_black" />
+	<line x2="150" y2="175" y1="137.5" x1="112.5" class="black line_standard dashed" />
+	<line x2="150" y2="175" y1="137.5" x1="187.5" class="black line_standard dashed" />
+</svg>

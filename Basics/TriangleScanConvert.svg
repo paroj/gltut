@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="800px" >
+	<style type="text/css" ><![CDATA[.black
+{
+	stroke-width: 1px;
+	stroke: black;
+}
+
+.trans_wide_black
+{
+	stroke-opacity: 0.4;
+	stroke: black;
+	stroke-width: 3px;
+}
+
+.dashed
+{
+	stroke-dasharray: 3,3;
+}
+
+.fill_blue
+{
+	fill: blue;
+}
+
+.wide_grey
+{
+	stroke-width: 3px;
+	stroke: #C0C0C0;
+}
+
+.pointed
+{
+	marker: url(#point);
+}
+
+.wide_black
+{
+	stroke-width: 3px;
+	stroke: black;
+}
+
+.fill_none
+{
+	fill: none;
+}
+
+.grey
+{
+	stroke-width: 1px;
+	stroke: #C0C0C0;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.no_stroke
+{
+	stroke: none;
+}
+
+.trans_wide_grey
+{
+	stroke-opacity: 0.1;
+	stroke: #C0C0C0;
+	stroke-width: 3px;
+}]]></style>
+	<defs >
+		<marker markerWidth="12.5" markerHeight="12.5" refX="6.25" refY="6.25" markerUnits="userSpaceOnUse" orient="auto" id="point" >
+			<circle r="6.25" cy="6.25" cx="6.25" class="black fill_black" />
+		</marker>
+		<g id="g_triangle" >
+			<polygon points="95,50 160,190 50,260" />
+		</g>
+		<g id="g_grid" >
+			<path d="M 12.5 0 V 300 M 37.5 0 V 300 M 62.5 0 V 300 M 87.5 0 V 300 M 112.5 0 V 300 M 137.5 0 V 300 M 162.5 0 V 300 M 187.5 0 V 300 M 0 12.5 H 200 M 0 37.5 H 200 M 0 62.5 H 200 M 0 87.5 H 200 M 0 112.5 H 200 M 0 137.5 H 200 M 0 162.5 H 200 M 0 187.5 H 200 M 0 212.5 H 200 M 0 237.5 H 200 M 0 262.5 H 200 M 0 287.5 H 200" />
+		</g>
+		<g id="g_gridCenters" >
+			<circle r="3.5714285714286" cy="25" cx="25" />
+			<circle r="3.5714285714286" cy="50" cx="25" />
+			<circle r="3.5714285714286" cy="75" cx="25" />
+			<circle r="3.5714285714286" cy="100" cx="25" />
+			<circle r="3.5714285714286" cy="125" cx="25" />
+			<circle r="3.5714285714286" cy="150" cx="25" />
+			<circle r="3.5714285714286" cy="175" cx="25" />
+			<circle r="3.5714285714286" cy="200" cx="25" />
+			<circle r="3.5714285714286" cy="225" cx="25" />
+			<circle r="3.5714285714286" cy="250" cx="25" />
+			<circle r="3.5714285714286" cy="275" cx="25" />
+			<circle r="3.5714285714286" cy="25" cx="50" />
+			<circle r="3.5714285714286" cy="50" cx="50" />
+			<circle r="3.5714285714286" cy="75" cx="50" />
+			<circle r="3.5714285714286" cy="100" cx="50" />
+			<circle r="3.5714285714286" cy="125" cx="50" />
+			<circle r="3.5714285714286" cy="150" cx="50" />
+			<circle r="3.5714285714286" cy="175" cx="50" />
+			<circle r="3.5714285714286" cy="200" cx="50" />
+			<circle r="3.5714285714286" cy="225" cx="50" />
+			<circle r="3.5714285714286" cy="250" cx="50" />
+			<circle r="3.5714285714286" cy="275" cx="50" />
+			<circle r="3.5714285714286" cy="25" cx="75" />
+			<circle r="3.5714285714286" cy="50" cx="75" />
+			<circle r="3.5714285714286" cy="75" cx="75" />
+			<circle r="3.5714285714286" cy="100" cx="75" />
+			<circle r="3.5714285714286" cy="125" cx="75" />
+			<circle r="3.5714285714286" cy="150" cx="75" />
+			<circle r="3.5714285714286" cy="175" cx="75" />
+			<circle r="3.5714285714286" cy="200" cx="75" />
+			<circle r="3.5714285714286" cy="225" cx="75" />
+			<circle r="3.5714285714286" cy="250" cx="75" />
+			<circle r="3.5714285714286" cy="275" cx="75" />
+			<circle r="3.5714285714286" cy="25" cx="100" />
+			<circle r="3.5714285714286" cy="50" cx="100" />
+			<circle r="3.5714285714286" cy="75" cx="100" />
+			<circle r="3.5714285714286" cy="100" cx="100" />
+			<circle r="3.5714285714286" cy="125" cx="100" />
+			<circle r="3.5714285714286" cy="150" cx="100" />
+			<circle r="3.5714285714286" cy="175" cx="100" />
+			<circle r="3.5714285714286" cy="200" cx="100" />
+			<circle r="3.5714285714286" cy="225" cx="100" />
+			<circle r="3.5714285714286" cy="250" cx="100" />
+			<circle r="3.5714285714286" cy="275" cx="100" />
+			<circle r="3.5714285714286" cy="25" cx="125" />
+			<circle r="3.5714285714286" cy="50" cx="125" />
+			<circle r="3.5714285714286" cy="75" cx="125" />
+			<circle r="3.5714285714286" cy="100" cx="125" />
+			<circle r="3.5714285714286" cy="125" cx="125" />
+			<circle r="3.5714285714286" cy="150" cx="125" />
+			<circle r="3.5714285714286" cy="175" cx="125" />
+			<circle r="3.5714285714286" cy="200" cx="125" />
+			<circle r="3.5714285714286" cy="225" cx="125" />
+			<circle r="3.5714285714286" cy="250" cx="125" />
+			<circle r="3.5714285714286" cy="275" cx="125" />
+			<circle r="3.5714285714286" cy="25" cx="150" />
+			<circle r="3.5714285714286" cy="50" cx="150" />
+			<circle r="3.5714285714286" cy="75" cx="150" />
+			<circle r="3.5714285714286" cy="100" cx="150" />
+			<circle r="3.5714285714286" cy="125" cx="150" />
+			<circle r="3.5714285714286" cy="150" cx="150" />
+			<circle r="3.5714285714286" cy="175" cx="150" />
+			<circle r="3.5714285714286" cy="200" cx="150" />
+			<circle r="3.5714285714286" cy="225" cx="150" />
+			<circle r="3.5714285714286" cy="250" cx="150" />
+			<circle r="3.5714285714286" cy="275" cx="150" />
+			<circle r="3.5714285714286" cy="25" cx="175" />
+			<circle r="3.5714285714286" cy="50" cx="175" />
+			<circle r="3.5714285714286" cy="75" cx="175" />
+			<circle r="3.5714285714286" cy="100" cx="175" />
+			<circle r="3.5714285714286" cy="125" cx="175" />
+			<circle r="3.5714285714286" cy="150" cx="175" />
+			<circle r="3.5714285714286" cy="175" cx="175" />
+			<circle r="3.5714285714286" cy="200" cx="175" />
+			<circle r="3.5714285714286" cy="225" cx="175" />
+			<circle r="3.5714285714286" cy="250" cx="175" />
+			<circle r="3.5714285714286" cy="275" cx="175" />
+		</g>
+		<g id="g_scanConvert" >
+			<rect y="137.5" x="62.5" height="25" width="25" />
+			<rect y="162.5" x="62.5" height="25" width="25" />
+			<rect y="187.5" x="62.5" height="25" width="25" />
+			<rect y="212.5" x="62.5" height="25" width="25" />
+			<rect y="62.5" x="87.5" height="25" width="25" />
+			<rect y="87.5" x="87.5" height="25" width="25" />
+			<rect y="112.5" x="87.5" height="25" width="25" />
+			<rect y="137.5" x="87.5" height="25" width="25" />
+			<rect y="162.5" x="87.5" height="25" width="25" />
+			<rect y="187.5" x="87.5" height="25" width="25" />
+			<rect y="212.5" x="87.5" height="25" width="25" />
+			<rect y="112.5" x="112.5" height="25" width="25" />
+			<rect y="137.5" x="112.5" height="25" width="25" />
+			<rect y="162.5" x="112.5" height="25" width="25" />
+			<rect y="187.5" x="112.5" height="25" width="25" />
+			<rect y="162.5" x="137.5" height="25" width="25" />
+		</g>
+	</defs>
+	<use xlink:href="#g_triangle" y="0" x="0" height="300" width="200" class="black fill_none" />
+	<use xlink:href="#g_grid" y="0" x="300" height="300" width="200" class="black fill_none" />
+	<use xlink:href="#g_gridCenters" y="0" x="300" height="300" width="200" class="black fill_none" />
+	<use xlink:href="#g_triangle" y="0" x="300" height="300" width="200" class="trans_wide_black fill_none" />
+	<use xlink:href="#g_scanConvert" y="0" x="600" height="300" width="200" class="no_stroke fill_blue" />
+	<use xlink:href="#g_grid" y="0" x="600" height="300" width="200" class="black fill_none" />
+	<use xlink:href="#g_triangle" y="0" x="600" height="300" width="200" class="trans_wide_black fill_none" />
+</svg>

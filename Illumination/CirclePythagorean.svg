@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="250px" width="350px" >
+	<style type="text/css" ><![CDATA[.__axis1
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.vector
+{
+	marker-end: url(#arrow);
+	stroke: darkgreen;
+	stroke-width: 2px;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.text-hyp
+{
+	font-weight: bold;
+	font-size: 25px;
+	stroke: none;
+	font-family: monospace;
+	fill: darkorange;
+}
+
+.arrowhead
+{
+	stroke: darkgreen;
+	fill: darkgreen;
+}
+
+.circle
+{
+	stroke: black;
+	fill: none;
+}
+
+.text
+{
+	font-weight: bold;
+	font-size: 25px;
+	stroke: none;
+	font-family: monospace;
+	fill: darkgreen;
+}
+
+.arrowhead-hyp
+{
+	stroke: darkorange;
+	fill: darkorange;
+}
+
+.vector-hyp
+{
+	marker-end: url(#arrow-hyp);
+	stroke: darkorange;
+	stroke-width: 2px;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="__axis_arrow1" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<g id="g_axes" >
+			<line x2="175" y2="250" y1="183.33333333333" x1="175" class="__axis1 __axis_arrow_end1" />
+			<line x2="175" y2="0" y1="183.33333333333" x1="175" class="__axis1 __axis_arrow_end1" />
+			<line x2="350" y2="183.33333333333" y1="183.33333333333" x1="175" class="__axis1 __axis_arrow_end1" />
+			<line x2="0" y2="183.33333333333" y1="183.33333333333" x1="175" class="__axis1 __axis_arrow_end1" />
+		</g>
+	</defs>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow-hyp" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead-hyp" />
+		</marker>
+	</defs>
+	<use xlink:href="#g_axes" y="0" x="0" height="250" width="350" />
+	<path d="M 320.83333333333 183.33333333333 A 145.83333333333 145.83333333333 0 1 0 29.166666666667 183.33333333333" class="circle" />
+	<line x2="292.98164501301" y2="183.33333333333" y1="183.33333333333" x1="175" class="vector" />
+	<text y="205.33333333333" x="233.99082250651" class="text" >X</text>
+	<line x2="292.98164501301" y2="97.614650707348" y1="183.33333333333" x1="292.98164501301" class="vector-hyp" />
+	<text y="150.47399202034" x="297.98164501301" class="text-hyp" >Y</text>
+	<line x2="292.98164501301" y2="97.614650707348" y1="183.33333333333" x1="175" class="vector" />
+	<text y="125.47399202034" x="228.99082250651" class="text" >R</text>
+</svg>

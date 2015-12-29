@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="250px" width="250px" >
+	<style type="text/css" ><![CDATA[.base_triangle
+{
+	stroke: black;
+	stroke-width: 1px;
+}
+
+.third_tri
+{
+	fill: yellowgreen;
+}
+
+.first_tri
+{
+	fill: skyblue;
+}
+
+.overlap_clip
+{
+	clip-path: url(#overlap);
+}
+
+.second_tri
+{
+	fill: orange;
+}]]></style>
+	<defs >
+		<clipPath id="overlap" >
+			<rect y="0" x="0" height="125" width="250" class="show_clip" />
+		</clipPath>
+	</defs>
+	<polygon points="175,25 62.5,231.25 31.25,200" class="base_triangle first_tri" />
+	<polygon points="12.5,175 231.25,162.5 218.75,206.25" class="base_triangle second_tri" />
+	<polygon points="200,237.5 137.5,12.5 100,37.5" class="base_triangle third_tri" />
+	<polygon points="175,25 62.5,231.25 31.25,200" class="base_triangle first_tri overlap_clip" />
+</svg>

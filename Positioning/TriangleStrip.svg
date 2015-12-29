@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="700px" >
+	<style type="text/css" ><![CDATA[.stream_edge
+{
+	stroke-opacity: 0.5;
+	stroke-width: 4px;
+	stroke-linejoin: round;
+	stroke: red;
+	stroke-linecap: round;
+	fill: none;
+}
+
+.ccw_wind_order
+{
+	marker-end: url(#m_ccw_arrow);
+	stroke-width: 1px;
+	stroke: red;
+	marker-mid: url(#m_ccw_arrow);
+	fill: none;
+}
+
+.ccw_arrow
+{
+	stroke: none;
+	stroke-width: 1px;
+	fill: red;
+}
+
+.cw_wind_order
+{
+	marker-end: url(#m_cw_arrow);
+	stroke-width: 1px;
+	stroke: blue;
+	marker-mid: url(#m_cw_arrow);
+	fill: none;
+}
+
+.cw_arrow
+{
+	stroke: none;
+	stroke-width: 1px;
+	fill: blue;
+}
+
+.text
+{
+	font-family: monospace;
+	stroke-width: 1px;
+	stroke: black;
+	text-anchor: middle;
+	font-size: 20px;
+}
+
+.border
+{
+	fill: none;
+	stroke: black;
+}
+
+.main_triangle
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: none;
+}]]></style>
+	<defs >
+		<g id="g_point" >
+			<circle r="4.5" cy="0" cx="0" class="point" />
+		</g>
+	</defs>
+	<use xlink:href="#g_point" y="225.77722283114" x="70" />
+	<use xlink:href="#g_point" y="74.222777168862" x="157.5" />
+	<use xlink:href="#g_point" y="225.77722283114" x="245" />
+	<use xlink:href="#g_point" y="74.222777168862" x="332.5" />
+	<use xlink:href="#g_point" y="225.77722283114" x="420" />
+	<use xlink:href="#g_point" y="74.222777168862" x="507.5" />
+	<use xlink:href="#g_point" y="225.77722283114" x="595" />
+	<use xlink:href="#g_point" y="74.222777168862" x="682.5" />
+	<polygon points="70,225.77722283114 157.5,74.222777168862 245,225.77722283114" class="main_triangle" />
+	<polygon points="157.5,74.222777168862 245,225.77722283114 332.5,74.222777168862" class="main_triangle" />
+	<polygon points="245,225.77722283114 332.5,74.222777168862 420,225.77722283114" class="main_triangle" />
+	<polygon points="332.5,74.222777168862 420,225.77722283114 507.5,74.222777168862" class="main_triangle" />
+	<polygon points="420,225.77722283114 507.5,74.222777168862 595,225.77722283114" class="main_triangle" />
+	<polygon points="507.5,74.222777168862 595,225.77722283114 682.5,74.222777168862" class="main_triangle" />
+	<polyline points="70,225.77722283114 157.5,74.222777168862 245,225.77722283114 332.5,74.222777168862 420,225.77722283114 507.5,74.222777168862 595,225.77722283114 682.5,74.222777168862" class="stream_edge" />
+	<text y="250.77722283114" x="70" class="text" >0</text>
+	<text y="61.222777168862" x="157.5" class="text" >1</text>
+	<text y="250.77722283114" x="245" class="text" >2</text>
+	<text y="61.222777168862" x="332.5" class="text" >3</text>
+	<text y="250.77722283114" x="420" class="text" >4</text>
+	<text y="61.222777168862" x="507.5" class="text" >5</text>
+	<text y="250.77722283114" x="595" class="text" >6</text>
+	<text y="61.222777168862" x="682.5" class="text" >7</text>
+</svg>
