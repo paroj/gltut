@@ -21,7 +21,7 @@
     <xi:include href="Texturing.xml"/>
     <xi:include href="Framebuffer.xml"/>
     <xi:include href="Advanced Lighting.xml"/>
-    <!--<xi:include href="Optimization.xml"/>-->
+    <xi:include href="Optimization.xml"/>
     <xi:include href="Further Study.xml"/>
     <xi:include href="History of Graphics Hardware.xml"/>
     <xi:include href="Getting Started.xml"/>
