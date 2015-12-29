@@ -18,5 +18,6 @@ The [License.txt](License.txt) file contains the licensing information for the m
 ## Rebuilding the PDF Documentation
 
 - install the packages needed for HTML
-- `apt-get install fop libfop-java`
+- `apt-get install fop libfop-java libjeuclid-fop-java`
+- add the line `find_jars jeuclid-core jeuclid-fop` to `/usr/bin/fop`
 - run `lua Documents/Build/BuildComputerFO.lua`

@@ -58,11 +58,7 @@
             be (0, 2, 4); the X component is 0, the Y component is 2, and the Z component is 4. When
             writing them as part of an equation, they are written as follows:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="ColumnVector.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="ColumnVector.mathml" />
         </informalequation>
         <para>In math equations, vector variables are either in boldface or written with an arrow
             over them.</para>
@@ -102,11 +98,7 @@
                 components:</para>
         <equation>
             <title>Vector Addition with Numbers</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorAdditionNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorAdditionNum.mathml" />
         </equation>
             <para>Any operation where you perform an operation on each component of a vector is
                 called a <glossterm>component-wise operation</glossterm>. Vector addition is
@@ -127,11 +119,7 @@
             <para>Numerically, this means negating each component of the vector.</para>
         <equation>
             <title>Vector Negation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorNegationNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorNegationNum.mathml" />
         </equation>
             <para>Just as with scalar math, vector subtraction is the same as addition with the
             negation of the second vector.</para>
@@ -154,11 +142,7 @@
             vector addition.</para>
         <equation>
             <title>Vector Multiplication</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorMultiplicationNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorMultiplicationNum.mathml" />
         </equation>
         <formalpara>
             <title>Vector/Scalar Operations</title>
@@ -178,22 +162,14 @@
             vector is multiplied with each component of the scalar.</para>
         <equation>
             <title>Vector-Scalar Multiplication</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorScalarMultNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorScalarMultNum.mathml" />
         </equation>
         <para>Scalars can also be added to vectors. This, like vector-to-vector multiplication, has
             no geometric representation. It is a component-wise addition of the scalar with each
             component of the vector.</para>
         <equation>
             <title>Vector-Scalar Addition</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorScalarAddNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorScalarAddNum.mathml" />
         </equation>
         <formalpara>
             <title>Vector Algebra</title>
@@ -204,11 +180,7 @@
             and multiplication. They are commutative, associative, and distributive.</para>
         <equation>
             <title>Vector Algebra</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorMathProperties.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorMathProperties.mathml" />
         </equation>
         <para>Vector/scalar operations have similar properties.</para>
         <formalpara>
@@ -219,11 +191,7 @@
         <para>Numerically, computing the distance requires this equation:</para>
         <equation>
             <title>Vector Length</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorLengthNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorLengthNum.mathml" />
         </equation>
         <para>This uses the Pythagorean theorem to compute the length of the vector. This works for
             vectors of arbitrary dimensions, not just two or three.</para>
@@ -239,11 +207,7 @@
             reciprocal of the length.</para>
         <equation>
             <title>Vector Normalization</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorNormalizationNum.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorNormalizationNum.mathml" />
         </equation>
         <para>This is not all of the vector math that we will use in these tutorials. New vector
             math operations will be introduced and explained as needed when they are first used. And

@@ -44,11 +44,7 @@
         the dot-product between the half-angle vector and the surface normal.</para>
     <equation>
         <title>Gaussian as Function of One Variable</title>
-        <mediaobject>
-            <imageobject>
-                <imagedata fileref="GaussianLookup.svg"/>
-            </imageobject>
-        </mediaobject>
+        <xi:include href="GaussianLookup.mathml" />
     </equation>
     <para>So how do we get a look-up table to the shader? We could use the obvious method; build a
         uniform buffer containing an array of floats. We would multiply the dot-product by the

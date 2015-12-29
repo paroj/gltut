@@ -656,11 +656,7 @@ else
                 through it. This correlates with the light intensity as follows:</para>
             <equation>
                 <title>Display Gamma Function</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="GammaFunc.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="GammaFunc.mathml" />
             </equation>
             <para>This is called a gamma function due to the Greek letter γ (gamma). The input
                 signal directly controls the voltage, so the input signal needed to be corrected for
@@ -673,11 +669,7 @@ else
                 is gamma correction, and the function for that is straightforward.</para>
             <equation>
                 <title>Gamma Correction Function</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="GammaCorrectFunc.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="GammaCorrectFunc.mathml" />
             </equation>
             <para>It would be interesting to see a graph of these functions, to speculate about what
                 we will see in our gamma-correct images.</para>

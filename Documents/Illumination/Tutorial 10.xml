@@ -170,11 +170,7 @@ void main()
             surface normal.</para>
         <para>Linear interpolation of vectors looks like this:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="StandardLerp_1.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="StandardLerp_1.mathml" />
         </informalequation>
         <para>The α in the equation is the factor of interpolation between the two values. When α is
             one, we get V<subscript>a</subscript>, and when it is zero, we get
@@ -182,51 +178,31 @@ void main()
                 V<subscript>b</subscript> can be scalars or vectors.</para>
         <para>Our diffuse lighting equation is this:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="DiffuseLightEq_2.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="DiffuseLightEq_2.mathml" />
         </informalequation>
         <para>If the surface normal N is being interpolated, then at any particular point on the
             surface, we get this equation for a directional light (the light direction L does not
             change):</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="LerpDiffuse_3.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="LerpDiffuse_3.mathml" />
         </informalequation>
         <para>The dot product is distributive, like scalar multiplication. So we can distribute the
             L to both sides of the dot product term:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="LerpDiffuse_4.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="LerpDiffuse_4.mathml" />
         </informalequation>
         <para>We can extract the linear terms from the dot product. Remember that the dot product is
             the cosine of the angle between two vectors, times the length of those vectors. The two
             scaling terms directly modify the length of the vectors. So they can be pulled out to
             give us:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="LerpDiffuse_5.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="LerpDiffuse_5.mathml" />
         </informalequation>
         <para>Recall that vector/scalar multiplication is distributive. We can distribute the
             multiplication by the diffuse color and light intensity to both terms. This gives
             us:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="LerpDiffuse_6.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="LerpDiffuse_6.mathml" />
         </informalequation>
         <para>This means that if L is constant, linearly interpolating N is exactly equivalent to
             linearly interpolating the results of the lighting equation. And the addition of the
@@ -608,11 +584,7 @@ void main()
             one-fourth the intensity. So our equation for light attenuation is as follows:</para>
         <equation>
             <title>Physical Light Attenuation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="LightAttenEq.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="LightAttenEq.mathml" />
         </equation>
         <para>There is a constant in the equation, which is used for unit correction. Of course, we
             can (and will) use it as a fudge factor to make things look right.</para>
@@ -620,11 +592,7 @@ void main()
             which half of the light intensity is lost. To compute such a constant, for a half-light
             distance of r<subscript>λ</subscript>, use this equation:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="HalfLightAtten.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="HalfLightAtten.mathml" />
         </informalequation>
         <para>This equation computes physically realistic light attenuation for point-lights. But it
             often does not look very good. The equation tends to create a sharper intensity falloff than
@@ -634,11 +602,7 @@ void main()
             distance:</para>
         <equation>
             <title>Light Attenuation Inverse</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="LightAttenInvEq.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="LightAttenInvEq.mathml" />
         </equation>
         <para>It looks brighter at greater distances than the physically correct model. This is fine
             for simple examples, but as we get more advanced, it will not be acceptable. This
@@ -750,21 +714,13 @@ void main()
             </table>
             <equation>
                 <title>Camera to Window Transforms</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata  fileref="CameraToWindowTrans.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="CameraToWindowTrans.mathml" />
             </equation>
             <para>Therefore, given <varname>gl_FragCoord</varname>, we will need to perform the
                 reverse of these:</para>
             <equation>
                 <title>Window to Camera Transforms</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata  fileref="WindowToCameraTrans.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="WindowToCameraTrans.mathml" />
             </equation>
             <para>In order for our fragment shader to perform this transformation, it must be given
                 the following values:</para>

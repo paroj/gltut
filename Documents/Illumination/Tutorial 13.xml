@@ -358,11 +358,7 @@ void main()
             equation:</para>
         <equation>
             <title>Ray Equation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="RayEquation.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="RayEquation.mathml" />
         </equation>
         <para>The <varname>t</varname> value can be positive or negative, but for our needs, we'll
             stick with positive values.</para>
@@ -374,60 +370,36 @@ void main()
             this:</para>
         <equation>
             <title>Sphere Equation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="SphereEquation.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="SphereEquation.mathml" />
         </equation>
         <para>For any point P, if this equation is true, if the length between that point and the
             sphere's center equals the radius, then P is on the sphere. So we can substitute our ray
             equation for P:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="RayTraceDeriv_1.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="RayTraceDeriv_1.mathml" />
         </informalequation>
         <para>Our ray goes from the camera into the scene. Since we're in camera space, the camera
             is at the origin. So O can be eliminated from the equation. To solve for
                 <varname>t</varname>, we need to get rid of that length. One way to do it is to
             re-express the sphere equation as the length squared. So then we get:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="RayTraceDeriv_2.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="RayTraceDeriv_2.mathml" />
         </informalequation>
         <para>The square of the length of a vector is the same as that vector dot-producted with
             itself. So let's do that:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="RayTraceDeriv_3.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="RayTraceDeriv_3.mathml" />
         </informalequation>
         <para>The dot product is distributive. Indeed, it follows most of the rules of scalar
             multiplication. This gives us:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="RayTraceDeriv_4.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="RayTraceDeriv_4.mathml" />
         </informalequation>
         <para>While this equation has a lot of vector elements in it, as far as t is concerned, it
             is a scalar equation. Indeed, it is a quadratic equation, with respect to t. Ah, good
             old algebra.</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="RayTraceDeriv_5.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="RayTraceDeriv_5.mathml" />
         </informalequation>
         <para>In case you've forgotten, the part under the square root in the quadratic formula is
             called the discriminant. If this value is negative, then the equation has no solution.

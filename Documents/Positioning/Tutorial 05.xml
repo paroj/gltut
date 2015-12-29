@@ -812,11 +812,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</programlisting>
         <para>Let us review the full math operation we are computing here:</para>
         <equation>
             <title>Perspective Computation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="PerspectiveFunc.svg"  contentwidth="3in"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="PerspectiveFunc.mathml" />
         </equation>
         <para><literal>R</literal> is the perspective projected position, P is the camera-space
             position, E<subscript>z</subscript> is the Z-position of the eye relative to the plane

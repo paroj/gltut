@@ -185,11 +185,7 @@
             a way of encoding this angle/axis rotation:</para>
         <equation>
             <title>Angle/Axis to Quaternion</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="AngleAxisToQuaternion.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="AngleAxisToQuaternion.mathml" />
         </equation>
         <para>Assuming the axis itself is a unit vector, this will produce a <glossterm>unit
                 quaternion.</glossterm> That is, a quaternion with a length of 1.</para>
@@ -204,11 +200,7 @@
                     <literal>b</literal>, the product of them is:</para>
             <equation>
                 <title>Quaternion Multiplication</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="QuaternionMultiplication.svg" />
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="QuaternionMultiplication.mathml" />
             </equation>
             <para>If the two quaternions being multiplied represent orientations, then the product
                 of them is a composite orientation. This works like matrix multiplication, except
@@ -227,11 +219,7 @@
                 rotations, it's much preferable to do it directly:</para>
             <equation>
                 <title>Quaternion to Matrix</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="QuaternionToMatrix.svg" />
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="QuaternionToMatrix.mathml" />
             </equation>
             <para>This does look suspiciously similar to the formula for generating a matrix from an
                 angle/axis rotation.</para>

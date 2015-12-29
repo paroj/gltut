@@ -129,11 +129,7 @@
                 this lighting model is quite simple:</para>
             <equation>
                 <title>Diffuse Lighting Equation</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="DiffuseLightingEquation.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="DiffuseLightingEquation.mathml" />
             </equation>
             <para>The cosine of the angle of incidence is used because it represents the perfect
                 hemisphere of light that would be reflected. When the angle of incidence is 0°, the
@@ -511,11 +507,7 @@ void main()
                 follows:</para>
             <equation>
                 <title>Dot Product</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata  fileref="DotProductLength.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="DotProductLength.mathml" />
             </equation>
             <para>If both vectors have a length of one (ie: they are unit vectors), then the result
                 of a dot product is just the cosine of the angle between the vectors.</para>
@@ -527,11 +519,7 @@ void main()
                 vectors, computing the dot product via vector math is very simple:</para>
             <equation>
                 <title>Dot Product from Vector Math</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata  fileref="DotProductEquation.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="DotProductEquation.mathml" />
             </equation>
             <para>This does not require any messy cosine transcendental math computations. This
                 does not require using trigonometry to compute the angle between the two vectors.
@@ -595,22 +583,14 @@ void main()
             of the original matrix are the rows of its transpose. That is:</para>
         <equation>
             <title>Matrix Transpose</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="MatrixTranspose.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="MatrixTranspose.mathml" />
         </equation>
         <para>So how does this inverse transpose help us?</para>
         <para>Remember: what we want is to invert the scales of our matrix without affecting the
             rotational characteristics of our matrix. Given a 3x3 matrix M that is composed of only
             rotation and scale transformations, we can re-express this matrix as follows:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="MatrixSVD.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="MatrixSVD.mathml" />
         </informalequation>
         <para>That is, the matrix can be expressed as doing a rotation into a space, followed by a
             single scale transformation, followed by another rotation. We can do this
@@ -628,11 +608,7 @@ void main()
             of a pure scale matrix is a matrix with each of the scaling components inverted.
             Therefore, we can express the matrix that we actually want as this:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="InvertedScale.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="InvertedScale.mathml" />
         </informalequation>
         <para>An interesting fact about pure-rotation matrices: the inverse of any rotation matrix
                 <emphasis>is</emphasis> its transpose. Also, taking the inverse of a matrix twice
@@ -644,29 +620,17 @@ void main()
             operation on scale matrices does nothing. With these two facts in hand, we can
             re-express the matrix we want to compute as:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="DeriveInvTrans_1.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="DeriveInvTrans_1.mathml" />
         </informalequation>
         <para>Using matrix algebra, we can factor the transposes out, but doing so requires
             reversing the order of the matrix multiplication:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="FactorOutTranspose_2.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="FactorOutTranspose_2.mathml" />
         </informalequation>
         <para>Similar, we can factor out the inverse operations, but this requires reversing the
             order again:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="FactorOutInverse_3.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="FactorOutInverse_3.mathml" />
         </informalequation>
         <para>Thus, the inverse-transpose solves our problem. And both GLM and GLSL have nice
             functions that can do these operations for us. Though really, if you can avoid doing an

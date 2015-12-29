@@ -59,11 +59,7 @@
         <para>The numerical version of the coordinate system equation is as follows:</para>
         <equation>
             <title>Coordinate System</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="FullCoordinateEquation.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="FullCoordinateEquation.mathml" />
         </equation>
         <para>The geometric version is all well and good when dealing with the geometric basis
             vectors and origin point. The origin point is just a position, and the basis vectors are
@@ -162,21 +158,13 @@
             multiplication: 1*X = X. The 4x4 identity matrix looks like this:</para>
         <equation>
             <title>Identity Matrix</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="IdentityMatrix.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="IdentityMatrix.mathml" />
         </equation>
         <para>To modify the identity matrix into one that is suitable for translation, we simply put
             the offset into the W column of the identity matrix.</para>
         <equation>
             <title>Translation Matrix</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="TranslationMatrix.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="TranslationMatrix.mathml" />
         </equation>
         <para>The tutorial project cleverly titled <phrase role="propername">Translation</phrase>
             performs translation operations.</para>
@@ -313,21 +301,13 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>Recall how we defined the way coordinate systems generate a position, based on the
             basis vectors and origin point:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="CoordinateEquation.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="CoordinateEquation.mathml" />
         </informalequation>
         <para>If you are increasing or decreasing the length of the basis vectors, this is the same
             as multiplying those basis vectors by the new length. So we can re-express this equation
             as follows:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="ScaledCoordEquation.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="ScaledCoordEquation.mathml" />
         </informalequation>
         <para>Since scalar-vector multiplication is both associative and commutative, we can
             multiply the scales directly into the coordinate values to achieve the same effect. So a
@@ -339,11 +319,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>This gets a bit technical, in terms of how a matrix multiplication works. But look
             back at the identity matrix:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="IdentityMatrix.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="IdentityMatrix.mathml" />
         </informalequation>
         <para>This matrix selects each coordinate in turn from the vector it is being multiplied
             into. Each row is multiplied with the column of the vector; all of the zeros remove the
@@ -355,11 +331,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             transformation matrix looks like this:</para>
         <equation>
             <title>Scaling Transformation Matrix</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="ScaleMatrix.svg"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="ScaleMatrix.mathml" />
         </equation>
         <para>You may start to see a pattern emerging here, something that begins to suggest why
             matrices are very, very useful. I will not spoil it for you yet though.</para>
@@ -458,29 +430,17 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <para>First, let's look back at our equation for determining what the position of a
             coordinate is relative to certain coordinate space:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="CoordinateEquation.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="CoordinateEquation.mathml" />
         </informalequation>
         <para>Does not this look a bit familiar? No? Maybe this look at vector-matrix multiplication
             will jog your memory:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorMatrixMultiplication.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorMatrixMultiplication.mathml" />
         </informalequation>
         <para>Still nothing? Perhaps an alternate look would help:</para>
         <equation>
             <title>Vectorized Matrix Multiplication</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="CoordSysMatrixMultiply.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="CoordSysMatrixMultiply.mathml" />
         </equation>
         <para>Does it look familiar <emphasis>now</emphasis>?</para>
         <para>What this tells us is that the columns of our transformation matrices are, and have
@@ -524,11 +484,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             matrices:</para>
         <equation>
             <title>Axial Rotation Matrices</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="AxialRotationMatrices.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="AxialRotationMatrices.mathml" />
         </equation>
         <para>When using the standard C/C++ library <function>sin</function> and
                 <function>cos</function> functions, the angles must be in radians.</para>
@@ -536,11 +492,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
             arbitrary axis is as follows.</para>
         <equation>
 			<title>Angle/Axis Rotation Matrix</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="AngleAxisRotationMatrix.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="AngleAxisRotationMatrix.mathml" />
         </equation>
         <para>All of these matrices are such that, from the point of view of an observer looking
             down the axis of rotation (the positive direction of the axis is pointed into the eye of
@@ -634,11 +586,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 transform matrices look like:</para>
             <equation>
                 <title>Order of Transformation</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="TransformOrder.svg" />
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="TransformOrder.mathml" />
             </equation>
             <para>The transform <inlineequation>
                     <mathphrase>S*T</mathphrase>

@@ -309,11 +309,7 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
                 doesn't mean that it should. So let's see if we can prove that it does. To do this,
                 we must prove this:</para>
             <informalequation>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="PostProjectTransform.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="PostProjectTransform.mathml" />
             </informalequation>
             <para>This might look like a simple proof by inspection due to the associative nature of
                 these, but it is not. The reason is quite simple: w and w' may not be the same. The
@@ -324,11 +320,7 @@ glEnable(GL_DEPTH_CLAMP);</programlisting>
                 alter w. Matrix multiplication tells us that w' is the dot product of v and the
                 bottom row of T.</para>
             <informalequation>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="PostProjectTransform_2.svg"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="PostProjectTransform_2.mathml" />
             </informalequation>
             <para>Therefore, if the bottom row of T is (0, 0, 0, 1), then w == w'. And therefore, we
                 can use T before the division. Fortunately, the only matrix we have that has a

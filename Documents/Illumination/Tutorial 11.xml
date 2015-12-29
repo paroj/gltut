@@ -112,11 +112,7 @@
             perfect reflection. Mathematically, the Phong model looks like this:</para>
         <equation>
             <title>Phong Specular Term</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="PhongTerm.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="PhongTerm.mathml" />
         </equation>
         <para>The Phong term is multiplied by the light intensity in the lighting equation.</para>
         <para>The brightness of the specular highlight for a particular viewing direction is based
@@ -232,11 +228,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
                 direction on your own. Here is the formula:</para>
             <equation>
                 <title>Vector Reflection</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="ReflectionVector.svg" />
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="ReflectionVector.mathml" />
             </equation>
             <para>The L vector is the direction to the light, so negating it produces the vector
                     <emphasis>from</emphasis> the light.</para>
@@ -368,11 +360,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
         </figure>
         <equation>
             <title>Half-Angle Vector</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="HalfAngleVector.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="HalfAngleVector.mathml" />
         </equation>
         <para>When the view direction is perfectly aligned with the reflected direction, the
             half-angle vector is perfectly aligned with the surface normal. Or to put it another
@@ -391,11 +379,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             power representing the shininess of the surface.</para>
         <equation>
             <title>Blinn Specular Term</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="BlinnTerm.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="BlinnTerm.mathml" />
         </equation>
         <para>The angle between the half-angle vector and the normal is always less than 90 degrees.
             So the Blinn specular model produces similar results to the Phong model, but without
@@ -537,11 +521,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             Gaussian distribution at a particular point X is:</para>
         <equation>
             <title>Gaussian Distribution Function</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="GaussianDistributionEq.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="GaussianDistributionEq.mathml" />
         </equation>
         <figure>
             <title>Gaussian Probability Distribution Curves</title>
@@ -573,11 +553,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             equation.</para>
         <equation>
             <title>Gaussian Specular Term</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="GaussianTerm.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="GaussianTerm.mathml" />
         </equation>
         <para>This replaces our Phong and Blinn terms in our specular lighting equation and gives us
             the <glossterm>Gaussian specular model</glossterm>. The value <varname>m</varname>
@@ -657,11 +633,7 @@ outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
             vector, while Blinn computes the half-angle vector. The equation for computing the
             reflection vector is:</para>
         <informalequation>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="ReflectionVector.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="ReflectionVector.mathml" />
         </informalequation>
         <para>This involves a vector dot product, a scalar multiply, a vector-scalar multiply, and a
             vector addition (subtraction). Computing the half-angle vector requires doing a vector

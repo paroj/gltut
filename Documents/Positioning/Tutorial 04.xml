@@ -241,12 +241,7 @@
                 unprojected point. To find the location of R, we simply do this:</para>
             <equation>
                 <title>Perspective Computation</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="PerspectiveFunc.svg" width="300" 
-                            contentwidth="3in"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="PerspectiveFunc.mathml" />
             </equation>
             <para>Since this is a vectorized function, this solution applies equally to 2D as to 3D.
                 Thus, perspective projection is simply the task of applying that simple formula to
@@ -398,11 +393,7 @@
                 modestly complicated function to compute the clip-space Z:</para>
             <equation>
                 <title>Depth Computation</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="ZValueFunc.svg" width="500"  contentwidth="4in"/>
-                    </imageobject>
-                </mediaobject>
+                <xi:include href="ZValueFunc.mathml" />
             </equation>
             <para>Some important things about this equation and camera zNear/zFar. First, these
                 values are <emphasis>positive</emphasis>; the equation accounts for this when
@@ -590,23 +581,13 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             following four equations.</para>
         <equation>
             <title>Camera to Clip Equations</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="CameraToClipPartial.svg" width="600" 
-                        contentwidth="6in"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="CameraToClipPartial.mathml" />
         </equation>
         <para>The odd spacing is intentional. For laughs, let's add a bunch of meaningless terms
             that do not change the equation, but starts to develop an interesting pattern:</para>
         <equation>
             <title>Camera to Clip Expanded Equations</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="CameraToClipNearMatrix.svg" width="800" 
-                        contentwidth="6in"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="CameraToClipNearMatrix.mathml" />
         </equation>
         <para>What we have here is what is known as a linear system of equations. The equations can
             be specified as a series of coefficients (the numbers being multiplied by the XYZW
@@ -624,12 +605,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             algebra:</para>
         <equation>
             <title>Camera to Clip Matrix Transformation</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata  fileref="CameraToClipMatrix.svg" width="600"
-                        contentwidth="6in"/>
-                </imageobject>
-            </mediaobject>
+            <xi:include href="CameraToClipMatrix.mathml" />
         </equation>
         <para>The two long vertical columns of XYZW labeled <quote>clip</quote> and
                 <quote>camera</quote> are 4-dimensional vectors; namely the clip and camera space
@@ -656,11 +632,7 @@ clipPos.y = cameraPos.y * frustumScale;</programlisting>
             that becomes the single value for the row of the output vector.</para>
         <equation>
             <title>Vector Matrix Multiplication</title>
-            <mediaobject>
-                <imageobject>
-                    <imagedata fileref="VectorMatrixMultiplication.svg" />
-                </imageobject>
-            </mediaobject>
+            <xi:include href="VectorMatrixMultiplication.mathml" />
         </equation>
         <para>This results ultimately in performing 16 floating-point multiplications and 12
             floating-point additions. That's quite a lot, particularly compared with our current

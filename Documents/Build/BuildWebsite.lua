@@ -39,6 +39,9 @@ WriteParamsToFile(hFile, params);
 hFile:write([[
 	<xsl:template name="system.head.content">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+		<script type="text/javascript"
+          src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML">
+        </script>
 	</xsl:template>
 	<xsl:template name="generate.html.title"/>
 ]]);
