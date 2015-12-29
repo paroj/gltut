@@ -1,0 +1,43 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2016.html" title="Chapter 16. Gamma and Textures"><link rel="prev" href="Tut16%20Free%20Gamma%20Correction.html" title="sRGB and the Screen"><link rel="next" href="Tut16%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut16%20Free%20Gamma%20Correction.html">Prev</a> </td><th width="60%" align="center">Chapter 16. Gamma and Textures</th><td width="20%" align="right"> <a accesskey="n" href="Tut16%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp111"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>At all times, it is important to remember what the meaning of the data stored
+                    in a texture is.</p>
+            </li><li class="listitem">
+                <p>Most of the time, when a texture represents actual colors, those colors are in
+                    the sRGB colorspace. An appropriate image format must be selected.</p>
+            </li><li class="listitem">
+                <p>Linear operations like filtering must be performed on linear values. All of
+                    OpenGL's operations on sRGB textures do this.</p>
+            </li><li class="listitem">
+                <p>Similarly, the generation of mipmaps, a linear operation, must perform
+                    conversion from sRGB to lRGB, do the filtering, and then convert back. Since
+                    OpenGL does not (usually) generate mipmaps, it is incumbent upon the creator of
+                    the image to ensure that the mipmaps were generated properly.</p>
+            </li><li class="listitem">
+                <p>Lighting operations need linear values.</p>
+            </li><li class="listitem">
+                <p>The framebuffer can also be in the sRGB colorspace. OpenGL also requires a
+                    special enable when doing so, thus allowing for some parts of the rendering to
+                    be sRGB encoded and other parts not.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12243"></a>OpenGL Functions of Note</h3></div></div></div>
+            
+            <div class="glosslist"><dl><dt><span class="glossterm">glEnable/glDisable(GL_FRAMEBUFFER_SRGB)</span></dt><dd class="glossdef"><p>Enables/disables the conversion from linear to sRGB. When this is
+                            enabled, colors written by the fragment shader to an sRGB image are
+                            assumed to be linear. They are therefore converted into the sRGB
+                            colorspace. When this is disabled, the colors written by the fragment
+                            shader are assumed to already be in the sRGB colorspace; they are
+                            written exactly as given.</p></dd></dl></div>
+        </div>
+        
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut16%20Free%20Gamma%20Correction.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2016.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut16%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">sRGB and the Screen </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

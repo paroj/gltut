@@ -1,0 +1,59 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Dissecting Display</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2001.html" title="Chapter 1. Hello, Triangle!"><link rel="prev" href="Tutorial%2001.html" title="Chapter 1. Hello, Triangle!"><link rel="next" href="Tut01%20Following%20the%20Data.html" title="Following the Data"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Dissecting Display</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2001.html">Prev</a> </td><th width="60%" align="center">Chapter 1. Hello, Triangle!</th><td width="20%" align="right"> <a accesskey="n" href="Tut01%20Following%20the%20Data.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp13"></a>Dissecting Display</h2></div></div></div>
+        
+        
+        <p>The <code class="function">display</code> function seems on the surface to be fairly simple.
+            However, the functioning of it is fairly complicated and intertwined with the
+            initialization done in the <code class="function">init</code> function.</p>
+        <div class="example"><a name="idp1285"></a><p class="title"><b>Example 1.1. The <code class="function">display</code> Function</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+glClear(GL_COLOR_BUFFER_BIT);
+
+glUseProgram(theProgram);
+
+glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+glDrawArrays(GL_TRIANGLES, 0, 3);
+
+glDisableVertexAttribArray(0);
+glUseProgram(0);
+
+glutSwapBuffers();</pre>
+        </div></div><br class="example-break">
+        <p>Let us examine this code in detail.</p>
+        <p>The first two lines clear the screen. <code class="function">glClearColor</code> is one of
+            those state setting functions; it sets the color that will be used when clearing the
+            screen. It sets the clearing color to black. <code class="function">glClear</code> does not set
+            OpenGL state; it causes the screen to be cleared. The
+                <code class="literal">GL_COLOR_BUFFER_BIT</code> parameter means that the clear call will
+            affect the color buffer, causing it to be cleared to the current clearing color we set
+            in the previous function.</p>
+        <p>The next line sets the current shader program to be used by all subsequent rendering
+            commands. We will go into detail as to how this works later.</p>
+        <p>The next three commands all set state. These commands set up the coordinates of the
+            triangle to be rendered. They tell OpenGL the location in memory that the positions of
+            the triangle will come from. The specifics of how these work will be detailed
+            later.</p>
+        <p>The <code class="function">glDrawArrays</code> function is, as the name suggests, a rendering
+            function. It uses the current state to generate a stream of vertices that will form
+            triangles.</p>
+        <p>The next two lines are simply cleanup work, undoing some of the setup that was done
+            for the purposes of rendering.</p>
+        <p>The last line, <code class="function">glutSwapBuffers</code>, is a FreeGLUT command, not an
+            OpenGL command. The OpenGL framebuffer, as we set up in
+                <code class="filename">framework.cpp</code>, is double-buffered. This means that the image
+            that is currently being shown to the user is <span class="emphasis"><em>not</em></span> the same image we
+            are rendering to. Thus, all of our rendering is hidden from view until it is shown to
+            the user. This way, the user never sees a half-rendered image.
+                <code class="function">glutSwapBuffers</code> is the function that causes the image we are
+            rendering to be displayed to the user.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2001.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2001.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut01%20Following%20the%20Data.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 1. Hello, Triangle! </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Following the Data</td></tr></table></div></body></html>

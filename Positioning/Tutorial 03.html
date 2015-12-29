@@ -1,0 +1,157 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 3. OpenGL's Moving Triangle</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Positioning.html" title="Part II. Positioning"><link rel="prev" href="Positioning.html" title="Part II. Positioning"><link rel="next" href="Tut03%20A%20Better%20Way.html" title="A Better Way"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 3. OpenGL's Moving Triangle</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Positioning.html">Prev</a> </td><th width="60%" align="center">Part II. Positioning</th><td width="20%" align="right"> <a accesskey="n" href="Tut03%20A%20Better%20Way.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp24"></a>Chapter 3. OpenGL's Moving Triangle</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2003.html#idp1997">Moving the Vertices</a></span></dt><dt><span class="section"><a href="Tut03%20A%20Better%20Way.html">A Better Way</a></span></dt><dt><span class="section"><a href="Tut03%20More%20Power%20To%20The%20Shaders.html">More Power to the Shaders</a></span></dt><dt><span class="section"><a href="Tut03%20Multiple%20Shaders.html">Multiple Shaders</a></span></dt><dt><span class="section"><a href="Tut03%20On%20Vertex%20Shader%20Performance.html">On Vertex Shader Performance</a></span></dt><dt><span class="section"><a href="Tut03%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut03%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>This tutorial is about how to move objects around. It will introduce new shader
+        techniques.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp1997"></a>Moving the Vertices</h2></div></div></div>
+        
+        <p>The simplest way one might think to move a triangle or other object around is to
+            simply modify the vertex position data directly. From previous tutorials, we learned
+            that the vertex data is stored in a buffer object. So the task is to modify the vertex
+            data in the buffer object. This is what <code class="filename">CPUPositionOffset.cpp</code>
+            does.</p>
+        <p>The modifications are done in two steps. The first step is to generate the X, Y offset
+            that will be applied to each position. The second is to apply that offset to each vertex
+            position. The generation of the offset is done with the
+                <code class="function">ComputePositionOffset</code> function:</p>
+        <div class="example"><a name="idp2003"></a><p class="title"><b>Example 3.1. Computation of Position Offsets</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void ComputePositionOffsets(float &amp;fXOffset, float &amp;fYOffset)
+{
+    const float fLoopDuration = 5.0f;
+    const float fScale = 3.14159f * 2.0f / fLoopDuration;
+    
+    float fElapsedTime = glutGet(GLUT_ELAPSED_TIME) / 1000.0f;
+    
+    float fCurrTimeThroughLoop = fmodf(fElapsedTime, fLoopDuration);
+    
+    fXOffset = cosf(fCurrTimeThroughLoop * fScale) * 0.5f;
+    fYOffset = sinf(fCurrTimeThroughLoop * fScale) * 0.5f;
+}</pre>
+        </div></div><br class="example-break">
+        <p>This function computes offsets in a loop. The offsets produce circular motion, and the
+            offsets will reach the beginning of the circle every 5 seconds (controlled by
+                <code class="varname">fLoopDuration</code>). The function
+                <code class="function">glutGet(GLUT_ELAPSED_TIME)</code> retrieves the integer time in
+            milliseconds since the application started. The <code class="function">fmodf</code> function
+            computes the floating-point modulus of the time. In lay terms, it takes the first
+            parameter and returns the remainder of the division between that and the second
+            parameter. Thus, it returns a value on the range [0, <code class="varname">fLoopDuration</code>),
+            which is what we need to create a periodically repeating pattern.</p>
+        <p>The <code class="function">cosf</code> and <code class="function">sinf</code> functions compute the
+            cosine and sine respectively. It is not important to know exactly how these functions
+            work, but they effectively compute a circle of diameter 2. By multiplying by 0.5f, it
+            shrinks the circle down to a circle with a diameter of 1.</p>
+        <p>Once the offsets are computed, the offsets have to be added to the vertex data. This
+            is done with the <code class="function">AdjustVertexData</code> function:</p>
+        <div class="example"><a name="idp2016"></a><p class="title"><b>Example 3.2. Adjusting the Vertex Data</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void AdjustVertexData(float fXOffset, float fYOffset)
+{
+    std::vector&lt;float&gt; fNewData(ARRAY_COUNT(vertexPositions));
+    memcpy(&amp;fNewData[0], vertexPositions, sizeof(vertexPositions));
+    
+    for(int iVertex = 0; iVertex &lt; ARRAY_COUNT(vertexPositions); iVertex += 4)
+    {
+        fNewData[iVertex] += fXOffset;
+        fNewData[iVertex + 1] += fYOffset;
+    }
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertexPositions), &amp;fNewData[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}</pre>
+        </div></div><br class="example-break">
+        <p>This function works by copying the vertex data into a std::vector, then applying the
+            offset to the X and Y coordinates of each vertex. The last three lines are the
+            OpenGL-relevant parts.</p>
+        <p>First, the buffer objects containing the positions is bound to the context. Then the
+            new function <code class="function">glBufferSubData</code> is called to transfer this data to the
+            buffer object.</p>
+        <p>The difference between <code class="function">glBufferData</code> and
+                <code class="function">glBufferSubData</code> is that the SubData function does not
+                <span class="emphasis"><em>allocate</em></span> memory. <code class="function">glBufferData</code> specifically
+            allocates memory of a certain size; <code class="function">glBufferSubData</code> only transfers
+            data to the already existing memory. Calling <code class="function">glBufferData</code> on a
+            buffer object that has already been allocated tells OpenGL to
+                <span class="emphasis"><em>reallocate</em></span> this memory, throwing away the previous data and
+            allocating a fresh block of memory. Whereas calling <code class="function">glBufferSubData</code>
+            on a buffer object that has not yet had memory allocated by
+                <code class="function">glBufferData</code> is an error.</p>
+        <p>Think of <code class="function">glBufferData</code> as a combination of
+                <code class="function">malloc</code> and <code class="function">memcpy</code>, while glBufferSubData
+            is just <code class="function">memcpy</code>.</p>
+        <p>The <code class="function">glBufferSubData</code> function can update only a portion of the
+            buffer object's memory. The second parameter to the function is the byte offset into the
+            buffer object to begin copying to, and the third parameter is the number of bytes to
+            copy. The fourth parameter is our array of bytes to be copied into that location of the
+            buffer object.</p>
+        <p>The last line of the function is simply unbinding the buffer object. It is not
+            strictly necessary, but it is good form to clean up binds after making them.</p>
+        <p>
+            <b>Buffer Object Usage Hints. </b>
+            Every time we draw something, we are changing the buffer object's data. OpenGL has
+                a way to tell it that you will be doing something like this, and it is the purpose
+                of the last parameter of <code class="function">glBufferData</code>. This tutorial changed
+                the allocation of the buffer object slightly, replacing:
+        </p>
+        <pre class="programlisting">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);</pre>
+        <p>with this:</p>
+        <pre class="programlisting">glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STREAM_DRAW);</pre>
+        <p><code class="literal">GL_STATIC_DRAW</code> tells OpenGL that you intend to only set the data in
+            this buffer object once. <code class="literal">GL_STREAM_DRAW</code> tells OpenGL that you intend
+            to set this data constantly, generally once per frame. These parameters do not mean
+                <span class="emphasis"><em>anything</em></span> with regard to the API; they are simply hints to the
+            OpenGL implementation. Proper use of these hints can be crucial for getting good buffer
+            object performance when making frequent changes. We will see more of these hints
+            later.</p>
+        <p>The rendering function now has become this:</p>
+        <div class="example"><a name="idp2052"></a><p class="title"><b>Example 3.3. Updating and Drawing the Vertex Data</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void display()
+{
+    float fXOffset = 0.0f, fYOffset = 0.0f;
+    ComputePositionOffsets(fXOffset, fYOffset);
+    AdjustVertexData(fXOffset, fYOffset);
+    
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(0);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</pre>
+        </div></div><br class="example-break">
+        <p>The first three lines get the offset and set the vertex data. Everything but the last
+            line is unchanged from the first tutorial. The last line of the function is there to
+            tell FreeGLUT to constantly call <code class="function">display</code>. Ordinarily,
+                <code class="function">display</code> would only be called when the window's size changes or
+            when the window is uncovered. <code class="function">glutPostRedisplay</code> causes FreeGLUT to
+            call <code class="function">display</code> again. Not immediately, but reasonably fast.</p>
+        <p>If you run the tutorial, you will see a smaller triangle (the size was reduced in this
+            tutorial) that slides around in a circle.</p>
+    </div>
+    
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Positioning.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Positioning.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut03%20A%20Better%20Way.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Part II. Positioning </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> A Better Way</td></tr></table></div></body></html>

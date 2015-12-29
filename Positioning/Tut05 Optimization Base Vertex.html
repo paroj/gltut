@@ -1,0 +1,180 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Optimization: Base Vertex</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2005.html" title="Chapter 5. Objects in Depth"><link rel="prev" href="Tutorial%2005.html" title="Chapter 5. Objects in Depth"><link rel="next" href="Tut05%20Overlap%20and%20Depth%20Buffering.html" title="Overlap and Depth Buffering"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Optimization: Base Vertex</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2005.html">Prev</a> </td><th width="60%" align="center">Chapter 5. Objects in Depth</th><td width="20%" align="right"> <a accesskey="n" href="Tut05%20Overlap%20and%20Depth%20Buffering.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp38"></a>Optimization: Base Vertex</h2></div></div></div>
+        
+        
+        <p>Using VAOs can dramatically simplify code. However, VAOs are not always the best case
+            for performance, particularly if you use a lot of separate buffer objects.</p>
+        <p>Binding a VAO for rendering can be an expensive proposition. Therefore, if there is a
+            way to avoid binding one, then it can provide a performance improvement, if the program
+            is currently bottlenecked on the CPU.</p>
+        <p>Our two objects have much in common. They use the same vertex attribute indices, since
+            they are being rendered with the same program object. They use the same format for each
+            attribute (3 floats for positions, 4 floats for colors). The vertex data even comes from
+            the same buffer object.</p>
+        <p>Indeed, the <span class="emphasis"><em>only</em></span> difference between the two objects is what
+            offset each attribute uses. And even this is quite minimal, since the difference between
+            the offsets is a constant factor of the size of each attribute.</p>
+        <p>Look at the vertex data in the buffer object:</p>
+        <div class="example"><a name="idp3638"></a><p class="title"><b>Example 5.5. Vertex Attribute Data Abridged</b></p><div class="example-contents">
+            
+            <pre class="programlisting">//Object 1 positions
+LEFT_EXTENT,    TOP_EXTENT,       REAR_EXTENT,
+LEFT_EXTENT,    MIDDLE_EXTENT,    FRONT_EXTENT,
+RIGHT_EXTENT,   MIDDLE_EXTENT,    FRONT_EXTENT,
+
+...
+
+RIGHT_EXTENT,   TOP_EXTENT,       REAR_EXTENT,
+RIGHT_EXTENT,   BOTTOM_EXTENT,    REAR_EXTENT,
+
+//Object 2 positions
+TOP_EXTENT,     RIGHT_EXTENT,     REAR_EXTENT,
+MIDDLE_EXTENT,  RIGHT_EXTENT,     FRONT_EXTENT,
+MIDDLE_EXTENT,  LEFT_EXTENT,      FRONT_EXTENT,
+
+...
+
+TOP_EXTENT,     RIGHT_EXTENT,     REAR_EXTENT,
+TOP_EXTENT,     LEFT_EXTENT,      REAR_EXTENT,
+BOTTOM_EXTENT,  LEFT_EXTENT,      REAR_EXTENT,
+
+//Object 1 colors
+GREEN_COLOR,
+GREEN_COLOR,
+GREEN_COLOR,
+
+...
+
+BROWN_COLOR,
+BROWN_COLOR,
+
+//Object 2 colors
+RED_COLOR,
+RED_COLOR,
+RED_COLOR,
+
+...
+
+GREY_COLOR,
+GREY_COLOR,</pre>
+        </div></div><br class="example-break">
+        <p>Notice how the attribute array for object 2 immediately follows its corresponding
+            attribute array for object 1. So really, instead of four attribute arrays, we really
+            have just two attribute arrays.</p>
+        <p>If we were doing array drawing, we could simply have one VAO, which sets up the
+            beginning of both combined attribute arrays. We would still need 2 separate draw calls,
+            because there is a uniform that is different for each object. But our rendering code
+            could look like this:</p>
+        <div class="example"><a name="idp3643"></a><p class="title"><b>Example 5.6. Array Drawing of Two Objects with One VAO</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glUseProgram(theProgram);
+
+glBindVertexArray(vaoObject);
+glUniform3f(offsetUniform, 0.0f, 0.0f, 0.0f);
+glDrawArrays(GL_TRIANGLES, 0, numTrianglesInObject1);
+
+glUniform3f(offsetUniform, 0.0f, 0.0f, -1.0f);
+glDrawArrays(GL_TRIANGLES, numTrianglesInObject1, numTrianglesInObject2);
+
+glBindVertexArray(0);
+glUseProgram(0);</pre>
+        </div></div><br class="example-break">
+        <p>This is all well and good for array drawing, but we are doing indexed drawing. And
+            while we can control the location we are reading from in the element buffer by using the
+                <em class="parameter"><code>count</code></em> and <em class="parameter"><code>indices</code></em> parameter of
+                <code class="function">glDrawElements</code>, that only specifies which indices we are
+            reading from the element buffer. What we would need is a way to modify the index data
+            itself.</p>
+        <p>This could be done by simply storing the index data for object 2 in the element
+            buffer. This changes our element buffer into the following:</p>
+        <div class="example"><a name="idp3651"></a><p class="title"><b>Example 5.7. MultiObject Element Buffer</b></p><div class="example-contents">
+            
+            <pre class="programlisting">const GLshort indexData[] =
+{
+//Object 1
+0, 2, 1,        3, 2, 0,
+4, 5, 6,        6, 7, 4,
+8, 9, 10,       11, 13, 12,
+14, 16, 15,     17, 16, 14,
+
+//Object 2
+18, 20, 19,     21, 20, 18,
+22, 23, 24,     24, 25, 22,
+26, 27, 28,     29, 31, 30,
+32, 34, 33,     35, 34, 32,
+};</pre>
+        </div></div><br class="example-break">
+        <p>This would work for our simple example here, but it does needlessly take up room. What
+            would be great is a way to simply add a bias value to the index after it is pulled from
+            the element array, but <span class="emphasis"><em>before</em></span> it is used to access the attribute
+            data.</p>
+        <p>I'm sure you'll be surprised to know that OpenGL offers such a mechanism, what with me
+            bringing it up and all.</p>
+        <p>The function <code class="function">glDrawElementsBaseVertex</code> provides this
+            functionality. It works like <code class="function">glDrawElements</code> has one extra parameter
+            at the end, which is the offset to be applied to each index. The tutorial project
+                <span class="propername">Base Vertex With Overlap</span> demonstrates
+            this.</p>
+        <p>The initialization changes, building only one VAO.</p>
+        <div class="example"><a name="idp3662"></a><p class="title"><b>Example 5.8. Base Vertex Single VAO</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glGenVertexArrays(1, &amp;vao);
+glBindVertexArray(vao);
+
+size_t colorDataOffset = sizeof(float) * 3 * numberOfVertices;
+glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+glEnableVertexAttribArray(0);
+glEnableVertexAttribArray(1);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
+
+glBindVertexArray(0);</pre>
+        </div></div><br class="example-break">
+        <p>This simply binds the beginning of each array. The rendering code is as
+            follows:</p>
+        <div class="example"><a name="idp3666"></a><p class="title"><b>Example 5.9. Base Vertex Rendering</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glUseProgram(theProgram);
+
+glBindVertexArray(vao);
+
+glUniform3f(offsetUniform, 0.0f, 0.0f, 0.0f);
+glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+
+glUniform3f(offsetUniform, 0.0f, 0.0f, -1.0f);
+glDrawElementsBaseVertex(GL_TRIANGLES, ARRAY_COUNT(indexData),
+	GL_UNSIGNED_SHORT, 0, numberOfVertices / 2);
+
+glBindVertexArray(0);
+glUseProgram(0);</pre>
+        </div></div><br class="example-break">
+        <p>The first draw call uses the regular glDrawElements function, but the second uses the
+            BaseVertex version.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>This example of BaseVertex's use is somewhat artificial, because both objects use
+                the same index data. The more compelling way to use it is with objects that have
+                different index data. Of course, if objects have different index data, you may be
+                wondering why you would bother with BaseVertex when you could just manually add the
+                offset to the indices themselves when you create the element buffer.</p>
+            <p>There are several reasons not to do this. One of these is that
+                    <code class="literal">GL_UNSIGNED_INT</code> is twice as large as
+                    <code class="literal">GL_UNSIGNED_SHORT</code>. If you have more than 65,536 entries in an
+                array, whether for one object or for many, you would need to use ints instead of
+                shorts for indices. Using ints can hurt performance, particularly on older hardware
+                with less bandwidth. With BaseVertex, you can use shorts for everything, unless a
+                particular object itself has more than 65,536 vertices.</p>
+            <p>The other reason not to manually bias the index data is to more accurately match
+                the files you are using. When loading indexed mesh data from files, the index data
+                is not biased by a base vertex; it is all relative to the model's start. So it makes
+                sense to keep things that way where possible; it just makes the loading code simpler
+                and faster by storing a per-object BaseVertex with the object rather than biasing
+                all of the index data.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2005.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2005.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut05%20Overlap%20and%20Depth%20Buffering.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 5. Objects in Depth </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Overlap and Depth Buffering</td></tr></table></div></body></html>

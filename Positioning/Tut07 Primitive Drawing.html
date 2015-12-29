@@ -1,0 +1,113 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Primitive Drawing</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2007.html" title="Chapter 7. World in Motion"><link rel="prev" href="Tutorial%2007.html" title="Chapter 7. World in Motion"><link rel="next" href="Tut07%20Shared%20Uniforms.html" title="Shared Uniforms"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Primitive Drawing</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2007.html">Prev</a> </td><th width="60%" align="center">Chapter 7. World in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut07%20Shared%20Uniforms.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp52"></a>Primitive Drawing</h2></div></div></div>
+        
+        
+        <p>We skipped over how the <code class="function">Mesh::Render</code> function and mesh loading
+            works. So let's cover that now.</p>
+        <p>The XML-based mesh files define a number of vertex attribute arrays, followed by a
+            number of rendering commands. The format fully supports all features of OpenGL,
+            including options not previously discussed. One of these options deals with how vertex
+            data is interpreted by OpenGL.</p>
+        <p>The <code class="function">glDraw*</code> commands, whether using indexed rendering or array
+            rendering, establish a <em class="glossterm">vertex stream.</em> A vertex stream is an
+            ordered list of vertices, with each vertex having a specific set of vertex attributes. A
+            vertex stream is processed by the vertex shader in order.</p>
+        <p>In array rendering, the order is determined by the order of the vertices in the
+            attribute arrays. In indexed rendering, the order is determined by the order of the
+            indices.</p>
+        <p>Once the stream is processed by the vertex shader, it must be interpreted into
+            something meaningful by OpenGL. Every <code class="function">glDraw*</code> command takes, as its
+            first parameter, a value that tells OpenGL how to interpret the stream. Thus far, we
+            have used <code class="literal">GL_TRIANGLES</code>, but there are many options. This parameter is
+            called the <em class="glossterm">rendering mode</em> or
+            <em class="glossterm">primitive</em>.</p>
+        <p>The parameter actually determines two things. The first it determines is what kind of
+            things the vertex stream refers to; this is the <em class="glossterm">primitive type</em>.
+            OpenGL can render points and lines in addition to triangles. These are all different
+            primitive types.</p>
+        <p>The other thing the parameter determines is how to interpret the vertex stream for
+            that primitive type. This is the <em class="glossterm">primitive representation</em>.
+                <code class="literal">GL_TRIANGLES</code> says more than simply that the primitive type is
+            triangles.</p>
+        <p>What <code class="literal">GL_TRIANGLES</code> means is that a vertex stream will generate
+            triangles as follows: (0, 1, 2), (3, 4, 5), (6, 7, 8), …. The numbers represent vertices
+            in the vertex stream, not indexed rendering indices. Among other things, this means that
+            the vertex stream must have a length divisible by 3. For N vertices in the stream, this
+            representation will generate N / 3 triangles.</p>
+        <p>There are two other triangular primitive representations. They are both used in the
+            cylinder mesh, so let's take a look at that.</p>
+        <div class="example"><a name="idp6295"></a><p class="title"><b>Example 7.9. Cylinder Mesh File</b></p><div class="example-contents">
+            
+            <pre class="programlisting">&lt;indices cmd="tri-fan" type="ushort" &gt;0 1 3 5 7 9 11 ...&lt;/indices&gt;
+&lt;indices cmd="tri-fan" type="ushort" &gt;61 60 58 56 54 ...&lt;/indices&gt;
+&lt;indices cmd="tri-strip" type="ushort" &gt;1 2 3 4 5 6 7 8 ...&lt;/indices&gt;</pre>
+        </div></div><br class="example-break">
+        <p>Each <span class="quote">“<span class="quote">indices</span>”</span> element maps to a call to
+                <code class="function">glDrawElements</code> with the given index array. The
+                <span class="quote">“<span class="quote">cmd</span>”</span> attribute determines the primitive that will be passed to
+                <code class="function">glDrawElements</code>. The value <span class="quote">“<span class="quote">triangles</span>”</span> means to use
+            the <code class="literal">GL_TRIANGLES</code> primitive.</p>
+        <p>The <span class="quote">“<span class="quote">tri-fan</span>”</span> used above means to use the
+                <code class="literal">GL_TRIANGLE_FAN</code> primitive. This primitive has the triangle
+            primitive type, so this vertex stream will generate triangles. But it will generate them
+            using a different representation.</p>
+        <p><code class="literal">GL_TRIANGLES</code> takes each independent set of 3 vertices as a single
+            triangle. <code class="literal">GL_TRIANGLE_FAN</code> takes the first vertex and holds on to it.
+            Then, for every vertices and its next vertex, a triangle is made out of these two plus
+            the initial vertex. So <code class="literal">GL_TRIANGLE_FAN</code> will generate triangles as
+            follows: (0, 1, 2), (0, 2, 3), (0, 3, 4), …. Visually, a triangle fan looks like
+            this:</p>
+        <div class="figure"><a name="idp6312"></a><p class="title"><b>Figure 7.4. Triangle Fan</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="TriangleFan.svg" alt="Triangle Fan"></div>
+        </div></div><br class="figure-break">
+        <p>The numbers represent the order that the vertices are in in the vertex stream. The red
+            line shows the triangle edges that are directly specified by the vertex stream. All
+            other edges are generated automatically by the primitive representation.</p>
+        <p>This is why it is called a <span class="quote">“<span class="quote">fan</span>”</span>. The number of vertices in a triangle
+            fan vertex stream must be 3 or greater, but can be otherwise any number. For N vertices
+            in a stream, triangle fans will generate N-2 triangles.</p>
+        <p>The cylinder mesh uses two fans to render the end pieces (<span class="quote">“<span class="quote">caps</span>”</span>) of the cylinder.</p>
+        <p>The <span class="quote">“<span class="quote">tri-strip</span>”</span> in the cylinder mesh represents the
+                <code class="literal">GL_TRIANGLE_STRIP</code> primitive. As the name suggests, it has a
+            triangle primitive type. The primitive representation means that every 3 adjacent
+            vertices will generate a triangle, in order. So strips generate triangles as follows:
+            (0, 1, 2), (1, 2, 3), (2, 3, 4), …. Visually, a triangle strip looks like this:</p>
+        <div class="figure"><a name="idp6325"></a><p class="title"><b>Figure 7.5. Triangle Strip</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="TriangleStrip.svg" alt="Triangle Strip"></div>
+        </div></div><br class="figure-break">
+        <p>Like with triangle fans, the number of vertices must be 3 or greater, but can be any
+            number otherwise. For N vertices in a stream, triangle strips will generate N-2
+            triangles.</p>
+        <p>The cylinder mesh uses a single triangle strip to render the sides of the
+            cylinder.</p>
+        <p>
+            <b>Winding Order. </b>
+            There is one other issue with triangle strips. This has to do with the winding
+                order of the triangles.
+        </p>
+        <p>The winding order for the triangles in a strip looks like this:</p>
+        <div class="figure"><a name="idp6336"></a><p class="title"><b>Figure 7.6. Triangle Strips with Winding Order</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="StripWindingOrder.svg" alt="Triangle Strips with Winding Order"></div>
+        </div></div><br class="figure-break">
+        <p>Notice how it alternates between clockwise and counter-clockwise. This means that,
+            regardless of what face you consider front, and what face you cull, you'll always lose
+            about half of the faces.</p>
+        <p>However, OpenGL is rather intelligent about this. Triangle strips do face culling
+            differently. For every second triangle, the one who's winding order is opposite from the
+            first triangle's order, the winding order is considered backwards for culling
+            purposes.</p>
+        <p>So if you have set the front face to be clockwise, and have face culling cull
+            back-facing triangles, everything will work exactly as you expect so long as the order
+            of the first triangle is correct. Every even numbered triangle will be culled if it has
+            a clockwise winding, and every odd numbered triangle will be culled if it has a
+            counter-clockwise winding.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2007.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2007.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut07%20Shared%20Uniforms.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 7. World in Motion </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Shared Uniforms</td></tr></table></div></body></html>

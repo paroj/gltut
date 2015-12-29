@@ -1,0 +1,423 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Interpolation</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2010.html" title="Chapter 10. Plane Lights"><link rel="prev" href="Tutorial%2010.html" title="Chapter 10. Plane Lights"><link rel="next" href="Tut10%20Fragment%20Lighting.html" title="Fragment Lighting"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Interpolation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2010.html">Prev</a> </td><th width="60%" align="center">Chapter 10. Plane Lights</th><td width="20%" align="right"> <a accesskey="n" href="Tut10%20Fragment%20Lighting.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp71"></a>Interpolation</h2></div></div></div>
+        
+        
+        <p>As you can see, doing point lighting is quite simple. Unfortunately, the visual
+            results are not.</p>
+        <p>For example, use the controls to display the position of the point light source, then
+            position it near the ground plane. See anything wrong?</p>
+        <p>If everything were working correctly, one would expect to see a bright area directly
+            under the light. After all, geometrically, this situation looks like this:</p>
+        <div class="figure"><a name="idp8304"></a><p class="title"><b>Figure 10.2. Light Near Surface</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="LightNearSurface.svg" alt="Light Near Surface"></div>
+        </div></div><br class="figure-break">
+        <p>The surface normal for the areas directly under the light are almost the same as the
+            direction towards the light. This means that the angle of incidence is small, so the
+            cosine of this angle is close to 1. That should translate to having a bright area under
+            the light, but darker areas farther away. What we see is nothing of the sort. Why is
+            that?</p>
+        <p>Well, consider what we are doing. We are computing the lighting at every triangle's
+                <span class="emphasis"><em>vertex</em></span>, and then interpolating the results across the surface
+            of the triangle. The ground plane is made up of precisely four vertices: the four
+            corners. And those are all very far from the light position and have a very large angle
+            of incidence. Since none of them have a small angle of incidence, none of the colors
+            that are interpolated across the surface are bright.</p>
+        <p>You can see this is evident by putting the light position next to the cylinder. If the
+            light is at the top or bottom of the cylinder, then the area near the light will be
+            bright. But if you move the light to the middle of the cylinder, far the top or bottom
+            vertices, then the illumination will be much dimmer.</p>
+        <p>This is not the only problem with doing per-vertex lighting. For example, run the
+            tutorial again and do not move the light. Just watch how the light behaves on the
+            cylinder's surface as it animates around. Unlike with directional lighting, you can very
+            easily see the triangles on the cylinder's surface. Though the per-vertex computations
+            are not helping matters, the main problem here has to do with interpolating the
+            values.</p>
+        <p>If you move the light source farther away, you can see that the triangles smooth out
+            and become indistinct from one another. But this is simply because, if the light source
+            is far enough away, the results are indistinguishable from a directional light. Each
+            vertex's direction to the light is almost the same as each other vertex's direction to
+            the light.</p>
+        <p>Per-vertex lighting was reasonable when dealing with directional lights. But it simply
+            is not a good idea for point lighting. The question arises: why was per-vertex lighting
+            good with directional lights to begin with?</p>
+        <p>Remember that our diffuse lighting equation has two parameters: the direction to the
+            light and the surface normal. In directional lighting, the direction to the light is
+            always the same. Therefore, the only value that changes over a triangle's surface is the
+            surface normal.</p>
+        <p>Linear interpolation of vectors looks like this:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <msub>
+            <mi>V</mi>
+            <mi>a</mi>
+        </msub>
+        <mi>α</mi>
+        <mo>+</mo>
+        <msub>
+            <mi>V</mi>
+            <mi>b</mi>
+        </msub>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mn>1</mn>
+                <mo>-</mo>
+                <mi>α</mi>
+            </mrow>
+        </mfenced>
+    </mrow>
+</math>
+        </div>
+        <p>The α in the equation is the factor of interpolation between the two values. When α is
+            one, we get V<sub>a</sub>, and when it is zero, we get
+                V<sub>b</sub>. The two values, V<sub>a</sub> and
+                V<sub>b</sub> can be scalars or vectors.</p>
+        <p>Our diffuse lighting equation is this:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>D</mi>
+        <mo>*</mo>
+        <mi>I</mi>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mover>
+                    <mi>N</mi>
+                    <mo>^</mo>
+                </mover>
+                <mo>·</mo>
+                <mover>
+                    <mi>L</mi>
+                    <mo>^</mo>
+                </mover>
+            </mrow>
+        </mfenced>
+    </mrow>
+</math>
+        </div>
+        <p>If the surface normal N is being interpolated, then at any particular point on the
+            surface, we get this equation for a directional light (the light direction L does not
+            change):</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>D</mi>
+        <mo>*</mo>
+        <mi>I</mi>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mover>
+                    <mi>L</mi>
+                    <mo>^</mo>
+                </mover>
+                <mo>·</mo>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <msub>
+                                <mi>N</mi>
+                                <mi>a</mi>
+                            </msub>
+                            <mo>^</mo>
+                        </mover>
+                        <mi>α</mi>
+                        <mo>+</mo>
+                        <mover>
+                            <msub>
+                                <mi>N</mi>
+                                <mi>b</mi>
+                            </msub>
+                            <mo>^</mo>
+                        </mover>
+                        <mfenced open="(" close=")" separators=",">
+                            <mrow>
+                                <mn>1</mn>
+                                <mo>-</mo>
+                                <mi>α</mi>
+                            </mrow>
+                        </mfenced>
+                    </mrow>
+                </mfenced>
+            </mrow>
+        </mfenced>
+    </mrow>
+</math>
+        </div>
+        <p>The dot product is distributive, like scalar multiplication. So we can distribute the
+            L to both sides of the dot product term:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>D</mi>
+        <mo>*</mo>
+        <mi>I</mi>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>^</mo>
+                        </mover>
+                        <mo>·</mo>
+                        <mfenced open="(" close=")" separators=",">
+                            <mrow>
+                                <mover>
+                                    <msub>
+                                        <mi>N</mi>
+                                        <mi>a</mi>
+                                    </msub>
+                                    <mo>^</mo>
+                                </mover>
+                                <mi>α</mi>
+                            </mrow>
+                        </mfenced>
+                    </mrow>
+                </mfenced>
+                <mi>+</mi>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>^</mo>
+                        </mover>
+                        <mo>·</mo>
+                        <mfenced open="(" close=")" separators=",">
+                            <mrow>
+                                <mover>
+                                    <msub>
+                                        <mi>N</mi>
+                                        <mi>b</mi>
+                                    </msub>
+                                    <mo>^</mo>
+                                </mover>
+                                <mfenced open="(" close=")" separators=",">
+                                    <mrow>
+                                        <mn>1</mn>
+                                        <mo>-</mo>
+                                        <mi>α</mi>
+                                    </mrow>
+                                </mfenced>
+                            </mrow>
+                        </mfenced>
+                    </mrow>
+                </mfenced>
+            </mrow>
+        </mfenced>
+    </mrow>
+</math>
+        </div>
+        <p>We can extract the linear terms from the dot product. Remember that the dot product is
+            the cosine of the angle between two vectors, times the length of those vectors. The two
+            scaling terms directly modify the length of the vectors. So they can be pulled out to
+            give us:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>D</mi>
+        <mo>*</mo>
+        <mi>I</mi>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mi>α</mi>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>^</mo>
+                        </mover>
+                        <mo>·</mo>
+                                <mover>
+                                    <msub>
+                                        <mi>N</mi>
+                                        <mi>a</mi>
+                                    </msub>
+                                    <mo>^</mo>
+                                </mover>
+                    </mrow>
+                </mfenced>
+                <mi>+</mi>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mn>1</mn>
+                        <mo>-</mo>
+                        <mi>α</mi>
+                    </mrow>
+                </mfenced>
+                <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>^</mo>
+                        </mover>
+                        <mo>·</mo>
+                                <mover>
+                                    <msub>
+                                        <mi>N</mi>
+                                        <mi>b</mi>
+                                    </msub>
+                                    <mo>^</mo>
+                                </mover>
+                    </mrow>
+                </mfenced>
+            </mrow>
+        </mfenced>
+    </mrow>
+</math>
+        </div>
+        <p>Recall that vector/scalar multiplication is distributive. We can distribute the
+            multiplication by the diffuse color and light intensity to both terms. This gives
+            us:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mi>α</mi>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>^</mo>
+                                    </mover>
+                                    <mo>·</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>a</mi>
+                                        </msub>
+                                        <mo>^</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                    <mi>+</mi>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mn>1</mn>
+                                    <mo>-</mo>
+                                    <mi>α</mi>
+                                </mrow>
+                            </mfenced>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>^</mo>
+                                    </mover>
+                                    <mo>·</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>b</mi>
+                                        </msub>
+                                        <mo>^</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>^</mo>
+                                    </mover>
+                                    <mo>·</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>a</mi>
+                                        </msub>
+                                        <mo>^</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                    <mi>α</mi>
+                    <mi>+</mi>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mi>D</mi>
+                            <mo>*</mo>
+                            <mi>I</mi>
+                            <mo>*</mo>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mover>
+                                        <mi>L</mi>
+                                        <mo>^</mo>
+                                    </mover>
+                                    <mo>·</mo>
+                                    <mover>
+                                        <msub>
+                                            <mi>N</mi>
+                                            <mi>b</mi>
+                                        </msub>
+                                        <mo>^</mo>
+                                    </mover>
+                                </mrow>
+                            </mfenced>
+                        </mrow>
+                    </mfenced>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mn>1</mn>
+                            <mo>-</mo>
+                            <mi>α</mi>
+                        </mrow>
+                    </mfenced>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+        </div>
+        <p>This means that if L is constant, linearly interpolating N is exactly equivalent to
+            linearly interpolating the results of the lighting equation. And the addition of the
+            ambient term does not change this, since it is a constant and would not be affected by
+            linear interpolation.</p>
+        <p>When doing point lighting, you would have to interpolate both N and L. And that does
+            not yield the same results as linearly interpolating the two colors you get from the
+            lighting equation. This is a big part of the reason why the cylinder does not look
+            correct.</p>
+        <p>The more physically correct method of lighting is to perform lighting at every rendered
+            pixel. To do that, we would have to interpolate the lighting parameters across the
+            triangle, and perform the lighting computation in the fragment shader.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2010.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2010.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut10%20Fragment%20Lighting.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 10. Plane Lights </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Fragment Lighting</td></tr></table></div></body></html>

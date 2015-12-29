@@ -1,0 +1,49 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Part IV. Texturing</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="prev" href="../Illumination/Tut13%20Glossary.html" title="Glossary"><link rel="next" href="Tutorial%2014.html" title="Chapter 14. Textures are not Pictures"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Part IV. Texturing</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="../Illumination/Tut13%20Glossary.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="Tutorial%2014.html">Next</a></td></tr></table><hr></div><div class="part"><div class="titlepage"><div><div><h1 class="title"><a name="idp94"></a>Part IV. Texturing</h1></div></div></div>
+    
+    
+    <div class="partintro"><div></div>
+        <p>If you are at all familiar with 3D graphics, you have probably heard the term
+                <span class="quote">“<span class="quote">texture</span>”</span> before. And if you look at virtually any instruction material
+            on 3D graphics, they will introduce textures in the earliest parts of the work.
+            Typically, this happens well before lighting is introduced.</p>
+        <p>This book is approximately halfway over and only now do we introduce textures. There
+            is a good reason for this.</p>
+        <p>Consider everything you have learned up until now. You have learned how to transfer
+            arbitrary data to vertex shaders, how to pass them to fragment shaders, and how to
+            compute colors from them. You have learned how to transform positions of triangles and
+            use this ability to provide a perspective projection of a world as well as to position
+            objects and have a mobile camera. You have learned how lighting works and how to
+            generate a lighting model. In the very last tutorial, we were able to convincingly
+            render a mathematically perfect representation of a sphere simply by rendering two
+            triangles.</p>
+        <p>All of this has been done without textures. Thus, the first lesson this book has to
+            teach you about textures is that they are not <span class="emphasis"><em>that</em></span> important. What
+            you have learned is how to think about solving graphics problems without
+            textures.</p>
+        <p>Many graphics texts overemphasize the importance of textures. This is mostly a legacy
+            of the past. In the older days, before the availability of real programmable hardware,
+            you needed textures to do anything of real importance in graphics rendering. Textures
+            were used to simulate lighting and various other effects. If you wanted to do anything
+            like per-fragment lighting, you had to use textures to do it.</p>
+        <p>Yes, textures are important for creating details in rendered images. They are
+            important for being able to vary material parameters over a polygonal surface. And they
+            have value in other areas as well. But there is so much more to rendering than textures,
+            and this is especially true with programmable hardware.</p>
+        <p>A texture is a look-up table; an array. There is a lot of minutiae about accessing
+            them, but at their core a texture is just a large array of some dimensionality that you
+            can access from a shader. Perhaps the most important lesson you could learn is that
+            textures are tools. Use them where appropriate, but do not let them become your primary
+            solution to any rendering problem.</p>
+    <div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="chapter"><a href="Tutorial%2014.html">14. Textures are not Pictures</a></span></dt><dd><dl><dt><span class="section"><a href="Tutorial%2014.html#idp11151">The First Texture</a></span></dt><dt><span class="section"><a href="Tut14%20Interpolation%20Redux.html">Interpolation Redux</a></span></dt><dt><span class="section"><a href="Tut14%20Texture%20Mapping.html">Texture Mapping</a></span></dt><dt><span class="section"><a href="Tut14%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut14%20Glossary.html">Glossary</a></span></dt></dl></dd><dt><span class="chapter"><a href="Tutorial%2015.html">15. Many Images</a></span></dt><dd><dl><dt><span class="section"><a href="Tutorial%2015.html#idp11698">Playing Checkers</a></span></dt><dt><span class="section"><a href="Tut15%20Magnification.html">Linear Filtering</a></span></dt><dt><span class="section"><a href="Tut15%20Needs%20More%20Pictures.html">Needs More Pictures</a></span></dt><dt><span class="section"><a href="Tut15%20Anisotropy.html">Anisotropy</a></span></dt><dt><span class="section"><a href="Tut15%20How%20Mipmapping%20Works.html">How Mipmap Selection Works</a></span></dt><dt><span class="section"><a href="Tut15%20Performace.html">Performance</a></span></dt><dt><span class="section"><a href="Tut15%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut15%20Glossary.html">Glossary</a></span></dt></dl></dd><dt><span class="chapter"><a href="Tutorial%2016.html">16. Gamma and Textures</a></span></dt><dd><dl><dt><span class="section"><a href="Tutorial%2016.html#idp12054">The sRGB Colorspace</a></span></dt><dt><span class="section"><a href="Tut16%20Mipmaps%20and%20Linearity.html">sRGB and Mipmaps</a></span></dt><dt><span class="section"><a href="Tut16%20Free%20Gamma%20Correction.html">sRGB and the Screen</a></span></dt><dt><span class="section"><a href="Tut16%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut16%20Glossary.html">Glossary</a></span></dt></dl></dd><dt><span class="chapter"><a href="Tutorial%2017.html">17. Spotlight on Textures</a></span></dt><dd><dl><dt><span class="section"><a href="Tutorial%2017.html#idp12265">Post-Projection Space</a></span></dt><dt><span class="section"><a href="Tut17%20Projective%20Texture.html">Projective Texture</a></span></dt><dt><span class="section"><a href="Tut17%20Pointing%20Projections.html">Pointing Projections</a></span></dt><dt><span class="section"><a href="Tut17%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut17%20Glossary.html">Glossary</a></span></dt></dl></dd></dl></div></div>
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="../Illumination/Tut13%20Glossary.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="Tutorial%2014.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 14. Textures are not Pictures</td></tr></table></div></body></html>

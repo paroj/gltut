@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="301px" width="301px" >
+	<style type="text/css" ><![CDATA[.baryPts
+{
+	stroke-opacity: 0.5;
+	stroke: violet;
+	stroke-width: 4px;
+	fill: none;
+}
+
+.triangle
+{
+	fill: none;
+	stroke: black;
+}
+
+.vertex
+{
+	fill: black;
+	stroke: black;
+}
+
+.label
+{
+	font-family: monospace;
+	font-size: 25px;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}
+
+.vertex_label
+{
+	font-family: monospace;
+	font-size: 25px;
+	font-weight: bold;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}]]></style>
+	<defs >
+		<g id="g_point" >
+			<circle r="5" cy="0" cx="0" class="vertex" />
+		</g>
+	</defs>
+	<polygon points="180,45 255,195 45,240" class="triangle" />
+	<path d="M 159.9999999 159.9999999 L 180 45 M 159.9999999 159.9999999 L 255 195 M 159.9999999 159.9999999 L 45 240" class="baryPts" />
+	<use xlink:href="#g_point" y="45" x="180" height="10" width="10" />
+	<use xlink:href="#g_point" y="195" x="255" height="10" width="10" />
+	<use xlink:href="#g_point" y="240" x="45" height="10" width="10" />
+	<use xlink:href="#g_point" y="159.9999999" x="159.9999999" height="10" width="10" />
+	<text y="184.9999999" x="159.9999999" class="vertex_label" >P</text>
+	<text y="110.49999995" x="181.99999995" class="label" >&#x03b1;</text>
+	<text y="168.49999995" x="216.49999995" class="label" >&#x03b2;</text>
+	<text y="186.99999995" x="102.49999995" class="label" >&#x03b3;</text>
+	<text y="40" x="195" class="vertex_label" >A</text>
+	<text y="200" x="273" class="vertex_label" >B</text>
+	<text y="250" x="27" class="vertex_label" >C</text>
+</svg>

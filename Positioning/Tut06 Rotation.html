@@ -1,0 +1,1163 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Rotation</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2006.html" title="Chapter 6. Objects in Motion"><link rel="prev" href="Tut06%20Scale.html" title="Scale"><link rel="next" href="Tut06%20Fun%20with%20Matrices.html" title="Fun with Matrices"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Rotation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut06%20Scale.html">Prev</a> </td><th width="60%" align="center">Chapter 6. Objects in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut06%20Fun%20with%20Matrices.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp47"></a>Rotation</h2></div></div></div>
+        
+        
+        <p>A <em class="glossterm">rotation</em> transformation is the result of the orientation of
+            the initial space being different from the orientation of the destination space. The
+            basis vectors of the space do not change orientation relative to one another, but
+            relative to the destination coordinate system, they are pointed in different directions
+            than they were in their own coordinate system.</p>
+        <p>A rotation looks like this:</p>
+        <div class="figure"><a name="idp4879"></a><p class="title"><b>Figure 6.6. Coordinate Rotation in 2D</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="RotationTransform.svg" alt="Coordinate Rotation in 2D"></div>
+        </div></div><br class="figure-break">
+        <p>Rotations are usually considered the most complex of the basic transformations,
+            primarily because of the math involved in computing the transformation matrix.
+            Generally, rotations are looked at as an operation, such as rotating around a particular
+            basis vector or some such. The prior part of the tutorial laid down some of the
+            groundwork that will make this much simpler.</p>
+        <p>First, let's look back at our equation for determining what the position of a
+            coordinate is relative to certain coordinate space:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mrow>
+		<mi>X</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>A</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>A</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>A</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+		<mo>+</mo>
+		<mi>Y</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+		<mo>+</mo>
+		<mi>Z</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>C</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>C</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>C</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+		<mo>+</mo>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>O</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>O</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>O</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+	</mrow>
+</math>
+        </div>
+        <p>Does not this look a bit familiar? No? Maybe this look at vector-matrix multiplication
+            will jog your memory:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m11</mi>
+          </mtd>
+          <mtd>
+            <mi>m21</mi>
+          </mtd>
+          <mtd>
+            <mi>m31</mi>
+          </mtd>
+          <mtd>
+            <mi>m41</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m12</mi>
+          </mtd>
+          <mtd>
+            <mi>m22</mi>
+          </mtd>
+          <mtd>
+            <mi>m32</mi>
+          </mtd>
+          <mtd>
+            <mi>m42</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m13</mi>
+          </mtd>
+          <mtd>
+            <mi>m23</mi>
+          </mtd>
+          <mtd>
+            <mi>m33</mi>
+          </mtd>
+          <mtd>
+            <mi>m43</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m14</mi>
+          </mtd>
+          <mtd>
+            <mi>m24</mi>
+          </mtd>
+          <mtd>
+            <mi>m34</mi>
+          </mtd>
+          <mtd>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>y</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>z</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>w</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m11</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m21</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m31</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m41</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m12</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m22</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m32</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m42</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m13</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m23</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m33</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m43</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m14</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m24</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m34</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div>
+        <p>Still nothing? Perhaps an alternate look would help:</p>
+        <div class="equation"><a name="idp5118"></a><p class="title"><b>Equation 6.5. Vectorized Matrix Multiplication</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m11</mi>
+          </mtd>
+          <mtd>
+            <mi>m21</mi>
+          </mtd>
+          <mtd>
+            <mi>m31</mi>
+          </mtd>
+          <mtd>
+            <mi>m41</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m12</mi>
+          </mtd>
+          <mtd>
+            <mi>m22</mi>
+          </mtd>
+          <mtd>
+            <mi>m32</mi>
+          </mtd>
+          <mtd>
+            <mi>m42</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m13</mi>
+          </mtd>
+          <mtd>
+            <mi>m23</mi>
+          </mtd>
+          <mtd>
+            <mi>m33</mi>
+          </mtd>
+          <mtd>
+            <mi>m43</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m14</mi>
+          </mtd>
+          <mtd>
+            <mi>m24</mi>
+          </mtd>
+          <mtd>
+            <mi>m34</mi>
+          </mtd>
+          <mtd>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>y</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>z</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>w</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mi>x</mi>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m11</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m12</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m13</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m14</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>+</mo>
+  <mi>y</mi>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m21</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m22</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m23</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m24</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>+</mo>
+  <mi>z</mi>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m31</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m32</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m33</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m34</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>+</mo>
+  <mi>w</mi>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m41</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m42</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m43</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>Does it look familiar <span class="emphasis"><em>now</em></span>?</p>
+        <p>What this tells us is that the columns of our transformation matrices are, and have
+                <span class="emphasis"><em>always</em></span> been, nothing more than the axes of a coordinate system.
+            Except for the fourth column; because the input position has a 1 in the W, it acts as an
+            offset.</p>
+        <p>Transformation from one space to another ultimately means this: taking the basis
+            vectors and origin point from the original coordinate system and re-expressing them
+            relative to the destination coordinate system. The transformation matrix from one space
+            to another contains the basis vectors and origin of the original coordinate system, but
+            the <span class="emphasis"><em>values</em></span> of those basis vectors and origin are relative to the
+            destination coordinate system.</p>
+        <p>Earlier, we said that numerical coordinates of a space must be expressed relative to
+            another space. A matrix is a numerical representation of a coordinate system, and its
+            values are expressed in the destination coordinate system. Therefore, a transformation
+            matrix takes values in one coordinate system and transforms them into another. It does
+            this by taking the basis vectors and origin of the input coordinate system and
+            represents them relative to the output space. To put it another way, the transformation
+            from space A to space B is what space A looks like from an observer in space B.</p>
+        <p>A rotation matrix is just a transform that expresses the basis vectors of the input
+            space in a different orientation. The length of the basis vectors will be the same, and
+            the origin will not change. Also, the angle between the basis vectors will not change.
+            All that changes is the relative direction of all of the basis vectors.</p>
+        <p>Therefore, a rotation matrix is not really a <span class="quote">“<span class="quote">rotation</span>”</span> matrix; it is an
+                <span class="emphasis"><em>orientation</em></span> matrix. It defines the orientation of one space
+            relative to another space. Remember this, and you will avoid many pitfalls when you
+            start dealing with more complex transformations.</p>
+        <p>For any two spaces, the orientation transformation between them can be expressed as
+            rotating the source space by some angle around a particular axis (specified in the
+            initial space). This is true for any change of orientation.</p>
+        <p>A common rotation question is to therefore compute a rotation around an arbitrary
+            axis. Or to put it more correctly, to determine the orientation of a space if it is
+            rotated around an arbitrary axis. The axis of rotation is expressed in terms of the
+            initial space. In 2D, there is only one axis that can be rotated around and still remain
+            within that 2D plane: the Z-axis.</p>
+        <p>In 3D, there are many possible axes of rotation. It does not have to be one of the
+            initial space's basis axes; it can be any arbitrary direction. Of course, the problem is
+            made much simpler if one rotates only around the primary axes.</p>
+        <p>Deriving these matrix equations is beyond the scope of this tutorial; so instead, we
+            will simply provide them. To perform rotations along the primary axes, use the following
+            matrices:</p>
+        <div class="equation"><a name="idp5259"></a><p class="title"><b>Equation 6.6. Axial Rotation Matrices</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtable columnalign="left">
+    <mtr>
+      <mtd>
+        <mtext>Rotation Angle</mtext>
+        <mo>=</mo>
+        <mi>θ</mi>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mtable>
+          <mtr>
+            <mtd>
+              <mtext>X Rotation</mtext>
+            </mtd>
+            <mtd>
+              <mfenced open="[" close="]" separators=",">
+                <mrow>
+                  <mtable>
+                    <mtr>
+                      <mtd>
+                        <mn>1</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mi>cos</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mo>-</mo>
+                        <mi>sin</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mi>sin</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mi>cos</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>1</mn>
+                      </mtd>
+                    </mtr>
+                  </mtable>
+                </mrow>
+              </mfenced>
+            </mtd>
+          </mtr>
+          <mtr>
+            <mtd>
+              <mtext>Y Rotation</mtext>
+            </mtd>
+            <mtd>
+              <mfenced open="[" close="]" separators=",">
+                <mrow>
+                  <mtable>
+                    <mtr>
+                      <mtd>
+                        <mi>cos</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mi>sin</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>1</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mo>-</mo>
+                        <mi>sin</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mi>cos</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>1</mn>
+                      </mtd>
+                    </mtr>
+                  </mtable>
+                </mrow>
+              </mfenced>
+            </mtd>
+          </mtr>
+          <mtr>
+            <mtd>
+              <mtext>Z Rotation</mtext>
+            </mtd>
+            <mtd>
+              <mfenced open="[" close="]" separators=",">
+                <mrow>
+                  <mtable>
+                    <mtr>
+                      <mtd>
+                        <mi>cos</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mo>-</mo>
+                        <mi>sin</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mi>sin</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mi>cos</mi><mo>⁡</mo>
+                        <mfenced open="(" close=")" separators=",">
+                          <mrow>
+                            <mi>θ</mi>
+                          </mrow>
+                        </mfenced>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>1</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                    </mtr>
+                    <mtr>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>0</mn>
+                      </mtd>
+                      <mtd>
+                        <mn>1</mn>
+                      </mtd>
+                    </mtr>
+                  </mtable>
+                </mrow>
+              </mfenced>
+            </mtd>
+          </mtr>
+        </mtable>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>When using the standard C/C++ library <code class="function">sin</code> and
+                <code class="function">cos</code> functions, the angles must be in radians.</p>
+        <p>As useful as these are, the more generic equation for rotation by an angle about an
+            arbitrary axis is as follows.</p>
+        <div class="equation"><a name="idp5456"></a><p class="title"><b>Equation 6.7. Angle/Axis Rotation Matrix</b></p><div class="equation-contents">
+			
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mtable columnalign="left">
+          <mtr>
+            <mtd>
+              <mtext>Axis</mtext>
+              <mo>=</mo>
+              <mfenced open="(" close=")" separators=",">
+                <mrow>
+                  <mi>x</mi>
+                </mrow>
+                <mrow>
+                  <mi>y</mi>
+                </mrow>
+                <mrow>
+                  <mi>z</mi>
+                </mrow>
+              </mfenced>
+            </mtd>
+            <mtd>
+              <mtext>Angle</mtext>
+              <mo>=</mo>
+              <mi>θ</mi>
+            </mtd>
+          </mtr>
+          <mtr>
+            <mtd>
+              <mi>C</mi>
+              <mo>=</mo>
+              <mi>cos</mi><mo>⁡</mo>
+              <mfenced open="(" close=")" separators=",">
+                <mrow>
+                  <mi>θ</mi>
+                </mrow>
+              </mfenced>
+            </mtd>
+            <mtd>
+              <mi>S</mi>
+              <mo>=</mo>
+              <mi>sin</mi><mo>⁡</mo>
+              <mfenced open="(" close=")" separators=",">
+                <mrow>
+                  <mi>θ</mi>
+                </mrow>
+              </mfenced>
+            </mtd>
+          </mtr>
+          <mtr>
+            <mtd>
+              <mi>iC</mi>
+              <mo>=</mo>
+              <mn>1</mn>
+              <mo>-</mo>
+              <mi>cos</mi><mo>⁡</mo>
+              <mfenced open="(" close=")" separators=",">
+                <mrow>
+                  <mi>θ</mi>
+                </mrow>
+              </mfenced>
+            </mtd>
+          </mtr>
+        </mtable>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mfenced open="[" close="]" separators=",">
+          <mrow>
+            <mtable>
+              <mtr>
+                <mtd>
+                  <msup>
+                          <mi>x</mi>
+                        <mn>2</mn>
+                  </msup>
+                  <mo>+</mo>
+                  <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                      <mn>1</mn>
+                      <mo>-</mo>
+                      <msup>
+                              <mi>x</mi>
+                            <mn>2</mn>
+                      </msup>
+                    </mrow>
+                  </mfenced>
+                  <mi>C</mi>
+                </mtd>
+                <mtd>
+                  <mi>iC</mi>
+                  <mi>x</mi>
+                  <mi>y</mi>
+                  <mo>-</mo>
+                  <mi>z</mi>
+                  <mi>S</mi>
+                </mtd>
+                <mtd>
+                  <mi>iC</mi>
+                  <mi>x</mi>
+                  <mi>z</mi>
+                  <mo>+</mo>
+                  <mi>y</mi>
+                  <mi>S</mi>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+              </mtr>
+			  
+              <mtr>
+                <mtd>
+                  <mi>iC</mi>
+                  <mi>x</mi>
+                  <mi>y</mi>
+                  <mo>+</mo>
+                  <mi>z</mi>
+                  <mi>S</mi>
+                </mtd>
+                <mtd>
+                  <msup>
+                          <mi>y</mi>
+                        <mn>2</mn>
+                  </msup>
+                  <mo>+</mo>
+                  <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                      <mn>1</mn>
+                      <mo>-</mo>
+                      <msup>
+                              <mi>y</mi>
+                            <mn>2</mn>
+                      </msup>
+                    </mrow>
+                  </mfenced>
+                  <mi>C</mi>
+                </mtd>
+                <mtd>
+                  <mi>iC</mi>
+                  <mi>y</mi>
+                  <mi>z</mi>
+                  <mo>-</mo>
+                  <mi>x</mi>
+                  <mi>S</mi>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mi>iC</mi>
+                  <mi>x</mi>
+                  <mi>z</mi>
+                  <mo>-</mo>
+                  <mi>y</mi>
+                  <mi>S</mi>
+                </mtd>
+                <mtd>
+                  <mi>iC</mi>
+                  <mi>y</mi>
+                  <mi>z</mi>
+                  <mo>+</mo>
+                  <mi>x</mi>
+                  <mi>S</mi>
+                </mtd>
+                <mtd>
+                  <msup>
+                          <mi>z</mi>
+                        <mn>2</mn>
+                  </msup>
+                  <mo>+</mo>
+                  <mfenced open="(" close=")" separators=",">
+                    <mrow>
+                      <mn>1</mn>
+                      <mo>-</mo>
+                      <msup>
+                              <mi>z</mi>
+                            <mn>2</mn>
+                      </msup>
+                    </mrow>
+                  </mfenced>
+                  <mi>C</mi>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>1</mn>
+                </mtd>
+              </mtr>
+            </mtable>
+          </mrow>
+        </mfenced>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>All of these matrices are such that, from the point of view of an observer looking
+            down the axis of rotation (the positive direction of the axis is pointed into the eye of
+            the observer), the object rotates counter-clockwise with positive angles.</p>
+        <p>The <span class="propername">Rotations</span> tutorial shows off each of these
+            rotation matrix functions. Similar to how the others work, there are multiple instances
+            rendered based on functions.</p>
+        <div class="figure"><a name="idp5614"></a><p class="title"><b>Figure 6.7. Rotation Project</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Rotations.png" alt="Rotation Project"></div>
+        </div></div><br class="figure-break">
+        <p>The function that builds the transformation matrix looks like this:</p>
+        <div class="example"><a name="idp5620"></a><p class="title"><b>Example 6.4. Rotation Transformation Building</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glm::mat4 ConstructMatrix(float fElapsedTime)
+{
+    const glm::mat3 &amp;rotMatrix = CalcRotation(fElapsedTime);
+    glm::mat4 theMat(rotMatrix);
+    theMat[3] = glm::vec4(offset, 1.0f);
+    
+    return theMat;
+}</pre>
+        </div></div><br class="example-break">
+        <p>The constructor of glm::mat4 that takes a glm::mat3 generates a 4x4 matrix with the
+            3x3 matrix in the top-left corner, and all other positions 0 except the bottom-left
+            corner, which is set to 1. As with much of GLM, this works in GLSL as well.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut06%20Scale.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2006.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut06%20Fun%20with%20Matrices.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Scale </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Fun with Matrices</td></tr></table></div></body></html>

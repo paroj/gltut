@@ -1,0 +1,91 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Appendix B. Further Study</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="prev" href="Optimize%20Sync.html" title="Synchronization"><link rel="next" href="Further%20Study%20Topics.html" title="Topics of Interest"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix B. Further Study</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Optimize%20Sync.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="Further%20Study%20Topics.html">Next</a></td></tr></table><hr></div><div class="appendix"><div class="titlepage"><div><div><h1 class="title"><a name="idp126"></a>Appendix B. Further Study</h1></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Further%20Study.html#idp13031">Debugging</a></span></dt><dt><span class="section"><a href="Further%20Study%20Topics.html">Topics of Interest</a></span></dt></dl></div>
+    
+    
+    <p>This book provides a firm foundation for you to get started in your adventures as a
+        graphics programmer. However, it ultimately cannot cover everything. What follows will be a
+        general overview of other topics that you should investigate now that you have a general
+        understanding of how graphics work.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp13031"></a>Debugging</h2></div></div></div>
+        
+        
+        <p>This book provides functioning code to solve various problems and implement a variety
+            of effects. However, it does not talk about how to get code from a non-working state
+            into a working one. That is, debugging.</p>
+        <p>Debugging OpenGL code is very difficult. Frequently when there is a bug in graphics
+            code, the result is a massively unhelpful blank screen. If the problem is localized to a
+            single shader or state used to render an object, the result is a black object or general
+            garbage. Compounding this problem is the fact that OpenGL has a lot of global state. One
+            of the reasons this book will often bind objects, do something with them, and then
+            unbind them, is to reduce the amount of state dependencies. It ensures that every object
+            is rendered with a specific program, a set of textures, a certain VAO, etc. It may be
+            slightly slower to do this, but for a simple application, getting it working is more
+            important.</p>
+        <p>Debugging shaders is even more problematic; there are no breakpoints or watches you
+            can put on GLSL shaders. Fragment shaders offer the possibility of
+                <code class="function">printf</code>-style debugging: one can always write some values to the
+            framebuffer and see something. Vertex or other shader stages require passing their data
+            through another stage before the outcome can be seen. And even then, it is an
+            interpolated version.</p>
+        <p>Because of the difficulty in debugging, the general tactics for doing so revolve
+            around bug prevention rather than bug finding. Therefore, the most important tactic for
+            debugging is this: always start with working code. Begin development with something that
+            actually functions, even if it is not drawing what you ultimately intend for it to. Once
+            you have working code, you can change it to render what you need it to.</p>
+        <p>The second tip is to minimize the amount of code/data that could be causing any
+            problem you encounter. This means making small changes in a working application and
+            immediately testing to see if they work or not. If they do not, then it must be because
+            of those small changes. If you make big changes, then the size of the code/data you have
+            to look through is much larger. The more code you have to debug, the harder it is to do
+            so effectively.</p>
+        <p>Along with the last tip is to use a distributed version control system and check in
+            your code often, preferably after each small change. This will allow you to revert any
+            changes that do not work, as well as see the actual differences between the last working
+            version and the now non-functional version. This will save you from inadvertent
+            keystrokes and the like.</p>
+        <p>The next step is to avail yourself of debugging tools, where they exist for your
+            platform(s) of interest. OpenGL itself can help here. The OpenGL specification defines
+            what functions should do in the case of malformed input. Specifically, they will place
+            errors into the OpenGL error queue. After every OpenGL function call, you may want to
+            check to see if an error has been added to the queue. This is done with code as
+            follows:</p>
+        <pre class="programlisting">for(GLenum currError = glGetError(); currError != GL_NO_ERROR; currError = glGetError())
+{
+  //Do something with `currError`.
+}</pre>
+        <p>It would be very tedious to put this after every function. But since the errors are
+            all stored in a queue, they are not associated with the actual function that caused the
+            error. If <code class="function">glGetError</code> is not called frequently, it becomes very
+            difficult to know where any particular error came from. Therefore, there is a special
+            OpenGL extension specifically for aiding in debugging: ARB_debug_output. This extension
+            is only available when creating an OpenGL context with a special debug flag. The
+            framework used here automatically uses this extension in debug builds.</p>
+        <p>The debug output extension allows the user to register a function that will be called
+            whenever errors happen. It can also be called when less erroneous circumstances occur;
+            this depends on the OpenGL implementation. When set up for synchronous error messages,
+            the callback will be called before the function that created the error returned. So it
+            is possible to breakpoint inside the callback function and see exactly which function
+            caused it.</p>
+        <p>Setting up the callback is somewhat complex. The Unofficial OpenGL SDK offers, as part
+            of its GL Utilities sub-library, a registration function for setting up the debug output
+            properly. Also, the framework for this book's code offers similar functionality. It is
+            located in <code class="filename">framework/framework.cpp</code>.</p>
+        <p>There are alternatives for catching OpenGL errors. The utility <a class="ulink" href="https://renderdoc.org/" target="_top">RenderDoc</a> 
+            is capable of hooking into
+            OpenGL without any code modifications and tracking every OpenGL function call. It can
+            then play-back the <code class="function">glDraw*</code> calls while allowing you to inspect the rendering results, as well as the given parameters.
+            This is very useful for debugging, as it tells you more about what may have caused certain error or visual
+            glitches. It also automatically checks for errors after every function call, alleviating
+            the need to do so manually. Any errors are logged with the function that produced
+            them.</p>
+        <p>Besides OpenGL it also supports Vulkan and D3D APIs, so you can use it as your default go-to solution
+        for debugging rendering issues.</p>
+    </div>
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Optimize%20Sync.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="Further%20Study%20Topics.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Synchronization </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Topics of Interest</td></tr></table></div></body></html>

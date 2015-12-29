@@ -1,0 +1,67 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2006.html" title="Chapter 6. Objects in Motion"><link rel="prev" href="Tut06%20Fun%20with%20Matrices.html" title="Fun with Matrices"><link rel="next" href="Tut06%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut06%20Fun%20with%20Matrices.html">Prev</a> </td><th width="60%" align="center">Chapter 6. Objects in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut06%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp49"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Coordinate systems (spaces) are defined by 3 basis axes and a position.</p>
+            </li><li class="listitem">
+                <p>The transformation from one 3D space to another can be defined by a 4x4
+                    matrix, which is constructed from the 3 basis axes and the position.</p>
+            </li><li class="listitem">
+                <p>Model space is the coordinate system that a particular model occupies,
+                    relative to camera space. Other models can have model spaces that depend on the
+                    model space of other models.</p>
+            </li><li class="listitem">
+                <p>Scale, translation, and rotation transformations have specific matrix
+                    forms.</p>
+            </li><li class="listitem">
+                <p>Transformations can be composed via matrix multiplication. All transformations
+                    for a model can be folded into a single matrix, which a vertex shader can
+                    execute at a fixed rate. Therefore, complex transforms are no slower to execute
+                    (for the graphics chip) than simple ones.</p>
+            </li><li class="listitem">
+                <p>The order that successive transforms are applied in matters. Matrix
+                    multiplication is not commutative, and neither is object transformation.</p>
+            </li><li class="listitem">
+                <p>Successive transformations can be used to build hierarchies of objects, each
+                    dependent on the accumulated transformations of lower ones. This is done using a
+                    matrix stack.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp5996"></a>Further Study</h3></div></div></div>
+            
+            <p>Try doing these things with the given programs.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>In the Translation tutorial, we had two objects that rotated around a
+                        specific point. This was achieved by computing the offset for the rotated
+                        position on the CPU, not through the use of a rotation transformation.
+                        Change this code to use rotation transformations instead. Make sure that the
+                        orientation of the objects do not change as they are being rotated around;
+                        this will require applying more than one rotation transformation.</p>
+                </li><li class="listitem">
+                    <p>Reverse the order that the two rotations on the wrist are applied in the
+                        Hierarchy tutorial. Note how this affects the ability to adjust the
+                        wrist.</p>
+                </li><li class="listitem">
+                    <p>Reimplement the Hierarchy tutorial, instead using a more generic data
+                        structure. Have each node be a struct/class that can be attached as a child
+                        to another node. Each node has one parent, but multiple children. The scene
+                        will simply be the root node: the node that has no parent. The individual
+                        angle values should be stored in the node object. The node should have a
+                        render function that will render this node, given the matrix stack. It would
+                        render itself, then recursively render its children. The node would also
+                        have a way to define the size (in world-space) and origin point of the
+                        rectangle to be drawn.</p>
+                </li><li class="listitem">
+                    <p>Given the generalized Hierarchy code, remove the matrix stack. Use matrix
+                        objects created on the C++ stack instead. The node render function would
+                        take a const&amp; to a matrix rather than a matrix stack reference.</p>
+                </li></ul></div>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut06%20Fun%20with%20Matrices.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2006.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut06%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Fun with Matrices </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

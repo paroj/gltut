@@ -1,0 +1,170 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>What is OpenGL</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Introduction.html" title="Introduction"><link rel="prev" href="Intro%20Graphics%20and%20Rendering.html" title="Graphics and Rendering"><link rel="next" href="Intro%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">What is OpenGL</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Intro%20Graphics%20and%20Rendering.html">Prev</a> </td><th width="60%" align="center">Introduction</th><td width="20%" align="right"> <a accesskey="n" href="Intro%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp10"></a>What is OpenGL</h2></div></div></div>
+        
+        
+        <p>Before we can begin looking into writing an OpenGL application, we must first know
+            what it is that we are writing. What exactly is OpenGL?</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1073"></a>OpenGL as an API</h3></div></div></div>
+            
+            <p><em class="glossterm">OpenGL</em> is usually thought of as an Application Programming
+                Interface (<acronym class="acronym">API</acronym>). The OpenGL API has been exposed to a number of
+                languages. But the one that they all ultimately use at their lowest level is the C
+                API.</p>
+            <p>The OpenGL API is defined as a state machine. Almost all of the OpenGL functions
+                set or retrieve some state in OpenGL. The only functions that do not change state
+                are functions that use the currently set state to cause rendering to happen.</p>
+            <p>You can think of the state machine as a very large struct with a great many
+                different fields. This struct is called the <em class="glossterm">OpenGL context</em>,
+                and each field in the context represents some information necessary for
+                rendering.</p>
+            <p>The API, in C, is defined by a number of typedefs, #defined enumerator values, and
+                functions. The typedefs define basic GL types like <span class="type">GLint</span>,
+                    <span class="type">GLfloat</span> and so forth. These are defined to have a specific bit
+                depth.</p>
+            <p><a name="OpenGLObjects"></a>Complex aggregates like structs are never directly exposed
+                in OpenGL. Any such constructs are hidden behind the API. This makes it easier to
+                expose the OpenGL API to non-C languages without having a complex conversion
+                layer.</p>
+            <p>In C++, if you wanted an object that contained an integer, a float, and a string,
+                you would create it and access it like this:</p>
+            <pre class="programlisting">struct Object
+{
+    int count;
+    float opacity;
+    char *name;
+};
+
+//Create the storage for the object.
+Object newObject;
+
+//Put data into the object.
+newObject.count = 5;
+newObject.opacity = 0.4f;
+newObject.name = "Some String";
+</pre>
+            <p>In OpenGL, you would use an API that looks more like this:</p>
+            <pre class="programlisting">//Create the storage for the object
+GLuint objectName;
+glGenObject(1, &amp;objectName);
+
+//Put data into the object.
+glBindObject(GL_MODIFY, objectName);
+glObjectParameteri(GL_MODIFY, GL_OBJECT_COUNT, 5);
+glObjectParameterf(GL_MODIFY, GL_OBJECT_OPACITY, 0.4f);
+glObjectParameters(GL_MODIFY, GL_OBJECT_NAME, "Some String");</pre>
+            <p>None of these are actual OpenGL commands, of course. This is simply an example of
+                what the interface to such an object would look like.</p>
+            <p>OpenGL owns the storage for all OpenGL objects. Because of this, the user can only
+                access an object by reference. Almost all OpenGL objects are referred to by an
+                unsigned integer (the <span class="type">GLuint</span>). Objects are created by a function of the
+                form <code class="function">glGen*</code>, where * is the type of the object. The first
+                parameter is the number of objects to create, and the second is a
+                    <span class="type">GLuint*</span> array that receives the newly created object names.</p>
+            <p>To modify most objects, we must first bind them to the context. Many objects can
+                be bound to different locations in the context; this allows the same object to be
+                used in different ways. These different locations are called
+                    <em class="glossterm">targets</em>; all objects have a list of valid targets, and
+                some have only one. In the above example, the fictitious target
+                    <span class="quote">“<span class="quote">GL_MODIFY</span>”</span> is the location where <code class="varname">objectName</code> is
+                bound.</p>
+            <p>Think of a target like a global pointer. So in our case, the
+                    <code class="literal">GL_MODIFY</code> target is just a global pointer that can store an
+                object of this type. Calling <code class="literal">glBindObject(GL_MODIFY, objectName)</code>
+                is similar to doing this:</p>
+            <pre class="programlisting">Object *GL_MODIFY = NULL;
+
+//glBindObject:
+GL_MODIFY = ptr(objectName); //Convert object into pointer.</pre>
+            <p>OpenGL functions that modify these objects only modify an object that is bound to
+                the context. Those function take, as their first parameter, the target of the object
+                to modify. This references one of the bound objects.</p>
+            <p>The enumerators <code class="literal">GL_OBJECT_*</code> all name fields in the object that
+                can be set. The <code class="function">glObjectParameter</code> family of functions set
+                parameters within the object bound to the given target. Note that since OpenGL is a
+                C API, it has to name each of the differently typed variations differently. So there
+                is <code class="function">glObjectParameteri</code> for integer parameters,
+                    <code class="function">glObjectParameterf</code> for floating-point parameters, and so
+                forth. In terms of code, you can think of these functions as follows:</p>
+            <pre class="programlisting">//glObjectParameteri(GL_MODIFY, GL_OBJECT_COUNT, 5);
+GL_MODIFY-&gt;count = 5;
+//glObjectParameterf(GL_MODIFY, GL_OBJECT_OPACITY, 0.4f);
+GL_MODIFY-&gt;opacity = 0.4f;
+...</pre>
+            <p>Binding the object 0 to the a target in the context is the equivalent of setting
+                that target's global pointer to <code class="literal">NULL</code>. It unbinds whatever object
+                is currently bound to that target.</p>
+            <p>Note that all OpenGL objects are not as simple as this example, and the functions
+                that change object state do not always follow these naming conventions. We will
+                discuss exceptions as we get to them.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1112"></a>The OpenGL Specification</h3></div></div></div>
+            
+            <p>To be technical about it, OpenGL is not an API; it is a specification. A document.
+                The C API is merely one way to implement the spec. The specification defines the
+                initial OpenGL state, what each function does to change or retrieve that state, and
+                what is supposed to happen when you call a rendering function.</p>
+            <p>The specification is written by the OpenGL <em class="glossterm">Architectural Review
+                    Board</em> (<acronym class="acronym">ARB</acronym>), a group of representatives from
+                companies like Apple, NVIDIA, and AMD (the ATI part), among others. The ARB is part
+                of the <a class="ulink" href="http://www.khronos.org/" target="_top">Khronos Group</a>.</p>
+            <p>The specification is a very complicated and technical document. However, parts of
+                it are quite readable, though you will usually need at least some understanding of
+                what should be going on to understand it. If you try to read it, the most important
+                thing to understand about it is this: it describes <span class="emphasis"><em>results</em></span>, not
+                implementation. Just because the spec says that X will happen does not mean that it
+                actually does. What it means is that the user should not be able to tell the
+                difference. If a piece of hardware can provide the same behavior in a different way,
+                then the specification allows this, so long as the user can never tell the
+                difference.</p>
+            <p>
+                <b>OpenGL Implementations. </b>
+                While the OpenGL ARB does control the specification, it does not control
+                    OpenGL's code. OpenGL is not something you download from a centralized location.
+                    For any particular piece of hardware, it is up to the developers of that
+                    hardware to write an <em class="glossterm">OpenGL Implementation</em> for that
+                    hardware. Implementations, as the name suggests, implement the OpenGL
+                    specification, exposing the OpenGL API as defined in the spec.
+            </p>
+            <p>Who controls the OpenGL implementation is different for different operating
+                systems. On Windows, OpenGL implementations are controlled virtually entirely by the
+                hardware makers themselves. On Mac OSX, OpenGL implementations are controlled by
+                Apple; they decide what version of OpenGL is exposed and what additional
+                functionality can be provided to the user. Apple writes much of the OpenGL
+                implementation on Mac OSX, with the hardware developers writing to an Apple-created
+                internal driver API. On Linux, things are... complicated.</p>
+            <p>The long and short of this is that if you are writing a program and it seems to be
+                exhibiting off-spec behavior, that is the fault of the maker of your OpenGL
+                implementation (assuming it is not a bug in your code). On Windows, the various
+                graphics hardware makers put their OpenGL implementations in their regular drivers.
+                So if you suspect a bug in their implementation, the first thing you should do is
+                make sure your graphics drivers are up-to-date; the bug may have been corrected
+                since the last time you updated your drivers.</p>
+            <p>
+                <b>OpenGL Versions. </b>
+                There are many versions of the OpenGL Specification. OpenGL versions are not
+                    like most Direct3D versions, which typically change most of the API. Code that
+                    works on one version of OpenGL will almost always work on later versions of
+                    OpenGL.
+            </p>
+            <p>The only exception to this deals with OpenGL 3.0 and above, relative to previous
+                versions. v3.0 deprecated a number of older functions, and v3.1 removed most of
+                those functions from the API<a href="#ftn.idp1131" class="footnote" name="idp1131"><sup class="footnote">[1]</sup></a>. This also divided the specification into 2 variations (called
+                profiles): core and compatibility. The compatibility profile retains all of the
+                functions removed in 3.1, while the core profile does not. Theoretically, OpenGL
+                implementations could implement just the core profile; this would leave software
+                that relies on the compatibility profile non-functional on that
+                implementation.</p>
+            <p>As a practical matter, none of this matters at all. No OpenGL driver developer is
+                going to ship drivers that only implement the core profile. So in effect, this means
+                nothing at all; all OpenGL versions are all effectively backwards compatible.</p>
+        </div>
+    <div class="footnotes"><br><hr style="width:100; text-align:left;margin-left: 0"><div id="ftn.idp1131" class="footnote">
+                    <p><a href="#idp1131" class="para"><sup class="para">[1] </sup></a>Deprecation only means marking those functions as to be removed in later
+                        functions. They are still available for use in 3.0.</p>
+                </div></div></div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Intro%20Graphics%20and%20Rendering.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Introduction.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Intro%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Graphics and Rendering </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

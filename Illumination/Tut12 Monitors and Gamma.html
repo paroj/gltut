@@ -1,0 +1,228 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Linearity and Gamma</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2012.html" title="Chapter 12. Dynamic Range"><link rel="prev" href="Tut12%20High%20Dynamic%20Range.html" title="High Dynamic Range"><link rel="next" href="Tut12%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Linearity and Gamma</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut12%20High%20Dynamic%20Range.html">Prev</a> </td><th width="60%" align="center">Chapter 12. Dynamic Range</th><td width="20%" align="right"> <a accesskey="n" href="Tut12%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp85"></a>Linearity and Gamma</h2></div></div></div>
+        
+        
+        <p>There is one major issue left, and it is one that has been glossed over since the
+            beginning of our look at lighting: your screen.</p>
+        <p>The fundamental assumption underlying all of our lighting equations since the very
+            beginning is the idea that the surface colors and light intensities are all in a linear
+                <em class="glossterm">colorspace</em>. A colorspace defines how we translate from a set
+            of numerical values to actual, real colors that you can see. A colorspace is a
+                <em class="glossterm">linear colorspace</em> if doubling any value in that colorspace
+            results in a color that is twice as bright. The linearity refers to the relationship
+            between values and overall brightness of the resulting color.</p>
+        <p>This assumption can be taken as a given for our data thus far. All of our diffuse and
+            specular color values were given by us, so we can know that they represent values in a
+            linear RGB colorspace. The light intensities are likewise in a linear colorspace. When
+            we multiplied the sun and ambient intensities by 3 in the last section, we were
+            increasing the brightness by 3x. Multiplying the maximum intensity by 3 had the effect
+            of reducing the overall brightness by 3x.</p>
+        <p>There's just one problem: your screen does not work that way. Time for a short history
+            of television/monitors.</p>
+        <p>The original televisions used an electron gun fired at a phosphor surface to generate
+            light and images; this is called a <acronym class="acronym">CRT</acronym> display (cathode ray tube).
+            The strength of the electron beam determined the brightness of that part of the image.
+            However, the strength of the beam did not vary linearly with the brightness of the
+            image.</p>
+        <p>The easiest way to deal with that in the earliest days of TV was to simply modify the
+            incoming image at the source. TV broadcasts sent image data that was non-linear in the
+            opposite direction of the CRT's normal non-linearity. Thus, the final output was
+            displayed linearly, as it was originally captured by the camera.</p>
+        <p>The term for this process, de-linearizing an image to compensate for a non-linear
+            display, is called <em class="glossterm">gamma correction</em>.</p>
+        <p>You may be wondering why this matters. After all, odds are, you do not have a CRT-based
+            monitor; you probably have some form of LCD, plasma, LED, or similar technology. So what
+            does the vagaries of CRT monitors matter to you?</p>
+        <p>Because gamma correction is everywhere. It's in DVDs, video-tapes, and Blu-Ray discs.
+            Every digital camera does it. And this is how it has been for a long time. Because of
+            that, you could not sell an LCD monitor that tried to do linear color reproduction;
+            nobody would buy it because all media for it (including your OS) was designed and
+            written expecting CRT-style non-linear displays.</p>
+        <p>This means that every non-CRT display must mimic the CRT's non-linearity; this is
+            built into the basic video processing logic of every display device.</p>
+        <p>So for twelve tutorials now, we have been outputting linear RGB values to a display
+            device that expects gamma-corrected non-linear RGB values. But before we started doing
+            lighting, we were just picking nice-looking colors, so it did not matter. Now that we're
+            doing something vaguely realistic, we need to perform gamma-correction. This will let us
+            see what we've <span class="emphasis"><em>actually</em></span> been rendering, instead of what our
+            monitor's gamma-correction circuitry has been mangling.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10187"></a>Gamma Functions</h3></div></div></div>
+            
+            <p>A gamma function is the function that maps linear RGB space to non-linear RGB
+                space. The gamma function for CRT displays was fairly standard, and all non-CRT
+                displays mimic this standard. It is ultimately based on a math function of CRT
+                displays. The strength of the electron beam is controlled by the voltage passed
+                through it. This correlates with the light intensity as follows:</p>
+            <div class="equation"><a name="idp10190"></a><p class="title"><b>Equation 12.1. Display Gamma Function</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+   <mi mathvariant="italic">LinearRGB</mi>
+   <mo stretchy="false">∝</mo>
+   <msup>
+    <mi mathvariant="italic">Voltage</mi>
+	<mi>γ</mi>
+   </msup>
+  </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>This is called a gamma function due to the Greek letter γ (gamma). The input
+                signal directly controls the voltage, so the input signal needed to be corrected for
+                the power of gamma.</p>
+            <p>Modern displays usually have gamma adjustments that allow the user to set the
+                display's gamma. The default is usually a gamma of around 2.2; this is a useful
+                compromise value and an excellent default for our gamma-correction code.</p>
+            <p>So, given the gamma function above, we need to output values from our shader that
+                will result in our original linear values after the gamma function is applied. This
+                is gamma correction, and the function for that is straightforward.</p>
+            <div class="equation"><a name="idp10202"></a><p class="title"><b>Equation 12.2. Gamma Correction Function</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML">
+  <mrow>
+   <mi mathvariant="italic">GammaRGB</mi>
+   <mo>=</mo>
+   <msup>
+    <mi mathvariant="italic">LinearRGB</mi>
+		<mfrac>
+			<mrow>
+				<mn>1</mn>
+			</mrow>
+			<mrow>
+				<mi>γ</mi>
+			</mrow>
+		</mfrac>
+   </msup>
+  </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>It would be interesting to see a graph of these functions, to speculate about what
+                we will see in our gamma-correct images.</p>
+            <div class="figure"><a name="idp10216"></a><p class="title"><b>Figure 12.5. Gamma Function Graph</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="GammaFunctionGraph.svg" alt="Gamma Function Graph"></div>
+            </div></div><br class="figure-break">
+            <p>Without gamma correction, our linearRGB colors (the diagonal line in the graph)
+                would become the CRT gamma curve at the bottom. This means that what we have been
+                seeing is a <span class="emphasis"><em>severely</em></span> darkened version of our colors. A
+                linearRGB value of 0.5 drops to an intensity of 0.218; that's more than half of the
+                brightness gone.</p>
+            <p>With proper gamma correction, we can expect to see our scene become much
+                brighter.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10224"></a>Gamma in Action</h3></div></div></div>
+            
+            <p>Gamma correction is implemented in the <span class="propername">Gamma
+                    Correction</span> tutorial.</p>
+            <p>The <span class="keycap"><strong>K</strong></span> key toggles gamma correction. The default gamma value is
+                2.2, but it can be raised and lowered with the <span class="keycap"><strong>Y</strong></span> and
+                    <span class="keycap"><strong>H</strong></span> keys respectively.</p>
+            <div class="figure"><a name="idp10232"></a><p class="title"><b>Figure 12.6. Gamma Correction</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Gamma%20Correction.png" alt="Gamma Correction"></div>
+            </div></div><br class="figure-break">
+            <p>That is very bright; it uses the same HDR-based lighting environment from the
+                previous tutorials. Let's look at some code.</p>
+            <p>The gamma value is an odd kind of value. Conceptually, it has nothing to do with
+                lighting, per-se. It is a global value across many shaders, so it should be in a UBO
+                somewhere. But it is not a material parameter; it does not change from object to
+                object. In this tutorial, we stick it in the <code class="classname">Light</code> uniform
+                block and the <code class="classname">LightBlockGamma</code> struct. Again, we steal a float
+                from the padding:</p>
+            <div class="example"><a name="idp10241"></a><p class="title"><b>Example 12.7. Gamma LightBlock</b></p><div class="example-contents">
+                
+                <pre class="programlisting">struct LightBlockGamma
+{
+    glm::vec4 ambientIntensity;
+    float lightAttenuation;
+    float maxIntensity;
+    float gamma;
+    float padding;
+    PerLight lights[NUMBER_OF_LIGHTS];
+};</pre>
+            </div></div><br class="example-break">
+            <p>For the sake of clarity in this tutorial, we send the actual gamma value. For
+                performance's sake, we ought send 1/gamma, so that we do not have to needlessly do a
+                division in every fragment.</p>
+            <p>The gamma is applied in the fragment shader as follows:</p>
+            <div class="example"><a name="idp10246"></a><p class="title"><b>Example 12.8. Fragment Gamma Correction</b></p><div class="example-contents">
+                
+                <pre class="programlisting">accumLighting = accumLighting / Lgt.maxIntensity;
+vec4 gamma = vec4(1.0 / Lgt.gamma);
+gamma.w = 1.0;
+outputColor = pow(accumLighting, gamma);</pre>
+            </div></div><br class="example-break">
+            <p>Otherwise, the code is mostly unchanged from the HDR tutorial. Speaking of which,
+                gamma correction does not require HDR per se, nor does HDR require gamma correction.
+                However, the combination of the two has the power to create substantial improvements
+                in overall visual quality.</p>
+            <p>One final change in the code is for light values that are written directly,
+                without any lighting computations. The background color is simply the clear color
+                for the framebuffer. Even so, it needs gamma correction too; this is done on the CPU
+                by gamma correcting the color before drawing it. If you have any other colors that
+                are drawn directly, <span class="emphasis"><em>do not</em></span> forget to do this.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10252"></a>Gamma Correct Lighting</h3></div></div></div>
+            
+            <p>What we have seen is what happens when you apply HDR lighting to a scene who's
+                light properties were defined <span class="emphasis"><em>without</em></span> gamma correction. Look at
+                the scene at night; the point lights are extremely bright, and their lighting
+                effects seem to go much farther than before. This last point bears
+                investigating.</p>
+            <p>When we first talked about light attenuation, we said that the correct attenuation
+                function for a point light was an inverse-square relationship with respect to the
+                distance to the light. We also said that this usually looked wrong, so people often
+                used a plain inverse attenuation function.</p>
+            <p>Gamma is the reason for this. Or rather, lack of gamma correction is the reason.
+                Without correcting for the display's gamma function, the attenuation of 
+                    <span class="mathphrase">1/r<sup>2</sup></span>
+                 effectively becomes 
+                    <span class="mathphrase">(1/r<sup>2</sup>)<sup>2.2</sup></span>
+                , which is 
+                    <span class="mathphrase">1/r<sup>4.4</sup></span>
+                . The lack of proper gamma correction magnifies the effective
+                attenuation of lights. A simple 
+                    <span class="mathphrase">1/r</span>
+                 relationship looks better without gamma correction because the
+                display's gamma function turns it into something that is much closer to being in a
+                linear colorspace: 
+                    <span class="mathphrase">1/r<sup>2.2</sup></span>
+                .</p>
+            <p>Since this lighting environment was not designed while looking at gamma correct
+                results, let's look at some scene lighting that was developed with proper gamma in
+                mind. Turn on gamma correction and set the gamma value to 2.2 (the default if you
+                did not change it). The press <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>L</strong></span>:</p>
+            <div class="figure"><a name="idp10277"></a><p class="title"><b>Figure 12.7. Gamma Lighting</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Gamma%20Lighting.png" alt="Gamma Lighting"></div>
+            </div></div><br class="figure-break">
+            <p>This is more like it.</p>
+            <p>If there is one point you should learn from this exercise, it is this: make sure
+                that you implement gamma correction and HDR <span class="emphasis"><em>before</em></span> trying to
+                light your scenes. If you do not, then you may have to adjust all of the lighting
+                parameters again, and you may need to change materials as well. In this case, it
+                was not even possible to use simple corrective math on the lighting environment to
+                make it work right. This lighting environment was developed essentially from
+                scratch.</p>
+            <p>One thing we can notice when looking at the gamma correct lighting is that proper
+                gamma correction improves shadow details substantially:</p>
+            <div class="figure"><a name="idp10286"></a><p class="title"><b>Figure 12.8. Gamma Shadow Details</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Gamma%20Compare.png" alt="Gamma Shadow Details"></div>
+            </div></div><br class="figure-break">
+            <p>These two images use the HDR lighting; the one on the left does not have gamma
+                correction, and the one on the right does. Notice how easy it is to make out the
+                details in the hills near the triangle on the right.</p>
+            <p>Looking at the gamma function, this makes sense. Without proper gamma correction,
+                fully half of the linearRGB range is shoved into the bottom one-fifth of the
+                available light intensity. That does not leave much room for areas that are dark but
+                not too dark to see anything.</p>
+            <p>As such, gamma correction is a key process for producing color-accurate rendered
+                images. It allows details within darkness to show up much more easily.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut12%20High%20Dynamic%20Range.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2012.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut12%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">High Dynamic Range </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

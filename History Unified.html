@@ -1,0 +1,118 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Modern Unification</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"><link rel="prev" href="History%20GeForceFX.html" title="Dependency"><link rel="next" href="Getting%20Started%20with%20OpenGL.html" title="Appendix D. Getting Started with OpenGL"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Modern Unification</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="History%20GeForceFX.html">Prev</a> </td><th width="60%" align="center">Appendix C. History of PC Graphics Hardware</th><td width="20%" align="right"> <a accesskey="n" href="Getting%20Started%20with%20OpenGL.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp133"></a>Modern Unification</h2></div></div></div>
+        
+        
+        <p>Welcome to the modern era. All of the examples in this book are designed on and for
+            this era of hardware, though some of them could run on older ones with some alteration.
+            The release of the Radeon HD 2000 and GeForce 8000 series cards in 2006 represented
+            unification in more ways than one.</p>
+        <p>With the prior generations, fragment hardware had certain platform-specific
+            peculiarities. While the API kinks were mostly ironed out with the development of proper
+            shading languages, there were still differences in the behavior of hardware. While 4
+            dependent texture accesses were sufficient for most applications, naive use of shading
+            languages could get you in trouble on ATI hardware.</p>
+        <p>With this generation, neither side really offered any real functionality difference.
+            There are still differences between the hardware lines, and certainly in terms of
+            performance. But the functionality differences have never been more blurred than they
+            were with this revision.</p>
+        <p>Another form of unification was that both NVIDIA and ATI moved to a unified shader
+            architecture. In all prior generations, fragment shaders and vertex shaders were
+            fundamentally different hardware. Even when they started doing the same kinds of things,
+            such as accessing textures, they were both using different physical hardware to do so.
+            This led to some inefficiencies.</p>
+        <p>Deferred rendering probably gives the most explicit illustration of the problem. The
+            first pass, the creation of the g-buffers, is a very vertex-shader-intensive activity.
+            While the fragment shader can be somewhat complex, doing several texture fetches to
+            compute various material parameters, the vertex shader is where much of the real work is
+            done. Lots of vertices come through the shader, and if there are any complex
+            transformations, they will happen here.</p>
+        <p>The second pass is a <span class="emphasis"><em>very</em></span> fragment shader intensive pass. Each
+            light layer is comprised of exactly 4 vertices. Vertices that can be provided directly
+            in clip-space. From then on, the fragment shader is what is being worked. It performs
+            all of the complex lighting calculations necessary for the various rendering techniques.
+            Four vertices generate literally millions of fragments, depending on the rendering
+            resolution.</p>
+        <p>In prior hardware generations, in the first pass, there would be fragment shaders
+            going to waste, as they would process fragments faster than the vertex shaders could
+            deliver triangles. In the second pass, the reverse happens, only even moreso. Four
+            vertex shader executions, and then all of those vertex shaders would be completely
+            useless. All of those parallel computational units would go to waste.</p>
+        <p>Both NVIDIA and ATI devised hardware such that the computational elements were
+            separated from their particular kind of computations. All shader hardware could be used
+            for vertices, fragments, or geometry shaders (new in this generation). This would be
+            changed on demand, based on the resource load. This makes deferred rendering in
+            particular much more efficient; the second pass is able to use almost all of the
+            available shader resources for lighting operations.</p>
+        <p>This unified shader approach also means that every shader stage has essentially the
+            same capabilities. The standard for the maximum texture count is 16, which is plenty
+            enough for doing just about anything. This is applied equally to all shader types, so
+            vertex shaders have the same number of textures available as fragment shaders.</p>
+        <p>This smoothed out a great many things. Shaders gained quite a few new features.
+            Uniform buffers became available. Shaders could perform computations directly on integer
+            values. Unlike every generation before, all of these features were parceled out to all
+            types of shaders equally.</p>
+        <p>Along with unified shaders came a long list of various and sundry improvements to
+            non-shader hardware. These include, but are not limited to:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Floating-point blending was worked out fully. Hardware of this era supports
+                    full 32-bit floating point blending, though for performance reasons you're still
+                    advised to use the lowest precision you can get away with.</p>
+            </li><li class="listitem">
+                <p>Arbitrary texture swizzling as a direct part of texture sampling parameters,
+                    rather than in the shader itself.</p>
+            </li><li class="listitem">
+                <p>Integer texture formats, to compliment the shader's ability to use integer
+                    values.</p>
+            </li><li class="listitem">
+                <p>Array textures.</p>
+            </li></ul></div>
+        <p>Various other limitations were expanded as well.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Post-Modern</b></p></div></div></div>
+            
+            <p>This was not the end of hardware evolution; there has been hardware released in
+                recent years  The Radeon HD 5000 and GeForce GT 400 series and above have increased
+                rendering features. They're just not as big of a difference compared to what came
+                before.</p>
+            <p>One of the biggest new feature in this hardware is tessellation, the ability to
+                take triangles output from a vertex shader and split them into new triangles based
+                on arbitrary (mostly) shader logic. This sounds like what geometry shaders can do,
+                but it is different.</p>
+            <p>Tessellation is actually something that ATI toyed around with for years. The
+                Radeon 9700 had tessellation support with something they called PN triangles. This
+                was very automated and not particularly useful. The entire Radeon HD 2000-4000 cards
+                included tessellation features as well. These were pre-vertex shader, while the
+                current version comes post-vertex shader.</p>
+            <p>In the older form, the vertex shader would serve double duty. An incoming triangle
+                would be broken down into many triangles. The vertex shader would then have to
+                compute the per-vertex attributes for each of the new triangles, based on the old
+                attributes and which vertex in the new series of vertices is being computed. Then it
+                would do its normal transformation and other operations on those attributes.</p>
+            <p>The current form introduces two new shader stages. The first, immediately after
+                the vertex shader, controls how much tessellation happens on a particular primitive.
+                The tessellation happens, splitting the single primitive into multiple primitives.
+                The next stage determines how to compute the new positions, normals, etc of the
+                primitive, based on the values of the primitive being tessellated. The geometry
+                shader still exists; it is executed after the final tessellation shader
+                stage.</p>
+            <p>Another feature is the ability to have a shader arbitrarily read
+                    <span class="emphasis"><em>and</em></span> write to images in textures. This is not merely
+                sampling from a texture; it uses a different interface (no filtering), and it means
+                very different things. This form of image data access breaks many of the rules
+                around OpenGL, and it is very easy to use the feature wrongly.</p>
+            <p>These are not covered in this book for a few reasons. First, there is not as much
+                hardware out there that supports it (though this is increasing daily). Sticking to
+                OpenGL 3.3 meant casting a wider net; requiring OpenGL 4.2 would have meant fewer
+                people could run those tutorials.</p>
+            <p>Second, these features are quite complicated to use. Any discussion of
+                tessellation would require discussing tessellation algorithms, which are all quite
+                complicated. Any discussion of image reading/writing would require talking about
+                shader hardware at a level of depth that is well beyond the beginner level. These
+                are useful features, to be sure, but they are also very complex features.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="History%20GeForceFX.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="History%20of%20Graphics%20Hardware.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Getting%20Started%20with%20OpenGL.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Dependency </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Appendix D. Getting Started with OpenGL</td></tr></table></div></body></html>

@@ -1,0 +1,211 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Camera-Relative Orientation</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2008.html" title="Chapter 8. Getting Oriented"><link rel="prev" href="Tut08%20Quaternions.html" title="Quaternions"><link rel="next" href="Tut08%20Interpolation.html" title="Interpolation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Camera-Relative Orientation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut08%20Quaternions.html">Prev</a> </td><th width="60%" align="center">Chapter 8. Getting Oriented</th><td width="20%" align="right"> <a accesskey="n" href="Tut08%20Interpolation.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp59"></a>Camera-Relative Orientation</h2></div></div></div>
+        
+        
+        <p>As useful as model and world space offsetting is, there is one more space that it
+            might be useful to orient from. Camera-space.</p>
+        <p>This is primarily useful in modelling applications, but it can have other applications
+            as well. In such programs, as the user spins the camera around to different angles, the
+            user may want to transform the object relative to the direction of the view.</p>
+        <p>In order to understand the solution to doing this, let's frame the problem explicitly.
+            We have positions (p) in model space. These positions will be transformed by a current
+            model-to-world orientation (O), and then by a final camera matrix (C). Thus, our
+            transform equation is 
+                <span class="mathphrase">C*O*p</span>
+            .</p>
+        <p>We want to apply an orientation offset (R), which takes points in camera-space. If we
+            wanted to apply this to the camera matrix, it would simply be multiplied by the camera
+            matrix: 
+                <span class="mathphrase">R*C*O*p</span>
+            . That's nice and all, but we want to apply a transform to O, not to
+            C.</p>
+        <p>Therefore, we need to use our transforms to generate a new orientation offset (N),
+            which will produce the same effect:</p>
+        <div class="informalequation">
+                <span class="mathphrase">C*N*O = R*C*O</span>
+            </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7154"></a>Inversion</h3></div></div></div>
+            
+            <p>In order to solve this, we need to introduce a new concept. Given a matrix M,
+                there may be a matrix N such that 
+                    <span class="mathphrase">MN = I</span>
+                , where I is the identity matrix. If there is such a matrix, the
+                matrix N is called the <em class="glossterm">inverse matrix</em> of M. The notation for
+                the inverse matrix of M is M<sup>-1</sup>. The symbol
+                        <span class="quote">“<span class="quote"><sup>-1</sup></span>”</span> does not mean to raise the
+                matrix to the -1 power; it means to invert it.</p>
+            <p>The matrix inverse can be analogized to the scalar multiplicative inverse (ie:
+                reciprocal). The scalar multiplicative inverse of X is the number Y such that 
+                    <span class="mathphrase">XY = 1</span>
+                .</p>
+            <p>In the case of the scalar inverse, this is very easy to solve for: 
+                    <span class="mathphrase">Y = 1/X</span>
+                . Easy though this may be, there are values of X for which there is
+                no multiplicative inverse. OK, there's <span class="emphasis"><em>one</em></span> such real value of
+                X: 0.</p>
+            <p>The case of the inverse matrix is much more complicated. Just as with the scalar
+                inverse, there are matrices that have no inverse. Unlike the scalar case, there are
+                a <span class="emphasis"><em>lot</em></span> of matrices with no inverse. Also, computing the inverse
+                matrix is a <span class="emphasis"><em>lot</em></span> more complicated than simply taking the
+                reciprocal of a value.</p>
+            <p>Most common transformation matrices do have an inverse. And for the basic
+                transformation matrices, the inverse matrix is very easy to compute. For a pure
+                rotation matrix, simply compute a new rotation matrix by negating the angle that the
+                old one was generated with. For a translation matrix, negate the origin value in the
+                matrix. For a scale matrix, take the reciprocal of the scale along each axis.</p>
+            <p>To take the inverse of a sequence of matrices, you can take the inverse of each of
+                the component matrices. But you have to do the matrix multiplication in
+                    <span class="emphasis"><em>reverse</em></span> order. So if we have 
+                    <span class="mathphrase">M = TRS</span>
+                , then 
+                    <span class="mathphrase">M<sup>-1</sup> =
+                            S<sup>-1</sup>R<sup>-1</sup>T<sup>-1</sup></span>
+                .</p>
+            <p>Quaternions, like matrices, have a multiplicative inverse. The inverse of a pure
+                rotation matrix, which quaternions represent, is a rotation about the same axis with
+                the negative of the angle. For any angle θ, it is the case that 
+                    <span class="mathphrase">sin(-θ) = -sin(θ)</span>
+                . It is also the case that 
+                    <span class="mathphrase">cos(-θ) = cos(θ)</span>
+                . Since the vector part of a quaternion is built by multiplying the
+                axis by the sine of the half-angle, and the scalar part is the cosine of the
+                half-angle, the inverse of any quaternion is just the negation of the vector
+                part.</p>
+            <p>You can also infer this to mean that, if you negate the axis of rotation, you are
+                effectively rotating about the old axis but negating the angle. Which is true, since
+                the direction of the axis of rotation defines what direction the rotation angle
+                moves the points in. Negate the axis's direction, and you're rotating in the
+                opposite direction.</p>
+            <p>In quaternion lingo, the inverse quaternion is more correctly called the
+                    <em class="glossterm">conjugate quaternion.</em> We use the same inverse notation,
+                        <span class="quote">“<span class="quote"><sup>-1</sup>,</span>”</span> to denote conjugate
+                quaternions.</p>
+            <p>Incidentally, the identity quaternion is a quaternion who's rotation angle is
+                zero. The cosine of 0 is one, and the sine of 0 is zero, so the vector part of the
+                identity quaternion is zero and the scalar part is one.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7195"></a>Solution</h3></div></div></div>
+            
+            <p>Given our new knowledge of inverse matrices, we can solve our problem.</p>
+            <div class="informalequation">
+                    <span class="mathphrase">C*N*O = R*C*O</span>
+                </div>
+            <p>We can right-multiply both sides of this equation by the inverse transform of
+                O.</p>
+            <div class="informalequation">
+                <span class="mathphrase">(C*N*O)*O<sup>-1</sup> =
+                        (R*C*O)*O<sup>-1</sup></span>
+            </div>
+            <div class="informalequation">
+                <span class="mathphrase">C*N*I = R*C*I</span>
+            </div>
+            <p>The I is the identity transform. From here, we can left-multiply both sides by the
+                inverse transform of C:</p>
+            <div class="informalequation">
+                <span class="mathphrase">C<sup>-1</sup> *(C*N) =
+                    C<sup>-1</sup>*(R*C)</span>
+            </div>
+            <div class="informalequation">
+                <span class="mathphrase">N = C<sup>-1</sup>*(R*C)</span>
+            </div>
+            <p>Therefore, given an offset that is in camera space, we can generate the
+                world-space equivalent by multiplying it between the camera and inverse camera
+                transforms.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7217"></a>Transformation Spaces</h3></div></div></div>
+            
+            <p>It turns out that this is a generalized operation. It can be used for much more
+                than just orientation changes.</p>
+            <p>Consider a scale operation. Scales apply along the main axes of their space. But
+                if you want to scale something along a different axis, how do you do that?</p>
+            <p>You rotate the object into a coordinate system where the axis you want to scale
+                    <span class="emphasis"><em>is</em></span> one of the basis axes, perform your scale, then rotate
+                it back with the inverse of the previous rotation.</p>
+            <p>Effectively, what we are doing is transforming, not positions, but other
+                transformation matrices into different spaces. A transformation matrix has some
+                input space and defines an output space. If we want to apply that transformation in
+                a different space, we perform this operation.</p>
+            <p>The general form of this sequence is as follows. Suppose you have a transformation
+                matrix T, which operates on points in a space called F. We have some positions in
+                the space P. What we want is to create a matrix that applies T's transformation
+                operation, except that it needs to operate on points in the space of P. Given a
+                matrix M that transforms from P space to F space, that matrix is 
+                    <span class="mathphrase">M<sup>-1</sup>*T*M</span>
+                .</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7228"></a>Final Orientation</h3></div></div></div>
+            
+            <p>Let's look at how this all works out in code, with the <span class="propername">Camera Relative</span> tutorial. This works very similarly to the last
+                tutorial, but with a few differences.</p>
+            <p>Since we are doing camera-relative rotation, we need to have an actual camera that
+                can move independently of the world. So we incorporate our camera code from our
+                world space into this one. As before, the <span class="keycap"><strong>I</strong></span> and <span class="keycap"><strong>K</strong></span>
+                keys will move the camera up and down, relative to a center point. The
+                    <span class="keycap"><strong>J</strong></span> and <span class="keycap"><strong>K</strong></span> keys will move the camera left and
+                right around the center point. Holding <span class="keycap"><strong>Shift</strong></span> with these keys will
+                move the camera in smaller increments.</p>
+            <p>The <span class="keycap"><strong>SpaceBar</strong></span> will toggle between three transforms: model-relative
+                (yaw/pitch/roll-style), world-relative, and camera-relative.</p>
+            <p>Our scene also includes a ground plane as a reference.</p>
+            <div class="figure"><a name="idp7241"></a><p class="title"><b>Figure 8.4. Camera Relative Project</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Camera%20Relative.png" alt="Camera Relative Project"></div>
+            </div></div><br class="figure-break">
+            <p>The <code class="function">display</code> function only changed where needed to deal with
+                drawing the ground plane and to handle the camera. Either way, it's nothing that
+                has not been seen elsewhere.</p>
+            <p>The substantive changes were in the <code class="function">OffsetOrientation</code>
+                function:</p>
+            <div class="example"><a name="idp7250"></a><p class="title"><b>Example 8.4. Camera Relative OffsetOrientation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void OffsetOrientation(const glm::vec3 &amp;_axis, float fAngDeg)
+{
+    float fAngRad = Framework::DegToRad(fAngDeg);
+    
+    glm::vec3 axis = glm::normalize(_axis);
+    
+    axis = axis * sinf(fAngRad / 2.0f);
+    float scalar = cosf(fAngRad / 2.0f);
+    
+    glm::fquat offset(scalar, axis.x, axis.y, axis.z);
+    
+    switch(g_iOffset)
+    {
+    case MODEL_RELATIVE:
+        g_orientation = g_orientation * offset;
+        break;
+    case WORLD_RELATIVE:
+        g_orientation = offset * g_orientation;
+        break;
+    case CAMERA_RELATIVE:
+        {
+            const glm::vec3 &amp;camPos = ResolveCamPosition();
+            const glm::mat4 &amp;camMat = CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+            
+            glm::fquat viewQuat = glm::quat_cast(camMat);
+            glm::fquat invViewQuat = glm::conjugate(viewQuat);
+            
+            const glm::fquat &amp;worldQuat = (invViewQuat * offset * viewQuat);
+            g_orientation = worldQuat * g_orientation;
+        }
+        break;
+    }
+    
+    g_orientation = glm::normalize(g_orientation);
+}</pre>
+            </div></div><br class="example-break">
+            <p>The change here is the addition of the camera-relative condition. To do this in
+                quaternion math, we must first convert the world-to-camera matrix into a quaternion
+                representing that orientation. This is done here using
+                    <code class="function">glm::quat_cast</code>.</p>
+            <p>The conjugate quaternion is computed with GLM. Then, we simply multiply them with
+                the offset to compute the world-space offset orientation. This gets left-multiplied
+                into the current orientation, and we're done.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut08%20Quaternions.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2008.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut08%20Interpolation.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Quaternions </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Interpolation</td></tr></table></div></body></html>

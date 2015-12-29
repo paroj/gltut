@@ -1,0 +1,53 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>On Vertex Shader Performance</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2003.html" title="Chapter 3. OpenGL's Moving Triangle"><link rel="prev" href="Tut03%20Multiple%20Shaders.html" title="Multiple Shaders"><link rel="next" href="Tut03%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">On Vertex Shader Performance</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut03%20Multiple%20Shaders.html">Prev</a> </td><th width="60%" align="center">Chapter 3. OpenGL's Moving Triangle</th><td width="20%" align="right"> <a accesskey="n" href="Tut03%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp28"></a>On Vertex Shader Performance</h2></div></div></div>
+        
+        
+        <p>These tutorials are simple and should run fast enough, but it is still important to
+            look at the performance implications of various operations. In this tutorial, we present
+            3 ways of moving vertex data: transform it yourself on the CPU and upload it to buffer
+            objects, generate transform parameters on the CPU and have the vertex shader use them to
+            do the transform, and put as much as possible in the vertex shader and only have the CPU
+            provide the most basic parameters. Which is the best to use?</p>
+        <p>This is not an easy question to answer. However, it is almost always the case that CPU
+            transformations will be slower than doing it on the GPU. The only time it will not be is if
+            you need to do the exact same transformations many times within the same frame. And even
+            then, it is better to do the transformations once on the GPU and save the result of that
+            in a buffer object that you will pull from later. This is called transform feedback, and
+            it will be covered in a later tutorial.</p>
+        <p>Between the other two methods, which is better really depends on the specific case.
+            Take our example. In one case, we compute the offset on the CPU and pass it to the GPU.
+            The GPU applies the offset to each vertex position. In the other case, we simply provide
+            a time parameter, and for every vertex, the GPU must compute the <span class="emphasis"><em>exact
+                same</em></span> offset. This means that the vertex shader is doing a lot of work
+            that all comes out to the same number.</p>
+        <p>Even so, that does not mean it's always slower. What matters is the overhead of
+            changing data. Changing a uniform takes time; changing a vector uniform typically takes
+            no more time than changing a single float, due to the way that many cards handle
+            floating-point math. The question is this: what is the cost of doing more complex
+            operations in a vertex shader vs. how often those operations need to be done.</p>
+        <p>The second vertex shader we use, the one that computes the offset itself, does a lot
+            of complex math. Sine and cosine values are not particularly fast to compute. They
+            require quite a few computations to calculate. And since the offset itself does not
+            change for each vertex in a single rendering call, performance-wise it would be best to
+            compute the offset on the CPU and pass the offset as a uniform value.</p>
+        <p>And typically, that is how rendering is done much of the time. Vertex shaders are
+            given transformation values that are pre-computed on the CPU. But this does not mean
+            that this is the only or best way to do this. In some cases, it is often useful to
+            compute the offsets via parameterized values passed to the vertex shader.</p>
+        <p>This is best done when vertex shader inputs are abstracted away. That is, rather than
+            passing a position, the user passes more general information, and the shader generates
+            the position at a particular time or some other parameter. This can be done for particle
+            systems based on forces; the vertex shader executes the force functions based on time,
+            and is able to thus compute the location of the particle at an arbitrary time.</p>
+        <p>This also has an advantage that we have seen. By passing high-level information to the
+            shader and letting it do complex math, you can affect much more than just a simple
+            offset. The color animation in the fragment shader would not have been possible with
+            just an offset. High-level parameterization gives shaders a great deal of
+            freedom.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut03%20Multiple%20Shaders.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2003.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut03%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Multiple Shaders </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

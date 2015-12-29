@@ -1,0 +1,773 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Scale</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2006.html" title="Chapter 6. Objects in Motion"><link rel="prev" href="Tut06%20Translation.html" title="Translation"><link rel="next" href="Tut06%20Rotation.html" title="Rotation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Scale</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut06%20Translation.html">Prev</a> </td><th width="60%" align="center">Chapter 6. Objects in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut06%20Rotation.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp46"></a>Scale</h2></div></div></div>
+        
+        
+        <p>Another kind of transformation is <em class="glossterm">scaling</em>. In terms of our
+            previous definition of a coordinate system, this means that our basis vectors are
+            getting shorter or longer.</p>
+        <div class="figure"><a name="idp4420"></a><p class="title"><b>Figure 6.4. Coordinate System Scaling in 2D</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="ScaleTransform.svg" alt="Coordinate System Scaling in 2D"></div>
+        </div></div><br class="figure-break">
+        <p>Scaling can be uniform, which means each basis vector is scaled by the same value. A
+            non-uniform scale means that each basis can get a different scale or none at all.</p>
+        <p>Uniform scales are used to allow objects in model space to have different units from
+            the units used in camera space. For example, a modeller may have generated the model in
+            inches, but the world uses centimeters. This will require applying a uniform scale to
+            all of these models to compensate for this. This scale should be 2.54, which is the
+            conversion factor from inches to centimeters.</p>
+        <p>Note that scaling always happens relative to the origin of the space being
+            scaled.</p>
+        <p>Recall how we defined the way coordinate systems generate a position, based on the
+            basis vectors and origin point:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mrow>
+		<mi>X</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>A</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>A</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>A</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+		<mo>+</mo>
+		<mi>Y</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>B</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+		<mo>+</mo>
+		<mi>Z</mi>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>C</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>C</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>C</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+		<mo>+</mo>
+		<mfenced open="[" close="]" separators=",">
+			<mtable>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>O</mi>
+							<mi>x</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>O</mi>
+							<mi>y</mi>
+						</msub>
+					</mtd>
+				</mtr>
+				<mtr>
+					<mtd>
+						<msub>
+							<mi>O</mi>
+							<mi>z</mi>
+						</msub>
+					</mtd>
+				</mtr>
+			</mtable>
+		</mfenced>
+	</mrow>
+</math>
+        </div>
+        <p>If you are increasing or decreasing the length of the basis vectors, this is the same
+            as multiplying those basis vectors by the new length. So we can re-express this equation
+            as follows:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mtable columnalign="left">
+		<mtr>
+			<mtd>
+				<mfenced open="[" close="]" separators=",">
+					<mtable>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>A</mi>
+										<mi>x</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>a</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>A</mi>
+										<mi>y</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>a</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>A</mi>
+										<mi>z</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>a</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+					</mtable>
+				</mfenced>
+			</mtd>
+			<mtd>
+				<mi>X</mi>
+			</mtd>
+			<mtd>
+				<mo>+</mo>
+			</mtd>
+			<mtd>
+				<mfenced open="[" close="]" separators=",">
+					<mtable>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>B</mi>
+										<mi>x</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>b</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>B</mi>
+										<mi>y</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>b</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>B</mi>
+										<mi>z</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>b</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+					</mtable>
+				</mfenced>
+			</mtd>
+			<mtd>
+				<mi>Y</mi>
+			</mtd>
+			<mtd>
+				<mo>+</mo>
+			</mtd>
+			<mtd>
+				<mfenced open="[" close="]" separators=",">
+					<mtable>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>C</mi>
+										<mi>x</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>c</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>C</mi>
+										<mi>y</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>c</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<mrow>
+									<msub>
+										<mi>C</mi>
+										<mi>z</mi>
+									</msub>
+									<mo>*</mo>
+									<msub>
+										<mi>S</mi>
+										<mi>c</mi>
+									</msub>
+								</mrow>
+							</mtd>
+						</mtr>
+					</mtable>
+				</mfenced>
+			</mtd>
+			<mtd>
+				<mi>Z</mi>
+			</mtd>
+			<mtd>
+				<mo>+</mo>
+			</mtd>
+			<mtd>
+				<mfenced open="[" close="]" separators=",">
+					<mtable>
+						<mtr>
+							<mtd>
+								<msub>
+									<mi>O</mi>
+									<mi>x</mi>
+								</msub>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<msub>
+									<mi>O</mi>
+									<mi>y</mi>
+								</msub>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<msub>
+									<mi>O</mi>
+									<mi>z</mi>
+								</msub>
+							</mtd>
+						</mtr>
+					</mtable>
+				</mfenced>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mrow>
+					<mfenced open="[" close="]" separators=",">
+						<mtable>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>A</mi>
+										<mi>x</mi>
+									</msub>
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>A</mi>
+										<mi>y</mi>
+									</msub>
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>A</mi>
+										<mi>z</mi>
+									</msub>
+								</mtd>
+							</mtr>
+						</mtable>
+					</mfenced>
+					<mo>*</mo>
+					<msub>
+						<mi>S</mi>
+						<mi>a</mi>
+					</msub>
+					<mo>*</mo>
+				</mrow>
+			</mtd>
+			<mtd>
+				<mi>X</mi>
+			</mtd>
+			<mtd>
+				<mo>+</mo>
+			</mtd>
+			<mtd>
+				<mrow>
+					<mfenced open="[" close="]" separators=",">
+						<mtable>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>B</mi>
+										<mi>x</mi>
+									</msub>
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>B</mi>
+										<mi>y</mi>
+									</msub>
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>B</mi>
+										<mi>z</mi>
+									</msub>
+								</mtd>
+							</mtr>
+						</mtable>
+					</mfenced>
+					<mo>*</mo>
+					<msub>
+						<mi>S</mi>
+						<mi>b</mi>
+					</msub>
+					<mo>*</mo>
+				</mrow>
+			</mtd>
+			<mtd>
+				<mi>Y</mi>
+			</mtd>
+			<mtd>
+				<mo>+</mo>
+			</mtd>
+			<mtd>
+				<mrow>
+					<mfenced open="[" close="]" separators=",">
+						<mtable>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>C</mi>
+										<mi>x</mi>
+									</msub>
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>C</mi>
+										<mi>y</mi>
+									</msub>
+								</mtd>
+							</mtr>
+							<mtr>
+								<mtd>
+									<msub>
+										<mi>C</mi>
+										<mi>z</mi>
+									</msub>
+								</mtd>
+							</mtr>
+						</mtable>
+					</mfenced>
+					<mo>*</mo>
+					<msub>
+						<mi>S</mi>
+						<mi>c</mi>
+					</msub>
+					<mo>*</mo>
+				</mrow>
+			</mtd>
+			<mtd>
+				<mi>Z</mi>
+			</mtd>
+			<mtd>
+				<mo>+</mo>
+			</mtd>
+			<mtd>
+				<mfenced open="[" close="]" separators=",">
+					<mtable>
+						<mtr>
+							<mtd>
+								<msub>
+									<mi>O</mi>
+									<mi>x</mi>
+								</msub>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<msub>
+									<mi>O</mi>
+									<mi>y</mi>
+								</msub>
+							</mtd>
+						</mtr>
+						<mtr>
+							<mtd>
+								<msub>
+									<mi>O</mi>
+									<mi>z</mi>
+								</msub>
+							</mtd>
+						</mtr>
+					</mtable>
+				</mfenced>
+			</mtd>
+		</mtr>
+	</mtable>
+</math>
+        </div>
+        <p>Since scalar-vector multiplication is both associative and commutative, we can
+            multiply the scales directly into the coordinate values to achieve the same effect. So a
+            scaled space can be reexpressed as simply multiplying the input coordinate
+            values.</p>
+        <p>This is easy enough to do in GLSL, if you pass a vector uniform containing the scale
+            values. But that's just not complicated enough. Obviously, we need to get matrices
+            involved, but how?</p>
+        <p>This gets a bit technical, in terms of how a matrix multiplication works. But look
+            back at the identity matrix:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div>
+        <p>This matrix selects each coordinate in turn from the vector it is being multiplied
+            into. Each row is multiplied with the column of the vector; all of the zeros remove the
+            components of the vector that we do not want. The 1 value of each row multiplies into
+            the component we do want, thus selecting it. This produces the identity result: the
+            vector we started with.</p>
+        <p>We can see that, if the ones were some other value, we would get a scaled version of
+            the original vector, depending on which ones were changed. Thus, a scaling
+            transformation matrix looks like this:</p>
+        <div class="equation"><a name="idp4790"></a><p class="title"><b>Equation 6.4. Scaling Transformation Matrix</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mtext>Scale</mtext>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mi>x</mi>
+          </mrow>
+          <mrow>
+            <mi>y</mi>
+          </mrow>
+          <mrow>
+            <mi>z</mi>
+          </mrow>
+        </mfenced>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mfenced open="[" close="]" separators=",">
+          <mrow>
+            <mtable>
+              <mtr>
+                <mtd>
+                  <mi>x</mi>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mi>y</mi>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mi>z</mi>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>1</mn>
+                </mtd>
+              </mtr>
+            </mtable>
+          </mrow>
+        </mfenced>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>You may start to see a pattern emerging here, something that begins to suggest why
+            matrices are very, very useful. I will not spoil it for you yet though.</p>
+        <p>The tutorial project <span class="propername">Scale</span> will display 5 objects
+            at various scales. The objects are all at the same Z distance from the camera, so the
+            only size difference between the objects is the scale effects applied to them. The
+            object in the center is unscaled; each of the other objects has a scale function of some
+            kind applied to them.</p>
+        <div class="figure"><a name="idp4850"></a><p class="title"><b>Figure 6.5. Scale Project</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Scales.png" alt="Scale Project"></div>
+        </div></div><br class="figure-break">
+        <p>Other than the way the tutorial builds its matrices, there is no difference between
+            this tutorial project and the previous one. The matrix building code works as
+            follows:</p>
+        <pre class="programlisting">glm::mat4 ConstructMatrix(float fElapsedTime)
+{
+    glm::vec3 theScale = CalcScale(fElapsedTime);
+    glm::mat4 theMat(1.0f);
+    theMat[0].x = theScale.x;
+    theMat[1].y = theScale.y;
+    theMat[2].z = theScale.z;
+    theMat[3] = glm::vec4(offset, 1.0f);
+    
+    return theMat;
+}</pre>
+        <p>As before, the scale is supplied by a number of scale functions, depending on which
+            instance is being rendered. The scale is stored in the columns of the identity matrix.
+            Then the translation portion of the matrix is filled in.</p>
+        <p>The <code class="varname">offset</code> variable is also a member of the
+                <code class="classname">Instance</code> object. Unlike the last tutorial, the offset is a
+            fixed value. We will discuss the ramifications of applying multiple transforms later;
+            suffice it to say, this currently works.</p>
+        <p>Scaling is only slightly more complicated than translation.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Perspective and Scaling</b></p></div></div></div>
+            
+            <p>The way we construct a scale transformation matrix may seem familiar to you. Back
+                in Tutorial 4, the perspective transformation involved a frustum scale value. This
+                was used to make up for the fact that our projection defined a specific location for
+                the plane of projection and camera eye point. Using this frustum scale, we could
+                give the appearance of having a larger or smaller viewing size. Indeed, we later
+                used this to define the aspect ratio as well as the field of view, using the
+                function defined earlier in this tutorial.</p>
+            <p>This frustum scale was ultimately nothing more than a scale factor applied the X
+                and Y positions. When we constructed the perspective matrix, we used the frustum
+                scale as a uniform scaling in the X and Y dimensions. The aspect ratio compensation
+                code was nothing more than applying a <span class="emphasis"><em>non</em></span>uniform scale.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp4867"></a>Inversion and Winding Order</h3></div></div></div>
+            
+            <p>Scales can be theoretically negative, or even 0. A scale of 0 causes the basis
+                vector in that direction to become 0 entirely. A basis vector with no length means
+                that a dimension has effectively been lost. The resulting transform squashes
+                everything in that direction down to the origin. A 3D space becomes a 2D space (or
+                1D or 0D, depending on how many axes were scaled).</p>
+            <p>A negative scale changes the direction of an axis. This causes vertices
+                transformed with this scale to flip across the origin in that axis's direction. This
+                is called an <em class="glossterm">inversion</em>. This can have certain unintended
+                consequences. In particular, it can change the winding order of vertices.</p>
+            <p>Back in <a class="link" href="Tutorial%2004.html#tut04_face_culling" title="Face Culling">Tutorial 4</a>, we introduced the
+                ability to cull triangles based on the order in which the vertices appeared in
+                window space. Depending on which axis you negate, relative to camera space, an
+                inversion can flip the expected winding order of vertices. Thus, triangles that
+                were, in model space, forward-facing now in camera space are backwards-facing. And
+                vice-versa.</p>
+            <p>Negative scaling can have other problems as well. This is not to say that
+                inversions cannot be used, but they should be used with care.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut06%20Translation.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2006.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut06%20Rotation.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Translation </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Rotation</td></tr></table></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="500px" width="500px" viewbox="0 0 500 500" >
+	<style type="text/css" ><![CDATA[.dashed
+{
+	stroke-dasharray: 3,3;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.black
+{
+	stroke-width: 1px;
+	stroke: black;
+}
+
+.fill_transluscent
+{
+	fill-opacity: 0.1;
+	fill: blue;
+}
+
+.arrowended
+{
+	marker-end: url(#arrowhead);
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="strokeWidth" orient="auto" id="arrowhead" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="black" />
+		</marker>
+	</defs>
+	<line x2="73.223304703363" y2="189.53880933801" y1="234.8847023345" x1="205.80582617584" class="black arrowended" />
+	<line x2="250" y2="15.076844803523" y1="191.26921120088" x1="250" class="black arrowended" />
+	<line x2="426.77669529664" y2="189.53880933801" y1="219.769404669" x1="338.38834764832" class="black arrowended" />
+	<polygon points="267.67766952966,289.5541904828 267.67766952966,101.61566632561 143.93398282202,250.69216074515 143.93398282202,297.67679178445" class="black fill_transluscent" />
+	<polygon points="409.09902576697,337.92314301239 267.67766952966,289.5541904828 143.93398282202,297.67679178445 179.28932188135,309.76902991684" class="black fill_transluscent" />
+	<polygon points="409.09902576697,337.92314301239 267.67766952966,289.5541904828 267.67766952966,101.61566632561 409.09902576697,149.98461885521" class="black fill_transluscent" />
+	<line x2="205.80582617584" y2="234.8847023345" y1="265.1152976655" x1="294.19417382416" class="black dashed" />
+	<line x2="250" y2="191.26921120088" y1="308.73078879912" x1="250" class="black dashed" />
+	<line x2="161.61165235168" y2="280.230595331" y1="219.769404669" x1="338.38834764832" class="black dashed" />
+	<polygon points="409.09902576697,337.92314301239 409.09902576697,149.98461885521 179.28932188135,262.78439887755 179.28932188135,309.76902991684" class="black fill_transluscent" />
+	<polygon points="409.09902576697,149.98461885521 267.67766952966,101.61566632561 143.93398282202,250.69216074515 179.28932188135,262.78439887755" class="black fill_transluscent" />
+	<polygon points="179.28932188135,309.76902991684 143.93398282202,297.67679178445 143.93398282202,250.69216074515 179.28932188135,262.78439887755" class="black fill_transluscent" />
+	<line x2="426.77669529664" y2="310.46119066199" y1="265.1152976655" x1="294.19417382416" class="black arrowended" />
+	<line x2="250" y2="484.92315519648" y1="308.73078879912" x1="250" class="black arrowended" />
+	<line x2="73.223304703363" y2="310.46119066199" y1="280.230595331" x1="161.61165235168" class="black arrowended" />
+</svg>

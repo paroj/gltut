@@ -1,0 +1,309 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Shared Uniforms</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2007.html" title="Chapter 7. World in Motion"><link rel="prev" href="Tut07%20Primitive%20Drawing.html" title="Primitive Drawing"><link rel="next" href="Tut07%20The%20Perils%20of%20World%20Space.html" title="The Perils of World Space"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Shared Uniforms</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut07%20Primitive%20Drawing.html">Prev</a> </td><th width="60%" align="center">Chapter 7. World in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut07%20The%20Perils%20of%20World%20Space.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp53"></a>Shared Uniforms</h2></div></div></div>
+        
+        
+        <p>The <span class="propername">World Space</span> example had a few annoyances in it.
+            Of particular pain was the fact that, whenever the perspective projection matrix or the
+            world-to-camera matrix changed, we had to change uniforms in 3 programs. They all used
+            the same value; it seems strange that we should have to go through so much trouble to
+            change these uniforms.</p>
+        <p>Also, 3 programs is a relatively simple case. When dealing with real examples, the
+            number of programs can get quite large.</p>
+        <p>There is a way to share uniforms between programs. To do this, we use a buffer object
+            to store uniform data, and then tell our programs to use this particular buffer object
+            to find its uniform data. A buffer object that stores uniforms is commonly called a
+                <em class="glossterm">uniform buffer object</em>.</p>
+        <p>It is important to understand that there is nothing special about a uniform buffer.
+            Any of the things you could do with a regular buffer object can be done with a uniform
+            buffer object. You can bind it to the <code class="literal">GL_ARRAY_BUFFER</code> and use it for
+            vertex data, you can use it for indexed rendering with
+                <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code>, and many other things that buffer
+            objects can be used for. Now granted, that doesn't mean that you should, only that you
+            can.</p>
+        <p>The example <span class="propername">World with UBO</span> uses a uniform buffer
+            object to store the camera and perspective matrices.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6355"></a>Uniform Blocks</h3></div></div></div>
+            
+            <p>This begins with how the vertex shaders are defined.</p>
+            <div class="example"><a name="idp6358"></a><p class="title"><b>Example 7.10. UBO-based Vertex Shader</b></p><div class="example-contents">
+                
+                <pre class="programlisting">#version 330
+
+layout(location = 0) in vec4 position;
+
+layout(std140) uniform GlobalMatrices
+{
+    mat4 cameraToClipMatrix;
+    mat4 worldToCameraMatrix;
+};
+
+uniform mat4 modelToWorldMatrix;
+
+void main()
+{
+    vec4 temp = modelToWorldMatrix * position;
+    temp = worldToCameraMatrix * temp;
+    gl_Position = cameraToClipMatrix * temp;
+}</pre>
+            </div></div><br class="example-break">
+            <p>The definition of <span class="type">GlobalMatrices</span> looks like a struct definition, but
+                it is not. It defines a <em class="glossterm">uniform block</em>. A uniform block is a
+                series of uniform definitions whose data is not stored in the program object, but
+                instead must come from a uniform buffer.</p>
+            <p>The name <span class="type">GlobalMatrices</span> is used to identify this particular uniform
+                block. This block has two members, both of the of mat4 type. The order of the
+                components in a uniform block is very important.</p>
+            <p>Notices that nothing else needs to change in the vertex shader. The
+                    <code class="varname">modelToWorldMatrix</code> is unchanged, and the use of the
+                components of the uniform block do not even need to be scoped with the
+                    <span class="type">GlobalMatrices</span> name.</p>
+            <p>The <span class="quote">“<span class="quote">layout(std140)</span>”</span> part modifies the definition of the uniform
+                block. Specifically, it specifies the <em class="glossterm">uniform block
+                layout</em>.</p>
+            <p>Buffer objects are unformatted arrays of bytes. Therefore, something must
+                determine how the shader interprets a uniform buffer object's contents. OpenGL
+                itself defines this to a degree, but the layout qualifier modifies the
+                definition.</p>
+            <p>OpenGL is very clear about how each element within a uniform block is laid out.
+                Floating-point values are just the C++ representation of floats, so you can copy
+                them directly from objects like <span class="type">glm::vec4</span>.</p>
+            <p>Matrices are slightly trickier due to the column-major vs. row-major issue. The
+                    <code class="function">glUniformMatrix*</code> functions all had a parameter that defines
+                what order the matrix data given to the function is in. Similarly, a
+                    <span class="quote">“<span class="quote">layout</span>”</span> qualifier can specify <span class="quote">“<span class="quote">row-major</span>”</span> or
+                    <span class="quote">“<span class="quote">column-major</span>”</span>; these tell OpenGL how the matrices are stored in
+                the buffer object. The default is <span class="quote">“<span class="quote">column-major,</span>”</span> and since GLM stores
+                its matrices in column-major order, we can use the defaults.</p>
+            <p>What OpenGL does not directly specify is the spacing <span class="emphasis"><em>between</em></span>
+                elements in the uniform block. This allows different hardware to position elements
+                where it is most efficient for them. Some shader hardware can place 2
+                    <span class="type">vec3</span>'s directly adjacent to one another, so that they only take up
+                6 floats. Other hardware cannot handle that, and must pad each <span class="type">vec3</span> out
+                to 4 floats.</p>
+            <p>Normally, this would mean that, in order to set any values into the buffer object,
+                you would have to query the program object for the byte offsets for each element in
+                the uniform block.</p>
+            <p>However, by using the <span class="quote">“<span class="quote">std140</span>”</span> layout, this is not necessary. The
+                    <span class="quote">“<span class="quote">std140</span>”</span> layout has an explicit layout specification set down by
+                OpenGL itself. It is basically a kind of lowest-common-denominator among the various
+                different kinds of graphics hardware. The upside is that it allows you to easily
+                know what the layout is without having to query it from OpenGL. The downside is that
+                some space-saving optimizations may not be possible on certain hardware.</p>
+            <p>One additional feature of <span class="quote">“<span class="quote">std140</span>”</span> is that the uniform block is
+                sharable. Normally, OpenGL allows the GLSL compiler considerable leeway to make
+                optimizations. In this instance, if a GLSL compiler detects that a uniform is unused
+                in a program, it is allowed to mark it as unused.
+                    <code class="function">glGetUniformLocation</code> will return -1. It's actually legal to
+                set a value to a location that is -1, but no data will actually be set.</p>
+            <p>If a uniform block is marked with the <span class="quote">“<span class="quote">std140</span>”</span> layout, then the
+                ability to disable uniforms in within that block is entirely removed. All uniforms
+                must have storage, even if this particular program does not use them. This means
+                that, as long as you declare the same uniforms in the same order within a block, the
+                storage for that uniform block will have the same layout in <span class="emphasis"><em>any</em></span>
+                program. This means that multiple different programs can use the same uniform
+                buffer.</p>
+            <p>The other two alternatives to <span class="quote">“<span class="quote">std140</span>”</span> are <span class="quote">“<span class="quote">packed</span>”</span> and
+                    <span class="quote">“<span class="quote">shared</span>”</span>. The default, <span class="quote">“<span class="quote">shared,</span>”</span> prevents the uniform
+                optimization, thus allowing the block's uniform buffer data to be shared among
+                multiple programs. However, the user must still query layout information about where
+                each uniform is stored. <span class="quote">“<span class="quote">packed</span>”</span> allows uniform optimization, so these
+                blocks cannot be shared between programs at all.</p>
+            <p>For our needs, <span class="quote">“<span class="quote">std140</span>”</span> is sufficient. It's also a good first step in
+                any implementation; moving to <span class="quote">“<span class="quote">packed</span>”</span> or <span class="quote">“<span class="quote">shared</span>”</span> as
+                needed should generally be done only as an optimization. The rules for the
+                    <span class="quote">“<span class="quote">std140</span>”</span> layout are spelled out explicitly in the OpenGL
+                Specification.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6406"></a>Uniform Block Indices</h3></div></div></div>
+            
+            <p>Uniforms inside a uniform block do not have individual uniform locations. After
+                all, they do not have storage within a program object; their data comes from a buffer
+                object.</p>
+            <p>So instead of calling glGetUniformLocation, we have a new function.</p>
+            <pre class="programlisting">data.globalUniformBlockIndex =
+    glGetUniformBlockIndex(data.theProgram, "GlobalMatrices");</pre>
+            <p>The function <code class="function">glGetUniformBlockIndex</code> takes a program object
+                and the name of a uniform block. It returns a <em class="glossterm">uniform block
+                    index</em> that is used to refer to this uniform block. This is similar
+                to how a uniform location value is used to refer to a uniform, rather than directly
+                using its string name.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6414"></a>Uniform Buffer Creation</h3></div></div></div>
+            
+            <p>Now that the programs have a uniform block, we need to create a buffer object to
+                store our uniforms in.</p>
+            <div class="example"><a name="idp6417"></a><p class="title"><b>Example 7.11. Uniform Buffer Creation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glGenBuffers(1, &amp;g_GlobalMatricesUBO);
+glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
+glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, NULL, GL_STREAM_DRAW);
+glBindBuffer(GL_UNIFORM_BUFFER, 0);</pre>
+            </div></div><br class="example-break">
+            <p>For all intents and purposes, this is identical to the way we created other buffer
+                objects. The only difference is the use of the <code class="literal">GL_UNIFORM_BUFFER</code>
+                binding target.</p>
+            <p>The <code class="literal">GL_ARRAY_BUFFER</code> target has a specific meaning. When
+                something is bound to that target, calling
+                    <code class="function">glVertexAttribPointer</code> will cause the buffer object bound to
+                that target to become the source for that particular attribute, as defined by the
+                function call. The <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code> target also has a
+                meaning; it specifies where indices come from for indexed rendering. The element
+                array binding is even stored as part of a VAO's data (recall that the array buffer
+                binding is <span class="emphasis"><em>not</em></span> stored in the VAO).</p>
+            <p><code class="literal">GL_UNIFORM_BUFFER</code> does not really have an intrinsic meaning
+                like these other two. Having something bound to this binding means nothing as far as
+                any other function of OpenGL is concerned. Oh, you can call buffer object functions
+                on it, like glBufferData as above. But it does not have any other role to play in
+                rendering. The main reason to use it is to preserve the contents of more useful
+                binding points. It also communicates to someone reading your code that this buffer
+                object is going to be used to store uniform data.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>This is not entirely 100% correct. OpenGL is technically allowed to infer
+                    something about your intended use of a buffer object based on what target you
+                        <span class="emphasis"><em>first</em></span> use to bind it. So by allocating storage for this
+                    buffer in <code class="literal">GL_UNIFORM_BUFFER</code>, we are signaling something to
+                    OpenGL, which can change how it allocates storage for the buffer.</p>
+                <p>However, OpenGL is <span class="emphasis"><em>not</em></span> allowed to make any behavioral
+                    changes based on this. It is still legal to use a buffer allocated on the
+                        <code class="literal">GL_UNIFORM_BUFFER</code> target as a
+                        <code class="literal">GL_ARRAY_BUFFER</code> or in any other buffer object usage. It
+                    just may not be as fast as you might want.</p>
+            </div>
+            <p>We know that the size of this buffer needs to be two <span class="type">glm::mat4</span>'s in
+                size. The <span class="quote">“<span class="quote">std140</span>”</span> layout guarantees this. That and the size of
+                    <span class="type">glm::mat4</span>, which just so happens to correspond to how large a GLSL
+                    <span class="type">mat4</span> is when stored in a uniform buffer.</p>
+            <p>The <code class="function">reshape</code> function is guaranteed to be called after our
+                    <code class="function">init</code> function. That's why we can allocate this buffer
+                without filling in a default matrix. The reshape function is as follows:</p>
+            <div class="example"><a name="idp6445"></a><p class="title"><b>Example 7.12. UBO-based Perspective Matrix</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void reshape (int w, int h)
+{
+    glutil::MatrixStack persMatrix;
+    persMatrix.Perspective(45.0f, (w / (float)h), g_fzNear, g_fzFar);
+    
+    glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(persMatrix.Top()));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+    glutPostRedisplay();
+}</pre>
+            </div></div><br class="example-break">
+            <p>This function just uses <code class="function">glBufferSubData</code> to upload the matrix
+                data to the buffer object. Since we defined the perspective matrix as the first
+                matrix in our uniform block, it is uploaded to byte 0.</p>
+            <p>The <code class="function">display</code> function is what uploads the world-to-camera
+                matrix to the buffer object. It is quite similar to what it used to be:</p>
+            <div class="example"><a name="idp6452"></a><p class="title"><b>Example 7.13. UBO-based Camera Matrix</b></p><div class="example-contents">
+                
+                <pre class="programlisting">const glm::vec3 &amp;camPos = ResolveCamPosition();
+
+glutil::MatrixStack camMatrix;
+camMatrix.SetMatrix(CalcLookAtMatrix(camPos, g_camTarget, glm::vec3(0.0f, 1.0f, 0.0f)));
+
+glBindBuffer(GL_UNIFORM_BUFFER, g_GlobalMatricesUBO);
+glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(camMatrix.Top()));
+glBindBuffer(GL_UNIFORM_BUFFER, 0);</pre>
+            </div></div><br class="example-break">
+            <p>The world-to-camera matrix is the second matrix, so we start the upload at the end
+                of the previous matrix.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6456"></a>Uniform Buffer Binding</h3></div></div></div>
+            
+            <p>Thus far, we have a uniform buffer object into which we store matrices. And we
+                have a program that has a uniform block that needs a uniform buffer to get its
+                uniforms for. Now, the final step is to create the association between the uniform
+                block in the programs and the uniform buffer object itself.</p>
+            <p>Your first thought might be that there would be a function like glUniformBuffer
+                that takes a program, a uniform block index, and the uniform buffer to associate
+                that block with. But this is not the case; attaching a uniform buffer to a program's
+                block is more complicated. And this is a good thing if you think about it.</p>
+            <p>It works like this. The OpenGL context (effectively a giant struct containing each
+                piece of data used to render) has an array of <em class="glossterm">uniform buffer binding
+                    points</em>. Buffer objects can be bound to each of these binding points.
+                For each uniform block in a program, there is a reference, not to a buffer object,
+                but to one of these uniform buffer binding points. This reference is just a
+                numerical index: 0, 1, 2, etc.</p>
+            <p>A diagram should make it clearer:</p>
+            <div class="figure"><a name="idp6463"></a><p class="title"><b>Figure 7.7. Uniform Buffer and Block Binding Points</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="UBOContextBinding.svg" alt="Uniform Buffer and Block Binding Points"></div>
+            </div></div><br class="figure-break">
+            <p>The program object is given an index that represents one of the slots in the
+                context. The uniform buffer is bound to one of those slots. Therefore, when you
+                render with that program, the uniform buffer that is in the slot specified by the
+                program will be where the program gets its uniform data from.</p>
+            <p>Therefore, to use a uniform buffer, one first must tell the program object which
+                binding point in the context to find the buffer. This association is made with the
+                    <code class="function">glUniformBlockBinding</code> function.</p>
+            <pre class="programlisting">glUniformBlockBinding(data.theProgram, data.globalUniformBlockIndex,
+    g_iGlobalMatricesBindingIndex);</pre>
+            <p>The first parameter is the program, the second is the uniform block index queried
+                before. The third is the uniform buffer binding point that this block should
+                use.</p>
+            <p>After doing this for each program, the uniform buffer must be bound to that
+                binding point. This is done with a new function,
+                    <code class="function">glBindBufferRange</code>.</p>
+            <pre class="programlisting">glBindBufferRange(GL_UNIFORM_BUFFER, g_iGlobalMatricesBindingIndex,
+    g_GlobalMatricesUBO, 0, sizeof(glm::mat4) * 2);</pre>
+            <p>This functions similarly to <code class="function">glBindBuffer</code>; in addition to
+                binding the buffer to the <code class="literal">GL_UNIFORM_BUFFER</code> target, it also binds
+                the buffer to the given uniform buffer binding point. Lastly, it provides an offset
+                and range, the last two parameters. This allows you to put uniform data in arbitrary
+                places in a buffer object. You could have the uniform data for
+                    <span class="emphasis"><em>several</em></span> uniform blocks in several programs all in one
+                buffer object. The range parameters would be how to say where that block's data
+                begins and how big it is.</p>
+            <p>The reason this is better than directly binding a buffer object to the program
+                object can be seen in exactly where all of this happens. Both of these functions are
+                called as part of initialization code. <code class="function">glUniformBlockBinding</code> is
+                called right after creating the program, and similarly
+                    <code class="function">glBindBufferRange</code> is called immediately after creating the
+                buffer object. Neither one needs to ever be changed. Yes, we change the contents of
+                the buffer object. But where it is bound never changes.</p>
+            <p>The global constant <code class="varname">g_iGlobalMatricesBindingIndex</code> is, as the
+                name suggests, global. By convention, all programs get their buffer data from this
+                index. Because of this convention, if we wanted to use a different buffer, we would
+                not have to update every program that needs to use that buffer. Sure, for one or two
+                programs, that would be a simple operation. But real applications can have hundreds
+                of programs. Being able to establish this kind of convention makes using uniform
+                buffer objects much easier than if they were directly associated with
+                programs.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6485"></a>The Viewpoint</h3></div></div></div>
+            
+            <p>In the <span class="propername">World Space</span> example, we drew the
+                camera's look-at target directly in camera space, bypassing the world-to-camera
+                matrix. Doing that with uniform buffers would be harder, since we would have to set
+                the uniform buffer value twice in the same draw call. This is not particularly
+                difficult, but it could be a drain on performance.</p>
+            <p>Instead, we just use the camera's target position to compute a model-to-world
+                matrix that always positions the object at the target point.</p>
+            <div class="example"><a name="idp6490"></a><p class="title"><b>Example 7.14. Viewing Point with UBO</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glDisable(GL_DEPTH_TEST);
+
+glutil::PushStack push(modelMatrix);
+
+modelMatrix.Translate(g_camTarget);
+modelMatrix.Scale(1.0f, 1.0f, 1.0f);
+
+glUseProgram(ObjectColor.theProgram);
+glUniformMatrix4fv(ObjectColor.modelToWorldMatrixUnif, 1,
+    GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+g_pCubeColorMesh-&gt;Render();
+glUseProgram(0);
+glEnable(GL_DEPTH_TEST);</pre>
+            </div></div><br class="example-break">
+            <p>We do not get the neat effect of having the object always face the camera though.
+                We still shut off the depth test, so that we can always see the object.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut07%20Primitive%20Drawing.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2007.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut07%20The%20Perils%20of%20World%20Space.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Primitive Drawing </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> The Perils of World Space</td></tr></table></div></body></html>

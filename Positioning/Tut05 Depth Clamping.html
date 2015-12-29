@@ -1,0 +1,100 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Depth Clamping</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2005.html" title="Chapter 5. Objects in Depth"><link rel="prev" href="Tut05%20Boundaries%20and%20Clipping.html" title="Boundaries and Clipping"><link rel="next" href="Tut05%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Depth Clamping</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut05%20Boundaries%20and%20Clipping.html">Prev</a> </td><th width="60%" align="center">Chapter 5. Objects in Depth</th><td width="20%" align="right"> <a accesskey="n" href="Tut05%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp41"></a>Depth Clamping</h2></div></div></div>
+        
+        
+        <p>That's all well and good, but this:</p>
+        <div class="informalfigure">
+            <div class="mediaobject"><img src="Vertex%20Clipping.png"></div>
+        </div>
+        <p>This is never a good thing. Sure, it keeps the hardware from dividing by zero, which I
+            guess is important, but it looks really bad. It's showing the inside of an object that
+            has no insides. Plus, you can also see that it has no backside (since we're doing face
+            culling); you can see right through to the object behind it.</p>
+        <p>If computer graphics is an elaborate illusion, then clipping utterly
+                <span class="emphasis"><em>shatters</em></span> this illusion. It's a big, giant hole that screams,
+                    <span class="quote">“<span class="quote"><span class="emphasis"><em>this is fake!</em></span></span>”</span> as loud as possible to the
+            user. What can we do about this?</p>
+        <p>The most common technique is to simply not allow it. That is, know how close objects
+            are getting to the near clipping plane (ie: the camera) and do not let them get close
+            enough to clip.</p>
+        <p>And while this can <span class="quote">“<span class="quote">function</span>”</span> as a solution, it is not exactly good. It
+            limits what you can do with objects and so forth.</p>
+        <p>A more reasonable mechanism is <em class="glossterm">depth clamping</em>. What this does
+            is turn off camera near/far plane clipping altogether. Instead, the depth for these
+            fragments are clamped to the [-1, 1] range in NDC space.</p>
+        <p>We can see this in the <span class="propername">Depth Clamping</span> tutorial.
+            This tutorial is identical to the vertex clipping one, except that the
+                <code class="function">keyboard</code> function has changed as follows:</p>
+        <div class="example"><a name="idp3910"></a><p class="title"><b>Example 5.12. Depth Clamping On/Off</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void keyboard(unsigned char key, int x, int y)
+{
+    static bool bDepthClampingActive = false;
+    switch (key)
+    {
+    case 27:
+        glutLeaveMainLoop();
+        break;
+    case 32:
+        if(bDepthClampingActive)
+            glDisable(GL_DEPTH_CLAMP);
+        else
+            glEnable(GL_DEPTH_CLAMP);
+        
+        bDepthClampingActive = !bDepthClampingActive;
+        break;
+    }
+}</pre>
+        </div></div><br class="example-break">
+        <p>When you press the space bar (ASCII code 32), the code will toggle depth clamping,
+            with the
+                <code class="function">glEnable</code>/<code class="function">glDisable</code>(<code class="literal">GL_DEPTH_CLAMP</code>)
+            calls. It will start with depth clamping off, since that is the OpenGL default.</p>
+        <p>When you run the tutorial, you will see what we saw in the last one; pressing the
+            space bar shows this:</p>
+        <div class="figure"><a name="idp3918"></a><p class="title"><b>Figure 5.8. Depth Clamping</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Depth%20Clamping.png" alt="Depth Clamping"></div>
+        </div></div><br class="figure-break">
+        <p>This looks correct; it appears as if all of our problems are solved.</p>
+        <p>Appearances can be deceiving. Let's see what happens if you move the other object
+            forward, so that the two intersect like in the earlier part of the tutorial:</p>
+        <div class="figure"><a name="idp3925"></a><p class="title"><b>Figure 5.9. Depth Clamp With Overlap</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Double%20Depth%20Clamping.png" alt="Depth Clamp With Overlap"></div>
+        </div></div><br class="figure-break">
+        <p>Oops. Part of it looks right, just not the part where the depth is being clamped.
+            What's going on?</p>
+        <p>Well, recall what depth clamping does; it makes fragment depth values outside of the
+            range be clamped to within the range. So depth values smaller than depth zNear become
+            depth zNear, and values larger than depth zFar become depth zFar.</p>
+        <p>Therefore, when you go to render the second object, some of the clamped fragments from
+            the first are there. So the incoming fragment from the new object has a depth of 0, and
+            some of the values from the depth buffer also have a depth of 0. Since our depth test is
+                <code class="literal">GL_LESS</code>, the incoming 0 is not less than the depth buffer's 0, so
+            the part of the second object does not get rendered. This is pretty much the opposite of
+            where we started: previous rendered objects are in front of newer ones. We could change it to <code class="literal">GL_LEQUAL</code>, but that only gets
+            us to <span class="emphasis"><em>exactly</em></span> where we started.</p>
+        <p>So a word of warning: be careful with depth clamping when you have overlapping objects
+            near the planes. Similar problems happen with the far plane, though backface culling can
+            be a help in some cases.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>We defined depth clamping as, in part, turning off clipping against the camera
+                near and far planes. If you're wondering what happens when you have depth clamping,
+                which turns off clipping, and a clip-space W &lt;= 0, it's simple. In camera space,
+                near and far clipping is represented as turning a pyramid into a frustum: cutting
+                off the top and bottom. If near/far clipping is not active, then the frustum becomes
+                a pyramid. The other 4 clipping planes are still fully in effect. Clip-space
+                vertices with a W of less than 0 are all outside of the boundary of any of the other
+                four clipping planes.</p>
+			<p>The only clip-space point with a W of 0 that is within
+                this volume is the homogeneous origin point: (0, 0, 0, 0); everything else will be
+                clipped. And a triangle made from three positions that all are at the same position would have no area; it would therefore generate no fragments anyway. It can be safely eliminated before the perspective divide.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut05%20Boundaries%20and%20Clipping.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2005.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut05%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Boundaries and Clipping </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

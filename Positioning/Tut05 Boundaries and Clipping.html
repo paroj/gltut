@@ -1,0 +1,144 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Boundaries and Clipping</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2005.html" title="Chapter 5. Objects in Depth"><link rel="prev" href="Tut05%20Overlap%20and%20Depth%20Buffering.html" title="Overlap and Depth Buffering"><link rel="next" href="Tut05%20Depth%20Clamping.html" title="Depth Clamping"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Boundaries and Clipping</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut05%20Overlap%20and%20Depth%20Buffering.html">Prev</a> </td><th width="60%" align="center">Chapter 5. Objects in Depth</th><td width="20%" align="right"> <a accesskey="n" href="Tut05%20Depth%20Clamping.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp40"></a>Boundaries and Clipping</h2></div></div></div>
+        
+        
+        <p>If you recall back to the <a class="link" href="Tut04%20Perspective%20Projection.html" title="Perspective Projection">Perspective projection
+                tutorial,</a> we choose to use some special hardware in the graphics chip to do
+            the final division of the W coordinate, rather than doing the entire perspective
+            projection ourselves in the vertex shader. At the time, it was promised that we would see why this is
+            hardware functionality rather than something the shader does.</p>
+        <p>Let us review the full math operation we are computing here:</p>
+        <div class="equation"><a name="idp3821"></a><p class="title"><b>Equation 5.1. Perspective Computation</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mover accent="true">
+          <mi>R</mi>
+      <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mover accent="true">
+          <mi>P</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mfenced open="(" close=")" separators=",">
+    <mrow>
+      <mfrac>
+        <mrow>
+          <msub>
+                  <mi>E</mi>
+                <mi>z</mi>
+          </msub>
+        </mrow>
+        <mrow>
+          <msub>
+                  <mi>P</mi>
+                <mi>z</mi>
+          </msub>
+        </mrow>
+      </mfrac>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p><code class="literal">R</code> is the perspective projected position, P is the camera-space
+            position, E<sub>z</sub> is the Z-position of the eye relative to the plane
+            (assumed to be -1), and P<sub>z</sub> is the camera-space Z position.</p>
+        <p>One question you should always ask when dealing with equations is this: can it divide
+            by zero? And this equation certainly can; if the camera-space position of any vertex is
+            ever exactly 0, then we have a problem.</p>
+        <p>This is where clip-space comes in to save the day. See, until we actually
+                <span class="emphasis"><em>do</em></span> the divide, everything is fine. A 4-dimensional vector that
+            will be divided by the fourth component but has not <span class="emphasis"><em>yet</em></span> is still
+            valid, even if the fourth component is zero. This kind of coordinate system is called a
+                <em class="glossterm">homogeneous coordinate system</em>. It is a way of talking about
+            things that you could not talk about in a normal, 3D coordinate system. Like dividing by
+            zero, which in visual terms refers to coordinates at infinity.</p>
+        <p>This is all nice theory, but we still know that the clip-space positions need to be
+            divided by their W coordinate. So how to we get around this problem?</p>
+        <p>First, we know that a W of zero means that the camera-space Z position of the point
+            was zero as well. We also know that this point <span class="emphasis"><em>must</em></span> lie outside of
+            the viable region for camera space. That is because of the camera Z range: camera zNear
+                <span class="emphasis"><em>must</em></span> be strictly greater than zero. Thus any point with a
+            camera Z value of 0 must be in front of the zNear, and therefore outside of the visible
+            world.</p>
+        <p>Since the vertex coordinate is not going to be visible anyway, why bother drawing it
+            and dividing by that pesky 0? Well, because that vertex happens to be part of a
+            triangle, and if part of the triangle is visible, we have to draw it.</p>
+        <p>But we do not have to draw <span class="emphasis"><em>all</em></span> of it.</p>
+        <p><em class="glossterm">Clipping</em> is the process of taking a triangle and breaking it up
+            into smaller triangles, such that only the part of the original triangle that is within
+            the viewable region remains. This may generate only one triangle, or it may generate
+            multiple triangles.</p>
+        <p>Any vertex attributes associated with that vertex are interpolated (based on the
+            vertex shader's interpolation qualifiers) to determine the relative value of the
+            post-clipping vertex.</p>
+        <p>As you might have guessed, clipping happens in <span class="emphasis"><em>clip space</em></span>, not
+            NDC space. Hence the name. Since clip-space is a homogeneous coordinate system, we do not
+            have to worry about those pesky zeros. Unfortunately, because homogeneous spaces are not
+            easy to draw, we cannot show you what it would look like. But we can show you what it
+            would look like if you clipped in camera space, in 2D:</p>
+        <div class="figure"><a name="idp3864"></a><p class="title"><b>Figure 5.6. Triangle Clipping</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="TriangleClipping.svg" alt="Triangle Clipping"></div>
+        </div></div><br class="figure-break">
+        <p>To see the results of clipping in action, run the <span class="propername">Vertex
+                Clipping</span> tutorial. It is the same as the one for depth buffering, except
+            one object has been moved very close to the zNear plane. Close enough that part of it is
+            beyond the zNear and therefore is not part of the viewable area:</p>
+        <div class="figure"><a name="idp3871"></a><p class="title"><b>Figure 5.7. Near Plane Clipping</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Vertex%20Clipping.png" alt="Near Plane Clipping"></div>
+        </div></div><br class="figure-break">
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>A Word on Clipping Performance</b></p></div></div></div>
+            
+            <p>We have phrased the discussion of clipping as a way to avoid dividing by zero for
+                good reason. The OpenGL specification states that clipping must be done against all
+                sides of the viewable region. And it certainly appears that way; if you move objects
+                far enough away that they overlap with zFar, then you will not see the objects.</p>
+            <p>You can also see apparent clipping with objects against the four sides of the view
+                frustum. To see this, you would need to modify the viewport with
+                    <code class="function">glViewport</code>, so that only part of the window is being
+                rendered to. If you move objects to the edge of the viewport, you will find that
+                part of them does not get rendered outside this region.</p>
+            <p>So clipping is happening all the time?</p>
+            <p>Of course not. Clipping takes triangles and breaks them into pieces using
+                4-dimensional homogeneous mathematics. One triangle can be broken up into several;
+                depending on the location of the triangle, you can get quite a few different pieces.
+                The simple act of turning one triangle into several is hard and time
+                consuming.</p>
+            <p>So, if OpenGL states that this must happen, but supposedly OpenGL-compliant
+                hardware does not do it, then what's going on?</p>
+            <p>Consider this: if we had not told you just now that the hardware does not do
+                clipping most of the time, could you tell? No. And that's the point: OpenGL
+                specifies <span class="emphasis"><em>apparent</em></span> behavior; the spec does not care if you
+                actually do vertex clipping or not. All the spec cares about is that the user cannot
+                tell the difference in terms of the output.</p>
+            <p>That's how hardware can get away with the early-z optimization mentioned before;
+                the OpenGL spec says that the depth test must happen after the fragment program
+                executes. But if the fragment shader does not modify the depth, then would you be
+                able to tell the difference if it did the depth test before the fragment shader? No;
+                if it passes, it would have passed either way, and the same goes for failing.</p>
+            <p>Instead of clipping, the hardware usually just lets the triangles go through if
+                part of the triangle is within the visible region. It generates fragments from those
+                triangles, and if a fragment is outside of the visible window, it is discarded
+                before any fragment processing takes place.</p>
+            <p>Hardware usually cannot do this however, if any vertex of the triangle has a
+                clip-space W &lt;= zero. In terms of a perspective projection, this means that part
+                of the triangle is fully behind the eye, rather than just behind the camera zNear
+                plane. In these cases, clipping is much more likely to happen.</p>
+            <p>Even so, clipping only happens if the triangle is partially visible; a triangle
+                that is entirely in front of the zNear plane is dropped entirely.</p>
+            <p>In general, you should try to avoid rendering things that will clip against the
+                eye plane (clip-space W &lt;= 0, or camera-space Z &gt;= 0). You do not need to be
+                pedantic about it; long walls and the like are fine. But, particularly for low-end
+                hardware, a lot of clipping can really kill performance.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut05%20Overlap%20and%20Depth%20Buffering.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2005.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut05%20Depth%20Clamping.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Overlap and Depth Buffering </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Depth Clamping</td></tr></table></div></body></html>

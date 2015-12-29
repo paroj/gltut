@@ -1,0 +1,268 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Needs More Pictures</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2015.html" title="Chapter 15. Many Images"><link rel="prev" href="Tut15%20Magnification.html" title="Linear Filtering"><link rel="next" href="Tut15%20Anisotropy.html" title="Anisotropy"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Needs More Pictures</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut15%20Magnification.html">Prev</a> </td><th width="60%" align="center">Chapter 15. Many Images</th><td width="20%" align="right"> <a accesskey="n" href="Tut15%20Anisotropy.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp102"></a>Needs More Pictures</h2></div></div></div>
+        
+        
+        <p>Speaking of distracting, let's talk about what is going on in the distance. When the
+            camera moves, the more distant parts of the texture look like a jumbled mess. Even when
+            the camera motion is paused, it still doesn't look like a checkerboard.</p>
+        <p>What is going on there is really simple. The way our filtering works is that, for a
+            given texture coordinate, we take either the nearest texel value, or the nearest 4
+            texels and interpolate. The problem is that, for distant areas of our surface, the
+            texture space area covered by our fragment is much larger than 4 texels across.</p>
+        <div class="figure"><a name="idp11764"></a><p class="title"><b>Figure 15.5. Large Minification Sampling</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="LargeMinificDiag.svg" alt="Large Minification Sampling"></div>
+        </div></div><br class="figure-break">
+        <p>The inner box represents the nearest texels, while the outer box represents the entire
+            fragment mapped area. We can see that the value we get with nearest sampling will be
+            pure white, since the four nearest values are white. But the value we should get based
+            on the covered area is some shade of gray.</p>
+        <p>In order to accurately represent this area of the texture, we would need to sample
+            from more than just 4 texels. The GPU is certainly capable of detecting the fragment
+            area and sampling enough values from the texture to be representative. But this would be
+            exceedingly expensive, both in terms of texture bandwidth and computation.</p>
+        <p>What if, instead of having to sample more texels, we had a number of smaller versions
+            of our texture? The smaller versions effectively pre-compute groups of texels. That way,
+            we could just sample 4 texels from a texture that is close enough to the size of our
+            fragment area.</p>
+        <div class="figure"><a name="idp11772"></a><p class="title"><b>Figure 15.6. Mipmapped Minification Sampling</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="MipmapDiagram.svg" alt="Mipmapped Minification Sampling"></div>
+        </div></div><br class="figure-break">
+        <p>These smaller versions of an image are called <em class="glossterm">mipmaps</em>; they are
+            also sometimes called mipmap levels. Previously, it was said that textures can store
+            multiple images. The additional images, for many texture types, are mipmaps. By
+            performing linear sampling against a lower mipmap level, we get a gray value that, while
+            not the exact color the coverage area suggests, is much closer to what we should get
+            than linear filtering on the large mipmap.</p>
+        <p>In OpenGL, mipmaps are numbered starting from 0. The 0 image is the largest mipmap,
+            what is usually considered the main texture image. When people speak of a texture having
+            a certain size, they mean the resolution of mipmap level 0. Each mipmap is half as small
+            as the previous one. So if our main image, mipmap level 0, has a size of 128x128, the
+            next mipmap, level 1, is 64x64. The next is 32x32. And so forth, down to 1x1 for the
+            smallest mipmap.</p>
+        <p>For textures that are not square (which as we saw in the previous tutorial, is
+            perfectly legitimate), the mipmap chain keeps going until all dimensions are 1. So a
+            texture who's size is 128x16 (remember: the texture's size is the size of the largest
+            mipmap) would have just as many mipmap levels as a 128x128 texture. The mipmap level 4
+            of the 128x16 texture would be 8x1; the next mipmap would be 4x1.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>It is also perfectly legal to have texture sizes that are not powers of two. For
+                them, mipmap sizes are always rounded down. So a 129x129 texture's mipmap 1 will be 64x64.
+                A 131x131 texture's mipmap 1 will be 65x65, and mipmap 2 will be 32x32.</p>
+        </div>
+        <p>The DDS image format is one of the few image formats that actually supports storing
+            all of the mipmaps for a texture in the same file. Most image formats only allow one
+            image in a single file. The texture loading code for our 128x128 texture with mipmaps is
+            as follows:</p>
+        <div class="example"><a name="idp11784"></a><p class="title"><b>Example 15.1. DDS Texture Loading with Mipmaps</b></p><div class="example-contents">
+            
+            <pre class="programlisting">std::string filename(LOCAL_FILE_DIR);
+filename += "checker.dds";
+
+std::auto_ptr&lt;glimg::ImageSet&gt; pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+
+glGenTextures(1, &amp;g_checkerTexture);
+glBindTexture(GL_TEXTURE_2D, g_checkerTexture);
+
+for(int mipmapLevel = 0; mipmapLevel &lt; pImageSet-&gt;GetMipmapCount(); mipmapLevel++)
+{
+    glimg::SingleImage image = pImageSet-&gt;GetImage(mipmapLevel, 0, 0);
+    glimg::Dimensions dims = pImage-&gt;GetDimensions();
+    
+    glTexImage2D(GL_TEXTURE_2D, mipmapLevel, GL_RGB8, dims.width, dims.height, 0,
+        GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, image.GetImageData());
+}
+
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet-&gt;GetMipmapCount() - 1);
+glBindTexture(GL_TEXTURE_2D, 0);</pre>
+        </div></div><br class="example-break">
+        <p>Because the file contains multiple mipmaps, we must load each one in turn. The GL
+            Image library considers each mipmap to be its own image. The
+                <code class="function">GetDimensions</code> member of
+                <code class="classname">glimg::SingleImage</code> returns the size of the particular
+            mipmap.</p>
+        <p>The <code class="function">glTexImage2D</code> function takes the mipmap level to load as the
+            second parameter. The width and height parameters represent the size of the mipmap in
+            question, not the size of the base level.</p>
+        <p>Notice that the last statements have changed. The
+                <code class="literal">GL_TEXTURE_BASE_LEVEL</code> and <code class="literal">GL_TEXTURE_MAX_LEVEL</code>
+            parameters tell OpenGL what mipmaps in our texture can be used. This represents a closed
+            range. Since a 128x128 texture has 8 mipmaps, we use the range [0, 7]. The base level of
+            a texture is the largest usable mipmap level, while the max level is the smallest usable
+            level. It is possible to omit some of the smaller mipmap levels. Note that level 0 is
+            always the largest possible mipmap level.</p>
+        <p>Filtering based on mipmaps is unsurprisingly named <em class="glossterm">mipmap
+                filtering</em>. This tutorial does not load two checkerboard textures; it
+            only ever uses one checkerboard. The reason mipmaps have not been used until now is
+            because mipmap filtering was not activated. Setting the base and max level is not
+            enough; the sampler object must be told to use mipmap filtering. If it does not, then it
+            will simply use the base level.</p>
+        <p>Mipmap filtering only works for minification, since minification represents a fragment
+            area that is larger than the texture's resolution. To activate this, we use a special
+                <code class="literal">MIPMAP</code> mode of minification filtering.</p>
+        <pre class="programlisting">glSamplerParameteri(g_samplers[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);</pre>
+        <p>The <code class="literal">GL_LINEAR_MIPMAP_NEAREST</code> minification filter means the
+            following. For a particular call to the GLSL <code class="function">texture</code> function, it
+            will detect which mipmap is the one that is nearest to our fragment area. This detection
+            is based on the angle of the surface relative to the camera's view<a href="#ftn.idp11803" class="footnote" name="idp11803"><sup class="footnote">[8]</sup></a>. Then, when it samples from that mipmap, it will use linear filtering of the
+            four nearest samples within that one mipmap.</p>
+        <p>If you press the <span class="keycap"><strong>3</strong></span> key in the tutorial, you can see the effects of
+            this filtering mode.</p>
+        <div class="figure"><a name="idp11807"></a><p class="title"><b>Figure 15.7. Hallway with Mipmapping</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="LinearMipmapNearest.png" alt="Hallway with Mipmapping"></div>
+        </div></div><br class="figure-break">
+        <p>That's a lot more reasonable. It isn't perfect, but it is much better than the random
+            motion in the distance that we have previously seen.</p>
+        <p>It can be difficult to truly understand the effects of mipmap filtering when using
+            normal textures and mipmaps. Therefore, if you press the <span class="keycap"><strong>Spacebar</strong></span>, the
+            tutorial will switch to a special texture. It is not loaded from a file; it is instead
+            constructed at runtime.</p>
+        <p>Normally, mipmaps are simply smaller versions of larger images, using linear filtering
+            or various other algorithms to compute a reasonable scaled down result. This special
+            texture's mipmaps are all flat colors, but each mipmap has a different color. This makes
+            it much more obvious where each mipmap is.</p>
+        <div class="figure"><a name="idp11816"></a><p class="title"><b>Figure 15.8. Hallway with Special Texture</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="SpecialHallwayLMipN.png" alt="Hallway with Special Texture"></div>
+        </div></div><br class="figure-break">
+        <p>Now we can really see where the different mipmaps are. They don't quite line up on the
+            corners. But remember: this just shows the mipmap boundaries, not the texture
+            coordinates themselves.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp11822"></a>Special Texture Generation</h3></div></div></div>
+            
+            <p>The special mipmap viewing texture is interesting, as it demonstrates an issue you
+                may need to work with when uploading certain textures: alignment.</p>
+            <p>The checkerboard texture, though it only stores black and white values, actually
+                has all three color channels, plus a fourth value. Since each channel is stored as
+                8-bit unsigned normalized integers, each pixel takes up 4 * 8 or 32 bits, which is 4
+                bytes.</p>
+            <p>OpenGL image uploading and downloading is based on horizontal rows of image data.
+                Each row is expected to have a certain byte alignment. The OpenGL default is 4
+                bytes; since our pixels are 4 bytes in length, every mipmap will have a line size in
+                bytes that is a multiple of 4 bytes. Even the 1x1 mipmap level is 4 bytes in
+                size.</p>
+            <p>Note that the internal format we provide is <code class="literal">GL_RGB8</code>, even
+                though the components we are transferring are <code class="literal">GL_BGRA</code> (the A
+                being the fourth component). This means that OpenGL will more or less discard the
+                fourth component we upload. That is fine.</p>
+            <p>The issue with the special texture's pixel data is that it is not 4 bytes in
+                length. The function used to generate a mipmap level of the special texture is as
+                follows:</p>
+            <div class="example"><a name="idp11831"></a><p class="title"><b>Example 15.2. Special Texture Data</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void FillWithColor(std::vector&lt;GLubyte&gt; &amp;buffer,
+                   GLubyte red, GLubyte green, GLubyte blue,
+                   int width, int height)
+{
+    int numTexels = width * height;
+    buffer.resize(numTexels * 3);
+    
+    std::vector&lt;GLubyte&gt;::iterator it = buffer.begin();
+    while(it != buffer.end())
+    {
+        *it++ = red;
+        *it++ = green;
+        *it++ = blue;
+    }
+}</pre>
+            </div></div><br class="example-break">
+            <p>This creates a texture that has 24-bit pixels; each pixel contains 3 bytes.</p>
+            <p>That is fine for any width value that is a multiple of 4. However, if the width is
+                2, then each row of pixel data will be 6 bytes long. That is not a multiple of 4 and
+                therefore breaks alignment.</p>
+            <p>Therefore, we must change the pixel alignment that OpenGL uses. The
+                    <code class="function">LoadMipmapTexture</code> function is what generates the special
+                texture. One of the first lines is this:</p>
+            <pre class="programlisting">GLint oldAlign = 0;
+glGetIntegerv(GL_UNPACK_ALIGNMENT, &amp;oldAlign);
+glPixelStorei(GL_UNPACK_ALIGNMENT, 1);</pre>
+            <p>The first two lines gets the old alignment, so that we can reset it once we are
+                finished. The last line uses <code class="function">glPixelStorei</code>
+            </p>
+            <p>Note that the GL Image library does provide an alignment value; it is part of the
+                    <code class="classname">Dimensions</code> structure of an image. We have simply not used
+                it yet. In the last tutorial, our row widths were aligned to 4 bytes, so there was
+                no chance of a problem. In this tutorial, our image data is 4-bytes in pixel size,
+                so it is always intrinsically aligned to 4 bytes.</p>
+            <p>That being said, you should always keep row alignment in mind, particularly when
+                dealing with mipmaps.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp11844"></a>Filtering Between Mipmaps</h3></div></div></div>
+            
+            <p>Our mipmap filtering has been a dramatic improvement over previous efforts.
+                However, it does create artifacts. One of particular concern is the change between
+                mipmap levels. It is abrupt and somewhat easy to notice for a moving scene. Perhaps
+                there is a way to smooth that out.</p>
+            <p>Our current minification filtering picks a single mipmap level and selects a
+                sample from it. It would be better if we could pick the two nearest mipmap levels
+                and blend between the values fetched from the two textures. This would give us a
+                smoother transition from one mipmap level to the next.</p>
+            <p>This is done by using <code class="literal">GL_LINEAR_MIPMAP_LINEAR</code> minification
+                filtering. The first <code class="literal">LINEAR</code> represents the filtering done within
+                a single mipmap level, and the second <code class="literal">LINEAR</code> represents the
+                filtering done between mipmap levels.</p>
+            <p>To see this in action, press the <span class="keycap"><strong>4</strong></span> key.</p>
+            <div class="figure"><a name="idp11854"></a><p class="title"><b>Figure 15.9. Linear Mipmap Linear Comparison</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="LMipLCompare.png" alt="Linear Mipmap Linear Comparison"></div>
+            </div></div><br class="figure-break">
+            <p>That is an improvement. There are still issues to work out, but it is much harder
+                to see where one mipmap ends and another begins.</p>
+            <p>OpenGL actually allows all combinations of <code class="literal">NEAREST</code> and
+                    <code class="literal">LINEAR</code> in minification filtering. Using nearest filtering
+                within a mipmap level while linearly filtering between levels
+                    (<code class="literal">GL_NEAREST_MIPMAP_LINEAR</code>) is possible but not terribly
+                useful in practice.</p>
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Filtering Nomenclature</b></p></div></div></div>
+                
+                <p>If you are familiar with texture filtering from other sources, you may have
+                    heard the terms <span class="quote">“<span class="quote">bilinear filtering</span>”</span> and <span class="quote">“<span class="quote">trilinear
+                        filtering</span>”</span> before. Indeed, you may know that linear filtering between
+                    mipmap levels is commonly called trilinear filtering.</p>
+                <p>This book does not use that terminology. And for good reason: <span class="quote">“<span class="quote">trilinear
+                        filtering</span>”</span> is a misnomer.</p>
+                <p>To understand the problem, it is important to understand what <span class="quote">“<span class="quote">bilinear
+                        filtering</span>”</span> means. The <span class="quote">“<span class="quote">bi</span>”</span> in bilinear comes from doing
+                    linear filtering along the two axes of a 2D texture. So there is linear
+                    filtering in the S and T directions (remember: standard OpenGL nomenclature
+                    calls the 2D texture coordinate axes S and T); since that is two directions, it
+                    is called <span class="quote">“<span class="quote">bilinear filtering</span>”</span>. Thus <span class="quote">“<span class="quote">trilinear</span>”</span> comes
+                    from adding a third direction of linear filtering: between mipmap levels.</p>
+                <p>Therefore, one could consider using <code class="literal">GL_LINEAR</code> mag and min
+                    filtering to be bilinear, and using <code class="literal">GL_LINEAR_MIPMAP_LINEAR</code>
+                    to be trilinear.</p>
+                <p>That's all well and good... for 2D textures. But what about for 1D textures?
+                    Since 1D textures are one dimensional, <code class="literal">GL_LINEAR</code> mag and min
+                    filtering only filters in one direction: S. Therefore, it would be reasonable to
+                    call 1D <code class="literal">GL_LINEAR</code> filtering simply <span class="quote">“<span class="quote">linear
+                        filtering.</span>”</span> Indeed, filtering between mipmap levels of 1D textures
+                    (yes, 1D textures can have mipmaps) would have to be called <span class="quote">“<span class="quote">bilinear
+                        filtering.</span>”</span></p>
+                <p>And then there are 3D textures. <code class="literal">GL_LINEAR</code> mag and min
+                    filtering filters in all 3 directions: S, T, and R. Therefore, that would have
+                    to be called <span class="quote">“<span class="quote">trilinear filtering.</span>”</span> And if you add linear mipmap
+                    filtering on top of that (yes, 3D textures can have mipmaps), it would be
+                        <span class="quote">“<span class="quote">quadrilinear filtering.</span>”</span></p>
+                <p>Therefore, the term <span class="quote">“<span class="quote">trilinear filtering</span>”</span> means absolutely
+                    nothing without knowing what the texture's type is. Whereas
+                        <code class="literal">GL_LINEAR_MIPMAP_LINEAR</code> always has a well-defined meaning
+                    regardless of the texture's type.</p>
+                <p>Unlike geometry shaders, which ought to have been called primitive shaders,
+                    OpenGL does not enshrine this common misnomer into its API. There is no
+                        <code class="literal">GL_TRILINEAR</code> enum. Therefore, in this book, we can and
+                    will use the proper terms for these.</p>
+            </div>
+        </div>
+    <div class="footnotes"><br><hr style="width:100; text-align:left;margin-left: 0"><div id="ftn.idp11803" class="footnote">
+                <p><a href="#idp11803" class="para"><sup class="para">[8] </sup></a>This is a simplification; a more thorough discussion is forthcoming.</p>
+            </div></div></div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut15%20Magnification.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2015.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut15%20Anisotropy.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Linear Filtering </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Anisotropy</td></tr></table></div></body></html>

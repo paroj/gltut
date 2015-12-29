@@ -1,0 +1,68 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Appendix C. History of PC Graphics Hardware</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="prev" href="Further%20Study%20Topics.html" title="Topics of Interest"><link rel="next" href="History%20TNT.html" title="Dynamite Combiners"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix C. History of PC Graphics Hardware</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Further%20Study%20Topics.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="History%20TNT.html">Next</a></td></tr></table><hr></div><div class="appendix"><div class="titlepage"><div><div><h1 class="title"><a name="idp128"></a>Appendix C. History of PC Graphics Hardware</h1></div><div><h3 class="subtitle"><i>A Programmer's View</i></h3></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="History%20of%20Graphics%20Hardware.html#idp13102">Voodoo Magic</a></span></dt><dt><span class="section"><a href="History%20TNT.html">Dynamite Combiners</a></span></dt><dt><span class="section"><a href="History%20GeForce.html">Vertices and Registers</a></span></dt><dt><span class="section"><a href="History%20Radeon8500.html">Programming at Last</a></span></dt><dt><span class="section"><a href="History%20GeForceFX.html">Dependency</a></span></dt><dt><span class="section"><a href="History%20Unified.html">Modern Unification</a></span></dt></dl></div>
+    
+    
+    <p>For those of you had the good fortune of not being graphics programmers during the
+        formative years of the development of consumer graphics hardware, what follows is a brief
+        history. Hopefully, it will give you some perspective on what has changed in the last 15
+        years or so, as well as an idea of how grateful you should be that you never had to suffer
+        through the early days.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp13102"></a>Voodoo Magic</h2></div></div></div>
+        
+        <p>In the years 1995 and 1996, a number of graphics cards were released. Graphics
+            processing via specialized hardware on PC platforms was nothing new. What was new about
+            these cards was their ability to do 3D rasterization.</p>
+        <p>The most popular of these for that era was the Voodoo Graphics card from 3Dfx
+            Interactive. It was fast, powerful for its day, and provided high quality rendering
+            (again, for its day).</p>
+        <p>The functionality of this card was quite bare-bones from a modern perspective.
+            Obviously there was no concept of shaders of any kind. Indeed, it did not even have
+            vertex transformation; the Voodoo Graphics pipeline began with clip-space values. This
+            required the CPU to do vertex transformations. This hardware was effectively just a
+            triangle rasterizer.</p>
+        <p>That being said, it was quite good for its day. As inputs to its rasterization
+            pipeline, it took vertex inputs of a 4-dimensional clip-space position (though the
+            actual space was not necessarily the same as OpenGL's clip-space), a single RGBA color,
+            and a single three-dimensional texture coordinate. The hardware did not support 3D
+            textures; the extra component was in case the user wanted to do projective
+            texturing.</p>
+        <p>The texture coordinate was used to map into a single texture. The texture coordinate
+            and color interpolation was perspective-correct; in those days, that was a significant
+            selling point. The venerable Playstation 1 could not do perspective-correct
+            interpolation.</p>
+        <p>The value fetched from the texture could be combined with the interpolated color using
+            one of three math functions: additions, multiplication, or linear interpolation based on
+            the texture's alpha value. The alpha of the output was controlled with a separate math
+            function, thus allowing the user to generate the alpha with different math than the RGB
+            portion of the output color. This was the sum total of its fragment processing.</p>
+        <p>It had framebuffer blending support. Its framebuffer could even support a destination
+            alpha value, though you had to give up having a depth buffer to get it. Probably not a
+            good tradeoff. Outside of that issue, its blending support was superior even to OpenGL
+            1.1. It could use different source and destination factors for the alpha component than
+            the RGB component; the old GL 1.1 forced the RGB and A to be blended with the same
+            factors. The blending was even performed with full 24-bit color precision and then
+            downsampled to the 16-bit precision of the output upon writing.</p>
+        <p>From a modern perspective, spoiled with our full programmability, this all looks
+            incredibly primitive. And, to some degree, it is. But compared to the pure CPU solutions
+            to 3D rendering of the day, the Voodoo Graphics card was a monster.</p>
+        <p>It's interesting to note that the simplicity of the fragment processing stage owes as
+            much to the lack of inputs as anything else. When the only values you have to work with
+            are the color from a texture lookup and the per-vertex interpolated color, there really
+            is not all that much you could do with them. Indeed, as we will see in the next phases of
+            hardware, increases in the complexity of the fragment processor was a reaction to
+            increasing the number of inputs <span class="emphasis"><em>to</em></span> the fragment processor. When you
+            have more data to work with, you need more complex operations to make that data
+            useful.</p>
+    </div>
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Further%20Study%20Topics.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="History%20TNT.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Topics of Interest </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Dynamite Combiners</td></tr></table></div></body></html>

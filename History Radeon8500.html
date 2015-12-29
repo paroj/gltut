@@ -1,0 +1,117 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Programming at Last</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"><link rel="prev" href="History%20GeForce.html" title="Vertices and Registers"><link rel="next" href="History%20GeForceFX.html" title="Dependency"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Programming at Last</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="History%20GeForce.html">Prev</a> </td><th width="60%" align="center">Appendix C. History of PC Graphics Hardware</th><td width="20%" align="right"> <a accesskey="n" href="History%20GeForceFX.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp131"></a>Programming at Last</h2></div></div></div>
+        
+        
+        <p>How do you define a demarcation between non-programmable graphics chips and
+            programmable ones? We have seen that, even in the humble TNT days, there were a couple
+            of user-defined opcodes with several possible input values.</p>
+        <p>One way is to consider what programming is. Programming is not simply a mathematical
+            operation; programming needs conditional logic. Therefore, it is not unreasonable to say
+            that something is not truly programmable until there is the possibility of some form of
+            conditional logic.</p>
+        <p>And it is at this point where that first truly appears. It appears first in the
+                <span class="emphasis"><em>vertex</em></span> pipeline rather than the fragment pipeline. This seems
+            odd until one realizes how crucial fragment operations are to overall performance. It
+            therefore makes sense to introduce heavy programmability in the less
+            performance-critical areas of hardware first.</p>
+        <p>The GeForce 3, released in 2001 (a mere 3 years after the TNT), was the first hardware
+            to provide this level of programmability. While GeForce 3 hardware did indeed have the
+            fixed-function vertex pipeline, it also had very flexible programmable pipeline. The
+            retaining of the fixed-function code was a performance need; the vertex shader was not
+            as fast as the fixed-function one.</p>
+        <p>Vertex shaders were pretty powerful, even in their first incarnation. While there was
+            no conditional branching, there was conditional logic, the equivalent of the ?:
+            operator. These vertex shaders exposed up to 128 <span class="type">vec4</span> uniforms, up to 16
+                <span class="type">vec4</span> inputs (still the modern limit), and could output 6
+                <span class="type">vec4</span> outputs. Two of the outputs, intended for colors, were lower
+            precisions than the others. There was a hard limit of 128 opcodes. These vertex shaders
+            brought full swizzling support and a plethora of math operations.</p>
+        <p>The GeForce 3 also added up to two more textures, for a total of four textures per
+            triangle. They were hooked directly into certain per-vertex outputs, because the
+            per-fragment pipeline did not have real programmability yet.</p>
+        <p>At this point, the holy grail of programmability at the fragment level was dependent
+            texture access. That is, being able to access a texture, do some arbitrary computations
+            on it, and then access another texture with the result. The GeForce 3 had some
+            facilities for that, but they were not very good ones.</p>
+        <p>The GeForce 3 used 8 register combiner stages instead of the 2 that the earlier cards
+            used. Their register files were extended to support two extra texture colors and a few
+            more tricks. But the main change was something that, in OpenGL terminology, would be
+            called <span class="quote">“<span class="quote">texture shaders.</span>”</span></p>
+        <p>What texture shaders did was allow the user to, instead of accessing a texture,
+            perform a computation using that texture's texture unit. This was much like the old
+            texture environment functionality, except only for texture coordinates. The textures
+            were arranged in a sequence. And instead of accessing a texture, you could perform a
+            computation between that texture unit's coordinate and possibly the coordinate from the
+            previous texture shader operation, if there was one.</p>
+        <p>It was not very flexible functionality. It did allow for full texture-space bump
+            mapping, though. While the 8 register combiners were enough to do a full matrix
+            multiply, they were not powerful enough to normalize the resulting vector. However, you
+            could normalize a vector by accessing a special cubemap. The values of this cubemap
+            represented a normalized vector in the direction of the cubemap's given texture
+            coordinate.</p>
+        <p>But using that required spending a total of 3 texture shader stages. Which meant you
+            get a bump map and a normalization cubemap only; there was no room for a diffuse map in
+            that pass. It also did not perform very well; the texture shader functions were quite
+            expensive.</p>
+        <p>True programmability came to the fragment shader from ATI, with the Radeon 8500,
+            released in late 2001.</p>
+        <p>The 8500's fragment shader architecture was pretty straightforward, and in terms of
+            programming, it is not too dissimilar to modern shader systems. Texture coordinates
+            would come in. They could either be used to fetch from a texture or be given directly as
+            inputs to the processing stage. Up to 6 textures could be used at once. Then, up to 8
+            opcodes, including a conditional operation, could be used. After that, the hardware
+            would repeat the process using registers written by the opcodes. Those registers could
+            feed texture accesses from the same group of textures used in the first pass. And then
+            another 8 opcodes would generate the output color.</p>
+        <p>It also had strong, but not full, swizzling support in the fragment shader. Register
+            combiners had very little support for swizzling.</p>
+        <p>This era of hardware was also the first to allow 3D textures. Though that was as much
+            a memory concern as anything else, since 3D textures take up lots of memory which was
+            not available on earlier cards. Depth comparison texturing was also made
+            available.</p>
+        <p>While the 8500 was a technological marvel, it was a flop in the market compared to the
+            GeForce 3 &amp; 4. Indeed, this is a recurring theme of these eras: the card with the
+            more programmable hardware often tends to lose in its first iteration.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>API Hell</b></p></div></div></div>
+            
+            <p>This era is notable in what it did to graphics APIs. Consider the hardware
+                differences between the 8500 and the GeForce 3/4 in terms of fragment
+                processing.</p>
+            <p>On the Direct3D front, things were not the best. Direct3D 8 promised a unified
+                shader development pipeline. That is, you could write a shader according to their
+                specifications and it would work on any D3D 8 hardware. And this was effectively
+                true. For vertex shaders, at least.</p>
+            <p>However, the D3D 8.0 pixel shader pipeline was nothing more than NVIDIA's register
+                combiners and texture shaders. There was no real abstraction of capabilities; the
+                D3D 8.0 pixel shaders simply took NVIDIA's hardware and made a shader language out
+                of it.</p>
+            <p>To provide support for the 8500's expanded fragment processing feature-set, there
+                was D3D 8.1. This version altered the pixel shader pipeline to match the
+                capabilities of the Radeon 8500. Fortunately, the 8500 would accept 8.0 shaders just
+                fine, since it was capable of doing everything the GeForce 3 could do. But no one
+                would mistake either shader specification for any kind of real abstraction.</p>
+            <p>Things were much worse on the OpenGL front. At least in D3D, you used the same
+                basic C++ API to provide shaders; the shaders themselves may have been different,
+                but the base API was the same. Not so in OpenGL land.</p>
+            <p>NVIDIA and ATI released entirely separate proprietary extensions for specifying
+                fragment shaders. NVIDIA's extensions built on the register combiner extension they
+                released with the GeForce 256. ATI's was brand new. They were completely
+                incompatible, and worse, they were not even string-based.</p>
+            <p>Imagine having to call a C++ function to write every opcode of a shader. Now
+                imagine having to call <span class="emphasis"><em>three</em></span> functions to write each opcode.
+                That's what using those APIs was like.</p>
+            <p>Things were better on vertex shaders. NVIDIA initially released a vertex shader
+                extension, as did ATI. NVIDIA's was string-based, but ATI's version was like their
+                fragment shader. Fortunately, this state of affairs did not last long; the OpenGL
+                ARB came along with their own vertex shader extension. This was not GLSL, but an
+                assembly like language based on NVIDIA's extension.</p>
+            <p>It would take much longer for the fragment shader disparity to be worked
+                out.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="History%20GeForce.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="History%20of%20Graphics%20Hardware.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="History%20GeForceFX.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Vertices and Registers </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Dependency</td></tr></table></div></body></html>

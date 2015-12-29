@@ -1,0 +1,160 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Topics of Interest</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Further%20Study.html" title="Appendix B. Further Study"><link rel="prev" href="Further%20Study.html" title="Appendix B. Further Study"><link rel="next" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Topics of Interest</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Further%20Study.html">Prev</a> </td><th width="60%" align="center">Appendix B. Further Study</th><td width="20%" align="right"> <a accesskey="n" href="History%20of%20Graphics%20Hardware.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp127"></a>Topics of Interest</h2></div></div></div>
+        
+        
+        <p>This book should provide a firm foundation for understanding graphics development. But
+            there are many subjects that are not covered in this book which are also important in
+            rendering. Here is a list of topics that you should investigate, with a quick
+            introduction to the basic concepts.</p>
+        <p>This list is not intended to be a comprehensive tour of all interesting graphical
+            effects. It is simply an introduction to a few concepts that you should spend some time
+            investigating. There may be others not on this list that are worthy of your time.</p>
+        <p>
+            <b>Vertex Weighting. </b>
+            All of our meshes have had fairly simple linear transformations applied to them
+                (outside of the perspective projection). However, the mesh for a human or human-like
+                character needs to be able to deform based on animations. The transformation for the
+                upper arm and the lower arm are different, but they both affect vertices at the
+                elbow in some way.
+        </p>
+        <p>The system for dealing with this is called vertex weighting or skinning (note:
+                <span class="quote">“<span class="quote">skinning</span>”</span>, as a term, has also been applied to mapping a texture on an
+            object. Be aware of that when doing Internet searches). A character is made of a
+            hierarchy of transformations; each transform is called a bone. Vertices are weighted to
+            particular bones. Where it gets interesting is that vertices can have weights to
+            multiple bones. This means that the vertex's final position is determined by a weighted
+            combination of two (or more) transforms.</p>
+        <p>Vertex shaders generally do this by taking an array of matrices as a uniform block.
+            Each matrix is a bone. Each vertex contains a <span class="type">vec4</span> which contains up to 4
+            indices in the bone matrix array, and another <span class="type">vec4</span> that contains the weight
+            to use with the corresponding bone. The vertex is multiplied by each of the four
+            matrices, and the results are averaged together.</p>
+        <p>This process is made more complicated by normals and the tangent-space basis necessary
+            for bump mapping. And it is complicated even further by a technique called dual
+            quaternion skinning. This is done primarily to avoid issues with certain bones rotating
+            relative to one another. It prevents vertices from pinching inwards when the wrist bone
+            is rotated 180 degrees from the forearm.</p>
+        <p>
+            <b>BRDFs. </b>
+            The term Bidirectional Reflectance Distribution Function (<acronym class="acronym">BRDF</acronym>)
+                refers to a special kind of function. It is a function of two directions: the
+                direction towards the incident light and the direction towards the viewer, both of
+                which are specified relative to the surface normal. This last part makes the BRDF
+                independent of the surface normal, as it is an implicit parameter in the equation.
+                The output of the BRDF is the percentage of light from the light source that is
+                reflected along the view direction. Thus, the output of the BRDF, when multiplied by
+                the incident light intensity, produces the reflected light intensity towards the
+                viewer.
+        </p>
+        <p>By all rights, this sounds like a lighting equation. And it is. Indeed, every lighting
+            equation in this book can be expressed in the form of a BRDF. One of the things that
+            make BRDFs as a class of equations interesting is that you can actually take a physical
+            object into a lab, perform a series of tests on it, and produce a BRDF table out of
+            them. This BRDF table, typically expressed as a texture, can then be directly used by a
+            shader to show how a surface in the real world actually behaves under lighting
+            conditions. This can provide much more accurate results than using lighting models as we
+            have done here.</p>
+        <p>
+            <b>Scalable Alpha Testing. </b>
+            We have seen how alpha-test works via <code class="literal">discard</code>: a fragment is
+                culled if its alpha is beneath a certain threshold. However, when magnifying a
+                texture providing that alpha, it can create an unfortunate stair-step effect along
+                the border between the culled and unculled part. It is possible to avoid these
+                artifacts, if one preprocesses the texture correctly.
+        </p>
+        <p>Valve software's Chris Green wrote a paper entitled <em class="citetitle">Improved Alpha-Tested
+                Magnification for Vector Textures and Special Effects</em>. This paper
+            describes a way to take a high-resolution version of the alpha and convert it into a
+            distance field. Since distances interpolate much better in a spatial domain like images,
+            using distance-based culling instead of edge-based culling produces a much smoother
+            result even with a heavily magnified image.</p>
+        <p>The depth field can also be used to do other effects, like draw outlines around
+            objects or drop shadows. And the best part is that it is a very inexpensive technique to
+            implement. It requires some up-front preprocessing, but what you get in the end is quite
+            powerful and very performance-friendly.</p>
+        <p>
+            <b>Screen-Space Ambient Occlusion. </b>
+            One of the many difficult issues when doing rasterization-based rendering is
+                dealing with interreflection. That is, light reflected from one object that reflects
+                off of another. We covered this by providing a single ambient light as something of
+                a hack. A useful one, but a hack nonetheless.
+        </p>
+        <p>Screen-space ambient occlusion (<acronym class="acronym">SSAO</acronym>) is the term given to a hacky
+            modification of this already hacky concept. The idea works like this. If an object has
+            an interior corner, then the amount of interreflected light for the pixels around that
+            interior corner will be less than the general level of interreflection. This is a
+            generally true statement. What SSAO does is find all of those corners, in screen-space,
+            and decreases the ambient light intensity for them proportionately.</p>
+        <p>Doing this in screen space requires access to the screen space depth for each pixel.
+            So it combines very nicely with deferred rendering techniques. Indeed, it can simply be
+            folded directly into the ambient lighting pass of deferred rendering, though getting it
+            to perform reasonably fast is the biggest challenge. But the results can look good
+            enough to be worth the effort.</p>
+        <p>
+            <b>Light Scattering. </b>
+            When light passes through the atmosphere, it can be absorbed and reflected by the
+                atmosphere itself. After all, this is why the sky is blue: because it absorbs some
+                of the light coming from the sun, tinting the sunlight blue. Clouds are also a form
+                of this: light that hits the water vapor that comprises clouds is reflected around
+                and scattered. Thin clouds appear white because much of the light still makes it
+                through. Thick clouds appear dark because they scatter and absorb so much light that
+                not much passes through them.
+        </p>
+        <p>All of these are atmospheric light scattering effects. The most common in real-time
+            scenarios is fog, which meteorologically speaking, is simply a low-lying cloud. Ground
+            fog is commonly approximated in graphics by applying a change to the intensity of the
+            light reflected from a surface towards the viewer. The farther the light travels, the
+            more of it is absorbed and reflected, converting it into the fog's color. So objects
+            that are extremely distant from the viewer would be indistinguishable from the fog
+            itself. The thickness of the fog is based on the distance light has to travel before it
+            becomes just more fog.</p>
+        <p>Fog can also be volumetric, localized in a specific region in space. This is often
+            done to create the effect of a room full of steam, smoke, or other particulate aerosols.
+            Volumetric fog is much more complex to implement than distance-based fog. This is
+            complicated even more by objects that have to move through the fog region.</p>
+        <p>Fog system deal with the light reflected from a surface to the viewer. Generalized
+            light scattering systems deal with light from a light source that is scattered through
+            fog. Think about car headlights in a fog: you can see the beam reflecting off of the fog
+            itself. That is an entirely different can of worms and a general implementation is very
+            difficult to pull off. Specific implementations, sometimes called <span class="quote">“<span class="quote">God
+                rays</span>”</span> for the effect of strong sunlight on dust particles in a dark room, can
+            provide some form of this. But they generally have to be special cased for every
+            occurrence, rather than a generalized technique that can be applied.</p>
+        <p>
+            <b>Non-Photorealistic Rendering. </b>
+            Talking about non-photorealistic rendering (<acronym class="acronym">NPR</acronym>) as one thing
+                is like talking about non-Elephant biology as one thing. Photorealism may have the
+                majority of the research effort in it, but the depth of non-photorealistic
+                possibilities with modern hardware is extensive.
+        </p>
+        <p>These techniques often extend beyond mere rendering, from how textures are created and
+            what they store, to exaggerated models, to various other things. Once you leave the
+            comfort of approximately realistic lighting models, all bets are off.</p>
+        <p>In terms of just the rendering part, the most well-known NPR technique is probably
+            cartoon rendering, also known as cel shading. The idea with realistic lighting is to
+            light a curved object so that it appears curved. With cel shading, the idea is often to
+            light a curved object so that it appears <span class="emphasis"><em>flat</em></span>. Or at least, so that
+            it approximates one of the many different styles of cel animation, some of which are
+            more flat than others. This generally means that light has only a few intensities: on,
+            perhaps a slightly less on, and off. This creates a sharp highlight edge in the model,
+            which can give the appearance of curvature without a full gradient of intensity.</p>
+        <p>Coupled with cartoon rendering is some form of outline rendering. This is a bit more
+            difficult to pull off in an aesthetically pleasing way. When an artist is drawing cel
+            animation, they have the ability to fudge things in arbitrary ways to achieve the best
+            result. Computers have to use an algorithm, which is more likely to be a compromise than
+            a perfect solution for every case. What looks good for outlines in one case may not work
+            in another. So testing the various outlining techniques is vital for pulling off a
+            convincing effect.</p>
+        <p>Other NPR techniques include drawing objects that look like pencil sketches, which
+            require more texture work than rendering system work. Some find ways to make what could
+            have been a photorealistic rendering look like an oil painting of some form, or in some
+            cases, the glossy colors of a comic book. And so on. NPR is limited only by the graphics
+            programmer's imagination. And the cleverness of said programmer to find a way to make it
+            work, of course.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Further%20Study.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Further%20Study.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="History%20of%20Graphics%20Hardware.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Appendix B. Further Study </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Appendix C. History of PC Graphics Hardware</td></tr></table></div></body></html>

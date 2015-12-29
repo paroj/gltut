@@ -1,0 +1,170 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Appendix A. Basic Optimization</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="prev" href="Adv%20Lighting/Advanced%20Lighting.html" title="Part VI. Advanced Lighting"><link rel="next" href="apas02.html" title="Textures"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Appendix A. Basic Optimization</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Adv%20Lighting/Advanced%20Lighting.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="apas02.html">Next</a></td></tr></table><hr></div><div class="appendix"><div class="titlepage"><div><div><h1 class="title"><a name="idp120"></a>Appendix A. Basic Optimization</h1></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Basic%20Optimization.html#idp12750">Vertex Format</a></span></dt><dt><span class="section"><a href="apas02.html">Textures</a></span></dt><dt><span class="section"><a href="Optimize%20Core.html">Object Optimizations</a></span></dt><dt><span class="section"><a href="apas04.html">Finding the Bottleneck</a></span></dt><dt><span class="section"><a href="Optimize%20Vertex%20Format.html">Vertex Format</a></span></dt><dt><span class="section"><a href="Optimize%20Sync.html">Synchronization</a></span></dt></dl></div>
+    
+    
+    <p>Optimization is far too large of a subject to cover adequately in a mere appendix.
+        Optimizations tend to be specific to particular algorithms, and they usually involve
+        tradeoffs with memory. That is, one can make something run faster by taking up memory. And
+        even then, optimizations should only be made when one has proper profiling to determine
+        where performance is lacking.</p>
+    <p>This appendix will instead cover the most basic optimizations. These are not guaranteed to
+        improve performance in any particular program, but they almost never hurt. They are also
+        things you can implement relatively easily. Think of these as the default standard practice
+        you should start with before performing real optimizations. For the sake of clarity, most of
+        the code in this book did not use these practices, so many of them will be new.</p>
+    <p>Do as I say, not as I do.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp12750"></a>Vertex Format</h2></div></div></div>
+        
+        <p>Interleave vertex attribute arrays for objects where possible. Obviously, if you need
+            to overwrite certain attributes frequently while other attributes remains static, then
+            you will need to separate that data. But unless you have some specific need to do so,
+            interleave your vertex data.</p>
+        <p>Equally importantly, try to use the smallest vertex data possible. Small data means
+            that GPU caches are more efficient; they store more vertex attributes per cache line.
+            This means fewer direct memory accesses, which means increasing the performance that
+            vertex shaders receive their attributes. In this book, the vertex data was almost always
+            32-bit floats. You should only use 32-bit floats when you absolutely need that much
+            precision.</p>
+        <p>The biggest key to this is the use of normalized integer values for attributes. As a
+            reminder for how this works, here is the definition of
+                <code class="function">glVertexAttribPointer</code>:</p>
+        <div class="funcsynopsis">
+            <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">void <b class="fsfunc">glVertexAttribPointer</b>(</code></td><td>GLuint <var class="pdparam">index</var>, </td></tr><tr><td> </td><td>GLint <var class="pdparam">size</var>, </td></tr><tr><td> </td><td>GLenum <var class="pdparam">type</var>, </td></tr><tr><td> </td><td>GLboolean <var class="pdparam">normalized</var>, </td></tr><tr><td> </td><td>GLsizei <var class="pdparam">stride</var>, </td></tr><tr><td> </td><td>GLvoid *<var class="pdparam">pointer</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+        </div>
+        <p>If <code class="varname">type</code> is an integer attribute, like
+                <code class="varname">GL_UNSIGNED_BYTE</code>, then setting <code class="varname">normalized</code> to
+                <code class="literal">GL_TRUE</code> will mean that OpenGL interprets the integer value as
+            normalized. It will automatically convert the integer 255 to 1.0, and so forth. If the
+            normalization flag is false instead, then it will convert the integers directly to
+            floats: 255 becomes 255.0, etc. Signed values can be normalized as well; GL_BYTE with
+            normalization will map 127 to 1.0, -128 to -1.0, etc.</p>
+        <p>
+            <b>Colors. </b>
+            Color values are commonly stored as 4 unsigned normalized bytes. This is far
+                smaller than using 4 32-bit floats, but the loss of precision is almost always
+                negligible. To send 4 unsigned normalized bytes, use:
+        </p>
+        <pre class="programlisting">glVertexAttribPointer(#, 4, GL_UNSIGNED_BYTE, GL_TRUE, ...);</pre>
+        <p>The best part is that all of this is free; it costs no actual performance. Note
+            however that 32-bit integers cannot be normalized.</p>
+        <p>Sometimes, color values need higher precision than 8-bits, but less than 16-bits. If a
+            color is in the linear RGB colorspace, it is often desirable to give them greater than
+            8-bit precision. If the alpha of the color is negligible or non-existent, then a special
+                <code class="varname">type</code> can be used. This type is
+                <code class="literal">GL_UNSIGNED_INT_2_10_10_10_REV</code>. It takes 32-bit unsigned
+            normalized integers and pulls the four components of the attributes out of each integer.
+            This type can only be used with normalization:</p>
+        <pre class="programlisting">glVertexAttribPointer(#, 4, GL_UNSIGNED_INT_2_10_10_10_REV, GL_TRUE, ...);</pre>
+        <p>The most significant 2 bits of each integer is the Alpha. The next 10 bits are the
+            Blue, then Green, and finally Red. Make note of the fact that it is reversed. It is
+            equivalent to this bitfield struct in C:</p>
+        <pre class="programlisting">struct RGB10_A2
+{
+  unsigned int alpha    : 2;
+  unsigned int blue     : 10;
+  unsigned int green    : 10;
+  unsigned int red      : 10;
+};</pre>
+        <p>
+            <b>Normals. </b>
+            Another attribute where precision isn't of paramount importance is normals. If the
+                normals are normalized, and they always should be, the coordinates are always going
+                to be on the [-1, 1] range. So signed normalized integers are appropriate here.
+                8-bits of precision are sometimes enough, but 10-bit precision is going to be an
+                improvement. 16-bit precision, <code class="literal">GL_SHORT</code>, may be overkill, so
+                stick with <code class="literal">GL_INT_2_10_10_10_REV</code> (the signed version of the
+                above). Because this format provides 4 values, you will need to use 4 as the size of
+                the attribute, but you can still use <span class="type">vec3</span> in the shader as the normal's
+                input variable.
+        </p>
+        <p>
+            <b>Texture Coordinates. </b>
+            Two-dimensional texture coordinates do not typically need 32-bits of precision. 8
+                and 10-bit precision are usually not good enough, but 16-bit unsigned normalized
+                integers are often sufficient. If texture coordinates range outside of [0, 1], then
+                normalization will not be sufficient. In these cases, there is an alternative to
+                32-bit floats: 16-bit floats.
+        </p>
+        <p>The hardest part of dealing with 16-bit floats is that C/C++ does not deal with very
+            well. There is no native 16-bit float type, unlike virtually every other type. Even the
+            10-bit format can be built using bit selectors in structs, as above. Generating a 16-bit
+            float from a 32-bit float requires care, as well as an understanding of how
+            floating-point values work.</p>
+        <p>This is where the GLM math library comes in handy. It has the <span class="type">glm::thalf</span>,
+            which is a type that represents a 16-bit floating-point value. It has overloaded
+            operators, so that it can be used like a regular <span class="type">float</span>. GLM also provides
+                <span class="type">glm::hvec</span> and <span class="type">glm::hmat</span> types for vectors and matrices,
+            respectively.</p>
+        <p>
+            <b>Positions. </b>
+            In general, positions are the least likely attribute to be easily optimized
+                without consequence. 16-bit floats can be used, but these are restricted to a range
+                of approximately [-6550.4, 6550.4]. They also lack some precision, which may be
+                necessary depending on the size and detail of the object in model space.
+        </p>
+        <p>If 16-bit floats are insufficient, a certain form of compression can be used. The
+            process is as follows:</p>
+        <div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">
+                <p>When loading the mesh data, find the bounding volume of the mesh in model
+                    space. To do this, find the maximum and minimum values in the X, Y and Z
+                    directions independently. This represents a rectangle in model space that
+                    contains all of the vertices. This rectangle is defined by two 3D vectors: the
+                    maximum vector (containing the max X, Y and Z values), and the minimum vector.
+                    These are named <code class="varname">max</code> and <code class="varname">min</code>.</p>
+            </li><li class="listitem">
+                <p>Compute the center point of this region:</p>
+                <pre class="programlisting">glm::vec3 center = (max + min) / 2.0f;</pre>
+            </li><li class="listitem">
+                <p>Compute half of the size (width, height, depth) of the region:</p>
+                <pre class="programlisting">glm::vec3 halfSize = (max - min) / 2.0f;</pre>
+            </li><li class="listitem">
+                <p>For each position in the mesh, compute a normalized version by subtracting the
+                    center from it, then dividing it by half the size. As follows:</p>
+                <pre class="programlisting">glm::vec3 newPosition = (position - center) / halfSize;</pre>
+            </li><li class="listitem">
+                <p>For each new position, convert it to a signed, normalized integer by
+                    multiplying it by 32767:</p>
+                <pre class="programlisting">unsigned short normX = (unsigned short)(newPosition.x * 32767.0f);
+unsigned short normY = (unsigned short)(newPosition.y * 32767.0f);
+unsigned short normZ = (unsigned short)(newPosition.z * 32767.0f);</pre>
+                <p>These three coordinates are then stored as the new position data in the buffer
+                    object.</p>
+            </li><li class="listitem">
+                <p>Keep the <code class="varname">center</code> and <code class="varname">halfSize</code> variables
+                    stored with your mesh data. When computing the model-space to camera-space
+                    matrix for that mesh, add one final matrix to the top. This matrix will perform
+                    the inverse operation from the one that we used to compute the normalized
+                    values:</p>
+                <pre class="programlisting">matrixStack.Translate(center);
+matrixStack.Scale(halfSize);</pre>
+                <p>This final matrix should <span class="emphasis"><em>not</em></span> be applied to the normal's
+                    matrix. Compute the normal matrix <span class="emphasis"><em>before</em></span> applying the final
+                    step above. So if you were not using a separate matrix for normals (you did not
+                    have non-uniform scales in your model-to-camera matrix), you will need to use
+                    one now. So this may make your data bigger or make your shader run slightly
+                    slower.</p>
+            </li></ol></div>
+        <p>
+            <b>Alignment. </b>
+            One additional rule you should always follow is this: make sure that all
+                attributes begin on a 4-byte boundary. This is true for attributes that are smaller
+                than 4-bytes, such as a 3-vector of 8-bit values. While OpenGL will allow you to use
+                arbitrary alignments, hardware may have problems making it work. So if you make your
+                3D position data 16-bit floats or 16-bit signed normalized integers, you will still
+                waste 2 bytes from every position. You may want to try making your position values
+                4-dimensional values and putting something useful in the W component.
+        </p>
+    </div>
+    
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Adv%20Lighting/Advanced%20Lighting.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="apas02.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Part VI. Advanced Lighting </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Textures</td></tr></table></div></body></html>

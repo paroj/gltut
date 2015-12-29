@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="180px" width="700px" >
+	<style type="text/css" ><![CDATA[.floats
+{
+	stroke: red;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.label
+{
+	font-weight: bold;
+	font-size: 15pt;
+	stroke: none;
+	font-family: serif;
+	fill: black;
+}
+
+.bytes
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: lightblue;
+}
+
+.colors
+{
+	stroke: none;
+	fill: gray;
+	fill-opacity: 0.3;
+}
+
+.positions
+{
+	stroke: none;
+	fill: yellow;
+	fill-opacity: 0.3;
+}
+
+.vecs
+{
+	stroke: darkblue;
+	stroke-width: 3px;
+	fill: none;
+}
+
+.test
+{
+	stroke: black;
+}]]></style>
+	<defs >
+		<g id="g_test" >
+			<line x2="700" y2="30" y1="30" x1="0" class="test" />
+		</g>
+		<g id="g_float" >
+			<rect y="16" x="175" height="28" width="52.5" class="bytes" />
+			<rect y="16" x="227.5" height="28" width="52.5" class="bytes" />
+			<rect y="16" x="280" height="28" width="52.5" class="bytes" />
+			<rect y="16" x="332.5" height="28" width="52.5" class="bytes" />
+			<rect y="16" x="175" height="28" width="210" class="floats" />
+		</g>
+		<g id="g_vec4" >
+			<rect y="16" x="175" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="192.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="210" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="227.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="245" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="262.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="280" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="297.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="315" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="332.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="350" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="367.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="385" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="402.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="420" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="437.5" height="28" width="17.5" class="bytes" />
+			<rect y="16" x="175" height="28" width="70" class="floats" />
+			<rect y="16" x="245" height="28" width="70" class="floats" />
+			<rect y="16" x="315" height="28" width="70" class="floats" />
+			<rect y="16" x="385" height="28" width="70" class="floats" />
+			<rect y="16" x="175" height="28" width="280" class="vecs" />
+		</g>
+		<g id="g_vertexData" >
+			<rect y="16" x="175" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="196.58333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="218.16666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="239.75" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="261.33333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="282.91666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="304.5" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="326.08333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="347.66666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="369.25" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="390.83333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="412.41666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="434" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="455.58333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="477.16666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="498.75" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="520.33333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="541.91666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="563.5" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="585.08333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="606.66666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="628.25" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="649.83333333333" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="671.41666666667" height="28" width="21.583333333333" class="floats" />
+			<rect y="16" x="175" height="28" width="86.333333333333" class="vecs" />
+			<rect y="16" x="261.33333333333" height="28" width="86.333333333333" class="vecs" />
+			<rect y="16" x="347.66666666667" height="28" width="86.333333333333" class="vecs" />
+			<rect y="16" x="434" height="28" width="86.333333333333" class="vecs" />
+			<rect y="16" x="520.33333333333" height="28" width="86.333333333333" class="vecs" />
+			<rect y="16" x="606.66666666667" height="28" width="86.333333333333" class="vecs" />
+			<rect y="16" x="175" height="28" width="259" class="positions" />
+			<rect y="16" x="434" height="28" width="259" class="colors" />
+		</g>
+	</defs>
+	<text y="33.5" x="0" class="label" >float (4 bytes):</text>
+	<text y="93.5" x="0" class="label" >vec4 (16 bytes):</text>
+	<text y="153.5" x="0" class="label" >vertexData:</text>
+	<use xlink:href="#g_float" y="0" x="0" height="60" width="700" />
+	<use xlink:href="#g_vec4" y="60" x="0" height="60" width="700" />
+	<use xlink:href="#g_vertexData" y="120" x="0" height="60" width="700" />
+</svg>

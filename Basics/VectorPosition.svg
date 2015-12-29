@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="300px" >
+	<style type="text/css" ><![CDATA[.point
+{
+	fill: #AFAFFF;
+	stroke: #AFAFFF;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.text
+{
+	font-family: monospace;
+	font-weight: bold;
+	stroke: none;
+	font-size: 25px;
+	fill: #AFAFFF;
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="__axis_arrow1" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<g id="g_axes" >
+			<path d="M 0 300 V 0 M 30 300 V 0 M 60 300 V 0 M 90 300 V 0 M 120 300 V 0 M 150 300 V 0 M 180 300 V 0 M 210 300 V 0 M 240 300 V 0 M 270 300 V 0 M 300 300 V 0 M 0 300 H 300 M 0 270 H 300 M 0 240 H 300 M 0 210 H 300 M 0 180 H 300 M 0 150 H 300 M 0 120 H 300 M 0 90 H 300 M 0 60 H 300 M 0 30 H 300 M 0 0 H 300" class="__grid1" />
+			<line x2="150" y2="300" y1="150" x1="150" class="__axis1 __axis_arrow_end1" />
+			<line x2="150" y2="0" y1="150" x1="150" class="__axis1 __axis_arrow_end1" />
+			<line x2="300" y2="150" y1="150" x1="150" class="__axis1 __axis_arrow_end1" />
+			<line x2="0" y2="150" y1="150" x1="150" class="__axis1 __axis_arrow_end1" />
+		</g>
+	</defs>
+	<use xlink:href="#g_axes" y="0" x="0" height="300" width="300" />
+	<circle r="7.5" cy="60" cx="210" class="point" />
+	<text y="48" x="215" class="text" >A</text>
+	<circle r="7.5" cy="75" cx="60" class="point" />
+	<text y="63" x="65" class="text" >B</text>
+	<circle r="7.5" cy="240" cx="165" class="point" />
+	<text y="228" x="170" class="text" >C</text>
+</svg>

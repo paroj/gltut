@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="200px" width="200px" >
+	<style type="text/css" ><![CDATA[.quad
+{
+	fill: url(#issue_grad);
+	stroke: none;
+}]]></style>
+	<defs >
+		<linearGradient y1="100%" x1="0%" x2="100%" y2="0%" id="issue_grad" >
+			<stop offset="0%" stop-color="black" />
+			<stop offset="50%" stop-color="#AAA" />
+			<stop offset="100%" stop-color="#CCC" />
+		</linearGradient>
+	</defs>
+	<polygon points="0,0 200,0 200,200 0,200" class="quad" />
+</svg>

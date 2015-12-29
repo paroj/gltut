@@ -1,0 +1,86 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Deceit in Depth</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2013.html" title="Chapter 13. Lies and Impostors"><link rel="prev" href="Tut13%20Correct%20Chicanery.html" title="Correct Chicanery"><link rel="next" href="Tut13%20Purloined%20Primitives.html" title="Purloined Primitives"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Deceit in Depth</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut13%20Correct%20Chicanery.html">Prev</a> </td><th width="60%" align="center">Chapter 13. Lies and Impostors</th><td width="20%" align="right"> <a accesskey="n" href="Tut13%20Purloined%20Primitives.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp90"></a>Deceit in Depth</h2></div></div></div>
+        
+        
+        <p>While the perspective version looks great, there remains one problem. Move the time
+            around until the rotating grey sphere ducks underneath the ground.</p>
+        <div class="figure"><a name="idp10851"></a><p class="title"><b>Figure 13.6. Bad Intersection</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Bad%20Impostor%20Intersection.png" alt="Bad Intersection"></div>
+        </div></div><br class="figure-break">
+        <p>Hmm. Even though we've made it look like a mathematically perfect sphere, it does not
+            act like one to the depth buffer. As far as it is concerned, it's just a circle
+            (remember: <code class="literal">discard</code> prevents depth writes and tests as well).</p>
+        <p>Is that the end for our impostors? Hardly.</p>
+        <p>Part of the fragment shader's output is a depth value. If you do not write one, then
+            OpenGL will happily use <code class="varname">gl_FragCoord.z</code> as the depth output from the
+            fragment shader. This value will be depth tested against the current depth value and, if
+            the test passes, written to the depth buffer.</p>
+        <p>But we do have the ability to write a depth value ourselves. To see how this is done,
+            load up the tutorial (using the same code again) and press the <span class="keycap"><strong>H</strong></span> key.
+            This will cause all impostors to use depth-correct shaders.</p>
+        <div class="figure"><a name="idp10863"></a><p class="title"><b>Figure 13.7. Depth Correct Impostor</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Depth%20Correct%20Impostor.png" alt="Depth Correct Impostor"></div>
+        </div></div><br class="figure-break">
+        <p>This shader is identical to the ray traced version, except for these lines in the
+            fragment shader:</p>
+        <div class="example"><a name="idp10869"></a><p class="title"><b>Example 13.4. Depth Correct Fragment Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">Impostor(cameraPos, cameraNormal);
+	
+//Set the depth based on the new cameraPos.
+vec4 clipPos = cameraToClipMatrix * vec4(cameraPos, 1.0);
+float ndcDepth = clipPos.z / clipPos.w;
+gl_FragDepth = ((gl_DepthRange.diff * ndcDepth) +
+    gl_DepthRange.near + gl_DepthRange.far) / 2.0;</pre>
+        </div></div><br class="example-break">
+        <p>Basically, we go through the process OpenGL normally goes through to compute the
+            depth. We just do it on the camera-space position we computed with the ray tracing
+            function. The position is transformed to clip space. The perspective division happens,
+            transforming to normalized device coordinate (<acronym class="acronym">NDC</acronym>) space. The depth
+            range function is applied, forcing the [-1, 1] range in the fragment shader to the range
+            that the user provided with <code class="function">glDepthRange.</code></p>
+        <p>We write the final depth to a built-in output variable
+                <code class="varname">gl_FragDepth.</code></p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Fragments and Depth</b></p></div></div></div>
+            
+            <p>The default behavior of OpenGL is, if a fragment shader does not write to the
+                output depth, then simply take the <code class="varname">gl_FragCoord.z</code> depth as the
+                depth of the fragment. Oh, you could do this manually. One could add the following
+                statement to any fragment shader that uses the default depth value:</p>
+            <pre class="programlisting">gl_FragDepth = gl_FragCoord.z</pre>
+            <p>This is, in terms of behavior a noop; it does nothing OpenGL would not have done
+                itself. However, in terms of <span class="emphasis"><em>performance</em></span>, this is a drastic
+                change.</p>
+            <p>The reason fragment shaders are not required to have this line in all of them is
+                to allow for certain optimizations. If the OpenGL driver can see that you do not set
+                    <code class="varname">gl_FragDepth</code> anywhere in the fragment shader, then it can
+                dramatically improve performance in certain cases.</p>
+            <p>If the driver knows that the output fragment depth is the same as the generated
+                one, it can do the whole depth test <span class="emphasis"><em>before</em></span> executing the
+                fragment shader. This is called <em class="glossterm">early depth test</em> or
+                    <em class="glossterm">early-z</em>. This means that it can discard fragments
+                    <span class="emphasis"><em>before</em></span> wasting precious time executing potentially complex
+                fragment shaders. Indeed, most hardware nowadays has complicated early z culling
+                hardware that can discard multiple fragments with a single test.</p>
+            <p>The moment your fragment shader writes anything to
+                <code class="varname">gl_FragDepth</code>, all of those optimizations have to go away. So
+                generally, you should only write a depth value yourself if you
+                    <span class="emphasis"><em>really</em></span> need to do it.</p>
+            <p>Also, if your shader writes <code class="varname">gl_FragDepth</code> anywhere, it must
+                ensure that it is <span class="emphasis"><em>always</em></span> written to, no matter what conditional
+                branches your shader uses. The value is not initialized to a default; you either
+                always write to it or never mention <span class="quote">“<span class="quote"><code class="varname">gl_FragDepth</code></span>”</span>
+                in your fragment shader at all. Obviously, you do not always have to write the same
+                value; you can conditionally write different values. But you cannot write something
+                in one path and not write something in another. Initialize it explicitly with
+                    <code class="varname">gl_FragCoord.z</code> if you want to do something like that.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut13%20Correct%20Chicanery.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2013.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut13%20Purloined%20Primitives.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Correct Chicanery </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Purloined Primitives</td></tr></table></div></body></html>

@@ -1,0 +1,22 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Cleanup</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2001.html" title="Chapter 1. Hello, Triangle!"><link rel="prev" href="Tut01%20Making%20Shaders.html" title="Making Shaders"><link rel="next" href="Tut01%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Cleanup</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut01%20Making%20Shaders.html">Prev</a> </td><th width="60%" align="center">Chapter 1. Hello, Triangle!</th><td width="20%" align="right"> <a accesskey="n" href="Tut01%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp16"></a>Cleanup</h2></div></div></div>
+        
+        
+        <p>The tutorial allocates a lot of OpenGL resources. It allocates a buffer object, which
+            represents memory on the GPU. It creates two shader objects and a program object, all of
+            which are stored in memory owned by OpenGL. But it only deletes the shader objects; nothing
+            else.</p>
+        <p>Part of this is due to the nature of FreeGLUT, which does not provide hooks for a
+            cleanup function. But part of it is also due to the nature of OpenGL itself. In a simple
+            example such as this, there is no need to delete anything. OpenGL will clean up its own
+            assets when OpenGL is shut down as part of window deactivation.</p>
+        <p>It is generally good form to delete objects that you create before shutting down
+            OpenGL. And you certainly should do it if you encapsulate objects in C++ objects, such
+            that destructors will delete the OpenGL objects. But it is not strictly necessary.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut01%20Making%20Shaders.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2001.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut01%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Making Shaders </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

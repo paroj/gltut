@@ -1,0 +1,94 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>The Perils of World Space</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2007.html" title="Chapter 7. World in Motion"><link rel="prev" href="Tut07%20Shared%20Uniforms.html" title="Shared Uniforms"><link rel="next" href="Tut07%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">The Perils of World Space</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut07%20Shared%20Uniforms.html">Prev</a> </td><th width="60%" align="center">Chapter 7. World in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut07%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp54"></a>The Perils of World Space</h2></div></div></div>
+        
+        
+        <p>World space is a very useful intermediary between camera space and model space. It
+            makes it easy to position cameras and so forth. But there is a lingering issue when
+            dealing with world space directly. Namely, the problem of large worlds and numerical
+            precision.</p>
+        <p>Let us say that you're trying to model a very large area down to fairly small
+            accuracy. Your units are inches, and you want precision to within 0.25 inches. You want
+            to cover an area with a radius of 1,000 miles, or 63,360,000 inches.</p>
+        <p>Let us also say that the various pieces of this world all have their own model spaces
+            and are transformed into their appropriate positions via a model-to-world transformation
+            matrix. So the world is assembled out of various parts. This is almost always true to
+            some degree.</p>
+        <p>Let us also say that, while you do have a large world, you are not concerned about
+            rendering <span class="emphasis"><em>all</em></span> of it at any one time. The part of the world you're
+            interested in is the part within view from the camera. And you're not interested in
+            viewing incredibly distant objects; the far depth plane is going to cull out the world
+            beyond a certain point from the camera.</p>
+        <p>The problem is that a 32-bit floating-point number can only hold about 7 digits of
+            precision. So towards the edges of the world, at around 63,000,000 inches, you only have
+            a precision out to about ±10 inches at best. This means that vertex positions closer
+            than this will not be distinct from one another. Since your world is modeled down to
+            0.25 inches of precision, this is a substantial problem. Indeed, even if you go out to
+            6,000,000 inches, ten-times closer to the middle, you still have only ±1 inch, which is
+            greater than the tolerance you need.</p>
+        <p>One solution, if you have access to powerful hardware capable of OpenGL 4.0 or better,
+            is to use double-precision floating point values for your matrices and shader values.
+            Double-precision floats, 64-bits in size, give you about 16 digits of precision, which
+            is enough to measure the size of atoms in inches at more than 60 miles away from the
+            origin.</p>
+        <p>However, you would be sacrificing a lot of performance to do this. Even though the
+            hardware <span class="emphasis"><em>can</em></span> do double-precision math, it loses quite a bit of
+            performance in doing so (anywhere between 25% and 75% or more, depending on the GPU).
+            And why bother, when the real solution is much easier?</p>
+        <p>Let's look at our shader again.</p>
+        <pre class="programlisting">#version 330
+
+layout(location = 0) in vec4 position;
+
+uniform mat4 cameraToClipMatrix;
+uniform mat4 worldToCameraMatrix;
+uniform mat4 modelToWorldMatrix;
+
+void main()
+{
+    vec4 worldPos = modelToWorldMatrix * position;
+    vec4 cameraPos = worldToCameraMatrix * worldPos;
+    gl_Position = cameraToClipMatrix * cameraPos;
+}</pre>
+        <p>The <code class="varname">position</code> is relatively close to the origin, since model
+            coordinates tend to be close to the model space origin. So you have plenty of
+            floating-point precision there. The <code class="varname">cameraPos</code> value is also close to
+            the origin. Remember, the camera in camera space is <span class="emphasis"><em>at</em></span> the origin.
+            The world-to-camera matrix simply transforms the world to the camera's position. And as
+            stated before, the only parts of the world that we are interested in seeing are the
+            parts close to the camera. So there's quite a bit of precision available in
+                <code class="varname">cameraPos</code>.</p>
+        <p>And in <code class="varname">gl_Position</code>, everything is in clip-space, which is again
+            relative to the camera. While you can have depth buffer precision problems, that only
+            happens at far distances from the near plane. Again, since everything is relative to the
+            camera, there is no precision problem.</p>
+        <p>The only precision problem is with <code class="varname">worldPos</code>. Or rather, in the
+                <code class="varname">modelToWorldMatrix</code>.</p>
+        <p>Think about what <code class="varname">modelToWorldMatrix</code> and
+                <code class="varname">worldToCameraMatrix</code> must look like regardless of the precision of
+            the values. The model to world transform would have a massive translational component.
+            We're moving from model space, which is close to the origin, to world-space which is far
+            away. However, almost all of that will be immediately <span class="emphasis"><em>negated</em></span>,
+            because everything you're drawing is close to the camera. The camera matrix will have
+            another massive translational component, since the camera is also far from the
+            origin.</p>
+        <p>This means that, if you <span class="emphasis"><em>combined</em></span> the two matrices into one, you
+            would have one matrix with a relatively small translation component. Therefore, you
+            would not have a precision problem.</p>
+        <p>Now, 32-bit floats on the CPU are no more precise than on the GPU. However, on the CPU
+            you are guaranteed to be able to do double-precision math. And while it is slower than
+            single-precision math, the CPU is not doing as many computations. You are not doing
+            vector/matrix multiplies per vertex; you're doing them per <span class="emphasis"><em>object</em></span>.
+            And since the final result would actually fit within 32-bit precision limitations, the
+            solution is obvious.</p>
+        <p>The take-home point is this: avoid presenting OpenGL with an explicit model-to-world
+            matrix. Instead, generate a matrix that goes straight from model space to
+                <span class="emphasis"><em>camera</em></span> space. You can use double-precision computations to do
+            this if you need to; simply transform them back to single-precision when uploading the
+            matrices to OpenGL.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut07%20Shared%20Uniforms.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2007.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut07%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Shared Uniforms </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

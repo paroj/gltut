@@ -1,0 +1,535 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Correct Chicanery</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2013.html" title="Chapter 13. Lies and Impostors"><link rel="prev" href="Tutorial%2013.html" title="Chapter 13. Lies and Impostors"><link rel="next" href="Tut13%20Deceit%20in%20Depth.html" title="Deceit in Depth"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Correct Chicanery</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2013.html">Prev</a> </td><th width="60%" align="center">Chapter 13. Lies and Impostors</th><td width="20%" align="right"> <a accesskey="n" href="Tut13%20Deceit%20in%20Depth.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp89"></a>Correct Chicanery</h2></div></div></div>
+        
+        
+        <p>Our perfect sphere looks pretty nice. It has no polygonal outlines and you can zoom in
+            on it forever. However, it is unfortunately very wrong.</p>
+        <p>To see how, toggle back to rendering the mesh on sphere <span class="keycap"><strong>1</strong></span> (the
+            central blue one). Then move the camera so that the sphere is at the left edge of the
+            screen. Then toggle back to impostor rendering.</p>
+        <div class="figure"><a name="idp10522"></a><p class="title"><b>Figure 13.3. Bad Impostor</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Impostor%20No%20Perspective.png" alt="Bad Impostor"></div>
+        </div></div><br class="figure-break">
+        <p>What's going on here? The mesh sphere seems to be wider than the impostor sphere. This
+            must mean that the mesh sphere is doing something our impostor is not. Does this have to
+            do with the inaccuracy of the mesh sphere?</p>
+        <p>Quite the opposite, in fact. The mesh sphere is correct. The problem is that our
+            impostor is too simple.</p>
+        <p>Look back at how we did our computations. We map a sphere down to a flat surface. The
+            problem is that <span class="quote">“<span class="quote">down</span>”</span> in this case is in the camera-space Z direction. The
+            mapping between the surface and the sphere is static; it does not change based on the
+            viewing angle.</p>
+        <p>Consider this 2D case:</p>
+        <div class="figure"><a name="idp10532"></a><p class="title"><b>Figure 13.4. Circle Projection</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CircleInPerspective.svg" alt="Circle Projection"></div>
+        </div></div><br class="figure-break">
+        <p>The dark line through the circle represents the square we drew. When viewing the
+            sphere off to the side like this, we should not be able to see the left-edge of the
+            sphere facing perpendicular to the camera. And we should see some of the sphere on the
+            right that is behind the plane.</p>
+        <p>So how do we solve this?</p>
+        <p>Use better math. Our last algorithm is a decent approximation if the spheres are
+            somewhat small. But if the spheres are reasonably large (which also can mean close to
+            the camera), then our approximation is shown to be very fake. Our new algorithm needs to
+            take this into account.</p>
+        <p>This algorithm is based on a term you may have heard before: <em class="glossterm">ray
+                tracing.</em> We will not be implementing a full ray tracing algorithm here;
+            instead, we will use it solely to get the position and normal of a sphere at a certain
+            point.</p>
+        <p>A ray is a direction and a position; it represents a line extending from the position
+            along that direction. The points on the ray can be expressed as the following
+            equation:</p>
+        <div class="equation"><a name="idp10543"></a><p class="title"><b>Equation 13.1. Ray Equation</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mtable columnalign="left">
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mo>=</mo>
+				<mtext>Ray Direction</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>O</mi>
+					<mo>⇀</mo>
+				</mover>
+				<mo>=</mo>
+				<mtext>Ray Origin</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>P</mi>
+					<mo>⇀</mo>
+				</mover>
+				<mfenced open="(" close=")" separators=",">
+					<mrow>
+						<mi>t</mi>
+					</mrow>
+				</mfenced>
+				<mo>=</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mi>t</mi>
+				<mo>+</mo>
+				<mover accent="true">
+					<mi>O</mi>
+					<mo>⇀</mo>
+				</mover>
+			</mtd>
+		</mtr>
+	</mtable>
+</math>
+        </div></div><br class="equation-break">
+        <p>The <code class="varname">t</code> value can be positive or negative, but for our needs, we'll
+            stick with positive values.</p>
+        <p>For each fragment, we want to create a ray from the camera position in the direction
+            towards that point on the impostor square. Then we want to detect the point on the
+            sphere that it hits, if any. If the ray intersects the sphere, then we use that point
+            and normal for our lighting equation.</p>
+        <p>The math for this is fairly simple. The equation for the points on a sphere is
+            this:</p>
+        <div class="equation"><a name="idp10582"></a><p class="title"><b>Equation 13.2. Sphere Equation</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mtable columnalign="left">
+		<mtr>
+			<mtd>
+				<mi>R</mi>
+				<mo>=</mo>
+				<mtext>Sphere Radius</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+				<mo>=</mo>
+				<mtext>Sphere Center</mtext>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<mfenced open="∥" close="∥">
+					<mrow>
+						<mover accent="true">
+							<mi>P</mi>
+							<mo>⇀</mo>
+						</mover>
+						<mo>-</mo>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>⇀</mo>
+						</mover>
+					</mrow>
+				</mfenced>
+				<mo>=</mo>
+				<mi>R</mi>
+			</mtd>
+		</mtr>
+	</mtable>
+</math>
+        </div></div><br class="equation-break">
+        <p>For any point P, if this equation is true, if the length between that point and the
+            sphere's center equals the radius, then P is on the sphere. So we can substitute our ray
+            equation for P:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mrow>
+		<mfenced open="∥" close="∥">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mi>t</mi>
+				<mo>+</mo>
+				<mover accent="true">
+					<mi>O</mi>
+					<mo>⇀</mo>
+				</mover>
+				<mo>-</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mo>=</mo>
+		<mi>R</mi>
+	</mrow>
+</math>
+        </div>
+        <p>Our ray goes from the camera into the scene. Since we're in camera space, the camera
+            is at the origin. So O can be eliminated from the equation. To solve for
+                <code class="varname">t</code>, we need to get rid of that length. One way to do it is to
+            re-express the sphere equation as the length squared. So then we get:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mtable columnalign="left">
+		<mtr>
+			<mtd>
+				<msup>
+					<mfenced open="∥" close="∥">
+						<mrow>
+							<mover accent="true">
+								<mi>P</mi>
+								<mo>⇀</mo>
+							</mover>
+							<mo>-</mo>
+							<mover accent="true">
+								<mi>S</mi>
+								<mo>⇀</mo>
+							</mover>
+						</mrow>
+					</mfenced>
+					<mn>2</mn>
+				</msup>
+				<mo>=</mo>
+				<msup>
+					<mi>R</mi>
+					<mn>2</mn>
+				</msup>
+			</mtd>
+		</mtr>
+		<mtr>
+			<mtd>
+				<msup>
+					<mfenced open="∥" close="∥">
+						<mrow>
+							<mover accent="true">
+								<mi>D</mi>
+								<mo>^</mo>
+							</mover>
+							<mi>t</mi>
+							<mo>-</mo>
+							<mover accent="true">
+								<mi>S</mi>
+								<mo>⇀</mo>
+							</mover>
+						</mrow>
+					</mfenced>
+					<mn>2</mn>
+				</msup>
+				<mo>=</mo>
+				<msup>
+					<mi>R</mi>
+					<mn>2</mn>
+				</msup>
+			</mtd>
+		</mtr>
+	</mtable>
+</math>
+        </div>
+        <p>The square of the length of a vector is the same as that vector dot-producted with
+            itself. So let's do that:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mrow>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mi>t</mi>
+				<mo>-</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mo>·</mo>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mi>t</mi>
+				<mo>-</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mo>=</mo>
+		<msup>
+			<mi>R</mi>
+			<mn>2</mn>
+		</msup>
+	</mrow>
+</math>
+        </div>
+        <p>The dot product is distributive. Indeed, it follows most of the rules of scalar
+            multiplication. This gives us:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+	<mrow>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mo>·</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<msup>
+			<mi>t</mi>
+			<mn>2</mn>
+		</msup>
+		<mo>-</mo>
+		<mn>2</mn>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mo>·</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mi>t</mi>
+		<mo>+</mo>
+		<mfenced open="(" close=")">
+			<mrow>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+				<mo>·</mo>
+				<mover accent="true">
+					<mi>S</mi>
+					<mo>⇀</mo>
+				</mover>
+			</mrow>
+		</mfenced>
+		<mo>=</mo>
+		<msup>
+			<mi>R</mi>
+			<mn>2</mn>
+		</msup>
+	</mrow>
+</math>
+        </div>
+        <p>While this equation has a lot of vector elements in it, as far as t is concerned, it
+            is a scalar equation. Indeed, it is a quadratic equation, with respect to t. Ah, good
+            old algebra.</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mtable columnalign="left">
+        <mtr>
+            <mtd>
+                <mi>A</mi>
+                <msup>
+                    <mi>x</mi>
+                    <mn>2</mn>
+                </msup>
+                <mo>+</mo>
+                <mi>B</mi>
+                <mi>x</mi>
+                <mo>+</mo>
+                <mi>C</mi>
+                <mo>=</mo>
+                <mn>0</mn>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+                <mi>x</mi>
+                <mo>=</mo>
+                <mfrac>
+                    <mrow>
+						<mo>-</mo>
+						<mi>B</mi>
+						<mo>±</mo>
+						<msqrt>
+							<msup>
+								<mi>B</mi>
+								<mn>2</mn>
+							</msup>
+							<mo>-</mo>
+							<mn>4</mn>
+							<mi>A</mi>
+							<mi>C</mi>
+						</msqrt>
+                    </mrow>
+                    <mrow>
+						<mn>2</mn>
+						<mi>A</mi>
+                    </mrow>
+                </mfrac>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+				<mi>A</mi>
+				<mo>=</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mo>·</mo>
+				<mover accent="true">
+					<mi>D</mi>
+					<mo>^</mo>
+				</mover>
+				<mo>=</mo>
+				<mn>1</mn>
+            </mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+				<mi>B</mi>
+				<mo>=</mo>
+				<mo>-</mo>
+				<mn>2</mn>
+				<mfenced open="(" close=")">
+					<mrow>
+						<mover accent="true">
+							<mi>D</mi>
+							<mo>^</mo>
+						</mover>
+						<mo>·</mo>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>⇀</mo>
+						</mover>
+					</mrow>
+				</mfenced>
+			</mtd>
+        </mtr>
+        <mtr>
+            <mtd>
+				<mi>C</mi>
+				<mo>=</mo>
+				<mfenced open="(" close=")">
+					<mrow>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>⇀</mo>
+						</mover>
+						<mo>·</mo>
+						<mover accent="true">
+							<mi>S</mi>
+							<mo>⇀</mo>
+						</mover>
+					</mrow>
+				</mfenced>
+				<mo>-</mo>
+				<msup>
+					<mi>R</mi>
+					<mn>2</mn>
+				</msup>
+            </mtd>
+        </mtr>
+    </mtable>
+</math>
+        </div>
+        <p>In case you've forgotten, the part under the square root in the quadratic formula is
+            called the discriminant. If this value is negative, then the equation has no solution.
+            In terms of our ray test, this means the ray misses the sphere.</p>
+        <p>As you may recall, the square root can be either positive or negative. This gives us
+            two t values. Which makes sense; the ray hits the sphere in two places: once going in,
+            and once coming out. The correct t value that we're interested in is the smallest one.
+            Once we have that, we can use the ray equation to compute the point. With the point and
+            the center of the sphere, we can compute the normal. And we're back in business.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10826"></a>Extorting and Expanding</h3></div></div></div>
+            
+            <p>To see this done, open up the last tutorial project. Since they use the exact same
+                source, and since they use the same uniforms and other interfaces for their shaders,
+                there was no need to make another code project for it. To see the ray-traced
+                version, press the <span class="keycap"><strong>J</strong></span> key; all impostors will use the perspective
+                version. To go back to the flat version, press <span class="keycap"><strong>L</strong></span>.</p>
+            <div class="figure"><a name="idp10831"></a><p class="title"><b>Figure 13.5. Bad vs. Good</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Bad%20vs%20Good%20Impostor2.png" alt="Bad vs. Good"></div>
+            </div></div><br class="figure-break">
+            <p>The top is the original impostor, the middle is the actual mesh, and the bottom is
+                our new ray traced impostor.</p>
+            <p>The <code class="function">Impostor</code> function in the new fragment shader implements
+                our ray tracing algorithm. More important than this are the changes to the vertex
+                shader's computation of the impostor square:</p>
+            <div class="example"><a name="idp10839"></a><p class="title"><b>Example 13.3. Ray Traced Impostor Square</b></p><div class="example-contents">
+                
+                <pre class="programlisting">const float g_boxCorrection = 1.5;
+
+void main()
+{
+    vec2 offset;
+    switch(gl_VertexID)
+    {
+    case 0:
+        //Bottom-left
+        mapping = vec2(-1.0, -1.0) * g_boxCorrection;
+        offset = vec2(-sphereRadius, -sphereRadius);
+        break;
+    case 1:
+        //Top-left
+        mapping = vec2(-1.0, 1.0) * g_boxCorrection;
+        offset = vec2(-sphereRadius, sphereRadius);
+        break;
+    case 2:
+        //Bottom-right
+        mapping = vec2(1.0, -1.0) * g_boxCorrection;
+        offset = vec2(sphereRadius, -sphereRadius);
+        break;
+    case 3:
+        //Top-right
+        mapping = vec2(1.0, 1.0) * g_boxCorrection;
+        offset = vec2(sphereRadius, sphereRadius);
+        break;
+    }
+
+    vec4 cameraCornerPos = vec4(cameraSpherePos, 1.0);
+    cameraCornerPos.xy += offset * g_boxCorrection;
+    
+    gl_Position = cameraToClipMatrix * cameraCornerPos;
+}</pre>
+            </div></div><br class="example-break">
+            <p>We have expanded the size of the square by 50%. What is the purpose of this? Well,
+                let's look at our 2D image again.</p>
+            <div class="informalfigure">
+                <div class="mediaobject"><img src="CircleInPerspective.svg"></div>
+            </div>
+            <p>The black line represents the square we used originally. There is a portion to the
+                left of the projection that we should be able to see. However, with proper ray
+                tracing, it would not fit onto the area of the radius-sized square.</p>
+            <p>This means that we need to expand the size of the square. Rather than finding a
+                clever way to compute the exact extent of the sphere's area projected onto a square,
+                it's much easier to just make the square bigger. This is even moreso considering
+                that such math would have to take into account things like the viewport and the
+                perspective matrix. Sure, we will end up running the rasterizer rather more than
+                strictly necessary. But it's overall much simpler.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2013.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2013.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut13%20Deceit%20in%20Depth.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 13. Lies and Impostors </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Deceit in Depth</td></tr></table></div></body></html>

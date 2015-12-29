@@ -1,0 +1,91 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2011.html" title="Chapter 11. Shinies"><link rel="prev" href="Tut11%20On%20Performance.html" title="On Performance"><link rel="next" href="Tut11%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut11%20On%20Performance.html">Prev</a> </td><th width="60%" align="center">Chapter 11. Shinies</th><td width="20%" align="right"> <a accesskey="n" href="Tut11%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp81"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Specular lighting represents direct, mirror-like reflections from a surface.
+                    Specular highlights are mirror-like reflections directly from a light source.
+                    Adding weak specular highlights to even rough surfaces can increase visual
+                    realism.</p>
+            </li><li class="listitem">
+                <p>The microfacet model of specular reflection means that, for a given surface
+                    area, there are many mirror-like surfaces. Each microfacet reflects perfectly in
+                    its direction. The average of the microfacets </p>
+            </li><li class="listitem">
+                <p>The Phong and Blinn models of specular reflection use a power function based
+                    on how close the viewer is to perfect reflection to approximate a microfacet
+                    distribution.</p>
+            </li><li class="listitem">
+                <p>A Gaussian statistical distribution can be used to more accurately model the
+                    distributions of microfacets on a surface.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9774"></a>Further Study</h3></div></div></div>
+            
+            <p>Try doing these things with the given programs.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>Change the shaders to use the diffuse color as the specular color. You may
+                        need to drop the specular color somewhat to keep from over-brightening the
+                        scene. How this all looks will be particularly evident with the colored
+                        cylinder.</p>
+                </li></ul></div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9780"></a>Further Research</h3></div></div></div>
+            
+            <p>As you might guess, this is far from the end on specular reflections and specular
+                highlights. Accurately modelling specular reflection is very difficult; doing so
+                while maintaining high performance is even moreso.</p>
+            <p>If you are interested in more accurate models of specular highlights, there is the
+                Beckmann distribution. This is a particular statistical distribution of microfacets
+                that is more physically based than a Gaussian distribution. It may or may not be a
+                bit more computationally expensive than Gaussian; Beckmann lacks the inverse cosine,
+                but has more other math to it. The two do have a roughness factor that has the same
+                range, (0, 1], and the roughness has the same general meaning in both
+                distributions.</p>
+            <p>If you want to go even farther, investigate the Cook-Torrance model of specular
+                reflection. It incorporates several terms. It uses a statistical distribution to
+                determine the number of microfacets oriented in a direction. This distribution can
+                be Gaussian, Beckmann, or some other distribution. It modifies this result based on
+                a geometric component that models microfacet self-shadowing and the possibility for
+                multiple interreflections among a microfaceted surface. And it adds a term to
+                compensate for the Fresnel effect: an effect where specular reflection from a
+                surface is more intense when viewed edge-on than directly top-down.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9785"></a>GLSL Functions of Note</h3></div></div></div>
+            
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">reflect</b>(</code></td><td>vec <var class="pdparam">I</var>, </td></tr><tr><td> </td><td>vec <var class="pdparam">N</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>Computes the vector that would be reflected across the normal <code class="varname">N</code>
+                from an incident vector <code class="varname">I</code>. The vector result will be normalized
+                if the input vectors are normalized. Note that <code class="varname">I</code> vector is the
+                vector <span class="emphasis"><em>towards</em></span> the surface.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">pow</b>(</code></td><td>vec <var class="pdparam">X</var>, </td></tr><tr><td> </td><td>vec <var class="pdparam">Y</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>Raises <code class="varname">X</code> to the power of <code class="varname">Y</code>, component-wise.
+                If a component of <code class="varname">X</code> is less than 0, then the resulting value is
+                undefined. If <code class="varname">X</code> is exactly zero, and <code class="varname">Y</code> is less
+                than or equal to 0, then the resulting value is undefined.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">acos</b>(</code></td><td>vec <var class="pdparam">X</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>Returns the inverse cosine of <code class="varname">X</code>, component-wise. This returns
+                the angle in radians, which is on the range [0, π]. If any component of
+                    <code class="varname">X</code> is outside of the [-1, 1] range, then that component of the
+                result will be undefined. This is because the cosine of a value is always on [-1,
+                1], so the inverse-cosine function cannot take values outside of this range.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">exp</b>(</code></td><td>vec <var class="pdparam">exponent</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>Returns the value of 
+                    <span class="mathphrase">e<sup>exponent</sup></span>
+                , component-wise.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut11%20On%20Performance.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2011.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut11%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">On Performance </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

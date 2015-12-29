@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="300px" >
+	<style type="text/css" ><![CDATA[.color_1
+{
+	fill: #FFFFFF;
+	stroke: none;
+}
+
+.grid
+{
+	stroke: #888;
+	stroke-width: 1.5px;
+	fill: none;
+}
+
+.frag_area
+{
+	stroke-opacity: 0.7;
+	stroke-width: 7px;
+	stroke-linejoin: round;
+	stroke: red;
+	fill: none;
+}
+
+.sample_box
+{
+	stroke: #4B4;
+	stroke-width: 4px;
+	fill: none;
+}
+
+.color_0
+{
+	fill: #000000;
+	stroke: none;
+}
+
+.sample_pt
+{
+	fill: goldenrod;
+	stroke: none;
+}]]></style>
+	<defs />
+	<rect y="0" x="0" height="37.5" width="37.5" class="color_0" />
+	<rect y="0" x="37.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="0" x="75" height="37.5" width="37.5" class="color_0" />
+	<rect y="0" x="112.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="0" x="150" height="37.5" width="37.5" class="color_1" />
+	<rect y="0" x="187.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="0" x="225" height="37.5" width="37.5" class="color_1" />
+	<rect y="0" x="262.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="37.5" x="0" height="37.5" width="37.5" class="color_0" />
+	<rect y="37.5" x="37.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="37.5" x="75" height="37.5" width="37.5" class="color_0" />
+	<rect y="37.5" x="112.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="37.5" x="150" height="37.5" width="37.5" class="color_1" />
+	<rect y="37.5" x="187.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="37.5" x="225" height="37.5" width="37.5" class="color_1" />
+	<rect y="37.5" x="262.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="75" x="0" height="37.5" width="37.5" class="color_0" />
+	<rect y="75" x="37.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="75" x="75" height="37.5" width="37.5" class="color_0" />
+	<rect y="75" x="112.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="75" x="150" height="37.5" width="37.5" class="color_1" />
+	<rect y="75" x="187.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="75" x="225" height="37.5" width="37.5" class="color_1" />
+	<rect y="75" x="262.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="112.5" x="0" height="37.5" width="37.5" class="color_0" />
+	<rect y="112.5" x="37.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="112.5" x="75" height="37.5" width="37.5" class="color_0" />
+	<rect y="112.5" x="112.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="112.5" x="150" height="37.5" width="37.5" class="color_1" />
+	<rect y="112.5" x="187.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="112.5" x="225" height="37.5" width="37.5" class="color_1" />
+	<rect y="112.5" x="262.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="150" x="0" height="37.5" width="37.5" class="color_1" />
+	<rect y="150" x="37.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="150" x="75" height="37.5" width="37.5" class="color_1" />
+	<rect y="150" x="112.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="150" x="150" height="37.5" width="37.5" class="color_0" />
+	<rect y="150" x="187.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="150" x="225" height="37.5" width="37.5" class="color_0" />
+	<rect y="150" x="262.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="187.5" x="0" height="37.5" width="37.5" class="color_1" />
+	<rect y="187.5" x="37.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="187.5" x="75" height="37.5" width="37.5" class="color_1" />
+	<rect y="187.5" x="112.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="187.5" x="150" height="37.5" width="37.5" class="color_0" />
+	<rect y="187.5" x="187.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="187.5" x="225" height="37.5" width="37.5" class="color_0" />
+	<rect y="187.5" x="262.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="225" x="0" height="37.5" width="37.5" class="color_1" />
+	<rect y="225" x="37.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="225" x="75" height="37.5" width="37.5" class="color_1" />
+	<rect y="225" x="112.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="225" x="150" height="37.5" width="37.5" class="color_0" />
+	<rect y="225" x="187.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="225" x="225" height="37.5" width="37.5" class="color_0" />
+	<rect y="225" x="262.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="262.5" x="0" height="37.5" width="37.5" class="color_1" />
+	<rect y="262.5" x="37.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="262.5" x="75" height="37.5" width="37.5" class="color_1" />
+	<rect y="262.5" x="112.5" height="37.5" width="37.5" class="color_1" />
+	<rect y="262.5" x="150" height="37.5" width="37.5" class="color_0" />
+	<rect y="262.5" x="187.5" height="37.5" width="37.5" class="color_0" />
+	<rect y="262.5" x="225" height="37.5" width="37.5" class="color_0" />
+	<rect y="262.5" x="262.5" height="37.5" width="37.5" class="color_0" />
+	<path d="M 0 37.5 h 300 M 0 75 h 300 M 0 112.5 h 300 M 0 150 h 300 M 0 187.5 h 300 M 0 225 h 300 M 0 262.5 h 300 M 37.5 0 v 300 M 75 0 v 300 M 112.5 0 v 300 M 150 0 v 300 M 187.5 0 v 300 M 225 0 v 300 M 262.5 0 v 300" class="grid" />
+	<rect y="75" x="150" height="75" width="75" class="sample_box" />
+	<path d="M 92.625 196.875 L 92.625 39.375 L 250.125 39.375 L 250.125 196.875 Z" class="frag_area" />
+	<circle r="3.75" cy="118.125" cx="171.375" class="sample_pt" />
+</svg>

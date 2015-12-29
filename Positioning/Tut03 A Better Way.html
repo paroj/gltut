@@ -1,0 +1,203 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>A Better Way</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2003.html" title="Chapter 3. OpenGL's Moving Triangle"><link rel="prev" href="Tutorial%2003.html" title="Chapter 3. OpenGL's Moving Triangle"><link rel="next" href="Tut03%20More%20Power%20To%20The%20Shaders.html" title="More Power to the Shaders"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">A Better Way</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2003.html">Prev</a> </td><th width="60%" align="center">Chapter 3. OpenGL's Moving Triangle</th><td width="20%" align="right"> <a accesskey="n" href="Tut03%20More%20Power%20To%20The%20Shaders.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp25"></a>A Better Way</h2></div></div></div>
+        
+        
+        <p>This is fine for a 3-vertex example. But imagine a scene involving millions of
+            vertices (and no, that's not an exaggeration for high-end applications). Moving objects
+            this way means having to copy millions of vertices from the original vertex data, add an
+            offset to each of them, and then upload that data to an OpenGL buffer object. And all of
+            that is <span class="emphasis"><em>before</em></span> rendering. Clearly there must be a better way; games
+            can not possibly do this every frame and still hold decent framerates.</p>
+        <p>Actually for quite some time, they did. In the pre-GeForce 256 days, that was how all
+            games worked. Graphics hardware just took a list of vertices in clip space and rasterized them into fragments and pixels. Granted, in those days,
+            we were talking about maybe 10,000 triangles per frame. And while CPUs have come a long
+            way since then, they have not scaled with the complexity of graphics scenes.</p>
+        <p>The GeForce 256 (note: not a GT 2xx card, but the very first GeForce card) was the
+            first graphics card that actually did some from of vertex processing. It could store
+            vertices in GPU memory, read them, do some kind of transformation on them, and then send
+            them through the rest of the pipeline. The kinds of transformations that the old GeForce
+            256 could do were quite useful, but fairly simple.</p>
+        <p>Having the benefit of modern hardware and OpenGL 3.x, we have something far more
+            flexible: vertex shaders.</p>
+        <p>Remember what it is that we are doing. We compute an offset. Then we apply that offset
+            to each vertex position. Vertex shaders are given each vertex position. So it makes
+            sense to simply give the vertex shader the offset and let it compute the final vertex
+            position, since it operates on each vertex. This is what
+                <code class="filename">VertPositionOffset.cpp</code> does.</p>
+        <p>The vertex shader is found in <code class="filename">data\positionOffset.vert</code>. The
+            vertex shader used here is as follows:</p>
+        <div class="example"><a name="idp2071"></a><p class="title"><b>Example 3.4. Offsetting Vertex Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+layout(location = 0) in vec4 position;
+uniform vec2 offset;
+
+void main()
+{
+    vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
+    gl_Position = position + totalOffset;
+}</pre>
+        </div></div><br class="example-break">
+        <p>After defining the input <code class="varname">position</code>, the shader defines a
+            2-dimensional vector <code class="varname">offset</code>. But it defines it with the term
+                <code class="literal">uniform</code>, rather than <code class="literal">in</code> or
+                <code class="literal">out</code>. This has a particular meaning.</p>
+        <p>
+            <b>Shaders and Granularity. </b>
+            Recall that, with each execution of a shader, the shader gets new values for
+                variables defined as <code class="literal">in</code>. Each time a vertex shader is called, it
+                gets a different set of inputs from the vertex attribute arrays and buffers. That is
+                useful for vertex position data, but it is not what we want for the offset. We want
+                each vertex to use the <span class="emphasis"><em>same</em></span> offset; a <span class="quote">“<span class="quote">uniform</span>”</span>
+                offset, if you will.
+        </p>
+        <p>Variables defined as <code class="literal">uniform</code> do not change at the same frequency as
+            variables defined as <code class="literal">in</code>. Input variables change with every execution
+            of the shader. Uniform variables (called <em class="glossterm">uniforms</em>) change only
+            between executions of rendering calls. And even then, they only change when the user
+            sets them explicitly to a new value. </p>
+        <p>Vertex shader inputs come from vertex attribute array definitions and buffer objects.
+            By contrast, uniforms are set directly on program objects.</p>
+        <p>In order to set a uniform in a program, we need two things. The first is a uniform
+            location. Much like with attributes, there is an index that refers to a specific uniform
+            value. Unlike attributes, you cannot set this location yourself; you must query it. In
+            this tutorial, this is done in the <code class="function">InitializeProgram</code> function, with
+            this line:</p>
+        <pre class="programlisting">offsetLocation = glGetUniformLocation(theProgram, "offset");</pre>
+        <p>The function <code class="function">glGetUniformLocation</code> retrieves the uniform location
+            for the uniform named by the second parameter. Note that just because a uniform is
+            defined in a shader, GLSL does not <span class="emphasis"><em>have</em></span> to provide a location for
+            it. It will only have a location if the uniform is actually used in the program, as we
+            see in the vertex shader; <code class="function">glGetUniformLocation</code> will return -1 if
+            the uniform has no location.</p>
+        <p>Once we have the uniform location, we can set the uniform's value. However, unlike
+            retrieving the uniform location, setting a uniform's value requires that the program be
+            currently in use with <code class="function">glUseProgram</code>. Thus, the rendering code looks
+            like this:</p>
+        <div class="example"><a name="idp2100"></a><p class="title"><b>Example 3.5. Draw with Calculated Offsets</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void display()
+{
+    float fXOffset = 0.0f, fYOffset = 0.0f;
+    ComputePositionOffsets(fXOffset, fYOffset);
+    
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glUniform2f(offsetLocation, fXOffset, fYOffset);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(0);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</pre>
+        </div></div><br class="example-break">
+        <p>We use <code class="function">ComputePositionOffsets</code> to get the offsets, and then use
+                <code class="function">glUniform2f</code> to set the uniform's value. The buffer object's
+            data is never changed; the shader simply does the hard work. Which is why those shader
+            stages exist in the first place.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Standard OpenGL Nomenclature</b></p></div></div></div>
+            
+            <p>The function <code class="function">glUniform2f</code> uses a special bit of OpenGL
+                nomenclature. Specifically, the <span class="quote">“<span class="quote">2f</span>”</span> part.</p>
+            <p>Uniforms can have different types. And because OpenGL is defined in terms of C
+                rather than C++, there is no concept of function overloading. So functions that do
+                the same thing which take different types must have different names. OpenGL has
+                standardized its naming convention for these.</p>
+            <p>Functions like <code class="function">glUniform</code> have a suffix. The first part of the
+                suffix is the number of values it takes. In the above case,
+                    <code class="function">glUniform2f</code> takes 2 values, in addition to the regular
+                parameters. The basic <code class="function">glUniform</code> parameters are just the uniform
+                location, so <code class="function">glUniform2f</code> takes a uniform location and two
+                values.</p>
+            <p>The type of values it takes is defined by the second part. The possible type names
+                and their associated types are:</p>
+            <div class="informaltable">
+                <table class="informaltable" border="1"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup><thead><tr><th> </th><th> </th><th> </th><th> </th></tr></thead><tbody><tr><td>
+                                <p>b</p>
+                            </td><td>
+                                <p>signed byte</p>
+                            </td><td>
+                                <p>ub</p>
+                            </td><td>
+                                <p>unsigned byte</p>
+                            </td></tr><tr><td>
+                                <p>s</p>
+                            </td><td>
+                                <p>signed short</p>
+                            </td><td>
+                                <p>us</p>
+                            </td><td>
+                                <p>unsigned short</p>
+                            </td></tr><tr><td>
+                                <p>i</p>
+                            </td><td>
+                                <p>signed int</p>
+                            </td><td>
+                                <p>ui</p>
+                            </td><td>
+                                <p>unsigned int</p>
+                            </td></tr><tr><td>
+                                <p>f</p>
+                            </td><td>
+                                <p>float</p>
+                            </td><td>
+                                <p>d</p>
+                            </td><td>
+                                <p>double</p>
+                            </td></tr></tbody></table>
+            </div>
+            <p>Note that OpenGL has special typedefs for all of these types. <span class="type">GLfloat</span>
+                is a typedef for <span class="type">float</span>, for example. This is not particularly useful
+                for simple types, but for integer types, they can be very useful.</p>
+            <p>Not all functions that take multiple types take all possible types. For example,
+                    <code class="function">glUniform</code> only comes in <code class="literal">i</code>,
+                    <code class="literal">ui</code>, and <code class="literal">f</code> variations (OpenGL 4.0
+                introduces <code class="literal">d</code> variants).</p>
+            <p>There are also vector forms, defined by adding a <span class="quote">“<span class="quote">v</span>”</span> after the type.
+                These take an array of values, with a parameter saying how many elements are in the
+                array. So the function <code class="function">glUniform2fv</code> takes a uniform location, a
+                number of entries, and an array of that many entries. Each entry is <span class="emphasis"><em>two
+                    floats</em></span> in size; the number of entries is not the number of floats or
+                other types. It is the number of values divided by the number of values per entry.
+                Since <span class="quote">“<span class="quote">2f</span>”</span> represents two floats, that is how many values are in each
+                entry.</p>
+            <p>Some OpenGL functions just take a type without a number. These functions take a
+                fixed number of parameters of that type, usually just one.</p>
+        </div>
+        <p>
+            <b>Vector Math. </b>
+            You may be curious about how these lines work:
+        </p>
+        <pre class="programlisting">vec4 totalOffset = vec4(offset.x, offset.y, 0.0, 0.0);
+gl_Position = position + totalOffset;</pre>
+        <p>The <span class="type">vec4</span> that looks like a function here is a constructor; it creates a
+                <span class="type">vec4</span> from 4 floats. This is done to make the addition easier.</p>
+        <p>The addition of <code class="varname">position</code> to <code class="varname">totalOffset</code> is a
+            component-wise addition. It is a shorthand way of doing this:</p>
+        <pre class="programlisting">gl_Position.x = position.x + totalOffset.x;
+gl_Position.y = position.y + totalOffset.y;
+gl_Position.z = position.z + totalOffset.z;
+gl_Position.w = position.w + totalOffset.w;</pre>
+        <p>GLSL has a lot of vector math built in. The math operations are all component-wise
+            when applied to vectors. However, it is illegal to add vectors of different dimensions
+            to each other. So you cannot have a <span class="type">vec2</span> + <span class="type">vec4</span>. That is why
+            we had to convert <code class="varname">offset</code> to a vec4 before performing the
+            addition.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2003.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2003.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut03%20More%20Power%20To%20The%20Shaders.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 3. OpenGL's Moving Triangle </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> More Power to the Shaders</td></tr></table></div></body></html>

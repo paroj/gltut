@@ -1,0 +1,963 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Introduction</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Basics.html" title="Part I. The Basics"><link rel="prev" href="Basics.html" title="Part I. The Basics"><link rel="next" href="Intro%20Graphics%20and%20Rendering.html" title="Graphics and Rendering"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Introduction</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Basics.html">Prev</a> </td><th width="60%" align="center">Part I. The Basics</th><td width="20%" align="right"> <a accesskey="n" href="Intro%20Graphics%20and%20Rendering.html">Next</a></td></tr></table><hr></div><div class="article"><div class="titlepage"><div><div><h2 class="title"><a name="tut_00"></a>Introduction</h2></div></div><hr></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Introduction.html#idp270">Vector Math</a></span></dt><dt><span class="section"><a href="Intro%20Graphics%20and%20Rendering.html">Graphics and Rendering</a></span></dt><dt><span class="section"><a href="Intro%20What%20is%20OpenGL.html">What is OpenGL</a></span></dt><dt><span class="section"><a href="Intro%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>Unlike most sections of this text, there is no source code or project associated with this
+        section. Here, we will be discussing vector math, graphical rendering theory, and OpenGL.
+        This serves as a primer to the rest of the book.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp270"></a>Vector Math</h2></div></div></div>
+        
+        <p>This book assumes that you are familiar with algebra and geometry, but not necessarily
+            with vector math. Later material will bring you up to speed on more complex subjects,
+            but this will introduce the basics of vector math.</p>
+        <p>A <em class="glossterm">vector</em> can have many meanings, depending on whether we are
+            talking geometrically or numerically. In either case, vectors have dimensionality; this
+            represents the number of dimensions that the vector has. A two-dimensional vector is
+            restricted to a single plane, while a three-dimensional vector can point in any physical
+            space. Vectors can have higher dimensions, but generally we only deal with dimensions
+            between 2 and 4.</p>
+        <p>Technically, a vector can have only one dimension. Such a vector is called a
+                <em class="glossterm">scalar.</em></p>
+        <p>In terms of geometry, a vector can represent one of two concepts: a position or a
+            direction within a particular space. A vector <em class="glossterm">position</em> represents
+            a specific location in space. For example, on this graph, we have a vector position
+            A:</p>
+        <div class="figure"><a name="idp279"></a><p class="title"><b>Figure 1. Position Vectors</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorPosition.svg" alt="Position Vectors"></div>
+        </div></div><br class="figure-break">
+        <p>A vector can also represent a <em class="glossterm">direction</em>. Direction vectors do
+            not have an origin; they simply specify a direction in space. These are all direction
+            vectors, but the vectors B and D are the same, even though they are drawn in different
+            locations:</p>
+        <div class="figure"><a name="idp286"></a><p class="title"><b>Figure 2. Direction Vectors</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorDirections.svg" alt="Direction Vectors"></div>
+        </div></div><br class="figure-break">
+        <p>That's all well and good for geometry, but vectors can also be described numerically.
+            A vector in this case is a sequence of numbers, one for each dimension. So a
+            two-dimensional vector has two numbers; a three-dimensional vector has three. And so
+            forth. Scalars, numerically speaking, are just a single number.</p>
+        <p>Each of the numbers within a vector is called a <em class="glossterm">component</em>. Each
+            component usually has a name. For our purposes, the first component of a vector is the X
+            component. The second component is the Y component, the third is the Z, and if there is
+            a fourth, it is called W.</p>
+        <p>When writing vectors in text, they are written with parenthesis. So a 3D vector could
+            be (0, 2, 4); the X component is 0, the Y component is 2, and the Z component is 4. When
+            writing them as part of an equation, they are written as follows:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>y</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>z</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div>
+        <p>In math equations, vector variables are either in boldface or written with an arrow
+            over them.</p>
+        <p>When drawing vectors graphically, one makes a distinction between position vectors and
+            direction vectors. However, numerically there is <span class="emphasis"><em>no</em></span> difference
+            between the two. The only difference is in how you use them, not how you represent them
+            with numbers. So you could consider a position a direction and then apply some vector
+            operation to them, and then consider the result a position again.</p>
+        <p>Though vectors have individual numerical components, a vector as a whole can have a
+            number of mathematical operations applied to them. We will show a few of them, with both
+            their geometric and numerical representations.</p>
+        <p>
+            <b>Vector Addition. </b>
+            You can take two vectors and add them together. Graphically, this works as
+            follows:
+            </p>
+        <div class="figure"><a name="idp321"></a><p class="title"><b>Figure 3. Vector Addition</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorAddition.svg" alt="Vector Addition"></div>
+        </div></div><br class="figure-break">
+            <p>Remember that vector directions can be shifted around without changing their
+                values. So if you put two vectors head to tail, the vector sum is simply the
+                direction from the tail of the first vector to the head of the last.</p>
+        <div class="figure"><a name="idp327"></a><p class="title"><b>Figure 4. Vector Addition Head-to-Tail</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorAdditionHeads.svg" alt="Vector Addition Head-to-Tail"></div>
+        </div></div><br class="figure-break">
+            <p>Numerically, the sum of two vectors is just the sum of the corresponding
+                components:</p>
+        <div class="equation"><a name="idp333"></a><p class="title"><b>Equation 1. Vector Addition with Numbers</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>+</mo>
+  <mover>
+          <mi>b</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>+</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable groupalign="{left}">
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>b</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>b</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>b</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+            <mo>+</mo>
+            <msub>
+                    <mi>b</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+            <mo>+</mo>
+            <msub>
+                    <mi>b</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+            <mo>+</mo>
+            <msub>
+                    <mi>b</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+            <p>Any operation where you perform an operation on each component of a vector is
+                called a <em class="glossterm">component-wise operation</em>. Vector addition is
+                component-wise. Any component-wise operation on two vectors requires that the two
+                vectors have the same dimensionality.</p>
+        <p>
+            <b>Vector Negation and Subtraction. </b>
+            You can negate a vector. This reverses its direction:
+        </p>
+        <div class="figure"><a name="idp418"></a><p class="title"><b>Figure 5. Vector Negation</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorNegation.svg" alt="Vector Negation"></div>
+        </div></div><br class="figure-break">
+            <p>Numerically, this means negating each component of the vector.</p>
+        <div class="equation"><a name="idp424"></a><p class="title"><b>Equation 2. Vector Negation</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mo>-</mo>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mo>-</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mo>-</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mo>-</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mo>-</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+            <p>Just as with scalar math, vector subtraction is the same as addition with the
+            negation of the second vector.</p>
+        <div class="figure"><a name="idp475"></a><p class="title"><b>Figure 6. Vector Subtraction</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorSubtraction.svg" alt="Vector Subtraction"></div>
+        </div></div><br class="figure-break">
+        <p>
+            <b>Vector Multiplication. </b>
+            Vector multiplication is one of the few vector operations that has no real
+                geometric equivalent. To multiply a direction by another, or multiplying a position
+                by another position, does not really make sense. That does not mean that the numerical
+                equivalent is not useful, though.
+        </p>
+        <p>Multiplying two vectors numerically is simply component-wise multiplication, much like
+            vector addition.</p>
+        <div class="equation"><a name="idp484"></a><p class="title"><b>Equation 3. Vector Multiplication</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>*</mo>
+  <mover>
+          <mi>b</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>*</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable groupalign="{left}">
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>b</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>b</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>b</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+            <mo>*</mo>
+            <msub>
+                    <mi>b</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+            <mo>*</mo>
+            <msub>
+                    <mi>b</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+            <mo>*</mo>
+            <msub>
+                    <mi>b</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>
+            <b>Vector/Scalar Operations. </b>
+            Vectors can be operated on by scalar values. Recall that scalars are just single
+                numbers. Vectors can be multiplied by scalars. This magnifies or shrinks the length
+                of the vector, depending on the scalar value.
+        </p>
+        <div class="figure"><a name="idp567"></a><p class="title"><b>Figure 7. Vector Scaling</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="VectorScalarMult.svg" alt="Vector Scaling"></div>
+        </div></div><br class="figure-break">
+        <p>Numerically, this is a component-wise multiplication, where each component of the
+            vector is multiplied with each component of the scalar.</p>
+        <div class="equation"><a name="idp573"></a><p class="title"><b>Equation 4. Vector-Scalar Multiplication</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mi>s</mi>
+  <mo>*</mo>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mi>s</mi>
+  <mo>*</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>*</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>*</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>*</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>Scalars can also be added to vectors. This, like vector-to-vector multiplication, has
+            no geometric representation. It is a component-wise addition of the scalar with each
+            component of the vector.</p>
+        <div class="equation"><a name="idp629"></a><p class="title"><b>Equation 5. Vector-Scalar Addition</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mi>s</mi>
+  <mo>+</mo>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mi>s</mi>
+  <mo>+</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>+</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>+</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>s</mi>
+            <mo>+</mo>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>
+            <b>Vector Algebra. </b>
+            It is useful to know a bit about the relationships between these kinds of vector
+                operations.
+        </p>
+        <p>Vector addition and multiplication follow many of the same rules for scalar addition
+            and multiplication. They are commutative, associative, and distributive.</p>
+        <div class="equation"><a name="idp688"></a><p class="title"><b>Equation 6. Vector Algebra</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mrow>
+  <mtable columnalign="left">
+    <mtr>
+      <mtd columnalign="right">
+        <mtext>Commutative:</mtext>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+        <mo>+</mo>
+        <mover><mi>b</mi><mo>⇀</mo></mover>
+        <mo>=</mo>
+        <mover><mi>b</mi><mo>⇀</mo></mover>
+        <mo>+</mo>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+        <mo>*</mo>
+        <mover><mi>b</mi><mo>⇀</mo></mover>
+        <mo>=</mo>
+        <mover><mi>b</mi><mo>⇀</mo></mover>
+        <mo>*</mo>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd columnalign="right">
+        <mtext>Associative:</mtext>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+        <mo>+</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>b</mi><mo>⇀</mo></mover>
+            <mo>+</mo>
+            <mover><mi>c</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>⇀</mo></mover>
+            <mo>+</mo>
+            <mover><mi>b</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>+</mo>
+        <mover><mi>c</mi><mo>⇀</mo></mover>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>b</mi><mo>⇀</mo></mover>
+            <mo>*</mo>
+            <mover><mi>c</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>⇀</mo></mover>
+            <mo>*</mo>
+            <mover><mi>b</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>*</mo>
+        <mover><mi>c</mi><mo>⇀</mo></mover>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd columnalign="right">
+        <mtext>Distributive:</mtext>
+      </mtd>
+      <mtd>
+        <mover><mi>a</mi><mo>⇀</mo></mover>
+        <mo>*</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>b</mi><mo>⇀</mo></mover>
+            <mo>+</mo>
+            <mover><mi>c</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>⇀</mo></mover>
+            <mo>*</mo>
+            <mover><mi>b</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+        <mo>+</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mover><mi>a</mi><mo>⇀</mo></mover>
+            <mo>*</mo>
+            <mover><mi>c</mi><mo>⇀</mo></mover>
+          </mrow>
+        </mfenced>
+      </mtd>
+      <mtd>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>Vector/scalar operations have similar properties.</p>
+        <p>
+            <b>Length. </b>
+            Vectors have a length. The length of a vector direction is the distance from the
+                starting point to the ending point.
+        </p>
+        <p>Numerically, computing the distance requires this equation:</p>
+        <div class="equation"><a name="idp830"></a><p class="title"><b>Equation 7. Vector Length</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mfenced open="∥" close="∥" separators=",">
+    <mrow>
+      <mover>
+              <mi>a</mi>
+            <mo>⇀</mo>
+      </mover>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <msqrt>
+    <msup>
+          <mrow>
+            <msub>
+                    <mi>a</mi>
+                  <mi>x</mi>
+            </msub>
+          </mrow>
+          <mn>2</mn>
+    </msup>
+    <mo>+</mo>
+    <msup>
+          <mrow>
+            <msub>
+                    <mi>a</mi>
+                  <mi>y</mi>
+            </msub>
+          </mrow>
+          <mn>2</mn>
+    </msup>
+    <mo>+</mo>
+    <msup>
+          <mrow>
+            <msub>
+                    <mi>a</mi>
+                  <mi>z</mi>
+            </msub>
+          </mrow>
+          <mn>2</mn>
+    </msup>
+  </msqrt>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>This uses the Pythagorean theorem to compute the length of the vector. This works for
+            vectors of arbitrary dimensions, not just two or three.</p>
+        <p>
+            <b>Unit Vectors and Normalization. </b>
+            A vector that has a length of exactly one is called a <em class="glossterm">unit
+                    vector.</em> This represents a pure direction with a standard, unit
+                length. A unit vector variable in math equations is written with a ^ over the
+                variable name.
+        </p>
+        <p>A vector can be converted into a unit vector by <em class="glossterm">normalizing</em> it.
+            This is done by dividing the vector by its length. Or rather, multiplication by the
+            reciprocal of the length.</p>
+        <div class="equation"><a name="idp868"></a><p class="title"><b>Equation 8. Vector Normalization</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mover>
+          <mi>a</mi>
+        <mo>^</mo>
+  </mover>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <mn>1</mn>
+    </mrow>
+    <mrow>
+      <mfenced open="∥" close="∥" separators=",">
+        <mrow>
+          <mover>
+                  <mi>a</mi>
+                <mo>⇀</mo>
+          </mover>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mfrac>
+  <mo>*</mo>
+  <mover>
+          <mi>a</mi>
+        <mo>⇀</mo>
+  </mover>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mfrac>
+              <mrow>
+                <msub>
+                        <mi>a</mi>
+                      <mi>x</mi>
+                </msub>
+              </mrow>
+              <mrow>
+                <mfenced open="∥" close="∥" separators=",">
+                  <mrow>
+                    <mover>
+                            <mi>a</mi>
+                          <mo>⇀</mo>
+                    </mover>
+                  </mrow>
+                </mfenced>
+              </mrow>
+            </mfrac>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mfrac>
+              <mrow>
+                <msub>
+                        <mi>a</mi>
+                      <mi>y</mi>
+                </msub>
+              </mrow>
+              <mrow>
+                <mfenced open="∥" close="∥" separators=",">
+                  <mrow>
+                    <mover>
+                            <mi>a</mi>
+                          <mo>⇀</mo>
+                    </mover>
+                  </mrow>
+                </mfenced>
+              </mrow>
+            </mfrac>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mfrac>
+              <mrow>
+                <msub>
+                        <mi>a</mi>
+                      <mi>z</mi>
+                </msub>
+              </mrow>
+              <mrow>
+                <mfenced open="∥" close="∥" separators=",">
+                  <mrow>
+                    <mover>
+                            <mi>a</mi>
+                          <mo>⇀</mo>
+                    </mover>
+                  </mrow>
+                </mfenced>
+              </mrow>
+            </mfrac>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>This is not all of the vector math that we will use in these tutorials. New vector
+            math operations will be introduced and explained as needed when they are first used. And
+            unlike the math operations introduced here, most of them are not component-wise
+            operations.</p>
+        <p>
+            <b>Range Notation. </b>
+            This book will frequently use standard notation to specify that a value must be
+                within a certain range.
+        </p>
+        <p>If a value is constrained between 0 and 1, and it may actually have the values 0 and
+            1, then it is said to be <span class="quote">“<span class="quote">on the range</span>”</span> [0, 1]. The square brackets mean
+            that the range includes the value next to it.</p>
+        <p>If a value is constrained between 0 and 1, but it may not actually have a value of 0,
+            then it is said to be on the range (0, 1]. The parenthesis means that the range does not
+            include that value.</p>
+        <p>If a value is constrained to 0 or any number greater than zero, then the infinity
+            notation will be used. This range is represented by [0, ∞). Note that infinity can never
+            be reached, so it is always exclusive. A constraint to any number less than zero, but
+            not including zero would be on the range (-∞, 0).</p>
+    </div>
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Basics.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Basics.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Intro%20Graphics%20and%20Rendering.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Part I. The Basics </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Graphics and Rendering</td></tr></table></div></body></html>

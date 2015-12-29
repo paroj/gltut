@@ -1,0 +1,740 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Quaternions</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2008.html" title="Chapter 8. Getting Oriented"><link rel="prev" href="Tutorial%2008.html" title="Chapter 8. Getting Oriented"><link rel="next" href="Tut08%20Camera%20Relative%20Orientation.html" title="Camera-Relative Orientation"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Quaternions</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2008.html">Prev</a> </td><th width="60%" align="center">Chapter 8. Getting Oriented</th><td width="20%" align="right"> <a accesskey="n" href="Tut08%20Camera%20Relative%20Orientation.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp58"></a>Quaternions</h2></div></div></div>
+        
+        
+        <p>So gimbals, 3 accumulated axial rotations, do not really work very well for orienting
+            an object. Gimbals can be locked, and it is very unintuitive to control them. How do we
+            fix these problems?</p>
+        <p>Part of the problem is that we are trying to store an orientation as a series of 3
+            accumulated axial rotations. Orientations are <span class="emphasis"><em>orientations,</em></span> not
+            rotations. And orientations are certainly not a series of rotations. So we need to treat
+            the orientation of the ship as an orientation, as a specific quantity.</p>
+        <p>The first thought towards this end would be to keep the orientation as a matrix. When
+            the time comes to modify the orientation, we simply apply a transformation to this
+            matrix, storing the result as the new current orientation.</p>
+        <p>This means that every yaw, pitch, and roll applied to the current orientation will be
+            relative to that current orientation. Which is precisely what we need. If the user
+            applies a positive yaw, you want that yaw to rotate them relative to where they are
+            current pointing, not relative to some fixed coordinate system.</p>
+        <p>There are a few downsides to this approach. First, a 4x4 matrix is rather larger than
+            3 floating-point angles. But a much more difficult issue is that successive
+            floating-point math can lead to errors. If you keep accumulating successive
+            transformations of an object, once every 1/30th of a second for a period of several
+            minutes or hours, these floating-point errors start accumulating. Eventually, the
+            orientation stops being a pure rotation and starts incorporating scale and skewing
+            characteristics.</p>
+        <p>The solution here is to re-orthonormalize the matrix after applying each transform. A
+            coordinate system (which a matrix defines) is said to be
+                <em class="glossterm">orthonormal</em> if the basis vectors are of unit length (no
+            scale) and each axis is perpendicular to all of the others.</p>
+        <p>Unfortunately, re-orthonormalizing a matrix is not a simple operation. You could try
+            to normalize each of the axis vectors with typical vector normalization, but that
+            would not ensure that the matrix was orthonormal. It would remove scaling, but the axes
+            would not be guaranteed to be perpendicular.</p>
+        <p>Orthonormalization is certainly possible. But there are better solutions. Such as using
+            something called a <em class="glossterm">quaternion.</em></p>
+        <p>A quaternion is (for the purposes of this conversation) a 4-dimensional vector that is
+            treated in a special way. Any pure orientation change from one coordinate system to
+            another can be represented by a rotation about some axis by some angle. A quaternion is
+            a way of encoding this angle/axis rotation:</p>
+        <div class="equation"><a name="idp6683"></a><p class="title"><b>Equation 8.1. Angle/Axis to Quaternion</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mrow>
+        <mtable columnalign="left">
+            <mtr>
+                <mtd>
+					<mtext>Axis</mtext>
+					<mo>=</mo>
+					<mfenced open="(" close=")" separators=",">
+						<mrow>
+							<mi>x</mi>
+						</mrow>
+						<mrow>
+							<mi>y</mi>
+						</mrow>
+						<mrow>
+							<mi>z</mi>
+						</mrow>
+					</mfenced>
+                </mtd>
+            </mtr>
+			<mtr>
+				<mtd>
+					<mtext>Angle</mtext>
+					<mo>=</mo>
+					<mi>θ</mi>
+				</mtd>
+			</mtr>
+            <mtr>
+                <mtd>
+                    <mtext>Quaternion</mtext>
+                    <mo>=</mo>
+                    <mfenced open="[" close="]" separators=",">
+                        <mtable>
+                            <mtr>
+                                <mtd>
+                                    <mi>x</mi>
+                                    <mo>*</mo>
+                                    <mi>sin</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>θ</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                            <mtr>
+                                <mtd>
+                                    <mi>y</mi>
+                                    <mo>*</mo>
+                                    <mi>sin</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>θ</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                            <mtr>
+                                <mtd>
+                                    <mi>z</mi>
+                                    <mo>*</mo>
+                                    <mi>sin</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>θ</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                            <mtr>
+                                <mtd>
+                                    <mi>cos</mi>
+                                    <mfenced open="(" close=")" separators=",">
+                                        <mfrac>
+                                            <mi>θ</mi>
+                                            <mn>2</mn>
+                                        </mfrac>
+                                    </mfenced>
+                                </mtd>
+                            </mtr>
+                        </mtable>
+                    </mfenced>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>Assuming the axis itself is a unit vector, this will produce a <em class="glossterm">unit
+                quaternion.</em> That is, a quaternion with a length of 1.</p>
+        <p>Quaternions can be considered to be two parts: a vector part and a scalar part. The
+            vector part are the first three components, when displayed in the order above. The
+            scalar part is the last part.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6747"></a>Quaternion Math</h3></div></div></div>
+            
+            <p>Quaternions are equivalent to orientation matrices. You can compose two
+                orientation quaternions using a special operation called <em class="glossterm">quaternion
+                    multiplication</em>. Given the quaternions <code class="literal">a</code> and
+                    <code class="literal">b</code>, the product of them is:</p>
+            <div class="equation"><a name="idp6753"></a><p class="title"><b>Equation 8.2. Quaternion Multiplication</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mrow>
+        <mi>a</mi>
+        <mo>*</mo>
+        <mi>b</mi>
+        <mo>=</mo>
+        <mfenced open="[" close="]" separators=",">
+            <mtable>
+                <mtr>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>x</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>+</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>w</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>+</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>-</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>+</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>w</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>+</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>x</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>-</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>+</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>w</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>+</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>-</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>x</mi>
+                        </msub>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>w</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>-</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>x</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>-</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mo>-</mo>
+                    </mtd>
+                    <mtd>
+                        <msub>
+                            <mi>a</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>*</mo>
+                        <msub>
+                            <mi>b</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </mfenced>
+    </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>If the two quaternions being multiplied represent orientations, then the product
+                of them is a composite orientation. This works like matrix multiplication, except
+                only for orientations. Like matrix multiplication, quaternion multiplication is
+                associative (
+                    <span class="mathphrase">(a*b) * c = a * (b*c)</span>
+                ), but not commutative (
+                    <span class="mathphrase">a*b != b*a</span>
+                ).</p>
+            <p>The main difference between matrices and quaternions that matters for our needs is
+                that it is easy to keep a quaternion normalized. Simply perform a vector
+                normalization on it after every few multiplications. This enables us to add numerous
+                small rotations together without numerical precision problems showing up.</p>
+            <p>There is one more thing we need to be able to do: convert a quaternion into a
+                rotation matrix. While we could convert a unit quaternion back into angle/axis
+                rotations, it's much preferable to do it directly:</p>
+            <div class="equation"><a name="idp6926"></a><p class="title"><b>Equation 8.3. Quaternion to Matrix</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mrow>
+        <mfenced open="[" close="]" separators=",">
+            <mtable>
+                <mtr>
+                    <mtd>
+                        <mn>1</mn>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>+</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>0</mn>
+                    </mtd>
+                </mtr>
+
+                <mtr>
+                    <mtd>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <mo>+</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>1</mn>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>0</mn>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>z</mi>
+                        </msub>
+                        <mo>+</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>w</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>1</mn>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>x</mi>
+                        </msub>
+                        <mo>-</mo>
+                        <mn>2</mn>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                        <msub>
+                            <mi>q</mi>
+                            <mi>y</mi>
+                        </msub>
+                    </mtd>
+                    <mtd>
+                        <mn>0</mn>
+                    </mtd>
+                </mtr>
+                <mtr>
+                    <mtd>
+                        <mn>0</mn>
+                    </mtd>
+                    <mtd>
+                        <mn>0</mn>
+                    </mtd>
+                    <mtd>
+                        <mn>0</mn>
+                    </mtd>
+                    <mtd>
+                        <mn>1</mn>
+                    </mtd>
+                </mtr>
+            </mtable>
+        </mfenced>
+    </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>This does look suspiciously similar to the formula for generating a matrix from an
+                angle/axis rotation.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7101"></a>Composition Type</h3></div></div></div>
+            
+            <p>So our goal is to compose successive rotations into a final orientation. When we
+                want to increase the pitch, for example, we will take the current orientation and
+                multiply into it a quaternion that represents a pitch rotation of a few degrees. The
+                result becomes the new orientation.</p>
+            <p>But which side do we do the multiplication on? Quaternion multiplication is not
+                commutative, so this will have an affect on the output. Well, it works exactly like
+                matrix math.</p>
+            <p>Our positions (p) are in model space. We are transforming them into world space.
+                The current transformation matrix is represented by the orientation O. Thus, to
+                transform points, we use 
+                    <span class="mathphrase">O*p</span>
+                </p>
+            <p>Now, we want to adjust the orientation O by applying some small pitch change.
+                Well, the pitch of the model is defined by model space. Therefore, the pitch change
+                (R) is a transformation that takes coordinates in model space and transforms them to
+                the pitch space. So our total transformation is 
+                    <span class="mathphrase">O*R*p</span>
+                ; the new orientation is 
+                    <span class="mathphrase">O*R</span>
+                .</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7113"></a>Yaw Pitch Roll</h3></div></div></div>
+            
+            <p>We implement this in the <span class="propername">Quaternion YPR</span>
+                tutorial. This tutorial does not show gimbals, but the same controls exist for yaw,
+                pitch, and roll transformations. Here, pressing the <span class="keycap"><strong>SpaceBar</strong></span> will
+                switch between right-multiplying the YPR values to the current orientation and
+                left-multiplying them. Post-multiplication will apply the YPR transforms from
+                world-space.</p>
+            <div class="figure"><a name="idp7118"></a><p class="title"><b>Figure 8.3. Quaternion YPR Project</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Quaternion%20YPR.png" alt="Quaternion YPR Project"></div>
+            </div></div><br class="figure-break">
+            <p>The rendering code is pretty straightforward.</p>
+            <div class="example"><a name="idp7124"></a><p class="title"><b>Example 8.2. Quaternion YPR Display</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glutil::MatrixStack currMatrix;
+    currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
+    currMatrix.ApplyMatrix(glm::mat4_cast(g_orientation));
+    
+    glUseProgram(theProgram);
+    currMatrix.Scale(3.0, 3.0, 3.0);
+    currMatrix.RotateX(-90);
+    //Set the base color for this object.
+    glUniform4f(baseColorUnif, 1.0, 1.0, 1.0, 1.0);
+    glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
+    
+    g_pShip-&gt;Render("tint");
+    
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+}</pre>
+            </div></div><br class="example-break">
+            <p>Though GLSL does not have quaternion types or quaternion arithmetic, the GLM math
+                library provides both. The <code class="varname">g_orientation</code> variable is of the type
+                    <code class="classname">glm::fquat</code>, which is a floating-point quaternion. The
+                    <code class="function">glm::mat4_cast</code> function converts a quaternion into a 4x4
+                rotation matrix. This stands in place of the series of 3 rotations used in the last
+                tutorial.</p>
+            <p>In response to keypresses, <code class="varname">g_orientation</code> is modified, applying
+                a transform to it. This is done with the <code class="function">OffsetOrientation</code>
+                function.</p>
+            <div class="example"><a name="idp7134"></a><p class="title"><b>Example 8.3. OffsetOrientation Function</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void OffsetOrientation(const glm::vec3 &amp;_axis, float fAngDeg)
+{
+    float fAngRad = Framework::DegToRad(fAngDeg);
+    
+    glm::vec3 axis = glm::normalize(_axis);
+    
+    axis = axis * sinf(fAngRad / 2.0f);
+    float scalar = cosf(fAngRad / 2.0f);
+    
+    glm::fquat offset(scalar, axis.x, axis.y, axis.z);
+    
+    if(g_bRightMultiply)
+        g_orientation = g_orientation * offset;
+    else
+        g_orientation = offset * g_orientation;
+    
+    g_orientation = glm::normalize(g_orientation);
+}</pre>
+            </div></div><br class="example-break">
+            <p>This generates the offset quaternion from an angle and axis. Since the axis is
+                normalized, there is no need to normalize the resulting <code class="varname">offset</code>
+                quaternion. Then the offset is multiplied into the orientation, and the result is
+                normalized.</p>
+            <p>In particular, pay attention to the difference between right multiplication and
+                left multiplication. When you right-multiply, the offset orientation is in model
+                space. When you left-multiply, the offset is in <span class="emphasis"><em>world</em></span> space.
+                Both of these can be useful for different purposes.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2008.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2008.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut08%20Camera%20Relative%20Orientation.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 8. Getting Oriented </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Camera-Relative Orientation</td></tr></table></div></body></html>

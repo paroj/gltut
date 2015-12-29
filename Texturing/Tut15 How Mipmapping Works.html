@@ -1,0 +1,66 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>How Mipmap Selection Works</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2015.html" title="Chapter 15. Many Images"><link rel="prev" href="Tut15%20Anisotropy.html" title="Anisotropy"><link rel="next" href="Tut15%20Performace.html" title="Performance"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">How Mipmap Selection Works</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut15%20Anisotropy.html">Prev</a> </td><th width="60%" align="center">Chapter 15. Many Images</th><td width="20%" align="right"> <a accesskey="n" href="Tut15%20Performace.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp104"></a>How Mipmap Selection Works</h2></div></div></div>
+        
+        
+        <p>Previously, we discussed mipmap selection and interpolation in terms related to the
+            geometry of the object. That is true, but only when we are dealing with simple texture
+            mapping schemes, such as when the texture coordinates are attached directly to vertex
+            positions. But as we saw in our first tutorial on texturing, texture coordinates can be
+            entirely arbitrary. So how does mipmap selection and anisotropic filtering work
+            then?</p>
+        <p>Very carefully.</p>
+        <p>Imagine a 2x2 pixel area of the screen. Now imagine that four fragment shaders, all
+            from the same triangle, are executing for that screen area. Since the fragment shaders
+            from the same triangle are all guaranteed to have the same uniforms and the same code,
+            the only thing that is different among them is the fragment inputs. And because they are
+            executing the same code, you can conceive of them executing in lockstep. That is, each
+            of them executes the same instruction, on their individual dataset, at the same
+            time.</p>
+        <p>Under that assumption, for any particular value in a fragment shader, you can pick the
+            corresponding 3 other values in the other fragment shaders executing alongside it. If
+            that value is based solely on uniform or constant data, then each shader will have the
+            same value. But if it is based on input values (in part or in whole), then each shader
+            may have a different value, based on how it was computed and what those inputs
+            were.</p>
+        <p>So, let's look at the texture coordinate value; the particular value used to access
+            the texture. Each shader has one. If that value is associated with the triangle's
+            vertices, via perspective-correct interpolation and so forth, then the
+                <span class="emphasis"><em>difference</em></span> between the shaders' values will represent the
+            window space geometry of the triangle. There are two dimensions for a difference, and
+            therefore there are two differences: the difference in the window space X axis, and the
+            window space Y axis.</p>
+        <p>These two differences, sometimes called gradients or derivatives, are how mipmapping
+            actually works. If the texture coordinate used is just an interpolated input value,
+            which itself is directly associated with a position, then the gradients represent the
+            geometry of the triangle in window space. If the texture coordinate is computed in more
+            unconventional ways, it still works, as the gradients represent how the texture
+            coordinates are changing across the surface of the triangle.</p>
+        <p>Having two gradients allows for the detection of anisotropy. And therefore, it
+            provides enough information to reasonably apply anisotropic filtering algorithms.</p>
+        <p>Now, you may notice that this process is very conditional. Specifically, it requires
+            that you have 4 fragment shaders all running in lock-step. There are two circumstances
+            where that might not happen.</p>
+        <p>The most obvious is on the edge of a triangle, where a 2x2 block of neighboring
+            fragments is not possible without being outside of the triangle area. This case is
+            actually trivially covered by GPUs. No matter what, the GPU will rasterize each triangle
+            in 2x2 blocks. Even if some of those blocks are not actually part of the triangle of
+            interest, they will still get fragment shader time. This may seem inefficient, but it's
+            reasonable enough in cases where triangles are not incredibly tiny or thin, which is
+            quite often. The results produced by fragment shaders outside of the triangle are simply
+            discarded.</p>
+        <p>The other circumstance is through deliberate user intervention. Each fragment shader
+            running in lockstep has the same uniforms but different inputs. Since they have
+            different inputs, it is possible for them to execute a conditional branch based on these
+            inputs (an if-statement or other conditional). This could cause, for example, the
+            left-half of the 2x2 quad to execute certain code, while the other half executes
+            different code. The 4 fragment shaders are no longer in lock-step. How does the GPU
+            handle it?</p>
+        <p>Well... it doesn't. Dealing with this requires manual user intervention, and it is a
+            topic we will discuss later. Suffice it to say, it makes everything complicated.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut15%20Anisotropy.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2015.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut15%20Performace.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Anisotropy </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Performance</td></tr></table></div></body></html>

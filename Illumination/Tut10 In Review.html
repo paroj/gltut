@@ -1,0 +1,81 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2010.html" title="Chapter 10. Plane Lights"><link rel="prev" href="Tut10%20Distant%20Points%20of%20Light.html" title="Distant Points of Light"><link rel="next" href="Tut10%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut10%20Distant%20Points%20of%20Light.html">Prev</a> </td><th width="60%" align="center">Chapter 10. Plane Lights</th><td width="20%" align="right"> <a accesskey="n" href="Tut10%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp74"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Point lights are lights that have a position within the world, radiating light
+                    equally in all directions. The light direction at a particular point on the
+                    surface must be computed using the position at that point and the position of
+                    the light.</p>
+            </li><li class="listitem">
+                <p>Attempting to perform per-vertex lighting computations with point lights leads
+                    to artifacts.</p>
+            </li><li class="listitem">
+                <p>Lighting can be computed per-fragment by passing the fragment's position in an
+                    appropriate space.</p>
+            </li><li class="listitem">
+                <p>Lighting can be computed in model space.</p>
+            </li><li class="listitem">
+                <p>Point lights have a falloff with distance, called attenuation. Not performing
+                    this can cause odd effects, where a light appears to be brighter when it moves
+                    farther from a surface. Light attenuation varies with the inverse of the square
+                    of the distance, but other attenuation models can be used.</p>
+            </li><li class="listitem">
+                <p>Fragment shaders can compute the camera space position of the fragment in
+                    question by using <code class="varname">gl_FragCoord</code> and a few uniform variables
+                    holding information about the camera to window space transform.</p>
+            </li><li class="listitem">
+                <p>GLSL can have integer vectors, boolean values, and functions.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9217"></a>Further Study</h3></div></div></div>
+            
+            <p>Try doing these things with the given programs.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>When we used model space-based lighting computations, we had to perform an
+                        inverse on our matrix from the matrix stack to transform the light position
+                        from camera space to model space. However, it would be entirely possible to
+                        simply build an inverse matrix at the same time we build a regular matrix on
+                        our matrix stack. The inverse of a rotation matrix is just the rotation
+                        matrix with a negated angle; the inverse of a scale is just the
+                        multiplicative inverse of the scales, and the inverse of the translation is
+                        the negation of the translation vector.</p>
+                    <p>To do this, you will need to modify the <code class="classname">MatrixStack</code>
+                        class in a number of ways. It must store a second matrix representing the
+                        accumulated inverse matrix. When a transformation command is given to the
+                        stack, it must also generate the inverse matrix for this transform and
+                            <span class="emphasis"><em>left multiply</em></span> this into the accumulated inverse.
+                        The push/pop will have to push/pop the inverse matrix as well. It can use
+                        the same stack, so long as the pop function puts the two matrices in the
+                        proper places.</p>
+                </li><li class="listitem">
+                    <p>Implement the alternative attenuation described at the end of the section
+                        on attenuation.</p>
+                </li></ul></div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9228"></a>GLSL Features of Note</h3></div></div></div>
+            
+            <div class="glosslist"><dl><dt><span class="glossterm">gl_DepthRange</span></dt><dd class="glossdef"><p>A built-in OpenGL uniform defined for fragment shaders only. This
+                            uniform stores the parameters passed to
+                                <code class="function">glDepthRange.</code> When those parameters change, all
+                            programs are automatically updated.</p></dd></dl></div>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">inversesqrt</b>(</code></td><td>vec <var class="pdparam">x</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>This function computes 1 / the square root of <code class="varname">x</code>. This is a
+                component-wise computation, so vectors may be used. The return value will have the
+                same type as <code class="varname">x</code>.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">sqrt</b>(</code></td><td>vec <var class="pdparam">x</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>This function computes the square root of <code class="varname">x</code>. This is a
+                component-wise computation, so vectors may be used. The return value will have the
+                same type as <code class="varname">x</code>.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut10%20Distant%20Points%20of%20Light.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2010.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut10%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Distant Points of Light </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

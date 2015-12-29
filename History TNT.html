@@ -1,0 +1,123 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Dynamite Combiners</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"><link rel="prev" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"><link rel="next" href="History%20GeForce.html" title="Vertices and Registers"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Dynamite Combiners</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="History%20of%20Graphics%20Hardware.html">Prev</a> </td><th width="60%" align="center">Appendix C. History of PC Graphics Hardware</th><td width="20%" align="right"> <a accesskey="n" href="History%20GeForce.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp129"></a>Dynamite Combiners</h2></div></div></div>
+        
+        
+        <p>The next phase of hardware came, not from 3Dfx, but from a new company, NVIDIA. While
+            3Dfx's Voodoo II was much more popular than NVIDIA's product, the NVIDIA Riva TNT
+            (released in 1998) was more interesting in terms of what it brought to the table for
+            programmers.</p>
+        <p>Like other graphics cards of the day, the TNT hardware had no vertex processing.
+            Vertex data was in clip-space, as normal, so the CPU had to do all of the transformation
+            and lighting. Where the TNT shone was in its fragment processing. The power of the TNT
+            is in it's name; TNT stands for <acronym class="acronym">T</acronym>wi<acronym class="acronym">N</acronym>
+            <acronym class="acronym">T</acronym>exel. It could access from two textures at once. And while the
+            Voodoo II could do that as well, the TNT had much more flexibility to its fragment
+            processing pipeline.</p>
+        <p>In order to accommodate two textures, the vertex input was expanded. Two textures
+            meant two texture coordinates, since each texture coordinate was directly bound to a
+            particular texture. While they were allowing two of things, NVIDIA also allowed for two
+            per-vertex colors. The idea here has to do with lighting equations.</p>
+        <p>For regular diffuse lighting, the CPU-computed color would simply be dot(N, L),
+            possibly with attenuation applied. Indeed, it could be any complicated diffuse lighting
+            function, since it was all on the CPU. This diffuse light intensity would be multiplied
+            by the texture, which represented the diffuse absorption of the surface at that
+            point.</p>
+        <p>This becomes less useful if you want to add a specular term. The specular absorption
+            and diffuse absorption are not necessarily the same, after all. And while you may not
+            need to have a specular texture, you do not want to add the specular component to the
+            diffuse component <span class="emphasis"><em>before</em></span> you multiply by their respective colors.
+            You want to do the addition afterwards.</p>
+        <p>This is simply not possible if you have only one per-vertex color. But it becomes
+            possible if you have two. One color is the diffuse lighting value. The other color is
+            the specular component. We multiply the first color by the diffuse color from the
+            texture, then add the second color as the specular reflectance.</p>
+        <p>Which brings us nicely to fragment processing. The TNT's fragment processor had 5
+            inputs: 2 colors sampled from textures, 2 colors interpolated from vertices, and a
+            single <span class="quote">“<span class="quote">constant</span>”</span> color. The latter, in modern parlance, is the equivalent
+            of a shader uniform value.</p>
+        <p>That's a lot of potential inputs. The solution NVIDIA came up with to produce a final
+            color was a bit of fixed functionality that NVIDIA calls texture combiners. It is
+            directly analogous to the OpenGL 1.1 fixed-function pipeline texture environment
+            concept, but with extensions for multiple textures and some TNT-specific
+            features.</p>
+        <p>The idea is that each texture has an <span class="quote">“<span class="quote">environment</span>”</span>. The environment is a
+            specific math function, such as addition, subtraction, multiplication, and linear
+            interpolation. The standard GL fixed-function pipeline only allowed the environment
+            functions to use as parameters the per-vertex color, the color sampled from that
+            particular texture, and a constant color. For multiple textures, the environments are
+            executed in sequence: the environment function for texture 0 executes, then for texture
+            1. The texture 1 environment used the output from texture 0 instead of the per-vertex
+            color.</p>
+        <p>NVIDIA's texture combiners augmented this significantly. The standard environment
+            functions were very limited in terms of operations. For example, the previous color
+            could be multiplied or added to the texture color, but it could not simply ignore the
+            texture color and multiply with the constant color instead. NVIDIA's texture combiners
+            could do this.</p>
+        <p>If you look at it from a hardware perspective, what texture combiners provide is a
+            two-opcode assembly language. The available registers for the language are two vertex
+            colors, a single uniform color, the current opcode's texture color, and a zero register.
+            There is also a single temporary register to hold the output from the first
+            opcode.</p>
+        <p>Graphics programmers, by this point, had gotten used to multipass-based algorithms.
+            After all, until TNT, that was the only way to apply multiple textures to a single
+            surface. And even with TNT, it had a pretty confining limit of two textures and two
+            opcodes.</p>
+        <p>This was powerful, but quite limited. Two opcodes really was not enough.</p>
+        <p>The TNT cards also provided something else: 32-bit framebuffers and depth buffers.
+            While the Voodoo cards used high-precision math internally, they still wrote to 16-bit
+            framebuffers, using a technique called dithering to make them look like higher
+            precision. But dithering was nothing compared to actual high precision framebuffers. And
+            it did nothing for the depth buffer artifacts that a 16-bit depth buffer gave
+            you.</p>
+        <p>While the original TNT could do 32-bit, it lacked the memory and overall performance
+            to really show it off. That had to wait for the TNT2. Combined with product delays and
+            some poor strategic moves by 3Dfx, NVIDIA became one of the dominant players in the
+            consumer PC graphics card market. And that was cemented by their next card, which had
+            real power behind it.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Tile-Based Rendering</b></p></div></div></div>
+            
+            <p>While all of this was going on, a small company called PowerVR released its Series
+                2 graphics chip. PowerVR's approach to rendering was fundamentally different from
+                the standard rendering pipeline.</p>
+            <p>They used what they called a <span class="quote">“<span class="quote">deferred, tile-based renderer.</span>”</span> The
+                idea is that they store all of the clip-space triangles in a buffer. Then, they sort
+                this buffer based on which triangles cover which areas of the screen. The output
+                screen is divided into a number of tiles of a fixed size. Say, 8x8 in size.</p>
+            <p>For each tile, the hardware finds the triangles that are within that tile's area.
+                Then it does all the usual scan conversion tricks and so forth. It even
+                automatically does per-pixel depth sorting for blending, which remains something of
+                a selling point (no more having to manually sort blended objects). After rendering
+                that tile, it moves on to the next. These operations can of course be executed in
+                parallel; you can have multiple tiles being rasterized at the same time.</p>
+            <p>The idea behind this is to avoid having large image buffers. You only need a few
+                8x8 depth buffers, so you can use very fast, on-chip memory for it. Rather than
+                having to deal with caches, DRAM, and large bandwidth memory channels, you just have
+                a small block of memory where you do all of your logic. You still need memory for
+                textures, the vertex buffer, and the output image, but your bandwidth needs can be
+                devoted to textures and the vertex buffer.</p>
+            <p>For a time, these cards were competitive with those from the other graphics chip
+                makers. However, the tile-based approach simply did not scale well with resolution
+                or geometry complexity. Also, they missed the geometry processing bandwagon, which
+                really hurt their standing. They fell farther and farther behind the other major
+                players, until they stopped making desktop parts altogether.</p>
+            <p>However, they may ultimately have the last laugh; unlike 3Dfx and so many others,
+                PowerVR still exists. They provided the GPU for the Sega Dreamcast console. And
+                while that console was a market failure, it did show where PowerVR's true strength
+                lay: embedded platforms.</p>
+            <p>Embedded platforms tend to play to their tile-based renderer's strengths. Memory,
+                particularly high-bandwidth memory, eats up power; having less memory means
+                longer-lasting mobile devices. Embedded devices tend to use smaller resolutions,
+                which their platform excels at. And with low resolutions, you are not trying to push
+                nearly as much geometry.</p>
+            <p>Thanks to these facts, PowerVR's graphics chips power the vast majority of mobile
+                platforms that have any 3D rendering in them. Just about every iPhone, Droid, iPad,
+                or similar device is running PowerVR technology. And that's a growth market these
+                days.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="History%20of%20Graphics%20Hardware.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="History%20of%20Graphics%20Hardware.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="History%20GeForce.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Appendix C. History of PC Graphics Hardware </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Vertices and Registers</td></tr></table></div></body></html>

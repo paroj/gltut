@@ -1,0 +1,287 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Purloined Primitives</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2013.html" title="Chapter 13. Lies and Impostors"><link rel="prev" href="Tut13%20Deceit%20in%20Depth.html" title="Deceit in Depth"><link rel="next" href="Tut13%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Purloined Primitives</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut13%20Deceit%20in%20Depth.html">Prev</a> </td><th width="60%" align="center">Chapter 13. Lies and Impostors</th><td width="20%" align="right"> <a accesskey="n" href="Tut13%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp91"></a>Purloined Primitives</h2></div></div></div>
+        
+        
+        <p>Our method of rendering impostor spheres is very similar to our method of rendering
+            mesh spheres. In both cases, we set uniforms that define the sphere's position and
+            radius. We bind a material uniform buffer, then bind a VAO and execute a draw command.
+            We do this for each sphere.</p>
+        <p>However, this seems rather wasteful for impostors. Our per-vertex data for the
+            impostor is really the position and the radius. If we could somehow send this data 4
+            times, once for each square, then we could simply put all of our position and radius
+            values in a buffer object and render every sphere in one draw call. Of course, we would
+            also need to find a way to tell it which material to use.</p>
+        <p>We accomplish this task in the <span class="propername">Geometry Impostor</span>
+            tutorial project. It looks exactly the same as before; it always draws impostors, using
+            the depth-accurate shader.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10905"></a>Impostor Interleaving</h3></div></div></div>
+            
+            <p>To see how this works, we will start from the front of the rendering pipeline and
+                follow the data. This begins with the buffer object and vertex array object we use
+                to render.</p>
+            <div class="example"><a name="idp10908"></a><p class="title"><b>Example 13.5. Impostor Geometry Creation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glBindBuffer(GL_ARRAY_BUFFER, g_imposterVBO);
+glBufferData(GL_ARRAY_BUFFER, NUMBER_OF_SPHERES * 4 * sizeof(float), NULL, GL_STREAM_DRAW);
+
+glGenVertexArrays(1, &amp;g_imposterVAO);
+glBindVertexArray(g_imposterVAO);
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(0));
+glEnableVertexAttribArray(1);
+glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(12));
+
+glBindVertexArray(0);
+glBindBuffer(GL_ARRAY_BUFFER, 0);</pre>
+            </div></div><br class="example-break">
+            <p>This code introduces us to a new feature of
+                    <code class="function">glVertexAttribPointer</code>. In all prior cases the fifth
+                parameter was 0. Now it is <code class="literal">4 * sizeof(float)</code>. What does this
+                parameter mean?</p>
+            <p>This parameter is the array's <code class="varname">stride</code>. It is the number of bytes
+                from one value for this attribute to the next in the buffer. When this parameter is
+                0, that means that the actual stride is the size of the base type
+                    (<code class="literal">GL_FLOAT</code> in our case) times the number of components. When
+                the stride is non-zero, it must be larger than that value.</p>
+            <p>What this means for our vertex data is that the first 3 floats represent attribute
+                0, and the next float represents attribute 1. The next 3 floats is attribute 0 of
+                the next vertex, and the float after that is attribute 1 of that vertex. And so
+                on.</p>
+            <p>Arranging attributes of the same vertex alongside one another is called
+                    <em class="glossterm">interleaving</em>. It is a very useful technique; indeed, for
+                performance reasons, data should generally be interleaved where possible. One thing
+                that it allows us to do is build our vertex data based on a struct:</p>
+            <pre class="programlisting">struct VertexData
+{
+    glm::vec3 cameraPosition;
+    float sphereRadius;
+};</pre>
+            <p>Our vertex array object perfectly describes the arrangement of data in an array of
+                    <code class="classname">VertexData</code> objects. So when we upload our positions and
+                radii to the buffer object, we simply create an array of these structs, fill in the
+                values, and upload them with <code class="function">glBufferData</code>.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10924"></a>Misnamed and Maligned</h3></div></div></div>
+            
+            <p>So, our vertex data now consists of a position and a radius. But we need to draw
+                four vertices, not one. How do we do that?</p>
+            <p>We could replicate each vertex data 4 times and use some simple
+                    <code class="varname">gl_VertexID</code> math in the vertex shader to figure out which
+                corner we're using. Or we could get complicated and learn something new. That new
+                thing is an entirely new programmatic shader stage: <em class="glossterm">geometry
+                    shaders</em>.</p>
+            <p>Our initial pipeline discussion ignored this shader stage, because it is an
+                entirely optional part of the pipeline. If a program object does not contain a
+                geometry shader, then OpenGL just does its normal stuff.</p>
+            <p>The most confusing thing about geometry shaders is that they do not shade
+                geometry. Vertex shaders take a vertex as input and write a vertex as output.
+                Fragment shader take a fragment as input and potentially writes a fragment as
+                output. Geometry shaders take a <span class="emphasis"><em>primitive</em></span> as input and write
+                zero or more primitives as output. By all rights, they should be called
+                    <span class="quote">“<span class="quote">primitive shaders.</span>”</span></p>
+            <p>In any case, geometry shaders are invoked just after the hardware that collects
+                vertex shader outputs into a primitive, but before any clipping, transforming or
+                rasterization happens. Geometry shaders get the values output from multiple vertex
+                shaders, performs arbitrary computations on them, and outputs one or more sets of
+                values to new primitives.</p>
+            <p>In our case, the logic begins with our drawing call:</p>
+            <pre class="programlisting">glBindVertexArray(g_imposterVAO);
+glDrawArrays(GL_POINTS, 0, NUMBER_OF_SPHERES);
+glBindVertexArray(0);</pre>
+            <p>This introduces a completely new primitive and primitive type:
+                    <code class="literal">GL_POINTS.</code> Recall that multiple primitives can have the same
+                base type. <code class="literal">GL_TRIANGLE_STRIP</code> and <code class="literal">GL_TRIANGLES</code>
+                are both separate primitives, but both generate triangles.
+                    <code class="literal">GL_POINTS</code> does not generate triangle primitives; it generates
+                point primitives.</p>
+            <p><code class="literal">GL_POINTS</code> interprets each individual vertex as a separate point
+                primitive. There are no other forms of point primitives, because points only contain
+                a single vertex worth of information.</p>
+            <p>The vertex shader is quite simple, but it does have some new things to show
+                us:</p>
+            <div class="example"><a name="idp10945"></a><p class="title"><b>Example 13.6. Vertex Shader for Points</b></p><div class="example-contents">
+                
+                <pre class="programlisting">#version 330
+
+layout(location = 0) in vec3 cameraSpherePos;
+layout(location = 1) in float sphereRadius;
+
+out VertexData
+{
+    vec3 cameraSpherePos;
+    float sphereRadius
+} outData;
+
+void main()
+{
+	outData.cameraSpherePos = cameraSpherePos;
+    outData.sphereRadius = sphereRadius;
+}</pre>
+            </div></div><br class="example-break">
+            <p><code class="classname">VertexData</code> is not a struct definition, though it does look
+                like one. It is an <em class="glossterm">interface block</em> definition. Uniform blocks
+                are a kind of interface block, but inputs and outputs can also have interface
+                blocks.</p>
+            <p>An interface block used for inputs and outputs is a way of collecting them into
+                groups. One of the main uses for these is to separate namespaces of inputs and
+                outputs using the interface name (<code class="varname">outData</code>, in this case). This
+                allows us to use the same names for inputs as we do for their corresponding outputs.
+                They do have other virtues, as we will soon see.</p>
+            <p>Do note that this vertex shader does not write to <code class="varname">gl_Position.</code>
+                That is not necessary when a vertex shader is paired with a geometry shader.</p>
+            <p>Speaking of which, let's look at the global definitions of our geometry
+                shader.</p>
+            <div class="example"><a name="idp10956"></a><p class="title"><b>Example 13.7. Geometry Shader Definitions</b></p><div class="example-contents">
+                
+                <pre class="programlisting">#version 330
+#extension GL_EXT_gpu_shader4 : enable
+
+layout(std140) uniform;
+layout(points) in;
+layout(triangle_strip, max_vertices=4) out;
+
+uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
+
+in VertexData
+{
+    vec3 cameraSpherePos;
+    float sphereRadius;
+} vert[];
+
+out FragData
+{
+    flat vec3 cameraSpherePos;
+    flat float sphereRadius;
+    smooth vec2 mapping;
+};</pre>
+            </div></div><br class="example-break">
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>The <code class="literal">#extension</code> line exists to fix a compiler bug for
+                    NVIDIA's OpenGL. It should not be necessary.</p>
+            </div>
+            <p>We see some new uses of the <code class="literal">layout</code> directive. The
+                    <code class="literal">layout(points) in</code> command is geometry shader-specific. It
+                tells OpenGL that this geometry shader is intended to take point primitives. This is
+                required; also, OpenGL will fail to render if you try to draw something other than
+                    <code class="literal">GL_POINTS</code> through this geometry shader.</p>
+            <p>Similarly, the output layout definition states that this geometry shader outputs
+                triangle strips. The <code class="literal">max_vertices</code> directive states that we will
+                write at most 4 vertices. There are implementation defined limits on how large
+                    <code class="literal">max_vertices</code> can be. Both of these declarations are required
+                for geometry shaders.</p>
+            <p>Below the <code class="classname">Projection</code> uniform block, we have two interface
+                blocks. The first one matches the definition from the vertex shader, with two
+                exceptions. It has a different interface name. But that interface name also has an
+                array qualifier on it.</p>
+            <p>Geometry shaders take a primitive. And a primitive is defined as some number of
+                vertices in a particular order. The input interface blocks define what the input
+                vertex data is, but there is more than one set of vertex data. Therefore, the
+                interface blocks must be defined as arrays. Granted, in our case, it is an array of
+                length 1, since point primitives have only one vertex. But this is still necessary
+                even in that case.</p>
+            <p>We also have another output fragment block. This one matches the definition from
+                the fragment shader, as we will see a bit later. It does not have an instance name.
+                Also, note that several of the values use the <code class="literal">flat</code> qualifier. We
+                could have just used <code class="literal">smooth</code>, since we're passing the same values
+                for all of the triangles. However, it's more descriptive to use the
+                    <code class="literal">flat</code> qualifier for values that are not supposed to be
+                interpolated. It might even save performance.</p>
+            <p>Here is the geometry shader code for computing one of the vertices of the output
+                triangle strip:</p>
+            <div class="example"><a name="idp10977"></a><p class="title"><b>Example 13.8. Geometry Shader Vertex Computation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">//Bottom-left
+mapping = vec2(-1.0, -1.0) * g_boxCorrection;
+cameraSpherePos = vec3(vert[0].cameraSpherePos);
+sphereRadius = vert[0].sphereRadius;
+cameraCornerPos = vec4(vert[0].cameraSpherePos, 1.0);
+cameraCornerPos.xy += vec2(-vert[0].sphereRadius, -vert[0].sphereRadius) * g_boxCorrection;
+gl_Position = cameraToClipMatrix * cameraCornerPos;
+gl_PrimitiveID = gl_PrimitiveIDIn;
+EmitVertex();</pre>
+            </div></div><br class="example-break">
+            <p>This code is followed by three more of these, using different mapping and offset
+                values for the different corners of the square. The
+                    <code class="varname">cameraCornerPos</code> is a local variable that is re-used as
+                temporary storage.</p>
+            <p>To output a vertex, write to each of the output variables. In this case, we have
+                the three from the output interface block, as well as the built-in variables
+                    <code class="varname">gl_Position</code> and <code class="varname">gl_PrimitiveID</code> (which we
+                will discuss more in a bit). Then, call <code class="function">EmitVertex()</code>; this
+                causes all of the values in the output variables to be transformed into a vertex
+                that is sent to the output primitive type. After calling this function, the contents
+                of those outputs are undefined. So if you want to use the same value for multiple
+                vertices, you have to store the value in a different variable or recompute
+                it.</p>
+            <p>Note that clipping, face-culling, and all of that stuff happens after the geometry
+                shader. This means that we must ensure that the order of our output positions will
+                be correct given the current winding order.</p>
+            <p><code class="varname">gl_PrimitiveIDIn</code> is a special input value. Much like
+                    <code class="varname">gl_VertexID</code> from the vertex shader,
+                    <code class="varname">gl_PrimitiveIDIn</code> represents the current primitive being
+                processed by the geometry shader (once more reason for calling it a primitive
+                shader). We write this to the built-in output <code class="varname">gl_PrimitiveID</code>, so
+                that the fragment shader can use it to select which material to use.</p>
+            <p>And speaking of the fragment shader, it's time to have a look at that.</p>
+            <div class="example"><a name="idp10993"></a><p class="title"><b>Example 13.9. Fragment Shader Changes</b></p><div class="example-contents">
+                
+                <pre class="programlisting">in FragData
+{
+    flat vec3 cameraSpherePos;
+    flat float sphereRadius;
+    smooth vec2 mapping;
+};
+
+out vec4 outputColor;
+
+layout(std140) uniform;
+
+struct MaterialEntry
+{
+    vec4 diffuseColor;
+    vec4 specularColor;
+    vec4 specularShininess;        //ATI Array Bug fix. Not really a vec4.
+};
+
+const int NUMBER_OF_SPHERES = 4;
+
+uniform Material
+{
+    MaterialEntry material[NUMBER_OF_SPHERES];
+} Mtl;</pre>
+            </div></div><br class="example-break">
+            <p>The input interface is just the mirror of the output from the geometry shader.
+                What's more interesting is what happened to our material blocks.</p>
+            <p>In our original code, we had an array of uniform blocks stored in a single uniform
+                buffer in C++. We bound specific portions of this material block when we wanted to
+                render with a particular material. That will not work now that we are trying to
+                render multiple spheres in a single draw call.</p>
+            <p>So, instead of having an array of uniform blocks, we have a uniform block that
+                    <span class="emphasis"><em>contains</em></span> an array. We bind all of the materials to the
+                shader, and let the shader pick which one it wants as needed. The source code to do
+                this is pretty straightforward.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>Notice that the material <code class="varname">specularShininess</code> became a
+                        <span class="type">vec4</span> instead of a simple <span class="type">float</span>. This is due to an
+                    unfortunate bug in ATI's OpenGL implementation.</p>
+            </div>
+            <p>As for how the material selection happens, that's simple. In our case, we use the
+                primitive identifier. The <code class="varname">gl_PrimitiveID</code> value written from the
+                vertex shader is used to index into the <code class="varname">Mtl.material[]</code>
+                array.</p>
+            <p>Do note that uniform blocks have a maximum size that is hardware-dependent. If we
+                wanted to have a large palette of materials, on the order of several thousand, then
+                we may exceed this limit. At that point, we would need an entirely new way to handle
+                this data. Once that we have not learned about yet.</p>
+            <p>Or we could just split it up into multiple draw calls instead of one.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut13%20Deceit%20in%20Depth.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2013.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut13%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Deceit in Depth </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

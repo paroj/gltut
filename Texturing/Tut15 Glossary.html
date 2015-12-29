@@ -1,0 +1,35 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Glossary</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2015.html" title="Chapter 15. Many Images"><link rel="prev" href="Tut15%20In%20Review.html" title="In Review"><link rel="next" href="Tutorial%2016.html" title="Chapter 16. Gamma and Textures"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Glossary</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut15%20In%20Review.html">Prev</a> </td><th width="60%" align="center">Chapter 15. Many Images</th><td width="20%" align="right"> <a accesskey="n" href="Tutorial%2016.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp107"></a>Glossary</h2></div></div></div>
+        
+        
+        <div class="glosslist"><dl><dt><span class="glossterm">texture filtering</span></dt><dd class="glossdef"><p>The process of fetching the value of a texture at a particular texture
+                        coordinate, potentially involving combining multiple texel values
+                        together.</p><p>Filtering can happen in two directions: magnification and minification.
+                        Magnification happens when the fragment area projected into a texture is
+                        smaller than the texel itself. Minification happens when the fragment area
+                        projection is larger than a texel.</p></dd><dt><span class="glossterm">nearest filtering</span></dt><dd class="glossdef"><p>Texture filtering where the texel closest to the texture coordinate is the
+                        value returned.</p></dd><dt><span class="glossterm">linear filtering</span></dt><dd class="glossdef"><p>Texture filtering where the closest texel values in each dimension of the
+                        texture are access and linearly interpolated, based on how close the texture
+                        coordinate was to those values. For 1D textures, this picks two values and
+                        interpolates. For 2D textures, it picks four; for 3D textures, it selects
+                        8.</p></dd><dt><span class="glossterm">mipmap, mipmap level</span></dt><dd class="glossdef"><p>Subimages of a texture. Each subsequence mipmap of a texture is half the
+                        size, rounded down, of the previous image. The largest mipmap is the base
+                        level. Many texture types can have mipmaps, but some cannot.</p></dd><dt><span class="glossterm">mipmap filtering</span></dt><dd class="glossdef"><p>Texture filtering that uses mipmaps. The mipmap choosen when mipmap
+                        filtering is used is based on the angle of the texture coordinate, relative
+                        to the screen.</p><p>Mipmap filtering can be nearest or linear. Nearest mipmap filtering picks
+                        a single mipmap and returns the value pulled from that mipmap. Linear mipmap
+                        filtering pics samples from the two nearest mipmaps and linearly
+                        interpolates between them. The sample returned in either case can have
+                        linear or nearest filtering applied within that mipmap.</p></dd><dt><span class="glossterm">anisotropic filtering</span></dt><dd class="glossdef"><p>Texture filtering that takes into account the anisotropy of the texture
+                        access. This requires taking multiple samples from a surface that covers an
+                        irregular area of the surface. This works better with mipmap
+                        filtering.</p></dd><dt><span class="glossterm">OpenGL extension</span></dt><dd class="glossdef"><p>Functionality that is not part of OpenGL proper, but can be conditionally
+                        exposed by different implementations of OpenGL.</p></dd></dl></div>
+        
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut15%20In%20Review.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2015.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tutorial%2016.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">In Review </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 16. Gamma and Textures</td></tr></table></div></body></html>

@@ -1,0 +1,341 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Vertex Attributes</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2002.html" title="Chapter 2. Playing with Colors"><link rel="prev" href="Tutorial%2002.html" title="Chapter 2. Playing with Colors"><link rel="next" href="Tut02%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Vertex Attributes</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2002.html">Prev</a> </td><th width="60%" align="center">Chapter 2. Playing with Colors</th><td width="20%" align="right"> <a accesskey="n" href="Tut02%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp20"></a>Vertex Attributes</h2></div></div></div>
+        
+        
+        <p>Using the fragment position in a fragment shader is quite useful, but it is far from
+            the best tool for controlling the color of triangles. A much more useful tool is to give
+            each vertex a color explicitly. The <span class="propername">Vertex Colors</span>
+            tutorial implements this; the main file for this tutorial is
+                <code class="filename">VertexColors.cpp</code>.</p>
+        <p>We want to affect the data being passed through the system. The sequence of events we
+            want to happen is as follows.</p>
+        <div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">
+                <p>For every position that we pass to a vertex shader, we want to pass a
+                    corresponding color value.</p>
+            </li><li class="listitem">
+                <p>For every output position in the vertex shader, we also want to output a color
+                    value that is the same as the input color value the vertex shader
+                    received.</p>
+            </li><li class="listitem">
+                <p>In the fragment shader, we want to receive an input color from the vertex
+                    shader and use that as the output color of that fragment.</p>
+            </li></ol></div>
+        <p>You most likely have some serious questions about that sequence of events, notably
+            about how steps 2 and 3 could possibly work. We'll get to that. We will follow the
+            revised flow of data through the OpenGL pipeline.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1746"></a>Multiple Vertex Arrays and Attributes</h3></div></div></div>
+            
+            <p>In order to accomplish the first step, we need to change our vertex array data.
+                That data now looks like this:</p>
+            <div class="example"><a name="idp1749"></a><p class="title"><b>Example 2.2. New Vertex Array Data</b></p><div class="example-contents">
+                
+                <pre class="programlisting">const float vertexData[] = {
+     0.0f,    0.5f, 0.0f, 1.0f,
+     0.5f, -0.366f, 0.0f, 1.0f,
+    -0.5f, -0.366f, 0.0f, 1.0f,
+     1.0f,    0.0f, 0.0f, 1.0f,
+     0.0f,    1.0f, 0.0f, 1.0f,
+     0.0f,    0.0f, 1.0f, 1.0f,
+};</pre>
+            </div></div><br class="example-break">
+            <p>First, we need to understand what arrays of data look like at the lowest level. A
+                single byte is the smallest addressible data in C/C++. A byte represents 8 bits (a
+                bit can be 0 or 1), and it is a number on the range [0, 255]. A value of type
+                    <span class="type">float</span> requires 4 bytes worth of storage. Any <span class="type">float</span>
+                value is stored in 4 consecutive bytes of memory.</p>
+            <p>A sequence of 4 floats, in GLSL parlance a <span class="type">vec4</span>, is exactly that: a
+                sequence of four floating-point values. Therefore, a <code class="literal">vec4</code> takes
+                up 16 bytes, 4 <span class="type">float</span>s times the size of a <span class="type">float</span>.</p>
+            <p>The <code class="varname">vertexData</code> variable is one large array of floats. The way
+                we want to use it however is as two arrays. Each 4 floats is a single
+                    <span class="type">vec4</span>, and the first three <span class="type">vec4</span>s represents the
+                positions. The next 3 are the colors for the corresponding vertices.</p>
+            <p>In memory, the <code class="varname">vertexData</code> array looks like this:</p>
+            <div class="figure"><a name="idp1766"></a><p class="title"><b>Figure 2.2. Vertex Array Memory Map</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="MemoryDiagram.svg" alt="Vertex Array Memory Map"></div>
+            </div></div><br class="figure-break">
+            <p>The top two show the layout of the basic data types, and each box is a byte. The
+                bottom diagram shows the layout of the entire array, and each box is a
+                    <span class="type">float</span>. The left half of the box represents the positions and the
+                right half represents the colors.</p>
+            <p>The first 3 sets of values are the three positions of the triangle, and the next 3
+                sets of values are the three colors at these vertices. What we really have is two
+                arrays that just happen to be adjacent to one another in memory. One starts at the
+                memory address <code class="literal">&amp;vertexData[0]</code>, and the other starts at the
+                memory address <code class="literal">&amp;vertexData[12]</code></p>
+            <p>As with all vertex data, this is put into a buffer object. We have seen this code
+                before:</p>
+            <div class="example"><a name="idp1777"></a><p class="title"><b>Example 2.3. Buffer Object Initialization</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void InitializeVertexBuffer()
+{
+    glGenBuffers(1, &amp;vertexBufferObject);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}</pre>
+            </div></div><br class="example-break">
+            <p>The code has not changed, because the size of the array is computed by the
+                compiler with the <code class="literal">sizeof</code> directive. Since we added a few elements
+                to the buffer, the computed size naturally grows bigger.</p>
+            <p>Also, you may notice that the positions are different from prior tutorials. The
+                original triangle, and the one that was used in the <span class="propername">Fragment Position</span> code, was a right triangle (one of the angles of the
+                triangle is 90 degrees) that was isosceles (two of its three sides are the same
+                length). This new triangle is an equilateral triangle (all three sides are the same
+                length) centered at the origin.</p>
+            <p>Recall from above that we are sending two pieces of data per-vertex: a position
+                and a color. We have two arrays, one for each piece of data. They may happen to be
+                adjacent to one another in memory, but this changes nothing; there are two arrays of
+                data. We need to tell OpenGL how to get each of these pieces of data.</p>
+            <p>This is done as follows:</p>
+            <div class="example"><a name="idp1786"></a><p class="title"><b>Example 2.4. Rendering the Scene</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)48);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</pre>
+            </div></div><br class="example-break">
+            <p>Since we have two pieces of data, we have two vertex attributes. For each
+                attribute, we must call <code class="function">glEnableVertexAttribArray</code> to enable
+                that particular attribute. The first parameter is the attribute location set by the
+                    <code class="literal">layout(location)</code> field for that attribute in the vertex
+                shader.</p>
+            <p>Then, we call <code class="function">glVertexAttribPointer</code> for each of the attribute
+                arrays we want to use. The only difference in the two calls are which attribute
+                location to send the data to and the last parameter. The last parameter is the byte
+                offset into the buffer of where the data for this attribute starts. This offset, in
+                this case, is 4 (the size of a <span class="type">float</span>) * 4 (the number of
+                    <span class="type">float</span>s in a <span class="type">vec4</span>) * 3 (the number of
+                <span class="type">vec4</span>'s in the position data).</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>If you're wondering why it is <code class="literal">(void*)48</code> and not just
+                        <code class="literal">48</code>, that is because of some legacy API cruft. The reason
+                    why the function name is glVertexAttrib<span class="quote">“<span class="quote">Pointer</span>”</span> is because the
+                    last parameter is technically a pointer to client memory. Or at least, it could
+                    be in the past. So we must explicitly cast the integer value 48 to a pointer
+                    type.</p>
+            </div>
+            <p>After this, we use <code class="function">glDrawArrays</code> to render, then disable the
+                arrays with <code class="function">glDisableVertexAttribArray.</code></p>
+            <div class="section"><div class="titlepage"><div><div><h4 class="title"><a name="idp1806"></a>Drawing in Detail</h4></div></div></div>
+                
+                <p>In the last tutorial, we skimmed over the details of what exactly
+                        <code class="function">glDrawArrays</code> does. Let us take a closer look
+                    now.</p>
+                <p>The various attribute array functions set up arrays for OpenGL to read from
+                    when rendering. In our case here, we have two arrays. Each array has a buffer
+                    object and an offset into that buffer where the array begins, but the arrays do
+                    not have an explicit size. If we look at everything as C++ pseudo-code, what we
+                    have is this:</p>
+                <div class="example"><a name="idp1811"></a><p class="title"><b>Example 2.5. Vertex Arrays</b></p><div class="example-contents">
+                    
+                    <pre class="programlisting">GLbyte *bufferObject = (void*){0.0f, 0.5f, 0.0f, 1.0f, 0.5f, -0.366f, ...};
+float *positionAttribArray[4] = (float *[4])(&amp;(bufferObject + 0));
+float *colorAttribArray[4] = (float *[4])(&amp;(bufferObject + 48));</pre>
+                </div></div><br class="example-break">
+                <p>Each element of the <code class="varname">positionAttribArray</code> contains 4
+                    components, the size of our input to the vertex shader (vec4). This is the case
+                    because the second parameter of <code class="function">glVertexAttribPointer</code> is 4.
+                    Each component is a floating-point number; similarly because the third parameter
+                    is <code class="literal">GL_FLOAT</code>. The array takes its data from
+                        <code class="varname">bufferObject</code> because this was the buffer object that was
+                    bound at the time that <code class="function">glVertexAttribPointer</code> was called.
+                    And the offset from the beginning of the buffer object is 0 because that is the
+                    last parameter of <code class="function">glVertexAttribPointer</code>.</p>
+                <p>The same goes for <code class="varname">colorAttribArray</code>, except for the offset
+                    value, which is 48 bytes.</p>
+                <p>Using the above pseudo-code representation of the vertex array data,
+                        <code class="function">glDrawArrays</code> would be implemented as follows:</p>
+                <div class="example"><a name="idp1825"></a><p class="title"><b>Example 2.6. Draw Arrays Implementation</b></p><div class="example-contents">
+                    
+                    <pre class="programlisting">void glDrawArrays(GLenum type, GLint start, GLint count)
+{
+    for(GLint element = start; element &lt; start + count; element++)
+    {
+        VertexShader(positionAttribArray[element], colorAttribArray[element]);
+    }
+}</pre>
+                </div></div><br class="example-break">
+                <p>This means that the vertex shader will be executed <code class="varname">count</code>
+                    times, and it will be given data beginning with the <code class="varname">start</code>-th
+                    element and continuing for <code class="varname">count</code> elements. So the first time
+                    the vertex shader gets run, it takes the position attribute from
+                        <code class="literal">bufferObject[0 + (0 * 4 * sizeof(float))]</code> and the color
+                    attribute from <code class="literal">bufferObject[48 + (0 * 4 * sizeof(float))]</code>.
+                    The second time pulls the position from <code class="literal">bufferObject[0 + (1 * 4 *
+                        sizeof(float))]</code> and color from <code class="literal">bufferObject[48 + (1 * 4 *
+                        sizeof(float))]</code>. And so on.</p>
+                <p>The data flow from the buffer object to the vertex shaders looks like this
+                    now:</p>
+                <div class="figure"><a name="idp1837"></a><p class="title"><b>Figure 2.3. Multiple Vertex Attributes</b></p><div class="figure-contents">
+                    
+                    <div class="mediaobject"><img src="VertexShaderTwoAttributes.svg" alt="Multiple Vertex Attributes"></div>
+                </div></div><br class="figure-break">
+                <p>As before, every 3 vertices processed are transformed into a triangle.</p>
+            </div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1843"></a>Vertex Shader</h3></div></div></div>
+            
+            <p>Our new vertex shader looks like this:</p>
+            <div class="example"><a name="idp1846"></a><p class="title"><b>Example 2.7. Multi-input Vertex Shader</b></p><div class="example-contents">
+                
+                <pre class="programlisting">#version 330
+
+layout (location = 0) in vec4 position;
+layout (location = 1) in vec4 color;
+
+smooth out vec4 theColor;
+
+void main()
+{
+    gl_Position = position;
+    theColor = color;
+}</pre>
+            </div></div><br class="example-break">
+            <p>There are three new lines here. Let us take them one at a time.</p>
+            <p>The declaration of the global <code class="varname">color</code> defines a new input for the
+                vertex shader. So this shader, in addition to taking an input named
+                    <code class="varname">position</code> also takes a second input named
+                    <code class="varname">color</code>. As with the <code class="varname">position</code> input, this
+                tutorial assigns each attribute to an attribute index. <code class="varname">position</code>
+                is assigned the attribute index 0, while <code class="varname">color</code> is assigned
+                1.</p>
+            <p>That much only gets the data into the vertex shader. We want to pass this data out
+                of the vertex shader. To do this, we must define an <em class="glossterm">output
+                    variable</em>. This is done using the <code class="literal">out</code> keyword. In
+                this case, the output variable is called <code class="varname">theColor</code> and is of type
+                    <span class="type">vec4</span>.</p>
+            <p>The <code class="literal">smooth</code> keyword is an <em class="glossterm">interpolation
+                    qualifier</em>. We will see what this means a bit later.</p>
+            <p>Of course, this simply defines the output variable. In <code class="function">main</code>,
+                we actually write to it, assigning to it the value of <code class="varname">color</code> that
+                was given as a vertex attribute. This being shader code, we could have used some
+                other heuristic or arbitrary algorithm to compute the color. But for the purpose of
+                this tutorial, it is simply passing the value of an attribute passed to the vertex
+                shader.</p>
+            <p>Technically, the built-in variable <code class="varname">gl_Position</code> is defined as
+                    <code class="literal">out vec4 gl_Position</code>. So it is an output variable as well. It
+                is a special output because this value is directly used by the system, rather than
+                used only by shaders. User-defined outputs, like <code class="varname">theColor</code> above,
+                have no intrinsic meaning to the system. They only have an effect in so far as other
+                shader stages use them, as we will see next.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1872"></a>Fragment Program</h3></div></div></div>
+            
+            <p>The new fragment shader looks like this:</p>
+            <div class="example"><a name="idp1875"></a><p class="title"><b>Example 2.8. Fragment Shader with Input</b></p><div class="example-contents">
+                
+                <pre class="programlisting">#version 330
+
+smooth in vec4 theColor;
+
+out vec4 outputColor;
+
+void main()
+{
+    outputColor = theColor;
+}</pre>
+            </div></div><br class="example-break">
+            <p>This fragment shader defines an input variable. It is no coincidence that this
+                input variable is named and typed the same as the output variable from the vertex
+                shader. We are trying to feed information from the vertex shader to the fragment
+                shader. To do this, OpenGL requires that the output from the previous stage have the
+                same name and type as the input to the next stage. It also must use the same
+                interpolation qualifier; if the vertex shader used <code class="literal">smooth</code>, the
+                fragment shader must do the same.</p>
+            <p>This is a good part of the reason why OpenGL requires vertex and fragment shaders
+                to be linked together; if the names, types, or interpolation qualifiers do not
+                match, then OpenGL will raise an error when the program is linked.</p>
+            <p>So the fragment shader receives the value output from the vertex shader. The
+                shader simply takes this value and copies it to the output. Thus, the color of each
+                fragment will simply be whatever the vertex shader passed along.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1882"></a>Fragment Interpolation</h3></div></div></div>
+            
+            <p>Now we come to the elephant in the room, so to speak. There is a basic
+                communication problem.</p>
+            <p>See, our vertex shader is run only 3 times. This execution produces 3 output
+                positions (<code class="varname">gl_Position</code>) and 3 output colors
+                    (<code class="varname">theColor</code>). The 3 positions are used to construct and
+                rasterize a triangle, producing a number of fragments.</p>
+            <p>The fragment shader is not run 3 times. It is run once for every fragment produced
+                by the rasterizer for this triangle. The number of fragments produced by a triangle
+                depends on the viewing resolution and how much area of the screen the triangle
+                covers. An equilateral triangle the length of who's sides are 1 has an area of
+                ~0.433. The total screen area (on the range [-1, 1] in X and Y) is 4, so our
+                triangle covers approximately one-tenth of the screen. The window's natural
+                resolution is 500x500 pixels. 500*500 is 250,000 pixels; one-tenth of this is
+                25,000. So our fragment shader gets executed about 25,000 times.</p>
+            <p>There's a slight disparity here. If the vertex shader is directly communicating
+                with the fragment shader, and the vertex shader is outputting only 3 total color
+                values, where do the other 24,997 values come from?</p>
+            <p>The answer is <em class="glossterm">fragment interpolation</em>.</p>
+            <p>By using the interpolation qualifier <code class="literal">smooth</code> when defining the
+                vertex output and fragment input, we are telling OpenGL to do something special with
+                this value. Instead of each fragment receiving one value from a single vertex, what
+                each fragment gets is a <span class="emphasis"><em>blend</em></span> between the three output values
+                over the surface of the triangle. The closer the fragment is to one vertex, the more
+                that vertex's output contributes to the value that the fragment program
+                receives.</p>
+            <p>Because such interpolation is by far the most common mode for communicating
+                between the vertex shader and the fragment shader, if you do not provide an
+                interpolation keyword, <code class="literal">smooth</code> will be used by default. There are
+                two other alternatives: <code class="literal">noperspective</code> and
+                <code class="literal">flat</code>.</p>
+            <p>If you were to modify the tutorial and change <code class="literal">smooth</code> to
+                    <code class="literal">noperspective</code>, you would see no change. That does not mean a
+                change did not happen; our example is just too simple for there to actually be a
+                change. The difference between <code class="literal">smooth</code> and
+                    <code class="literal">noperspective</code> is somewhat subtle, and only matters once we
+                start using more concrete examples. We will discuss this difference later.</p>
+            <p>The <code class="literal">flat</code> interpolation actually turns interpolation off. It
+                essentially says that, rather than interpolating between three values, each fragment
+                of the triangle will simply get the first of the three vertex shader output
+                variables. The fragment shader gets a flat value across the surface of the triangle,
+                hence the term <span class="quote">“<span class="quote"><code class="literal">flat</code>.</span>”</span></p>
+            <p>Each rasterized triangle has its own set of 3 outputs that are interpolated to
+                compute the value for the fragments created by that triangle. So if you render 2
+                triangles, the interpolated values from one triangle do not directly affect the
+                interpolated values from another triangle. Thus, each triangle can be taken
+                independently from the rest.</p>
+            <p>It is possible, and highly desirable in many cases, to build multiple triangles
+                from shared vertices and vertex data. But we will discuss this at a later
+                time.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1910"></a>The Final Image</h3></div></div></div>
+            
+            <p>When you run the tutorial, you will get the following image.</p>
+            <div class="figure"><a name="idp1913"></a><p class="title"><b>Figure 2.4. Interpolated Vertex Colors</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="VertexColors.png" alt="Interpolated Vertex Colors"></div>
+            </div></div><br class="figure-break">
+            <p>The colors at each tip of the triangle are the pure red, green, and blue colors.
+                They blend together towards the center of the triangle.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2002.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2002.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut02%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 2. Playing with Colors </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

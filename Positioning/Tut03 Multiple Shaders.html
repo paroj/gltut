@@ -1,0 +1,102 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Multiple Shaders</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2003.html" title="Chapter 3. OpenGL's Moving Triangle"><link rel="prev" href="Tut03%20More%20Power%20To%20The%20Shaders.html" title="More Power to the Shaders"><link rel="next" href="Tut03%20On%20Vertex%20Shader%20Performance.html" title="On Vertex Shader Performance"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Multiple Shaders</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut03%20More%20Power%20To%20The%20Shaders.html">Prev</a> </td><th width="60%" align="center">Chapter 3. OpenGL's Moving Triangle</th><td width="20%" align="right"> <a accesskey="n" href="Tut03%20On%20Vertex%20Shader%20Performance.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp27"></a>Multiple Shaders</h2></div></div></div>
+        
+        
+        <p>Well, moving the triangle around is nice and all, but it would also be good if we
+            could do something time-based in the fragment shader. Fragment shaders cannot affect the
+            position of the object, but they can control its color. And this is what
+                <code class="filename">FragChangeColor.cpp</code> does.</p>
+        <p>The fragment shader in this tutorial is loaded from the file
+                <code class="filename">data\calcColor.frag</code>:</p>
+        <div class="example"><a name="idp2234"></a><p class="title"><b>Example 3.9. Time-based Fragment Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+out vec4 outputColor;
+
+uniform float fragLoopDuration;
+uniform float time;
+
+const vec4 firstColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+const vec4 secondColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+void main()
+{
+    float currTime = mod(time, fragLoopDuration);
+    float currLerp = currTime / fragLoopDuration;
+    
+    outputColor = mix(firstColor, secondColor, currLerp);
+}</pre>
+        </div></div><br class="example-break">
+        <p>This function is similar to the periodic loop in the vertex shader (which did not
+            change from the last time we saw it). Instead of using sin/cos functions to compute the
+            coordinates of a circle, it interpolates between two colors based on how far it is through
+            the loop. When it is at the start of the loop, the triangle will be
+                <code class="varname">firstColor</code>, and when it is at the end of the loop, it will be
+                <code class="varname">secondColor</code>.</p>
+        <p>The standard library function <code class="function">mix</code> performs linear interpolation
+            between two values. Like many GLSL standard functions, it can take vector parameters; it
+            will perform component-wise operations on them. So each of the four components of the
+            two parameters will be linearly interpolated by the 3rd parameter. The third parameter,
+                <code class="varname">currLerp</code> in this case, is a value between 0 and 1. When it is 0,
+            the return value from <code class="function">mix</code> will be the first parameter; when it is
+            1, the return value will be the second parameter.</p>
+        <p>Here is the program initialization code:</p>
+        <div class="example"><a name="idp2245"></a><p class="title"><b>Example 3.10. More Shader Creation</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void InitializeProgram()
+{
+    std::vector&lt;GLuint&gt; shaderList;
+    
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "calcOffset.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "calcColor.frag"));
+    
+    theProgram = Framework::CreateProgram(shaderList);
+
+    elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
+    
+    GLint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+    GLint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
+    
+    glUseProgram(theProgram);
+    glUniform1f(loopDurationUnf, 5.0f);
+    glUniform1f(fragLoopDurUnf, 10.0f);
+    glUseProgram(0);
+}</pre>
+        </div></div><br class="example-break">
+        <p>As before, we get the uniform locations for <code class="varname">time</code> and
+                <code class="varname">loopDuration</code>, as well as the new
+                <code class="varname">fragLoopDuration</code>. We then set the two loop durations for the
+            program.</p>
+        <p>You may be wondering how the <code class="varname">time</code> uniform for the vertex shader and
+            fragment shader get set? One of the advantages of the GLSL compilation model, which
+            links vertex and fragment shaders together into a single object, is that uniforms of the
+            same name and type are concatenated. So there is only one uniform location for
+                <code class="varname">time</code>, and it refers to the uniform in both shaders.</p>
+        <p>The downside of this is that, if you create one uniform in one shader that has the
+            same name as a uniform in a different shader, but a different <span class="emphasis"><em>type</em></span>,
+            OpenGL will give you a linker error and fail to generate a program. Also, it is possible
+            to accidentally link two uniforms into one. In the tutorial, the fragment shader's loop
+            duration had to be given a different name, or else the two shaders would have shared the
+            same loop duration.</p>
+        <p>In any case, because of this, the rendering code is unchanged. The time uniform is
+            updated each frame with FreeGLUT's elapsed time.</p>
+        <p>
+            <b>Globals in shaders. </b>
+            Variables at global scope in GLSL can be defined with certain storage qualifiers:
+                    <code class="literal">const</code>, <code class="literal">uniform</code>, <code class="literal">in</code>, and
+                    <code class="literal">out</code>. A <code class="literal">const</code> value works like it does in
+                C99 and C++: the value does not change, period. It must have an initializer. An
+                unqualified variable works like one would expect in C/C++; it is a global value that
+                can be changed. GLSL shaders can call functions, and globals can be shared between
+                functions. However, unlike <code class="literal">in</code>, <code class="literal">out</code>, and
+                    <code class="literal">uniforms</code>, non-const and <code class="literal">const</code> variables
+                are <span class="emphasis"><em>not</em></span> shared between stages.
+        </p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut03%20More%20Power%20To%20The%20Shaders.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2003.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut03%20On%20Vertex%20Shader%20Performance.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">More Power to the Shaders </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> On Vertex Shader Performance</td></tr></table></div></body></html>

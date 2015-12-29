@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="550px" width="850px" >
+	<style type="text/css" ><![CDATA[.triangle
+{
+	marker: url(#m_point);
+	stroke: #AFAFFF;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.axes
+{
+	marker-end: url(#arrow);
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.text
+{
+	font-size: 30px;
+	font-family: monospace;
+}
+
+.arrow_end
+{
+	marker-end: url(#arrow);
+}
+
+.x_axis_marker
+{
+	stroke: #20FF20;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.y_axis_marker
+{
+	stroke: red;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.point
+{
+	fill: #AFAFFF;
+	stroke: #AFAFFF;
+}
+
+.text
+{
+	font-size: 30px;
+	stroke: black;
+	font-family: monospace;
+	stroke-width: 1px;
+}
+
+.grid
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.x_axis
+{
+	stroke: #20FF20;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.y_axis
+{
+	stroke: red;
+	stroke-width: 2px;
+	fill: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="10" refX="5" refY="5" markerUnits="userSpaceOnUse" orient="auto" id="m_point" >
+			<circle r="5" cy="5" cx="5" class="point" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_y_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="y_axis_marker" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_x_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="x_axis_marker" />
+		</marker>
+		<g id="g_axes" >
+			<path d="M 0 250 V 0 M 17.857142857143 250 V 0 M 35.714285714286 250 V 0 M 53.571428571429 250 V 0 M 71.428571428571 250 V 0 M 89.285714285714 250 V 0 M 107.14285714286 250 V 0 M 125 250 V 0 M 142.85714285714 250 V 0 M 160.71428571429 250 V 0 M 178.57142857143 250 V 0 M 196.42857142857 250 V 0 M 214.28571428571 250 V 0 M 232.14285714286 250 V 0 M 250 250 V 0 M 0 250 H 250 M 0 232.14285714286 H 250 M 0 214.28571428571 H 250 M 0 196.42857142857 H 250 M 0 178.57142857143 H 250 M 0 160.71428571429 H 250 M 0 142.85714285714 H 250 M 0 125 H 250 M 0 107.14285714286 H 250 M 0 89.285714285714 H 250 M 0 71.428571428571 H 250 M 0 53.571428571429 H 250 M 0 35.714285714286 H 250 M 0 17.857142857143 H 250 M 0 0 H 250" class="grid" />
+			<line x2="125" y2="250" y1="125" x1="125" class="axes" />
+			<line x2="125" y2="0" y1="125" x1="125" class="axes" />
+			<line x2="250" y2="125" y1="125" x1="125" class="axes" />
+			<line x2="0" y2="125" y1="125" x1="125" class="axes" />
+		</g>
+	</defs>
+	<use xlink:href="#g_axes" y="0" x="0" height="250" width="250" />
+	<line x2="142.85714285714" y2="125" y1="125" x1="125" class="x_axis" />
+	<line x2="125" y2="107.14285714286" y1="125" x1="125" class="y_axis" />
+	<polygon points="133.92857142857,62.5 142.85714285714,160.71428571429 89.285714285714,187.5" class="triangle" />
+	<use xlink:href="#g_axes" y="0" x="300" height="250" width="250" />
+	<line x2="478.57142857143" y2="107.14285714286" y1="107.14285714286" x1="460.71428571429" class="x_axis" />
+	<line x2="460.71428571429" y2="89.285714285714" y1="107.14285714286" x1="460.71428571429" class="y_axis" />
+	<polygon points="469.64285714286,44.642857142857 478.57142857143,142.85714285714 425,169.64285714286" class="triangle" />
+	<use xlink:href="#g_axes" y="0" x="600" height="250" width="250" />
+	<line x2="832.14285714286" y2="116.07142857143" y1="116.07142857143" x1="796.42857142857" class="x_axis" />
+	<line x2="796.42857142857" y2="107.14285714286" y1="116.07142857143" x1="796.42857142857" class="y_axis" />
+	<polygon points="814.28571428571,84.821428571429 832.14285714286,133.92857142857 725,147.32142857143" class="triangle" />
+	<use xlink:href="#g_axes" y="300" x="0" height="250" width="250" />
+	<line x2="142.85714285714" y2="425" y1="425" x1="125" class="x_axis" />
+	<line x2="125" y2="407.14285714286" y1="425" x1="125" class="y_axis" />
+	<polygon points="133.92857142857,362.5 142.85714285714,460.71428571429 89.285714285714,487.5" class="triangle" />
+	<use xlink:href="#g_axes" y="300" x="300" height="250" width="250" />
+	<line x2="460.71428571429" y2="425" y1="425" x1="425" class="x_axis" />
+	<line x2="425" y2="416.07142857143" y1="425" x1="425" class="y_axis" />
+	<polygon points="442.85714285714,393.75 460.71428571429,442.85714285714 353.57142857143,456.25" class="triangle" />
+	<use xlink:href="#g_axes" y="300" x="600" height="250" width="250" />
+	<line x2="796.42857142857" y2="407.14285714286" y1="407.14285714286" x1="760.71428571429" class="x_axis" />
+	<line x2="760.71428571429" y2="398.21428571429" y1="407.14285714286" x1="760.71428571429" class="y_axis" />
+	<polygon points="778.57142857143,375.89285714286 796.42857142857,425 689.28571428571,438.39285714286" class="triangle" />
+	<text y="135" x="265" class="text" >T</text>
+	<text y="135" x="565" class="text" >S</text>
+	<text y="435" x="265" class="text" >S</text>
+	<text y="435" x="565" class="text" >T</text>
+</svg>

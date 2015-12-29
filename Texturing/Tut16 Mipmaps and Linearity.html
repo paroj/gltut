@@ -1,0 +1,77 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>sRGB and Mipmaps</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2016.html" title="Chapter 16. Gamma and Textures"><link rel="prev" href="Tutorial%2016.html" title="Chapter 16. Gamma and Textures"><link rel="next" href="Tut16%20Free%20Gamma%20Correction.html" title="sRGB and the Screen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">sRGB and Mipmaps</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2016.html">Prev</a> </td><th width="60%" align="center">Chapter 16. Gamma and Textures</th><td width="20%" align="right"> <a accesskey="n" href="Tut16%20Free%20Gamma%20Correction.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp109"></a>sRGB and Mipmaps</h2></div></div></div>
+        
+        
+        <p>The principle reason lighting functions require lRGB values is because they perform
+            linear operations. They therefore produce inaccurate results on non-linear colors. This
+            is not limited to lighting functions; <span class="emphasis"><em>all</em></span> linear operations on
+            colors require a lRGB value to produce a reasonable result.</p>
+        <p>One important linear operation performed on texel values is filtering. Whether
+            magnification or minification, non-nearest filtering does some kind of linear
+            arithmetic. Since this is all handled by OpenGL, the question is this: if a texture is
+            in an sRGB format, does OpenGL's texture filtering occur <span class="emphasis"><em>before</em></span>
+            converting the texel values to lRGB or after?</p>
+        <p>The answer is quite simple: filtering comes after linearizing. So it does the right
+            thing.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>It's not quite that simple. The OpenGL specification technically leaves it
+                undefined. However, if your hardware can run these tutorials without modifications
+                (ie: your hardware is OpenGL 3.3 capable), then odds are it will do the right thing.
+                It is only on pre-3.0 hardware where this is a problem.</p>
+        </div>
+        <p>A bigger question is this: do you generate the mipmaps correctly for your textures?
+            Mipmap generation was somewhat glossed over in the last tutorial, as tools generally do
+            this for you. In general, mipmap generation involves some form of linear operation on
+            the colors. For this process to produce correct results for sRGB textures, it needs to
+            linearize the sRGB color values, perform its filtering on them, then convert them back
+            to sRGB for storage.</p>
+        <p>Unless you are writing texture processing tools, this question is answered by asking
+            your texture tools themselves. Most freely available texture tools are completely
+            unaware of non-linear colorspaces. You can tell which ones are aware based on the
+            options you are given at mipmap creation time. If you can specify a gamma for your
+            texture, or if there is some setting to specify that the texture's colors are sRGB, then
+            the tool can do the right thing. If no such option exists, then it cannot. For sRGB
+            textures, you should use a gamma of 2.2, which is what sRGB approximates.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>The DDS plugin for GIMP is a good, free tool that is aware of linear colorspaces.
+                NVIDIA's command-line texture tools, also free, are as well.</p>
+        </div>
+        <p>To see how this can affect rendering, load up the <span class="propername">Gamma
+                Checkers</span> project.</p>
+        <div class="figure"><a name="idp12169"></a><p class="title"><b>Figure 16.3. Gamma Checkers</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Gamma%20Checkers.png" alt="Gamma Checkers"></div>
+        </div></div><br class="figure-break">
+        <p>This works like the filtering tutorials. The <span class="keycap"><strong>1</strong></span> and <span class="keycap"><strong>2</strong></span>
+            keys respectively select linear mipmap filtering and anisotropic filtering (using the
+            maximum possible anisotropy).</p>
+        <p>We can see that this looks a bit different from the last time we saw it. The distant
+            grey field is much darker than it was. This is because we are using sRGB colorspace
+            textures. While the white and black are the same in sRGB (1.0 and 0.0 respectively), a
+            50% blend of them (0.5) is not. The sRGB texture assumes the 0.5 color is the sRGB 0.5,
+            so it becomes darker than we would expect.</p>
+        <p>Initially, we render with no gamma correction. To toggle gamma correction, press the
+                <span class="keycap"><strong>a</strong></span> key. This restores the view to what we saw previously.</p>
+        <p>However, the texture we are using is actually wrong. 0.5, as previously stated, is not
+            the sRGB color for a 50% blend of black and white. In the sRGB colorspace, that color
+            would be ~0.73. The texture is wrong because its mipmaps were not generated in the
+            correct colorspace.</p>
+        <p>To switch to a texture who's mipmaps were properly generated, press the
+                <span class="keycap"><strong>g</strong></span> key.</p>
+        <div class="figure"><a name="idp12183"></a><p class="title"><b>Figure 16.4. Gamma Correct with Gamma Mipmaps</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Gamma%20Checkers%20Gamma.png" alt="Gamma Correct with Gamma Mipmaps"></div>
+        </div></div><br class="figure-break">
+        <p>This still looks different from the last tutorial. Which naturally tells us that not
+            rendering with gamma correction before was actually a problem, as this version looks
+            much better. The grey blends much better with the checkerboard, as the grey is now
+            correctly halfway between white and black. The take-home point here is that ensuring
+            linearity in all stages of the pipeline is always important. This includes mipmap
+            generation.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2016.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2016.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut16%20Free%20Gamma%20Correction.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 16. Gamma and Textures </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> sRGB and the Screen</td></tr></table></div></body></html>

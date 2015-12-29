@@ -1,0 +1,82 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Vertices and Registers</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"><link rel="prev" href="History%20TNT.html" title="Dynamite Combiners"><link rel="next" href="History%20Radeon8500.html" title="Programming at Last"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Vertices and Registers</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="History%20TNT.html">Prev</a> </td><th width="60%" align="center">Appendix C. History of PC Graphics Hardware</th><td width="20%" align="right"> <a accesskey="n" href="History%20Radeon8500.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp130"></a>Vertices and Registers</h2></div></div></div>
+        
+        
+        <p>The next stage in the evolution of graphics hardware again came from NVIDIA. While
+            3Dfx released competing cards, they were behind the curve. The NVIDIA GeForce 256 (not
+            to be confused with the GeForce GT250, a much more modern card), released in 1999,
+            provided something truly new: a vertex processing pipeline.</p>
+        <p>The OpenGL API has always defined a vertex processing pipeline (it was fixed-function
+            in those days rather than shader-based). And NVIDIA implemented it in their TNT-era
+            drivers on the CPU. But only with the GeForce 256 was this actually implemented in
+            hardware. And NVIDIA essentially built the entire OpenGL fixed-function vertex
+            processing pipeline directly into the GeForce hardware.</p>
+        <p>This was primarily a performance win. While it was important for the progress of
+            hardware, a less-well-known improvement of the early GeForce hardware was more important
+            to its future.</p>
+        <p>In the fragment processing pipeline, the texture environment stages were removed. In
+            their place was a more powerful mechanism, what NVIDIA called <span class="quote">“<span class="quote">register
+                combiners.</span>”</span></p>
+        <p>The GeForce 256 provided 2 regular combiner stages. Each of these stages represented
+            up to four independent opcodes that operated over the register set. The opcodes could
+            result in multiple outputs, which could be written to two temporary registers.</p>
+        <p>What is interesting is that the register values are no longer limited to color values.
+            Instead, they are signed values, on the range [-1, 1]; they have 9 bits of precision or
+            so. While the initial color or texture values are on [0, 1], the actual opcodes
+            themselves can perform operations that generate negative values. Opcodes can even
+            scale/bias their inputs, which allow them to turn unsigned colors into signed
+            values.</p>
+        <p>Because of this, the GeForce 256 was the first hardware to be able to do true normal
+            mapping, without hacks or tricks. A single register combiner stage could do 2 3-vector
+            dot-products at a time. Textures could store normals by compressing them to a [0, 1]
+            range. The light direction could either be a constant or interpolated per-vertex in
+            texture space.</p>
+        <p>Now granted, this still was a primitive form of bump mapping. There was no way to
+            correct for tangent-space values with bitantent and tangents. But this was at least
+            something. And it really was the first step towards programmability; it showed that
+            textures could truly represent values other than colors.</p>
+        <p>There was also a single final combiner stage. This was a much more limited stage than
+            the regular combiner stages. It could do a linear interpolation operation and an
+            addition; this was designed specifically to implement OpenGL's fixed-function fog and
+            specular computations.</p>
+        <p>The register file consisted of two temporary registers, two per-vertex colors, two
+            texture colors, two uniform values, the zero register, and a few other values used for
+            OpenGL fixed-function fog operations. The color and texture registers were even
+            writeable, if you needed more temporaries.</p>
+        <p>There were a few other sundry additions to the hardware. Cube textures first came onto
+            the scene. Combined with the right texture coordinate computations (now in hardware),
+            you could have reflective surfaces much more easily. Anisotropic filtering and
+            multisampling also appeared at this time. The limits were relatively small; anisotropic
+            filtering was limited to 4x, while the maximum number of samples was restricted to two.
+            Compressed texture formats also appeared on the scene.</p>
+        <p>What we see thus far as we take steps towards true programmability is that increased
+            complexity in fragment processing starts pushing for other needs. The addition of a dot
+            product allows lighting computations to take place per-fragment. But you cannot have full
+            texture-space bump mapping because of the lack of a normal/binormal/tangent matrix to
+            transform vectors to texture space. Cubemaps allow you to do arbitrary reflections, but
+            computing reflection directions per-vertex requires interpolating reflection normals,
+            which does not work very well over large polygons.</p>
+        <p>This also saw the introduction of something called a rectangle texture. This texture
+            type is something of an odd duck that still remains in current day. It was a way of
+            creating a texture of arbitrary size; until then, textures were limited to powers of two
+            in size (though the sizes did not have to be the same). The texture coordinates for
+            rectangle textures are not normalized; they were in texture space values.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>The GPU Divide</b></p></div></div></div>
+            
+            <p>When NVIDIA released the GeForce 256, they coined the term <span class="quote">“<span class="quote">Geometry
+                    Processing Unit</span>”</span> or <acronym class="acronym">GPU</acronym>. Until this point, graphics
+                chips were called exactly that: graphics chips. The term GPU was intended by NVIDIA
+                to differentiate the GeForce from all of its competition, including the final cards
+                from 3Dfx.</p>
+            <p>Because the term was so reminiscent to CPUs, the term took over. Every graphics
+                chip is a GPU now, even ones released before the term came to exist.</p>
+            <p>In truth, the term GPU never really made much sense until the next stage, where
+                the first cards with actual programmability came onto the scene.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="History%20TNT.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="History%20of%20Graphics%20Hardware.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="History%20Radeon8500.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Dynamite Combiners </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Programming at Last</td></tr></table></div></body></html>

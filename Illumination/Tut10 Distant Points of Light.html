@@ -1,0 +1,819 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Distant Points of Light</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2010.html" title="Chapter 10. Plane Lights"><link rel="prev" href="Tut10%20Fragment%20Lighting.html" title="Fragment Lighting"><link rel="next" href="Tut10%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Distant Points of Light</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut10%20Fragment%20Lighting.html">Prev</a> </td><th width="60%" align="center">Chapter 10. Plane Lights</th><td width="20%" align="right"> <a accesskey="n" href="Tut10%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp73"></a>Distant Points of Light</h2></div></div></div>
+        
+        
+        <p>There is another issue with our current example. Use the <span class="keycap"><strong>i</strong></span> key to
+            raise the light up really high. Notice how bright all of the upwardly-facing surfaces
+            get:</p>
+        <div class="figure"><a name="idp8688"></a><p class="title"><b>Figure 10.11. High Light</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="High%20Light.png" alt="High Light"></div>
+        </div></div><br class="figure-break">
+        <p>You probably have no experience with this in real life. Holding a light farther from
+            the surface in reality does not make the light brighter. So obviously something is
+            happening in reality that our simple lighting model is not accounting for.</p>
+        <p>In reality, lights emit a certain quantity of light per unit time. For a point-like
+            light such as a light bulb, it emits this light radially, in all directions. The farther
+            from the light source one gets, the more area that this must ultimately cover.</p>
+        <p>Light is essentially a wave. The farther away from the source of the wave, the less
+            intense the wave is. For light, this is called <em class="glossterm">light
+            attenuation.</em></p>
+        <p>Our model does not include light attenuation, so let's fix that.</p>
+        <p>Attenuation is a well-understood physical phenomenon. In the absence of other factors
+            (atmospheric light scattering, etc), the light intensity varies with the inverse of the
+            square of the distance. An object 2 units away from the light feels the light with
+            one-fourth the intensity. So our equation for light attenuation is as follows:</p>
+        <div class="equation"><a name="idp8699"></a><p class="title"><b>Equation 10.1. Physical Light Attenuation</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtext>Attenuated Light</mtext>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <mi>I</mi>
+    </mrow>
+    <mrow>
+      <mfenced open="(" close=")" separators=",">
+        <mrow>
+          <mn>1.0</mn>
+          <mo>+</mo>
+          <mi>k</mi>
+          <mo>*</mo>
+          <msup>
+                  <mi>r</mi>
+                <mn>2</mn>
+          </msup>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mfrac>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>There is a constant in the equation, which is used for unit correction. Of course, we
+            can (and will) use it as a fudge factor to make things look right.</p>
+        <p>The constant can take on a physical meaning. The constant can mean the distance at
+            which half of the light intensity is lost. To compute such a constant, for a half-light
+            distance of r<sub>λ</sub>, use this equation:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mi>k</mi>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <mn>1</mn>
+    </mrow>
+    <mrow>
+      <msup>
+            <mrow>
+              <msub>
+                      <mi>r</mi>
+                    <mi>λ</mi>
+              </msub>
+            </mrow>
+            <mn>2</mn>
+      </msup>
+    </mrow>
+  </mfrac>
+</mrow>
+</math>
+        </div>
+        <p>This equation computes physically realistic light attenuation for point-lights. But it
+            often does not look very good. The equation tends to create a sharper intensity falloff than
+            one would expect.</p>
+        <p>There is a reason for this, but it is not one we are ready to get into quite yet. What
+            is often done is to simply use the inverse rather than the inverse-square of the
+            distance:</p>
+        <div class="equation"><a name="idp8738"></a><p class="title"><b>Equation 10.2. Light Attenuation Inverse</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtext>Attenuated Light</mtext>
+  <mo>=</mo>
+  <mfrac>
+    <mrow>
+      <mi>I</mi>
+    </mrow>
+    <mrow>
+      <mfenced open="(" close=")" separators=",">
+        <mrow>
+          <mn>1.0</mn>
+          <mo>+</mo>
+          <mi>k</mi>
+          <mo>*</mo>
+          <mi>r</mi>
+        </mrow>
+      </mfenced>
+    </mrow>
+  </mfrac>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>It looks brighter at greater distances than the physically correct model. This is fine
+            for simple examples, but as we get more advanced, it will not be acceptable. This
+            solution is really just a stop-gap; the real solution is one that we will discuss in a
+            few tutorials.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp8756"></a>Reverse of the Transform</h3></div></div></div>
+            
+            <p>However, there is a problem. We previously did per-fragment lighting in model
+                space. And while this is a perfectly useful space to do lighting in, model space is
+                not world space.</p>
+            <p>We want to specify the attenuation constant factor in terms of world space
+                distances. But we are not dealing in world space; we are in model space. And model
+                space distances are, naturally, in model space, which may well be scaled relative to
+                world space. Here, any kind of scale in the model-to-world transform is a problem,
+                not just non-uniform scales. Although if there was a uniform scale, we could apply
+                theoretically apply the scale to the attenuation constant.</p>
+            <p>So now we cannot use model space. Fortunately, camera space is a space that has
+                the same scale as world space, just with a rotation/translation applied to it. So we
+                can do our lighting in that space.</p>
+            <p>Doing it in camera space requires computing a camera space position and passing it
+                to the fragment shader to be interpolated. And while we could do this, that's not
+                clever enough. Is not there some way to get around that?</p>
+            <p>Yes, there is. Recall <code class="varname">gl_FragCoord</code>, an intrinsic value given to
+                every fragment shader. It represents the location of the fragment in window space.
+                So instead of transforming from model space to camera space, we will transform from
+                window space to camera space.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>The use of this reverse-transformation technique here should not be taken as a
+                    suggestion to use it in all, or even most cases like this. In all likelihood, it
+                    will be much slower than just passing the camera space position to the fragment
+                    shader. It is here primarily for demonstration purposes, and because it will be
+                    useful in the future.</p>
+            </div>
+            <p>The sequence of transformations that take a position from camera space to window
+                space is as follows:</p>
+            <div class="table"><a name="idp8767"></a><p class="title"><b>Table 10.1. Transform Legend</b></p><div class="table-contents">
+                
+                <table class="table" summary="Transform Legend" border="1"><colgroup><col class="c1"><col class="c2"></colgroup><thead><tr><th>
+                                <p>Field Name</p>
+                            </th><th>
+                                <p>Meaning</p>
+                            </th></tr></thead><tbody><tr><td>
+                                <p>M</p>
+                            </td><td>The camera-to-clip transformation matrix.</td></tr><tr><td>
+                                <p>P<sub>camera</sub></p>
+                            </td><td>The camera-space vertex position.</td></tr><tr><td>
+                                <p>C</p>
+                            </td><td>
+                                <p>The clip-space vertex position.</p>
+                            </td></tr><tr><td>
+                                <p>N</p>
+                            </td><td>
+                                <p>The normalized device coordinate position.</p>
+                            </td></tr><tr><td>
+                                <p>V<sub>xy</sub></p>
+                            </td><td>
+                                <p>The X and Y values passed to
+                                    <code class="function">glViewport</code>.</p>
+                            </td></tr><tr><td>
+                                <p>V<sub>wh</sub></p>
+                            </td><td>
+                                <p>The width and height passed to
+                                    <code class="function">glViewport</code>.</p>
+                            </td></tr><tr><td>
+                                <p>D<sub>nf</sub></p>
+                            </td><td>
+                                <p>The depth near and far values passed to
+                                        <code class="function">glDepthRange</code>.</p>
+                            </td></tr></tbody></table>
+            </div></div><br class="table-break">
+            <div class="equation"><a name="idp8819"></a><p class="title"><b>Equation 10.3. Camera to Window Transforms</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+					<mover>
+						<mi>C</mi>
+						<mo>⇀</mo>
+					</mover>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mi mathvariant="bold">M</mi>
+                    <msub>
+                        <mover>
+                            <mi>P</mi>
+                            <mo>⇀</mo>
+                        </mover>
+                        <mi>camera</mi>
+                    </msub>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mover>
+                        <mi>N</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <mover>
+                                <mi>C</mi>
+                                <mo>⇀</mo>
+                            </mover>
+                        </mrow>
+                        <mrow>
+                            <msub>
+                                <mi>C</mi>
+                                <mi>w</mi>
+                            </msub>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>gl_FragCoord.x</mi>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>w</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <mn>2</mn>
+                        </mrow>
+                    </mfrac>
+                    <msub>
+                        <mi>N</mi>
+                        <mi>x</mi>
+                    </msub>
+                    <mo>+</mo>
+                    <msub>
+                        <mi>V</mi>
+                        <mi>x</mi>
+                    </msub>
+                    <mo>+</mo>
+                    <mfrac>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>w</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <mn>2</mn>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>gl_FragCoord.y</mi>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>h</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <mn>2</mn>
+                        </mrow>
+                    </mfrac>
+                    <msub>
+                        <mi>N</mi>
+                        <mi>y</mi>
+                    </msub>
+                    <mo>+</mo>
+                    <msub>
+                        <mi>V</mi>
+                        <mi>y</mi>
+                    </msub>
+                    <mo>+</mo>
+                    <mfrac>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>h</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <mn>2</mn>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>gl_FragCoord.z</mi>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo>-</mo>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>n</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <mn>2</mn>
+                        </mrow>
+                    </mfrac>
+                    <msub>
+                        <mi>N</mi>
+                        <mi>z</mi>
+                    </msub>
+                    <mo>+</mo>
+                    <mfrac>
+                        <mrow>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo>+</mo>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>n</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <mn>2</mn>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>gl_FragCoord.w</mi>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mfrac>
+                    <mrow>
+                        <mn>1</mn>
+                    </mrow>
+                    <mrow>
+                        <msub>
+                            <mi>C</mi>
+                            <mi>w</mi>
+                        </msub>
+                    </mrow>
+                </mfrac>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>Therefore, given <code class="varname">gl_FragCoord</code>, we will need to perform the
+                reverse of these:</p>
+            <div class="equation"><a name="idp8957"></a><p class="title"><b>Equation 10.4. Window to Camera Transforms</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable columnalign="left">
+            <mtr>
+                <mtd>
+                    <msub>
+                        <mi>N</mi>
+                        <mi>x</mi>
+                    </msub>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <mn>2</mn>
+                            <mo>*</mo>
+                            <mi>gl_FragCoord.x</mi>
+                        </mrow>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>w</mi>
+                            </msub>
+                        </mrow>
+                    </mfrac>
+                    <mo>-</mo>
+                    <mfrac>
+                        <mrow>
+                            <mn>2</mn>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>x</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>w</mi>
+                            </msub>
+                        </mrow>
+                    </mfrac>
+                    <mo>-</mo>
+                    <mn>1</mn>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <msub>
+                        <mi>N</mi>
+                        <mi>y</mi>
+                    </msub>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <mn>2</mn>
+                            <mo>*</mo>
+                            <mi>gl_FragCoord.y</mi>
+                        </mrow>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>h</mi>
+                            </msub>
+                        </mrow>
+                    </mfrac>
+                    <mo>-</mo>
+                    <mfrac>
+                        <mrow>
+                            <mn>2</mn>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>y</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <msub>
+                                <mi>V</mi>
+                                <mi>h</mi>
+                            </msub>
+                        </mrow>
+                    </mfrac>
+                    <mo>-</mo>
+                    <mn>1</mn>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <msub>
+                        <mi>N</mi>
+                        <mi>y</mi>
+                    </msub>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <mn>2</mn>
+                            <mo>*</mo>
+                            <mi>gl_FragCoord.z</mi>
+                            <mo>-</mo>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo>-</mo>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>n</mi>
+                            </msub>
+                        </mrow>
+                        <mrow>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>f</mi>
+                            </msub>
+                            <mo>-</mo>
+                            <msub>
+                                <mi>D</mi>
+                                <mi>n</mi>
+                            </msub>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <msub>
+                        <mover>
+                            <mi>C</mi>
+                            <mo>⇀</mo>
+                        </mover>
+                        <mi>xyz</mi>
+                    </msub>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <mover>
+                                <mi>N</mi>
+                                <mo>⇀</mo>
+                            </mover>
+                        </mrow>
+                        <mrow>
+                            <mi>gl_FragCoord.w</mi>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <msub>
+                        <mi>C</mi>
+                        <mi>w</mi>
+                    </msub>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mfrac>
+                        <mrow>
+                            <mn>1</mn>
+                        </mrow>
+                        <mrow>
+                            <mi>gl_FragCoord.w</mi>
+                        </mrow>
+                    </mfrac>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <msub>
+                        <mover>
+                            <mi>P</mi>
+                            <mo>⇀</mo>
+                        </mover>
+                        <mi>camera</mi>
+                    </msub>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <msup>
+                        <mi mathvariant="bold">M</mi>
+                        <mn>-1</mn>
+                    </msup>
+                    <mover>
+                        <mi>C</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>In order for our fragment shader to perform this transformation, it must be given
+                the following values:</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>The inverse projection matrix.</p>
+                </li><li class="listitem">
+                    <p>The viewport width/height.</p>
+                </li><li class="listitem">
+                    <p>The depth range.</p>
+                </li></ul></div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9105"></a>Applied Attenuation</h3></div></div></div>
+            
+            <p>The <span class="propername">Fragment Attenuation</span> tutorial performs
+                per-fragment attenuation, both with linear and quadratic attenuation.</p>
+            <div class="figure"><a name="idp9109"></a><p class="title"><b>Figure 10.12. Fragment Attenuation</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Fragment%20Attenuation.png" alt="Fragment Attenuation"></div>
+            </div></div><br class="figure-break">
+            <p>This tutorial controls as before, with the following exceptions. The
+                    <span class="keycap"><strong>O</strong></span> and <span class="keycap"><strong>U</strong></span> keys increase and decrease the
+                attenuation constant. However, remember that decreasing the constant makes the
+                attenuation less, which makes the light appear <span class="emphasis"><em>brighter</em></span> at a
+                particular distance. Using the shift key in combination with them will
+                increase/decrease the attenuation by smaller increments. The <span class="keycap"><strong>H</strong></span> key
+                swaps between the linear and quadratic interpolation functions.</p>
+            <p>The drawing code is mostly the same as we saw in the per-vertex point light
+                tutorial, since both this and that one perform lighting in camera space. The vertex
+                shader is also nothing new; passes the vertex normal and color to the fragment
+                shader. The vertex normal is multiplied by the normal matrix, which allows us to use
+                non-uniform scaling.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9120"></a>New Uniform Types</h3></div></div></div>
+            
+            <p>The more interesting part is the fragment shader. The definitions are not much
+                changed from the last one, but there have been some additions:</p>
+            <div class="example"><a name="idp9123"></a><p class="title"><b>Example 10.8. Light Attenuation Fragment Shader Definitions</b></p><div class="example-contents">
+                
+                <pre class="programlisting">uniform float lightAttenuation;
+uniform bool bUseRSquare;
+
+uniform UnProjection
+{
+    mat4 clipToCameraMatrix;
+    ivec2 windowSize;
+};</pre>
+            </div></div><br class="example-break">
+            <p>The <code class="varname">lightAttenuation</code> uniform is just a float, but
+                    <code class="varname">bUseRSquare</code> uses a new type: boolean.</p>
+            <p>GLSL has the <span class="type">bool</span> type just like C++ does. The
+                    <code class="literal">true</code> and <code class="literal">false</code> values work just like C++'s
+                equivalents. Where they differ is that GLSL also has vectors of bools, called
+                    <span class="type">bvec#</span>, where the # can be 2, 3, or 4. We do not use that here, but
+                it is important to note.</p>
+            <p>OpenGL's API, however, is still a C API. And C (at least, pre-C99) has no
+                    <span class="type">bool</span> type. Uploading a boolean value to a shader looks like
+                this:</p>
+            <pre class="programlisting">glUniform1i(g_FragWhiteDiffuseColor.bUseRSquareUnif, g_bUseRSquare ? 1 : 0);</pre>
+            <p>The integer form of uniform uploading is used, but the floating-point form could
+                be allowed as well. The number 0 represents false, and any other number is
+                true.</p>
+            <p>The <code class="classname">UnProjection</code> uniform block contains data that only
+                changes when the window changes. This uniform block is updated along with the vertex
+                shader's <code class="classname">Projection</code> block. This data is used to perform the
+                previously-discussed reverse-transformation operation, so that we can turn
+                    <code class="varname">gl_FragCoord</code> into a camera-space position.</p>
+            <p>Notice that the <code class="varname">windowSize</code> uses a new type: <span class="type">ivec2</span>.
+                This is a 2-dimensional vector of integers.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9145"></a>Functions in GLSL</h3></div></div></div>
+            
+            <p>For the first time, we have a shader complex enough that splitting it into
+                different functions makes sense. So we do that. The first function is one that
+                computes the camera-space position:</p>
+            <div class="example"><a name="idp9148"></a><p class="title"><b>Example 10.9. Window to Camera Space Function</b></p><div class="example-contents">
+                
+                <pre class="programlisting">vec3 CalcCameraSpacePosition()
+{
+    vec4 ndcPos;
+    ndcPos.xy = ((gl_FragCoord.xy / windowSize.xy) * 2.0) - 1.0;
+    ndcPos.z = (2.0 * gl_FragCoord.z - gl_DepthRange.near - gl_DepthRange.far) /
+        (gl_DepthRange.far - gl_DepthRange.near);
+    ndcPos.w = 1.0;
+    
+    vec4 clipPos = ndcPos / gl_FragCoord.w;
+    
+    return vec3(clipToCameraMatrix * clipPos);
+}</pre>
+            </div></div><br class="example-break">
+            <p>Not unsurprisingly, GLSL functions are defined much like C and C++
+                functions.</p>
+            <p>The first three lines compute the position in normalized device coordinates.
+                Notice that the computation of the X and Y coordinates is simplified from the
+                original function. This is because our viewport always sets the lower-left position
+                of the viewport to (0, 0). This is what you get when you plug zeros into that
+                equation.</p>
+            <p>The <code class="varname">gl_DepthRange</code> variable is a special uniform defined by GLSL
+                for fragment shaders. As the name suggests, it properly mirrors the values passed to
+                    <code class="function">glDepthRange</code>; this way, we do not have to put it in our
+                uniform block.</p>
+            <p>After the transformation to NDC space, we compute the clip-space position as
+                previously shown. Then the result is multiplied through the clip-to-camera matrix,
+                and that vector is returned to the caller.</p>
+            <p>This is a simple function that uses only uniforms to compute a value. It takes no
+                arguments. The second function is not quite as simple.</p>
+            <div class="example"><a name="idp9158"></a><p class="title"><b>Example 10.10. Light Intensity Application Function</b></p><div class="example-contents">
+                
+                <pre class="programlisting">vec4 ApplyLightIntensity(in vec3 cameraSpacePosition, out vec3 lightDirection)
+{
+    vec3 lightDifference =  cameraSpaceLightPos - cameraSpacePosition;
+    float lightDistanceSqr = dot(lightDifference, lightDifference);
+    lightDirection = lightDifference * inversesqrt(lightDistanceSqr);
+    
+    float distFactor = bUseRSquare ? lightDistanceSqr : sqrt(lightDistanceSqr);
+    
+    return lightIntensity * (1 / ( 1.0 + lightAttenuation * distFactor));
+}</pre>
+            </div></div><br class="example-break">
+            <p>The function header looks rather different from the standard C/C++ function
+                definition syntax. Parameters to GLSL functions are designated as being inputs,
+                outputs, or inputs and outputs.</p>
+            <p>Parameters designated with <code class="literal">in</code> are input parameters. Functions
+                can change these values, but they will have no effect on the variable or expression
+                used in the function call. This is much like the default in C/C++, where parameter
+                changes are local. Naturally, this is the default with GLSL parameters if you do not
+                specify a qualifier.</p>
+            <p>Parameters designated with <code class="literal">out</code> can be written to, and its value
+                will be returned to the calling function. These are similar to non-const reference
+                parameter types in C++. And just as with reference parameters, the caller of a
+                function must call it with a real variable (called an <span class="quote">“<span class="quote">l-value</span>”</span>). And
+                this variable must be a variable that can be <span class="emphasis"><em>changed</em></span>, so you
+                cannot pass a uniform or shader stage input value as this parameter.</p>
+            <p>However, the initial value of parameters declared as outputs is
+                    <span class="emphasis"><em>not</em></span> initialized from the calling function. This means that
+                the initial value is uninitialized and therefore undefined (ie: it could be
+                anything). Because of this, you can pass shader stage outputs as
+                    <code class="literal">out</code> parameters. Recall that shader stage output variables can
+                be written to, but <span class="emphasis"><em>never</em></span> read from.</p>
+            <p>Parameters designated as <code class="literal">inout</code> will have its value initialized
+                by the caller and have the final value returned to the caller. These are exactly
+                like non-const reference parameters in C++. The main difference is that the value is
+                initialized with the one that the user passed in, which forbids the passing of
+                shader stage outputs as <code class="literal">inout</code> parameters.</p>
+            <p>This particular function is semi-complex, as an optimization. Previously, our
+                functions simply normalized the difference between the vertex position and the light
+                position. In computing the attenuation, we need the distance between the two. And
+                the process of normalization computes the distance. So instead of calling the GLSL
+                function to normalize the direction, we do it ourselves, so that the distance is not
+                computed twice (once in the GLSL function and once for us).</p>
+            <p>The second line performs a dot product with the same vector. Remember that the dot
+                product between two vectors is the cosine of the angle between them, multiplied by
+                each of the lengths of the vectors. Well, the angle between a vector and itself is
+                zero, and the cosine of zero is always one. So what you get is just the length of
+                the two vectors times one another. And since the vectors are the same, the lengths
+                are the same. Thus, the dot product of a vector with itself is the square of its
+                length.</p>
+            <p>To normalize a vector, we must divide the vector by it's length. And the length of
+                    <code class="varname">lightDifference</code> is the square root of
+                    <code class="varname">lightDistanceSqr</code>. The <code class="function">inversesqrt</code>
+                computes 1 / the square root of the given value, so all we need to do is multiply
+                this with the <code class="varname">lightDifference</code> to get the light direction as a
+                normalized vector. This value is written to our output variable.</p>
+            <p>The next line computes our lighting term. Notice the use of the ?: operator. This
+                works just like in C/C++. If we are using the square of the distance, that's what we
+                store. Otherwise we get the square-root and store that.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>The assumption in using ?: here is that only one or the other of the two
+                    expressions will be evaluated. That's why the expensive call to
+                        <code class="function">sqrt</code> is done here. However, this may not be the case.
+                    It is entirely possible (and quite likely) that the shader will always evaluate
+                        <span class="emphasis"><em>both</em></span> expressions and simply store one value or the
+                    other as needed. So do not rely on such conditional logic to save
+                    performance.</p>
+            </div>
+            <p>After that, things proceed as expected.</p>
+            <p>Making these separate functions makes the main function look almost identical to
+                prior versions:</p>
+            <div class="example"><a name="idp9189"></a><p class="title"><b>Example 10.11. Main Light Attenuation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void main()
+{
+    vec3 cameraSpacePosition = CalcCameraSpacePosition();
+    
+    vec3 lightDir = vec3(0.0);
+    vec4 attenIntensity = ApplyLightIntensity(cameraSpacePosition, lightDir);
+    
+    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</pre>
+            </div></div><br class="example-break">
+            <p>Function calls appear very similar to C/C++, with the exceptions about parameters
+                noted before. The camera-space position is determined. Then the light intensity,
+                modified by attenuation, is computed. From there, things proceed as before.</p>
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Alternative Attenuation</b></p></div></div></div>
+                
+                <p>As nice as these somewhat-realistic attenuation schemes are, it is often
+                    useful to model light attenuation in a very different way. This is in no way
+                    physically accurate, but it can look reasonably good.</p>
+                <p>We simply do linear interpolation based on the distance. When the distance is
+                    0, the light has full intensity. When the distance is beyond a given distance,
+                    the maximum light range (which varies per-light), the intensity is 0.</p>
+                <p>Note that <span class="quote">“<span class="quote">reasonably good</span>”</span> depends on your needs. The closer you
+                    get in other ways to providing physically accurate lighting, the closer you get
+                    to photorealism, the less you can rely on less accurate phenomena. It does no
+                    good to implement a complicated sub-surface scattering lighting model that
+                    includes Fresnel factors and so forth, while simultaneously using a simple
+                    interpolation lighting attenuation model.</p>
+            </div>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut10%20Fragment%20Lighting.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2010.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut10%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Fragment Lighting </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

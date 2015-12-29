@@ -1,0 +1,97 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>About this Book</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="prev" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="next" href="About%20Need.html" title="What You Need"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">About this Book</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="index.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="About%20Need.html">Next</a></td></tr></table><hr></div><div class="preface"><div class="titlepage"><div><div><h1 class="title"><a name="idp2"></a>About this Book</h1></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="About%20this%20Book.html#idp148">Why Read This Book?</a></span></dt><dt><span class="section"><a href="About%20Need.html">What You Need</a></span></dt><dt><span class="section"><a href="About%20Organization.html">Organization of This Book</a></span></dt><dt><span class="section"><a href="About%20Conventions.html">Conventions used in This Book</a></span></dt></dl></div>
+    
+    
+    <p>Three dimensional graphics hardware is fast becoming, not merely a staple of computer
+        systems, but an indispensable component. Many operating systems directly use and even
+        require some degree of 3D rendering hardware. Even in the increasingly important mobile
+        computing space, 3D graphics hardware is a standard feature of all but the lowest power
+        devices.</p>
+    <p>Understanding how to make the most of that hardware is a difficult challenge, particularly
+        for someone new to graphics and rendering.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp148"></a>Why Read This Book?</h2></div></div></div>
+        
+        <p>There are many physical books for teaching graphics. There are many more online
+            repositories of knowledge, in the form of wikis, blogs, tutorials, and forums. So what
+            does this book offer that others do not?</p>
+        <p>Programmability. Virtually all of the aforementioned sources instruct beginners using
+            something called <span class="quote">“<span class="quote">fixed functionality.</span>”</span> This represents configurations in
+            older graphics processors that define how a particular rendering operation will proceed.
+            It is generally considered easiest to teach neophyte graphics programmers using the
+            fixed function pipeline.</p>
+        <p>This is considered true because it is easy to get something to happen with fixed
+            functionality. It's simpler to make pictures that look like something real. The fixed
+            function pipeline is like training wheels for a bicycle.</p>
+        <p>There are downsides to this approach. First, much of what is learned with this
+            approach must be inevitably abandoned when the user encounters a graphics problem that
+            must be solved with programmability. Programmability wipes out almost all of the fixed
+            function pipeline, so the knowledge does not easily transfer.</p>
+        <p>A more insidious problem is that the fixed function pipeline can give the
+                <span class="emphasis"><em>illusion</em></span> of knowledge. A user can think they understand what
+            they are doing, but they're really just copy-and-pasting code around. Programming thus
+            becomes akin to magical rituals: you put certain bits of code before other bits, and
+            everything seems to work.</p>
+        <p>This makes debugging nightmarish. Because the user never really understood what the
+            code does, the user is unable to diagnose what a particular problem could possibly mean.
+            And without that ability, debugging becomes a series of random guesses as to what the
+            problem is.</p>
+        <p>By contrast, you cannot use a programmable system successfully without first
+            understanding it. Confronting programmable graphics hardware means confronting issues
+            that fixed function materials often gloss over. This may mean a slower start overall,
+            but when you finally get to the end, you truly <span class="emphasis"><em>know</em></span> how everything
+            works.</p>
+        <p>Another problem is that, even if you truly understand the fixed function pipeline, it
+            limits how you think about solving problems. Because of its inflexibility, it focuses
+            your mind along certain problem solving possibilities and away from others. It
+            encourages you to think of textures as pictures; vertex data as texture coordinates,
+            colors, or positions; and the like. By its very nature, it limits creativity and problem
+            solving.</p>
+        <p>Lastly, even on mobile systems, fixed functionality is generally not available in the
+            graphics hardware. Programmability is the order of the day for most graphics hardware,
+            and this will only become more true in the future.</p>
+        <p>What this book offers is beginner-level instruction on what many consider to be an
+            advanced concept. It teaches programmable rendering for beginning graphics programmers,
+            from the ground up.</p>
+        <p>This book also covers some important material that is often neglected or otherwise
+            relegated to <span class="quote">“<span class="quote">advanced</span>”</span> concepts. These concepts are not truly advanced,
+            but they are often ignored by most introductory material because they do not work with
+            the fixed function pipeline.</p>
+        <p>This book is first and foremost about learning how to be a graphics programmer.
+            Therefore whenever it is possible and practical, this book will present material in a
+            way that encourages the reader to examine what graphics hardware can do in new and
+            interesting ways. A good graphics programmer sees the graphics hardware as a set of
+            tools to fulfill their needs, and this book tries to encourage this kind of
+            thinking.</p>
+        <p>One thing this book is not however, is a book on graphics APIs. While it does use
+            OpenGL and out of necessity teach rendering concepts in terms of OpenGL, it is not a
+            comprehensive guide to the OpenGL API. It will cover much of the API, as needed for
+            various graphics concepts, but there will be many pieces of functionality supported by
+            the API that will not be covered. If you already know graphics and are in need of a book
+            that teaches modern OpenGL programming, this book may be too basic for you. This book
+            will teach you the lion's share of the API, but this book is primarily focused on
+            graphics more than the API itself.</p>
+        <p>This book is intended to teach you how to be a graphics programmer. It is not aimed at
+            any particular graphics field; it is designed to cover most of the basics of 3D
+            rendering. So if you want to be a game developer, a CAD program designer, do some
+            computer visualization, or any number of things, this book can still be an asset for
+            you. This does not mean that it covers everything there is about 3D graphics. Hardly. It
+            tries to provide a sound foundation for your further exploration in whatever field of 3D
+            graphics you are interested in.</p>
+        <p>One topic this book does not cover in depth is optimization. The reason for this is
+            simply that serious optimization is an advanced topic. Optimizations can often be
+            platform-specific, different for different kinds of hardware. They can also be
+            API-specific, as some APIs have different optimization needs. Optimizations may be
+            mentioned here and there, but it is simply too complex of a subject for a beginning
+            graphics programmer. There is a chapter in the appendix covering optimization
+            opportunities, but it only provides a fairly high-level look.</p>
+    </div>
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="index.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="About%20Need.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Learning Modern 3D Graphics Programming </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> What You Need</td></tr></table></div></body></html>

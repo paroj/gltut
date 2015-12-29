@@ -1,0 +1,91 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 15. Many Images</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Texturing.html" title="Part IV. Texturing"><link rel="prev" href="Tut14%20Glossary.html" title="Glossary"><link rel="next" href="Tut15%20Magnification.html" title="Linear Filtering"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 15. Many Images</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut14%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part IV. Texturing</th><td width="20%" align="right"> <a accesskey="n" href="Tut15%20Magnification.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp100"></a>Chapter 15. Many Images</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2015.html#idp11698">Playing Checkers</a></span></dt><dt><span class="section"><a href="Tut15%20Magnification.html">Linear Filtering</a></span></dt><dt><span class="section"><a href="Tut15%20Needs%20More%20Pictures.html">Needs More Pictures</a></span></dt><dt><span class="section"><a href="Tut15%20Anisotropy.html">Anisotropy</a></span></dt><dt><span class="section"><a href="Tut15%20How%20Mipmapping%20Works.html">How Mipmap Selection Works</a></span></dt><dt><span class="section"><a href="Tut15%20Performace.html">Performance</a></span></dt><dt><span class="section"><a href="Tut15%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut15%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>In the last tutorial, we looked at textures that were not pictures. Now, we will look at
+        textures that are pictures. However, unlike the last tutorial, where the textures
+        represented some parameter in the light equation, here, we will just be directly outputting
+        the values read from the texture.</p>
+    <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Graphics Fudging</b></p></div></div></div>
+        
+        <p>Before we begin however, there is something you may need to do. When you installed
+            your graphics drivers, installed along with it was an application that allows you to
+            provide settings for your graphics driver. This affects how graphics applications render
+            and so forth.</p>
+        <p>Thus far, most of those settings have been irrelevant to us because everything we have
+            done has been entirely in our control. The OpenGL specification defined almost exactly
+            what could and could not happen, and outside of actual driver bugs, the results we
+            produced are reproducible and nearly identical across hardware.</p>
+        <p>That is no longer the case, as of this tutorial.</p>
+        <p>Texturing has long been a place where graphics drivers have been given room to play
+            and fudge results. The OpenGL specification plays fast-and-loose with certain aspects of
+            texturing. And with the driving need for graphics card makers to have high performance
+            and high image quality, graphics driver writers can, at the behest of the user, simply
+            ignore the OpenGL spec with regard to certain aspects of texturing.</p>
+        <p>The image quality settings in your graphics driver provide control over this. They are
+            ways for you to tell graphics drivers to ignore whatever the application thinks it
+            should do and instead do things their way. That is fine for a game, but right now, we
+            are learning how things work. If the driver starts pretending that we set some parameter
+            that we clearly did not, it will taint our results and make it difficult to know what
+            parameters cause what effects.</p>
+        <p>Therefore, you will need to go into your graphics driver application and change all of
+            those setting to the value that means to do what the application says. Otherwise, the
+            visual results you get for the following code may be very different from the given
+            images. This includes settings for antialiasing.</p>
+    </div>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp11698"></a>Playing Checkers</h2></div></div></div>
+        
+        
+        <p>We will start by drawing a single large, flat plane. The plane will have a texture of
+            a checkerboard drawn on it. The camera will hover above the plane, looking out at the
+            horizon as if the plane were the ground. This is implemented in the <span class="propername">Many Images</span> tutorial project.</p>
+        <div class="figure"><a name="idp11702"></a><p class="title"><b>Figure 15.1. Basic Checkerboard Plane</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="BasicCheckerboardPlane.png" alt="Basic Checkerboard Plane"></div>
+        </div></div><br class="figure-break">
+        <p>The camera is automatically controlled, though it's motion can be paused with the
+                <span class="keycap"><strong>P</strong></span> key. The other functions of the tutorial will be explained as we
+            get to them.</p>
+        <p>If you look at the <code class="filename">BigPlane.xml</code> file, you will find that the
+            texture coordinates are well outside of the [0, 1] range we are used to. They span from
+            [-64, 64] now, but the texture itself is only valid within the [0, 1] range.</p>
+        <p>Recall from the last tutorial that the sampler object has a parameter that controls
+            what texture coordinates outside of the [0, 1] range mean. This tutorial uses many
+            samplers, but all of our samplers use the same S and T wrap modes:</p>
+        <pre class="programlisting">glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_S, GL_REPEAT);
+glSamplerParameteri(g_samplers[samplerIx], GL_TEXTURE_WRAP_T, GL_REPEAT);</pre>
+        <p>We set the S and T wrap modes to <code class="literal">GL_REPEAT</code>. This means that values
+            outside of the [0, 1] range wrap around to values within the range. So a texture
+            coordinate of 1.1 becomes 0.1, and a texture coordinate of -0.1 becomes 0.9. The idea is
+            to make it as though the texture were infinitely large, with infinitely many copies
+            repeating over and over.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>It is perfectly legitimate to set the texture coordinate wrapping modes
+                differently for different coordinates. Well, usually; this does not work for certain
+                texture types, but only because they take texture coordinates with special meanings.
+                For them, the wrap modes are ignored entirely.</p>
+        </div>
+        <p>You may toggle between two meshes with the <span class="keycap"><strong>Y</strong></span> key. The alternative
+            mesh is a long, square corridor.</p>
+        <p>The shaders used here are very simple. The vertex shader takes positions and texture
+            coordinates as inputs and outputs the texture coordinate directly. The fragment shader
+            takes the texture coordinate, fetches a texture with it, and writes that color value as
+            output. Not even gamma correction is used.</p>
+        <p>The texture in question is 128x128 in size, with 4 alternating black and white squares
+            on each side. Each of the black or white squares is 32 pixels across.</p>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut14%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Texturing.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut15%20Magnification.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Linear Filtering</td></tr></table></div></body></html>

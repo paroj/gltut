@@ -1,0 +1,274 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 16. Gamma and Textures</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Texturing.html" title="Part IV. Texturing"><link rel="prev" href="Tut15%20Glossary.html" title="Glossary"><link rel="next" href="Tut16%20Mipmaps%20and%20Linearity.html" title="sRGB and Mipmaps"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 16. Gamma and Textures</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut15%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part IV. Texturing</th><td width="20%" align="right"> <a accesskey="n" href="Tut16%20Mipmaps%20and%20Linearity.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp108"></a>Chapter 16. Gamma and Textures</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2016.html#idp12054">The sRGB Colorspace</a></span></dt><dt><span class="section"><a href="Tut16%20Mipmaps%20and%20Linearity.html">sRGB and Mipmaps</a></span></dt><dt><span class="section"><a href="Tut16%20Free%20Gamma%20Correction.html">sRGB and the Screen</a></span></dt><dt><span class="section"><a href="Tut16%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut16%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>In the last tutorial, we had our first picture texture. That was a simple, flat scene;
+        now, we are going to introduce lighting. But before we can do that, we need to have a
+        discussion about what is actually stored in the texture.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp12054"></a>The sRGB Colorspace</h2></div></div></div>
+        
+        
+        <p>One of the most important things you should keep in mind with textures is the answer
+            to the question, <span class="quote">“<span class="quote">what does the data in this texture mean?</span>”</span> In the first
+            texturing tutorial, we had many textures with various meanings. We had:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>A 1D texture that represented the Gaussian model of specular reflections for a
+                    specific shininess value.</p>
+            </li><li class="listitem">
+                <p>A 2D texture that represented the Gaussian model of specular reflections,
+                    where the S coordinate represented the angle between the normal and the
+                    half-angle vector. The T coordinate is the shininess of the surface.</p>
+            </li><li class="listitem">
+                <p>A 2D texture that assigned a specular shininess to each position on the
+                    surface.</p>
+            </li></ul></div>
+        <p>It is vital to know what data a texture stores and what its texture coordinates mean.
+            Without this knowledge, one could not effectively use those textures.</p>
+        <p>Earlier, we discussed how important colors in a linear colorspace was to getting
+            accurate color reproduction in lighting and rendering. Gamma correction was applied to
+            the output color, to map the linear RGB values to the gamma-correct RGB values the
+            display expects.</p>
+        <p>At the time, we said that our lighting computations all assume that the colors of the
+            vertices were linear RGB values. Which means that it was important that the creator of
+            the model, the one who put the colors in the mesh, ensure that the colors being added
+            were in fact linear RGB colors. If the modeller failed to do this, if the modeller's
+            colors were in a non-linear RGB colorspace, then the mesh would come out with colors
+            that were substantially different from what he expected.</p>
+        <p>The same goes for textures, only much moreso. And that is for one very important
+            reason. Load up the <span class="propername">Gamma Ramp</span> tutorial.</p>
+        <div class="figure"><a name="idp12070"></a><p class="title"><b>Figure 16.1. Gamma Ramp </b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Gamma%20Ramp.png" alt="Gamma Ramp"></div>
+        </div></div><br class="figure-break">
+        <p>These are just two rectangles with a texture mapped to them. The top one is rendered
+            without the shader's gamma correction, and the bottom one is rendered with gamma
+            correction. These textures are 320x64 in size, and they are rendered at exactly this
+            size.</p>
+        <p>The texture contains five greyscale color blocks. Each block increases in brightness
+            from the one to its left, in 25% increments. So the second block to the left is 25% of
+            maximum brightness, the middle block is 50% and so on. This means that the second block
+            to the left should appear half as bright as the middle, and the middle should appear
+            half as bright as the far right block.</p>
+        <p>Gamma correction exists to make linear values appear properly linear on a non-linear
+            display. It corrects for the display's non-linearity. Given everything we know, the
+            bottom rectangle, the one with gamma correction which takes linear values and converts
+            them for proper display, should appear correct. The top rectangle should appear
+            wrong.</p>
+        <p>And yet, we see the exact opposite. The relative brightness of the various blocks is
+            off in the bottom block, but not the top. Why does this happen?</p>
+        <p>Because, while the apparent brightness of the texture values increases in 25%
+            increments, the color values that are used by that texture do not. This texture was not
+            created by simply putting 0.0 in the first block, 0.25 in the second, and so forth. It
+            was created by an image editing program. The colors were selected by their
+                <span class="emphasis"><em>apparent</em></span> relative brightness, not by simply adding 0.25 to the
+            values.</p>
+        <p>This means that the color values have <span class="emphasis"><em>already been</em></span> gamma
+            corrected. They cannot be in a linear colorspace, because the person creating the image
+            selected colors based the colors on their appearance. Since the appearance of a color is
+            affected by the non-linearity of the display, the texture artist was effectively
+            selected post-gamma corrected color values. To put it simply, the colors in the texture
+            are already in a non-linear color space.</p>
+        <p>Since the top rectangle does not use gamma correction, it is simply passing the
+            pre-gamma corrected color values to the display. It simply works itself out. The bottom
+            rectangle effectively performs gamma correction twice.</p>
+        <p>This is all well and good, when we are drawing a texture directly to the screen. But
+            if the colors in that texture were intended to represent the diffuse reflectance of a
+            surface as part of the lighting equation, then there is a major problem. The color
+            values retrieved from the texture are non-linear, and all of our lighting equations
+                <span class="emphasis"><em>need</em></span> the input values to be linear.</p>
+        <p>We could un-gamma correct the texture values manually, either at load time or in the
+            shader. But that is entirely unnecessary and wasteful. Instead, we can just tell OpenGL
+            the truth: that the texture is not in a linear colorspace.</p>
+        <p>Virtually every image editing program you will ever encounter, from the almighty
+            Photoshop to the humble Paint, displays colors in a non-linear colorspace. But they do
+            not use just any non-linear colorspace; they have settled on a specific colorspace
+            called the <em class="glossterm">sRGB colorspace.</em> So when an artist selects a shade of
+            green for example, they are selecting it from the sRGB colorspace, which is
+            non-linear.</p>
+        <p>How commonly used is the sRGB colorspace? It's built into every JPEG. It's used by
+            virtually every video compression format and tool. It is assumed by virtual every image
+            editing program. In general, if you get an image from an unknown source, it would be
+            perfectly reasonable to assume the RGB values are in sRGB unless you have specific
+            reason to believe otherwise.</p>
+        <p>The sRGB colorspace is an approximation of a gamma of 2.2. It is not exactly 2.2, but
+            it is close enough that you can display an sRGB image to the screen without gamma
+            correction. Which is exactly what we did with the top rectangle.</p>
+        <p>Because of the ubiquity of the sRGB colorspace, sRGB decoding logic is built directly
+            into GPUs these days. And naturally OpenGL supports it. This is done via special image
+            formats.</p>
+        <div class="example"><a name="idp12092"></a><p class="title"><b>Example 16.1. sRGB Image Format</b></p><div class="example-contents">
+            
+            <pre class="programlisting">std::auto_ptr&lt;glimg::ImageSet&gt; pImageSet(glimg::loaders::stb::LoadFromFile(filename.c_str()));
+
+glimg::SingleImage image = pImageSet-&gt;GetImage(0, 0, 0);
+glimg::Dimensions dims = image.GetDimensions();
+
+glimg::OpenGLPixelTransferParams pxTrans = glimg::GetUploadFormatType(pImageSet-&gt;GetFormat(), 0);
+
+glBindTexture(GL_TEXTURE_2D, g_textures[0]);
+
+glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, dims.width, dims.height, 0,
+    pxTrans.format, pxTrans.type, image.GetImageData());
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet-&gt;GetMipmapCount() - 1);
+		
+glBindTexture(GL_TEXTURE_2D, g_textures[1]);
+glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8, dims.width, dims.height, 0,
+    pxTrans.format, pxTrans.type, image.GetImageData());
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, pImageSet-&gt;GetMipmapCount() - 1);
+
+glBindTexture(GL_TEXTURE_2D, 0);</pre>
+        </div></div><br class="example-break">
+        <p>This code loads the same texture data twice, but with a different texture format. The
+            first one uses the <code class="literal">GL_RGB8</code> format, while the second one uses
+                <code class="literal">GL_SRGB8</code>. The latter identifies the texture's color data as being
+            in the sRGB colorspace.</p>
+        <p>To see what kind of effect this has on our rendering, you can switch between which
+            texture is used. The <span class="keycap"><strong>1</strong></span> key switches the top texture between linear RGB
+            (which from now on will be called <acronym class="acronym">lRGB</acronym>) and sRGB, while
+                <span class="keycap"><strong>2</strong></span> does the same for the bottom.</p>
+        <div class="figure"><a name="idp12102"></a><p class="title"><b>Figure 16.2. Gamma Ramp with sRGB Images</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Gamma%20Ramp%20sRGB.png" alt="Gamma Ramp with sRGB Images"></div>
+        </div></div><br class="figure-break">
+        <p>When using the sRGB version for both the top and the bottom, we can see that the gamma
+            correct bottom one is right.</p>
+        <p>When a texture uses one of the sRGB formats, texture access functions to those
+            textures do things slightly differently. When they fetch a texel, OpenGL automatically
+            linearizes the color from the sRGB colorspace. This is exactly what we want. And the
+            best part is that the linearisation cost is negligible. So there is no need to play with
+            the data or otherwise manually linearize it. OpenGL does it for us.</p>
+        <p>Note that the shader does not change. It still uses a regular <span class="type">sampler2D</span>,
+            accesses it with a 2D texture coordinate and the <code class="function">texture</code> function,
+            etc. The shader does not have to know or care whether the image data is in the sRGB
+            colorspace or a linear one. It simply calls the <code class="function">texture</code> function
+            and expects it to return lRGB color values.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12113"></a>Pixel Positioning</h3></div></div></div>
+            
+            <p>There is an interesting thing to note about the rendering in this tutorial. Not
+                only does it use an orthographic projection (unlike most of our tutorials since
+                Tutorial 4), it does something special with its orthographic projection. In the
+                pre-perspective tutorials, the orthographic projection was used essentially by
+                default. We were drawing vertices directly in clip-space. And since the W of those
+                vertices was 1, clip-space is identical to NDC space, and we therefore had an
+                orthographic projection.</p>
+            <p>It is often useful to want to draw certain objects using window-space pixel
+                coordinates. This is commonly used for drawing text, but it can also be used for
+                displaying images exactly as they appear in a texture, as we do here. Since a vertex
+                shader must output clip-space values, the key is to develop a matrix that transforms
+                window-space coordinates into clip-space. OpenGL will handle the conversion back to
+                window-space internally.</p>
+            <p>This is done via the <code class="function">reshape</code> function, as with most of our
+                projection matrix functions. The computation is actually quite simple.</p>
+            <div class="example"><a name="idp12119"></a><p class="title"><b>Example 16.2. Window to Clip Matrix Computation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glutil::MatrixStack persMatrix;
+persMatrix.Translate(-1.0f, 1.0f, 0.0f);
+persMatrix.Scale(2.0f / w, -2.0f / h, 1.0f);</pre>
+            </div></div><br class="example-break">
+            <p>The goal is to transform window-space coordinates into clip-space, which is
+                identical to NDC space since the W component remains 1.0. Window-space coordinates
+                have an X range of [0, w) and Y range of [0, h). NDC space has X and Y ranges of
+                [-1, 1].</p>
+            <p>The first step is to scale our two X and Y ranges from [0, w/h) to [0, 2]. The
+                next step is to apply a simply offset to shift it over to the [-1, 1] range. Don't
+                forget that the transforms are applied in the reverse order from how they are
+                applied to the matrix stack.</p>
+            <p>There is one thing to note however. NDC space has +X going right and +Y going up.
+                OpenGL's window-space agrees with this; the origin of window-space is at the
+                lower-left corner. That is nice and all, but many people are used to a top-left
+                origin, with +Y going down.</p>
+            <p>In this tutorial, we use a top-left origin window-space. That is why the Y scale
+                is negated and why the Y offset is positive (for a lower-left origin, we would want
+                a negative offset).</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>By negating the Y scale, we flip the winding order of objects rendered. This
+                    is normally not a concern; most of the time you are working in window-space, you
+                    aren't relying on face culling to strip out certain triangles. In this tutorial,
+                    we do not even enable face culling. And oftentimes, when you are rendering with
+                    pixel-accurate coordinates, face culling is irrelevant and should be
+                    disabled.</p>
+            </div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12128"></a>Vertex Formats</h3></div></div></div>
+            
+            <p>In all of the previous tutorials, our vertex data has been arrays of
+                floating-point values. For the first time, that is not the case. Since we are
+                working in pixel coordinates, we want to specify vertex positions with integer pixel
+                coordinates. This is what the vertex data for the two rectangles look like:</p>
+            <pre class="programlisting">const GLushort vertexData[] = {
+     90, 80,	0,     0,
+     90, 16,	0,     65535,
+    410, 80,	65535, 0,
+    410, 16,	65535, 65535,
+    
+     90, 176,   0,     0,
+     90, 112,   0,     65535,
+    410, 176,   65535, 0,
+    410, 112,   65535, 65535,
+};</pre>
+            <p>Our vertex data has two attributes: position and texture coordinates. Our
+                positions are 2D, as are our texture coordinates. These attributes are interleaved,
+                with the position coming first. So the first two columns above are the positions and
+                the second two columns are the texture coordinates.</p>
+            <p>Instead of floats, our data is composed of <span class="type">GLushort</span>s, which are
+                2-byte integers. How OpenGL interprets them is specified by the parameters to
+                    <code class="function">glVertexAttribPointer</code>. It can interpret them in two ways
+                (technically 3, but we don't use that here):</p>
+            <div class="example"><a name="idp12136"></a><p class="title"><b>Example 16.3. Vertex Format</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glBindVertexArray(g_vao);
+glBindBuffer(GL_ARRAY_BUFFER, g_dataBufferObject);
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 2, GL_UNSIGNED_SHORT, GL_FALSE, 8, (void*)0);
+glEnableVertexAttribArray(5);
+glVertexAttribPointer(5, 2, GL_UNSIGNED_SHORT, GL_TRUE, 8, (void*)4);
+
+glBindVertexArray(0);
+glBindBuffer(GL_ARRAY_BUFFER, 0);</pre>
+            </div></div><br class="example-break">
+            <p>Attribute 0 is our position. We see that the type is not
+                    <code class="literal">GL_FLOAT</code> but <code class="literal">GL_UNSIGNED_SHORT</code>. This
+                matches the C++ type we use. But the attribute taken by the GLSL shader is a
+                floating point <span class="type">vec2</span>, not an integer 2D vector (which would be
+                    <span class="type">ivec2</span> in GLSL). How does OpenGL reconcile this?</p>
+            <p>It depends on the fourth parameter, which defines whether the integer value is
+                normalized. If it is set to <code class="literal">GL_FALSE</code>, then it is not normalized.
+                Therefore, it is converted into a float as though by standard C/C++ casting. An
+                integer value of 90 is cast into a floating-point value of 90.0f. And this is
+                exactly what we want.</p>
+            <p>Well, that is what we want to for the position; the texture coordinate is a
+                different matter. Normalized texture coordinates should range from [0, 1] (unless we
+                want to employ wrapping of some form). To accomplish this, integer texture
+                coordinates are often, well, normalized. By passing <code class="literal">GL_TRUE</code> to
+                the fourth parameter (which only works if the third parameter is an integer type),
+                we tell OpenGL to normalize the integer value when converting it to a float.</p>
+            <p>This normalization works exactly as it does for texel value normalization. Since
+                the maximum value of a <span class="type">GLushort</span> is 65535, that value is mapped to 1.0f,
+                while the minimum value 0 is mapped to 0.0f. So this is just a slightly fancy way of
+                setting the texture coordinates to 1 and 0.</p>
+            <p>Note that all of this conversion is <span class="emphasis"><em>free</em></span>, in terms of
+                performance. Indeed, it is often a useful performance optimization to compact vertex
+                attributes as small as is reasonable. It is better in terms of both memory and
+                rendering performance, since reading less data from memory takes less time.</p>
+            <p>OpenGL is just fine with using normalized shorts alongside 32-bit floats,
+                normalized unsigned bytes (useful for colors), etc, all in the same vertex data
+                (though not within the same <span class="emphasis"><em>attribute</em></span>). The above array could
+                have use <code class="literal">GLubyte</code> for the texture coordinate, but it would have
+                been difficult to write that directly into the code as a C-style array. In a real
+                application, one would generally not get meshes from C-style arrays, but from
+                files.</p>
+        </div>
+    </div>
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut15%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Texturing.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut16%20Mipmaps%20and%20Linearity.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> sRGB and Mipmaps</td></tr></table></div></body></html>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="500px" >
+	<style type="text/css" ><![CDATA[.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.point
+{
+	fill: black;
+	stroke: none;
+}
+
+.light
+{
+	fill: yellow;
+	stroke: none;
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.lightRay
+{
+	stroke: lightblue;
+}
+
+.label
+{
+	font-size: 14pt;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}]]></style>
+	<defs >
+		<g id="g_point" >
+			<circle r="4" cy="0" cx="0" class="vertex" />
+		</g>
+	</defs>
+	<rect y="240" x="-2.8421709430404e-014" height="90" width="500" class="surface" />
+	<line x2="160" y2="240" y1="60" x1="40" class="lightRay" />
+	<line x2="250" y2="240" y1="60" x1="40" class="lightRay" />
+	<line x2="160" y2="240" y1="60" x1="280" class="lightRay" />
+	<line x2="250" y2="240" y1="60" x1="460" class="lightRay" />
+	<circle r="20" cy="60" cx="40" class="light" />
+	<text y="65" x="292" class="label" >A</text>
+	<use xlink:href="#g_point" y="60" x="280" height="8" width="8" />
+	<text y="65" x="472" class="label" >B</text>
+	<use xlink:href="#g_point" y="60" x="460" height="8" width="8" />
+	<use xlink:href="#g_point" y="240" x="160" height="8" width="8" />
+	<text y="260" x="160" class="label" >P</text>
+</svg>

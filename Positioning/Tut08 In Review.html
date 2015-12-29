@@ -1,0 +1,70 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2008.html" title="Chapter 8. Getting Oriented"><link rel="prev" href="Tut08%20Interpolation.html" title="Interpolation"><link rel="next" href="Tut08%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut08%20Interpolation.html">Prev</a> </td><th width="60%" align="center">Chapter 8. Getting Oriented</th><td width="20%" align="right"> <a accesskey="n" href="Tut08%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp61"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>A fixed sequence of successive rotations can prevent other rotations from
+                    contributing to the object's orientation. It also makes it difficult to
+                    correctly orient the object in an intuitive way, since previous rotations have
+                    effects on later ones.</p>
+            </li><li class="listitem">
+                <p>Quaternions are 4-dimensional vectors that can encode an orientation. They can
+                    be used for successively applying small rotations to an orientation. Matrices
+                    fail at this because of the difficulty of orthonormalizing them to avoid
+                    floating-point error accumulation.</p>
+            </li><li class="listitem">
+                <p>Quaternions work almost identically to matrices, in so far as they specify
+                    orientations. They can be constructed directly from an angle/axis rotation, and
+                    they can be composed with one another via quaternion multiplication.</p>
+            </li><li class="listitem">
+                <p>One can transform a matrix, or a quaternion with another matrix or quaternion,
+                    such that the resulting transform is specified in a different space. This is
+                    useful for applying rotations to an object's orientation that are in
+                    camera-space,, while the object's orientation remains a model-to-world
+                    transform.</p>
+            </li><li class="listitem">
+                <p>Quaternions can be interpolated, either with component-wise linear
+                    interpolation or with spherical linear interpolation. If the angle between two
+                    quaternion vectors is greater than 90°, then the interpolation between them will
+                    move indirectly between the two.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7347"></a>Further Study</h3></div></div></div>
+            
+            <p>Try doing the following with the orientation tutorials.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>Modify the Interpolation tutorial to allow multiple animations to be
+                        active simultaneously. The <code class="classname">Orientation</code> class is
+                        already close to being able to allow this. Instead of storing a single
+                            <code class="classname">Orientation::Animation</code> object, it should store a
+                            <code class="classname">std::deque</code> of them. When the external code adds a
+                        new one, it gets pushed onto the end of the deque. During update, the
+                        front-most entries can end and be popped off, recording its destination
+                        index as the new current one in the <code class="classname">Orientation</code>
+                        class. To get the orientation, just call each animation's orientation
+                        function, feeding the previous result into the next one.</p>
+                </li><li class="listitem">
+                    <p>Change the Interpolation tutorial to allow one to specify whether the long
+                        path or short path between two orientations should be taken. This can work
+                        for both linear and spherical interpolation.</p>
+                </li></ul></div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7359"></a>Further Research</h3></div></div></div>
+            
+            <p>This discussion has focused on the utility of quaternions in orienting objects,
+                and it has deftly avoided answering the question of exactly what a quaternion
+                    <span class="emphasis"><em>is.</em></span> After all, saying that a quaternion is a
+                four-dimensional complex number does not explain why they are useful in graphics.
+                They are a quite fascinating subject for those who like oddball math
+                concepts.</p>
+            <p>This discussion has also glossed over a few uses of quaternions in graphics, such
+                as how to directly rotate a position or direction by a quaternion. Such information
+                is readily available online.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut08%20Interpolation.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2008.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut08%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Interpolation </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

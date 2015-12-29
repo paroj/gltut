@@ -1,0 +1,443 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Normal Transformation</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2009.html" title="Chapter 9. Lights On"><link rel="prev" href="Tutorial%2009.html" title="Chapter 9. Lights On"><link rel="next" href="Tut09%20Global%20Illumination.html" title="Global Illumination"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Normal Transformation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2009.html">Prev</a> </td><th width="60%" align="center">Chapter 9. Lights On</th><td width="20%" align="right"> <a accesskey="n" href="Tut09%20Global%20Illumination.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp65"></a>Normal Transformation</h2></div></div></div>
+        
+        
+        <p>In the last section, we saw that our computation of the cosine of the angle of
+            incidence has certain requirements. Namely, that the two vectors involved, the surface
+            normal and the light direction, are of unit length. The light direction can be assumed
+            to be of unit length, since it is passed directly as a uniform.</p>
+        <p>The surface normal can also be assumed to be of unit length.
+                <span class="emphasis"><em>Initially.</em></span> However, the normal undergoes a transformation by an
+            arbitrary matrix; there is no guarantee that this transformation will not apply scaling
+            or other transformations to the vector that will result in a non-unit vector.</p>
+        <p>Of course, it is easy enough to correct this. The GLSL function
+                <code class="function">normalize</code> will return a vector that is of unit length without
+            changing the direction of the input vector.</p>
+        <p>And while mathematically this would function, geometrically, it would be nonsense. For
+            example, consider a 2D circle. We can apply a non-uniform scale (different scales in
+            different axes) to the positions on this circle that will transform it into an
+            ellipse:</p>
+        <div class="figure"><a name="idp7763"></a><p class="title"><b>Figure 9.7. Circle Scaling</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CircleScaling.svg" alt="Circle Scaling"></div>
+        </div></div><br class="figure-break">
+        <p>This is all well and good, but consider the normals in this transformation:</p>
+        <div class="figure"><a name="idp7769"></a><p class="title"><b>Figure 9.8. Circle Scaling with Normals</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CircleNormalScaling.svg" alt="Circle Scaling with Normals"></div>
+        </div></div><br class="figure-break">
+        <p>The ellipse in the middle has the normals that you would expect if you transformed the
+            normals from the circle by the same matrix the circle was transformed by. They may be
+            unit length, but they no longer reflect the <span class="emphasis"><em>shape</em></span> of the ellipse.
+            The ellipse on the right has normals that reflect the actual shape.</p>
+        <p>It turns out that, what you really want to do is transform the normals with the same
+            rotations as the positions, but invert the scales. That is, a scale of 0.5 along the X
+            axis will shrink positions in that axis by half. For the surface normals, you want to
+                <span class="emphasis"><em>double</em></span> the X value of the normals, then normalize the
+            result.</p>
+        <p>This is easy if you have a simple matrix. But more complicated matrices, composed from
+            multiple successive rotations, scales, and other operations, are not so easy to
+            compute.</p>
+        <p>Instead, what we must do is compute something called the <em class="glossterm">inverse
+                transpose</em> of the matrix in question. This means we first compute the
+            inverse matrix, then compute the <em class="glossterm">transpose</em> of that matrix. The
+            transpose of a matrix is simply the same matrix flipped along the diagonal. The columns
+            of the original matrix are the rows of its transpose. That is:</p>
+        <div class="equation"><a name="idp7782"></a><p class="title"><b>Equation 9.4. Matrix Transpose</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <msup>
+    <mi>M</mi>
+    <mo>T</mo>
+  </msup>
+  <mo>=</mo>
+  <msup>
+	  <mfenced open="[" close="]" separators=",">
+		<mrow>
+		  <mtable>
+			<mtr>
+			  <mtd>
+				<mi>m11</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m21</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m31</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m41</mi>
+			  </mtd>
+			</mtr>
+			<mtr>
+			  <mtd>
+				<mi>m12</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m22</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m32</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m42</mi>
+			  </mtd>
+			</mtr>
+			<mtr>
+			  <mtd>
+				<mi>m13</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m23</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m33</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m43</mi>
+			  </mtd>
+			</mtr>
+			<mtr>
+			  <mtd>
+				<mi>m14</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m24</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m34</mi>
+			  </mtd>
+			  <mtd>
+				<mi>m44</mi>
+			  </mtd>
+			</mtr>
+		  </mtable>
+		</mrow>
+	  </mfenced>
+    <mo>T</mo>
+  </msup>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m11</mi>
+          </mtd>
+          <mtd>
+            <mi>m12</mi>
+          </mtd>
+          <mtd>
+            <mi>m13</mi>
+          </mtd>
+          <mtd>
+            <mi>m14</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m21</mi>
+          </mtd>
+          <mtd>
+            <mi>m22</mi>
+          </mtd>
+          <mtd>
+            <mi>m23</mi>
+          </mtd>
+          <mtd>
+            <mi>m24</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m31</mi>
+          </mtd>
+          <mtd>
+            <mi>m32</mi>
+          </mtd>
+          <mtd>
+            <mi>m33</mi>
+          </mtd>
+          <mtd>
+            <mi>m34</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m41</mi>
+          </mtd>
+          <mtd>
+            <mi>m42</mi>
+          </mtd>
+          <mtd>
+            <mi>m43</mi>
+          </mtd>
+          <mtd>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>So how does this inverse transpose help us?</p>
+        <p>Remember: what we want is to invert the scales of our matrix without affecting the
+            rotational characteristics of our matrix. Given a 3x3 matrix M that is composed of only
+            rotation and scale transformations, we can re-express this matrix as follows:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mi mathvariant="bold">M</mi>
+  <mo>=</mo>
+  <msub mathvariant="bold">
+          <mi>R</mi>
+        <mn>1</mn>
+  </msub>
+  <mo>*</mo>
+  <mi mathvariant="bold">S</mi>
+  <mo>*</mo>
+  <msub mathvariant="bold">
+          <mi>R</mi>
+        <mn>2</mn>
+  </msub>
+</mrow>
+</math>
+        </div>
+        <p>That is, the matrix can be expressed as doing a rotation into a space, followed by a
+            single scale transformation, followed by another rotation. We can do this
+                <span class="emphasis"><em>regardless</em></span> of how many scale and rotation matrices were used to
+            build M. That is, M could be the result of twenty rotation and scale matrices, but all
+            of those can be extracted into two rotations with a scale inbetween.<a href="#ftn.idp7889" class="footnote" name="idp7889"><sup class="footnote">[5]</sup></a></p>
+        <p>Recall that what we want to do is invert the scales in our transformation. Where we
+            scale by 0.4 in the original, we want to scale by 2.5 in the inverse. The inverse matrix
+            of a pure scale matrix is a matrix with each of the scaling components inverted.
+            Therefore, we can express the matrix that we actually want as this:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <msub mathvariant="bold">
+	<mi mathvariant="bold">M</mi>
+	<mi>want</mi>
+  </msub>
+  <mo>=</mo>
+  <msub mathvariant="bold">
+          <mi>R</mi>
+        <mn>1</mn>
+  </msub>
+  <mo>*</mo>
+  <msup>
+  <mi mathvariant="bold">S</mi>
+  <mn>-1</mn>
+  </msup>
+  <mo>*</mo>
+  <msub mathvariant="bold">
+          <mi>R</mi>
+        <mn>2</mn>
+  </msub>
+</mrow>
+</math>
+        </div>
+        <p>An interesting fact about pure-rotation matrices: the inverse of any rotation matrix
+                <span class="emphasis"><em>is</em></span> its transpose. Also, taking the inverse of a matrix twice
+            results in the original matrix. Therefore, you can express any pure-rotation matrix as
+            the inverse transpose of itself, without affecting the matrix. Since the inverse is its
+            transpose, and doing a transpose twice on a matrix does not change its value, the
+            inverse-transpose of a rotation matrix is a no-op.</p>
+        <p>Also, since the values in pure-scale matrices are along the diagonal, a transpose
+            operation on scale matrices does nothing. With these two facts in hand, we can
+            re-express the matrix we want to compute as:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <msub mathvariant="bold">
+	<mi mathvariant="bold">M</mi>
+	<mi>want</mi>
+  </msub>
+  <mo>=</mo>
+  <msup>
+      <mfenced open="(" close=")" separators=",">
+		  <msup>
+			  <msub mathvariant="bold">
+					  <mi>R</mi>
+					<mn>1</mn>
+			  </msub>
+			  <mn>-1</mn>
+			  </msup>
+	  </mfenced>
+	  <mi>T</mi>
+  </msup>
+  <mo>*</mo>
+  <msup>
+      <mfenced open="(" close=")" separators=",">
+		  <msup>
+			  <mi mathvariant="bold">S</mi>
+			  <mn>-1</mn>
+		  </msup>
+	  </mfenced>
+	  <mi>T</mi>
+  </msup>
+  <mo>*</mo>
+  <msup>
+      <mfenced open="(" close=")" separators=",">
+		  <msup>
+			  <msub mathvariant="bold">
+					  <mi>R</mi>
+					<mn>2</mn>
+			  </msub>
+			  <mn>-1</mn>
+		  </msup>
+	  </mfenced>
+	  <mi>T</mi>
+  </msup>
+</mrow>
+</math>
+        </div>
+        <p>Using matrix algebra, we can factor the transposes out, but doing so requires
+            reversing the order of the matrix multiplication:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mrow>
+        <msub mathvariant="bold">
+            <mi mathvariant="bold">M</mi>
+            <mi>want</mi>
+        </msub>
+        <mo>=</mo>
+        <msup>
+            <mfenced open="(" close=")" separators=",">
+				<mrow>
+					<msup>
+						<msub mathvariant="bold">
+							<mi>R</mi>
+							<mn>2</mn>
+						</msub>
+						<mn>-1</mn>
+					</msup>
+					<mo>*</mo>
+					<msup>
+						<mi mathvariant="bold">S</mi>
+						<mn>-1</mn>
+					</msup>
+					<mo>*</mo>
+					<msup>
+						<msub mathvariant="bold">
+							<mi>R</mi>
+							<mn>1</mn>
+						</msub>
+						<mn>-1</mn>
+					</msup>
+				</mrow>
+            </mfenced>
+            <mi>T</mi>
+        </msup>
+    </mrow>
+</math>
+        </div>
+        <p>Similar, we can factor out the inverse operations, but this requires reversing the
+            order again:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+    <mrow>
+        <msub mathvariant="bold">
+            <mi mathvariant="bold">M</mi>
+            <mi>want</mi>
+        </msub>
+        <mo>=</mo>
+        <msup>
+            <mfenced open="(" close=")" separators=",">
+                <mrow>
+                    <msup>
+                        <mfenced open="(" close=")" separators=",">
+                            <mrow>
+                                <msub mathvariant="bold">
+                                    <mi>R</mi>
+                                    <mn>1</mn>
+                                </msub>
+                                <mo>*</mo>
+                                <mi mathvariant="bold">S</mi>
+                                <mo>*</mo>
+                                <msub mathvariant="bold">
+                                    <mi>R</mi>
+                                    <mn>2</mn>
+                                </msub>
+                            </mrow>
+                        </mfenced>
+                        <mn>-1</mn>
+                    </msup>
+                </mrow>
+            </mfenced>
+            <mi>T</mi>
+        </msup>
+        <mo>=</mo>
+        <msup>
+            <mfenced open="(" close=")" separators=",">
+                <msup>
+                    <mi mathvariant="bold">M</mi>
+                    <mn>-1</mn>
+                </msup>
+            </mfenced>
+            <mi>T</mi>
+        </msup>
+    </mrow>
+</math>
+        </div>
+        <p>Thus, the inverse-transpose solves our problem. And both GLM and GLSL have nice
+            functions that can do these operations for us. Though really, if you can avoid doing an
+            inverse-transpose in GLSL, you are <span class="emphasis"><em>strongly</em></span> advised to do so; this
+            is not a trivial computation.</p>
+        <p>We do this in the <span class="propername">Scale and Lighting</span> tutorial. It
+            controls mostly the same as the previous tutorial, with a few exceptions. Pressing the
+            space bar will toggle between a regular cylinder and a scaled one. The <span class="quote">“<span class="quote">T</span>”</span>
+            key will toggle between properly using the inverse-transpose (the default) and not using
+            the inverse transpose. The rendering code for the cylinder is as follows:</p>
+        <div class="example"><a name="idp8010"></a><p class="title"><b>Example 9.5. Lighting with Proper Normal Transform</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glutil::PushStack push(modelMatrix);
+
+modelMatrix.ApplyMatrix(g_objtPole.CalcMatrix());
+
+if(g_bScaleCyl)
+{
+    modelMatrix.Scale(1.0f, 1.0f, 0.2f);
+}
+
+glUseProgram(g_VertexDiffuseColor.theProgram);
+glUniformMatrix4fv(g_VertexDiffuseColor.modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(modelMatrix.Top()));
+glm::mat3 normMatrix(modelMatrix.Top());
+if(g_bDoInvTranspose)
+{
+    normMatrix = glm::transpose(glm::inverse(normMatrix));
+}
+glUniformMatrix3fv(g_VertexDiffuseColor.normalModelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(normMatrix));
+glUniform4f(g_VertexDiffuseColor.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+g_pCylinderMesh-&gt;Render("lit-color");
+glUseProgram(0);</pre>
+        </div></div><br class="example-break">
+        <p>It's pretty self-explanatory.</p>
+        <div class="figure"><a name="idp8014"></a><p class="title"><b>Figure 9.9. Lighting and Scale</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Scale%20and%20Lighting.png" alt="Lighting and Scale"></div>
+        </div></div><br class="figure-break">
+        <p>One more thing to note before we move on. Doing the inverse-transpose is only really
+            necessary if you are using a <span class="emphasis"><em>non-uniform</em></span> scale. In practice, it's
+            actually somewhat rare to use this kind of scale factor. We do it in these tutorials, so
+            that it is easier to build models from simple geometric components. But when you have an
+            actual modeller creating objects for a specific purpose, non-uniform scales generally
+            are not used. At least, not in the output mesh. It's better to just get the modeller to
+            adjust the model as needed in their modelling application.</p>
+        <p>Uniform scales are more commonly used. So you still need to normalize the normal after
+            transforming it with the model-to-camera matrix, even if you are not using the
+            inverse-transpose.</p>
+    <div class="footnotes"><br><hr style="width:100; text-align:left;margin-left: 0"><div id="ftn.idp7889" class="footnote">
+                <p><a href="#idp7889" class="para"><sup class="para">[5] </sup></a>We will skip over deriving how exactly this is true. If you are interested,
+                    search for <span class="quote">“<span class="quote"><a class="ulink" href="http://en.wikipedia.org/wiki/Singular_value_decomposition" target="_top">Singular Value Decomposition</a></span>”</span>. But be warned: it is
+                    math-heavy.</p>
+            </div></div></div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2009.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2009.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut09%20Global%20Illumination.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 9. Lights On </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Global Illumination</td></tr></table></div></body></html>

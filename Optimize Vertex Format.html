@@ -1,0 +1,115 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Vertex Format</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Basic%20Optimization.html" title="Appendix A. Basic Optimization"><link rel="prev" href="apas04.html" title="Finding the Bottleneck"><link rel="next" href="Optimize%20Sync.html" title="Synchronization"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Vertex Format</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="apas04.html">Prev</a> </td><th width="60%" align="center">Appendix A. Basic Optimization</th><td width="20%" align="right"> <a accesskey="n" href="Optimize%20Sync.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp124"></a>Vertex Format</h2></div></div></div>
+        
+        
+        <p>Vertex attributes stored in buffer objects can be of a surprisingly large number of
+            formats. These tutorials generally used 32-bit floating-point data, but that is far from
+            the best case.</p>
+        <p>The <em class="glossterm">vertex format</em> specifically refers to the set of values
+            given to the <code class="function">glVertexAttribPointer</code> calls that describe how each
+            attribute is aligned in the buffer object.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12980"></a>Attribute Formats</h3></div></div></div>
+            
+            <p>Each attribute should take up as little room as possible. This is for performance
+                reasons, but it also saves memory. For buffer objects, these are usually one in the
+                same. The less data you have stored in memory, the faster it gets to the vertex
+                shader.</p>
+            <p>Attributes can be stored in normalized integer formats, just like textures. This
+                is most useful for colors and texture coordinates. For example, to have an attribute
+                that is stored in 4 unsigned normalized bytes, you can use this:</p>
+            <pre class="programlisting">glVertexAttribPointer(index, 4, GLubyte, GLtrue, 0, offset);</pre>
+            <p>If you want to store a normal as a normalized signed short, you can use
+                this:</p>
+            <pre class="programlisting">glVertexAttribPointer(index, 3, GLushort, GLtrue, 0, offset);</pre>
+            <p>There are also a few specialized formats. <code class="literal">GL_HALF_FLOAT</code> can be
+                used for 16-bit floating-point types. This is useful for when you need values
+                outside of [-1, 1], but do not need the full </p>
+            <p>Non-normalized integers can be used as well. These map in GLSL directly to
+                floating-point values, so a non-normalized value of 16 maps to a GLSL value of
+                16.0.</p>
+            <p>The best thing about all of these formats is that they cost
+                    <span class="emphasis"><em>nothing</em></span> in performance to use. They are all silently
+                converted into floating-point values for consumption by the vertex shader, with no
+                performance lost.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12992"></a>Interleaved Attributes</h3></div></div></div>
+            
+            <p>Attributes do not all have to come from the same buffer object; multiple
+                attributes can come from multiple buffers. However, where possible, this should be
+                avoided. Furthermore, attributes in the same buffer should be interleaved with one
+                another whenever possible.</p>
+            <p>Consider an array of structs in C++:</p>
+            <pre class="programlisting">struct Vertex
+{
+  float position[3];
+  GLubyte color[4];
+  GLushort texCoord[2];
+}
+
+Vertex vertArray[20];</pre>
+            <p>The byte offset of <code class="varname">color</code> in the <span class="type">Vertex</span> struct is
+                12. That is, from the beginning of the <span class="type">Vertex</span> struct, the
+                    <code class="varname">color</code> variable starts 12 bytes in. The
+                    <code class="varname">texCoord</code> variable starts 16 bytes in.</p>
+            <p>If we did a memcpy between <code class="varname">vertArray</code> and a buffer object, and
+                we wanted to set the attributes to pull from this data, we could do so using the
+                stride and offsets to position things properly.</p>
+            <pre class="programlisting">glVertexAttribPointer(0, 3, GL_FLOAT, GLfalse, 20, 0);
+glVertexAttribPointer(1, 3, GL_UNSIGNED_BYTE, GL_TRUE, 20, 12);
+glVertexAttribPointer(3, 3, GL_UNSIGNED_SHORT, GL_TRUE, 20, 16);</pre>
+            <p>The fifth argument is the stride. The stride is the number of bytes from the
+                beginning of one instance of this attribute to the beginning of another. The stride
+                here is set to <code class="literal">sizeof</code>(<span class="type">Vertex</span>). C++ defines that the
+                size of a struct represents the byte offset between separate instances of that
+                struct in an array. So that is our stride.</p>
+            <p>The offsets represent where in the buffer object the first element is. These match
+                the offsets in the struct. If we had loaded this data to a location past the front
+                of our buffer object, we would need to offset these values by the beginning of where
+                we uploaded our data to.</p>
+            <p>There are certain gotchas when deciding how data gets packed like this. First, it
+                is a good idea to keep every attribute on a 4-byte alignment. This may mean
+                introducing explicit padding (empty space) into your structures. Some hardware will
+                have massive slowdowns if things are not aligned to four bytes.</p>
+            <p>Next, it is a good idea to keep the size of any interleaved vertex data restricted
+                to multiples of 32 bytes in size. Violating this is not as bad as violating the
+                4-byte alignment rule, but one can sometimes get sub-optimal performance if the
+                total size of interleaved vertex data is, for example, 48 bytes. Or 20 bytes, as in
+                our example.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp13012"></a>Packing Suggestions</h3></div></div></div>
+            
+            <p>If the smallest vertex data size is what you need, consider these packing
+                techniques.</p>
+            <p>Colors generally do not need to be more than 3-4 bytes in size. One byte per
+                component.</p>
+            <p>Texture coordinates, particularly those clamped to the [0, 1] range, almost never
+                need more than 16-bit precision. So use unsigned shorts.</p>
+            <p>Normals should be stored in the signed 2_10_10_10 format whenever possible.
+                Normals generally do not need that much precisions, especially since you're going to
+                normalize them anyway. This format was specifically devised for normals, so use
+                it.</p>
+            <p>Positions are the trickiest to work with, because the needs vary so much. If you
+                are willing to modify your vertex shaders and put some work into it, you can often
+                use 16-bit signed normalized shorts.</p>
+            <p>The key to this is a special scale/translation matrix. When you are preparing your
+                data, in an offline tool, you take the floating-point positions of a model and
+                determine the model's maximum extents in all three axes. This forms a bounding box
+                around the model. The center of the box is the center of your new model, and you
+                apply a translation to move the points to this center. Then you apply a non-uniform
+                scale to transform the points from their extent range to the [-1, 1] range of signed
+                normalized values. You save the offset and the scales you used as part of your mesh
+                data (not to be stored in the buffer object).</p>
+            <p>When it comes time to render the model, you simply reverse the transformation. You
+                build a scale/translation matrix that undoes what was done to get them into the
+                signed-normalized range. Note that this matrix should not be applied to the normals,
+                because the normals were not compressed this way. A fully matrix multiply is even
+                overkill for this transformation; a scale+translation can be done with a simple
+                vector multiply and add.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="apas04.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Basic%20Optimization.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Optimize%20Sync.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Finding the Bottleneck </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Synchronization</td></tr></table></div></body></html>

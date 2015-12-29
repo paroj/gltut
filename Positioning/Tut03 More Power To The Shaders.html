@@ -1,0 +1,102 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>More Power to the Shaders</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2003.html" title="Chapter 3. OpenGL's Moving Triangle"><link rel="prev" href="Tut03%20A%20Better%20Way.html" title="A Better Way"><link rel="next" href="Tut03%20Multiple%20Shaders.html" title="Multiple Shaders"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">More Power to the Shaders</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut03%20A%20Better%20Way.html">Prev</a> </td><th width="60%" align="center">Chapter 3. OpenGL's Moving Triangle</th><td width="20%" align="right"> <a accesskey="n" href="Tut03%20Multiple%20Shaders.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp26"></a>More Power to the Shaders</h2></div></div></div>
+        
+        
+        <p>It's all well and good that we are no longer having to transform vertices manually.
+            But perhaps we can move more things to the vertex shader. Could it be possible to move
+            all of <code class="function">ComputePositionOffsets</code> to the vertex shader?</p>
+        <p>Well, no. The call to <code class="function">glutGet(GL_ELAPSED_TIME)</code> cannot be moved
+            there, since GLSL code cannot directly call C/C++ functions. But everything else can be
+            moved. This is what <code class="filename">VertCalcOffset.cpp</code> does.</p>
+        <p>The vertex program is found in <code class="filename">data\calcOffset.vert</code>.</p>
+        <div class="example"><a name="idp2205"></a><p class="title"><b>Example 3.6. Offset Computing Vertex Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+layout(location = 0) in vec4 position;
+uniform float loopDuration;
+uniform float time;
+
+void main()
+{
+    float timeScale = 3.14159f * 2.0f / loopDuration;
+    
+    float currTime = mod(time, loopDuration);
+    vec4 totalOffset = vec4(
+        cos(currTime * timeScale) * 0.5f,
+        sin(currTime * timeScale) * 0.5f,
+        0.0f,
+        0.0f);
+    
+    gl_Position = position + totalOffset;
+}</pre>
+        </div></div><br class="example-break">
+        <p>This shader takes two uniforms: the duration of the loop and the elapsed time.</p>
+        <p>In this shader, we use a number of standard GLSL functions, like
+                <code class="function">mod</code>, <code class="function">cos</code>, and <code class="function">sin</code>. We
+            saw <code class="function">mix</code> in the last tutorial. And these are just the tip of the
+            iceberg; there are a <span class="emphasis"><em>lot</em></span> of standard GLSL functions
+            available.</p>
+        <p>The rendering code looks quite similar to the previous rendering code:</p>
+        <div class="example"><a name="idp2216"></a><p class="title"><b>Example 3.7. Rendering with Time</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glUniform1f(elapsedTimeUniform, glutGet(GLUT_ELAPSED_TIME) / 1000.0f);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glDisableVertexAttribArray(0);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();
+}</pre>
+        </div></div><br class="example-break">
+        <p>This time, we do not need any code to use the elapsed time; we simply pass it
+            unmodified to the shader.</p>
+        <p>You may be wondering exactly how it is that the <code class="varname">loopDuration</code>
+            uniform gets set. This is done in our shader initialization routine, and it is done only
+            once:</p>
+        <div class="example"><a name="idp2222"></a><p class="title"><b>Example 3.8. Loop Duration Setting</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void InitializeProgram()
+{
+    std::vector&lt;GLuint&gt; shaderList;
+    
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "calcOffset.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "standard.frag"));
+    
+    theProgram = Framework::CreateProgram(shaderList);
+    
+    elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
+    
+    GLint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+    glUseProgram(theProgram);
+    glUniform1f(loopDurationUnf, 5.0f);
+    glUseProgram(0);
+}</pre>
+        </div></div><br class="example-break">
+        <p>We get the time uniform as normal with <code class="function">glGetUniformLocation</code>. For
+            the loop duration, we get that in a local variable. Then we immediately set the current
+            program object, set the uniform to a value, and then unset the current program
+            object.</p>
+        <p>Program objects, like all objects that contain internal state, will retain their state
+            unless you explicitly change it. So the value of <code class="varname">loopDuration</code> will be
+            5.0f in perpetuity; we do not need to set it every frame.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut03%20A%20Better%20Way.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2003.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut03%20Multiple%20Shaders.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">A Better Way </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Multiple Shaders</td></tr></table></div></body></html>

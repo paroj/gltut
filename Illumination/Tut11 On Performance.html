@@ -1,0 +1,110 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>On Performance</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2011.html" title="Chapter 11. Shinies"><link rel="prev" href="Tut11%20Gaussian.html" title="Gaussian"><link rel="next" href="Tut11%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">On Performance</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut11%20Gaussian.html">Prev</a> </td><th width="60%" align="center">Chapter 11. Shinies</th><td width="20%" align="right"> <a accesskey="n" href="Tut11%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp80"></a>On Performance</h2></div></div></div>
+        
+        
+        <p>The three specular highlight models seen here are obviously more computationally
+            expensive than diffuse lighting. But which is ultimately more expensive than the
+            others?</p>
+        <p>The difference between Phong and Blinn is that Phong must compute the reflection
+            vector, while Blinn computes the half-angle vector. The equation for computing the
+            reflection vector is:</p>
+        <div class="informalequation">
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <mover>
+                        <mi>I</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mo>-</mo>
+                    <mover>
+                        <mi>L</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mover>
+                        <mi>R</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mover>
+                        <mi>I</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                    <mo>-</mo>
+                    <mn>2</mn>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mover>
+                                <mi>N</mi>
+                                <mo>⇀</mo>
+                            </mover>
+                            <mo>·</mo>
+                            <mover>
+                                <mi>I</mi>
+                                <mo>⇀</mo>
+                            </mover>
+                        </mrow>
+                    </mfenced>
+                    <mo>*</mo>
+                    <mover>
+                        <mi>N</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+        </div>
+        <p>This involves a vector dot product, a scalar multiply, a vector-scalar multiply, and a
+            vector addition (subtraction). Computing the half-angle vector requires doing a vector
+            addition and performing a normalize operation. Normalizing a vector requires a vector
+            dot product (dotting the vector with itself), taking the square-root of that value, and
+            then a vector-scalar divide by that value.</p>
+        <p>Time once was that it was easy to know what was faster. The presence of a square-root
+            operation alone would have condemned Blinn as the slower method. On modern 3D graphics
+            hardware however, taking the reciprocal square-root (1 / √X) is generally about as fast
+            as doing a vector multiply. This puts Blinn as approximately equal in performance to
+            Phong; on some hardware, it may even be faster. In general, the performance difference
+            between the two will be negligible.</p>
+        <p>Gaussian is a different story. It would be reasonable to expect the
+                <code class="function">pow</code> function, taking 
+                <span class="mathphrase">x<sup>y</sup></span>
+             for arbitrary values, to be slower than executing
+                <code class="function">exp</code>, 
+                <span class="mathphrase">e<sup>x</sup></span>
+            . They might have the same performance, but if one is going to be
+            faster, it is more likely to be <code class="function">exp</code> than <code class="function">pow</code>.
+            However, Gaussian also uses the inverse cosine to compute the angle between the normal
+            and half-angle vector; that pretty much negates any possibility of performance parity.
+            The inverse cosine computation is certainly not built into the hardware, and thus must
+            be computed using the shader logic. And while this is likely true of exponentiation and
+            power functions, Gaussian has to do <span class="emphasis"><em>two</em></span> of these operations,
+            compared to just one for Phong or Blinn.</p>
+        <p>One might consider using Gouraud shading with specular reflections as a method of
+            optimization. That is, doing per-vertex specular reflections. Since there are fewer
+            vertices than fragments, this might sound like a good idea. However, this is not for the
+            best. Specular highlights do not interpolate linearly at all, so unless the mesh is
+            finely divided, it will generally look awful.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut11%20Gaussian.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2011.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut11%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Gaussian </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

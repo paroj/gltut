@@ -1,0 +1,944 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>The Matrix has You</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2004.html" title="Chapter 4. Objects at Rest"><link rel="prev" href="Tut04%20Perspective%20Projection.html" title="Perspective Projection"><link rel="next" href="Tut04%20Aspect%20of%20the%20World.html" title="Aspect of the World"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">The Matrix has You</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut04%20Perspective%20Projection.html">Prev</a> </td><th width="60%" align="center">Chapter 4. Objects at Rest</th><td width="20%" align="right"> <a accesskey="n" href="Tut04%20Aspect%20of%20the%20World.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Tut04_matrix"></a>The Matrix has You</h2></div></div></div>
+        
+        
+        <p>So, now that we can put the world into perspective, let's do it the right way. The
+                <span class="quote">“<span class="quote">needlessly overcomplicated for the time being but will make sense in a few
+                tutorials</span>”</span> way.</p>
+        <p>First, let us look at the system of equations used to compute clip coordinates from
+            camera space. Given that <code class="literal">S</code> is the frustum scale factor,
+                <code class="literal">N</code> is the zNear and <code class="literal">F</code> is the zFar, we get the
+            following four equations.</p>
+        <div class="equation"><a name="idp2718"></a><p class="title"><b>Equation 4.3. Camera to Clip Equations</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>X</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mi>S</mi>
+        <msub>
+                <mi>X</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>Y</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+        <mi>S</mi>
+        <msub>
+                <mi>Y</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>Z</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+        <mfrac>
+          <mrow>
+            <mi>F</mi>
+            <mo>+</mo>
+            <mi>N</mi>
+          </mrow>
+          <mrow>
+            <mi>N</mi>
+            <mo>-</mo>
+            <mi>F</mi>
+          </mrow>
+        </mfrac>
+        <msub>
+                <mi>Z</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>+</mo>
+        <mfrac>
+          <mrow>
+            <mn>2</mn>
+            <mi>F</mi>
+            <mi>N</mi>
+          </mrow>
+          <mrow>
+            <mi>N</mi>
+            <mo>-</mo>
+            <mi>F</mi>
+          </mrow>
+        </mfrac>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>W</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+      </mtd>
+      <mtd>
+        <mo>-</mo>
+        <msub>
+                <mi>Z</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>The odd spacing is intentional. For laughs, let's add a bunch of meaningless terms
+            that do not change the equation, but starts to develop an interesting pattern:</p>
+        <div class="equation"><a name="idp2802"></a><p class="title"><b>Equation 4.4. Camera to Clip Expanded Equations</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>X</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mi>S</mi>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>X</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Y</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Z</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>W</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>Y</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>X</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mi>S</mi>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Y</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Z</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>W</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>Z</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>X</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Y</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mfrac>
+              <mrow>
+                <mi>F</mi>
+                <mo>+</mo>
+                <mi>N</mi>
+              </mrow>
+              <mrow>
+                <mi>N</mi>
+                <mo>-</mo>
+                <mi>F</mi>
+              </mrow>
+            </mfrac>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Z</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mfrac>
+              <mrow>
+                <mn>2</mn>
+                <mi>F</mi>
+                <mi>N</mi>
+              </mrow>
+              <mrow>
+                <mi>N</mi>
+                <mo>-</mo>
+                <mi>F</mi>
+              </mrow>
+            </mfrac>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>W</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <msub>
+                <mi>W</mi>
+              <mtext>clip</mtext>
+        </msub>
+      </mtd>
+      <mtd>
+        <mo>=</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>X</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>Y</mi>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <msub>
+              <mrow>
+                <mfenced open="(" close=")" separators=",">
+                  <mrow>
+                    <mo>-</mo>
+                    <mn>1</mn>
+                  </mrow>
+                </mfenced>
+                <mi>Z</mi>
+              </mrow>
+              <mtext>camera</mtext>
+        </msub>
+        <mo>+</mo>
+      </mtd>
+      <mtd>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mn>0</mn>
+          </mrow>
+        </mfenced>
+        <msub>
+                <mi>W</mi>
+              <mtext>camera</mtext>
+        </msub>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>What we have here is what is known as a linear system of equations. The equations can
+            be specified as a series of coefficients (the numbers being multiplied by the XYZW
+            values) which are multiplied by the input values (XYZW) to produce the single output.
+            Each individual output value is a linear combination of all of the input values. In our
+            case, there just happen to be a lot of zero coefficients, so the output values in this
+            particular case only depend on a few input values.</p>
+        <p>You may be wondering at the multiplication of the additive term of
+                Z<sub>clip</sub>'s value by the camera space W. Well, our input camera
+            space position's W coordinate is always 1. So performing the multiplication is valid, so
+            long as this continues to be the case. Being able to do what we are about to do is part
+            of the reason why the W coordinate exists in our camera-space position values (the perspective divide is the other).</p>
+        <p>We can re-express any linear system of equations using a special kind of formulation.
+            You may recognize this reformulation, depending on your knowledge of linear
+            algebra:</p>
+        <div class="equation"><a name="idp2981"></a><p class="title"><b>Equation 4.5. Camera to Clip Matrix Transformation</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <msub>
+        <mrow>
+          <mfenced open="[" close="]" separators=",">
+            <mrow>
+              <mtable>
+                <mtr>
+                  <mtd>
+                    <mi>X</mi>
+                  </mtd>
+                </mtr>
+                <mtr>
+                  <mtd>
+                    <mi>Y</mi>
+                  </mtd>
+                </mtr>
+                <mtr>
+                  <mtd>
+                    <mi>Z</mi>
+                  </mtd>
+                </mtr>
+                <mtr>
+                  <mtd>
+                    <mi>W</mi>
+                  </mtd>
+                </mtr>
+              </mtable>
+            </mrow>
+          </mfenced>
+        </mrow>
+        <mtext>clip</mtext>
+  </msub>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>S</mi>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mi>S</mi>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mfrac>
+              <mrow>
+                <mi>F</mi>
+                <mo>+</mo>
+                <mi>N</mi>
+              </mrow>
+              <mrow>
+                <mi>N</mi>
+                <mo>-</mo>
+                <mi>F</mi>
+              </mrow>
+            </mfrac>
+          </mtd>
+          <mtd>
+            <mfrac>
+              <mrow>
+                <mn>2</mn>
+                <mi>F</mi>
+                <mi>N</mi>
+              </mrow>
+              <mrow>
+                <mi>N</mi>
+                <mo>-</mo>
+                <mi>F</mi>
+              </mrow>
+            </mfrac>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mo>-</mo>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <msub>
+        <mrow>
+          <mfenced open="[" close="]" separators=",">
+            <mrow>
+              <mtable>
+                <mtr>
+                  <mtd>
+                    <mi>X</mi>
+                  </mtd>
+                </mtr>
+                <mtr>
+                  <mtd>
+                    <mi>Y</mi>
+                  </mtd>
+                </mtr>
+                <mtr>
+                  <mtd>
+                    <mi>Z</mi>
+                  </mtd>
+                </mtr>
+                <mtr>
+                  <mtd>
+                    <mi>W</mi>
+                  </mtd>
+                </mtr>
+              </mtable>
+            </mrow>
+          </mfenced>
+        </mrow>
+        <mtext>camera</mtext>
+  </msub>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>The two long vertical columns of XYZW labeled <span class="quote">“<span class="quote">clip</span>”</span> and
+                <span class="quote">“<span class="quote">camera</span>”</span> are 4-dimensional vectors; namely the clip and camera space
+            position vectors. The larger block of numbers is a matrix. You probably are not familiar
+            with matrix math. If not, it will be explained presently.</p>
+        <p>Generically speaking, a <em class="glossterm">matrix</em> is a two dimensional block of
+            numbers (matrices with more than 2 dimensions are called <span class="quote">“<span class="quote">tensors</span>”</span>).
+            Matrices are very common in computer graphics. Thus far, we have been able to get along
+            without them. As we get into more detailed object transformations however, we will rely
+            more and more on matrices to simplify matters.</p>
+        <p>In graphics work, we typically use 4x4 matrices; that is, matrices with 4 columns and
+            4 rows respectively. This is due to the nature of graphics work: most of the things that
+            we want to use matrices for are either 3 dimensional or 3 dimensional with an extra
+            coordinate of data. Our 4D positions are just 3D positions with a 1 added to the
+            end.</p>
+        <p>The operation depicted above is a vector-matrix multiplication. A matrix of dimension
+                <code class="literal">n</code>x<code class="literal">m</code> can only be multiplied by a vector of
+            dimension <code class="literal">n</code>. The result of such a multiplication is a vector of
+            dimension <code class="literal">m</code>. Since our matrix in this case is 4x4, it can only be
+            multiplied with a 4D vector and this multiplication will produce a 4D vector.</p>
+        <p>Matrix multiplication does what the expanded equation example does. For every row in
+            the matrix, the values of each component of the column are multiplied by the
+            corresponding values in the rows of the vector. These values are then added together;
+            that becomes the single value for the row of the output vector.</p>
+        <div class="equation"><a name="idp3091"></a><p class="title"><b>Equation 4.6. Vector Matrix Multiplication</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>m11</mi>
+          </mtd>
+          <mtd>
+            <mi>m21</mi>
+          </mtd>
+          <mtd>
+            <mi>m31</mi>
+          </mtd>
+          <mtd>
+            <mi>m41</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m12</mi>
+          </mtd>
+          <mtd>
+            <mi>m22</mi>
+          </mtd>
+          <mtd>
+            <mi>m32</mi>
+          </mtd>
+          <mtd>
+            <mi>m42</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m13</mi>
+          </mtd>
+          <mtd>
+            <mi>m23</mi>
+          </mtd>
+          <mtd>
+            <mi>m33</mi>
+          </mtd>
+          <mtd>
+            <mi>m43</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>m14</mi>
+          </mtd>
+          <mtd>
+            <mi>m24</mi>
+          </mtd>
+          <mtd>
+            <mi>m34</mi>
+          </mtd>
+          <mtd>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>y</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>z</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>w</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+  <mo>=</mo>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m11</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m21</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m31</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m41</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m12</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m22</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m32</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m42</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m13</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m23</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m33</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m43</mi>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mi>x</mi>
+            <mo>*</mo>
+            <mi>m14</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>y</mi>
+            <mo>*</mo>
+            <mi>m24</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>z</mi>
+            <mo>*</mo>
+            <mi>m34</mi>
+          </mtd>
+          <mtd>
+            <mo>+</mo>
+          </mtd>
+          <mtd>
+            <mi>w</mi>
+            <mo>*</mo>
+            <mi>m44</mi>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>This results ultimately in performing 16 floating-point multiplications and 12
+            floating-point additions. That's quite a lot, particularly compared with our current
+            version. Fortunately, graphics hardware is designed to make these operations very fast.
+            Because each of the multiplications are independent of each other, they could all be
+            done simultaneously, which is exactly the kind of thing graphics hardware does fast.
+            Similarly, the addition operations are partially independent; each row's summation
+            does not depend on the values from any other row. Ultimately, vector-matrix
+            multiplication usually generates only 4 instructions in the GPU's machine
+            language.</p>
+        <p>We can re-implement the above perspective projection using matrix math rather than
+            explicit math. The <span class="propername">MatrixPerspective</span> tutorial does
+            this.</p>
+        <p>The vertex shader is much simpler in this case:</p>
+        <div class="example"><a name="idp3249"></a><p class="title"><b>Example 4.4. MatrixPerspective Vertex Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+layout(location = 0) in vec4 position;
+layout(location = 1) in vec4 color;
+
+smooth out vec4 theColor;
+
+uniform vec2 offset;
+uniform mat4 perspectiveMatrix;
+
+void main()
+{
+    vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);
+    
+    gl_Position = perspectiveMatrix * cameraPos;
+    theColor = color;
+}</pre>
+        </div></div><br class="example-break">
+        <p>The OpenGL Shading Language (GLSL), being designed for graphics operations, naturally
+            has matrices as basic types. The <span class="type">mat4</span> is a 4x4 matrix (columns x rows).
+            GLSL has types for all combinations of columns and rows between 2 and 4. Square matrices
+            (matrices where the number of columns and rows are equal) only use one number, as in
+                <span class="type">mat4</span> above. So <span class="type">mat3</span> is a 3x3 matrix. If the matrix is not
+            square, GLSL uses notation like <span class="type">mat2x4</span>: a matrix with 2 columns and 4
+            rows.</p>
+        <p>Note that the shader no longer computes the values on its own; it is
+                <span class="emphasis"><em>given</em></span> a matrix with all of the stored values as a uniform. This
+            is simply because there is no need for it. All of the objects in a particular scene will
+            be rendered with the same perspective matrix, so there is no need to waste potentially
+            precious vertex shader time doing redundant computations.</p>
+        <p>Vector-matrix multiplication is such a common operation in graphics that operator * is
+            used to perform it. So the second line of <code class="function">main</code> multiplies the
+            perspective matrix by the camera position.</p>
+        <p>Please note the <span class="emphasis"><em>order</em></span> of this operation. The matrix is on the
+            left and the vector is on the right. Matrix multiplication is <span class="emphasis"><em>not</em></span>
+            commutative, so M*v is not the same thing as v*M. Normally vectors are considered 1xN
+            matrices (where N is the size of the vector). When you multiply vectors on the left of
+            the matrix, GLSL considers it an Nx1 matrix; this is the only way to make the
+            multiplication make sense. This will multiply the single row of the vector with each
+            column, summing the results, creating a new vector. This is <span class="emphasis"><em>not</em></span>
+            what we want to do. We want to multiply rows of the matrix by the vector, not columns of
+            the matrix. Put the vector on the right, not the left.</p>
+        <p>The program initialization routine has a few changes:</p>
+        <div class="example"><a name="idp3266"></a><p class="title"><b>Example 4.5. Program Initialization of Perspective Matrix</b></p><div class="example-contents">
+            
+            <pre class="programlisting">offsetUniform = glGetUniformLocation(theProgram, "offset");
+
+perspectiveMatrixUnif = glGetUniformLocation(theProgram, "perspectiveMatrix");
+
+float fFrustumScale = 1.0f; float fzNear = 0.5f; float fzFar = 3.0f;
+
+float theMatrix[16];
+memset(theMatrix, 0, sizeof(float) * 16);
+
+theMatrix[0] = fFrustumScale;
+theMatrix[5] = fFrustumScale;
+theMatrix[10] = (fzFar + fzNear) / (fzNear - fzFar);
+theMatrix[14] = (2 * fzFar * fzNear) / (fzNear - fzFar);
+theMatrix[11] = -1.0f;
+
+glUseProgram(theProgram);
+glUniformMatrix4fv(perspectiveMatrixUnif, 1, GL_FALSE, theMatrix);
+glUseProgram(0);</pre>
+        </div></div><br class="example-break">
+        <p>A 4x4 matrix contains 16 values. So we start by creating an array of 16 floating-point
+            numbers called <code class="varname">theMatrix</code>. Since most of the values are zero, we can
+            just set the whole thing to zero. This works because IEEE 32-bit floating-point numbers
+            represent a zero as 4 bytes that all contain zero.</p>
+        <p>The next few functions set the particular values of interest into the matrix. Before
+            we can understand what's going on here, we need to talk a bit about ordering.</p>
+        <p>A 4x4 matrix is technically 16 values, so a 16-entry array can store a matrix. But
+            there are two ways to store a matrix as an array. One way is called
+                <em class="glossterm">column-major</em> order, the other naturally is
+                <em class="glossterm">row-major</em> order. Column-major order means that, for an NxM
+            matrix (columns x rows), the first N values in the array are the first column
+            (top-to-bottom), the next N values are the second column, and so forth. In row-major
+            order, the first M values in the array are the first row (left-to-right), followed by
+            another M values for the second row, and so forth.</p>
+        <p>In this example, the matrix is stored in column-major order. So array index 14 is in
+            the third row of the fourth column.</p>
+        <p>The entire matrix is a single uniform. To transfer the matrix to OpenGL, we use the
+                <code class="function">glUniformMatrix4fv</code> function. The first parameter is the uniform
+            location that we are uploading to. This function can be used to transfer an entire array
+            of matrices (yes, uniform arrays of any type are possible), so the second parameter is
+            the number of array entries. Since we're only providing one matrix, this value is
+            1.</p>
+        <p>The third parameter tells OpenGL what the ordering of the matrix data is. If it is
+                <code class="literal">GL_TRUE</code>, then the matrix data is in row-major order. Since our
+            data is column-major, we set it to <code class="literal">GL_FALSE</code>. The last parameter is
+            the matrix data itself.</p>
+        <p>Running this program will give us:</p>
+        <div class="figure"><a name="idp3282"></a><p class="title"><b>Figure 4.9. Perspective Matrix</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="MatrixPerspective.png" alt="Perspective Matrix"></div>
+        </div></div><br class="figure-break">
+        <p>The same thing we had before. Only now done with matrices.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut04%20Perspective%20Projection.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2004.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut04%20Aspect%20of%20the%20World.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Perspective Projection </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Aspect of the World</td></tr></table></div></body></html>

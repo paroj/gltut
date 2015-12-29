@@ -1,0 +1,122 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>High Dynamic Range</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2012.html" title="Chapter 12. Dynamic Range"><link rel="prev" href="Tutorial%2012.html" title="Chapter 12. Dynamic Range"><link rel="next" href="Tut12%20Monitors%20and%20Gamma.html" title="Linearity and Gamma"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">High Dynamic Range</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2012.html">Prev</a> </td><th width="60%" align="center">Chapter 12. Dynamic Range</th><td width="20%" align="right"> <a accesskey="n" href="Tut12%20Monitors%20and%20Gamma.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp84"></a>High Dynamic Range</h2></div></div></div>
+        
+        
+        <p>In order to answer this question, we must first determine why flashlights appear
+            brighter at night than in the daytime. Much of the answer has to do with our
+            eyes.</p>
+        <p>The pupil is the hole in our eyes that allows light to pass through it; cameras call
+            this hole the aperture. The hole is small, relative to the world, which helps with
+            resolving an image. However, the quantity of light that passes through the hole depends
+            on how large it is. Our iris's can expand and contract to control the size of the pupil.
+            When the pupil is large, more light is allowed to enter the eye; when the pupil is
+            small, less light can enter.</p>
+        <p>The iris contracts automatically in the presence of bright light, since too much light
+            can damage the retina (the surface of the eye that detects light). However, in the
+            absence of light, the iris slowly relaxes, expanding the pupil. This has the effect of
+            allowing more light to enter the eye, which adds to the apparent brightness of the
+            scene.</p>
+        <p>So what we need is not to change the overall light levels, but instead apply the
+            equivalent of an iris to the final lighting computations of a scene. That is, we
+            determine the overall illumination at a point, but we then filter out some of this light
+            based on a global setting. In dark scenes, we filter less light, and in bright scenes,
+            we filter more light.</p>
+        <p>This overall process is called <em class="glossterm">high dynamic range lighting</em>
+                (<acronym class="acronym">HDR</acronym>). It is fairly simple and requires very few additional math
+            computations compared to our current model.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>You may have heard this term in conjunction with pictures where bright objects
+                seem to glow. While HDR is typically associated with that glowing effect, that is a
+                different effect called bloom. It is a woefully over-used effect, and we will
+                discuss how to implement it later. HDR and bloom do interact, but you can use one
+                without the other.</p>
+        </div>
+        <p>The first step is to end the myth that lights themselves have a global maximum
+            brightness. In all previous examples, our light intensity values lived with the range
+            [0, 1]. Clamping light intensity to this range simply does not mirror reality. In
+            reality, the sun is many orders of magnitude brighter than a flashlight. We must allow
+            for this in our lighting equation.</p>
+        <p>This also means that our accumulated lighting intensity, the value we originally wrote
+            to the fragment shader output, is no longer on the [0, 1] range. And that poses a
+            problem. We can perform lighting computations with a high dynamic range, but monitors
+            can only display colors on the [0, 1] range. We therefore must map from the HDR to the
+            low dynamic range (<acronym class="acronym">LDR</acronym>).</p>
+        <p>This part of HDR rendering is called <em class="glossterm">tone mapping.</em> There are
+            many possible tone mapping functions, but we will use one that simulates a flexible
+            aperture. It's quite a simple function, really. First, we pick a maximum intensity value
+            for the scene; intensity values above this will be clamped. Then, we just divide the HDR
+            value by the maximum intensity to get the LDR value.</p>
+        <p>It is the maximum intensity that we will vary. As the sun goes down, the intensity
+            will go down with it. This will allow the sun to be much brighter in the day than the
+            lights, thus overwhelming their contributions to the scene's illumination. But at night,
+            when the maximum intensity is much lower, the other lights will have an apparently
+            higher brightness.</p>
+        <p>This is implemented in the <span class="propername">HDR Lighting</span>
+            tutorial.</p>
+        <p>This tutorial controls as the previous one, except that the <span class="keycap"><strong>K</strong></span> key
+            will activate HDR lighting. Pressing <span class="keycap"><strong>L</strong></span> or <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>L</strong></span> will go back to day or night-time LDR lighting from the last tutorial,
+            respectively.</p>
+        <div class="figure"><a name="idp10038"></a><p class="title"><b>Figure 12.4. HDR Lighting</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="HDR%20Lighting.png" alt="HDR Lighting"></div>
+        </div></div><br class="figure-break">
+        <p>The code is quite straightforward. We add a floating-point field to the
+                <code class="classname">Light</code> uniform block and the <code class="classname">LightBlock</code>
+            struct in C++. Technically, we just steal one of the padding floats, so the size remains
+            the same:</p>
+        <div class="example"><a name="idp10046"></a><p class="title"><b>Example 12.6. HDR LightBlock</b></p><div class="example-contents">
+            
+            <pre class="programlisting">struct LightBlockHDR
+{
+    glm::vec4 ambientIntensity;
+    float lightAttenuation;
+    float maxIntensity;
+    float padding[2];
+    PerLight lights[NUMBER_OF_LIGHTS];
+};</pre>
+        </div></div><br class="example-break">
+        <p>We also add a new field to <code class="classname">SunlightValue</code>: the maximum light
+            intensity. There is also a new function in the <code class="classname">LightManager</code> that
+            computes the HDR-version of the light block:
+            <code class="function">GetLightInformationHDR</code>. Technically, all of this code was already
+            in <code class="filename">Light.h/cpp</code>, since these files are shared among all of the
+            tutorials here.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10054"></a>Scene Lighting in HDR</h3></div></div></div>
+            
+            <p>Lighting a scene in HDR is a different process from LDR. Having a varying maximum
+                intensity value, as well as the ability to use light intensities greater than 1.0
+                change much about how you set up a scene.</p>
+            <p>In this case, everything in the lighting was designed to match up to the daytime
+                version of LDR in the day, and the nighttime version of LDR at night. Once the
+                division by the maximum intensity was taken into account.</p>
+            <div class="table"><a name="idp10058"></a><p class="title"><b>Table 12.1. Scene Lighting Values</b></p><div class="table-contents">
+                
+                <table class="table" summary="Scene Lighting Values" border="0"><colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col class="c6"><col class="c7"><col class="c8"><col class="c9"><col class="c10"><col class="c11"></colgroup><thead><tr><th> </th><th colspan="4" align="center">
+                                <p>HDR</p>
+                            </th><th colspan="3" align="center">
+                                <p>LDR Day-optimized</p>
+                            </th><th colspan="3" align="center">
+                                <p>LDR Night-optimized</p>
+                            </th></tr></thead><tbody><tr><td>Noon Sun Intensity</td><td>1.8</td><td>1.8</td><td>1.8</td><td>(3.0)</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.6</td><td>0.6</td></tr><tr><td>Noon Ambient Intensity</td><td>0.6</td><td>0.6</td><td>0.6</td><td> </td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.2</td></tr><tr><td>Evening Sun Intensity</td><td>0.45</td><td>0.15</td><td>0.15</td><td>(1.5)</td><td>0.3</td><td>0.1</td><td>0.1</td><td>0.3</td><td>0.1</td><td>0.1</td></tr><tr><td>Evening Ambient Intensity</td><td>0.225</td><td>0.075</td><td>0.075</td><td> </td><td>0.15</td><td>0.05</td><td>0.05</td><td>0.15</td><td>0.05</td><td>0.05</td></tr><tr><td>Circular Light Intensity</td><td>0.6</td><td>0.6</td><td>0.6</td><td> </td><td>0.2</td><td>0.2</td><td>0.2</td><td>0.6</td><td>0.6</td><td>0.6</td></tr><tr><td>Red Light Intensity</td><td>0.7</td><td>0.0</td><td>0.0</td><td> </td><td>0.3</td><td>0.0</td><td>0.0</td><td>0.7</td><td>0.0</td><td>0.0</td></tr><tr><td>Blue Light Intensity</td><td>0.0</td><td>0.0</td><td>0.7</td><td> </td><td>0.0</td><td>0.0</td><td>0.3</td><td>0.0</td><td>0.0</td><td>0.7</td></tr></tbody></table>
+            </div></div><br class="table-break">
+            <p>The numbers in parenthesis represents the max intensity at that time.</p>
+            <p>In order to keep the daytime lighting the same, we simply multiplied the LDR day's
+                sun and ambient intensities by the ratio between the sun intensity and the intensity
+                of one of the lights. This ratio is 3:1, so the sun and ambient intensity is
+                increased by a magnitude of 3.</p>
+            <p>The maximum intensity was derived similarly. In the LDR case, the difference
+                between the max intensity (1.0) and the sum of the sun and ambient intensities is
+                0.2 (1.0 - (0.6 + 0.2)). To maintain this, we set the max intensity to the sum of
+                the ambient and sun intensities, plus 3 times the original ratio.</p>
+            <p>This effectively means that the light, as far as the sun and ambient are
+                concerned, works the same way in HDR daytime as in the LDR day-optimized settings.
+                To get the other lights to work at night, we simply kept their values the same as
+                the LDR night-optimized case.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2012.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2012.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut12%20Monitors%20and%20Gamma.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 12. Dynamic Range </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Linearity and Gamma</td></tr></table></div></body></html>

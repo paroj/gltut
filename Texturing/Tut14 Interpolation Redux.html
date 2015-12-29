@@ -1,0 +1,96 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Interpolation Redux</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2014.html" title="Chapter 14. Textures are not Pictures"><link rel="prev" href="Tutorial%2014.html" title="Chapter 14. Textures are not Pictures"><link rel="next" href="Tut14%20Texture%20Mapping.html" title="Texture Mapping"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Interpolation Redux</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2014.html">Prev</a> </td><th width="60%" align="center">Chapter 14. Textures are not Pictures</th><td width="20%" align="right"> <a accesskey="n" href="Tut14%20Texture%20Mapping.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp96"></a>Interpolation Redux</h2></div></div></div>
+        
+        
+        <p>The next step when working with textures is to associate a texture with locations on
+            the surface of an object. But before we can do that, we need to have a discussion about
+            what it means to interpolate a value across a triangle.</p>
+        <p>Thus far, we have more or less glossed over the details of interpolation. We expanded
+            on this earlier when we explained why per-vertex lighting would not work for certain
+            kinds of functions, as well as when explaining why normals do not interpolate well. But
+            now that we want to associate vertices of a triangle with locations on a texture, we
+            need to fully explain what interpolation means.</p>
+        <p>The main topic is linearity. In the earlier discussions, it was stressed that
+            interpolation was linear. The question that was danced around is both simple and
+            obscure: linear in what space?</p>
+        <p>The perspective projection is a non-linear transform; that's why a matrix
+            multiplication is insufficient to express it. Matrices can only handle linear
+            transformations, and the perspective projection needs a division, which is non-linear.
+            We have seen the effect of this non-linear transformation before:</p>
+        <div class="figure"><a name="idp11410"></a><p class="title"><b>Figure 14.4. Projection and Interpolation</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="PerspectiveInterpolation.svg" alt="Projection and Interpolation"></div>
+        </div></div><br class="figure-break">
+        <p>The transformation from normalized device coordinate space to window space is fully
+            linear. So the problem is the transformation from camera space to NDC space, the
+            perspective projection.</p>
+        <p>From this diagram we see that lines which are parallel in camera space are not
+            necessarily parallel in NDC space; this is one of the features of non-linear transforms.
+            But most important of all is the fact that the distance between objects has changed
+            non-linearly. In camera-space, the lines parallel to the Z axis are all equally spaced.
+            In NDC space, they are not.</p>
+        <p>Look at the lines A and B. Imagine that these are the only two vertices in the object.
+            In camera-space, the point halfway between them is C. However, in NDC space, the point
+            halfway between them is D. The points C and D are not that close to one another in
+            either space.</p>
+        <p>So, what space has OpenGL been doing our interpolation in? It might seem obvious to
+            say window space, since window space is the space that the rasterizer (the hardware that
+            does the interpolating) sees and uses. But if it had, we would have had a great many
+            interpolation problems.</p>
+        <p>Consider interpolating camera space positions. This only works if the interpolation
+            happens in camera-space (or some linear transform thereof). Look at the diagram again;
+            the camera-space position C would be computed for the NDC location D. That would be very
+            wrong.</p>
+        <p>So our interpolation has somehow been happening in camera space, even though the
+            rasterizer only sees window space. What mechanism causes this?</p>
+        <p>The ability to linearly interpolate values in pre-projection space is called
+                <em class="glossterm">perspective-correct interpolation.</em> And we now get to the
+            final reason why our vertex shader provides values in clip-space rather than having the
+            shader perform the perspective divide. The W term of clip-space is vital for performing
+            perspective-correct interpolation.</p>
+        <p>This makes sense; the clip-space W is after all what makes our transformation
+            non-linear. Perspective-correction simply uses the clip-space W to adjust the
+            interpolation so that it happens in a space that is linear with respect to clip-space.
+            And since clip-space is a linear transform of camera space (using 4D homogeneous
+            coordinates), everything works out. Technically, perspective-correct interpolation does
+            not cause interpolation in camera space, but it interpolates in a space that is a linear
+            transform from camera space.</p>
+        <p>To see the effects of perspective-correction most dramatically, fire up the <span class="propername">Perspective Interpolation</span> project.</p>
+        <p>There are no camera controls in this demo; the camera is fixed so as to allow the
+            illusion presented to work. Pressing the <span class="keycap"><strong>P</strong></span> key switches between
+            perspective-correct interpolation and window-space linear interpolation.</p>
+        <div class="figure"><a name="idp11428"></a><p class="title"><b>Figure 14.5. Perspective Correct Interpolation</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="PerspectiveInterpolation.png" alt="Perspective Correct Interpolation"></div>
+            <div class="caption">
+                <p>Left: Linear interpolation. Right: Perspective-correct interpolation</p>
+            </div>
+        </div></div><br class="figure-break">
+        <p>The interesting bit is as follows. Switch to the perspective-correct version (a
+            message will appear in the console window) and press the <span class="keycap"><strong>S</strong></span> key. Now,
+            the <span class="keycap"><strong>P</strong></span> key no longer seems to have any effect; we seem to be trapped in
+            linear-interpolation.</p>
+        <p>What happens is that the <span class="keycap"><strong>S</strong></span> key switches meshes. The
+                <span class="quote">“<span class="quote">fake</span>”</span> mesh is not really a hallway; it is perfectly flat. It is more
+            or less a mesh who's vertex positions are in NDC-space, after multiplying the original
+            hallway by the perspective matrix. The difference is that there is no W coordinate; it's
+            just a flat object, an optical illusion. There is no perspective information for the
+            perspective-correction logic to key on, so it looks just like window-space linear
+            interpolation.</p>
+        <p>The switch used to turn on or off perspective-correct interpolation is the
+            interpolation qualifier. Previously, we said that there were three qualifiers:
+                <code class="literal">flat</code>, <code class="literal">smooth</code>, and
+                <code class="literal">noperspective</code>. The third one was previously left undefined
+            before; you can probably guess what it does now.</p>
+        <p>We are not going to use <code class="literal">noperspective</code> in the immediate future.
+            Indeed, doing window space interpolation with a perspective projection is exceedingly
+            rare, far more rare than <code class="literal">flat</code>. The important thing to understand from
+            this section is that interpolation style matters. And <code class="literal">smooth</code> will be
+            our default interpolation; fortunately, it is OpenGL's default too.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2014.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2014.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut14%20Texture%20Mapping.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 14. Textures are not Pictures </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Texture Mapping</td></tr></table></div></body></html>

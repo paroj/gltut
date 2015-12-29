@@ -1,0 +1,256 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Overlap and Depth Buffering</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2005.html" title="Chapter 5. Objects in Depth"><link rel="prev" href="Tut05%20Optimization%20Base%20Vertex.html" title="Optimization: Base Vertex"><link rel="next" href="Tut05%20Boundaries%20and%20Clipping.html" title="Boundaries and Clipping"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Overlap and Depth Buffering</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut05%20Optimization%20Base%20Vertex.html">Prev</a> </td><th width="60%" align="center">Chapter 5. Objects in Depth</th><td width="20%" align="right"> <a accesskey="n" href="Tut05%20Boundaries%20and%20Clipping.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp39"></a>Overlap and Depth Buffering</h2></div></div></div>
+        
+        
+        <p>Regardless of how we render the objects, there is a strange visual problem with what
+            we're rendering:</p>
+        <div class="informalfigure">
+            <div class="mediaobject"><img src="Overlap%20No%20Depth.png"></div>
+        </div>
+        <p>If the smaller object is truly behind the larger one, why is it being rendered on top
+            of the larger one? Well, to answer that question, we need to remember what OpenGL
+            is.</p>
+        <p>The OpenGL specification defines a rasterization-based renderer. Rasterizers offer
+            great opportunities for optimizations and hardware implementation, and using them
+            provides great power to the programmer. However, they're very stupid. A rasterizer is
+            basically just a triangle drawer. Vertex shaders tell it what vertex positions are, and
+            fragment shaders tell it what colors to put within that triangle. But no matter how
+            fancy, a rasterization-based render is just drawing triangles.</p>
+        <p>That's fine in general because rasterizers are very fast. They are very good at
+            drawing triangles.</p>
+        <p>But rasterizers do exactly and only what the user says. They draw each triangle
+                <span class="emphasis"><em>in the order given</em></span>. This means that, if there is overlap
+            between multiple triangles in window space, the triangle that is rendered last will be
+            the one that is seen.</p>
+        <p>This problem is called <em class="glossterm">hidden surface elimination.</em></p>
+        <p>The first thing you might think of when solving this problem is to simply render the
+            most distant objects first. This is called <em class="glossterm">depth sorting.</em> As you
+            might imagine, this <span class="quote">“<span class="quote">solution</span>”</span> scales incredibly poorly. Doing it for each
+            triangle is prohibitive, particularly with scenes with millions of triangles.</p>
+        <p>And the worst part is that even if you put in all the effort, it does not actually
+            work. Not all the time at any rate. Many trivial cases can be solved via depth sorting,
+            but non-trivial cases have real problems. You can have an arrangement of 3 triangles
+            where each overlaps the other, such that there simply is no order you can render them in
+            to achieve the right effect.</p>
+        <div class="figure"><a name="idp3693"></a><p class="title"><b>Figure 5.2. Three Overlapping Triangles</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="ThreeTriangleOverlap.svg" alt="Three Overlapping Triangles"></div>
+        </div></div><br class="figure-break">
+        <p>Even worse, it does nothing for inter-penetrating triangles; that is, triangles that
+            pass through each other in 3D space (as opposed to just from the perspective of the
+            camera).</p>
+        <p>Depth sorting is not going to cut it; clearly, we need something better.</p>
+        <p>One solution might be to tag fragments with the distance from the viewer. Then, if a
+            fragment that is about to be written has a farther distance (ie: the fragment is behind
+            what was already drawn), we simply do not write that fragment to the output image. That
+            way, if you draw a triangle behind other triangles, the fragment distances that were
+            already written will be closer to the camera than the fragment distances of the new
+            triangle. And thus, the particular fragments of that triangle will not be drawn. And
+            since this works at the fragment level, it will work just as well for intersecting
+            triangles or the 3 triangle arrangement depicted above.</p>
+        <p>The <span class="quote">“<span class="quote">tag</span>”</span> is the window-space Z value. You may recall from <a class="link" href="../Basics/Intro%20Graphics%20and%20Rendering.html#tut00_window_space" title="Window Transformation">the introduction</a> that the window-space Z
+            position of a fragment ranges from 0 to 1, where 0 is the closest and 1 is the
+            farthest.</p>
+        <p>Colors output from the fragment shader are output into the color image buffer.
+            Therefore it naturally follows that depth values would be stored in a <em class="glossterm">depth
+                buffer</em> (also called a <em class="glossterm">z buffer</em>, because it stores
+            Z values). The depth buffer is an image that is the same size as the main color buffer,
+            that stores depth values as pixels rather than colors. Where a color is a 4-component
+            vector, a depth is just a single floating-point value.</p>
+        <p>Like the color buffer, the depth buffer for the main window is created automatically
+            by OpenGL when OpenGL is initialized. OpenGL can even be created without a depth buffer.
+            Since FreeGLUT takes care of initializing OpenGL for us, we tell it in the standard
+            initialization code to create OpenGL with a depth buffer.</p>
+        <p>Writing the depth is not enough. The suggested idea requires stopping the fragment
+            from writing anything if the current depth at that location is in front of this
+            fragment's depth. This is called the <em class="glossterm">depth test.</em> In OpenGL, the
+            test does not have to be in any particular direction; any of the typical numerical
+            relation operator (greater than, less than, etc) will work fine. If the test passes,
+            then the fragment's outputs (both color and depth) will be written to their appropriate
+            buffer. If it fails, then they will not.</p>
+        <p>To activate depth testing, we must call
+                <code class="function">glEnable</code>(<code class="literal">GL_DEPTH_TEST</code>); the corresponding
+                <code class="function">glDisable</code> call will cause depth testing to cease. After
+            activating testing, we need to call <code class="function">glDepthFunc</code> to set the relation
+            of the depth test. When the test is true, the incoming fragment is written.</p>
+        <p>The test functions can be <code class="literal">GL_ALWAYS</code> (always write the fragment),
+                <code class="literal">GL_NEVER</code> (no fragments are written), <code class="literal">GL_LESS</code>,
+                <code class="literal">GL_GREATER</code>, <code class="literal">GL_LEQUAL</code> (&lt;=),
+                <code class="literal">GL_GEQUAL</code> (&gt;=), <code class="literal">GL_EQUAL</code>, or
+                <code class="literal">GL_NOTEQUAL</code>. The test function puts the incoming fragment's depth
+            on the left of the equation and on the right is the depth from the depth buffer. So
+            GL_LESS means that, when the incoming fragment's depth is less than the depth from the
+            depth buffer, the incoming fragment is written.</p>
+        <p>With the fragment depth being something that is part of a fragment's output, you might
+            imagine that this is something you have to compute in a fragment shader. You certainly
+            can, but the fragment's depth is normally just the window-space Z coordinate of the
+            fragment. This is computed automatically when the X and Y are computed.</p>
+        <p>Using the window-space Z value as the fragment's output depth is so common that, if
+            you do not deliberately write a depth value from the fragment shader, this value will be
+            used by default.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp3726"></a>Depth and the Viewport</h3></div></div></div>
+            
+            <p>Speaking of window coordinates, there is one more issue we need to deal with when
+                dealing with depth. The <code class="function">glViewport</code> function defines the
+                transform between normalized device coordinates (the range [-1, 1]) to window
+                coordinates. But <code class="function">glViewport</code> only defines the transform for the
+                X and Y coordinates of the NDC-space vertex positions.</p>
+            <p>The window-space Z coordinate ranges from [0, 1]; the transformation from NDC's
+                [-1, 1] range is defined with the <code class="function">glDepthRange</code> function. This
+                function takes 2 floating-point parameters: the <em class="glossterm">range zNear</em>
+                and the <em class="glossterm">range zFar</em>. These values are in window-space; they
+                define a simple linear mapping from NDC space to window space. So if zNear is 0.5
+                and zFar is 1.0, NDC values of -1 will map to 0.5 and values of 1 will result in
+                1.0.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>Do not confuse the range zNear/zFar with the <span class="emphasis"><em>camera</em></span>
+                    zNear/zFar used in the perspective projection matrix computation.</p>
+            </div>
+            <p>The range zNear can be greater than the range zFar; if it is, then the
+                window-space values will be reversed, in terms of what constitutes closest or
+                farthest from the viewer.</p>
+            <p>Earlier, it was said that the window-space Z value of 0 is closest and 1 is
+                farthest. However, if our clip-space Z values were negated, the depth of 1 would be
+                closest to the view and the depth of 0 would be farthest. Yet, if we flip the
+                direction of the depth test (GL_LESS to GL_GREATER, etc), we get the exact same
+                result. Similarly, if we reverse the glDepthRange so that 1 is the depth zNear and 0
+                is the depth zFar, we get the same result if we use GL_GREATER. So it's really just
+                a convention.</p>
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Z-Flip: Never Do This</b></p></div></div></div>
+                
+                <p>In the elder days of graphics cards, calling <code class="function">glClear</code> was
+                    a slow operation. And this makes sense; clearing images means having to go
+                    through every pixel of image data and writing a value to it. Even with hardware
+                    optimized routines, if you can avoid doing it, you save some performance.</p>
+                <p>Therefore, game developers found clever ways to avoid clearing anything. They
+                    avoided clearing the image buffer by ensuring that they would draw to every
+                    pixel on the screen every frame. Avoiding clearing the depth buffer was rather
+                    more difficult. But depth range and the depth test gave them a way to do
+                    it.</p>
+                <p>The technique is quite simple. They would need to clear the buffers exactly
+                    once, at the beginning of the program. From then on, they would do the
+                    following.</p>
+                <p>They would render the first frame with a <code class="literal">GL_LESS</code> depth
+                    test. However, the depth range would be [0, 0.5]; this would only draw to half
+                    of the depth buffer. Since the depth test is less, it does not matter what
+                    values just so happened to be between 0.5 and 1.0 in the depth buffer
+                    beforehand. And since every pixel was being rendered to as above, the depth
+                    buffer is guaranteed to be filled with values that are less than 0.5.</p>
+                <p>On the next frame, they would render with a <code class="literal">GL_GREATER</code>
+                    depth test. Only this time, the depth range would be [1, 0.5]. Because the last
+                    frame filled the depth buffer with values less than 0.5, all of those depth
+                    values are automatically <span class="quote">“<span class="quote">behind</span>”</span> everything rendered now. This
+                    fills the depth buffer with values greater than 0.5.</p>
+                <p>Rinse and repeat. This ultimately sacrifices one bit of depth precision, since
+                    each rendering only uses half of the depth buffer. But it results in never
+                    needing to clear the depth or color buffers.</p>
+                <p>Oh, and <span class="emphasis"><em>you should never do this.</em></span></p>
+                <p>See, hardware developers got really smart. They realized that a clear did not
+                    really have to go to each pixel and write a value to it. Instead, they could
+                    simply pretend that they had. They built special logic into the memory
+                    architecture, such that attempting to read from locations that have been
+                        <span class="quote">“<span class="quote">cleared</span>”</span> results in getting the clear color or depth
+                    value.</p>
+                <p>Because of that, this z-flip technique is useless. But it's rather worse than
+                    that; on most hardware made in the last 7 years, it actually slows down
+                    rendering. After all, getting a cleared value doesn't require actually reading
+                    memory; the very first value you get from the depth buffer is free. There are
+                    other, hardware-specific, optimizations that make z-flip actively damaging to
+                    performance.</p>
+            </div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp3757"></a>Rendering with Depth</h3></div></div></div>
+            
+            <p>The <span class="propername">Depth Buffering</span> project shows off how to
+                turn on and use the depth buffer. It is based on the BaseVertex rendering of the
+                objects.</p>
+            <p>The initialization routine has all of the basic depth testing code in it:</p>
+            <div class="example"><a name="idp3762"></a><p class="title"><b>Example 5.10. Depth Buffer Setup</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glEnable(GL_DEPTH_TEST);
+glDepthMask(GL_TRUE);
+glDepthFunc(GL_LEQUAL);
+glDepthRange(0.0f, 1.0f);</pre>
+            </div></div><br class="example-break">
+            <p>These are the most common depth testing parameters. It turns on depth testing,
+                sets the test function to less than or equal to, and sets the range mapping to the
+                full accepted range.</p>
+            <p>It is common to use <code class="literal">GL_LEQUAL</code> instead of
+                    <code class="literal">GL_LESS</code>. This allows for the use of multipass algorithms,
+                where you render the same geometry with the same vertex shader, but linked with a
+                different fragment shader. We'll look at those much, much later.</p>
+            <p>The call to <code class="function">glDepthMask</code> causes rendering to write the depth
+                value from the fragment to the depth buffer. The activation of depth testing alone
+                is not sufficient to actually write depth values. This allows us to have depth
+                testing for objects where their <span class="emphasis"><em>own</em></span> depth (the incoming
+                fragment's depth) is not written to the depth buffer, even when their color outputs
+                are written. We do not use this here, but a special algorithm might need this
+                feature.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>Due to an odd quirk of OpenGL, writing to the depth buffer is always inactive
+                    if <code class="literal">GL_DEPTH_TEST</code> is disabled, regardless of the depth mask.
+                    If you just want to write to the depth buffer, without actually doing a test,
+                    you must enable <code class="literal">GL_DEPTH_TEST</code> and use the depth function of
+                        <code class="literal">GL_ALWAYS.</code></p>
+            </div>
+            <p>There is one more issue. We know what the depth value is in the depth buffer after
+                a fragment is written to it. But what is its value before any rendering is done at
+                all? Depth buffers and color buffers are very similar; color buffers get their
+                initial colors from calling <code class="function">glClear</code>. So you might imagine a
+                similar call for depth buffers.</p>
+            <p>As it turns out, they share the same clearing call. If you recall,
+                    <code class="function">glClearColor</code> sets the color for clearing color buffers.
+                Similarly, <code class="function">glClearDepth</code> sets the depth value that the depth
+                buffer will be cleared to.</p>
+            <p>In order to clear the depth buffer with <code class="function">glClear</code>, you must use
+                the <code class="literal">GL_DEPTH_BUFFER_BIT</code>. So, the drawing function's clearing, at
+                the top of the function, happens as follows:</p>
+            <div class="example"><a name="idp3785"></a><p class="title"><b>Example 5.11. Depth Buffer Clearing</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+glClearDepth(1.0f);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);</pre>
+            </div></div><br class="example-break">
+            <p>This will set all of the depth values in the depth buffer to 1.0, which is our
+                range zFar.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>This is all that is necessary to do depth buffering, as far as OpenGL proper
+                    is concerned. However, in order to use depth buffering, the framebuffer must
+                    include a depth buffer in addition to an image buffer. This initialization code
+                    is platform-specific, but FreeGLUT takes care of it for us. If you do graduate
+                    from FreeGLUT, make sure that you use the appropriate initialization mechanism
+                    for your platform to create a depth buffer if you need to do depth
+                    buffering.</p>
+            </div>
+            <p>Our new image looks like this:</p>
+            <div class="figure"><a name="idp3792"></a><p class="title"><b>Figure 5.3. Depth Buffering</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Depth%20Buffering.png" alt="Depth Buffering"></div>
+            </div></div><br class="figure-break">
+            <p>Which makes a lot more sense. No matter what order we draw the objects in, we get
+                a reasonable result.</p>
+            <p>Let's test our depth buffering a bit more. Let's create a little overlap between
+                the two objects. Change the first offset uniform statement in
+                    <code class="function">display</code> to be this:</p>
+            <pre class="programlisting">glUniform3f(offsetUniform, 0.0f, 0.0f, -0.75f);</pre>
+            <p>We now get some overlap, but the result is still reasonable:</p>
+            <div class="figure"><a name="idp3802"></a><p class="title"><b>Figure 5.4. Mild Overlap</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Depth%20Buffering%20Mild%20Overlap.png" alt="Mild Overlap"></div>
+            </div></div><br class="figure-break">
+            <p>We can even change the line to cause major overlap without incident:</p>
+            <pre class="programlisting">glUniform3f(offsetUniform, 0.0f, 0.0f, -1.0f);</pre>
+            <p>Which gives us:</p>
+            <div class="figure"><a name="idp3810"></a><p class="title"><b>Figure 5.5. Major Overlap</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Depth%20Buffering%20Major%20Overlap.png" alt="Major Overlap"></div>
+            </div></div><br class="figure-break">
+            <p>No amount of depth sorting will help with <span class="emphasis"><em>that</em></span>.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut05%20Optimization%20Base%20Vertex.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2005.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut05%20Boundaries%20and%20Clipping.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Optimization: Base Vertex </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Boundaries and Clipping</td></tr></table></div></body></html>

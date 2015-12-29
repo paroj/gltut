@@ -1,0 +1,41 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Synchronization</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Basic%20Optimization.html" title="Appendix A. Basic Optimization"><link rel="prev" href="Optimize%20Vertex%20Format.html" title="Vertex Format"><link rel="next" href="Further%20Study.html" title="Appendix B. Further Study"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Synchronization</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Optimize%20Vertex%20Format.html">Prev</a> </td><th width="60%" align="center">Appendix A. Basic Optimization</th><td width="20%" align="right"> <a accesskey="n" href="Further%20Study.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp125"></a>Synchronization</h2></div></div></div>
+        
+        
+        <p>GPUs gain quite a bit of their performance because, by and large, once you tell them
+            what to do, they go do their stuff without further intervention. As the programmer, you
+            do not care that a frame has not yet completed. All you are interested in is that the
+            user sees the frame when it is ready.</p>
+        <p>There are certain things that the user can do which will cause this perfect
+            asynchronous activity to come to a screeching halt. These are called synchronization
+            events.</p>
+        <p>OpenGL is defined to allow asynchronous behavior; commands that you give do not have
+            to be completed when the function ends (for the most part). However, OpenGL defines this
+            by saying that if there is asynchronous behavior, the user <span class="emphasis"><em>cannot</em></span>
+            be made aware of it. That is, if you call glDrawArrays, the effect of this command
+            should be based solely on the current state of OpenGL. This means that, if the
+            glDrawArrays command is executed later, the OpenGL implementation must do whatever it
+            takes to prevent later changes from impacting the results.</p>
+        <p>Therefore, if you make a glDrawArrays call that pulls from some buffer object, and
+            then immediately call glBufferSubData on that buffer object, the OpenGL implementation
+            may have to pause the CPU in the glBufferSubData call until the glDrawArrays has at
+            least finished vertex processing. However, the implementation may also simply copy the
+            data you are trying to transfer into some memory it allocates, to be uploaded to the
+            buffer once the glDrawArrays completes. There is no way to be sure which will
+            happen.</p>
+        <p>Synchronization events usually include changing data objects. That is, changing the
+            contents of buffer objects or textures. Usually, changing simple state of objects, like
+            what attributes a VAO provides or texture parameters, does not cause synchronization
+            issues. Changing global OpenGL state also does not cause synchronization
+            problems.</p>
+        <p>There are ways to allow you to modify data objects that still let the GPU be
+            asynchronous. But any discussion of these is well beyond the bounds of this book. Just
+            be aware that data objects that are in active use should probably not have their data
+            modified.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Optimize%20Vertex%20Format.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Basic%20Optimization.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Further%20Study.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Vertex Format </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Appendix B. Further Study</td></tr></table></div></body></html>

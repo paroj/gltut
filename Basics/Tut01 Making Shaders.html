@@ -1,0 +1,199 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Making Shaders</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2001.html" title="Chapter 1. Hello, Triangle!"><link rel="prev" href="Tut01%20Following%20the%20Data.html" title="Following the Data"><link rel="next" href="Tut01%20Cleanup.html" title="Cleanup"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Making Shaders</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut01%20Following%20the%20Data.html">Prev</a> </td><th width="60%" align="center">Chapter 1. Hello, Triangle!</th><td width="20%" align="right"> <a accesskey="n" href="Tut01%20Cleanup.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp15"></a>Making Shaders</h2></div></div></div>
+        
+        
+        <p>We glossed over exactly how these text strings called shaders actually get sent to
+            OpenGL. We will go into some detail on that now.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>If you are familiar with how shaders work in other APIs like Direct3D, that will
+                not help you here. OpenGL shaders work very differently from the way they work in
+                other APIs.</p>
+        </div>
+        <p>Shaders are written in a C-like language. So OpenGL uses a very C-like compilation
+            model. In C, each individual .c file is compiled into an object file. Then, one or more
+            object files are linked together into a single program (or static/shared library).
+            OpenGL does something very similar.</p>
+        <p>A shader string is compiled into a <em class="glossterm">shader object</em>; this is
+            analogous to an object file. One or more shader objects is linked into a
+                <em class="glossterm">program object</em>.</p>
+        <p>A program object in OpenGL contains code for <span class="emphasis"><em>all</em></span> of the shaders
+            to be used for rendering. In the tutorial, we have a vertex and a fragment shader; both
+            of these are linked together into a single program object. Building that program object
+            is the responsibility of this code:</p>
+        <div class="example"><a name="idp1497"></a><p class="title"><b>Example 1.6. Program Initialization</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void InitializeProgram()
+{
+    std::vector&lt;GLuint&gt; shaderList;
+    
+    shaderList.push_back(CreateShader(GL_VERTEX_SHADER, strVertexShader));
+    shaderList.push_back(CreateShader(GL_FRAGMENT_SHADER, strFragmentShader));
+    
+    theProgram = CreateProgram(shaderList);
+
+    std::for_each(shaderList.begin(), shaderList.end(), glDeleteShader);
+}</pre>
+        </div></div><br class="example-break">
+        <p>The first statement simply creates a list of the shader objects we intend to link
+            together. The next two statements compile our two shader strings. The
+                <code class="function">CreateShader</code> function is a function defined by the tutorial
+            that compiles a shader.</p>
+        <p>Compiling a shader into a shader object is a lot like compiling source code. Most
+            important of all, it involves error checking. This is the implementation of
+                <code class="function">CreateShader</code>:</p>
+        <div class="example"><a name="idp1504"></a><p class="title"><b>Example 1.7. Shader Creation</b></p><div class="example-contents">
+            
+            <pre class="programlisting">GLuint CreateShader(GLenum eShaderType, const std::string &amp;strShaderFile)
+{
+    GLuint shader = glCreateShader(eShaderType);
+    const char *strFileData = strShaderFile.c_str();
+    glShaderSource(shader, 1, &amp;strFileData, NULL);
+    
+    glCompileShader(shader);
+    
+    GLint status;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &amp;status);
+    if (status == GL_FALSE)
+    {
+        GLint infoLogLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &amp;infoLogLength);
+        
+        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+        glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+        
+        const char *strShaderType = NULL;
+        switch(eShaderType)
+        {
+        case GL_VERTEX_SHADER: strShaderType = "vertex"; break;
+        case GL_GEOMETRY_SHADER: strShaderType = "geometry"; break;
+        case GL_FRAGMENT_SHADER: strShaderType = "fragment"; break;
+        }
+        
+        fprintf(stderr, "Compile failure in %s shader:\n%s\n", strShaderType, strInfoLog);
+        delete[] strInfoLog;
+    }
+
+	return shader;
+}</pre>
+        </div></div><br class="example-break">
+        <p>An OpenGL shader object is, as the name suggests, an object. So the first step is to
+            create the object with <code class="function">glCreateShader</code>. This function creates a
+            shader of a particular type (vertex or fragment), so it takes a parameter that tells
+            what kind of object it creates. Since each shader stage has certain syntax rules and
+            pre-defined variables and constants (thus making different shader stages different
+            dialects of GLSL), the compiler must be told what shader stage is being compiled.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>Shader and program objects are objects in OpenGL. But they work rather differently
+                from other kinds of OpenGL objects. For example, creating buffer objects, as shown
+                above, uses a function of the form <span class="quote">“<span class="quote">glGen*</span>”</span> where * is
+                    <span class="quote">“<span class="quote">Buffer</span>”</span>. It takes a number of objects to create and a list to put
+                those object handles in.</p>
+            <p>There are many other differences between shader/program objects and other kinds of
+                OpenGL objects.</p>
+        </div>
+        <p>The next step is to actually compile the text shader into the object. The C-style
+            string is retrieved from the C++ <code class="classname">std::string</code> object, and it is
+            fed into the shader object with the <code class="function">glShaderSource</code> function. The
+            first parameter is the shader object to put the string into. The next parameter is the
+            number of strings to put into the shader. Compiling multiple strings into a single
+            shader object works analogously to compiling header files in C files. Except of course
+            that the .c file explicitly lists the files it includes, while you must manually add
+            them with <code class="function">glShaderSource</code>.</p>
+        <p>The next parameter is an array of const char* strings. The last parameter is normally
+            an array of lengths of the strings. We pass in <code class="literal">NULL</code>, which tells
+            OpenGL to assume that the string is null-terminated. In general, unless you need to use
+            the null character in a string, there is no need to use the last parameter.</p>
+        <p>Once the strings are in the object, they are compiled with
+                <code class="function">glCompileShader</code>, which does exactly what it says.</p>
+        <p>After compiling, we need to see if the compilation was successful. We do this by
+            calling <code class="function">glGetShaderiv</code> to retrieve the
+                <code class="literal">GL_COMPILE_STATUS</code>. If this is <code class="literal">GL_FALSE</code>, then
+            the shader failed to compile; otherwise compiling was successful.</p>
+        <p>If compilation fails, we do some error reporting. It prints a message to stderr that
+            explains what failed to compile. It also prints an info log from OpenGL that describes
+            the error; think of this log as the compiler output from a regular C compilation.</p>
+        <p>After creating both shader objects, we then pass them on to the
+                <code class="function">CreateProgram</code> function:</p>
+        <div class="example"><a name="idp1529"></a><p class="title"><b>Example 1.8. Program Creation</b></p><div class="example-contents">
+            
+            <pre class="programlisting">GLuint CreateProgram(const std::vector&lt;GLuint&gt; &amp;shaderList)
+{
+    GLuint program = glCreateProgram();
+    
+    for(size_t iLoop = 0; iLoop &lt; shaderList.size(); iLoop++)
+    	glAttachShader(program, shaderList[iLoop]);
+    
+    glLinkProgram(program);
+    
+    GLint status;
+    glGetProgramiv (program, GL_LINK_STATUS, &amp;status);
+    if (status == GL_FALSE)
+    {
+        GLint infoLogLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &amp;infoLogLength);
+        
+        GLchar *strInfoLog = new GLchar[infoLogLength + 1];
+        glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
+        fprintf(stderr, "Linker failure: %s\n", strInfoLog);
+        delete[] strInfoLog;
+    }
+    
+    for(size_t iLoop = 0; iLoop &lt; shaderList.size(); iLoop++)
+        glDetachShader(program, shaderList[iLoop]);
+
+    return program;
+}</pre>
+        </div></div><br class="example-break">
+        <p>This function is fairly simple. It first creates an empty program object with
+                <code class="function">glCreateProgram</code>. This function takes no parameters; remember
+            that program objects are a combination of <span class="emphasis"><em>all</em></span> shader stages.</p>
+        <p>Next, it attaches each of the previously created shader objects to the programs, by
+            calling the function <code class="function">glAttachShader</code> in a loop over the
+                <code class="classname">std::vector</code> of shader objects. The program does not need to
+            be told what stage each shader object is for; the shader object itself remembers
+            this.</p>
+        <p>Once all of the shader objects are attached, the code links the program with
+                <code class="function">glLinkProgram</code>. Similar to before, we must then fetch the
+            linking status by calling <code class="function">glGetProgramiv</code> with
+                <code class="literal">GL_LINK_STATUS</code>. If it is GL_FALSE, then the linking failed and we
+            print the linking log. Otherwise, we return the created program.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>In the above shaders, the attribute index for the vertex shader input
+                    <code class="varname">position</code> was assigned directly in the shader itself. There
+                are other ways to assign attribute indices to attributes besides
+                    <code class="literal">layout(location = #)</code>. OpenGL will even assign an attribute
+                index if you do not use any of them. Therefore, it is possible that you may not know
+                the attribute index of an attribute. If you need to query the attribute index, you
+                may call <code class="function">glGetAttribLocation</code> with the program object and a
+                string containing the attribute's name.</p>
+        </div>
+        <p>Once the program was successfully linked, the shader objects are removed from the
+            program with <code class="function">glDetachShader</code>. The program's linking status and
+            functionality is not affected by the removal of the shaders. All it does is tell OpenGL
+            that these objects are no longer associated with the program.</p>
+        <p>After the program has successfully linked, and the shader objects removed from the
+            program, the shader objects are deleted using the C++ algorithm
+                <code class="function">std::for_each.</code> This line loops over each of the shaders in the
+            list and calls <code class="function">glDeleteShader</code> on them.</p>
+        <p>
+            <b>Using Programs. </b>
+            To tell OpenGL that rendering commands should use a particular program object, the
+                    <code class="function">glUseProgram</code> function is called. In the tutorial this is
+                called twice in the <code class="function">display</code> function. It is called with the
+                global <code class="varname">theProgram</code>, which tells OpenGL that we want to use that
+                program for rendering until further notice. It is later called with 0, which tells
+                OpenGL that no programs will be used for rendering.
+        </p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>For the purposes of these tutorials, using program objects is
+                    <span class="emphasis"><em>not</em></span> optional. OpenGL does have, in its compatibility
+                profile, default rendering state that takes over when a program is not being used.
+                We will not be using this, and you are encouraged to avoid its use as well.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut01%20Following%20the%20Data.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2001.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut01%20Cleanup.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Following the Data </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Cleanup</td></tr></table></div></body></html>

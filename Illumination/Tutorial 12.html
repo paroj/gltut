@@ -1,0 +1,360 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 12. Dynamic Range</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Illumination.html" title="Part III. Illumination"><link rel="prev" href="Tut11%20Glossary.html" title="Glossary"><link rel="next" href="Tut12%20High%20Dynamic%20Range.html" title="High Dynamic Range"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 12. Dynamic Range</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut11%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part III. Illumination</th><td width="20%" align="right"> <a accesskey="n" href="Tut12%20High%20Dynamic%20Range.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp83"></a>Chapter 12. Dynamic Range</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2012.html#idp9879">Setting the Scene</a></span></dt><dt><span class="section"><a href="Tut12%20High%20Dynamic%20Range.html">High Dynamic Range</a></span></dt><dt><span class="section"><a href="Tut12%20Monitors%20and%20Gamma.html">Linearity and Gamma</a></span></dt><dt><span class="section"><a href="Tut12%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut12%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>Thus far, our lighting examples have been fairly prosaic. A single light source
+        illuminating a simple object hovering above flat terrain. This tutorial will demonstrate how
+        to use multiple lights among a larger piece of terrain in a dynamic lighting environment. We
+        will demonstrate how to properly light a scene. This is less about the artistic qualities of
+        how a scene should look and more about how to make a scene look a certain way if that is how
+        you desire it to look.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp9879"></a>Setting the Scene</h2></div></div></div>
+        
+        
+        <p>The intent for this scene is to be dynamic. The terrain will be large and hilly,
+            unlike the flat plain we've seen in previous tutorials. It will use vertex colors where
+            appropriate to give it terrain-like qualities. There will also be a variety of objects
+            on the terrain, each with its own set of reflective characteristics. This will help show
+            off the dynamic nature of the scene.</p>
+        <p>The very first step in lighting a scene is to explicitly detail what you want; without
+            that, you're probably not going to find your way there. In this case, the scene is
+            intended to be outdoors, so there will be a single massive directional light shining
+            down. There will also be a number of smaller, weaker lights. All of these lights will
+            have animated movement.</p>
+        <p>The biggest thing here is that we want the scene to dynamically change lighting
+            levels. Specifically, we want a full day/night cycle. The sun will sink, gradually
+            losing intensity until it has none. There, it will remain until the dawn of the next
+            day, where it will gain strength and rise again. The other lights should be
+            much weaker in overall intensity than the sun.</p>
+        <p>One thing that this requires is a dynamic ambient lighting range. Remember that the
+            ambient light is an attempt to resolve the global illumination problem: that light
+            bounces around in a scene and can therefore come from many sources. When the sun is at
+            full intensity, the ambient lighting of the scene should be bright as well. This will
+            mean that surfaces facing away from the sunlight will still be relatively bright, which
+            is the case we see outside. When it is night, the ambient light should be virtually nil.
+            Only surfaces directly facing one of the lights should be illuminated.</p>
+        <p>The <span class="propername">Scene Lighting</span> tutorial demonstrates the first
+            version of attempting to replicate this scene.</p>
+        <div class="figure"><a name="idp9887"></a><p class="title"><b>Figure 12.1. Scene Lighting</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Scene%20Lighting.png" alt="Scene Lighting"></div>
+        </div></div><br class="figure-break">
+        <p>The camera is rotated and zoomed as in prior tutorials. Where this one differs is that
+            the camera's target point can be moved. The <span class="keycap"><strong>W</strong></span>, <span class="keycap"><strong>A</strong></span>,
+                <span class="keycap"><strong>S</strong></span>, and <span class="keycap"><strong>D</strong></span> keys move the cameras forward/backwards
+            and left/right, relative to the camera's current orientation. The <span class="keycap"><strong>Q</strong></span> and
+                <span class="keycap"><strong>E</strong></span> keys raise and lower the camera, again relative to its current
+            orientation. Holding <span class="keycap"><strong>Shift</strong></span> with these keys will move in smaller
+            increments. You can toggle viewing of the current target point by pressing
+                <span class="keycap"><strong>T</strong></span>.</p>
+        <p>Because the lighting in this tutorial is very time based, there are specialized
+            controls for playing with time. There are two sets of timers: one that controls the
+            sun's position (as well as attributes associated with this, like the sun's intensity,
+            ambient intensity, etc), and another set of timers that control the positions of other
+            lights in the scene. Commands that affect timers can affect the sun only, the other
+            lights only, or both at the same time.</p>
+        <p>To have timer commands affect only the sun, press <span class="keycap"><strong>2</strong></span>. To have timer
+            commands affect only the other lights, press <span class="keycap"><strong>3</strong></span>. To have timer commands
+            affect both, press <span class="keycap"><strong>1</strong></span>.</p>
+        <p>To rewind time by one second (of real-time), press the <span class="keycap"><strong>-</strong></span> key. To jump
+            forward one second, press the <span class="keycap"><strong>=</strong></span> key. To toggle pausing, press the
+                <span class="keycap"><strong>p</strong></span> key. These commands only affect the currently selected timers.
+            Also, pressing the <span class="keycap"><strong>SpaceBar</strong></span> will print out the current sun-based time,
+            in 24-hour notation.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9911"></a>Materials and UBOs</h3></div></div></div>
+            
+            <p>The source code for this tutorial is much more complicated than prior ones. Due to
+                this complexity, it is spread over several files. All of the tutorial projects for
+                this tutorial share the <code class="filename">Scene.h/cpp</code> and
+                    <code class="filename">Lights.h/cpp</code> files. The Scene files set up the objects in
+                the scene and render them. This file contains the surface properties of the
+                objects.</p>
+            <p>A lighting function requires two specific sets of parameters: values that
+                represent the light, and values that represent the surface. Surface properties are
+                often called <em class="glossterm">material properties</em>. Each object has its own
+                material properties, as defined in <code class="filename">Scene.cpp</code>.</p>
+            <p>The scene has 6 objects: the terrain, a tall cylinder in the middle, a
+                multicolored cube, a sphere, a spinning tetrahedron, and a mysterious black obelisk.
+                Each object has its own material properties defined by the
+                    <code class="function">GetMaterials</code> function.</p>
+            <p>These properties are all stored in a uniform buffer object. We have seen these
+                before for data that is shared among several programs; here, we use it to quickly
+                change sets of values. These material properties do not change with time; we set
+                them once and do not change them ever again. This is primarily for demonstration
+                purposes, but it could have a practical effect.</p>
+            <p>Each object's material data is defined as the following struct:</p>
+            <div class="example"><a name="idp9923"></a><p class="title"><b>Example 12.1. Material Uniform Block</b></p><div class="example-contents">
+                
+                <pre class="programlisting">//GLSL
+layout(std140) uniform;
+
+uniform Material
+{
+    vec4 diffuseColor;
+    vec4 specularColor;
+    float specularShininess;
+} Mtl;</pre>
+                <pre class="programlisting">//C++
+struct MaterialBlock
+{
+    glm::vec4 diffuseColor;
+    glm::vec4 specularColor;
+    float specularShininess;
+    float padding[3];
+};</pre>
+            </div></div><br class="example-break">
+            <p>The <code class="varname">padding</code> variable in the C++ definition represents the fact
+                that the GLSL definition of this uniform block will be padded out to a size of 12
+                floats. This is due to the nature of <span class="quote">“<span class="quote">std140</span>”</span> layout (feel free to read
+                the appropriate section in the OpenGL specification to see why). Note the global
+                definition of <span class="quote">“<span class="quote">std140</span>”</span> layout; this sets all uniform blocks to use
+                    <span class="quote">“<span class="quote">std140</span>”</span> layout unless they specifically override it. That way, we
+                do not have to write <span class="quote">“<span class="quote">layout(std140)</span>”</span> for each of the three uniform
+                blocks we use in each shader file.</p>
+            <p>Also, note the use of <code class="literal">Mtl</code> at the foot of the uniform block
+                definition. This is called the <em class="glossterm">instance name</em> of an interface
+                block. When no instance name is specified, then the names in the uniform block are
+                global. If an instance name is specified, this name must be used to qualify access
+                to the names within that block. This allows us to have the <code class="literal">in vec4
+                    diffuseColor</code> be separate from the material definition's
+                    <code class="varname">Mtl.diffuseColor</code>.</p>
+            <p>What we want to do is put 6 material blocks in a single uniform buffer. One might
+                naively think that one could simply allocate a buffer object 6 times the
+                    <code class="literal">sizeof(MaterialBlock)</code>, and simply store the data as a C++
+                array. Sadly, this will not work due to a UBO limitation.</p>
+            <p>When you use <code class="function">glBindBufferRange</code> to bind a UBO, OpenGL requires
+                that the offset parameter, the parameter that tells where the beginning of the
+                uniform block's data is within the buffer object, be aligned to a specific value.
+                That is, the begining of a uniform block within a uniform buffer must be a multiple
+                of a specific value. 0 works, of course, but since we have more than one block
+                within a uniform buffer, they cannot all start at the buffer's beginning.</p>
+            <p>What is this value, you may ask? Welcome to the world of implementation-dependent
+                values. This means that it can (and most certainly will) change depending on what
+                platform you're running on. This code was tested on two different hardware
+                platforms; one has a minimum alignment of 64, the other an alignment of 256.</p>
+            <p>To retrieve the implementation-dependent value, we must use a previously-unseen
+                function: <code class="function">glGetIntegerv</code>. This is a function that does one
+                simple thing: gets integer values from OpenGL. However, the meaning of the value
+                retrieved depends on the enumerator passed as the first parameter. Basically, it's a
+                way to have state retrieval functions that can easily be extended by adding new
+                enumerators rather than new functions.</p>
+            <p>The code that builds the material uniform buffer is as follows:</p>
+            <div class="example"><a name="idp9946"></a><p class="title"><b>Example 12.2. Material UBO Construction</b></p><div class="example-contents">
+                
+                <pre class="programlisting">int uniformBufferAlignSize = 0;
+glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &amp;uniformBufferAlignSize);
+
+m_sizeMaterialBlock = sizeof(MaterialBlock);
+m_sizeMaterialBlock += uniformBufferAlignSize -
+	(m_sizeMaterialBlock % uniformBufferAlignSize);
+
+int sizeMaterialUniformBuffer = m_sizeMaterialBlock * MATERIAL_COUNT;
+
+std::vector&lt;MaterialBlock&gt; materials;
+GetMaterials(materials);
+assert(materials.size() == MATERIAL_COUNT);
+
+std::vector&lt;GLubyte&gt; mtlBuffer;
+mtlBuffer.resize(sizeMaterialUniformBuffer, 0);
+
+GLubyte *bufferPtr = &amp;mtlBuffer[0];
+
+for(size_t mtl = 0; mtl &lt; materials.size(); ++mtl)
+	memcpy(bufferPtr + (mtl * m_sizeMaterialBlock), &amp;materials[mtl], sizeof(MaterialBlock));
+
+glGenBuffers(1, &amp;m_materialUniformBuffer);
+glBindBuffer(GL_UNIFORM_BUFFER, m_materialUniformBuffer);
+glBufferData(GL_UNIFORM_BUFFER, sizeMaterialUniformBuffer, bufferPtr, GL_STATIC_DRAW);
+glBindBuffer(GL_UNIFORM_BUFFER, 0);</pre>
+            </div></div><br class="example-break">
+            <p>We use <code class="function">glGetIntegerv</code> to retrieve the alignment requirement.
+                Then we compute the size of a material block, plus enough padding to satisfy the
+                alignment requirements. From there, it's fairly straightforward. The
+                    <code class="varname">mtlBuffer</code> is just a clever way to allocate a block of memory
+                without having to directly use new/delete. And yes, that is perfectly valid and
+                legal C++.</p>
+            <p>When the scene is rendered, it uses <code class="function">glBindBufferRange</code> to bind
+                the proper region within the buffer object for rendering.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9954"></a>Lighting</h3></div></div></div>
+            
+            <p>The code for lighting is rather more complicated. It uses two aspects of the
+                framework library to do its job: interpolators and timers.
+                    <code class="classname">Framework::Timer</code> is a generally useful class that can
+                keep track of a looped range of time, converting it into a [0, 1) range. The
+                interpolators are used to convert a [0, 1) range to a particular value based on a
+                series of possible values. Exactly how they work is beyond the scope of this
+                discussion, but some basic information will be presented.</p>
+            <p>The <code class="classname">LightManager</code> class controls all timers. It has all of
+                the fast-forwarding, rewinding, and so forth controls built into it. It's basic
+                functionality is to compute all of the lighting values for a particular time. It
+                does this based on information given to it by the main tutorial source file,
+                    <code class="filename">SceneLighting.cpp</code>. The important values are sent in the
+                    <code class="function">SetupDaytimeLighting</code> function.</p>
+            <div class="example"><a name="idp9962"></a><p class="title"><b>Example 12.3. Daytime Lighting</b></p><div class="example-contents">
+                
+                <pre class="programlisting">SunlightValue values[] =
+{
+    { 0.0f/24.0f, /*...*/},
+    { 4.5f/24.0f, /*...*/},
+    { 6.5f/24.0f, /*...*/},
+    { 8.0f/24.0f, /*...*/},
+    {18.0f/24.0f, /*...*/},
+    {19.5f/24.0f, /*...*/},
+    {20.5f/24.0f, /*...*/},
+};
+
+g_lights.SetSunlightValues(values, 7);
+
+g_lights.SetPointLightIntensity(0, glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+g_lights.SetPointLightIntensity(1, glm::vec4(0.0f, 0.0f, 0.3f, 1.0f));
+g_lights.SetPointLightIntensity(2, glm::vec4(0.3f, 0.0f, 0.0f, 1.0f));</pre>
+            </div></div><br class="example-break">
+            <p>For the sake of clarity, the actual lighting parameters were removed from the main
+                table. The <code class="classname">SunlightValue</code> struct defines the parameters that
+                vary based on the sun's position. Namely, the ambient intensity, the sun's light
+                intensity, and the background color. The first parameter of the struct is the time,
+                on the [0, 1) range, when the parameters should have this value. A time of 0
+                represents noon, and a time of 0.5 represents midnight. For clarity's sake, I used
+                24-hour notation (where 0 is noon rather than midnight).</p>
+            <p>We will discuss the actual lighting values later.</p>
+            <p>The main purpose of the <code class="classname">LightManager</code> is to retrieve the
+                light parameters. This is done by the function
+                    <code class="function">GetLightInformation</code>, which takes a matrix (to transform the
+                light positions and directions into camera space) and returns a
+                    <code class="classname">LightBlock</code> object. This is an object that represents a
+                uniform block defined by the shaders:</p>
+            <div class="example"><a name="idp9972"></a><p class="title"><b>Example 12.4. Light Uniform Block</b></p><div class="example-contents">
+                
+                <pre class="programlisting">struct PerLight
+{
+    vec4 cameraSpaceLightPos;
+    vec4 lightIntensity;
+};
+
+const int numberOfLights = 4;
+
+uniform Light
+{
+    vec4 ambientIntensity;
+    float lightAttenuation;
+    PerLight lights[numberOfLights];
+} Lgt;</pre>
+                <pre class="programlisting">struct PerLight
+{
+    glm::vec4 cameraSpaceLightPos;
+    glm::vec4 lightIntensity;
+};
+
+const int NUMBER_OF_LIGHTS = 4;
+
+struct LightBlock
+{
+    glm::vec4 ambientIntensity;
+    float lightAttenuation;
+    float padding[3];
+    PerLight lights[NUMBER_OF_LIGHTS];
+};</pre>
+            </div></div><br class="example-break">
+            <p>Again, there is the need for a bit of padding in the C++ version of the struct.
+                Also, you might notice that we have both arrays and structs in GLSL for the first
+                time. They work pretty much like C/C++ structs and arrays (outside of pointer logic,
+                since GLSL does not have pointers), though arrays have certain caveats.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9977"></a>Many Lights Shader</h3></div></div></div>
+            
+            <p>In this tutorial, we use 4 shaders. Two of these take their diffuse color from
+                values passed by the vertex shader. The other two use the material's diffuse color.
+                The other difference is that two do specular reflection computations, and the others
+                do not. This represents the variety of our materials.</p>
+            <p>Overall, the code is nothing you have not seen before. We use Gaussian specular and
+                an inverse-squared attenuation, in order to be as physically correct as we currently
+                can be. One of the big differences is in the <code class="function">main</code>
+                function.</p>
+            <div class="example"><a name="idp9982"></a><p class="title"><b>Example 12.5. Many Lights Main Function</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void main()
+{
+    vec4 accumLighting = diffuseColor * Lgt.ambientIntensity;
+    for(int light = 0; light &lt; numberOfLights; light++)
+    {
+        accumLighting += ComputeLighting(Lgt.lights[light]);
+    }
+    
+    outputColor = accumLighting;
+}</pre>
+            </div></div><br class="example-break">
+            <p>Here, we compute the lighting due to the ambient correction. Then we loop over
+                each light and compute the lighting for it, adding it into our accumulated value.
+                Loops and arrays are generally fine.</p>
+            <p>The other trick is how we deal with positional and directional lights. The
+                    <code class="classname">PerLight</code> structure does not explicitly say whether a light
+                is positional or directional. However, the W component of the
+                    <code class="varname">cameraSpaceLightPos</code> is what we use to differentiate them;
+                this is a time-honored technique. If the W component is 0.0, then it is a
+                directional light; otherwise, it is a point light.</p>
+            <p>The only difference between directional and point lights in the lighting function
+                are attenuation (directional lights do not use attenuation) and how the light
+                direction is computed. So we simply compute these based on the W component:</p>
+            <pre class="programlisting">vec3 lightDir;
+vec4 lightIntensity;
+if(lightData.cameraSpaceLightPos.w == 0.0)
+{
+    lightDir = vec3(lightData.cameraSpaceLightPos);
+    lightIntensity = lightData.lightIntensity;
+}
+else
+{
+    float atten = CalcAttenuation(cameraSpacePosition,
+        lightData.cameraSpaceLightPos.xyz, lightDir);
+    lightIntensity = atten * lightData.lightIntensity;
+}</pre>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9991"></a>Lighting Problems</h3></div></div></div>
+            
+            <p>There are a few problems with our current lighting setup. It looks (mostly) fine
+                in daylight. The moving point lights have a small visual effect, but mostly they're
+                not very visible. And this is what one would expect in broad daylight; flashlights
+                do not make much impact in the day.</p>
+            <p>But at night, everything is exceedingly dark. The point lights, the only active
+                source of illumination, are all too dim to be very visible. The terrain almost
+                completely blends into the black background.</p>
+            <p>There is an alternative set of light parameters that corrects this problem. Press <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>L</strong></span>; that switches to a night-time optimized version (press
+                    <span class="keycap"><strong>L</strong></span> to switch back to day-optimized lighting). Here, the point
+                lights provide reasonable lighting at night. The ground is still dark when facing
+                away from the lights, but we can reasonably see things.</p>
+            <div class="figure"><a name="idp10000"></a><p class="title"><b>Figure 12.2. Darkness, Day vs. Night</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="DarkDayVsNight.png" alt="Darkness, Day vs. Night"></div>
+            </div></div><br class="figure-break">
+            <p>The problem is that, in daylight, the night-optimized point lights are too
+                powerful. They are very visible and have very strong effects on the scene. Also,
+                they cause some light problems when one of the point lights is in the right
+                position. At around 12:50, find the floating white light near the cube:</p>
+            <div class="figure"><a name="idp10006"></a><p class="title"><b>Figure 12.3. Light Clipping</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Light%20Clipping.png" alt="Light Clipping"></div>
+            </div></div><br class="figure-break">
+            <p>Notice the patch of iridescent green. This is <em class="glossterm">light
+                    clipping</em> or light clamping, and it is usually a very undesirable
+                outcome. It happens when the computed light intensity falls outside of the [0, 1]
+                range, usually in the positive direction (like in this case). The object cannot be
+                shown to be brighter, so it becomes a solid color that loses all detail.</p>
+            <p>The obvious solution to our lighting problem is to simply change the point light
+                intensity based on the time of day. However, this is not realistic; flashlights
+                do not actually get brighter at night. So if we have to do something that
+                antithetical to reality, then there's probably some aspect of reality that we are not
+                properly modelling.</p>
+        </div>
+    </div>
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut11%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Illumination.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut12%20High%20Dynamic%20Range.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> High Dynamic Range</td></tr></table></div></body></html>

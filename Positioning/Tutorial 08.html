@@ -1,0 +1,147 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 8. Getting Oriented</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Positioning.html" title="Part II. Positioning"><link rel="prev" href="Tut07%20Glossary.html" title="Glossary"><link rel="next" href="Tut08%20Quaternions.html" title="Quaternions"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 8. Getting Oriented</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut07%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part II. Positioning</th><td width="20%" align="right"> <a accesskey="n" href="Tut08%20Quaternions.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp57"></a>Chapter 8. Getting Oriented</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2008.html#idp6616">Gimbal Lock</a></span></dt><dt><span class="section"><a href="Tut08%20Quaternions.html">Quaternions</a></span></dt><dt><span class="section"><a href="Tut08%20Camera%20Relative%20Orientation.html">Camera-Relative Orientation</a></span></dt><dt><span class="section"><a href="Tut08%20Interpolation.html">Interpolation</a></span></dt><dt><span class="section"><a href="Tut08%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut08%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>In this tutorial, we will investigate specific problems with regard to orienting
+        objects.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp6616"></a>Gimbal Lock</h2></div></div></div>
+        
+        
+        <p>Remember a few tutorials back, when we said that a rotation matrix is not a rotation
+            matrix at all, that it is an orientation matrix? We also said that forgetting this can
+            come back to bite you. Well, here's likely the most common way.</p>
+        <p>Normally, when dealing with orienting an object like a plane or spaceship in 3D space,
+            you want to orient it based on 3 rotations about the 3 main axes. The obvious way to do
+            this is with a series of 3 rotations. This means that the program stores 3 angles, and
+            you generate a rotation matrix by creating 3 rotation matrices based on these angles and
+            concatenating them. Indeed, the 3 angles often have special names, based on common
+            flight terminology: yaw, pitch, and roll.</p>
+        <p>Pitch is the rotation that raises or lowers the front of the object. Yaw is the
+            rotation that turns the object left and right. Roll is the rotation that spins it around
+            the direction of motion. These terms neatly duck the question of what the axes
+            technically are; they are defined in terms of semantic axes (front, left, direction of
+            motion, etc), rather than a specific model space. So in one model space, roll might be a
+            rotation about the X axis, but in another, it might be a rotation about the Z
+            axis.</p>
+        <p>One of the first problems you will note is that the order you apply these rotations
+            matter. As previously stated, a rotation matrix is an <span class="emphasis"><em>orientation</em></span>
+            transform. Each transform defines a new coordinate system, and the next transform is
+            based on an object in the <span class="emphasis"><em>new</em></span> space. For example, if we apply the
+            roll first, we have now changed what the axis for the subsequent yaw is.</p>
+        <p>You can use any order that you like, so long as you understand what these angles mean.
+            If you apply the roll first, your yaw and pitch must be in terms of the new roll
+            coordinate system, and not the original coordinate system. That is, a change that is
+            intended to only affect the roll of the final space may need yaw or pitch changes to
+            allow it to have the same apparent orientation (except for the new roll, of
+            course).</p>
+        <p>But there is a far more insidious problem lurking in here. And this problem happens
+            anytime you compute a final rotation from a series of 3 rotations about axes
+            perpendicular to each other.</p>
+        <p>The tutorial project <span class="propername">Gimbal Lock</span> illustrates this
+            problem. Because the problem was first diagnosed with a physical device called a <a class="ulink" href="http://en.wikipedia.org/wiki/Gimbal" target="_top">gimbal</a>, the problem has
+            become known as <em class="glossterm">gimbal lock.</em></p>
+        <p>A gimbal is a pivoted support that provides the ability to rotate in one axis. A
+            gimbal can be mounted within another gimbal. The Gimbal Lock project has a set of 3
+            square gimbals, each with a pivot axis that is perpendicular to the other two. This
+            effectively mimics the common yaw/pitch/roll angle setup.</p>
+        <div class="figure"><a name="idp6631"></a><p class="title"><b>Figure 8.1. Gimbal Lock Project</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Three%20Gimbal%20Array.png" alt="Gimbal Lock Project"></div>
+        </div></div><br class="figure-break">
+        <p>You can control the orientation of each gimbal separately. The <span class="keycap"><strong>W</strong></span> and
+                <span class="keycap"><strong>S</strong></span> keys control the outer gimbal, the <span class="keycap"><strong>A</strong></span> and
+                <span class="keycap"><strong>D</strong></span> keys control the middle gimbal, and the <span class="keycap"><strong>Q</strong></span> and
+                <span class="keycap"><strong>E</strong></span> keys control the inner gimbal. If you just want to see (and
+            affect) the orientation of the ship, press the <span class="keycap"><strong>SpaceBar</strong></span> to toggle
+            drawing the gimbal rings.</p>
+        <p>The first thing you discover when attempting to use the gimbals to orient the ship is
+            that the yaw, pitch, and roll controls of the gimbal change each time you move one of
+            them. That is, when the gimbal arrangement is in the original position, the outer gimbal
+            controls the pitch. But if you move the middle gimbal, it no longer controls
+                <span class="emphasis"><em>only</em></span> the pitch. Orienting the ship is very unintuitive.</p>
+        <p>The bigger issue is what happens when two of the gimbals are parallel with one
+            another:</p>
+        <div class="figure"><a name="idp6647"></a><p class="title"><b>Figure 8.2. Parallel Gimbals</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="In%20Gimbal%20Lock.png" alt="Parallel Gimbals"></div>
+        </div></div><br class="figure-break">
+        <p>Recall that the purpose of the three gimbals is to be able to adjust one of the three
+            angles and orient the object in a particular direction. In a flight-simulation game, the
+            player would have controls that would change their yaw, pitch, and roll. However, look
+            at this picture.</p>
+        <p>Given the controls of these gimbals, can you cause the object to pitch up and down?
+            That is, move its nose up and down from where it is currently? Only slightly; you can
+            use the middle gimbal, which has a bit of pitch rotation. But that is not much.</p>
+        <p>The reason we do not have as much freedom to orient the object is because the outer
+            and inner gimbals are now rotating about the same axis. This means you really only have
+            two gimbals to manipulate in order to orient the red gimbal. And 3D orientation cannot
+            be fully controlled with only 2 axial rotations, with only 2 gimbals.</p>
+        <p>When gimbals are in such a position, you have what is known as <em class="glossterm">gimbal
+                lock</em>; you have locked one of the gimbals to another, and now both cause
+            the same effect.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp6657"></a>Rendering</h3></div></div></div>
+            
+            <p>Before we find a solution to the problem, let's review the code. Most of it is
+                nothing you have not seen elsewhere, so this will be quick.</p>
+            <p>There is no explicit camera matrix set up for this example; it is too simple for
+                that. The three gimbals are loaded from mesh files as we saw in our last tutorial.
+                They are built to fit into the above array. The ship is also from a mesh
+                file.</p>
+            <p>The rendering function looks like this:</p>
+            <div class="example"><a name="idp6662"></a><p class="title"><b>Example 8.1. Gimbal Lock Display Code</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void display()
+{
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearDepth(1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glutil::MatrixStack currMatrix;
+    currMatrix.Translate(glm::vec3(0.0f, 0.0f, -200.0f));
+    currMatrix.RotateX(g_angles.fAngleX);
+    DrawGimbal(currMatrix, GIMBAL_X_AXIS, glm::vec4(0.4f, 0.4f, 1.0f, 1.0f));
+    currMatrix.RotateY(g_angles.fAngleY);
+    DrawGimbal(currMatrix, GIMBAL_Y_AXIS, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    currMatrix.RotateZ(g_angles.fAngleZ);
+    DrawGimbal(currMatrix, GIMBAL_Z_AXIS, glm::vec4(1.0f, 0.3f, 0.3f, 1.0f));
+    
+    glUseProgram(theProgram);
+    currMatrix.Scale(3.0, 3.0, 3.0);
+    currMatrix.RotateX(-90);
+    //Set the base color for this object.
+    glUniform4f(baseColorUnif, 1.0, 1.0, 1.0, 1.0);
+    glUniformMatrix4fv(modelToCameraMatrixUnif, 1, GL_FALSE, glm::value_ptr(currMatrix.Top()));
+    
+    g_pObject-&gt;Render("tint");
+    
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+}</pre>
+            </div></div><br class="example-break">
+            <p>The translation done first acts as our camera matrix: positioning the objects far
+                enough away to be comfortably visible. From there, the three gimbals are drawn, with
+                their appropriate rotations. Since each rotation applies to the previous one, the
+                final orientation is given to the last gimbal.</p>
+            <p>The <code class="function">DrawGimbal</code> function does some rotations of its own, but
+                this is just to position the gimbals properly in the array. The gimbals are given a
+                color programmatically, which is the 3rd parameter to
+                    <code class="function">DrawGimbal.</code></p>
+            <p>After building up the rotation matrix, we draw the ship. We use a scale to make it
+                reasonably large, and then rotate it so that it points in the correct direction
+                relative to the final gimbal. In model space, the ship faces the +Z axis, but the
+                gimbal faces the +Y axis. So we needed a change of coordinate system.</p>
+        </div>
+    </div>
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut07%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Positioning.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut08%20Quaternions.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Quaternions</td></tr></table></div></body></html>

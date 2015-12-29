@@ -1,0 +1,105 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Aspect of the World</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2004.html" title="Chapter 4. Objects at Rest"><link rel="prev" href="Tut04%20The%20Matrix%20Has%20You.html" title="The Matrix has You"><link rel="next" href="Tut04%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Aspect of the World</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut04%20The%20Matrix%20Has%20You.html">Prev</a> </td><th width="60%" align="center">Chapter 4. Objects at Rest</th><td width="20%" align="right"> <a accesskey="n" href="Tut04%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp34"></a>Aspect of the World</h2></div></div></div>
+        
+        
+        <p>If you run the last program, and resize the window, the viewport resizes with it.
+            Unfortunately, this also means that what was once a rectangular prism with a square
+            front becomes elongated.</p>
+        <div class="figure"><a name="idp3290"></a><p class="title"><b>Figure 4.10. Bad Aspect Ratio</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="MatrixPerspectiveSkew.png" alt="Bad Aspect Ratio"></div>
+        </div></div><br class="figure-break">
+        <p>This is a problem of <em class="glossterm">aspect ratio</em>, the ratio of an image's
+            width to its height. Currently, when you change the window's dimensions, the code calls
+                <code class="function">glViewport</code> to tell OpenGL the new size. This changes OpenGL's
+            viewport transform, which goes from normalized device coordinates to window coordinates.
+            NDC space has a 1:1 aspect ratio; the width and height of NDC space is 2x2. As long as the
+            window coordinates also have a 1:1 width-to-height ratio, objects that appear square in
+            NDC space will still be square in window space. Once window space became non-1:1, it
+            caused the transformation to also become not a square.</p>
+        <p>What exactly can be done about this? Well, that depends on what you intend to
+            accomplish by making the window bigger.</p>
+        <p>One simple way to do this is to prevent the viewport from ever becoming non-square.
+            This can be done easily enough by changing the <code class="function">reshape</code> function to
+            be this:</p>
+        <div class="example"><a name="idp3301"></a><p class="title"><b>Example 4.6. Square-only Viewport</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void reshape (int w, int h)
+{
+    if(w &lt; h)
+        glViewport(0, 0, (GLsizei) w, (GLsizei) w);
+    else
+        glViewport(0, 0, (GLsizei) h, (GLsizei) h);
+}</pre>
+        </div></div><br class="example-break">
+        <p>Now if you resize the window, the viewport will always remain a square. However, if
+            the window is non-square, there will be a lot of empty space either to the right or
+            below the viewport area. This space cannot be rendered into with triangle drawing
+            commands (for reasons that we will see in the next tutorial).</p>
+        <p>This solution has the virtue of keeping the viewable region of the world fixed,
+            regardless of the shape of the viewport. It has the disadvantage of wasting window
+            space.</p>
+        <p>What do we do if we want to use as much of the window as possible? There is a way to
+            do this.</p>
+        <p>Go back to the definition of the problem. NDC space is a [-1, 1] cube. If an object in
+            NDC space is a square, in order for it to be a square in window coordinates, the
+            viewport must also be a square. Conversely, if you want non-square window coordinates,
+            the object in NDC space <span class="emphasis"><em>must not be a square.</em></span></p>
+        <p>So our problem is with the implicit assumption that squares in camera space need to
+            remain squares throughout. This is not the case. To do what we want, we need to
+            transform things into clip space such that they are the correct non-square shape that,
+            once the perspective divide and viewport transform converts them into window
+            coordinates, they are again square.</p>
+        <p>Currently, our perspective matrix defines a square-shaped frustum. That is, the top
+            and bottom of the frustum (if it were visualized in camera space) would be squares. What
+            we need to do instead is create a rectangular frustum.</p>
+        <div class="figure"><a name="idp3311"></a><p class="title"><b>Figure 4.11. Widescreen Aspect Ratio Frustum</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="RectViewFrustum.svg" alt="Widescreen Aspect Ratio Frustum"></div>
+        </div></div><br class="figure-break">
+        <p>We already have some control over the shape of the frustum. We said originally that we
+            did not need to move the eye position from the origin because we could simply scale the
+            X and Y positions of everything to achieve a similar effect. When we do this, we scale
+            the X and Y by the same value; this produces a uniform scale. It also produces a square
+            frustum, as seen in camera space. Since we want a rectangular frustum, we need to use a
+            non-uniform scale, where the X and Y positions are scaled by different values.</p>
+        <p>What this will do is show <span class="emphasis"><em>more</em></span> of the world. But in what
+            direction do we want to show more? Human vision tends to be more horizontal than
+            vertical. This is why movies tend to use a minimum of 16:9 width:height aspect ratio
+            (most use more width than that). So it is usually the case that you design a view for a
+            particular height, then adjust the width based on the aspect ratio.</p>
+        <p>This is done in the <span class="propername">AspectRatio</span> tutorial. This code
+            uses the same shaders as before; it simply modifies the perspective matrix in the
+                <code class="function">reshape</code> function.</p>
+        <div class="example"><a name="idp3322"></a><p class="title"><b>Example 4.7. Reshape with Aspect Ratio</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void reshape (int w, int h)
+{
+    perspectiveMatrix[0] = fFrustumScale / (w / (float)h);
+    perspectiveMatrix[5] = fFrustumScale;
+    
+    glUseProgram(theProgram);
+    glUniformMatrix4fv(perspectiveMatrixUnif, 1, GL_FALSE, perspectiveMatrix);
+    glUseProgram(0);
+    
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h);
+}
+</pre>
+        </div></div><br class="example-break">
+        <p>The matrix, now a global variable called <code class="varname">perspectiveMatrix</code>, gets
+            its other fields from the program initialization function just as before. The aspect
+            ratio code is only interested in the XY scale values.</p>
+        <p>Here, we change the X scaling based on the ratio of the width to the height. The Y
+            scaling is left alone.</p>
+        <p>Also, the offset used for positioning the prism was changed from (0.5, 0.5) to (1.5,
+            0.5). This means that part of the object is off the side of the viewport until you
+            resize the window. Changing the width shows more of the area; only by changing the
+            height do you actually make the objects bigger. The square always looks like a
+            square.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut04%20The%20Matrix%20Has%20You.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2004.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut04%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">The Matrix has You </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

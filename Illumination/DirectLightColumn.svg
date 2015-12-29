@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="300px" >
+	<style type="text/css" ><![CDATA[.light-ray
+{
+	marker-end: url(#arrow);
+	stroke: black;
+	stroke-width: 1px;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.intersect
+{
+	stroke-width: 4px;
+	stroke: black;
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.light
+{
+	fill: yellow;
+	stroke: none;
+}
+
+.arrowhead
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: black;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+	</defs>
+	<path d="M 135 240 L 165 240 L 165 -360 L 135 -360 Z" class="light" />
+	<line x2="150" y2="180" y1="-360" x1="150" class="light-ray" />
+	<rect y="240" x="0" height="90" width="300" class="surface" />
+	<line x2="165" y2="240" y1="240" x1="135" class="intersect" />
+</svg>

@@ -1,0 +1,66 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2002.html" title="Chapter 2. Playing with Colors"><link rel="prev" href="Tut02%20Vertex%20Attributes.html" title="Vertex Attributes"><link rel="next" href="Tut02%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut02%20Vertex%20Attributes.html">Prev</a> </td><th width="60%" align="center">Chapter 2. Playing with Colors</th><td width="20%" align="right"> <a accesskey="n" href="Tut02%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp21"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Data is passed to vertex shaders via buffer objects and attribute arrays. This
+                    data is processed into triangles.</p>
+            </li><li class="listitem">
+                <p>The <code class="varname">gl_FragCoord</code> built-in GLSL variable can be used in
+                    fragment shaders to get the window-space coordinates of the current
+                    fragment.</p>
+            </li><li class="listitem">
+                <p>Data can be passed from a vertex shader to a fragment shader, using output
+                    variables in the vertex shader and corresponding input variables in the fragment
+                    shader.</p>
+            </li><li class="listitem">
+                <p>Data passed from the vertex shader to the fragment shader is interpolated
+                    across the surface of the triangle, based on the interpolation qualifier used
+                    for the output and input variables in the vertex and fragment shaders
+                    respectively.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1931"></a>Further Study</h3></div></div></div>
+            
+            <p>Here are some ideas to play around with.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>Change the viewport in the FragPosition tutorial. Put the viewport in the
+                        top half of the display, and then put it in the bottom half. See how this
+                        affects the shading on the triangle.</p>
+                </li><li class="listitem">
+                    <p>Combine the FragPosition tutorial with the Vertex Color tutorial. Use
+                        interpolated color from the vertex shader and multiply that with the value
+                        computed based on the screen-space position of the fragment.</p>
+                </li></ul></div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1939"></a>GLSL Functions of Note</h3></div></div></div>
+            
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">mix</b>(</code></td><td>vec <var class="pdparam">initial</var>, </td></tr><tr><td> </td><td>vec <var class="pdparam">final</var>, </td></tr><tr><td> </td><td>float <var class="pdparam">alpha</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>Performs a linear interpolation between <em class="parameter"><code>initial</code></em>,
+                    <em class="parameter"><code>final</code></em>, based on <em class="parameter"><code>alpha</code></em>. An
+                    <em class="parameter"><code>alpha</code></em> value of 0 means that the
+                    <em class="parameter"><code>inital</code></em> value is returned, while an
+                    <em class="parameter"><code>alpha</code></em> of 1 means the <em class="parameter"><code>final</code></em> value
+                is returned. The <span class="type">vec</span> type means that the parameter can be a vector or
+                    <span class="type">float</span>. All occurrences of <span class="type">vec</span> must be the same in a
+                particular function call, however, so <em class="parameter"><code>initial</code></em> and
+                    <em class="parameter"><code>final</code></em> must have the same type.</p>
+            <p>The <em class="parameter"><code>alpha</code></em> value can be either a scalar or a vector of the
+                same length as <em class="parameter"><code>initial</code></em> and <em class="parameter"><code>final</code></em>. If
+                it is a scalar, then all of the components of the two values are interpolated by
+                that scalar. If it is a vector, then the components of
+                    <em class="parameter"><code>initial</code></em> and <em class="parameter"><code>final</code></em> are interpolated
+                by their corresponding components of <em class="parameter"><code>alpha</code></em>.</p>
+            <p>If <em class="parameter"><code>alpha</code></em>, or any component of <em class="parameter"><code>alpha</code></em>,
+                is outside of the range [0, 1], then the return value of this function is
+                undefined.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut02%20Vertex%20Attributes.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2002.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut02%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Vertex Attributes </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

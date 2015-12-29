@@ -1,0 +1,208 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Gaussian</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2011.html" title="Chapter 11. Shinies"><link rel="prev" href="Tut11%20BlinnPhong%20Model.html" title="Blinn-Phong Model"><link rel="next" href="Tut11%20On%20Performance.html" title="On Performance"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Gaussian</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut11%20BlinnPhong%20Model.html">Prev</a> </td><th width="60%" align="center">Chapter 11. Shinies</th><td width="20%" align="right"> <a accesskey="n" href="Tut11%20On%20Performance.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp79"></a>Gaussian</h2></div></div></div>
+        
+        
+        <p>Phong and Blinn are nice toy heuristics that take relatively little computational
+            power. But if you're truly serious about computing specular highlights, you need a model
+            that actually <span class="emphasis"><em>models</em></span> microfacets.</p>
+        <p>Real microfacet models are primarily based on the answer to the question <span class="quote">“<span class="quote">What
+                proportion of the microfacets of this surface are oriented in such a way as to
+                specularly reflect light towards the viewer?</span>”</span> The greater the proportion of
+            properly oriented microfacets, the stronger the reflected light. This question is
+            ultimately one of statistics.</p>
+        <p>Thus it makes sense to model this as a probability distribution. We know that the
+            average microfacet orientation is the surface normal. So it's just a matter of
+            developing a probability distribution function that says what portion of the surface's
+            microfacets are oriented to provide specular reflections given the light direction and
+            the view direction.</p>
+        <p>In statistics, the very first place you go for modelling anything with a probability
+            distribution is to the <em class="glossterm">normal distribtuion</em> or <em class="glossterm">Gaussian
+                distribution.</em> It may not be the correct distribution that physically
+            models what the microfacet distribution of a surface looks like, but it's usually a good
+            starting point.</p>
+        <p>The Gaussian distribution is the classic <span class="quote">“<span class="quote">bell-shaped curve</span>”</span>
+            distribution. The mathematical function for computing the probability density of the
+            Gaussian distribution at a particular point X is:</p>
+        <div class="equation"><a name="idp9597"></a><p class="title"><b>Equation 11.5. Gaussian Distribution Function</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>f</mi>
+        <mfenced open="(" close=")" separators=",">
+            <mrow>
+                <mi>x</mi>
+            </mrow>
+        </mfenced>
+        <mo>=</mo>
+        <mfrac>
+            <mrow>
+                <mn>1</mn>
+            </mrow>
+            <msqrt>
+                <mn>2</mn>
+                <mi>π</mi>
+                <mi>σ</mi>
+            </msqrt>
+        </mfrac>
+        <msup>
+            <mi>ⅇ</mi>
+            <mrow>
+                <mo>-</mo>
+                <mfrac>
+                    <mrow>
+                        <msup>
+                            <mfenced open="(" close=")" separators=",">
+                                <mrow>
+                                    <mi>x</mi>
+                                    <mo>-</mo>
+                                    <mi>μ</mi>
+                                </mrow>
+                            </mfenced>
+                            <mn>2</mn>
+                        </msup>
+                    </mrow>
+                    <mrow>
+                        <mn>2</mn>
+                        <msup>
+                            <mi>σ</mi>
+                            <mn>2</mn>
+                        </msup>
+                    </mrow>
+                </mfrac>
+            </mrow>
+        </msup>
+    </mrow>
+</math>
+        </div></div><br class="equation-break">
+        <div class="figure"><a name="idp9631"></a><p class="title"><b>Figure 11.14. Gaussian Probability Distribution Curves</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="GaussianPlot.svg" alt="Gaussian Probability Distribution Curves"></div>
+        </div></div><br class="figure-break">
+        <p>This represents the percentage of the items in the distribution that satisfy the
+            property that the X in the distribution is trying to model. The <code class="literal">e</code> in
+            this equation is a common mathematical constant, equivalent to ~2.718. The value of
+                <code class="varname">μ</code> is the average. So the absolute value of X is not important;
+            what matters is how far X is from the average.</p>
+        <p>The value <code class="varname">σ<sup>2</sup></code> is the variance of the
+            Gaussian distribution. Without getting too technical, the larger this value becomes, the
+            flatter and wider the distribution is. The variance specifies how far from the average
+            you can get to achieve a certain probability density. The area of the distribution that
+            is positive and negative <code class="varname">σ</code> away from the average takes up ~68% of the
+            possible values. The area that is 2<code class="varname">σ</code> away represents ~95% of the
+            possible values.</p>
+        <p>We know what the average is for us: the surface normal. We can incorporate what we
+            learned from Blinn, by measuring the distance from perfect reflection by comparing the
+            surface normal to the half-angle vector. Thus, the X values represents the angle between
+            the surface normal and half-angle vector. The value <code class="varname">μ</code>, the average,
+            is zero.</p>
+        <p>The equation we will be using for modelling the microfacet distribution with a
+            Gaussian distribution is a slightly simplified form of the Gaussian distribution
+            equation.</p>
+        <div class="equation"><a name="idp9647"></a><p class="title"><b>Equation 11.6. Gaussian Specular Term</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable columnalign="left">
+            <mtr>
+                <mtd>
+                    <mi>α</mi>
+                    <mo>:</mo>
+                    <mtext>Angle between H and N</mtext>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>Gaussian Term</mi>
+                    <mo>=</mo>
+                    <msup>
+                        <mi>ⅇ</mi>
+                        <mrow>
+                            <mo>-</mo>
+                            <msup>
+                                <mfenced open="(" close=")" separators=",">
+                                    <mfrac>
+                                        <mrow>
+                                            <mi>α</mi>
+                                        </mrow>
+                                        <mrow>
+                                            <mi>m</mi>
+                                        </mrow>
+                                    </mfrac>
+                                </mfenced>
+                                <mn>2</mn>
+                            </msup>
+                        </mrow>
+                    </msup>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>This replaces our Phong and Blinn terms in our specular lighting equation and gives us
+            the <em class="glossterm">Gaussian specular model</em>. The value <code class="varname">m</code>
+            ranges from (0, 1], with larger values representing an increasingly rougher surface.
+            Technically, you can use values larger than 1, but the results begin looking
+            increasingly less useful. A value of 1 is plenty rough enough for specular reflection;
+            properly modelling extremely rough surfaces requires additional computations besides
+            determining the distribution of microfacets.</p>
+        <p>The <span class="phrase">Gaussian Specular Lighting</span> tutorial shows an implementation of
+            Gaussian specular. It allows a comparison between Phong, Blinn, and Gaussian. It
+            controls the same as the previous tutorial, with the <span class="keycap"><strong>H</strong></span> key switching
+            between the three specular computations, and the <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>H</strong></span> switching between diffuse+specular and specular only.</p>
+        <p>Here is the fragment shader for doing Gaussian lighting.</p>
+        <div class="example"><a name="idp9683"></a><p class="title"><b>Example 11.3. Gaussian Lighting Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">vec3 lightDir = vec3(0.0);
+float atten = CalcAttenuation(cameraSpacePosition, lightDir);
+vec4 attenIntensity = atten * lightIntensity;
+
+vec3 surfaceNormal = normalize(vertexNormal);
+float cosAngIncidence = dot(surfaceNormal, lightDir);
+cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+
+vec3 viewDirection = normalize(-cameraSpacePosition);
+
+vec3 halfAngle = normalize(lightDir + viewDirection);
+float angleNormalHalf = acos(dot(halfAngle, surfaceNormal));
+float exponent = angleNormalHalf / shininessFactor;
+exponent = -(exponent * exponent);
+float gaussianTerm = exp(exponent);
+
+gaussianTerm = cosAngIncidence != 0.0 ? gaussianTerm : 0.0;
+
+outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
+    (specularColor * attenIntensity * gaussianTerm) +
+    (diffuseColor * ambientIntensity);</pre>
+        </div></div><br class="example-break">
+        <p>Computing the angle between the half-angle vector and the surface normal requires the
+            use of the <code class="function">acos</code> function. We use the dot-product to compute the
+            cosine of the angle, so we need a function to undo the cosine operation. The
+                <em class="glossterm">arc cosine</em> or <em class="glossterm">inverse cosine</em> function
+            takes the result of a cosine and returns the angle that produced that value.</p>
+        <p>To do the exponentiation, we use the <code class="function">exp</code> function. This function
+            raises the constant <code class="literal">e</code> to the power of the argument. Everything else
+            proceeds as expected.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9693"></a>What Gaussian Offers</h3></div></div></div>
+            
+            <p>If you play around with the controls, you can see how much the Gaussian
+                distribution offers over Phong and Blinn. For example, set the Gaussian smoothness
+                value to 0.05.</p>
+            <div class="figure"><a name="idp9696"></a><p class="title"><b>Figure 11.15. Gaussian with Sharp Highlight</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Gaussian%20Small%20Highlight.png" alt="Gaussian with Sharp Highlight"></div>
+            </div></div><br class="figure-break">
+            <p>It requires very large exponents, well in excess of 100, to match the small size
+                and focus of that specular highlight with Phong or Blinn. It takes even larger
+                exponents to match the Gaussian value of 0.02.</p>
+            <p>Otherwise the differences between Gaussian and Blinn are fairly subtle. For rough
+                surfaces, there is little substantive difference. But Gaussian tends to have a
+                sharper, more distinct highlight for shiny surfaces.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut11%20BlinnPhong%20Model.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2011.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut11%20On%20Performance.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Blinn-Phong Model </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> On Performance</td></tr></table></div></body></html>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="551px" width="551px" >
+	<style type="text/css" ><![CDATA[.new_point
+{
+	fill: red;
+	stroke: none;
+}
+
+.border
+{
+	fill: none;
+	stroke: black;
+}
+
+.clip_line
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.clip_region
+{
+	fill: #E0E0FF;
+	stroke: none;
+}
+
+.new_edge
+{
+	stroke-opacity: 0.4;
+	stroke-width: 4px;
+	stroke-linejoin: round;
+	stroke: red;
+	stroke-linecap: round;
+	fill: none;
+}
+
+.main_triangle
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" markerUnits="userSpaceOnUse" orient="auto" id="m_point" >
+			<circle r="4.5" cy="4.5" cx="4.5" class="point" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_y_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="y_axis_marker" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_x_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="x_axis_marker" />
+		</marker>
+		<g id="g_background" >
+			<path d="M 62.5 0 L 62.5 156.25 L 250 156.25 L 250 0 Z" class="clip_region" />
+			<path d="M 250 0 L 250 250 L 0 250 L 0 0 Z" class="border" />
+			<path d="M 62.5 0 L 62.5 156.25 L 250 156.25" class="clip_line" />
+		</g>
+		<g id="g_new_point" >
+			<circle r="4.5" cy="0" cx="0" class="new_point" />
+		</g>
+	</defs>
+	<use xlink:href="#g_background" y="0" x="0" height="250" width="250" />
+	<polygon points="125,125 175,25 218.75,137.5" class="main_triangle" />
+	<use xlink:href="#g_background" y="0" x="300" height="250" width="250" />
+	<polygon points="456.25,93.75 393.75,218.75 487.5,187.5" class="main_triangle" />
+	<use xlink:href="#g_new_point" y="156.25" x="425" />
+	<use xlink:href="#g_new_point" y="156.25" x="477.0825" />
+	<polyline points="456.25,93.75 477.0825,156.25 425,156.25 456.25,93.75" class="new_edge" />
+	<use xlink:href="#g_background" y="300" x="0" height="250" width="250" />
+	<polygon points="93.75,425 156.25,518.75 218.75,362.5" class="main_triangle" />
+	<use xlink:href="#g_new_point" y="456.25" x="114.58375" />
+	<use xlink:href="#g_new_point" y="456.25" x="181.25" />
+	<polyline points="114.58375,456.25 181.25,456.25 218.75,362.5 114.58375,456.25 93.75,425 218.75,362.5" class="new_edge" />
+	<use xlink:href="#g_background" y="300" x="300" height="250" width="250" />
+	<polygon points="331.25,362.5 518.75,518.75 487.5,331.25" class="main_triangle" />
+	<use xlink:href="#g_new_point" y="388.541625" x="362.5" />
+	<use xlink:href="#g_new_point" y="356.25" x="362.5" />
+	<use xlink:href="#g_new_point" y="456.25" x="443.75" />
+	<use xlink:href="#g_new_point" y="456.25" x="508.3375" />
+	<polyline points="362.5,388.541625 362.5,356.25 487.5,331.25 362.5,388.541625 443.75,456.25 487.5,331.25 508.3375,456.25 443.75,456.25" class="new_edge" />
+</svg>

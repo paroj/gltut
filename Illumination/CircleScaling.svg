@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="251px" width="551px" >
+	<style type="text/css" ><![CDATA[.clip_line
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.clip_region
+{
+	fill: #E0E0FF;
+	stroke: none;
+}
+
+.main_triangle
+{
+	stroke: black;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.new_point
+{
+	fill: red;
+	stroke: none;
+}
+
+.circle
+{
+	fill: none;
+	stroke: black;
+}
+
+.border
+{
+	fill: none;
+	stroke: black;
+}
+
+.new_edge
+{
+	stroke-opacity: 0.4;
+	stroke-width: 4px;
+	stroke-linejoin: round;
+	stroke: red;
+	stroke-linecap: round;
+	fill: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="9" markerHeight="9" refX="4.5" refY="4.5" markerUnits="userSpaceOnUse" orient="auto" id="m_point" >
+			<circle r="4.5" cy="4.5" cx="4.5" class="point" />
+		</marker>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="fill_black thin" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_y_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="y_axis_marker" />
+		</marker>
+		<marker markerWidth="10" markerHeight="20" refX="10" refY="10" markerUnits="userSpaceOnUse" orient="auto" id="big_arrow_x_axis" >
+			<path d="M 0 0 L 10 10 L 0 20" class="x_axis_marker" />
+		</marker>
+		<g id="g_circle" >
+			<circle r="87.5" cy="125" cx="125" class="circle" />
+		</g>
+		<g id="g_ellipse" >
+			<ellipse ry="21.875" rx="87.5" cy="125" cx="125" class="circle" />
+		</g>
+		<g id="g_new_point" >
+			<circle r="4.5" cy="0" cx="0" class="new_point" />
+		</g>
+	</defs>
+	<use xlink:href="#g_circle" y="0" x="0" height="250" width="250" />
+	<use xlink:href="#g_ellipse" y="0" x="300" height="250" width="250" />
+</svg>

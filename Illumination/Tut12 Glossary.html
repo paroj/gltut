@@ -1,0 +1,33 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Glossary</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2012.html" title="Chapter 12. Dynamic Range"><link rel="prev" href="Tut12%20In%20Review.html" title="In Review"><link rel="next" href="Tutorial%2013.html" title="Chapter 13. Lies and Impostors"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Glossary</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut12%20In%20Review.html">Prev</a> </td><th width="60%" align="center">Chapter 12. Dynamic Range</th><td width="20%" align="right"> <a accesskey="n" href="Tutorial%2013.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp87"></a>Glossary</h2></div></div></div>
+        
+        
+        <div class="glosslist"><dl><dt><span class="glossterm">material properties</span></dt><dd class="glossdef"><p>The set of inputs to the lighting equation that represent the
+                        characteristics of a surface. This includes the surface's normal, diffuse
+                        reflectance, specular reflectance, any specular power values, and so forth.
+                        The source of these values can come from many sources: uniform values for an
+                        object, fragment-shader inputs, or potentially other sources.</p></dd><dt><span class="glossterm">instance name</span></dt><dd class="glossdef"><p>For uniform blocks (or other kinds of interface blocks), this name is used
+                        within a shader to name-qualifier the members of the block. These are
+                        optional, unless there is a naming conflict, or unless an array needs to be
+                        specified.</p></dd><dt><span class="glossterm">light clipping</span></dt><dd class="glossdef"><p>Light values drawn to the screen are clamped to the range [0, 1]. When
+                        lighting produces values outside of this range, the light is said to be
+                        clipped by the range. This produces a very bright, flat section that loses
+                        all detail and distinction in the image. It is something best
+                        avoided.</p></dd><dt><span class="glossterm">high dynamic range lighting</span></dt><dd class="glossdef"><p>Lighting that uses values outside of the [0, 1] range. This allows for the
+                        use of a full range of lighting intensities.</p></dd><dt><span class="glossterm">tone mapping</span></dt><dd class="glossdef"><p>The process of mapping HDR values to a [0, 1] range. This may or may not
+                        be a linear mapping.</p></dd><dt><span class="glossterm">colorspace</span></dt><dd class="glossdef"><p>The set of reference colors that define a way of representing a color in
+                        computer graphics, and the function mapping between those reference colors
+                        and the actual colors. All colors are defined relative to a particular
+                        colorspace.</p></dd><dt><span class="glossterm">linear colorspace</span></dt><dd class="glossdef"><p>A colorspace where the brightness of a color varies linearly with its
+                        values. Doubling the value of a color doubles its brightness.</p></dd><dt><span class="glossterm">gamma correction</span></dt><dd class="glossdef"><p>The process of converting from a linear colorspace to a non-linear
+                        colorspace that a display device expects, usually through the use of a power
+                        function. This process ensures that the display produces an image that is
+                        linear.</p></dd></dl></div>
+        
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut12%20In%20Review.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2012.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tutorial%2013.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">In Review </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 13. Lies and Impostors</td></tr></table></div></body></html>

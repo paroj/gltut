@@ -1,0 +1,156 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Global Illumination</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2009.html" title="Chapter 9. Lights On"><link rel="prev" href="Tut09%20Normal%20Transformation.html" title="Normal Transformation"><link rel="next" href="Tut09%20Mesh%20Topology.html" title="Mesh Topology"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Global Illumination</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut09%20Normal%20Transformation.html">Prev</a> </td><th width="60%" align="center">Chapter 9. Lights On</th><td width="20%" align="right"> <a accesskey="n" href="Tut09%20Mesh%20Topology.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp66"></a>Global Illumination</h2></div></div></div>
+        
+        
+        <p>You may notice something very unrealistic about the results of this tutorial. For
+            example, take this image:</p>
+        <div class="figure"><a name="idp8024"></a><p class="title"><b>Figure 9.10. Half Lit</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="No%20Ambient.png" alt="Half Lit"></div>
+        </div></div><br class="figure-break">
+        <p>The unlit portions of the cylinder are completely, 100% black. This almost never
+            happens in real life, even for objects we perceive as being <span class="quote">“<span class="quote">black</span>”</span> in
+            color. The reason for this is somewhat complicated.</p>
+        <p>Consider a scene of the outdoors. In normal daylight, there is exactly one light
+            source: the sun. Objects that are in direct sunlight appear to be bright, and objects
+            that have some object between them and the sun are in shadow.</p>
+        <p>But think about what those shadows look like. They're not 100% black. They're
+            certainly darker than the surrounding area, but they still have some color. And
+            remember: we only see anything because our eyes detect light. In order to see an object
+            in the shadow of a light source, that object must either be emitting light directly or
+            reflecting light that came from somewhere else. Grass is not known for its
+            light-emitting qualities, so where does the light come from?</p>
+        <p>Think about it. We see because an object reflects light into our eyes. But our eyes
+            are not special; the object does not reflect light <span class="emphasis"><em>only</em></span> into our
+            eyes. It reflects light in all directions. Not necessarily at the same intensity in each
+            direction, but objects that reflect light tend to do so in all directions to some
+            degree. What happens when that light hits another surface?</p>
+        <p>The same thing that happens when light hits any surface: some of it is absorbed, and
+            some is reflected in some way.</p>
+        <p>The light being cast in shadows from the sun comes from many places. Part of it is an
+            atmospheric effect; the sun is so bright that the weakly reflective atmosphere reflects
+            enough light to shine a color. Typically, this is a pale blue. Part of the light comes
+            from other objects. The sun gives off so much light that the light reflected from other
+            objects is bright enough to be a substantial contributer to the overall lighting in a
+            scene.</p>
+        <p>This phenomenon is called <em class="glossterm">interreflection.</em> A lighting model
+            that handles interreflection is said to handle <em class="glossterm">global
+                illumination.</em> It represents light that bounces from object to object
+            before hitting the eyes of the person viewing the scene. Modelling only lighting
+            directly from a light-emitting surface is called <em class="glossterm">local
+                illumination</em> or <em class="glossterm">direct illumination,</em> and it is
+            what we have been doing up until this point.</p>
+        <p>As you might imagine, modelling global illumination is hard. <span class="emphasis"><em>Very</em></span>
+            hard. It is typically a subtle effect, but in many scenes, particularly outdoor scenes,
+            it is almost a necessity to provide at least basic global illumination modelling in
+            order to achieve a decent degree of photorealism. Incidentally, this is a good part of
+            the reason why most games tend to avoid outdoor scenes or light outdoor scenes as though
+            the sky were cloudy or overcast. This neatly avoids needing to do complex global
+            illumination modelling by damping down the brightness of the sun to levels when
+            interreflection would be difficult to notice.</p>
+        <p>Having this completely black area in our rendering looks incredibly fake. Since doing
+            actual global illumination modelling is hard, we will instead use a time-tested
+            technique: <em class="glossterm">ambient lighting.</em></p>
+        <p>The ambient lighting <span class="quote">“<span class="quote">model</span>”</span><a href="#ftn.idp8048" class="footnote" name="idp8048"><sup class="footnote">[6]</sup></a> is quite simple. It assumes that, on every object in the scene, there is a
+            light of a certain intensity that emanates from everywhere. It comes from all directions
+            equally, so there is no angle of incidence in our diffuse calculation. It is simply the
+            ambient light intensity * the diffuse surface color.</p>
+        <p>We do this in the <span class="propername">Ambient Lighting</span> tutorial. The
+            controls are the same as the last tutorial, except that the space bar swaps between the
+            two cylinders (red and white), and that the <span class="keycap"><strong>T</strong></span> key toggles ambient
+            lighting on and off (defaults to off).</p>
+        <div class="figure"><a name="idp8054"></a><p class="title"><b>Figure 9.11. Ambient Lighting</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Ambient%20Lighting.png" alt="Ambient Lighting"></div>
+        </div></div><br class="figure-break">
+        <p>The detail seen in the dark portion of the cylinder only comes from the diffuse color.
+            And because the ambient is fairly weak, the diffuse color of the surface appears muted
+            in the dark areas.</p>
+        <p>The rendering code now uses four of vertex shaders instead of two. Two of them are
+            used for non-ambient lighting, and use the same shaders we have seen before, and the
+            other two use ambient lighting.</p>
+        <p>The ambient vertex shader that uses per-vertex colors is called
+                <code class="filename">DirAmbVertexLighting_PCN.vert</code> and reads as follows:</p>
+        <div class="example"><a name="idp8063"></a><p class="title"><b>Example 9.6. Ambient Vertex Lighting</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 diffuseColor;
+layout(location = 2) in vec3 normal;
+
+smooth out vec4 interpColor;
+
+uniform vec3 dirToLight;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 modelToCameraMatrix;
+uniform mat3 normalModelToCameraMatrix;
+
+layout(std140) uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    vec3 normCamSpace = normalize(normalModelToCameraMatrix * normal);
+    
+    float cosAngIncidence = dot(normCamSpace, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</pre>
+        </div></div><br class="example-break">
+        <p>It takes two uniforms that specify lighting intensity. One specifies the intensity for
+            the diffuse lighting, and the other for the ambient lighting. The only other change is
+            to the last line in the shader. The usual diffuse lighting result has its value added to
+            the ambient lighting computation. Also, note that the contribution from two lighting
+            models is added together.</p>
+        <p>Of particular note is the difference between the lighting intensities in the
+            pure-diffuse case and the diffuse+ambient case:</p>
+        <div class="example"><a name="idp8068"></a><p class="title"><b>Example 9.7. Lighting Intensity Settings</b></p><div class="example-contents">
+            
+            <pre class="programlisting">if(g_bShowAmbient)
+{
+    glUseProgram(whiteDiffuse.theProgram);
+    glUniform4f(whiteDiffuse.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+    glUniform4f(whiteDiffuse.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+    glUseProgram(vertexDiffuse.theProgram);
+    glUniform4f(vertexDiffuse.lightIntensityUnif, 0.8f, 0.8f, 0.8f, 1.0f);
+    glUniform4f(vertexDiffuse.ambientIntensityUnif, 0.2f, 0.2f, 0.2f, 1.0f);
+}
+else
+{
+    glUseProgram(whiteDiffuse.theProgram);
+    glUniform4f(whiteDiffuse.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+    glUseProgram(vertexDiffuse.theProgram);
+    glUniform4f(vertexDiffuse.lightIntensityUnif, 1.0f, 1.0f, 1.0f, 1.0f);
+}</pre>
+        </div></div><br class="example-break">
+        <p>In the pure-diffuse case, the light intensity is full white. But in the ambient case,
+            we deliberately set the diffuse intensity to less than full white. This is very
+            intensional.</p>
+        <p>We will talk more about this issue in the future, but it is very critical that light
+            intensity values not exceed 1.0. This includes <span class="emphasis"><em>combined</em></span> lighting
+            intensity values. OpenGL clamps colors that it writes to the output image to the range
+            [0, 1]. So any light intensity that exceeds 1.0, whether alone or combined with other
+            lights, can cause unpleasant visual effects.</p>
+        <p>There are ways around this, and those ways will be discussed in the eventual
+            future.</p>
+    <div class="footnotes"><br><hr style="width:100; text-align:left;margin-left: 0"><div id="ftn.idp8048" class="footnote">
+                <p><a href="#idp8048" class="para"><sup class="para">[6] </sup></a>I put the word model in quotations because ambient lighting is so divorced
+                    from anything in reality that it does not really deserve to be called a model.
+                    That being said, just because it does not actually model global illumination in
+                    any real way does not mean that it is not <span class="emphasis"><em>useful</em></span>.</p>
+            </div></div></div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut09%20Normal%20Transformation.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2009.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut09%20Mesh%20Topology.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Normal Transformation </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Mesh Topology</td></tr></table></div></body></html>

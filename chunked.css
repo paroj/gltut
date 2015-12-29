@@ -1,0 +1,114 @@
+
+body
+{
+    background-color: #fff6e7;
+    padding: 0 20% 0 20%;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Helvetica Neue", Arial, sans-serif,"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+a:visited {
+    color: rgb(128, 0, 0);
+}
+
+a {
+    color: #c00;
+}
+
+.toc > dt {
+    margin-top: 6pt;
+}
+
+hr {
+    border: 2pt solid rgb(128, 128, 128);
+}
+
+div.toc
+{
+	position: absolute;
+	left: 0;
+	margin-left: 5%;
+	max-width: 15%;
+}
+
+div.book div.toc
+{
+	position: inherit;
+	left: inherit;
+	margin-left: inherit;
+	max-width: inherit;
+}
+
+br.example-break { display: none; }
+br.figure-break { display: none; }
+br.equation-break { display: none; }
+
+div.note
+{
+    margin-left: 50%;
+}
+
+div.example p.title
+{
+    text-align: center;
+}
+
+pre.programlisting
+{
+	max-height: 204pt;
+	overflow: auto;
+
+    font-family: consolas, monospace;
+    font-size: 12pt;
+    margin-left: 5%;
+    margin-right: 5%;
+    padding: 7px;
+    border: 2px black;
+    border-radius: 7px;
+}
+
+code
+{
+    font-family: consolas, monospace;
+}
+
+code.function { color: #a00010; }
+
+code.varname { color: #d300ff; }
+
+code.filename {  }
+
+code.literal { color: #0f0aae; }
+
+span.type {  }
+code.classname {  }
+
+em.glossterm { text-decoration: underline; }
+
+acronym.acronym { font-weight: bold; }
+span.propername { font-weight: bold; }
+
+div.sidebar
+{
+   	max-height: 400pt;
+	overflow: auto;
+
+    margin-left: 5%;
+    margin-right: 5%;
+    padding: 7px;
+
+    background-color: #dcfedd;
+
+    border: 2px solid black;
+}
+
+/* Code documentation. */
+span.code-type { color: #7B7BC0;}
+span.code-modifier { color: #0000FF;}
+span.code-sampler { color: #0f0aae;}
+span.code-keyword { color: #0000FF;}
+span.code-function { color: #a00010;}
+
+span.code-comment {color: #FF0000;}
+span.code-string { color: #008000; }
+
+

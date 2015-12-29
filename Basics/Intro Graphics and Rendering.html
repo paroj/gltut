@@ -1,0 +1,284 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Graphics and Rendering</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Introduction.html" title="Introduction"><link rel="prev" href="Introduction.html" title="Introduction"><link rel="next" href="Intro%20What%20is%20OpenGL.html" title="What is OpenGL"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Graphics and Rendering</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Introduction.html">Prev</a> </td><th width="60%" align="center">Introduction</th><td width="20%" align="right"> <a accesskey="n" href="Intro%20What%20is%20OpenGL.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp9"></a>Graphics and Rendering</h2></div></div></div>
+        
+        
+        <p>This is an overview of the process of rendering. Do not worry if you do not understand
+            everything right away; every step will be covered in lavish detail in later
+            tutorials.</p>
+        <p>Everything you see on your computer's screen, even the text you are reading right now
+            (assuming you are reading this on an electronic display device, rather than a printout)
+            is simply a two-dimensional array of pixels. If you take a screenshot of something on
+            your screen, and blow it up, it will look very blocky.</p>
+        <div class="figure"><a name="idp943"></a><p class="title"><b>Figure 8. An Image</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="PixelImage.svg" alt="An Image"></div>
+        </div></div><br class="figure-break">
+        <p>Each of these blocks is a <em class="glossterm">pixel</em>. The word <span class="quote">“<span class="quote">pixel</span>”</span>
+            is derived from the term <span class="quote">“<span class="quote"><acronym class="acronym">Pic</acronym>ture
+                <acronym class="acronym">El</acronym>ement</span>”</span>. Every pixel on your screen has a particular
+            color. A two-dimensional array of pixels is called an
+            <em class="glossterm">image</em>.</p>
+        <p>The purpose of graphics of any kind is therefore to determine what color to put in
+            what pixels. This determination is what makes text look like text, windows look like
+            windows, and so forth.</p>
+        <p>Since all graphics are just a two-dimensional array of pixels, how does 3D work? 3D
+            graphics is thus a system of producing colors for pixels that convince you that the
+            scene you are looking at is a 3D world rather than a 2D image. The process of converting
+            a 3D world into a 2D image of that world is called
+            <em class="glossterm">rendering.</em></p>
+        <p>There are several methods for rendering a 3D world. The process used by real-time
+            graphics hardware, such as that found in your computer, involves a very great deal of
+            fakery. This process is called <em class="glossterm">rasterization,</em> and a rendering
+            system that uses rasterization is called a <em class="glossterm">rasterizer.</em></p>
+        <p>In rasterizers, all objects that you see are empty shells. There are techniques that
+            are used to allow you to cut open these empty shells, but this simply replaces part of
+            the shell with another shell that shows what the inside looks like. Everything is a
+            shell.</p>
+        <p>All of these shells are made of triangles. Even surfaces that appear to be round are
+            merely triangles if you look closely enough. There are techniques that generate more
+            triangles for objects that appear closer or larger, so that the viewer can almost never
+            see the faceted silhouette of the object. But they are always made of triangles.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>Some rasterizers use planar quadrilaterals: four-sided objects, where all of the
+                points lie in the same plane. One of the reasons that hardware-based rasterizers
+                always use triangles is that all of the lines of a triangle are guaranteed to be in
+                the same plane. Knowing this makes the rasterization process less
+                complicated.</p>
+        </div>
+        <p>An object is made out of a series of adjacent triangles that define the outer surface
+            of the object. Such series of triangles are often called
+            <em class="glossterm">geometry</em>, a <em class="glossterm">model</em> or a
+                <em class="glossterm">mesh</em>. These terms are used interchangeably.</p>
+        <p>The process of rasterization has several phases. These phases are ordered into a
+            pipeline, where triangles enter from the top and a 2D image is filled in at the bottom.
+            This is one of the reasons why rasterization is so amenable to hardware acceleration: it
+            operates on each triangle one at a time, in a specific order. Triangles can be fed into
+            the top of the pipeline while triangles that were sent earlier can still be in some
+            phase of rasterization.</p>
+        <p>The order in which triangles and the various meshes are submitted to the rasterizer
+            can affect its output. Always remember that, no matter how you submit the triangular
+            mesh data, the rasterizer will process each triangle in a specific order, drawing the
+            next one only when the previous triangle has finished being drawn.</p>
+        <p>OpenGL is an API for accessing a hardware-based rasterizer. As such, it conforms to
+            the model for rasterization-based 3D renderers. A rasterizer receives a sequence of
+            triangles from the user, performs operations on them, and writes pixels based on this
+            triangle data. This is a simplification of how rasterization works in OpenGL, but it is
+            useful for our purposes.</p>
+        <p>
+            <b>Triangles and Vertices. </b>
+            Triangles consist of 3 vertices. A <em class="glossterm">vertex</em> is a
+                collection of arbitrary data. For the sake of simplicity (we will expand upon this
+                later), let us say that this data must contain a point in three dimensional space.
+                It may contain other data, but it must have at least this. Any 3 points that are not
+                on the same line create a triangle, so the smallest information for a triangle
+                consists of 3 three-dimensional points.
+        </p>
+        <p>A point in 3D space is defined by 3 numbers or coordinates. An X coordinate, a Y
+            coordinate, and a Z coordinate. These are commonly written with parenthesis, as in (X,
+            Y, Z).</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp977"></a>Rasterization Overview</h3></div></div></div>
+            
+            <p>The rasterization pipeline, particularly for modern hardware, is very complex.
+                This is a very simplified overview of this pipeline. It is necessary to have a
+                simple understanding of the pipeline before we look at the details of rendering
+                things with OpenGL. Those details can be overwhelming without a high level
+                overview.</p>
+            <p>
+                <b>Clip Space Transformation. </b>
+                The first phase of rasterization is to transform the vertices of each triangle
+                    into a certain region of space. Everything within this volume will be rendered
+                    to the output image, and everything that falls outside of this region will not
+                    be. This region corresponds to the view of the world that the user wants to
+                    render.
+            </p>
+            <p>The volume that the triangle is transformed into is called, in OpenGL parlance,
+                    <em class="glossterm">clip space</em>. The positions of the triangle's vertices in
+                clip space are called <em class="glossterm">clip coordinates.</em></p>
+            <p>Clip coordinates are a little different from regular positions. A position in 3D
+                space has 3 coordinates. A position in clip space has <span class="emphasis"><em>four</em></span>
+                coordinates. The first three are the usual X, Y, Z positions; the fourth is called
+                W. This last coordinate actually defines what the extents of clip space are for this
+                vertex.</p>
+            <p>Clip space can actually be different for different vertices within a triangle. It
+                is a region of 3D space on the range [-W, W] in each of the X, Y, and Z directions.
+                So vertices with a different W coordinate are in a different clip space cube from
+                other vertices. Since each vertex can have an independent W component, each vertex
+                of a triangle exists in its own clip space.</p>
+            <p>In clip space, the positive X direction is to the right, the positive Y direction
+                is up, and the positive Z direction is away from the viewer.</p>
+            <p>The process of transforming vertex positions into clip space is quite arbitrary.
+                OpenGL provides a lot of flexibility in this step. We will cover this step in detail
+                throughout the tutorials.</p>
+            <p>Because clip space is the visible transformed version of the world, any triangles
+                that fall outside of this region are discarded. Any triangles that are partially
+                outside of this region undergo a process called <em class="glossterm">clipping.</em>
+                This breaks the triangle apart into a number of smaller triangles, such that the
+                smaller triangles are all entirely within clip space. Hence the name <span class="quote">“<span class="quote">clip
+                    space.</span>”</span></p>
+            <p>
+                <b>Normalized Coordinates. </b>
+                Clip space is interesting, but inconvenient. The extent of this space is
+                    different for each vertex, which makes visualizing a triangle rather difficult.
+                    Therefore, clip space is transformed into a more reasonable coordinate space:
+                        <em class="glossterm">normalized device coordinates</em>.
+            </p>
+            <p>This process is very simple. The X, Y, and Z of each vertex's position is divided
+                by W to get normalized device coordinates. That is all.</p>
+            <p>The space of normalized device coordinates is essentially just clip space, except
+                that the range of X, Y and Z are [-1, 1]. The directions are all the same. The
+                division by W is an important part of projecting 3D triangles onto 2D images; we
+                will cover that in a future tutorial.</p>
+            <div class="figure"><a name="idp1000"></a><p class="title"><b>Figure 9. Normalized Device Coordinate Space</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="NormDeviceCoord.svg" alt="Normalized Device Coordinate Space"></div>
+            </div></div><br class="figure-break">
+            <p>The cube indicates the boundaries of normalized device coordinate space.</p>
+            <p><a name="tut00_window_space"></a>
+                <b>Window Transformation. </b>
+                The next phase of rasterization is to transform the vertices of each triangle
+                    again. This time, they are converted from normalized device coordinates to
+                        <em class="glossterm">window coordinates</em>. As the name suggests, window
+                    coordinates are relative to the window that OpenGL is running within.
+            </p>
+            <p>Even though they refer to the window, they are still three dimensional
+                coordinates. The X goes to the right, Y goes up, and Z goes away, just as for clip
+                space. The only difference is that the bounds for these coordinates depends on the
+                viewable window. It should also be noted that while these are in window coordinates,
+                none of the precision is lost. These are not integer coordinates; they are still
+                floating-point values, and thus they have precision beyond that of a single
+                pixel.</p>
+            <p>The bounds for Z are [0, 1], with 0 being the closest and 1 being the farthest.
+                Vertex positions outside of this range are not visible.</p>
+            <p>Note that window coordinates have the bottom-left position as the (0, 0) origin
+                point. This is counter to what users are used to in window coordinates, which is
+                having the top-left position be the origin. There are transform tricks you can play
+                to allow you to work in a top-left coordinate space if you need to.</p>
+            <p>The full details of this process will be discussed at length as the tutorials
+                progress.</p>
+            <p>
+                <b>Scan Conversion. </b>
+                After converting the coordinates of a triangle to window coordinates, the
+                    triangle undergoes a process called <em class="glossterm">scan conversion.</em> This
+                    process takes the triangle and breaks it up based on the arrangement of window
+                    pixels over the output image that the triangle covers.
+            </p>
+            <div class="figure"><a name="idp1018"></a><p class="title"><b>Figure 10. Scan Converted Triangle</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="TriangleScanConvert.svg" alt="Scan Converted Triangle"></div>
+            </div></div><br class="figure-break">
+            <p>The center image shows the digital grid of output pixels; the circles represent
+                the center of each pixel. The center of each pixel represents a
+                    <em class="glossterm">sample</em>: a discrete location within the area of a pixel.
+                During scan conversion, a triangle will produce a <em class="glossterm">fragment</em>
+                for every pixel sample that is within the 2D area of the triangle.</p>
+            <p>The image on the right shows the fragments generated by the scan conversion of the
+                triangle. This creates a rough approximation of the triangle's general shape.</p>
+            <p>It is very often the case that triangles are rendered that share edges. OpenGL
+                offers a guarantee that, so long as the shared edge vertex positions are
+                    <span class="emphasis"><em>identical</em></span>, there will be no sample gaps during scan
+                conversion.</p>
+            <div class="figure"><a name="idp1029"></a><p class="title"><b>Figure 11. Shared Edge Scan Conversion</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="SharedEdgeScanConvert.svg" alt="Shared Edge Scan Conversion"></div>
+            </div></div><br class="figure-break">
+            <p>To make it easier to use this, OpenGL also offers the guarantee that if you pass
+                the same input vertex data through the same vertex processor, you will get identical
+                output; this is called the <em class="glossterm">invariance guarantee</em>. So the onus
+                is on the user to use the same input vertices in order to ensure gap-less scan
+                conversion.</p>
+            <p>Scan conversion is an inherently 2D operation. This process only uses the X and Y
+                position of the triangle in window coordinates to determine which fragments to
+                generate. The Z value is not forgotten, but it is not directly part of the actual
+                process of scan converting the triangle.</p>
+            <p>The result of scan converting a triangle is a sequence of fragments that cover the
+                shape of the triangle. Each fragment has certain data associated with it. This data
+                contains the 2D location of the fragment in window coordinates, as well as the Z
+                position of the fragment. This Z value is known as the depth of the fragment. There
+                may be other information that is part of a fragment, and we will expand on that in
+                later tutorials.</p>
+            <p>
+                <b>Fragment Processing. </b>
+                This phase takes a fragment from a scan converted triangle and transforms it
+                    into one or more color values and a single depth value. The order that fragments
+                    from a single triangle are processed in is irrelevant; since a single triangle
+                    lies in a single plane, fragments generated from it cannot possibly overlap.
+                    However, the fragments from another triangle can possibly overlap. Since order
+                    is important in a rasterizer, the fragments from one triangle must all be
+                    processed before the fragments from another triangle.
+            </p>
+            <p>This phase is quite arbitrary. The user of OpenGL has a lot of options of how to
+                decide what color to assign a fragment. We will cover this step in detail throughout
+                the tutorials.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Direct3D Note</h3>
+                
+                <p>Direct3D prefers to call this stage <span class="quote">“<span class="quote">pixel processing</span>”</span> or
+                        <span class="quote">“<span class="quote">pixel shading</span>”</span>. This is a misnomer for several reasons. First,
+                    a pixel's final color can be composed of the results of multiple fragments
+                    generated by multiple <span class="emphasis"><em>samples</em></span> within a single pixel. This
+                    is a common technique to remove jagged edges of triangles. Also, the fragment
+                    data has not been written to the image, so it is not a pixel yet. Indeed, the
+                    fragment processing step can conditionally prevent rendering of a fragment based
+                    on arbitrary computations. Thus a <span class="quote">“<span class="quote">pixel</span>”</span> in D3D parlance may never
+                    actually become a pixel at all.</p>
+            </div>
+            <p>
+                <b>Fragment Writing. </b>
+                After generating one or more colors and a depth value, the fragment is written
+                    to the destination image. This step involves more than simply writing to the
+                    destination image. Combining the color and depth with the colors that are
+                    currently in the image can involve a number of computations. These will be
+                    covered in detail in various tutorials.
+            </p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1052"></a>Colors</h3></div></div></div>
+            
+            <p>Previously, a pixel was stated to be an element in a 2D image that has a
+                particular color. A color can be described in many ways.</p>
+            <p>In computer graphics, the usual description of a color is as a series of numbers
+                on the range [0, 1]. Each of the numbers corresponds to the intensity of a
+                particular reference color; thus the final color represented by the series of
+                numbers is a mix of these reference colors.</p>
+            <p>The set of reference colors is called a <em class="glossterm">colorspace</em>. The
+                most common color space for screens is RGB, where the reference colors are Red,
+                Green and Blue. Printed works tend to use CMYK (Cyan, Magenta, Yellow, Black). Since
+                we're dealing with rendering to a screen, and because OpenGL requires it, we will
+                use the RGB colorspace.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>You can play some fancy games with programmatic shaders (see below) that allow
+                    you to work in different colorspaces. So technically, we only have to output to
+                    a linear RGB colorspace.</p>
+            </div>
+            <p>So a pixel in OpenGL is defined as 3 values on the range [0, 1] that represent a
+                color in a linear RGB colorspace. By combining different intensities of these 3
+                colors, we can generate millions of different color shades. This will get extended
+                slightly, as we deal with transparency later.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp1061"></a>Shader</h3></div></div></div>
+            
+            <p>A <em class="glossterm">shader</em> is a program designed to be run on a renderer as
+                part of the rendering operation. Regardless of the kind of rendering system in use,
+                shaders can only be executed at certain points in that rendering process. These
+                    <em class="glossterm">shader stages</em> represent hooks where a user can add
+                arbitrary algorithms to create a specific visual effect.</p>
+            <p>In terms of rasterization, as outlined above, there are several shader stages where
+                arbitrary processing is both economical for performance and offers high utility to
+                the user. For example, the transformation of an incoming vertex to clip space is a
+                useful hook for user-defined code, as is the processing of a fragment into final
+                colors and depth.</p>
+            <p>Shaders for OpenGL are run on the actual rendering hardware. This can often free
+                up valuable CPU time for other tasks, or simply perform operations that would be
+                difficult if not impossible without the flexibility of executing arbitrary code. A
+                downside of this is that they must live within certain limits that CPU code would
+                not have to.</p>
+            <p>There are a number of shading languages available to various APIs. The one used in
+                this tutorial is the primary shading language of OpenGL. It is called,
+                unimaginatively, the OpenGL Shading Language, or <acronym class="acronym">GLSL</acronym>. for short.
+                It looks deceptively like C, but it is very much <span class="emphasis"><em>not</em></span> C.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Introduction.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Introduction.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Intro%20What%20is%20OpenGL.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Introduction </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> What is OpenGL</td></tr></table></div></body></html>

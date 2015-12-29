@@ -1,0 +1,207 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Blinn-Phong Model</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2011.html" title="Chapter 11. Shinies"><link rel="prev" href="Tut11%20Phong%20Model.html" title="Phong Model"><link rel="next" href="Tut11%20Gaussian.html" title="Gaussian"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Blinn-Phong Model</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut11%20Phong%20Model.html">Prev</a> </td><th width="60%" align="center">Chapter 11. Shinies</th><td width="20%" align="right"> <a accesskey="n" href="Tut11%20Gaussian.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp78"></a>Blinn-Phong Model</h2></div></div></div>
+        
+        
+        <p>The problem with Phong, with regard to the reflection and view directions being
+            greater than 90 degrees, can be solved by changing the computation. This modified model
+            is called the <em class="glossterm">Blinn-Phong specular model</em> or just the
+                <em class="glossterm">Blinn specular model.</em></p>
+        <p>It is no more physically correct than the Phong model. But it does tend to account for
+            more than Phong.</p>
+        <p>The main problem with Phong is that the angle between the view direction and the
+            reflection direction has to be less than 90 degrees in order for the specular term to be
+            non-zero.</p>
+        <div class="figure"><a name="idp9475"></a><p class="title"><b>Figure 11.7. Large View and Reflect Angle</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="PhongReflectDirTooGreat.svg" alt="Large View and Reflect Angle"></div>
+        </div></div><br class="figure-break">
+        <p>The angle between V and R is greater than 90 degrees. Cases like this are not modeled
+            correctly by Phong. There could be microfacets at the point which are oriented towards
+            the camera, but Phong cannot properly model this. The problem is that the dot product
+            between the view direction and reflection direction can be negative, which does not lead
+            to a reasonable result when passed through the rest of the equation.</p>
+        <p>The Blinn model uses a different set of vectors for its computations, one that are
+            less than 90 degrees in all valid cases. The Blinn model requires computing the
+                <em class="glossterm">half-angle vector</em>. The half-angle vector is the direction
+            halfway between the view direction and the light position.</p>
+        <div class="figure"><a name="idp9483"></a><p class="title"><b>Figure 11.8. Geometric Half-Angle Vector</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="HalfangleVectorDiagram.svg" alt="Geometric Half-Angle Vector"></div>
+        </div></div><br class="figure-break">
+        <div class="equation"><a name="idp9488"></a><p class="title"><b>Equation 11.3. Half-Angle Vector</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mover>
+            <mi>H</mi>
+            <mo>⇀</mo>
+        </mover>
+        <mo>=</mo>
+        <mfrac>
+            <mrow>
+                <mover>
+                    <mi>L</mi>
+                    <mo>⇀</mo>
+                </mover>
+                <mo>+</mo>
+                <mover>
+                    <mi>V</mi>
+                    <mo>⇀</mo>
+                </mover>
+            </mrow>
+            <mrow>
+                <mfenced open="∥" close="∥" separators=",">
+                    <mrow>
+                        <mover>
+                            <mi>L</mi>
+                            <mo>⇀</mo>
+                        </mover>
+                        <mo>+</mo>
+                        <mover>
+                            <mi>V</mi>
+                            <mo>⇀</mo>
+                        </mover>
+                    </mrow>
+                </mfenced>
+            </mrow>
+        </mfrac>
+    </mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>When the view direction is perfectly aligned with the reflected direction, the
+            half-angle vector is perfectly aligned with the surface normal. Or to put it another
+            way, the half-angle is the direction the surface normal would need to be facing in order
+            for the viewer to see a specular reflection from the light source.</p>
+        <div class="figure"><a name="idp9516"></a><p class="title"><b>Figure 11.9. Perfect Reflection Half-Angle Vector</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="HalfangleVectorPerfect.svg" alt="Perfect Reflection Half-Angle Vector"></div>
+        </div></div><br class="figure-break">
+        <p>So instead of comparing the reflection vector to the view direction, the Blinn model
+            compares the half-angle vector to the surface normal. It then raises this value to a
+            power representing the shininess of the surface.</p>
+        <div class="equation"><a name="idp9522"></a><p class="title"><b>Equation 11.4. Blinn Specular Term</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>Blinn term</mi>
+        <mo>=</mo>
+        <msup>
+            <mfenced open="(" close=")" separators=",">
+                <mrow>
+                    <mover>
+                        <mi>H</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                    <mo>·</mo>
+                    <mover>
+                        <mi>N</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mrow>
+            </mfenced>
+            <mi>s</mi>
+        </msup>
+    </mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>The angle between the half-angle vector and the normal is always less than 90 degrees.
+            So the Blinn specular model produces similar results to the Phong model, but without
+            some of Phong's problems. This is demonstrated in the <span class="propername">Blinn vs
+                Phong Lighting</span> tutorial.</p>
+        <div class="figure"><a name="idp9541"></a><p class="title"><b>Figure 11.10. Blinn Lighting</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Blinn%20Lighting.png" alt="Blinn Lighting"></div>
+        </div></div><br class="figure-break">
+        <p>The controls are similar to the last tutorial. Pressing the <span class="keycap"><strong>H</strong></span> key
+            will switch between Blinn and Phong specular. Pressing <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>H</strong></span> will switch between diffuse+specular and specular only. Because the specular
+            exponents have different meanings between the two lighting models, each model has a
+            separate exponent. The keys for changing the exponent values will only change the value
+            for the lighting model currently being viewed.</p>
+        <p>The real work here is, as before, in the shader computations. Here is the main code
+            for computing the diffuse + Blinn illumination.</p>
+        <div class="example"><a name="idp9552"></a><p class="title"><b>Example 11.2. Blinn-Phong Lighting Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">vec3 lightDir = vec3(0.0);
+float atten = CalcAttenuation(cameraSpacePosition, lightDir);
+vec4 attenIntensity = atten * lightIntensity;
+	
+vec3 surfaceNormal = normalize(vertexNormal);
+float cosAngIncidence = dot(surfaceNormal, lightDir);
+cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+	
+vec3 viewDirection = normalize(-cameraSpacePosition);
+	
+vec3 halfAngle = normalize(lightDir + viewDirection);
+float blinnTerm = dot(surfaceNormal, halfAngle);
+blinnTerm = clamp(blinnTerm, 0, 1);
+blinnTerm = cosAngIncidence != 0.0 ? blinnTerm : 0.0;
+blinnTerm = pow(blinnTerm, shininessFactor);
+
+outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
+    (specularColor * attenIntensity * blinnTerm) +
+    (diffuseColor * ambientIntensity);</pre>
+        </div></div><br class="example-break">
+        <p>The half-angle vector is computed by normalizing the sum of the light direction and
+            view direction vectors. As before, we take the dot product between that and the surface
+            normal, clamp, then raise the result to a power.</p>
+        <p>Blinn specular solves the Phong problem with the reflection direction.</p>
+        <div class="figure"><a name="idp9557"></a><p class="title"><b>Figure 11.11. Blinn vs. Phong Lighting</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Blinn%20vs%20Phong%20Compare.png" alt="Blinn vs. Phong Lighting"></div>
+        </div></div><br class="figure-break">
+        <p>The Blinn version is on the left, with the Phong version on the right.</p>
+        <p>The Blinn specular exponent does not mean quite the same thing as the Phong exponent.
+            In general, to produce a highlight the same size as a Phong one, you will need a larger
+            Blinn exponent. Play around with the different exponents, to get a feel for what Blinn
+            and Phong can and cannot achieve.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9564"></a>Hard Specular Edge</h3></div></div></div>
+            
+            <p>There are still a few artifacts in the rendering. For example, if you arrange the
+                light, object, and camera as follows, you can see this:</p>
+            <div class="figure"><a name="idp9567"></a><p class="title"><b>Figure 11.12. Light Edge</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="FalseEdge.png" alt="Light Edge"></div>
+            </div></div><br class="figure-break">
+            <p>The cylinder looks like it has a very sharp corner. What causes this? It is caused
+                by this line in the shader:</p>
+            <pre class="programlisting">blinnTerm = cosAngIncidence != 0.0 ? blinnTerm : 0.0;</pre>
+            <p>If the angle between the normal and the light direction is greater than 90
+                degrees, then we force the specular term to zero. The reason behind this is very
+                simple: we assume our surface is a closed object. Given that assumption, if the
+                normal at a location on the surface is facing away from the light, then this could
+                only happen if there is some other part of the surface between itself and the light.
+                Therefore, the surface cannot be directly illuminated by that light.</p>
+            <p>That is a reasonable assumption, and it certainly makes sense in reality. But
+                real-life objects don't have these kinds of hard specular lines. So what are we
+                missing in our model?</p>
+            <p>What we are missing is that point lights don't exist in the real world. Light
+                illumination does not come from a single, infinitely small location in space. Even
+                the size of the Sun relative to Earth has a significant area. So what this means is
+                that, for a given point on a surface, it could be in partial view of the light
+                source. Imagine Earth at sunset for an example: part of the sun is below the horizon
+                and part of it is not.</p>
+            <p>Since only part of the light is visible from that point on the surface, then only
+                part of the light contributes to the overall illumination. So at these places where
+                you might get hard specular boundaries, under more real lighting conditions, you
+                still get a semi-gentle fall-off.</p>
+            <p>That's all well and good, but modeling true area lights is difficult even for
+                simple cases. A much simpler way to resolve this is to not use such a low specular
+                exponent. This specular exponent is relatively small, leading to a very broad
+                specular highlight. If we restrict our use of a specular term to surfaces who's
+                specular exponent is reasonably large, we can prevent this artifact from
+                appearing.</p>
+            <p>Here is the same scene, but with a larger exponent:</p>
+            <div class="figure"><a name="idp9580"></a><p class="title"><b>Figure 11.13. Improved Light Edge</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="LessFalseEdge.png" alt="Improved Light Edge"></div>
+            </div></div><br class="figure-break">
+            <p>We could also adjust the specular reflectance, so that surfaces with a low
+                specular exponent also have a small specular reflectance.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut11%20Phong%20Model.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2011.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut11%20Gaussian.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Phong Model </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Gaussian</td></tr></table></div></body></html>

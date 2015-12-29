@@ -1,0 +1,96 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Dependency</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="History%20of%20Graphics%20Hardware.html" title="Appendix C. History of PC Graphics Hardware"><link rel="prev" href="History%20Radeon8500.html" title="Programming at Last"><link rel="next" href="History%20Unified.html" title="Modern Unification"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Dependency</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="History%20Radeon8500.html">Prev</a> </td><th width="60%" align="center">Appendix C. History of PC Graphics Hardware</th><td width="20%" align="right"> <a accesskey="n" href="History%20Unified.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp132"></a>Dependency</h2></div></div></div>
+        
+        
+        <p>The Radeon 9700 was the 8500's successor. It improved on the 8500 somewhat. The vertex
+            shader gained real conditional branching logic. Some of the limits were also relaxed;
+            the number of available outputs and uniforms increased. The fragment shader's
+            architecture remained effectively the same; the 9700 simply increased the limits. There
+            were 8 textures available and 16 opcodes, and it could perform 4 passes over this
+            set.</p>
+        <p>The GeForce FX, released in 2003, was a substantial improvement, both over the GeForce
+            3/4 and over the 9700 in terms of fragment processing. NVIDIA took a different approach
+            to their fragment shaders; their fragment processor worked not entirely unlike modern
+            shader processors do.</p>
+        <p>It read an instruction, which could be a math operation, conditional branch (they had
+            actual branches in fragment shading), or texture lookup instruction. It then executed
+            that instruction. The texture lookup could be from a set of 8 textures. And then it
+            repeated this process on the next instruction. It was doing math computations in a way
+            not entirely unlike a traditional CPU.</p>
+        <p>There was no real concept of a dependent texture access for the GeForce FX. The inputs
+            to the fragment pipeline were simply the texture coordinates and colors from the vertex
+            stage. If you used a texture coordinate to access a texture, it was fine with that. If
+            you did some computations with them and then accessed a texture, it was just as fine
+            with that. It was completely generic.</p>
+        <p>It also failed in the marketplace. This was due primarily to its lateness and its poor
+            performance in high-precision computation operations. The FX was optimized for doing
+            16-bit math computations in its fragment shader; while it <span class="emphasis"><em>could</em></span> do
+            32-bit math, it was half as fast when doing this. But Direct3D 9's shaders did not allow
+            the user to specify the precision of computations; the specification required at least
+            24-bits of precision. To match this, NVIDIA had no choice but to force 32-bit math on
+            all D3D 9 applications, making them run much slower than their ATI counterparts (the
+            9700 always used 24-bit precision math).</p>
+        <p>Things were no better in OpenGL land. The two competing unified fragment processing
+            APIs, GLSL and an assembly-like fragment shader, did not have precision specifications
+            either. Only NVIDIA's proprietary extension for fragment shaders provided that, and
+            developers were less likely to use it. Especially with the head start that the 9700
+            gained in the market by the FX being released late.</p>
+        <p>It performs so poorly in the market that NVIDIA dropped the FX name for the next
+            hardware revision. The GeForce 6 improved its 32-bit performance to the point where it
+            was competitive with the ATI equivalents.</p>
+        <p>This level of hardware saw the gaining of a number of different features. sRGB
+            textures and framebuffers appeared, as did floating-point textures. Blending support for
+            floating-point framebuffers was somewhat spotty; some hardware could do it only for
+            16-bit floating-point, some could not do it at all. The restrictions of power-of-two
+            texture sizes was also lifted, to varying degrees. None of ATI's hardware of this era
+            fully supported this when used with mipmapping, but NVIDIA's hardware from the GeForce 6
+            and above did.</p>
+        <p>The ability to access textures from vertex shaders was also introduced in this series
+            of hardware. Vertex texture accesses uses a separate list of textures from those bound
+            for fragment shaders. Only four textures could be accessed from a vertex shader, while 8
+            textures was normal for fragment shaders.</p>
+        <p>Render to texture also became generally available at this time, though this was more
+            of an API issue (neither OpenGL nor Direct3D allowed textures to be used as render
+            targets before this point) than hardware functionality. That is not to say that hardware
+            had no role to play. Textures are often not stored as linear arrays of memory the way
+            they are loaded with <code class="function">glTexImage</code>. They are usually stored in a
+            swizzled format, where 2D or 3D blocks of texture data are stored sequentially. Thus,
+            rendering to a texture required either the ability to render directly to swizzled
+            formats or the ability to read textures that are stored in unswizzled formats.</p>
+        <p>More than just render to texture was introduced. What was also introduced was the
+            ability to render to multiple textures or buffers at one time. The number of renderable
+            buffers was generally limited to 4 across all hardware platforms.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Rise of the Compilers</b></p></div></div></div>
+            
+            <p>Microsoft put their foot down after the fiasco with D3D 8's fragment shaders. They
+                wanted a single standard that all hardware makers would support. While this lead to
+                the FX's performance failings, it also meant that compilers were becoming very
+                important to shader performance.</p>
+            <p>In order to have a real abstraction, you need compilers that are able to take the
+                abstract language and map it to very different kinds of hardware. With Direct3D and
+                OpenGL providing standards for shading languages, compiler quality started to become
+                vital for performance.</p>
+            <p>OpenGL moved whole-heartedly, and perhaps incautiously, into the realm of
+                compilers when the OpenGL ARB embraced GLSL, a C-style language. They developed this
+                language to the exclusion of all others.</p>
+            <p>In Direct3D land, Microsoft developed the High-Level Shading Language, HLSL. But
+                the base shading languages used by Direct3D 9 were still the assembly-like shading
+                languages. HLSL was compiled by a Microsoft-developed compiler into the assembly
+                languages, which were fed to Direct3D.</p>
+            <p>With compilers and semi-real languages with actual logic constructs, a new field
+                started to arise: General Programming GPU or <acronym class="acronym">GPGPU</acronym>. The idea was
+                to use a GPU to do non-rendering tasks. It started around this era, but the
+                applications were limited due to the nature of hardware. Only fairly recently, with
+                the advent of special languages and APIs (OpenCL, for example) that are designed for
+                GPGPU tasks, has GPGPU started to really move into its own. Indeed, in the most
+                recent hardware era, hardware makers have added features to GPUs that have
+                somewhat... dubious uses in the field of graphics, but substantial uses in GPGPU
+                tasks.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="History%20Radeon8500.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="History%20of%20Graphics%20Hardware.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="History%20Unified.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Programming at Last </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Modern Unification</td></tr></table></div></body></html>

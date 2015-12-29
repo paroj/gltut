@@ -1,0 +1,91 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>sRGB and the Screen</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2016.html" title="Chapter 16. Gamma and Textures"><link rel="prev" href="Tut16%20Mipmaps%20and%20Linearity.html" title="sRGB and Mipmaps"><link rel="next" href="Tut16%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">sRGB and the Screen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut16%20Mipmaps%20and%20Linearity.html">Prev</a> </td><th width="60%" align="center">Chapter 16. Gamma and Textures</th><td width="20%" align="right"> <a accesskey="n" href="Tut16%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp110"></a>sRGB and the Screen</h2></div></div></div>
+        
+        
+        <p>Thus far, we have seen how to use sRGB textures to store gamma-corrected images, such
+            that they are automatically linearized upon being fetched from a shader. Since the sRGB
+            colorspace closely approximates a gamma of 2.2, if we could use an sRGB image as the
+            image we render to, we would automatically get gamma correction without having to put it
+            into our shaders. But this would require two things: the ability to specify that the
+            screen image is sRGB, and the ability to state that we are outputting linear values and
+            want them converted to the sRGB colorspace when stored.</p>
+        <p>Naturally, OpenGL provides both of these. To see how they work, load up the last
+            project, <span class="propername">Gamma Landscape</span>. This shows off some
+            textured terrain with a day/night cycle and a few lights running around.</p>
+        <div class="figure"><a name="idp12193"></a><p class="title"><b>Figure 16.5. Gamma Landscape</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Gamma%20Landscape.png" alt="Gamma Landscape"></div>
+        </div></div><br class="figure-break">
+        <p>It uses the standard mouse-based controls to move around. As before, the
+                <span class="keycap"><strong>1</strong></span> and <span class="keycap"><strong>2</strong></span> keys respectively select linear mipmap
+            filtering and anisotropic filtering. The main feature is the non-shader-based gamma
+            correction. This is enabled by default and can be toggled by pressing the
+                <span class="keycap"><strong>SpaceBar</strong></span>.</p>
+        <p>
+            <b>sRGB Screen Image. </b>
+            The process for setting this up is a bit confusing, but is ultimately quite simple
+                for our tutorials. The OpenGL specification specifies how to use the OpenGL
+                rendering system, but it does not specify how to <span class="emphasis"><em>create</em></span> the
+                OpenGL rendering system. That is relegated to platform-specific APIs. Therefore,
+                while code that uses OpenGL is platform-neutral, that code is ultimately dependent
+                on platform-specific initialization code to create the OpenGL context.
+        </p>
+        <p>These tutorials rely on FreeGLUT for setting up the OpenGL context and managing the
+            platform-specific APIs. The <code class="filename">framework.cpp</code> file is responsible for
+            doing the initialization setup work, telling FreeGLUT exactly how we want our screen
+            image set up. In order to allow different tutorials to adjust how we set up our FreeGLUT
+            screen image, the framework calls the <code class="function">defaults</code> function.</p>
+        <div class="example"><a name="idp12209"></a><p class="title"><b>Example 16.4. Gamma Landscape defaults Function</b></p><div class="example-contents">
+            
+            <pre class="programlisting">unsigned int defaults(unsigned int displayMode, int &amp;width, int &amp;height)
+{
+    return displayMode | GLUT_SRGB;
+}</pre>
+        </div></div><br class="example-break">
+        <p>The <code class="varname">displayMode</code> argument is a bitfield that contains the standard
+            FreeGLUT display mode flags set up by the framework. This function must return that
+            bitfield, and all of our prior tutorials have returned it unchanged. Here, we change it
+            to include the <code class="literal">GLUT_SRGB</code> flag. That flag tells FreeGLUT that we want
+            the screen image to be in the sRGB colorspace.</p>
+        <p>
+            <b>Linear to sRGB Conversion. </b>
+            This alone is insufficient. We must also tell OpenGL that our shaders will be
+                writing linear colorspace values and that these values should be converted to sRGB
+                before being written to the screen. This is done with a simple
+                    <code class="function">glEnable</code> command:
+        </p>
+        <div class="example"><a name="idp12219"></a><p class="title"><b>Example 16.5. Enable sRGB Conversion</b></p><div class="example-contents">
+            
+            <pre class="programlisting">if(g_useGammaDisplay)
+    glEnable(GL_FRAMEBUFFER_SRGB);
+else
+    glDisable(GL_FRAMEBUFFER_SRGB);</pre>
+        </div></div><br class="example-break">
+        <p>The need for this is not entirely obvious, especially since we cannot manually turn
+            off sRGB-to-linear conversion when reading from textures. The ability to disable
+            linear-to-sRGB conversion for screen rendering is useful when we are drawing something
+            directly in the sRGB colorspace. For example, it is often useful to have parts of the
+            interface drawn directly in the sRGB colorspace, while the actual scene being rendered
+            uses color conversion.</p>
+        <p>Note that the color conversion is just as free in terms of performance as it is for
+            texture reads. So you should not fear using this as much and as often as
+            reasonable.</p>
+        <p>Having this automatic gamma correction is better than manual gamma correction because
+            it covers everything that is written to the screen. In prior tutorials, we had to
+            manually gamma correct the clear color and certain other colors used to render solid
+            objects. Here, we simply enable the conversion and everything is affected.</p>
+        <p>The process of ensuring a linear pipeline from texture creation, through lighting,
+            through to the screen is commonly called <em class="glossterm">gamma-correct texturing.</em>
+            The name is a bit of a misnomer, as <span class="quote">“<span class="quote">texturing</span>”</span> is not a requirement; we
+            have been gamma-correct since Tutorial 12's introduction of that concept (except for
+            Tutorial 15, where we looked at filtering). However, textures are the primary source of
+            potential failures to maintain a linear pipeline, as many image formats on disc have no
+            way of saying if the image data is in sRGB or linear. So the name still makes some
+            sense.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut16%20Mipmaps%20and%20Linearity.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2016.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut16%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">sRGB and Mipmaps </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

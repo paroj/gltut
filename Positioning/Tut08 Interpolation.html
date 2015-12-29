@@ -1,0 +1,145 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Interpolation</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2008.html" title="Chapter 8. Getting Oriented"><link rel="prev" href="Tut08%20Camera%20Relative%20Orientation.html" title="Camera-Relative Orientation"><link rel="next" href="Tut08%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Interpolation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut08%20Camera%20Relative%20Orientation.html">Prev</a> </td><th width="60%" align="center">Chapter 8. Getting Oriented</th><td width="20%" align="right"> <a accesskey="n" href="Tut08%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp60"></a>Interpolation</h2></div></div></div>
+        
+        
+        <p>A quaternion represents an orientation; it defines a coordinate system relative to
+            another. If we have two orientations, we can consider the orientation of the same object
+            represented in both coordinate systems.</p>
+        <p>What if we want to generate an orientation that is halfway between them, for some
+            definition of <span class="quote">“<span class="quote">halfway</span>”</span>? Or even better, consider an arbitrary
+            interpolation between two orientations, so that we can watch an object move from one
+            orientation to another. This would allow us to see an object smoothly moving from one
+            orientation to another.</p>
+        <p>This is one more trick we can play with quaternions that we cannot with matrices.
+            Linearly-interpolating the components of matrices does not create anything that
+            resembles an inbetween transformation. However, linearly interpolating a pair of
+            quaternions does. As long as you normalize the results.</p>
+        <p>The <span class="propername">Interpolation</span> tutorial demonstrates this. The
+                <span class="keycap"><strong>Q</strong></span>, <span class="keycap"><strong>W</strong></span>, <span class="keycap"><strong>E</strong></span>, <span class="keycap"><strong>R</strong></span>,
+                <span class="keycap"><strong>T</strong></span>, <span class="keycap"><strong>Y</strong></span>, and <span class="keycap"><strong>U</strong></span> keys cause the ship
+            to interpolate to a new orientation. Each key corresponds to a particular orientation,
+            and the <span class="keycap"><strong>Q</strong></span> key is the initial orientation.</p>
+        <p>We can see that there are some pretty reasonable looking transitions. The transition
+            from <span class="keycap"><strong>Q</strong></span> to <span class="keycap"><strong>W</strong></span>, for example. However, there are some
+            other transitions that do not look so good; the <span class="keycap"><strong>Q</strong></span> to <span class="keycap"><strong>E</strong></span>
+            transition. What exactly is going on?</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7276"></a>The Long Path</h3></div></div></div>
+            
+            <p>Unit quaternions represent orientations, but they are also vector directions.
+                Specifically, directions in a four-dimensional space. Being unit vectors, they
+                represent points on a 4D sphere of radius one. Therefore, the path between two
+                orientations can be considered to be simply moving from one direction to another on
+                the surface of the 4D sphere.</p>
+            <p>While unit quaternions do represent orientations, a quaternion is not a
+                    <span class="emphasis"><em>unique</em></span> representation of an orientation. That is, there are
+                multiple quaternions that represent the same orientation. Well, there are
+                two.</p>
+            <p>The conjugate of a quaternion, its inverse orientation, is the negation of the
+                vector part of the quaternion. If you negate all four components however, you get
+                something quite different: the same orientation as before. Negating a quaternion
+                does not affect its orientation.</p>
+            <p>While the two quaternions represent the same orientation, they are not the same as
+                far as interpolation is concerned. Consider a two-dimensional case:</p>
+            <div class="figure"><a name="idp7283"></a><p class="title"><b>Figure 8.5. Interpolation Directions</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="InterpolateDirection.svg" alt="Interpolation Directions"></div>
+            </div></div><br class="figure-break">
+            <p>If the angle between the two quaternions is greater than 90°, then the
+                interpolation between them will take the <span class="quote">“<span class="quote">long path</span>”</span> between the two
+                orientations. Which is what we see in the <span class="keycap"><strong>Q</strong></span> to <span class="keycap"><strong>E</strong></span>
+                transition. The orientation <span class="keycap"><strong>R</strong></span> is the negation of
+                <span class="keycap"><strong>E</strong></span>; if you try to interpolate between them, nothing changes. The
+                    <span class="keycap"><strong>Q</strong></span> to <span class="keycap"><strong>R</strong></span> transition looks much better
+                behaved.</p>
+            <p>This can be detected easily enough. If the 4-vector dot product between the two
+                quaternions is less than zero, then the long path will be taken. If you want to
+                prevent the long path from being used, simply negate one of the quaternions before
+                interpolating if you detect this. Similarly, if you want to force the long path,
+                then ensure that the angle is greater than 90° by negating a quaternion if the dot
+                product is greater than zero.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp7297"></a>Interpolation Speed</h3></div></div></div>
+            
+            <p>There is another problem. Notice how fast the <span class="keycap"><strong>Q</strong></span> to
+                    <span class="keycap"><strong>E</strong></span> interpolation is. It starts off slow, then rapidly spins
+                around, then slows down towards the end. Why does this happen?</p>
+            <p>The linear interpolation code looks like this:</p>
+            <div class="example"><a name="idp7303"></a><p class="title"><b>Example 8.5. Quaternion Linear Interpolation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glm::fquat Lerp(const glm::fquat &amp;v0, const glm::fquat &amp;v1, float alpha)
+{
+    glm::vec4 start = Vectorize(v0);
+    glm::vec4 end = Vectorize(v1);
+    glm::vec4 interp = glm::mix(start, end, alpha);
+    interp = glm::normalize(interp);
+    return glm::fquat(interp.w, interp.x, interp.y, interp.z);
+}</pre>
+            </div></div><br class="example-break">
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>GLM's quaternion support does something unusual. The W component is given
+                    first to the <span class="type">fquat</span> constructor. Be aware of that when looking
+                    through the code.</p>
+            </div>
+            <p>The <code class="function">Vectorize</code> function simply takes a quaternion and returns
+                a <span class="type">vec4</span>; this is necessary because GLM <span class="type">fquat</span> do not support
+                many of the operations that GLM <span class="type">vec4</span>'s do. In this case, the
+                    <span class="type">glm::mix</span> function, which performs component-wise linear
+                interpolation.</p>
+            <p>Each component of the vector is interpolated separately from the rest. The
+                quaternion for <span class="keycap"><strong>Q</strong></span> is (0.7071f, 0.7071f, 0.0f, 0.0f), while the
+                quaternion for <span class="keycap"><strong>E</strong></span> is (-0.4895f, -0.7892f, -0.3700f, -0.02514f). In
+                order for the first componet of Q to get to E's first component, it will have to go
+                through zero.</p>
+            <p>When the alpha is around 0.5, half-way through the movement, the resultant vector
+                before normalization is very small. But the vector itself is not what provides the
+                orientation; the <span class="emphasis"><em>direction</em></span> of the 4D vector is. Which is why it
+                moves very fast in the middle: the direction is changing rapidly.</p>
+            <p>In order to get smooth interpolation, we need to interpolate based on the
+                direction of the vectors. That is, we interpolate along the angle between the two
+                vectors. This kind of interpolation is called <em class="glossterm">spherical linear
+                    interpolation</em> or <em class="glossterm">slerp</em>.</p>
+            <p>To see the difference this makes, press the <span class="keycap"><strong>SpaceBar</strong></span>; this
+                toggles between regular linear interpolation and slerp. The slerp version is much
+                smoother.</p>
+            <p>The code for slerp is rather complex:</p>
+            <div class="example"><a name="idp7326"></a><p class="title"><b>Example 8.6. Spherical Linear Interpolation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">glm::fquat Slerp(const glm::fquat &amp;v0, const glm::fquat &amp;v1, float alpha)
+{
+    float dot = glm::dot(v0, v1);
+    
+    const float DOT_THRESHOLD = 0.9995f;
+    if (dot &gt; DOT_THRESHOLD)
+        return Lerp(v0, v1, alpha);
+    
+    glm::clamp(dot, -1.0f, 1.0f);
+    float theta_0 = acosf(dot);
+    float theta = theta_0*alpha;
+    
+    glm::fquat v2 = v1 - v0*dot;
+    v2 = glm::normalize(v2);
+    
+    return v0*cos(theta) + v2*sin(theta);
+}</pre>
+            </div></div><br class="example-break">
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Slerp and Performance</b></p></div></div></div>
+                
+                <p>It's important to know what kind of problems slerp is intended to solve and
+                    what kind it is not. Slerp becomes increasingly more important the more
+                    disparate the two quaternions being interpolated are. If you know that two
+                    quaternions are always quite close to one another, then slerp is not worth the
+                    expense.</p>
+                <p>The <code class="function">acos</code> call in the slerp code alone is pretty
+                    substantial in terms of performance. Whereas lerp is typically just a
+                    vector/scalar multiply followed by a vector/vector addition. Even on the CPU,
+                    the performance difference is important, particularly if you're doing thousands
+                    of these per frame. As you might be in an animation system.</p>
+            </div>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut08%20Camera%20Relative%20Orientation.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2008.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut08%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Camera-Relative Orientation </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

@@ -1,0 +1,310 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Fragment Lighting</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2010.html" title="Chapter 10. Plane Lights"><link rel="prev" href="Tut10%20Interpolation.html" title="Interpolation"><link rel="next" href="Tut10%20Distant%20Points%20of%20Light.html" title="Distant Points of Light"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Fragment Lighting</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut10%20Interpolation.html">Prev</a> </td><th width="60%" align="center">Chapter 10. Plane Lights</th><td width="20%" align="right"> <a accesskey="n" href="Tut10%20Distant%20Points%20of%20Light.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp72"></a>Fragment Lighting</h2></div></div></div>
+        
+        
+        <p>So, in order to deal with interpolation artifacts, we need to interpolate the actual
+            light direction and normal, instead of just the results of the lighting equation. This
+            is called per-fragment lighting or just <em class="glossterm">fragment lighting.</em></p>
+        <p>This is pretty simple, conceptually. We simply need to do the lighting computations in
+            the fragment shader. So the fragment shader needs the position of the fragment, the
+            light's position (or the direction to the light from that position), and the surface
+            normal of the fragment at that position. And all of these values need to be in the same
+            coordinate space.</p>
+        <p>There is a problem that needs to be dealt with first. Normals do not interpolate well.
+            Or rather, wildly different normals do not interpolate well. And light directions can be
+            very different if the light source is close to the triangle relative to that triangle's
+            size.</p>
+        <p>Consider the large plane we have. The direction toward the light will be very
+            different at each vertex, so long as our light remains in relatively close proximity to
+            the plane.</p>
+        <p>Part of the problem is with interpolating values along the diagonal of our triangle.
+            Interpolation within a triangle works like this. For any position within the area of the
+            triangle, that position can be expressed as a weighted sum of the positions of the three
+            vertices.</p>
+        <div class="figure"><a name="idp8572"></a><p class="title"><b>Figure 10.3. Triangle Interpolation</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="BarycentricTriangle.svg" alt="Triangle Interpolation"></div>
+        </div></div><br class="figure-break">
+        <div class="informalequation">
+            <span class="mathphrase">P = αA + βB + γC, where α + β + γ = 1.0</span>
+        </div>
+        <p>The α, β, and γ values are not the distances from their respective points to the point
+            of interest. In the above case, the point P is in the exact center of the triangle.
+            Thus, the three values are each ⅓.</p>
+        <p>If the point of interest is along an edge of the triangle, then the contribution of
+            the vertex not sharing that edge is zero.</p>
+        <div class="figure"><a name="idp8581"></a><p class="title"><b>Figure 10.4. Triangle Edge Interpolation</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="BarycentricTriangleEdge.svg" alt="Triangle Edge Interpolation"></div>
+        </div></div><br class="figure-break">
+        <p>Here, point P is exactly halfway between points C and B. Therefore,  β, and γ are both
+            0.5, but α is 0.0. If point P is anywhere along the edge of a triangle, it gets none of
+            its final interpolated value from the third vertex. So along a triangle's edge, it acts
+            like the kind of linear interpolation we have seen before.</p>
+        <p>This is how OpenGL interpolates the vertex shader outputs. It takes the α, β, and γ
+            coordinates for the fragment's position and combines them with the vertex output value
+            for the three vertices in the same way it does for the fragment's position. There is
+            slightly more to it than that, but we will discuss that later.</p>
+        <p>The ground plane in our example is made of two large triangles. They look like
+            this:</p>
+        <div class="figure"><a name="idp8589"></a><p class="title"><b>Figure 10.5. Two Triangle Quadrilateral</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="TwoTriangleQuad.svg" alt="Two Triangle Quadrilateral"></div>
+        </div></div><br class="figure-break">
+        <p>What happens if we put the color black on the top-right and bottom-left points, and
+            put the color green on the top-left and bottom-right points? If you interpolate these
+            across the surface, you would get this:</p>
+        <div class="figure"><a name="idp8595"></a><p class="title"><b>Figure 10.6. Two Triangle Interpolation</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="TwoTriangleInterpolation.svg" alt="Two Triangle Interpolation"></div>
+        </div></div><br class="figure-break">
+        <p>The color is pure green along the diagonal. That is because along a triangle's edge,
+            the value interpolated will only be the color of the two vertices along that edge. The
+            value is interpolated based only on each triangle individually, not on extra data from
+            another neighboring triangle.</p>
+        <p>In our case, this means that for points along the main diagonal, the light direction
+            will only be composed of the direction values from the two vertices on that diagonal.
+            This is not good. This would not be much of a problem if the light direction did not
+            change much along the surface, but with large triangles (relative to how close the light
+            is to them), that is simply not the case.</p>
+        <p>Since we cannot interpolate the light direction very well, we need to interpolate
+            something else. Something that does exhibit the characteristics we need when
+            interpolated.</p>
+        <p>Positions interpolate quite well. Interpolating the top-left position and bottom-right
+            positions gets an accurate position value along the diagonal. So instead of
+            interpolating the light direction, we interpolate the components of the light direction.
+            Namely, the two positions. The light position is a constant, so we only need to
+            interpolate the vertex position.</p>
+        <p>Now, we could do this in any space. But for illustrative purposes, we will be doing
+            this in model space. That is, both the light position and vertex position will be in
+            model space.</p>
+        <p>One of the advantages of doing things in model space is that it gets rid of that pesky
+            matrix inverse/transpose we had to do to transform normals correctly. Indeed, normals
+            are not transformed at all. One of the disadvantages is that it requires computing an
+            inverse matrix for our light position, so that we can go from world space to model
+            space.</p>
+        <p>The <span class="propername">Fragment Point Lighting</span> tutorial shows off how
+            fragment lighting works.</p>
+        <div class="figure"><a name="idp8608"></a><p class="title"><b>Figure 10.7. Fragment Point Lighting</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Fragment%20Point%20Lighting.png" alt="Fragment Point Lighting"></div>
+        </div></div><br class="figure-break">
+        <p>Much better.</p>
+        <p>This tutorial is controlled as before, with a few exceptions. Pressing the
+                <span class="keycap"><strong>t</strong></span> key will toggle a scale factor onto to be applied to the
+            cylinder, and pressing the <span class="keycap"><strong>h</strong></span> key will toggle between per-fragment
+            lighting and per-vertex lighting.</p>
+        <p>The rendering code has changed somewhat, considering the use of model space for
+            lighting instead of camera space. The start of the rendering looks as follows:</p>
+        <div class="example"><a name="idp8618"></a><p class="title"><b>Example 10.3. Initial Per-Fragment Rendering</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glutil::MatrixStack modelMatrix;
+modelMatrix.SetMatrix(g_viewPole.CalcMatrix());
+
+const glm::vec4 &amp;worldLightPos = CalcLightPosition();
+
+glm::vec4 lightPosCameraSpace = modelMatrix.Top() * worldLightPos;</pre>
+        </div></div><br class="example-break">
+        <p>The new code is the last line, where we transform the world-space light into camera
+            space. This is done to make the math much easier. Since our matrix stack is building up
+            the transform from model to camera space, the inverse of this matrix would be a
+            transform from camera space to model space. So we need to put our light position into
+            camera space before we transform it by the inverse.</p>
+        <p>After doing that, it uses a variable to switch between per-vertex and per-fragment
+            lighting. This just selects which shaders to use; both sets of shaders take the same
+            uniform values, even though they use them in different program stages.</p>
+        <p>The ground plane is rendered with this code:</p>
+        <div class="example"><a name="idp8624"></a><p class="title"><b>Example 10.4. Ground Plane Per-Fragment Rendering</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glutil::PushStack push(modelMatrix);
+
+glUseProgram(pWhiteProgram-&gt;theProgram);
+glUniformMatrix4fv(pWhiteProgram-&gt;modelToCameraMatrixUnif, 1, GL_FALSE,
+glm::value_ptr(modelMatrix.Top()));
+
+glm::mat4 invTransform = glm::inverse(modelMatrix.Top());
+glm::vec4 lightPosModelSpace = invTransform * lightPosCameraSpace;
+glUniform3fv(pWhiteProgram-&gt;modelSpaceLightPosUnif, 1, glm::value_ptr(lightPosModelSpace));
+
+g_pPlaneMesh-&gt;Render();
+glUseProgram(0);</pre>
+        </div></div><br class="example-break">
+        <p>We compute the inverse matrix using <code class="function">glm::inverse</code> and store it.
+            Then we use that to compute the model space light position and pass that to the shader.
+            Then the plane is rendered.</p>
+        <p>The cylinder is rendered using similar code. It simply does a few transformations to
+            the model matrix before computing the inverse and rendering.</p>
+        <p>The shaders are where the real action is. As with previous lighting tutorials, there
+            are two sets of shaders: one that take a per-vertex color, and one that uses a constant
+            white color. The vertex shaders that do per-vertex lighting computations should be
+            familiar:</p>
+        <div class="example"><a name="idp8631"></a><p class="title"><b>Example 10.5. Model Space Per-Vertex Lighting Vertex Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 inDiffuseColor;
+layout(location = 2) in vec3 normal;
+
+out vec4 interpColor;
+
+uniform vec3 modelSpaceLightPos;
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+uniform mat4 modelToCameraMatrix;
+uniform mat3 normalModelToCameraMatrix;
+
+uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    vec3 dirToLight = normalize(modelSpaceLightPos - position);
+    
+    float cosAngIncidence = dot( normal, dirToLight);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    interpColor = (lightIntensity * cosAngIncidence * inDiffuseColor) +
+        (ambientIntensity * inDiffuseColor);
+}</pre>
+        </div></div><br class="example-break">
+        <p>The main differences between this version and the previous version are simply what one
+            would expect from the change from camera-space lighting to model space lighting. The
+            per-vertex inputs are used directly, rather than being transformed into camera space.
+            There is a second version that omits the <code class="varname">inDiffuseColor</code> input.</p>
+        <p>With per-vertex lighting, we have two vertex shaders:
+                <code class="filename">ModelPosVertexLighting_PCN.vert</code> and
+                <code class="filename">ModelPosVertexLighting_PN.vert</code>. With per-fragment lighting, we
+            also have two shaders: <code class="filename">FragmentLighting_PCN.vert</code> and
+                <code class="filename">FragmentLighting_PN.vert</code>. They are disappointingly
+            simple:</p>
+        <div class="example"><a name="idp8641"></a><p class="title"><b>Example 10.6. Model Space Per-Fragment Lighting Vertex Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec4 inDiffuseColor;
+layout(location = 2) in vec3 normal;
+
+out vec4 diffuseColor;
+out vec3 vertexNormal;
+out vec3 modelSpacePosition;
+
+uniform mat4 modelToCameraMatrix;
+
+uniform Projection
+{
+    mat4 cameraToClipMatrix;
+};
+
+void main()
+{
+    gl_Position = cameraToClipMatrix * (modelToCameraMatrix * vec4(position, 1.0));
+    
+    modelSpacePosition = position;
+    vertexNormal = normal;
+    diffuseColor = inDiffuseColor;
+}</pre>
+        </div></div><br class="example-break">
+        <p>Since our lighting is done in the fragment shader, there is not much to do except pass
+            variables through and set the output clip-space position. The version that takes no
+            diffuse color just passes a <span class="type">vec4</span> containing just 1.0.</p>
+        <p>The fragment shader is much more interesting:</p>
+        <div class="example"><a name="idp8647"></a><p class="title"><b>Example 10.7. Per-Fragment Lighting Fragment Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+in vec4 diffuseColor;
+in vec3 vertexNormal;
+in vec3 modelSpacePosition;
+
+out vec4 outputColor;
+
+uniform vec3 modelSpaceLightPos;
+
+uniform vec4 lightIntensity;
+uniform vec4 ambientIntensity;
+
+void main()
+{
+    vec3 lightDir = normalize(modelSpaceLightPos - modelSpacePosition);
+    
+    float cosAngIncidence = dot(normalize(vertexNormal), lightDir);
+    cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+    
+    outputColor = (diffuseColor * lightIntensity * cosAngIncidence) +
+        (diffuseColor * ambientIntensity);
+}</pre>
+        </div></div><br class="example-break">
+        <p>The math is essentially identical between the per-vertex and per-fragment case. The
+            main difference is the normalization of <code class="varname">vertexNormal</code>. This is
+            necessary because interpolating between two unit vectors does not mean you will get a
+            unit vector after interpolation. Indeed, interpolating the 3 components guarantees that
+            you will not get a unit vector.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp8652"></a>Gradient Matters</h3></div></div></div>
+            
+            <p>While this may look perfect, there is still one problem. Use the <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>J</strong></span> key to move the light really close to the cylinder, but without putting
+                the light inside the cylinder. You should see something like this:</p>
+            <div class="figure"><a name="idp8658"></a><p class="title"><b>Figure 10.8. Close Lit Cylinder</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Cylinder%20Close%20Light.png" alt="Close Lit Cylinder"></div>
+            </div></div><br class="figure-break">
+            <p>Notice the vertical bands on the cylinder. This are reminiscent of the same
+                interpolation problem we had before. Was not doing lighting at the fragment level
+                supposed to fix this?</p>
+            <p>It is similar to the original problem, but technically different. Per-vertex
+                lighting caused lines because of color interpolation artifacts. This is caused by an
+                optical illusion created by adjacent linear gradients.</p>
+            <p>The normal is being interpolated linearly across the surface. This also means that
+                the lighting is changing somewhat linearly across the surface. While the lighting
+                isn't a linear change, it can be approximated as one over a small area of the
+                surface.</p>
+            <p>The edge between two triangles changes how the light interacts. On one side, the
+                nearly-linear gradient has one slope, and on the other side, it has a different one.
+                That is, the rate at which the gradients change abruptly changes.</p>
+            <p>Here is a simple demonstration of this:</p>
+            <div class="figure"><a name="idp8668"></a><p class="title"><b>Figure 10.9. Adjacent Gradient</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="GradientIssue.svg" alt="Adjacent Gradient"></div>
+            </div></div><br class="figure-break">
+            <p>These are two adjacent linear gradients, from the bottom left corner to the top
+                right. The color value increases in intensity as it goes from the bottom left to the
+                top right. They meet along the diagonal in the middle. Both gradients have the same
+                color value in the middle, yet it appears that there is a line down the center that
+                is brighter than the colors on both sides. But it is not; the color on the right
+                side of the diagonal is actually brighter than the diagonal itself.</p>
+            <p>That is the optical illusion. Here is a diagram that shows the color intensity as
+                it moves across the above gradient:</p>
+            <div class="figure"><a name="idp8675"></a><p class="title"><b>Figure 10.10. Gradient Intensity Plot</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="GradientDiagram.svg" alt="Gradient Intensity Plot"></div>
+            </div></div><br class="figure-break">
+            <p>The color curve is continuous; there are no breaks or sudden jumps. But it is not
+                a smooth curve; there is a sharp edge.</p>
+            <p>It turns out that human vision really wants to find sharp edges in smooth
+                gradients. Anytime we see a sharp edge, our brains try to turn that into some kind
+                of shape. And if there is a shape to the gradient intersection, such as a line, we
+                tend to see that intersection <span class="quote">“<span class="quote">pop</span>”</span> out at us.</p>
+            <p>The solution to this problem is not yet available to us. One of the reasons we can
+                see this so clearly is that the surface has a very regular diffuse reflectance (ie:
+                color). If the surface color was irregular, if it changed at most every fragment,
+                then the effect would be virtually impossible to notice.</p>
+            <p>But the real source of the problem is that the normal is being linearly
+                interpolated. While this is certainly much better than interpolating the per-vertex
+                lighting output, it does not produce a normal that matches with the normal of a
+                perfect cylinder. The correct solution, which we will get to eventually, is to
+                provide a way to encode the normal for a surface at many points, rather than simply
+                interpolating vertex normals.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut10%20Interpolation.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2010.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut10%20Distant%20Points%20of%20Light.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Interpolation </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Distant Points of Light</td></tr></table></div></body></html>

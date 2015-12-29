@@ -1,0 +1,351 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 5. Objects in Depth</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Positioning.html" title="Part II. Positioning"><link rel="prev" href="Tut04%20Glossary.html" title="Glossary"><link rel="next" href="Tut05%20Optimization%20Base%20Vertex.html" title="Optimization: Base Vertex"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 5. Objects in Depth</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut04%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part II. Positioning</th><td width="20%" align="right"> <a accesskey="n" href="Tut05%20Optimization%20Base%20Vertex.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp37"></a>Chapter 5. Objects in Depth</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2005.html#idp3447">Multiple Objects in OpenGL</a></span></dt><dt><span class="section"><a href="Tut05%20Optimization%20Base%20Vertex.html">Optimization: Base Vertex</a></span></dt><dt><span class="section"><a href="Tut05%20Overlap%20and%20Depth%20Buffering.html">Overlap and Depth Buffering</a></span></dt><dt><span class="section"><a href="Tut05%20Boundaries%20and%20Clipping.html">Boundaries and Clipping</a></span></dt><dt><span class="section"><a href="Tut05%20Depth%20Clamping.html">Depth Clamping</a></span></dt><dt><span class="section"><a href="Tut05%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut05%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>In this tutorial, we will look at how to deal with rendering multiple objects, as well as
+        what happens when multiple objects overlap.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp3447"></a>Multiple Objects in OpenGL</h2></div></div></div>
+        
+        <p>The first step in looking at what happens when objects overlap is to draw more than
+            one object. This is an opportunity to talk about a concept that will be useful in the
+            future.</p>
+        <p>An object, in terms of what you draw, can be considered the results of a single
+            drawing call. Thus, an object is the smallest series of triangles that you draw with a
+            single set of program object state.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp3451"></a>Vertex Array Objects</h3></div></div></div>
+            
+            <p>Up until now, every time we have attempted to draw anything, we needed to do
+                certain setup work before the draw call. In particular, we have to do the following,
+                for <span class="emphasis"><em>each</em></span> vertex attribute used by the vertex shader:</p>
+            <div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem">
+                    <p>Use <code class="function">glEnableVertexAttribArray</code> to enable this
+                        attribute.</p>
+                </li><li class="listitem">
+                    <p>Use <code class="function">glBindBuffer</code>(<code class="literal">GL_ARRAY_BUFFER</code>)
+                        to bind to the context the buffer object that contains the data for this
+                        attribute.</p>
+                </li><li class="listitem">
+                    <p>Use <code class="function">glVertexAttribPointer</code> to define the format of the
+                        data for the attribute within the buffer object previously bound to
+                            <code class="literal">GL_ARRAY_BUFFER</code>.</p>
+                </li></ol></div>
+            <p>The more attributes you have, the more work you need to do for each object. To
+                alleviate this burden, OpenGL provides an object that stores all of the state needed
+                for rendering: the <em class="glossterm">Vertex Array Object</em>
+                    (<acronym class="acronym">VAO</acronym>).</p>
+            <p>VAOs are created with the <code class="function">glGenVertexArray</code> function. This
+                works like <code class="function">glGenBuffers</code> (and like most other OpenGL objects);
+                you can create multiple objects with one call. As before, the objects are
+                    <span class="type">GLuint</span>s.</p>
+            <p>VAOs are bound to the context with <code class="function">glBindVertexArray</code>; this
+                function does not take a target the way that <code class="function">glBindBuffer</code> does.
+                It only takes the VAO to bind to the context.</p>
+            <p>Once the VAO is bound, calls to certain functions change the data in the bound
+                VAO. Technically, they <span class="emphasis"><em>always</em></span> have changed the VAO's state; all
+                of the prior tutorials have these lines in the initialization function:</p>
+            <pre class="programlisting">glGenVertexArrays(1, &amp;vao);
+glBindVertexArray(vao);</pre>
+            <p>This creates a single VAO, which contains the vertex array state that we have been
+                setting. This means that we have been changing the state of a VAO in all of the
+                tutorials. We just did not talk about it at the time.</p>
+            <p>The following functions change VAO state. Therefore, if no VAO is bound to the
+                context (if you call <code class="function">glBindVertexArray(0)</code> or you do not bind a
+                VAO at all), all of these functions, except as noted, will fail.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p><code class="function">glVertexAttribPointer</code>. Also
+                            <code class="function">glVertexAttribIPointer</code>, but we have not talked about
+                        that one yet.</p>
+                </li><li class="listitem">
+                    <p><code class="function">glEnableVertexAttribArray</code>/<code class="function">glDisableVertexAttribArray</code></p>
+                </li><li class="listitem">
+                    <p><code class="function">glBindBuffer</code>(<code class="literal">GL_ELEMENT_ARRAY_BUFFER</code>):
+                        Calling this without a VAO bound will not fail.</p>
+                </li></ul></div>
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Buffer Binding and Attribute Association</b></p></div></div></div>
+                
+                <p>You may notice that
+                        <code class="function">glBindBuffer</code>(<code class="literal">GL_ARRAY_BUFFER</code>) is not
+                    on that list, even though it is part of the attribute setup for rendering. The
+                    binding to <code class="literal">GL_ARRAY_BUFFER</code> is not part of a VAO because the
+                    association between a buffer object and a vertex attribute does
+                        <span class="emphasis"><em>not</em></span> happen when you call
+                        <code class="function">glBindBuffer</code>(<code class="literal">GL_ARRAY_BUFFER</code>). This
+                    association happens when you call
+                    <code class="function">glVertexAttribPointer</code>.</p>
+                <p>When you call <code class="function">glVertexAttribPointer</code>, OpenGL takes
+                    whatever buffer is <span class="emphasis"><em>at the moment of this call</em></span> bound to
+                        <code class="literal">GL_ARRAY_BUFFER</code> and associates it with the given vertex
+                    attribute. Think of the <code class="literal">GL_ARRAY_BUFFER</code> binding as a global
+                    pointer that <code class="function">glVertexAttribPointer</code> reads. So you are free
+                    to bind whatever you want or nothing at all to
+                        <code class="literal">GL_ARRAY_BUFFER</code>
+                    <span class="emphasis"><em>after</em></span> making a <code class="function">glVertexAttribPointer</code>
+                    call; it will affect <span class="emphasis"><em>nothing</em></span> in the final rendering. So
+                    VAOs do store which buffer objects are associated with which attributes; but
+                    they do not store the <code class="literal">GL_ARRAY_BUFFER</code> binding itself.</p>
+                <p>If you want to know why <code class="function">glVertexAttribPointer</code> does not
+                    simply take a buffer object rather than requiring this bind+call mechanism, it
+                    is again because of legacy API cruft. When buffer objects were first introduced,
+                    they were designed to impact the API as little as possible. So the old
+                        <code class="function">glVertexAttribPointer</code> simply changed its behavior
+                    depending on whether something was bound to <code class="literal">GL_ARRAY_BUFFER</code>
+                    or not. Nowadays, since this function will fail if nothing is bound to
+                        <code class="literal">GL_ARRAY_BUFFER</code>, it is simply an annoyance.</p>
+            </div>
+            <p>This allows you to setup a VAO early on, during initialization, and then simply
+                bind it and call a rendering function to draw your object. Be advised when using a
+                VAO in this way: VAOs are <span class="emphasis"><em>not</em></span> immutable. Calling any of the
+                above functions will change the data stored in the VAO.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp3524"></a>Indexed Drawing</h3></div></div></div>
+            
+            <p>In the last tutorial, we drew a rectangular prism. If you looked carefully at the
+                vertex data, you may have noticed that a lot of vertex data was frequently repeated.
+                To draw one face of the cube, we were required to have 6 vertices; the two shared
+                vertices (along the shared line between the two triangles) had to be in the buffer
+                object twice.</p>
+            <p>For a simple case like ours, this is only a minor increase in the size of the
+                vertex data. The compact form of the vertex data could be 4 vertices per face, or 24
+                vertices total, while the expanded version we used took 36 total vertices. However,
+                when looking at real meshes, like human-like characters and so forth that have
+                thousands if not millions of vertices, sharing vertices becomes a major benefit in
+                both performance and memory size. Removing duplicate data can shrink the size of the
+                vertex data by 2x or greater in many cases.</p>
+            <p>In order to remove this extraneous data, we must perform <em class="glossterm">indexed
+                    drawing</em>, rather than the <em class="glossterm">array drawing</em> we
+                have been doing up until now. In an earlier tutorial, we defined glDrawArrays
+                conceptually as the following pseudo-code:</p>
+            <div class="example"><a name="idp3531"></a><p class="title"><b>Example 5.1. Draw Arrays Implementation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void glDrawArrays(GLenum type, GLint start, GLint count)
+{
+    for(GLint element = start; element &lt; start + count; element++)
+    {
+        VertexShader(positionAttribArray[element], colorAttribArray[element]);
+    }
+}</pre>
+            </div></div><br class="example-break">
+            <p>This defines how <em class="glossterm">array drawing</em> works. You start with a
+                particular index into the buffers, defined by the <code class="varname">start</code>
+                parameter, and proceed forward by <code class="varname">count</code> vertices.</p>
+            <p>In order to share attribute data between multiple triangles, we need some way to
+                random-access the attribute arrays, rather than sequentially accessing them. This is
+                done with an <em class="glossterm">element array</em>, also known as an <em class="glossterm">index
+                    array</em>.</p>
+            <p>Let's assume you have the following attribute array data:</p>
+            <pre class="programlisting">  Position Array:  Pos0, Pos1, Pos2, Pos3
+  Color Array:     Clr0, Clr1, Clr2, Clr3</pre>
+            <p>You can use <code class="function">glDrawArrays</code> to render either the first 3
+                vertices as a triangle, or the last 3 vertices as a triangle (using a
+                    <code class="varname">start</code> of 1 and <code class="varname">count</code> of 3). However, with
+                the right element array, you can render 4 triangles from just these 4
+                vertices:</p>
+            <pre class="programlisting">  Element Array: 0, 1, 2,  0, 2, 3,  0, 3, 1,  1, 2, 3</pre>
+            <p>This will cause OpenGL to generate the following sequence of vertices:</p>
+            <pre class="programlisting">  (Pos0, Clr0), (Pos1, Clr1), (Pos2, Clr2),
+  (Pos0, Clr0), (Pos2, Clr2), (Pos3, Clr3),
+  (Pos0, Clr0), (Pos3, Clr3), (Pos1, Clr1),
+  (Pos1, Clr1), (Pos2, Clr2), (Pos3, Clr3),</pre>
+            <p>12 vertices, which generate 4 triangles.</p>
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>Multiple Attributes and Index Arrays</b></p></div></div></div>
+                
+                <p>There is only <span class="emphasis"><em>one</em></span> element array, and the indices fetched
+                    from the array are used for <span class="emphasis"><em>all</em></span> attributes of the vertex
+                    arrays. So you cannot have an element array for positions and a separate one for
+                    colors; they all have to use the same element array.</p>
+                <p>This means that there can and often will be some duplication within a
+                    particular attribute array. For example, in order to have solid face colors, we
+                    will still have to replicate the color for every position of that triangle. And
+                    corner positions that are shared between two triangles that have different
+                    colors will still have to be duplicated in different vertices.</p>
+                <p>It turns out that, for most meshes, duplication of this sort is fairly rare.
+                    Most meshes are smooth across their surface, so different attributes do not
+                    generally pop from location to location. Shared edges typically use the same
+                    attributes for both triangles along the edges. The simple cubes and the like
+                    that we use are one of the few cases where a per-attribute index would have a
+                    significant benefit.</p>
+            </div>
+            <p>Now that we understand how indexed drawing works, we need to know how to set it up
+                in OpenGL. Indexed drawing requires two things: a properly-constructed element array
+                and using a new drawing command to do the indexed drawing.</p>
+            <p>Element arrays, as you might guess, are stored in buffer objects. They have a
+                special buffer object binding point, <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code>. You
+                can use this buffer binding point for normal maintenance of a buffer object
+                (allocating memory with glBufferData, etc), just like
+                    <code class="literal">GL_ARRAY_BUFFER</code>. But it also has a special meaning to OpenGL:
+                indexed drawing is only possible when a buffer object is bound to this binding
+                point, and the element array comes from this buffer object.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>All buffer objects in OpenGL are the same, regardless of what target they are
+                    bound to; buffer objects can be bound to multiple targets. So it is perfectly
+                    legal to use the same buffer object to store vertex attributes and element
+                    arrays (and, FYI, any data for any other use of buffer objects that exists in
+                    OpenGL). Obviously, the different data would be in separate regions of the
+                    buffer.</p>
+            </div>
+            <p>In order to do indexed drawing, we must bind the buffer to
+                    <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code> and then call
+                    <code class="function">glDrawElements</code>.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">void <b class="fsfunc">glDrawElements</b>(</code></td><td>GLenum <var class="pdparam">mode</var>, </td></tr><tr><td> </td><td>GLsizei <var class="pdparam">count</var>, </td></tr><tr><td> </td><td>GLenum <var class="pdparam">type</var>, </td></tr><tr><td> </td><td>GLsizeiptr <var class="pdparam">indices</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>The first parameter is the same as the first parameter of glDrawArrays. The
+                    <em class="parameter"><code>count</code></em> parameter defines how many indices will be pulled
+                from the element array. The <em class="parameter"><code>type</code></em> field defines what the basic
+                type of the indices in the element array are. For example, if the indices are stored
+                as 16-bit unsigned shorts (GLushort), then this field should be
+                    <code class="literal">GL_UNSIGNED_SHORT</code>. This allows the user the freedom to use
+                whatever size of index they want. <code class="literal">GL_UNSIGNED_BYTE</code> and
+                    <code class="literal">GL_UNSIGNED_INT</code> (32-bit) are also allowed; indices must be
+                unsigned.</p>
+            <p>The last parameter is the byte-offset into the element array at which the index
+                data begins. Index data (and vertex data, for that matter) should always be aligned
+                to its size. So if we are using 16-bit unsigned shorts for indices, then
+                    <em class="parameter"><code>indices</code></em> should be an even number.</p>
+            <p>This function can be defined by the following pseudo-code:</p>
+            <div class="example"><a name="idp3588"></a><p class="title"><b>Example 5.2. Draw Elements Implementation</b></p><div class="example-contents">
+                
+                <pre class="programlisting">GLvoid *elementArray;
+
+void glDrawElements(GLenum type, GLint count, GLenum type, GLsizeiptr indices)
+{
+    GLtype *ourElementArray = (type*)((GLbyte *)elementArray + indices);
+
+    for(GLint elementIndex = 0; elementIndex &lt; count; elementIndex++)
+    {
+        GLint element = ourElementArray[elementIndex];
+        VertexShader(positionAttribArray[element], colorAttribArray[element]);
+    }
+}</pre>
+            </div></div><br class="example-break">
+            <p>The <code class="varname">elementArray</code> represents the buffer object bound to
+                    <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code>.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp3594"></a>Multiple Objects</h3></div></div></div>
+            
+            <p>The tutorial project <span class="propername">Overlap No Depth</span> uses VAOs
+                to draw two separate objects. These objects are rendered using indexed drawing. The
+                setup for this shows one way to have the attribute data for multiple objects stored
+                in a single buffer.</p>
+            <p>For this tutorial, we will be drawing two objects. They are both wedges, with the
+                sharp end facing the viewer. The difference between them is that one is horizontal
+                and the other is vertical on the screen.</p>
+            <p>The shaders are essentially unchanged from before. We are using the perspective
+                matrix shader from the last tutorial, with modifications to preserve the aspect
+                ratio of the scene. The only difference is the pre-camera offset value; in this
+                tutorial, it is a full 3D vector, which allows us to position each wedge in the
+                scene.</p>
+            <p>The initialization has changed, allowing us to create our VAOs once at start-up
+                time, then use them to do the rendering. The initialization code is as
+                follows:</p>
+            <div class="example"><a name="idp3601"></a><p class="title"><b>Example 5.3. VAO Initialization</b></p><div class="example-contents">
+                
+                <pre class="programlisting">void InitializeVertexArrayObjects()
+{
+    glGenVertexArrays(1, &amp;vaoObject1);
+    glBindVertexArray(vaoObject1);
+    
+    size_t colorDataOffset = sizeof(float) * 3 * numberOfVertices;
+    
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObject);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
+    
+    glBindVertexArray(0);
+    
+    glGenVertexArrays(1, &amp;vaoObject2);
+    glBindVertexArray(vaoObject2);
+    
+    size_t posDataOffset = sizeof(float) * 3 * (numberOfVertices/2);
+    colorDataOffset += sizeof(float) * 4 * (numberOfVertices/2);
+
+    //Use the same buffer object previously bound to GL_ARRAY_BUFFER.
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)posDataOffset);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)colorDataOffset);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferObject);
+    
+    glBindVertexArray(0);
+}</pre>
+            </div></div><br class="example-break">
+            <p>This code looks complicated, but it is really just the rendering code we have seen
+                before. The offset computations for the <code class="function">glVertexAttribPointer</code>
+                calls are more complex, due to having the data for 2 objects stored in a single
+                buffer. But overall it is the same code.</p>
+            <p>The code generates 2 VAOs, binds them, then sets their state. Recall that, while
+                the <code class="literal">GL_ARRAY_BUFFER</code> binding is not part of the VAOs state, the
+                    <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code> binding <span class="emphasis"><em>is</em></span> part
+                of that state. So these VAOs store the attribute array data and the element buffer
+                data; everything necessary to render each object except for the actual drawing
+                call.</p>
+            <p>In this case, both objects use the same element buffer. However, since the element
+                buffer binding is part of the VAO state, it <span class="emphasis"><em>must</em></span> be set into
+                each VAO individually. Notice that we only set the
+                    <code class="literal">GL_ARRAY_BUFFER</code> binding once, but the
+                    <code class="literal">GL_ELEMENT_ARRAY_BUFFER</code> is set for each VAO.</p>
+            <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+                <p>If you look at the vertex position attribute in our array, we have a
+                    3-component position vector. But the shader still uses a <span class="type">vec4</span>. This
+                    works because OpenGL will fill in any missing vertex attribute components that
+                    the shader looks for but the attribute array doesn't provide. It fills them in
+                    with zeros, except for the fourth component, which is filled in with a
+                    1.0.</p>
+            </div>
+            <p>Though the initialization code has been expanded, the rendering code is quite
+                simple:</p>
+            <div class="example"><a name="idp3618"></a><p class="title"><b>Example 5.4. VAO and Indexed Rendering Code</b></p><div class="example-contents">
+                
+                <pre class="programlisting">    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glUseProgram(theProgram);
+    
+    glBindVertexArray(vaoObject1);
+    glUniform3f(offsetUniform, 0.0f, 0.0f, 0.0f);
+    glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+    
+    glBindVertexArray(vaoObject2);
+    glUniform3f(offsetUniform, 0.0f, 0.0f, -1.0f);
+    glDrawElements(GL_TRIANGLES, ARRAY_COUNT(indexData), GL_UNSIGNED_SHORT, 0);
+    
+    glBindVertexArray(0);
+    glUseProgram(0);
+    
+    glutSwapBuffers();
+    glutPostRedisplay();</pre>
+            </div></div><br class="example-break">
+            <p>We bind a VAO, set its uniform data (in this case, to position the object
+                properly), and then we draw it with a call to <code class="function">glDrawElements</code>.
+                This step is repeated for the second object.</p>
+            <p>Running this tutorial will show the following image:</p>
+            <div class="figure"><a name="idp3624"></a><p class="title"><b>Figure 5.1. Overlapping Objects</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Overlap%20No%20Depth.png" alt="Overlapping Objects"></div>
+            </div></div><br class="figure-break">
+            <p>The two objects are essentially flipped versions of the same one, a wedge. One
+                object appears smaller than the other because it is farther away, in terms of its Z
+                distance to the camera. We are using a perspective transform, so it make sense that
+                more distant objects appear smaller. However, if the smaller object is behind the
+                larger one, why is it rendered on top of the one in front?</p>
+            <p>Before we solve this mystery, there is one minor issue we should cover
+                first.</p>
+        </div>
+    </div>
+    
+    
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut04%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Positioning.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut05%20Optimization%20Base%20Vertex.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Optimization: Base Vertex</td></tr></table></div></body></html>

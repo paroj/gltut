@@ -1,0 +1,301 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Phong Model</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2011.html" title="Chapter 11. Shinies"><link rel="prev" href="Tutorial%2011.html" title="Chapter 11. Shinies"><link rel="next" href="Tut11%20BlinnPhong%20Model.html" title="Blinn-Phong Model"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Phong Model</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2011.html">Prev</a> </td><th width="60%" align="center">Chapter 11. Shinies</th><td width="20%" align="right"> <a accesskey="n" href="Tut11%20BlinnPhong%20Model.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp77"></a>Phong Model</h2></div></div></div>
+        
+        
+        <p>The simplest model of specular illumination is the <em class="glossterm">Phong model</em>.
+            The distribution of microfacets is not determined by a real statistical distribution.
+            Instead it is determined by... making things up.</p>
+        <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>On Phong and Nomenclature</b></p></div></div></div>
+            
+            <p>The term <span class="quote">“<span class="quote">Phong shading</span>”</span> was once commonly used to refer to what we
+                now know as per-fragment (or per-pixel) lighting. That is, evaluating the lighting
+                equation at every fragment over a surface. This term should not be confused with the
+                Phong specular lighting model. Because of this, the term <span class="quote">“<span class="quote">Phong
+                    shading</span>”</span> has fallen out of common usage.</p>
+        </div>
+        <p>The Phong model is not really based on anything real. It does not deal in microfacet
+            distributions at all. What the Phong model is is something that looks decent enough and
+            is cheap to compute. It approximates a statistical distribution of microfacets, but it
+            is not really based on anything real.</p>
+        <p>The Phong model states that the light reflected in the direction of the viewer varies
+            based on the angle between difference between the view direction and the direction of
+            perfect reflection. Mathematically, the Phong model looks like this:</p>
+        <div class="equation"><a name="idp9313"></a><p class="title"><b>Equation 11.1. Phong Specular Term</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mi>Phong term</mi>
+        <mo>=</mo>
+        <msup>
+            <mfenced open="(" close=")" separators=",">
+                <mrow>
+                    <mover>
+                        <mi>V</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                    <mo>·</mo>
+                    <mover>
+                        <mi>R</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mrow>
+            </mfenced>
+            <mi>s</mi>
+        </msup>
+    </mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>The Phong term is multiplied by the light intensity in the lighting equation.</p>
+        <p>The brightness of the specular highlight for a particular viewing direction is based
+            on raising the cosine of the angle between the view direction and the reflection
+            direction to a power. As previously stated, this model is not based on anything real. It
+            simply creates a bright somewhat-circular area on the surface. This area gets dimmer as
+            the viewer is farther from the direction of perfect reflection.</p>
+        <p>The <code class="varname">s</code> term in the equation represents the roughness of the surface.
+            A smooth surface, which should have a smaller highlight, has a large
+                <code class="varname">s</code>. Since the cosine of the angle is a number on [0, 1], taking it
+            to a power greater than 1.0 will make the number smaller. Therefore, a large
+                <code class="varname">s</code> exponent will make for a small highlight.</p>
+        <p>The specular exponent can range from (0, ∞). A small exponent makes for a rougher
+            appearance, while a large exponent suggests a shiny surface.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9337"></a>Specular Absorption</h3></div></div></div>
+            
+            <p>The Phong term computed above is then multiplied with the light intensity. This
+                represents the maximum light reflected along the view direction.</p>
+            <p>However, just as with diffuse lighting, surfaces can absorb some quantity of the
+                light that would be specularly reflected. We could use the diffuse color here,
+                multiplying it by the specular term. But this would not be physically correct for
+                many kinds of objects.</p>
+            <p>Many surfaces, particularly certain man-made pigments and plastics, have multiple
+                layers to them. The top layer will specularly reflect some portion of the light.
+                However, it will also let some portion of that light reach lower layers. These
+                layers have stronger diffuse reflectance. So the specular absorption on the surface
+                has different characteristics than the diffuse absorption in the lower layers.
+                Usually, the specular layer reflects equally on all wavelenths, so the specular
+                highlight tends to be the color of the light itself.</p>
+            <p>Notably, metals do not do this. Their diffuse absorption tends to be the same as
+                their specular absorption. So while blue plastic under white light has a white
+                specular highlight, gold metal under white light has a gold highlight.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9343"></a>Drawing Phong</h3></div></div></div>
+            
+            <p>The <span class="propername">Phong Lighting</span> tutorial demonstrates the
+                Phong specular model.</p>
+            <div class="figure"><a name="idp9347"></a><p class="title"><b>Figure 11.3. Phong Lighting</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Phong%20Lighting.png" alt="Phong Lighting"></div>
+            </div></div><br class="figure-break">
+            <p>The tutorial is controlled similarly to previous lighting tutorials. Clicking and
+                dragging with the right mouse button controls the orientation of the cylinder.
+                Pressing the <span class="keycap"><strong>T</strong></span> key will swap between the scaled and unscaled
+                cylinder. The <span class="keycap"><strong>Y</strong></span> key toggles the drawing of the light source. The
+                    <span class="keycap"><strong>B</strong></span> key will toggle the light's rotation on/off. Pressing the
+                    <span class="keycap"><strong>Space Bar</strong></span> toggles between drawing the uncolored cylinder and
+                the colored one.</p>
+            <p>The light's position is mostly controlled as before, with the
+                    <span class="keycap"><strong>I</strong></span>,<span class="keycap"><strong>J</strong></span>, <span class="keycap"><strong>K</strong></span>, and
+                    <span class="keycap"><strong>L</strong></span> keys. The specular value is controlled by the
+                    <span class="keycap"><strong>U</strong></span> and <span class="keycap"><strong>O</strong></span> keys. They raise and low the specular
+                exponent. Using <span class="keycap"><strong>Shift</strong></span> in combination with them will raise/lower the
+                exponent by smaller amounts.</p>
+            <p>The <span class="keycap"><strong>G</strong></span> key toggles between a diffuse color of (1, 1, 1) and a
+                darker diffuse color of (0.2, 0.2, 0.2). This is useful for seeing what the specular
+                would look like on a darker surface color.</p>
+            <p>The <span class="keycap"><strong>H</strong></span> key selects between specular and diffuse, just specular and
+                just diffuse. The ambient term is always used. Pressing <span class="keycap"><strong>Shift</strong></span>+<span class="keycap"><strong>H</strong></span> will toggle between diffuse only and diffuse+specular.</p>
+            <p>The rendering code is nothing you have not seen in earlier tutorials. It loads 6
+                programs, and uses the various controls to select which to use to render.</p>
+            <p>There are two vertex shaders in use. One that takes the position and normal
+                attributes, and one that takes them plus a per-vertex color. Both of them output the
+                camera-space vertex normal (computed with a normal matrix), the camera-space vertex
+                position, and the diffuse color. In the case of the shader that does not take a
+                per-vertex color, the diffuse color output is taken from a uniform set by the
+                code.</p>
+            <p>The fragment shaders are more interesting. They do lighting in camera space, so
+                there is no need for the reverse-transform trick we used previously. The shaders
+                also use light attenuation, but it only varies with the inverse of the distance,
+                rather than the inverse squared.</p>
+            <p>The main portion of the specular+diffuse fragment shader is as follows:</p>
+            <div class="example"><a name="idp9376"></a><p class="title"><b>Example 11.1. Phong Lighting Shader</b></p><div class="example-contents">
+                
+                <pre class="programlisting">vec3 lightDir = vec3(0.0);
+float atten = CalcAttenuation(cameraSpacePosition, lightDir);
+vec4 attenIntensity = atten * lightIntensity;
+
+vec3 surfaceNormal = normalize(vertexNormal);
+float cosAngIncidence = dot(surfaceNormal, lightDir);
+cosAngIncidence = clamp(cosAngIncidence, 0, 1);
+
+vec3 viewDirection = normalize(-cameraSpacePosition);
+vec3 reflectDir = reflect(-lightDir, surfaceNormal);
+float phongTerm = dot(viewDirection, reflectDir);
+phongTerm = clamp(phongTerm, 0, 1);
+phongTerm = cosAngIncidence != 0.0 ? phongTerm : 0.0;
+phongTerm = pow(phongTerm, shininessFactor);
+
+outputColor = (diffuseColor * attenIntensity * cosAngIncidence) +
+    (specularColor * attenIntensity * phongTerm) +
+    (diffuseColor * ambientIntensity);</pre>
+            </div></div><br class="example-break">
+            <p>The initial section of code should be familiar. The Phong specular computations
+                start with computing the direction to the camera. Since we are working in camera
+                space, we know that the camera is at the origin (0, 0, 0). The direction from point
+                A to point B is the normalization of B - A. Since the destination point is at the
+                origin, that becomes simply -A, normalized.</p>
+            <p>The next line computes the direction of perfect reflection, given the light
+                direction and the surface normal. The function here, <code class="function">reflect</code>,
+                is a standard GLSL function used for precisely this purpose. Notice that the
+                function in question requires the that the light direction is the direction
+                    <span class="emphasis"><em>from</em></span> the light. Our light direction is the direction to the
+                light. This is why it is negated.</p>
+            <p>This function is useful, but it is important to know how to compute the reflection
+                direction on your own. Here is the formula:</p>
+            <div class="equation"><a name="idp9384"></a><p class="title"><b>Equation 11.2. Vector Reflection</b></p><div class="equation-contents">
+                
+                <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <mover>
+                        <mi>I</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mo>-</mo>
+                    <mover>
+                        <mi>L</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mover>
+                        <mi>R</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mover>
+                        <mi>I</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                    <mo>-</mo>
+                    <mn>2</mn>
+                    <mfenced open="(" close=")" separators=",">
+                        <mrow>
+                            <mover>
+                                <mi>N</mi>
+                                <mo>⇀</mo>
+                            </mover>
+                            <mo>·</mo>
+                            <mover>
+                                <mi>I</mi>
+                                <mo>⇀</mo>
+                            </mover>
+                        </mrow>
+                    </mfenced>
+                    <mo>*</mo>
+                    <mover>
+                        <mi>N</mi>
+                        <mo>⇀</mo>
+                    </mover>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+            </div></div><br class="equation-break">
+            <p>The L vector is the direction to the light, so negating it produces the vector
+                    <span class="emphasis"><em>from</em></span> the light.</p>
+            <p>From here, the Phong term is computed by taking the dot product of the reflection
+                direction and the view direction, clamping it to 0, 1. The next line, where we use
+                the angle of incidence, is very important. What this line does is prevent us from
+                having a specular term when the surface normal is oriented away from the light. If
+                this line were not here, it would be possible to have specular highlights appear to
+                shine <span class="emphasis"><em>through</em></span> a surface. Which is not particularly
+                realistic.</p>
+            <p>The GLSL standard function <code class="function">pow</code> is next used to raise the
+                Phong term to the power. This function seems generally useful, but it has a large
+                number of limitations. The <code class="function">pow</code> function computes 
+                    <span class="mathphrase">X<sup>Y</sup></span>
+                , where X is the first parameter and Y is the second.</p>
+            <p>This function only works for values of X that are greater than or equal to 0; it
+                returns undefined values (ie: anything) otherwise. Clamping the Phong term ensures
+                this. Also, if X is exactly 0.0, then Y must be strictly greater than zero;
+                undefined values are returned otherwise. These limitations exist to make computing
+                the power function much faster.</p>
+            <p>And for Phong specular computations, the limitations almost never come into play.
+                The cosine of the angle is clamped, and the specular exponent is not allowed to be
+                zero.</p>
+            <p>Notice that the specular term is added into the diffuse and ambient terms. This
+                has meaning for the intensity issue we have seen before. If the diffuse and specular
+                colors are too large, and the light attenuation is quite small, then the resulting
+                values from the lighting equations can be larger than 1.0 in magnitude. Since OpenGL
+                automatically clamps the colors to 1.0, this can cause unpleasant effects, where
+                there appears to be a very bright, white area on a surface.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp9440"></a>Visual Specular</h3></div></div></div>
+            
+            <p>Having even a weak specular term can make a significant, if subtle, difference. In
+                our case, the specular color of the material is a fairly weak (0.25, 0.25, 0.25).
+                But even with a rough specular highlight, the surface looks more physically
+                reasonable.</p>
+            <p>In particular, it is interesting to note what happens when you use a very dark
+                diffuse color. You can activate this by pressing the <span class="keycap"><strong>G</strong></span> key.</p>
+            <div class="figure"><a name="idp9445"></a><p class="title"><b>Figure 11.4. Phong with Dark Diffuse</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Phong%20Dark%20Diffuse.png" alt="Phong with Dark Diffuse"></div>
+            </div></div><br class="figure-break">
+            <p>If there was no specular term at all, you would see very little.. The specular
+                highlight, even with the fairly weak specular reflection of 0.25, is strong enough
+                to give some definition to the object when seen from various angles. This more
+                accurately shows what a black plastic object might look like.</p>
+            <p>One thing you may notice is that, if you bring the light close to the surface, the
+                specular area tends to have very sharp edges.</p>
+            <div class="figure"><a name="idp9452"></a><p class="title"><b>Figure 11.5. Phong Clipping</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Phong%20Clipping.png" alt="Phong Clipping"></div>
+            </div></div><br class="figure-break">
+            <p>This is part of the nature of specular reflections. If the light is almost
+                perpendicular to the surface, the specular reflection will shine brightest when the
+                light is almost eclipsed by the surface. This creates a strong discontinuity at the
+                point where the light is no longer in view.</p>
+            <p>You generally see this most with rough surfaces (small exponents). With smoother
+                surfaces, this is rarely seen. But this is not the only visual oddity with Phong and
+                having small exponents.</p>
+            <p>If you drop the exponent down to the minimum value the code will allow, you will
+                see something like this:</p>
+            <div class="figure"><a name="idp9460"></a><p class="title"><b>Figure 11.6. Phong Distortion</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="Phong%20Distortion.png" alt="Phong Distortion"></div>
+            </div></div><br class="figure-break">
+            <p>This ring area shows one of the main limitations of the Phong model. When trying
+                to depict a surface that is rough but still has specular highlights, the Phong model
+                starts to break down. It will not allow any specular contribution from areas outside
+                of a certain region.</p>
+            <p>This region comes from the angle between the reflection direction and the view
+                direction. This area is the region where the reflection direction and view direction
+                are more than 90 degrees apart.</p>
+            <p>Under the microfacet model, there is still some chance that some microfacets are
+                oriented towards the camera, even if reflection direction is pointed sharply away.
+                Thus, there should be at least some specular contribution from those areas. The
+                Phong model cannot allow this, due to how it is computed.</p>
+            <p>What all this tells us is that Phong works best with larger exponents. Small
+                exponents show its problems and limitations.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2011.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2011.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut11%20BlinnPhong%20Model.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 11. Shinies </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Blinn-Phong Model</td></tr></table></div></body></html>

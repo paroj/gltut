@@ -1,0 +1,90 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 2. Playing with Colors</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Basics.html" title="Part I. The Basics"><link rel="prev" href="Tut01%20Glossary.html" title="Glossary"><link rel="next" href="Tut02%20Vertex%20Attributes.html" title="Vertex Attributes"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 2. Playing with Colors</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut01%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part I. The Basics</th><td width="20%" align="right"> <a accesskey="n" href="Tut02%20Vertex%20Attributes.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="tut02"></a>Chapter 2. Playing with Colors</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2002.html#FragPosition">Fragment Position Display</a></span></dt><dt><span class="section"><a href="Tut02%20Vertex%20Attributes.html">Vertex Attributes</a></span></dt><dt><span class="section"><a href="Tut02%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut02%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>This tutorial will show how to provide some color to the triangle from the previous
+        tutorial. Instead of just giving the triangle a solid color, we will use two methods to
+        provide it with varying color across its surface. The first method will use the fragment's
+        position to compute a color, while the second will use per-vertex data to compute a color.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="FragPosition"></a>Fragment Position Display</h2></div></div></div>
+        
+        <p>As we stated in the overview, part of the fragment's data includes the position of the
+            fragment on the screen. Thus, if we want to vary the color of a triangle across its
+            surface, We can access this data in our fragment shader and use it to compute the final
+            color for that fragment. This is done in the <span class="propername">Fragment
+                Position</span> tutorial, who's main file is
+            <code class="filename">FragPosition.cpp</code>.</p>
+        <p>In this tutorial, and all future ones, shaders will be loaded from files instead of
+            hard-coded strings in the .cpp file. To support this, the framework has the
+                <code class="function">Framework::LoadShader</code> and
+                <code class="function">Framework::CreateProgram</code> functions. These work similarly to the
+            previous tutorial's <code class="function">CreateShader</code> and
+                <code class="function">CreateProgram</code>, except that <code class="function">LoadShader</code>
+            takes a filename instead of a shader file.</p>
+        <p>The FragPosition tutorial loads two shaders, the vertex shader
+                <code class="filename">data/FragPosition.vert</code> and the fragment shader
+                <code class="filename">data/FragPosition.frag</code>. The vertex shader is identical to the
+            one in the last tutorial. The fragment shader is very new, however:</p>
+        <div class="example"><a name="idp1705"></a><p class="title"><b>Example 2.1. FragPosition's Fragment Shader</b></p><div class="example-contents">
+            
+            <pre class="programlisting">#version 330
+
+out vec4 outputColor;
+
+void main()
+{
+    float lerpValue = gl_FragCoord.y / 500.0f;
+    
+    outputColor = mix(vec4(1.0f, 1.0f, 1.0f, 1.0f),
+        vec4(0.2f, 0.2f, 0.2f, 1.0f), lerpValue);
+}</pre>
+        </div></div><br class="example-break">
+        <p><code class="varname">gl_FragCoord</code> is a built-in variable that is only available in a
+            fragment shader. It is a <code class="classname">vec3</code>, so it has an X, Y, and Z
+            component. The X and Y values are in <span class="emphasis"><em>window</em></span> coordinates, so the
+            absolute value of these numbers will change based on the window's resolution. Recall
+            that window coordinates put the origin at the bottom-left corner. So fragments along the
+            bottom of the triangle would have a lower Y value than those at the top.</p>
+        <p>The idea with this shader is that the color of a fragment will be based on the Y value
+            of its window position. The 500.0f is the height of the window (unless you resize the
+            window). The division in the first line of the function simply converts the Y position
+            to the [0, 1] range, where 1 is at the top of the window and 0 is at the bottom.</p>
+        <p>The second line uses this [0, 1] value to perform a linear interpolation between two
+            colors. The <code class="function">mix</code> function is one of the many,
+                <span class="emphasis"><em>many</em></span> standard functions that the OpenGL Shading Language
+            provides. Many of these functions, like <code class="function">mix</code>, are vectorized. That
+            is, some of their parameters can be vectors, and when they are, they will perform their
+            operations on each component of the vector simultaneously. In this case, the
+            dimensionality of the first two parameters must match.</p>
+        <p>The <code class="function">mix</code> function performs a linear interpolation. It will return
+            exactly the first parameter if the third parameter is 0, and it will return exactly the
+            second parameter if the third parameter is 1. If the third parameter is between 0 and 1,
+            it will return a value between the two other parameters, based on the third
+            parameter.</p>
+        <div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3>
+            <p>The third parameter to <code class="function">mix</code> must be on the range [0, 1].
+                However, GLSL will not check this or do the clamping for you. If it is not on this
+                range, the result of the <code class="function">mix</code> function will be undefined.
+                    <span class="quote">“<span class="quote">Undefined</span>”</span> is the OpenGL shorthand for, <span class="quote">“<span class="quote">I do not know, but
+                    it is probably not what you want.</span>”</span></p>
+        </div>
+        <p>We get the following image:</p>
+        <div class="figure"><a name="idp1726"></a><p class="title"><b>Figure 2.1. Fragment Position</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="FragmentPosition.png" alt="Fragment Position"></div>
+        </div></div><br class="figure-break">
+        <p>In this case, the bottom of the triangle, the one closest to a Y of 0, will be the
+            most white. While the top of the triangle, the parts closest to a Y of 500, will have
+            the darkest color.</p>
+        <p>Other than the fragment shader, nothing much changes in the code.</p>
+    </div>
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut01%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Basics.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut02%20Vertex%20Attributes.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Vertex Attributes</td></tr></table></div></body></html>

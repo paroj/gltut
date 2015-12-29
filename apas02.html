@@ -1,0 +1,98 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Textures</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Basic%20Optimization.html" title="Appendix A. Basic Optimization"><link rel="prev" href="Basic%20Optimization.html" title="Appendix A. Basic Optimization"><link rel="next" href="Optimize%20Core.html" title="Object Optimizations"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Textures</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Basic%20Optimization.html">Prev</a> </td><th width="60%" align="center">Appendix A. Basic Optimization</th><td width="20%" align="right"> <a accesskey="n" href="Optimize%20Core.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp121"></a>Textures</h2></div></div></div>
+        
+        <p>There are various techniques you can use to improve the performance of texture
+            accesses.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12838"></a>Image Formats</h3></div></div></div>
+            
+            <p>The smaller the data, the faster it can be fetched into a shader. As with vertex
+                formats, try to use the smallest format that you can get away with. As with vertex
+                formats, what you can get away with tends to be defined by what you are trying to
+                store in the texture.</p>
+            <p>
+                <b>Normals. </b>
+                Textures containing normals can use <code class="literal">GL_RGB10_A2_SNORM</code>,
+                    which is the texture equivalent to the 10-bit signed normalized format we used
+                    for attribute normals. However, this can be made more precise if the normals are
+                    for a tangent-space normal map. Since the tangent-space normals always have a
+                    positive Z coordinate, and since the normals are normalized, the actual Z value
+                    can be computed from the other two. So you only need to store 2 values;
+                        <code class="literal">GL_RG16_SNORM</code> is sufficient for these needs. To compute
+                    the third value, do this:
+            </p>
+            <pre class="programlisting">vec2 norm2d = texture(tangentBumpTex, texCoord).xy;
+vec3 tanSpaceNormal = vec3(norm2d, sqrt(1.0 - dot(norm2d, norm2d)));</pre>
+            <p>Obviously this costs some performance, so it's a question of how much precision
+                you actually need. On the plus side, using this method means that you will not have
+                to normalize the tangent-space normal fetched from the texture.</p>
+            <p>The <code class="literal">GL_RG16_SNORM</code> format can be made even smaller with texture
+                compression. The <code class="literal">GL_COMPRESSED_SIGNED_RG_RGTC1</code> compressed texture
+                format is a 2-channel signed integer format. It only takes up 8-bits per
+                pixel.</p>
+            <p>
+                <b>Floating-point Intensity. </b>
+                There are two unorthodox formats for floating-point textures, both of which
+                    have important uses. The <code class="literal">GL_R11F_G11F_B10F</code> format is
+                    potentially a good format to use for HDR render targets. As the name suggests,
+                    it takes up only 32-bits. The downside is the relative loss of precision
+                    compared to <code class="literal">GL_RGB16F</code> (as well as the complete loss of a
+                    destination alpha). They can store approximately the same magnitude of values,
+                    but the smaller format loses some precision. This may or may not impact the
+                    overall visual quality of the scene. It should be fairly simple to test to see
+                    which is better.
+            </p>
+            <p>The <code class="literal">GL_RGB9_E5</code> format is used for input floating-point
+                textures. If you have a texture that represents light intensity in HDR situations,
+                this format can be quite handy. The way it works is that each of the RGB colors get
+                9 bits for their values, but they all share the same exponent. This has to do with
+                how floating-point numbers work, but what it boils down to is that the values have
+                to be relatively close to one another in magnitude. They do not have to be that
+                close; there's still some leeway. Values that are too small relative to larger ones
+                become zero. This is oftentimes an acceptable tradeoff, depending on the particular
+                magnitude in question.</p>
+            <p>This format is useful for textures that are generated offline by tools. You cannot
+                render to a texture in this format.</p>
+            <p>
+                <b>Colors. </b>
+                Storing colors that are clamped to [0, 1] can be done with good precision with
+                        <code class="literal">GL_RGBA8</code> or <code class="literal">GL_SRGB8_ALPHA8</code> as needed.
+                    However, compressed texture formats are available. The S3TC formats are good
+                    choices if the compression artifacts are not too noticable. There are sRGB
+                    versions of the S3TC formats as well.
+            </p>
+            <p>The difference in the various S3TC formats are how much alpha you need. The
+                choices are as follows:</p>
+            <div class="glosslist"><dl><dt><span class="glossterm">GL_COMPRESSED_RGB_S3TC_DXT1_EXT</span></dt><dd class="glossdef"><p>No alpha.</p></dd><dt><span class="glossterm">GL_COMPRESSED_RGBA_S3TC_DXT1_EXT</span></dt><dd class="glossdef"><p>Binary alpha. Either zero or one for each texel. The RGB color for any
+                            texel with a zero alpha will also be zero.</p></dd><dt><span class="glossterm">GL_COMPRESSED_RGBA_S3TC_DXT3_EXT</span></dt><dd class="glossdef"><p>4-bits of alpha per pixel.</p></dd><dt><span class="glossterm">GL_COMPRESSED_RGBA_S3TC_DXT5_EXT</span></dt><dd class="glossdef"><p>Alpha is compressed in an S3TC block, much like RG texture
+                            compression.</p></dd></dl></div>
+            <p>If an image needs to have a varying alpha, the primary difference will be between
+                DXT3 and DXT5. DXT5 has the potential for better results, but if the alpha does not
+                compress well with the S3TC algorithm, the results will be rather worse than
+                DXT3.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12883"></a>Use Mipmaps Often</h3></div></div></div>
+            
+            <p>Mipmapping improves performance when textures are mapped to regions that are
+                larger in texel space than in window space. That is, when texture minification
+                happens. Mipmapping improves performance because it keeps the locality of texture
+                accesses near each other. Texture hardware is optimized for accessing regions of
+                textures, so improving locality of texture data will help performance.</p>
+            <p>How much this matters depends on how the texture is mapped to the surface. Static
+                mapping with explicit texture coordinates, or with linear computation based on
+                surface properties, can use mipmapping to improve locality of texture access. For
+                more unusual mappings or for pure-lookup tables, mipmapping may not help locality at
+                all.</p>
+            <p>Ultimately, mipmaps are more likely to help performance when the texture in
+                question represents some characteristic of a surface, and is therefore mapped
+                directly to that surface. So diffuse textures, normal maps, specular maps, and other
+                surface characteristics are all very likely to gain some performance from using
+                mipmaps. Projective lights are less likely to gain from this, as it depends on the
+                geometry that they are projected onto.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Basic%20Optimization.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Basic%20Optimization.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Optimize%20Core.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Appendix A. Basic Optimization </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Object Optimizations</td></tr></table></div></body></html>

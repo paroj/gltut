@@ -1,0 +1,93 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 11. Shinies</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Illumination.html" title="Part III. Illumination"><link rel="prev" href="Tut10%20Glossary.html" title="Glossary"><link rel="next" href="Tut11%20Phong%20Model.html" title="Phong Model"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 11. Shinies</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut10%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part III. Illumination</th><td width="20%" align="right"> <a accesskey="n" href="Tut11%20Phong%20Model.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp76"></a>Chapter 11. Shinies</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2011.html#idp9278">Microfacets</a></span></dt><dt><span class="section"><a href="Tut11%20Phong%20Model.html">Phong Model</a></span></dt><dt><span class="section"><a href="Tut11%20BlinnPhong%20Model.html">Blinn-Phong Model</a></span></dt><dt><span class="section"><a href="Tut11%20Gaussian.html">Gaussian</a></span></dt><dt><span class="section"><a href="Tut11%20On%20Performance.html">On Performance</a></span></dt><dt><span class="section"><a href="Tut11%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut11%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>The diffuse lighting model works reasonably well for a smooth, matte surface. Few objects
+        in reality conform to this archetype. Therefore, in order to more accurately model real
+        objects, we need to improve upon this. Let us focus on making objects appear shiny.</p>
+    <p>Shiny materials tend to reflect light more strongly in the opposite direction from the
+        angle of incidence (the angle between the surface normal and the incoming light direction).
+        This kind of reflection is called a <em class="glossterm">specular reflection.</em> A perfect
+        specular reflector would be a mirror.</p>
+    <p>One way to show that an object is shiny is to model <em class="glossterm">specular
+            highlights.</em> A specular highlight is a bright highlight on an object caused
+        by direct illumination from a light source. The position of the highlight changes with the
+        view direction as well as the light direction.</p>
+    <p>Modelling true specular reflection would require reflecting all light from objects in the
+        scene, whether direct or indirect. However for many objects, like shiny plastics and the
+        like, indirect specular reflections are very weak. Thus, by modeling direct specular
+        reflections, we can make an object appear shiny without having to do too much work.</p>
+    <p>We will look at several models for specular highlights and reflection. The Lambertian
+        diffuse reflectance model was reasonably good for modelling diffuse lighting, but there are
+        several models for specular reflection that should be considered. They vary in quality and
+        performance.</p>
+    <p>Note that these models do not throw away diffuse lighting. They all act as supplements,
+        adding their contribution into the overall result for the lighting equation.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp9278"></a>Microfacets</h2></div></div></div>
+        
+        
+        <p>All of these specular reflection models work based on an assumption about the
+            characteristics of the surface. If a surface was perfectly smooth, then the specular
+            highlight from a point light would be infinitely small (since point lights themselves
+            are infinitely small).</p>
+        <div class="figure"><a name="idp9281"></a><p class="title"><b>Figure 11.1. Perfect Specular Reflection</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="SpecularReflection.svg" alt="Perfect Specular Reflection"></div>
+        </div></div><br class="figure-break">
+        <p>Notice that the intensity of the reflected light depends not only on the angle of
+            incidence but also on the direction to the viewer. This is called the <em class="glossterm">angle
+                of view</em> or <em class="glossterm">viewing angle</em>. Viewing position A
+            detects the light specularly reflected from the surface at the point P, but the viewing
+            position B does not.</p>
+        <p>Surfaces however are rarely perfect specular reflectors (mirrors are the most common
+            perfect reflectors). Surfaces that seem smooth from far away can be rough on closer
+            examination. This is true at the microscopic level as well, even for surfaces that
+            appear quite smooth. This roughness can be modelled by assuming that a surface is
+            composed of a number of <em class="glossterm">microfacets.</em></p>
+        <p>A microfacet is a flat plane that is oriented in a single direction. Each microfacet
+            reflects light perfectly in that direction. Surfaces with microfacets would look like
+            this:</p>
+        <div class="figure"><a name="idp9292"></a><p class="title"><b>Figure 11.2. Smooth and Rough Microfacets</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="MicrofacetRoughSmooth.svg" alt="Smooth and Rough Microfacets"></div>
+        </div></div><br class="figure-break">
+        <p>It is part of the microfacet model's assumption that many microfacets on a surface
+            will contribute to the light returned under a single pixel of the final image. So each
+            pixel in the rendered image is the result of an aggregate of the microfacets that lie
+            under the area of that pixel on the surface.</p>
+        <p>The average normal of the microfacets is the surface normal at that point. The
+            relative smoothness of a surface can therefore be modeled as a statistical distribution
+            of the orientation of microfacets on the surface. A smooth surface has a distribution
+            close to the average, while a rough surface has a broader distribution.</p>
+        <p>Thus, a model of specular reflections includes a term that defines the overall
+            smoothness of the source. This is a surface characteristic, representing the
+            distribution of microfacets using whatever statistical distribution the particular
+            specular model is using. One of the main differences between specular models is the kind
+            of statistical distribution that they use.</p>
+        <p>Specular highlights are formed because, even though the surface normal may not be
+            oriented to directly reflect light from the light source to the viewer, some microfacets
+            may still be oriented to reflect a portion of that light. A microfacet distribution
+            model determines the proportion of microfacets that happen to be oriented to reflect
+            light towards the viewer.</p>
+        <p>Smooth surfaces, those who's microfacets do not deviate much from the surface normal,
+            will have a small, bright highlight. Rough surfaces, who's microfacets are oriented in
+            wildly divergent directions, will have a much dimmer, but larger specular highlight.
+            These highlights will have positions and shapes based on the angle of incidence and the
+            angle of view.</p>
+        <p>Note that specular reflectance models do not become diffuse reflectance models when
+            taken to the extreme case of maximum roughness. Specular reflection represents a
+            different mode of light/surface interaction from diffuse reflection.</p>
+    </div>
+    
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut10%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Illumination.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut11%20Phong%20Model.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Phong Model</td></tr></table></div></body></html>

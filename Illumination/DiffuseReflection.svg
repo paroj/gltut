@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="300px" width="500px" >
+	<style type="text/css" ><![CDATA[.__grid1
+{
+	stroke: #CCC;
+	stroke-width: 1px;
+	fill: none;
+}
+
+.arrowhead
+{
+	fill: lightblue;
+	stroke: lightblue;
+}
+
+.ray
+{
+	marker-end: url(#arrow);
+	stroke: lightblue;
+	stroke-dasharray: 3,3;
+	stroke-width: 1px;
+}
+
+.light
+{
+	fill: yellow;
+	stroke: none;
+}
+
+.incident-ray
+{
+	marker-end: url(#arrow);
+	stroke: lightblue;
+	stroke-width: 2px;
+}
+
+.__axis_arrow_end1
+{
+	marker-end: url(#__axis_arrow1);
+}
+
+.surface
+{
+	fill: lightblue;
+	stroke: none;
+}
+
+.__axis1
+{
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}]]></style>
+	<defs >
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+	</defs>
+	<line x2="250" y2="240" y1="60" x1="40" class="incident-ray" />
+	<line x2="163.06667563398" y2="216.70628594077" y1="240" x1="250" class="ray" />
+	<line x2="172.0577136594" y2="195" y1="240" x1="250" class="ray" />
+	<line x2="186.36038969321" y2="176.36038969321" y1="240" x1="250" class="ray" />
+	<line x2="205" y2="162.0577136594" y1="240" x1="250" class="ray" />
+	<line x2="226.70628594077" y2="153.06667563398" y1="240" x1="250" class="ray" />
+	<line x2="250" y2="150" y1="240" x1="250" class="ray" />
+	<line x2="273.29371405923" y2="153.06667563398" y1="240" x1="250" class="ray" />
+	<line x2="295" y2="162.0577136594" y1="240" x1="250" class="ray" />
+	<line x2="313.63961030679" y2="176.36038969321" y1="240" x1="250" class="ray" />
+	<line x2="327.9422863406" y2="195" y1="240" x1="250" class="ray" />
+	<line x2="336.93332436602" y2="216.70628594077" y1="240" x1="250" class="ray" />
+	<rect y="240" x="0" height="90" width="500" class="surface" />
+	<circle r="20" cy="60" cx="40" class="light" />
+</svg>

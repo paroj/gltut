@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="301px" width="301px" >
+	<style type="text/css" ><![CDATA[.vector
+{
+	marker-end: url(#arrow);
+	stroke: black;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.circle
+{
+	stroke: black;
+	fill: none;
+}
+
+.label
+{
+	font-family: monospace;
+	font-size: 14pt;
+	stroke: none;
+	text-anchor: middle;
+	fill: black;
+}
+
+.arrowhead
+{
+	fill: black;
+	stroke: none;
+}
+
+.center
+{
+	stroke: none;
+	fill: black;
+}
+
+.short_path
+{
+	stroke-opacity: 0.3;
+	stroke: blue;
+	stroke-width: 8px;
+	fill: none;
+}
+
+.long_path
+{
+	stroke-opacity: 0.3;
+	stroke: red;
+	stroke-width: 8px;
+	fill: none;
+}]]></style>
+	<defs >
+		<g id="g_point" >
+			<circle cy="0" cx="0" class="vertex" />
+		</g>
+		<marker markerWidth="10" markerHeight="8" refX="10" refY="4" markerUnits="userSpaceOnUse" orient="auto" id="arrow" >
+			<path d="M 10 4 L 0 0 L 0 8 Z" class="arrowhead" />
+		</marker>
+	</defs>
+	<circle r="120" cy="150" cx="150" class="circle" />
+	<line x2="262.76311449431" y2="108.95758280092" y1="150" x1="150" class="vector" />
+	<line x2="58.074666825723" y2="72.865486837615" y1="150" x1="150" class="vector" />
+	<line x2="37.236885505691" y2="191.04241719908" y1="150" x1="150" class="vector" />
+	<path d="M 58.074666825723 72.865486837615 A 120 120 0 0 0 37.236885505691 191.04241719908" class="short_path" />
+	<path d="M 58.074666825723 72.865486837615 A 120 120 0 0 1 262.76311449431 108.95758280092" class="long_path" />
+	<circle r="8" cy="150" cx="150" class="center" />
+	<text y="154.47879140046" x="206.38155724715" class="label" >q1</text>
+	<text y="104.43274341881" x="121.03733341286" class="label" >q2</text>
+	<text y="195.52120859954" x="93.618442752845" class="label" >-q1</text>
+</svg>

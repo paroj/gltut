@@ -1,0 +1,88 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Building the Tutorials</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="prev" href="About%20Conventions.html" title="Conventions used in This Book"><link rel="next" href="Basics/Basics.html" title="Part I. The Basics"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Building the Tutorials</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="About%20Conventions.html">Prev</a> </td><th width="60%" align="center"> </th><td width="20%" align="right"> <a accesskey="n" href="Basics/Basics.html">Next</a></td></tr></table><hr></div><div class="article"><div class="titlepage"><div><div><h1 class="title"><a name="idp6"></a>Building the Tutorials</h1></div></div><hr></div>
+    
+    
+    <p>This section describes how to build the tutorials.</p>
+    <p>
+        <b>What You Need to Download. </b>
+        Obviously, you will need a C++ compiler and build environment. You will also need the
+            Windows or Linux operating systems, as these are the only OS's supported by the
+            tutorials. Supported build environments include Visual Studio 2008/2010, Code::Blocks,
+            and Linux-based GNU Makefiles. Other build systems may work, but they are not regularly
+            tested.
+    </p>
+    <p>You will need to download the <a class="ulink" href="https://github.com/paroj/gltut/releases" target="_top">source distribution</a>;
+        download the .zip file with the highest version number. All of the libraries needed to build
+
+        the tutorials are bundled as part of the distribution, so this is the only source code
+        download you will need.</p>
+    <p>You will also need to download and install the <a class="ulink" href="https://cmake.org/" target="_top">CMake</a> utility for your platform of choice.</p>
+    <p>You will need minimal familiarity with using the command line in order to build these
+        tutorials. Also, any mention of directories is always relative to where you unzipped this
+        distribution.</p>
+    <p>
+        <b>Distribution File Layout. </b>
+        The layout of the files in the tutorial directory is quite simple. The
+                <code class="filename">framework</code> directory and all directories of the form
+                <code class="filename">Tut*</code> contain the source code for the tutorials themselves. Each
+                <code class="filename">Tut*</code> directory has the code for the various tutorials. The
+                <code class="filename">framework</code> directory simply contains utility code that is
+            commonly used by each tutorial.
+    </p>
+    <p>Each tutorial contains one or more projects; each project is referenced in the text for
+        that tutorial.</p>
+    <p>The <code class="filename">Documents</code> directory contains the source for the text
+        documentation explaining how these tutorials work. This source is in xml files using the
+        DocBook 5.0 format.</p>
+    <p>The other directories either contain libraries used by the tutorials or data files that
+        the tutorials load.</p>
+    <p>
+        <b>CMake. </b>
+        CMake generates build files for a specific platform. CMake's build scripts use their own language.
+    </p>
+    <p>Note that CMake only generates build files; once the build files are created, you can
+        use them as normal. It can generate project files for Visual Studio, <a class="ulink" href="http://www.codeblocks.org/" target="_top">Code::Blocks</a>, as well as GNU Makefiles.
+        And unless you want to modify one of the tutorials, you only need to run CMake once.</p>
+    <p>The CMake download comes as a pre-built executable for all platforms of interest,
+        including Linux.</p>
+    <p>
+        <b>Unofficial OpenGL SDK. </b>
+        Bundled with the tutorials is the Unofficial OpenGL SDK (you do not need to download
+            it separately). This is an aggregation of libraries, unifying a number of tools for
+            developing OpenGL applications, all bound together with a unified build system. You do
+            not need to download it; a version of the SDK is part of the tutorial distribution. The
+            copy that comes with these tutorials does not contain the documentation or GLFW.
+    </p>
+    <p>The SDK libraries are built using CMake as well. The tutorial-build is aware of the SDK
+        and will take care of building it, when you build the tutorials as described below.</p>
+    <p>There is no need to execute <strong class="userinput"><code>make install</code></strong> or similar
+        commands when building the SDK. The SDK is designed to be used where it is; it does not
+        install itself to any system directories on your machine. Incidentally, neither do these
+        tutorials.</p>
+    <p>
+        <b>Tutorial Building and Running. </b>
+    </p>
+    <p>All of the tutorials are built at once; go to the root directory of the
+        distribution and use CMake on the <code class="filename">CMakeLists.txt</code> file in that
+        directory. It will put all of the tutorials into a single project that you can
+        build them all.</p>
+    <p>Each tutorial will generally have more than one source file and generate multiple
+        executables. Each executable represents a different section of the tutorial, as explained in
+        that tutorial's documentation.</p>
+    <p>If you look at any of the tutorial source files, you will not find the
+            <code class="function">main</code> function defined anywhere. This function is defined in
+            <code class="filename">framework/framework.cpp</code>; it and all of the other source files in
+        the <code class="filename">framework</code> directory is shared by every tutorial. It does the basic
+        boilerplate work: creating a FreeGLUT window, etc. This allows the tutorial source files to
+        focus on the useful OpenGL-specific code.</p>
+    <p>Note that the framework project is a library, not an executable. So attempting to run the
+        framework from your IDE of choice will not work. You must select one of the tutorial
+        projects and set it to be the active project. Then you will be able to run that tutorial
+        from the IDE.</p>
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="About%20Conventions.html">Prev</a> </td><td width="20%" align="center"> </td><td width="40%" align="right"> <a accesskey="n" href="Basics/Basics.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Conventions used in This Book </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Part I. The Basics</td></tr></table></div></body></html>

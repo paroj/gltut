@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" height="500px" width="500px" >
+	<style type="text/css" ><![CDATA[.fill_none
+{
+	fill: none;
+}
+
+.red
+{
+	stroke: red;
+}
+
+.object_projected
+{
+	stroke-width: 8px;
+	stroke: #00C000;
+}
+
+.line_of_proj
+{
+	stroke: red;
+	stroke-dasharray: 4,8;
+	stroke-width: 1px;
+}
+
+.background
+{
+	stroke: none;
+	fill: #E0E0E0;
+}
+
+.fill_transluscent
+{
+	fill-opacity: 0.1;
+	fill: blue;
+}
+
+.dashed
+{
+	stroke-dasharray: 4,8;
+}
+
+.fill_black
+{
+	fill: black;
+}
+
+.line_standard
+{
+	stroke-width: 1px;
+}
+
+.projected
+{
+	stroke-width: 8px;
+}
+
+.object
+{
+	stroke-width: 1px;
+	stroke: #00C000;
+}
+
+.black
+{
+	stroke: black;
+}]]></style>
+	<defs />
+	<polygon points="187.5,375 312.5,375 687.5,0 -187.5,0" class="background" />
+	<line x2="256.94444444444" y2="375" y1="375" x1="266.66666666667" class="object_projected" />
+	<line x2="300" y2="250" y1="375" x1="266.66666666667" class="line_of_proj" />
+	<line x2="281.25" y2="250" y1="375" x1="260.41666666667" class="line_of_proj" />
+	<line x2="281.25" y2="156.25" y1="375" x1="256.94444444444" class="line_of_proj" />
+	<line x2="300" y2="156.25" y1="375" x1="261.11111111111" class="line_of_proj" />
+	<line x2="112.5" y2="375" y1="343.75" x1="43.75" class="line_of_proj" />
+	<line x2="244.79166666667" y2="375" y1="62.5" x1="218.75" class="line_of_proj" />
+	<line x2="244.79166666667" y2="375" y1="375" x1="112.5" class="object_projected" />
+	<polygon points="300,250 281.25,250 281.25,156.25 300,156.25" class="object fill_none" />
+	<line x2="218.75" y2="62.5" y1="343.75" x1="43.75" class="object" />
+	<line x2="312.5" y2="375" y1="375" x1="187.5" class="black line_standard" />
+	<line x2="0" y2="375" y1="375" x1="187.5" class="black line_standard dashed" />
+	<line x2="500" y2="375" y1="375" x1="312.5" class="black line_standard dashed" />
+	<circle r="5" cy="437.5" cx="250" class="black fill_black" />
+	<line x2="250" y2="437.5" y1="375" x1="187.5" class="black line_standard dashed" />
+	<line x2="250" y2="437.5" y1="375" x1="312.5" class="black line_standard dashed" />
+</svg>

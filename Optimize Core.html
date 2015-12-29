@@ -1,0 +1,132 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Object Optimizations</title><link rel="stylesheet" type="text/css" href="chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Basic%20Optimization.html" title="Appendix A. Basic Optimization"><link rel="prev" href="apas02.html" title="Textures"><link rel="next" href="apas04.html" title="Finding the Bottleneck"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Object Optimizations</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="apas02.html">Prev</a> </td><th width="60%" align="center">Appendix A. Basic Optimization</th><td width="20%" align="right"> <a accesskey="n" href="apas04.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp122"></a>Object Optimizations</h2></div></div></div>
+        
+        
+        <p>These optimizations all have to do with the concept of objects. An object, for the
+            purpose of this discussion, is a combination of a mesh, program, uniform data, and set
+            of textures used to render some specific thing in the world.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12890"></a>Object Culling</h3></div></div></div>
+            
+            <p>A virtual world consists of many objects. The more objects we draw, the longer
+                rendering takes.</p>
+            <p>One major optimization is also a very simple one: render only what must be
+                rendered. There is no point in drawing an object in the world that is not actually
+                visible. Thus, the task here is to, for each object, detect if it would be visible;
+                if it is not, then it is not rendered. This process is called visiblity culling or
+                object culling.</p>
+            <p>As a first pass, we can say that objects that are not within the view frustum are
+                not visible. This is called frustum culling, for obvious reasons. Determining that
+                an object is off screen is generally a CPU task. Each object must be represented by
+                a simple volume, such as a sphere or camera-space box. These objects are used
+                because they are relatively easy to test against the view frustum; if they are
+                within the frustum, then the corresponding object is considered visible.</p>
+            <p>Of course, this only boils the scene down to the objects in front of the camera.
+                Objects that are entirely occluded by other objects will still be rendered. There
+                are a number of techniques for detecting whether objects obstruct the view of other
+                objects. Portals, BSPs, and a variety of other techniques involve preprocessing
+                certain static terrain to determine visibility sets. Therefore it can be known that,
+                when the camera is in a certain region of the world, objects in certain other
+                regions cannot be visible even if they are within the view frustum.</p>
+            <p>A more fine-grained solution involves using a hardware feature called occlusion
+                queries. This is a way to render an object and then ask how many fragments of that
+                object were actually rasterized. If even one fragment passed the depth test
+                (assuming all possible occluding surfaces have been rendered), then the object is
+                visible and must be rendered.</p>
+            <p>It is generally preferred to render simple test objects, such that if any part of
+                the test object is visible, then the real object will be visible. Drawing a test
+                object is much faster than drawing a complex hierarchial model with specialized
+                skinning vertex shaders. Write masks (set with <code class="function">glColorMask</code> and
+                    <code class="function">glDepthMask</code>) are used to prevent writing the fragment
+                shader outputs of the test object to the framebuffer. Thus, the test object is only
+                tested against the depth buffer, not actually rendered.</p>
+            <p>Occlusion queries in OpenGL are objects that have state. They are created with the
+                    <code class="function">glGenQueries</code> function. To start rendering a test object for
+                occlusion queries, the object generated from <code class="function">glGenQueries</code> is
+                passed to the <code class="function">glBeginQuery</code> function, along with the mode of
+                    <code class="literal">GL_SAMPLES_PASSED</code>. All rendering commands between
+                    <code class="function">glBeginQuery</code> and the corresponding
+                    <code class="function">glEndQuery</code> are part of the test object. If all of the
+                fragments of the object were discarded (via depth buffer or something else), then
+                the query failed. If even one fragment was rendered, then it passed.</p>
+            <p>This can be used with a concept called conditional rendering. This is exactly what
+                it says: rendering an object conditionally. It allows a series of rendering
+                commands, bracketed by
+                    <code class="function">glBeginConditionalRender</code>/<code class="function">glEndConditionalRender</code>
+                functions, to cause the execution of those rendering commands to happen or not
+                happen based on the status of an occlusion query object. If the occlusion query
+                passed, then the rendering commands will be executed. If it did not, then they will
+                not be.</p>
+            <p>Of course, conditional rendering can cause pipeline stalls; OpenGL still requires
+                that operations execute in-order, even conditional ones. So all later operations
+                will be held up if a conditional render is waiting for its occlusion query to
+                finish. To avoid this, you can specify <code class="literal">GL_QUERY_NO_WAIT</code> when
+                beginning the conditional render. This will cause OpenGL to render if the query has
+                not completed before this conditional render is ready to be rendered. To gain the
+                maximum benefit from this, it is best to render the conditional objects well after
+                the test objects they are conditioned on.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12912"></a>Model LOD</h3></div></div></div>
+            
+            <p>When a model is far away, it does not need to look as detailed, since most of the
+                details will be lost due to lack of resolution. Therefore, one can substitute more
+                detailed models for less detailed ones. This is commonly referred to as Level of
+                Detail (<acronym class="acronym">LOD</acronym>).</p>
+            <p>Of course in modern rendering, detail means more than just the number of polygons
+                in a mesh. It can often mean what shader to use, what textures to use with it, etc.
+                So while meshes will often have LODs, so will shaders. Textures have their own
+                built-in LODing mechanism in mip-mapping. But it is often the case that low-LOD
+                shaders (those used from far away) do not need as many textures as the closer LOD
+                shaders. You might be able to get away with per-vertex lighting for distant models,
+                while you need per-fragment lighting for those close up.</p>
+            <p>The problem with this visually is how to deal with the transitions between LOD
+                levels. If you change them too close to the camera, then the user will notice a pop.
+                If you do them too far away, you lose much of the performance gain from rendering a
+                low-detail mesh far away. Finding a good middle-ground is key.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp12918"></a>State Changes</h3></div></div></div>
+            
+            <p>OpenGL has three kinds of functions: those that actually do rendering, those that
+                retrieve information from OpenGL, and those that modify some information stored in
+                OpenGL. The vast majority of OpenGL functions are the latter. OpenGL's information
+                is generally called <span class="quote">“<span class="quote">state,</span>”</span> and needlessly changing state can be
+                expensive.</p>
+            <p>Therefore, this optimization rule is to, as best as possible, minimize the number
+                of state changes. For simple scenes, this can be trivial. But in a complicated,
+                data-driven environment, this can be exceedingly complex.</p>
+            <p>The general idea is to gather up a list of all objects that need to be rendered
+                (after culling non-visible objects and performing any LOD work), then sort them
+                based on their shared state. Objects that use the same program share program state,
+                for example. By doing this, if you render the objects in state order, you will
+                minimize the number of changes to OpenGL state.</p>
+            <p>The three most important pieces of state to sort by are the ones that change most
+                frequently: programs (and their associated uniforms), textures, and VAO state.
+                Global state, such as face culling, blending, etc, are less expensive because they
+                don't change as often. Generally, all meshes use the same culling parameters,
+                viewport settings, depth comparison state, and so forth.</p>
+            <p>Minimizing vertex array state changes generally requires more than just sorting;
+                it requires changing how mesh data is stored. This book usually gives every mesh its
+                own VAO, which represents its own separate state. This is certainly very convenient,
+                but it can work against performance if the CPU is a bottleneck.</p>
+            <p>To avoid this, try to group meshes that have the same vertex data formats in the
+                same buffer objects and VAOs. This makes it possible to render several objects, with
+                several different <code class="function">glDraw*</code> commands, all using the same VAO
+                state. <code class="function">glDrawElementsBaseVertex</code> is very useful for this purpose
+                when rendering with indexed data. The fewer VAO binds, the better.</p>
+            <p>There is less information on how harmful uniform state changes are to performance,
+                or the performance difference between changing in-program uniforms and buffer-based
+                uniforms.</p>
+            <p>Be advised that state sorting cannot help when dealing with blending, because
+                blending correctness requires sorting based on depth. Thus, it is necessary to avoid
+                that.</p>
+            <p>There are also certain tricky states that can hurt, depending on hardware. For
+                example, it is best to avoid changing the direction of the depth test once you have
+                cleared the depth buffer and started rendering to it. This is for reasons having to
+                do with specific hardware optimizations of depth buffering.</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="apas02.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Basic%20Optimization.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="apas04.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Textures </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Finding the Bottleneck</td></tr></table></div></body></html>

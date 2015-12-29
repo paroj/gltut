@@ -1,0 +1,82 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Linear Filtering</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2015.html" title="Chapter 15. Many Images"><link rel="prev" href="Tutorial%2015.html" title="Chapter 15. Many Images"><link rel="next" href="Tut15%20Needs%20More%20Pictures.html" title="Needs More Pictures"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Linear Filtering</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2015.html">Prev</a> </td><th width="60%" align="center">Chapter 15. Many Images</th><td width="20%" align="right"> <a accesskey="n" href="Tut15%20Needs%20More%20Pictures.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp101"></a>Linear Filtering</h2></div></div></div>
+        
+        
+        <p>While this example certainly draws a checkerboard, you can see that there are some
+            visual issues. We will start finding solutions to this with the least obvious glitches
+            first.</p>
+        <p>Take a look at one of the squares at the very bottom of the screen. Notice how the
+            line looks jagged as it moves to the left and right. You can see the pixels of it sort
+            of crawl up and down as it shifts around on the plane.</p>
+        <div class="figure"><a name="idp11724"></a><p class="title"><b>Figure 15.2. Jagged Texture Edge</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="NearestZoom.png" alt="Jagged Texture Edge"></div>
+        </div></div><br class="figure-break">
+        <p>This is caused by the discrete nature of our texture accessing. The texture
+            coordinates are all in floating-point values. The GLSL <code class="function">texture</code>
+            function internally converts these texture coordinates to specific texel values within
+            the texture. So what value do you get if the texture coordinate lands halfway between
+            two texels?</p>
+        <p>That is governed by a process called <em class="glossterm">texture filtering</em>.
+            Filtering can happen in two directions: magnification and minification. Magnification
+            happens when the texture mapping makes the texture appear bigger in screen space than
+            its actual resolution. If you get closer to the texture, relative to its mapping, then
+            the texture is magnified relative to its natural resolution. Minification is the
+            opposite: when the texture is being shrunken relative to its natural resolution.</p>
+        <p>In OpenGL, magnification and minification filtering are each set independently. That
+            is what the <code class="literal">GL_TEXTURE_MAG_FILTER</code> and
+                <code class="literal">GL_TEXTURE_MIN_FILTER</code> sampler parameters control. We are
+            currently using <code class="literal">GL_NEAREST</code> for both; this is called
+                <em class="glossterm">nearest filtering</em>. This mode means that each texture
+            coordinate picks the texel value that it is nearest to. For our checkerboard, that means
+            that we will get either black or white.</p>
+        <p>Now this may sound fine, since our texture is a checkerboard and only has two actual
+            colors. However, it is exactly this discrete sampling that gives rise to the pixel crawl
+            effect. A texture coordinate that is half-way between the white and the black is either
+            white or black; a small change in the camera causes an instant pop from black to white
+            or vice-versa.</p>
+        <p>Each fragment being rendered takes up a certain area of space on the screen: the area
+            of the destination pixel for that fragment. The texture mapping of the rendered surface
+            to the texture gives a texture coordinate for each point on the surface. But a pixel is
+            not a single, infinitely small point on the surface; it represents some finite area of
+            the surface.</p>
+        <p>Therefore, we can use the texture mapping in reverse. We can take the four corners of
+            a pixel area and find the texture coordinates from them. The area of this 4-sided
+            figure, in the space of the texture, is the area of the texture that is being mapped to
+            that location on the screen. With a perfect texture accessing system, the value we get
+            from the GLSL <code class="function">texture</code> function would be the average value of the
+            colors in that area.</p>
+        <div class="figure"><a name="idp11742"></a><p class="title"><b>Figure 15.3. Nearest Sampling</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="NearestSampleDiag.svg" alt="Nearest Sampling"></div>
+        </div></div><br class="figure-break">
+        <p>The dot represents the texture coordinate's location on the texture. The box is the
+            area that the fragment covers. The problem happens because a fragment area mapped into
+            the texture's space may cover some white area and some black area. Since nearest only
+            picks a single texel, which is either black or white, it does not accurately represent
+            the mapped area of the fragment.</p>
+        <p>One obvious way to smooth out the differences is to do exactly that. Instead of
+            picking a single sample for each texture coordinate, pick the nearest 4 samples and then
+            interpolate the values based on how close they each are to the texture coordinate. To do
+            this, we set the magnification and minification filters to
+            <code class="literal">GL_LINEAR</code>.</p>
+        <pre class="programlisting">glSamplerParameteri(g_samplers[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);</pre>
+        <p>This is called, surprisingly enough, <em class="glossterm">linear filtering</em>. In our
+            tutorial, press the <span class="keycap"><strong>2</strong></span> key to see what linear filtering looks like;
+            press <span class="keycap"><strong>1</strong></span> to go back to nearest sampling.</p>
+        <div class="figure"><a name="idp11755"></a><p class="title"><b>Figure 15.4. Linear Filtering</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CheckerboardLinear.png" alt="Linear Filtering"></div>
+        </div></div><br class="figure-break">
+        <p>That looks much better for the squares close to the camera. It creates a bit of
+            fuzziness, but this is generally a lot easier for the viewer to tolerate than pixel
+            crawl. Human vision tends to be attracted to movement, and false movement like dot crawl
+            can be distracting.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2015.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2015.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut15%20Needs%20More%20Pictures.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 15. Many Images </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Needs More Pictures</td></tr></table></div></body></html>

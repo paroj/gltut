@@ -1,0 +1,79 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>In Review</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2009.html" title="Chapter 9. Lights On"><link rel="prev" href="Tut09%20Mesh%20Topology.html" title="Mesh Topology"><link rel="next" href="Tut09%20Glossary.html" title="Glossary"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">In Review</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut09%20Mesh%20Topology.html">Prev</a> </td><th width="60%" align="center">Chapter 9. Lights On</th><td width="20%" align="right"> <a accesskey="n" href="Tut09%20Glossary.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp68"></a>In Review</h2></div></div></div>
+        
+        
+        <p>In this tutorial, you have learned the following:</p>
+        <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                <p>Diffuse lighting is a simple lighting model based on the angle between the
+                    light source and the surface normal.</p>
+            </li><li class="listitem">
+                <p>Surface normals are values used, per-vertex, to define the direction of the
+                    surface at a particular location. They do not have to mirror the actual normal
+                    of the mesh geometry.</p>
+            </li><li class="listitem">
+                <p>Surface normals must be transformed by the inverse-transpose of the
+                    model-to-camera matrix, if that matrix can involve a non-uniform scale
+                    operation.</p>
+            </li><li class="listitem">
+                <p>Light interreflection can be approximated by adding a single light intensity
+                    that has no direction.</p>
+            </li><li class="listitem">
+                <p>Each vertex attribute has its own topology. In order to render these vertices
+                    in OpenGL, attribute data must be replicated so that each unique combination of
+                    attributes has a topology.</p>
+            </li></ul></div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp8129"></a>Further Study</h3></div></div></div>
+            
+            <p>Try doing these things with the given programs.</p>
+            <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+                    <p>Modify the ambient lighting tutorial, bumping the diffuse light intensity
+                        up to 1.0. See how this effects the results.</p>
+                </li><li class="listitem">
+                    <p>Change the shaders in the ambient lighting tutorial to use the lighting
+                        intensity correction mentioned above. Divide the diffuse color by a value,
+                        then pass larger lighting intensities to the shader. Notice how this changes
+                        the quality of the lighting.</p>
+                </li></ul></div>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp8137"></a>Further Research</h3></div></div></div>
+            
+            <p>Lambertian diffuse reflectance is a rather good model for diffuse reflectance for
+                many surfaces. Particularly rough surfaces however do not behave in a Lambertian
+                manor. If you are interested in modelling such surfaces, investigate the Oren-Nayar
+                reflectance model.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp8140"></a>GLSL Functions of Note</h3></div></div></div>
+            
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">clamp</b>(</code></td><td>vec <var class="pdparam">val</var>, </td></tr><tr><td> </td><td>vec <var class="pdparam">minVal</var>, </td></tr><tr><td> </td><td>vec <var class="pdparam">maxVal</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>This function does a clamping operation of each component of
+                    <em class="parameter"><code>val</code></em>. All of the parameters must scalars or vectors of the
+                same dimensionality. This function will work with any scalar or vector type. It
+                returns a scalar or vector of the same dimensionality as the parameters, where each
+                component of <em class="parameter"><code>val</code></em> will be clamped to the closed range
+                    [<em class="parameter"><code>minVal</code></em>, <em class="parameter"><code>maxVal</code></em>]. This is useful
+                for ensuring that values are in a certain range.</p>
+            <p>All components of <em class="parameter"><code>minVal</code></em>
+                <span class="emphasis"><em>must</em></span> be smaller than the corresponding components of
+                    <em class="parameter"><code>maxVal</code></em>.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">float <b class="fsfunc">dot</b>(</code></td><td>vec <var class="pdparam">x</var>, </td></tr><tr><td> </td><td>vec <var class="pdparam">y</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>This function performs a vector dot product on <em class="parameter"><code>x</code></em> and
+                    <em class="parameter"><code>y</code></em>. This always results in a scalar value. The two
+                parameters must have the same dimensionality and must be vectors.</p>
+            <div class="funcsynopsis">
+                <table border="0" class="funcprototype-table" summary="Function synopsis" style="cellspacing: 0; cellpadding: 0;"><tr><td><code class="funcdef">vec <b class="fsfunc">normalize</b>(</code></td><td>vec <var class="pdparam">x</var><code>)</code>;</td></tr></table><div class="funcprototype-spacer"> </div>
+            </div>
+            <p>This function returns a vector in the same direction as <em class="parameter"><code>x</code></em>,
+                but with a length of 1. <em class="parameter"><code>x</code></em> must have a length greater than 0
+                (that is, it cannot be a vector with all zeros).</p>
+        </div>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut09%20Mesh%20Topology.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2009.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut09%20Glossary.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Mesh Topology </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Glossary</td></tr></table></div></body></html>

@@ -1,0 +1,100 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Mesh Topology</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2009.html" title="Chapter 9. Lights On"><link rel="prev" href="Tut09%20Global%20Illumination.html" title="Global Illumination"><link rel="next" href="Tut09%20In%20Review.html" title="In Review"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Mesh Topology</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut09%20Global%20Illumination.html">Prev</a> </td><th width="60%" align="center">Chapter 9. Lights On</th><td width="20%" align="right"> <a accesskey="n" href="Tut09%20In%20Review.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp67"></a>Mesh Topology</h2></div></div></div>
+        
+        
+        <p>Thus far, we have seen three different kinds of vertex attributes. We have used
+            positions, colors, and now normals. Before we can continue, we need to discuss the
+            ramifications of having three independent vertex attributes on our meshes.</p>
+        <p>A mesh's <em class="glossterm">topology</em> defines the
+            connectedness between the vertices. However, each vertex attribute can have its own
+            separate topology. How is this possible?</p>
+        <p>Consider a simple cube. It has 8 vertex positions. The topology between the positions
+            of the cube is as follows:</p>
+        <div class="figure"><a name="idp8080"></a><p class="title"><b>Figure 9.12. Cube Position Topology</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CubePositionTopology.svg" alt="Cube Position Topology"></div>
+        </div></div><br class="figure-break">
+        <p>The topology diagram has the 8 different positions, with each position connected to
+            three neighbors. The connections represent the edges of the cube faces, and the area
+            bounded by connections represent the faces themselves. So each face has four edges and
+            four positions.</p>
+        <p>Now consider the topology of the normals of a cube. A cube has 6 faces, each of which
+            has a distinct normal. The topology is a bit unorthodox:</p>
+        <div class="figure"><a name="idp8087"></a><p class="title"><b>Figure 9.13. Cube Normal Topology</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CubeNormalTopology.svg" alt="Cube Normal Topology"></div>
+        </div></div><br class="figure-break">
+        <p>The square points represent distinct normals, not positions in space. The connections
+            between normals all loop back on themselves. That's because each vertex of each face
+            uses the same normal. While the front face and the top face share two vertex positions
+            in common, they share no vertex normals at all. Therefore, there is no topological
+            relation between the front normal and the top normal. Each normal value is connected to
+            itself four times, but it is connected to nothing else.</p>
+        <p>We have 8 positions and 6 normals. They each have a unique topology over the mesh. How
+            do we turn this into something we can render?</p>
+        <p>If we knew nothing about OpenGL, this would be simple. We simply use the topologies to
+            build the meshes. Each face is broken down into two triangles. We would have an array of
+            8 positions and 6 normals. And for each vertex we render, we would have a list of
+            indices that fetch values from these two arrays.</p>
+        <p>The index list for two faces of the cube might look like this (using a C++-style
+            multidimensional list):</p>
+        <pre class="programlisting">{
+  {0, 0}, {1, 0}, {2, 0}, {1, 0}, {3, 0}, {2, 0},
+  {0, 1}, {4, 1}, {1, 1}, {4, 1}, {6, 1}, {1, 1},
+}</pre>
+        <p>The first index in each element of the list pulls from the position array, and the
+            second index pulls from the normal array. This list explicitly specifies the
+            relationship between faces and topology: the first face (composed of two triangles)
+            contains 4 positions, but uses the same normal for all vertices. The second face shares
+            two positions with the first, but no normals.</p>
+        <p>This is complicated in OpenGL because of one simple reason: we only get
+                <span class="emphasis"><em>one</em></span> index list. When we render with an index array, every
+            attribute array uses the same index. Therefore, what we need to do is convert the above
+            index list into a list of unique combinations of vertex attributes. So each pair of
+            indices must refer to a unique index.</p>
+        <p>Consider the first face. It consists of 4 unique vertices; the index pairs {1, 0} and
+            {2, 0} are repeated, since we must draw triangles. Since these pairs are repeats, we can
+            collapse them; they will refer to the same index. However, the fact that each vertex
+            uses the same normal must be ignored entirely. Therefore, the final index list we use
+            for the first face is:</p>
+        <pre class="programlisting">{ 0, 1, 2, 1, 3, 2 }</pre>
+        <p>The attribute arrays for this one face contain 4 positions and 4 normals. But while
+            the positions are all different, the normals must all be the same value. Even though
+            they are stored in four separate locations. This seems like a waste of memory.</p>
+        <p>This gets worse once we move on to the next face. Because we can only collapse index
+            pairs that are identical, absolutely none of the vertices in the second face share
+            indices with the first face. The fact that we reuse two positions in the next face is
+            irrelevant: we must have the following index list:</p>
+        <pre class="programlisting">{ 4, 5, 6, 5, 7, 6 }</pre>
+        <p>The attribute array for both faces contains 8 positions and 8 normals. Again, the
+            normals for the second face are all duplicates of each other. And there are two
+            positions that are duplicated. Topologically speaking, our cube vertex topology looks
+            like the following:</p>
+        <div class="figure"><a name="idp8106"></a><p class="title"><b>Figure 9.14. Full Cube Topology</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="CubeTotalTopology.svg" alt="Full Cube Topology"></div>
+        </div></div><br class="figure-break">
+        <p>Each face is entirely distinct topologically from the rest.</p>
+        <p>In the end, this gives us 24 positions and 24 normals in our arrays. There will only
+            be 6 distinct normal values and 8 distinct position values in the array, but there will
+            be 24 of each. So this represents a significant increase in our data size.</p>
+        <p>Do not be too concerned about the increase in data however. A cube, or any other
+            faceted object, represents the worst-case scenario for this kind of conversion. Most
+            actual meshes of smooth objects have much more interconnected topologies.</p>
+        <p>Mesh topology is something to be aware of, as is the ability to convert attribute
+            topologies into forms that OpenGL can directly process. Each attribute has its own
+            topology which affects how the index list is built. Different attributes can share the
+            same topology. For example, we could have colors associated with each face of the cube.
+            The color topology would be identical to the normal topology.</p>
+        <p>Most of the details are usually hidden behind various command-line tools that are used
+            to generate proper meshes from files exported from modelling programs. Many videogame
+            developers have complex asset conditioning pipelines that process exported files into
+            binary formats suitable for loading and direct upload into buffer objects. But it is
+            important to understand how mesh topologies work.</p>
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut09%20Global%20Illumination.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2009.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut09%20In%20Review.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Global Illumination </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> In Review</td></tr></table></div></body></html>

@@ -1,0 +1,325 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Chapter 13. Lies and Impostors</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Illumination.html" title="Part III. Illumination"><link rel="prev" href="Tut12%20Glossary.html" title="Glossary"><link rel="next" href="Tut13%20Correct%20Chicanery.html" title="Correct Chicanery"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Chapter 13. Lies and Impostors</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut12%20Glossary.html">Prev</a> </td><th width="60%" align="center">Part III. Illumination</th><td width="20%" align="right"> <a accesskey="n" href="Tut13%20Correct%20Chicanery.html">Next</a></td></tr></table><hr></div><div class="chapter"><div class="titlepage"><div><div><h2 class="title"><a name="idp88"></a>Chapter 13. Lies and Impostors</h2></div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl class="toc"><dt><span class="section"><a href="Tutorial%2013.html#idp10364">Simple Sham</a></span></dt><dt><span class="section"><a href="Tut13%20Correct%20Chicanery.html">Correct Chicanery</a></span></dt><dt><span class="section"><a href="Tut13%20Deceit%20in%20Depth.html">Deceit in Depth</a></span></dt><dt><span class="section"><a href="Tut13%20Purloined%20Primitives.html">Purloined Primitives</a></span></dt><dt><span class="section"><a href="Tut13%20In%20Review.html">In Review</a></span></dt><dt><span class="section"><a href="Tut13%20Glossary.html">Glossary</a></span></dt></dl></div>
+    
+    
+    <p>Lighting in these tutorials has ultimately been a form of deception. An increasingly
+        accurate one, but it is deception all the same. We are not rendering round objects; we
+        simply use lighting and interpolation of surface characteristics to make an object appear
+        round. Sometimes we have artifacts or optical illusions that show the lie for what it is.
+        Even when the lie is near-perfect, the geometry of a model still does not correspond to what
+        the lighting makes the geometry appear to be.</p>
+    <p>In this tutorial, we will be looking at the ultimate expression of this lie. We will use
+        lighting computations to make an object appear to be something entirely different from its
+        geometry.</p>
+    <div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp10364"></a>Simple Sham</h2></div></div></div>
+        
+        
+        <p>We want to render a sphere. We could do this as we have done in previous tutorials.
+            That is, generate a mesh of a sphere and render it. But this will never be a
+            mathematically perfect sphere. It is easy to generate a sphere with an arbitrary number
+            of triangles, and thus improve the approximation. But it will always be an
+            approximation.</p>
+        <p>Spheres are very simple, mathematically speaking. They are simply the set of points in
+            a space that are a certain distance from a specific point. This sounds like something we
+            might be able to compute in a shader.</p>
+        <p>Our first attempt to render a sphere will be quite simple. We will use the vertex
+            shader to compute the vertex positions of a <span class="emphasis"><em>square</em></span> in clip-space.
+            This square will be in the same position and width/height as the actual circle would be,
+            and it will always face the camera. In the fragment shader, we will compute the position
+            and normal of each point along the sphere's surface. By doing this, we can map each
+            point on the square to a point on the sphere we are trying to render. This square is
+            commonly called a <em class="glossterm">flat card</em> or
+            <em class="glossterm">billboard</em>.</p>
+        <p>For those points on the square that do not map to a sphere point (ie: the corners), we
+            have to do something special. Fragment shaders are required to write a value to the
+            output image. But they also have the ability to abort processing and write neither color
+            information nor depth to the color and depth buffers. We will employ this to draw our
+            square-spheres.</p>
+        <p>This technique is commonly called <em class="glossterm">impostors.</em> The idea is that
+            we're actually drawing a square, but we use the fragment shaders to make it look like
+            something else. The geometric shape is just a placeholder, a way to invoke the fragment
+            shader over a certain region of the screen. The fragment shader is where the real magic
+            happens.</p>
+        <p>The tutorial project <span class="propername">Basic Impostor</span> demonstrates
+            this technique. It shows a scene with several spheres, a directional light, and a moving
+            point light source.</p>
+        <div class="figure"><a name="idp10377"></a><p class="title"><b>Figure 13.1. Basic Impostor</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Basic%20Impostor.png" alt="Basic Impostor"></div>
+        </div></div><br class="figure-break">
+        <p>The camera movement is controlled in the same way as previous tutorials. The
+                <span class="keycap"><strong>T</strong></span> key will toggle a display showing the look-at point. The
+                <span class="keycap"><strong>-</strong></span> and <span class="keycap"><strong>=</strong></span> keys will rewind and fast-forward the
+            time, and the <span class="keycap"><strong>P</strong></span> key will toggle pausing of the time advancement.</p>
+        <p>The tutorial starts showing mesh spheres, to allow you to switch back and forth
+            between actual meshes and impostor spheres. Each sphere is independently
+            controlled:</p>
+        <div class="table"><a name="idp10388"></a><p class="title"><b>Table 13.1. Sphere Impostor Control Key Map</b></p><div class="table-contents">
+            
+            <table class="table" summary="Sphere Impostor Control Key Map" border="1"><colgroup><col class="c1"><col class="c2"></colgroup><thead><tr><th>Key</th><th>Sphere</th></tr></thead><tbody><tr><td><span class="keycap"><strong>1</strong></span></td><td>The central blue sphere.</td></tr><tr><td><span class="keycap"><strong>2</strong></span></td><td>The orbiting grey sphere.</td></tr><tr><td><span class="keycap"><strong>3</strong></span></td><td>The black marble on the left.</td></tr><tr><td><span class="keycap"><strong>4</strong></span></td><td>The gold sphere on the right.</td></tr></tbody></table>
+        </div></div><br class="table-break">
+        <p>This tutorial uses a rendering setup similar to the last one. The shaders use uniform
+            blocks to control most of the uniforms. There is a shared global lighting uniform block,
+            as well as one for the projection matrix.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10415"></a>Grifting Geometry</h3></div></div></div>
+            
+            <p>The way this program actually renders the geometry for the impostors is
+                interesting. The vertex shader looks like this:</p>
+            <div class="example"><a name="idp10418"></a><p class="title"><b>Example 13.1. Basic Impostor Vertex Shader</b></p><div class="example-contents">
+                
+                <pre class="programlisting">#version 330
+
+layout(std140) uniform;
+
+out vec2 mapping;
+
+uniform Projection
+{
+	mat4 cameraToClipMatrix;
+};
+
+uniform float sphereRadius;
+uniform vec3 cameraSpherePos;
+
+void main()
+{
+    vec2 offset;
+    switch(gl_VertexID)
+    {
+    case 0:
+        //Bottom-left
+        mapping = vec2(-1.0, -1.0);
+        offset = vec2(-sphereRadius, -sphereRadius);
+        break;
+    case 1:
+        //Top-left
+        mapping = vec2(-1.0, 1.0);
+        offset = vec2(-sphereRadius, sphereRadius);
+        break;
+    case 2:
+        //Bottom-right
+        mapping = vec2(1.0, -1.0);
+        offset = vec2(sphereRadius, -sphereRadius);
+        break;
+    case 3:
+        //Top-right
+        mapping = vec2(1.0, 1.0);
+        offset = vec2(sphereRadius, sphereRadius);
+        break;
+    }
+    
+    vec4 cameraCornerPos = vec4(cameraSpherePos, 1.0);
+    cameraCornerPos.xy += offset;
+    
+    gl_Position = cameraToClipMatrix * cameraCornerPos;
+}</pre>
+            </div></div><br class="example-break">
+            <p>Notice anything missing? There are no input variables declared anywhere in this
+                vertex shader.</p>
+            <p>It does still use an input variable: <code class="varname">gl_VertexID</code>. This is a
+                built-in input variable; it contains the current index of this particular vertex.
+                When using array rendering, it's just the count of the vertex we are in. When using
+                indexed rendering, it is the index of this vertex.</p>
+            <p>When we render this mesh, we render 4 vertices as a
+                    <code class="literal">GL_TRIANGLE_STRIP</code>. This is rendered in array rendering mode,
+                so the <code class="varname">gl_VertexID</code> will vary from 0 to 3. Our switch/case
+                statement determines which vertex we are rendering. Since we're trying to render a
+                square with a triangle strip, the order of the vertices needs to be appropriate for
+                this.</p>
+            <p>After computing which vertex we are trying to render, we use the radius-based
+                offset as a bias to the camera-space sphere position. The Z value of the sphere
+                position is left alone, since it will always be correct for our square. After that,
+                we transform the camera-space position to clip-space as normal.</p>
+            <p>The output <code class="varname">mapping</code> is a value that is used by the fragment
+                shader, as we will see below.</p>
+            <p><a class="indexterm" name="idp10431"></a>Since this vertex shader takes no inputs, our vertex array object does
+                not need to contain anything either. That is, we never call
+                    <code class="function">glEnableVertexAttribArray</code> on the VAO. Since no attribute
+                arrays are enabled, we also have no need for a buffer object to store vertex array
+                data. So we never call <code class="function">glVertexAttribPointer</code>. We simply
+                generate an empty VAO with <code class="function">glGenVertexArrays</code> and use it without
+                modification.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp10437"></a>Racketeering Rasterization</h3></div></div></div>
+            
+            <p>Our lighting equations in the past needed only a position and normal in
+                camera-space (as well as other material and lighting parameters) in order to work.
+                So the job of the fragment shader is to provide them. Even though they do not
+                correspond to those of the actual triangles in any way.</p>
+            <p>Here are the salient new parts of the fragment shader for impostors:</p>
+            <div class="example"><a name="idp10441"></a><p class="title"><b>Example 13.2. Basic Impostor Fragment Shader</b></p><div class="example-contents">
+                
+                <pre class="programlisting">in vec2 mapping;
+
+void Impostor(out vec3 cameraPos, out vec3 cameraNormal)
+{
+    float lensqr = dot(mapping, mapping);
+    if(lensqr &gt; 1.0)
+        discard;
+    	
+    cameraNormal = vec3(mapping, sqrt(1.0 - lensqr));
+    cameraPos = (cameraNormal * sphereRadius) + cameraSpherePos;
+}
+
+void main()
+{
+    vec3 cameraPos;
+    vec3 cameraNormal;
+    
+    Impostor(cameraPos, cameraNormal);
+    
+    vec4 accumLighting = Mtl.diffuseColor * Lgt.ambientIntensity;
+    for(int light = 0; light &lt; numberOfLights; light++)
+    {
+        accumLighting += ComputeLighting(Lgt.lights[light],
+            cameraPos, cameraNormal);
+    }
+    
+    outputColor = sqrt(accumLighting); //2.0 gamma correction
+}</pre>
+            </div></div><br class="example-break">
+            <p>In order to compute the position and normal, we first need to find the point on
+                the sphere that corresponds with the point on the square that we are currently on.
+                And to do that, we need a way to tell where on the square we are.</p>
+            <p>Using <code class="varname">gl_FragCoord</code> will not help, as it is relative to the
+                entire screen. We need a value that is relative only to the impostor square. That is
+                the purpose of the <code class="varname">mapping</code> variable. When this variable is at (0,
+                0), we are in the center of the square, which is the center of the sphere. When it
+                is at (-1, -1), we are at the bottom left corner of the square.</p>
+            <p>Given this, we can now compute the sphere point directly <span class="quote">“<span class="quote">above</span>”</span> the
+                point on the square, which is the job of the <code class="function">Impostor</code>
+                function.</p>
+            <p>Before we can compute the sphere point however, we must make sure that we are
+                actually on a point that has the sphere above it. This requires only a simple
+                distance check. Since the size of the square is equal to the radius of the sphere,
+                if the distance of the <code class="varname">mapping</code> variable from its (0, 0) point is
+                greater than 1, then we know that this point is off of the sphere.</p>
+            <p>Here, we use a clever way of computing the length; we do not. Instead, we compute
+                the square of the length. We know that if 
+                    <span class="mathphrase">X<sup>2</sup> &gt;
+                        Y<sup>2</sup></span>
+                 is true, then 
+                    <span class="mathphrase">X &gt; Y</span>
+                 must also be true for all positive real numbers X and Y. So we
+                just do the comparison as squares, rather than taking a square-root to find the true
+                length.</p>
+            <p>If the point is not under the sphere, we execute something new:
+                    <code class="literal">discard</code>. The <code class="literal">discard</code> keyword is unique to
+                fragment shaders. It tells OpenGL that the fragment is invalid and its data should
+                not be written to the image or depth buffers. This allows us to carve out a shape in
+                our flat square, turning it into a circle.</p>
+            <div class="sidebar"><div class="titlepage"><div><div><p class="title"><b>A Word on Discard</b></p></div></div></div>
+                
+                <p>Using <code class="literal">discard</code> sounds a lot like throwing an exception.
+                    Since the fragment's outputs will be ignored and discarded, you might expect
+                    that executing this instruction will cause the fragment shader to stop
+                    executing. This is not necessarily the case.</p>
+                <p>Due to the way that shaders tend to work, multiple executions of the same
+                    shader are often operating at the same time. All of them are running in
+                    lock-step with one another; they all execute instructions at the same time, just
+                    on different datasets. If one of them does a discard, it still has to keep doing
+                    what it was doing, because the other three may not have discarded, since the
+                    discard was based on data that may be different between each shader. This is
+                    also why branches in shaders will often execute both sides rather than actually
+                    branching; it keeps the shader logic simpler.</p>
+                <p>However, that does not mean <code class="literal">discard</code> is without use for
+                    stopping unwanted processing. If all of the shaders that are running together
+                    hit a <code class="literal">discard</code>, then they can all be aborted with no problems.
+                    And hardware often does this where possible. So if there is a great deal of
+                    spatial coherency with discard, this is useful.</p>
+            </div>
+            <p>The computation of the normal is based on simple trigonometry. The normal of a
+                sphere does not change based on the sphere's radius. Therefore, we can compute the
+                normal in the space of the mapping, which uses a normalized sphere radius of 1. The
+                normal of a sphere at a point is in the same direction as the direction from the
+                sphere's center to that point on the surface.</p>
+            <p>Let's look at the 2D case. To have a 2D vector direction, we need an X and Y
+                coordinate. If we only have the X, but we know that the vector has a certain length,
+                then we can compute the Y component of the vector based on the Pythagorean
+                theorem:</p>
+            <div class="figure"><a name="idp10473"></a><p class="title"><b>Figure 13.2. Circle Point Computation</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="CirclePythagorean.svg" alt="Circle Point Computation"></div>
+            </div></div><br class="figure-break">
+            <div class="informalequation">
+                <math xmlns="http://www.w3.org/1998/Math/MathML" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <mrow>
+        <mtable>
+            <mtr>
+                <mtd>
+                    <msup>
+                        <mi>X</mi>
+                        <mn>2</mn>
+                    </msup>
+                    <mo>+</mo>
+                    <msup>
+                        <mi>Y</mi>
+                        <mn>2</mn>
+                    </msup>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <msup>
+                        <mi>R</mi>
+                        <mn>2</mn>
+                    </msup>
+                </mtd>
+            </mtr>
+            <mtr>
+                <mtd>
+                    <mi>Y</mi>
+                </mtd>
+                <mtd>
+                    <mo>=</mo>
+                </mtd>
+                <mtd>
+                    <mo>±</mo>
+                    <msqrt>
+                        <msup>
+                            <mi>R</mi>
+                            <mn>2</mn>
+                        </msup>
+                        <mo>-</mo>
+                        <msup>
+                            <mi>X</mi>
+                            <mn>2</mn>
+                        </msup>
+                    </msqrt>
+                </mtd>
+            </mtr>
+        </mtable>
+    </mrow>
+</math>
+            </div>
+            <p>We simply use the 3D version of this. We have X and Y from
+                    <code class="varname">mapping</code>, and we know the length is 1.0. So we compute the Z
+                value easily enough. And since we are only interested in the front-side of the
+                sphere, we know that the Z value must be positive.</p>
+            <p>Computing the position is also easy. The position of a point on the surface of a
+                sphere is the normal at that position scaled by the radius and offset by the center
+                point of the sphere.</p>
+            <p>One final thing. Notice the square-root at the end, being applied to our
+                accumulated lighting. This effectively simulates a gamma of 2.0, but without the
+                expensive <code class="function">pow</code> function call. A <code class="function">sqrt</code> call
+                is much less expensive and far more likely to be directly built into the shader
+                hardware. Yes, this is not entirely accurate, since most displays simulate the 2.2
+                gamma of CRT displays. But it's a lot less inaccurate than applying no correction at
+                all. We'll discuss a much cheaper way to apply proper gamma correction in future
+                tutorials.</p>
+        </div>
+    </div>
+    
+    
+    
+    
+    
+    
+</div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut12%20Glossary.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Illumination.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut13%20Correct%20Chicanery.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Glossary </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Correct Chicanery</td></tr></table></div></body></html>

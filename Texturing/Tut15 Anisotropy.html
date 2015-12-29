@@ -1,0 +1,179 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Anisotropy</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2015.html" title="Chapter 15. Many Images"><link rel="prev" href="Tut15%20Needs%20More%20Pictures.html" title="Needs More Pictures"><link rel="next" href="Tut15%20How%20Mipmapping%20Works.html" title="How Mipmap Selection Works"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Anisotropy</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tut15%20Needs%20More%20Pictures.html">Prev</a> </td><th width="60%" align="center">Chapter 15. Many Images</th><td width="20%" align="right"> <a accesskey="n" href="Tut15%20How%20Mipmapping%20Works.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp103"></a>Anisotropy</h2></div></div></div>
+        
+        
+        <p>Linear mipmap filtering is good; it eliminates most of the fluttering and oddities in
+            the distance. The problem is that it replaces a lot of that fluttering with... grey.
+            Mipmap-based filtering works reasonably well, but it tends to over-compensate.</p>
+        <p>For example, take the diagonal chain of squares at the left or right of the screen.
+            Expand the window horizontally if you need to.</p>
+        <div class="figure"><a name="idp11896"></a><p class="title"><b>Figure 15.10. Main Diagonal</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="MainDiagonal.png" alt="Main Diagonal"></div>
+        </div></div><br class="figure-break">
+        <p>Pixels that are along this diagonal should be mostly black. As they get farther and
+            farther away, the fragment area becomes more and more distorted length-wise, relative to
+            the texel area:</p>
+        <div class="figure"><a name="idp11902"></a><p class="title"><b>Figure 15.11. Long Fragment Area</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="DiagonalDiagram.svg" alt="Long Fragment Area"></div>
+        </div></div><br class="figure-break">
+        <p>With perfect filtering, we should get a value that is mostly black. But instead, we
+            get a much lighter shade of grey. The reason has to do with the specifics of mipmapping
+            and mipmap selection.</p>
+        <p>Mipmaps are pre-filtered versions of the main texture. The problem is that they are
+            filtered in both directions equally. This is fine if the fragment area is square, but
+            for oblong shapes, mipmap selection becomes more problematic. The particular algorithm
+            used is very conservative. It selects the smallest mipmap level possible for the
+            fragment area. So long, thin areas, in terms of the values fetched by the texture
+            function, will be no different from a square area.</p>
+        <div class="figure"><a name="idp11909"></a><p class="title"><b>Figure 15.12. Long Fragment with Sample Area</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="MipmapDiagonalDiagram.svg" alt="Long Fragment with Sample Area"></div>
+        </div></div><br class="figure-break">
+        <p>The large square represents the effective filtering box, while the diagonal area is
+            the one that we are actually sampling from. Mipmap filtering can often combine texel
+            values from outside of the sample area, and in this particularly degenerate case, it
+            pulls in texel values from very far outside of the sample area.</p>
+        <p>This happens when the filter box is not a square. A square filter box is said to be
+            isotropic: uniform in all directions. Therefore, a non-square filter box is anisotropic.
+            Filtering that takes into account the anisotropic nature of a particular filter box is
+            naturally called <em class="glossterm">anisotropic filtering.</em></p>
+        <p>The OpenGL specification is usually very particular about most things. It explains the
+            details of which mipmap is selected as well as how closeness is defined for linear
+            interpolation between mipmaps. But for anisotropic filtering, the specification is very
+            loose as to exactly how it works.</p>
+        <p>The general idea is this. The implementation will take some number of samples that
+            approximates the shape of the filter box in the texture. It will select from mipmaps,
+            but only when those mipmaps represent a closer filtered version of area being sampled.
+            Here is an example:</p>
+        <div class="figure"><a name="idp11919"></a><p class="title"><b>Figure 15.13. Parallelogram Sample Area</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="ParallelogramDiag.svg" alt="Parallelogram Sample Area"></div>
+        </div></div><br class="figure-break">
+        <p>Some of the samples that are entirely within the sample area can use smaller mipmaps
+            to reduce the number of samples actually taken. The above image only needs four samples
+            to approximate the sample area: the three small boxes, and the larger box in the
+            center.</p>
+        <p>All of the sample values will be averaged together based on a weighting algorithm that
+            best represents that sample's contribution to the filter box. Again, this is all very
+            generally; the specific algorithms are implementation dependent.</p>
+        <p>Run the tutorial again. The <span class="keycap"><strong>5</strong></span> key turns activates a form of
+            anisotropic filtering.</p>
+        <div class="figure"><a name="idp11928"></a><p class="title"><b>Figure 15.14. Anisotropic Filtering</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="LightAnisotropic.png" alt="Anisotropic Filtering"></div>
+        </div></div><br class="figure-break">
+        <p>That's an improvement.</p>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp11934"></a>Sample Control</h3></div></div></div>
+            
+            <p>Anisotropic filtering requires taking multiple samples from the various mipmaps.
+                The control on the quality of anisotropic filtering is in limiting the number of
+                samples used. Raising the maximum number of samples taken will generally make the
+                result look better, but it will also decrease performance.</p>
+            <p>This is done by setting the <code class="literal">GL_TEXTURE_MAX_ANISOTROPY_EXT</code>
+                sampler parameter:</p>
+            <pre class="programlisting">glSamplerParameteri(g_samplers[4], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[4], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glSamplerParameterf(g_samplers[4], GL_TEXTURE_MAX_ANISOTROPY_EXT, 4.0f);</pre>
+            <p>This represents the maximum number of samples that will be taken for any texture
+                accesses through this sampler. Note that we still use linear mipmap filtering in
+                combination with anisotropic filtering. While you could theoretically use
+                anisotropic filtering without mipmaps, you will get much better performance if you
+                use it in tandem with linear mipmap filtering.</p>
+            <p>The max anisotropy is a floating point value, in part because the specific nature
+                of anisotropic filtering is left up to the hardware. But in general, you can treat
+                it like an integer value.</p>
+            <p>There is a limit to the maximum anisotropy that we can provide. This limit is
+                implementation defined; it can be queried with <code class="function">glGetFloatv</code>,
+                since the value is a float rather than an integer. To set the max anisotropy to the
+                maximum possible value, we do this.</p>
+            <pre class="programlisting">GLfloat maxAniso = 0.0f;
+glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &amp;maxAniso);
+
+glSamplerParameteri(g_samplers[5], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+glSamplerParameteri(g_samplers[5], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glSamplerParameterf(g_samplers[5], GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAniso);</pre>
+            <p>To see the results of this, press the <span class="keycap"><strong>6</strong></span> key.</p>
+            <div class="figure"><a name="idp11947"></a><p class="title"><b>Figure 15.15. Max Anisotropic Filtering</b></p><div class="figure-contents">
+                
+                <div class="mediaobject"><img src="HeavyAnisotropic.png" alt="Max Anisotropic Filtering"></div>
+            </div></div><br class="figure-break">
+            <p>That looks pretty good now. There are still some issues out in the distance.
+                Remember that your image may not look exactly like this one, since the details of
+                anisotropic filtering are implementation specific.</p>
+            <p>You may be concerned that none of the filtering techniques produces perfect
+                results, even the max anisotropic one. In the distance, the texture still becomes a
+                featureless grey even along the diagonal. The reason is because rendering large
+                checkerboard is perhaps one of the most difficult problems from a texture filtering
+                perspective. This becomes even worse when it is viewed edge on, as we do
+                here.</p>
+            <p>Indeed, the repeating checkerboard texture was chosen specifically because it
+                highlights the issues in a very obvious way. A more traditional diffuse color
+                texture typically looks much better with reasonable filtering applied. Also, there
+                is one issue that we are currently missing that will be applied in the next
+                tutorial.</p>
+        </div>
+        <div class="section"><div class="titlepage"><div><div><h3 class="title"><a name="idp11955"></a>A Matter of EXT</h3></div></div></div>
+            
+            <p>You may have noticed the <span class="quote">“<span class="quote">EXT</span>”</span> suffix on
+                    <code class="literal">GL_TEXTURE_MAX_ANISOTROPY_EXT</code>. This suffix means that this
+                enumerator comes from an <em class="glossterm">OpenGL extension</em>. First and
+                foremost, this means that this enumerator is not part of the OpenGL
+                Specification.</p>
+            <p>An OpenGL extension is a modification of OpenGL exposed by a particular
+                implementation. Extensions have published documents that explain how they change the
+                standard GL specification; this allows users to be able to use them correctly.
+                Because different implementations of OpenGL will implement different sets of
+                extensions, there is a mechanism for querying whether an extension is implemented.
+                This allows user code to detect the availability of certain hardware features and
+                use them or not as needed.</p>
+            <p>There are several kinds of extensions. There are proprietary extensions; these are
+                created by a particular vendor and are rarely if ever implemented by another vendor.
+                In some cases, they are based on intellectual property owned by that vendor and thus
+                cannot be implemented without explicit permission. The enums and functions for these
+                extensions end with a suffix based on the proprietor of the extension. An
+                NVIDIA-only extension would end in <span class="quote">“<span class="quote">NV,</span>”</span> for example.</p>
+            <p>ARB extensions are a special class of extension that is blessed by the OpenGL ARB
+                (who governs the OpenGL specification). These are typically created as a
+                collaboration between multiple members of the ARB. Historically, they have
+                represented functionality that implementations were highly recommended to
+                implement.</p>
+            <p>EXT extensions are a class between the two. They are not proprietary extensions,
+                and in many cases were created through collaboration among ARB members. Yet at the
+                same time, they are not <span class="quote">“<span class="quote">blessed</span>”</span> by the ARB. Historically, EXT
+                extensions have been used as test beds for functionality and APIs, to ensure that
+                the API is reasonable before promoting the feature to OpenGL core or to an ARB
+                extension.</p>
+            <p>The <code class="literal">GL_TEXTURE_MAX_ANISOTROPY_EXT</code> enumerator is part of the
+                EXT_texture_filter_anisotropic extension. Since it is an extension rather than core
+                functionality, it is usually necessary for the user to detect if the extension is
+                available and only use it if it was. If you look through the tutorial code, you will
+                find no code that does this test.</p>
+            <p>The reason for that is simply a lack of need. The extension itself dates back to
+                the GeForce 256 (not the GeForce 250GT; the original GeForce), way back in 1999.
+                Virtually all GPUs since then have implemented anisotropic filtering and exposed it
+                through this extension. That is why the tutorial does not bother to check for the
+                presence of this extension; if your hardware can run these tutorials, then it
+                exposes the extension.</p>
+            <p>If it is so ubiquitous, why has the ARB not adopted the functionality into core
+                OpenGL? Why must anisotropic filtering be an extension that is de facto guaranteed
+                but not technically part of OpenGL? This is because OpenGL must be Open.</p>
+            <p>The <span class="quote">“<span class="quote">Open</span>”</span> in OpenGL refers to the availability of the specification,
+                but also to the ability for anyone to implement it. As it turns out, anisotropic
+                filtering has intellectual property issues associated with it. If it were adopted
+                into the core, then core OpenGL would not be able to be implemented without
+                licensing the technology from the holder of the IP. It is not a proprietary
+                extension because none of the ARB members have the IP; it is held by a third
+                party.</p>
+            <p>Therefore, you may assume that anisotropic filtering is available through OpenGL.
+                But it is technically an extension.</p>
+        </div>
+
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tut15%20Needs%20More%20Pictures.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2015.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut15%20How%20Mipmapping%20Works.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Needs More Pictures </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> How Mipmap Selection Works</td></tr></table></div></body></html>

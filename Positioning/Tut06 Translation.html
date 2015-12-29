@@ -1,0 +1,315 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script><script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script><script>
+            hljs.configure({"languages": ["c++", "glsl"]})
+            $(document).ready(function() {
+              $('pre').each(function(i, block) {
+                hljs.highlightBlock(block);
+              });
+            });
+        </script><title>Translation</title><link rel="stylesheet" type="text/css" href="../chunked.css"><meta name="generator" content="DocBook XSL Stylesheets V1.79.1"><link rel="home" href="../index.html" title="Learning Modern 3D Graphics Programming"><link rel="up" href="Tutorial%2006.html" title="Chapter 6. Objects in Motion"><link rel="prev" href="Tutorial%2006.html" title="Chapter 6. Objects in Motion"><link rel="next" href="Tut06%20Scale.html" title="Scale"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Translation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="Tutorial%2006.html">Prev</a> </td><th width="60%" align="center">Chapter 6. Objects in Motion</th><td width="20%" align="right"> <a accesskey="n" href="Tut06%20Scale.html">Next</a></td></tr></table><hr></div><div class="section"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="idp45"></a>Translation</h2></div></div></div>
+        
+        
+        <p>The simplest space transformation operation is translation. Indeed, we have not only
+            seen this transform before, it has been used in all of the tutorials with a perspective
+            projection. Recall this line from the vertex shaders:</p>
+        <pre class="programlisting">vec4 cameraPos = position + vec4(offset.x, offset.y, 0.0, 0.0);</pre>
+        <p>This is a <em class="glossterm">translation</em> transformation: it is used to position
+            the origin point of the initial space relative to the destination space. Since all of
+            the coordinates in a space are relative to the origin point of that space, all a
+            translation needs to do is add a vector to all of the coordinates in that space. The
+            vector added to these values is the location of where the user wants the origin point
+            relative to the destination coordinate system.</p>
+        <div class="figure"><a name="idp4261"></a><p class="title"><b>Figure 6.2. Coordinate System Translation in 2D</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="TranslationTransform.svg" alt="Coordinate System Translation in 2D"></div>
+        </div></div><br class="figure-break">
+        <p>Here is a more concrete example. Let us say that an object which in its model space is
+            near its origin. This means that, if we want to see that object in front of the camera,
+            we must position the origin of the model in front of the camera. If the extent of the
+            model is only [-1, 1] in model space, we can ensure that the object is visible by adding
+            this vector to all of the model space coordinates: (0, 0, -3). This puts the origin of
+            the model at that position in camera space.</p>
+        <p>Translation is ultimately just that simple. So let's make it needlessly complex. And
+            the best tool for doing that: matrices. Oh, we could just use a 3D uniform vector to
+            pass an offset to do the transformation. But matrices have hidden benefits we will
+            explore very soon.</p>
+        <p>All of our position vectors are 4D vectors, with a final W coordinate that is always
+            1.0. In <a class="link" href="Tut04%20The%20Matrix%20Has%20You.html" title="The Matrix has You">Tutorial 04,</a> we took advantage of this with
+            our perspective transformation matrix. The equation for the Z coordinate needed an
+            additive term, so we put that term in the W column of the transformation matrix. Matrix
+            multiplication causes the value in the W column to be multiplied by the W coordinate of
+            the vector (which is 1) and added to the sum of the other terms.</p>
+        <p>But how do we keep the matrix from doing something to the other terms? We only want
+            this matrix to apply an offset to the position. We do not want to have it modify the
+            position in some other way.</p>
+        <p>This is done by modifying an <em class="glossterm">identity matrix.</em> An identity
+            matrix is a matrix that, when performing matrix multiplication, will return the matrix
+            (or vector) it was multiplied with. It is sort of like the number 1 with regular
+            multiplication: 1*X = X. The 4x4 identity matrix looks like this:</p>
+        <div class="equation"><a name="idp4273"></a><p class="title"><b>Equation 6.2. Identity Matrix</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mfenced open="[" close="]" separators=",">
+    <mrow>
+      <mtable>
+        <mtr>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+        </mtr>
+        <mtr>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>0</mn>
+          </mtd>
+          <mtd>
+            <mn>1</mn>
+          </mtd>
+        </mtr>
+      </mtable>
+    </mrow>
+  </mfenced>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>To modify the identity matrix into one that is suitable for translation, we simply put
+            the offset into the W column of the identity matrix.</p>
+        <div class="equation"><a name="idp4317"></a><p class="title"><b>Equation 6.3. Translation Matrix</b></p><div class="equation-contents">
+            
+            <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+<mrow>
+  <mtable>
+    <mtr>
+      <mtd>
+        <mtext>Translation</mtext>
+        <mo>=</mo>
+        <mfenced open="(" close=")" separators=",">
+          <mrow>
+            <mi>x</mi>
+          </mrow>
+          <mrow>
+            <mi>y</mi>
+          </mrow>
+          <mrow>
+            <mi>z</mi>
+          </mrow>
+        </mfenced>
+      </mtd>
+    </mtr>
+    <mtr>
+      <mtd>
+        <mfenced open="[" close="]" separators=",">
+          <mrow>
+            <mtable>
+              <mtr>
+                <mtd>
+                  <mn>1</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mi>x</mi>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>1</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mi>y</mi>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>1</mn>
+                </mtd>
+                <mtd>
+                  <mi>z</mi>
+                </mtd>
+              </mtr>
+              <mtr>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>0</mn>
+                </mtd>
+                <mtd>
+                  <mn>1</mn>
+                </mtd>
+              </mtr>
+            </mtable>
+          </mrow>
+        </mfenced>
+      </mtd>
+    </mtr>
+  </mtable>
+</mrow>
+</math>
+        </div></div><br class="equation-break">
+        <p>The tutorial project cleverly titled <span class="propername">Translation</span>
+            performs translation operations.</p>
+        <p>This tutorial renders 3 of the same object, all in different positions. One of the
+            objects is positioned in the center of the screen, and the other two's positions orbit
+            it at various speeds.</p>
+        <p>Because of the prevalence of matrix math, this is the first tutorial that uses the GLM
+            math library. So let's take a look at the shader program initialization code to see it
+            in action.</p>
+        <div class="example"><a name="idp4378"></a><p class="title"><b>Example 6.1. Translation Shader Initialization</b></p><div class="example-contents">
+            
+            <pre class="programlisting">void InitializeProgram()
+{
+    std::vector&lt;GLuint&gt; shaderList;
+    
+    shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER,
+        "PosColorLocalTransform.vert"));
+    shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER,
+        "ColorPassthrough.frag"));
+    
+    theProgram = Framework::CreateProgram(shaderList);
+    
+    positionAttrib = glGetAttribLocation(theProgram, "position");
+    colorAttrib = glGetAttribLocation(theProgram, "color");
+    
+    modelToCameraMatrixUnif = glGetUniformLocation(theProgram,
+        "modelToCameraMatrix");
+    cameraToClipMatrixUnif = glGetUniformLocation(theProgram,
+        "cameraToClipMatrix");
+    
+    float fzNear = 1.0f; float fzFar = 45.0f;
+    
+    cameraToClipMatrix[0].x = fFrustumScale;
+    cameraToClipMatrix[1].y = fFrustumScale;
+    cameraToClipMatrix[2].z = (fzFar + fzNear) / (fzNear - fzFar);
+    cameraToClipMatrix[2].w = -1.0f;
+    cameraToClipMatrix[3].z = (2 * fzFar * fzNear) / (fzNear - fzFar);
+    
+    glUseProgram(theProgram);
+    glUniformMatrix4fv(cameraToClipMatrixUnif, 1, GL_FALSE,
+        glm::value_ptr(cameraToClipMatrix));
+    glUseProgram(0);
+}</pre>
+        </div></div><br class="example-break">
+        <p>GLM takes a unique approach for a vector/matrix math library. It attempts to emulate
+            GLSL's approach to vector operations where possible. It uses C++ operator overloading to
+            effectively emulate GLSL. In many cases, GLM-based expressions would compile in
+            GLSL.</p>
+        <p>The matrix <code class="varname">cameraToClipMatrix</code> is defined as a
+                <span class="type">glm::mat4</span>, which has the same properties as a GLSL <span class="type">mat4.</span>
+            Array indexing of a <span class="type">mat4</span>, whether GLM or GLSL, returns the zero-based
+                <span class="emphasis"><em>column</em></span> of the matrix as a <span class="type">vec4</span>.</p>
+        <p>The <code class="function">glm::value_ptr</code> function is used to get a direct pointer to
+            the matrix data, in column-major order. This is useful for uploading data to OpenGL, as
+            shown with the call to <code class="function">glUniformMatrix4fv</code>.</p>
+        <p>With the exception of getting a second uniform location (for our model transformation
+            matrix), this code functions exactly as it did in previous tutorials.</p>
+        <p>There is one important note: <code class="varname">fFrustumScale</code> is not 1.0 anymore.
+            Until now, the relative sizes of objects were not particularly meaningful. Now that we
+            are starting to deal with more complex objects that have a particular scale, picking a
+            proper field of view for the perspective projection is very important.</p>
+        <p>The new <code class="varname">fFrustumScale</code> is computed with this code:</p>
+        <div class="example"><a name="idp4397"></a><p class="title"><b>Example 6.2. Frustum Scale Computation</b></p><div class="example-contents">
+            
+            <pre class="programlisting">float CalcFrustumScale(float fFovDeg)
+{
+    const float degToRad = 3.14159f * 2.0f / 360.0f;
+    float fFovRad = fFovDeg * degToRad;
+    return 1.0f / tan(fFovRad / 2.0f);
+}
+
+const float fFrustumScale = CalcFrustumScale(45.0f);</pre>
+        </div></div><br class="example-break">
+        <p>The function <code class="function">CalcFrustumScale</code> computes the frustum scale based on
+            a field-of-view angle in degrees. The field of view in this case is the angle between
+            the forward direction and the direction of the farmost-extent of the view.</p>
+        <p>This project, and many of the others in this tutorial, uses a fairly complex bit of
+            code to manage the transform matrices for the various object instances. There is an
+                <code class="classname">Instance</code> object for each actual object; it has a function
+            pointer that is used to compute the object's offset position. The
+                <code class="classname">Instance</code> object then takes that position and computes a
+            transformation matrix, based on the current elapsed time, with this function:</p>
+        <div class="example"><a name="idp4405"></a><p class="title"><b>Example 6.3. Translation Matrix Generation</b></p><div class="example-contents">
+            
+            <pre class="programlisting">glm::mat4 ConstructMatrix(float fElapsedTime)
+{
+    glm::mat4 theMat(1.0f);
+    
+    theMat[3] = glm::vec4(CalcOffset(fElapsedTime), 1.0f);
+    
+    return theMat;
+}</pre>
+        </div></div><br class="example-break">
+        <p>The <span class="type">glm::mat4</span> constructor that takes only a single value constructs what
+            is known as a diagonal matrix. That is a matrix with all zeros except for along the
+            diagonal from the upper-left to the lower-right. The values along that diagonal will be
+            the value passed to the constructor. An identity matrix is just a diagonal matrix with 1
+            as the value along the diagonal.</p>
+        <p>This function simply replaces the W column of that identity matrix with the offset
+            value.</p>
+        <p>This all produces the following:</p>
+        <div class="figure"><a name="idp4412"></a><p class="title"><b>Figure 6.3. Translation Project</b></p><div class="figure-contents">
+            
+            <div class="mediaobject"><img src="Translations.png" alt="Translation Project"></div>
+        </div></div><br class="figure-break">
+    </div><a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="Tutorial%2006.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="Tutorial%2006.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="Tut06%20Scale.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Chapter 6. Objects in Motion </td><td width="20%" align="center"><a accesskey="h" href="../index.html">Home</a></td><td width="40%" align="right" valign="top"> Scale</td></tr></table></div></body></html>
