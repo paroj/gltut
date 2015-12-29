@@ -42,9 +42,21 @@ hFile:write([[
 		<script type="text/javascript"
           src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML">
         </script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css" />
 	</xsl:template>
 	<xsl:template name="generate.html.title"/>
 ]]);
+
+hFile:write([[
+	<xsl:template name="user.footer.content">
+        <div class="github-fork-ribbon-wrapper left">
+            <div class="github-fork-ribbon">
+                <a href="https://github.com/paroj/gltut">Fork me on GitHub</a>
+            </div>
+        </div>
+	</xsl:template>
+]]);
+
 
 hFile:write([[</xsl:stylesheet> 
 ]]);
