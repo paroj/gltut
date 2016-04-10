@@ -21,21 +21,18 @@ GLuint g_gammaProgram = 0;
 
 void InitializeProgram()
 {
-	GLuint vertexShader = Framework::LoadShader(GL_VERTEX_SHADER, "screenCoords.vert");
 	std::vector<GLuint> shaderList;
 
-	shaderList.push_back(vertexShader);
+	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "screenCoords.vert"));
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "textureNoGamma.frag"));
 
 	g_noGammaProgram = Framework::CreateProgram(shaderList);
-	glDeleteShader(shaderList.back());
 
-	shaderList.pop_back();
+	shaderList.clear();
+	shaderList.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "screenCoords.vert"));
 	shaderList.push_back(Framework::LoadShader(GL_FRAGMENT_SHADER, "textureGamma.frag"));
 
 	g_gammaProgram = Framework::CreateProgram(shaderList);
-	glDeleteShader(shaderList.back());
-	glDeleteShader(vertexShader);
 
 	GLuint projectionBlock = glGetUniformBlockIndex(g_noGammaProgram, "Projection");
 	glUniformBlockBinding(g_noGammaProgram, projectionBlock, g_projectionBlockIndex);
