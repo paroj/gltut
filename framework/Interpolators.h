@@ -7,6 +7,18 @@
 #include <algorithm>
 #include <iterator>
 
+// forward declare some functions needed by instantiations
+// FIXME this is certainly the wrong place for them
+typedef std::pair<float, float> MaxIntensityData;
+typedef std::vector<MaxIntensityData> MaxIntensityVector;
+typedef std::pair<glm::vec4, float> LightVectorData;
+typedef std::vector<LightVectorData> LightVector;
+float distance(const glm::vec3 &lhs, const glm::vec3 &rhs);
+glm::vec4 GetValue(const LightVectorData &data);
+float GetTime(const LightVectorData &data);
+float GetValue(const MaxIntensityData &data);
+float GetTime(const MaxIntensityData &data);
+
 namespace Framework
 {
 	template<typename ValueType>

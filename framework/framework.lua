@@ -82,7 +82,7 @@ function SetupProject(projName, ...)
 			links {"glu32", "opengl32", "gdi32", "winmm", "user32"}
 
 	    configuration "linux"
-	        links {"GL", "GLU", "X11"}
+	        links {"GL", "GLU", "X11", "pthread"}
 
 	SetupFrameworkProj()
 

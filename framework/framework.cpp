@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <string.h>
 #include <glload/gl_3_3.h>
-#include <glload/gll.hpp>
+#include <glload/gl_load.hpp>
 #include <glutil/Shader.h>
 #include <GL/freeglut.h>
 #include "framework.h"
@@ -87,7 +87,7 @@ void keyboard(unsigned char key, int x, int y);
 unsigned int defaults(unsigned int displayMode, int &width, int &height);
 
 void APIENTRY DebugFunc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-			   const GLchar* message, GLvoid* userParam)
+			   const GLchar* message, const GLvoid* userParam)
 {
 	std::string srcName;
 	switch(source)
