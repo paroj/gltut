@@ -282,13 +282,9 @@ void main()
                     </imageobject>
                 </mediaobject>
             </figure>
-            <informalfigure>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="PythagoreanTheorem.svg" />
-                    </imageobject>
-                </mediaobject>
-            </informalfigure>
+            <informalequation>
+                <xi:include href="PythagoreanTheorem.mathml" />
+            </informalequation>
             <para>We simply use the 3D version of this. We have X and Y from
                     <varname>mapping</varname>, and we know the length is 1.0. So we compute the Z
                 value easily enough. And since we are only interested in the front-side of the
