@@ -35,11 +35,11 @@ hFile:write([[
 		<script type="text/javascript"
           src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML">
         </script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/styles/zenburn.min.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.0.0/languages/glsl.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/styles/zenburn.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.4.0/languages/glsl.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script>
             hljs.configure({"languages": ["c++", "glsl"]})
             $(document).ready(function() {
@@ -54,11 +54,7 @@ hFile:write([[
 
 hFile:write([[
 	<xsl:template name="user.footer.content">
-        <div class="github-fork-ribbon-wrapper left">
-            <div class="github-fork-ribbon">
-                <a href="https://github.com/paroj/gltut">Fork me on GitHub</a>
-            </div>
-        </div>
+        <a class="github-fork-ribbon left-top" href="https://github.com/paroj/gltut" title="Fork me on GitHub">Fork me on GitHub</a>
 	</xsl:template>
 ]]);
 
