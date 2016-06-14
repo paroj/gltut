@@ -495,7 +495,7 @@
                     a linear RGB colorspace.</para>
             </note>
             <para>So a pixel in OpenGL is defined as 3 values on the range [0, 1] that represent a
-                color in a linear RGB colorspace. By combining different intensities of this 3
+                color in a linear RGB colorspace. By combining different intensities of these 3
                 colors, we can generate millions of different color shades. This will get extended
                 slightly, as we deal with transparency later.</para>
         </section>
@@ -506,7 +506,7 @@
                 shaders can only be executed at certain points in that rendering process. These
                     <glossterm>shader stages</glossterm> represent hooks where a user can add
                 arbitrary algorithms to create a specific visual effect.</para>
-            <para>In term of rasterization as outlined above, there are several shader stages where
+            <para>In terms of rasterization, as outlined above, there are several shader stages where
                 arbitrary processing is both economical for performance and offers high utility to
                 the user. For example, the transformation of an incoming vertex to clip space is a
                 useful hook for user-defined code, as is the processing of a fragment into final
