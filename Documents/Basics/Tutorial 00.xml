@@ -495,7 +495,7 @@
                     a linear RGB colorspace.</para>
             </note>
             <para>So a pixel in OpenGL is defined as 3 values on the range [0, 1] that represent a
-                color in a linear RGB colorspace. By combining different intensities of this 3
+                color in a linear RGB colorspace. By combining different intensities of these 3
                 colors, we can generate millions of different color shades. This will get extended
                 slightly, as we deal with transparency later.</para>
         </section>
