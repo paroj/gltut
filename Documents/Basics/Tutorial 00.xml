@@ -653,7 +653,7 @@ GL_MODIFY->opacity = 0.4f;
                 hardware makers themselves. On Mac OSX, OpenGL implementations are controlled by
                 Apple; they decide what version of OpenGL is exposed and what additional
                 functionality can be provided to the user. Apple writes much of the OpenGL
-                implementation on Mac OSX, which the hardware developers writing to an Apple-created
+                implementation on Mac OSX, with the hardware developers writing to an Apple-created
                 internal driver API. On Linux, things are... complicated.</para>
             <para>The long and short of this is that if you are writing a program and it seems to be
                 exhibiting off-spec behavior, that is the fault of the maker of your OpenGL
@@ -782,7 +782,7 @@ GL_MODIFY->opacity = 0.4f;
                 <glossterm>vertex</glossterm>
                 <glossdef>
                     <para>One of the 3 elements that make up a triangle. Vertices can contain arbitrary
-                        of data, but among that data is a 3-dimensional position representing the
+                        data, but among that data is a 3-dimensional position representing the
                         location of the vertex in 3D space.</para>
                 </glossdef>
             </glossentry>
