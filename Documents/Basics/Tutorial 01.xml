@@ -5,7 +5,7 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 01.html" ?>
     <title>Hello, Triangle!</title>
-    <para>It is traditional for tutorials and introductory books on programming languages start with
+    <para>It is traditional for tutorials and introductory books on programming languages to start with
         a program called <quote>Hello, World!</quote> This program is the simplest code necessary to
         print the text <quote>Hello, World!</quote> It serves as a good test to see that one's build
         system is functioning and that one can compile and execute code.</para>
@@ -74,7 +74,7 @@ glutSwapBuffers();</programlisting>
             in the previous function.</para>
         <para>The next line sets the current shader program to be used by all subsequent rendering
             commands. We will go into detail as to how this works later.</para>
-        <para>The next three commands all set state. These command set up the coordinates of the
+        <para>The next three commands all set state. These commands set up the coordinates of the
             triangle to be rendered. They tell OpenGL the location in memory that the positions of
             the triangle will come from. The specifics of how these work will be detailed
             later.</para>
@@ -86,7 +86,7 @@ glutSwapBuffers();</programlisting>
         <para>The last line, <function>glutSwapBuffers</function>, is a FreeGLUT command, not an
             OpenGL command. The OpenGL framebuffer, as we set up in
                 <filename>framework.cpp</filename>, is double-buffered. This means that the image
-            that are currently being shown to the user is <emphasis>not</emphasis> the same image we
+            that is currently being shown to the user is <emphasis>not</emphasis> the same image we
             are rendering to. Thus, all of our rendering is hidden from view until it is shown to
             the user. This way, the user never sees a half-rendered image.
                 <function>glutSwapBuffers</function> is the function that causes the image we are
@@ -647,7 +647,7 @@ void main()
         <title>Cleanup</title>
         <para>The tutorial allocates a lot of OpenGL resources. It allocates a buffer object, which
             represents memory on the GPU. It creates two shader objects and a program object, all of
-            which stored in memory owned by OpenGL. But it only deletes the shader objects; nothing
+            which are stored in memory owned by OpenGL. But it only deletes the shader objects; nothing
             else.</para>
         <para>Part of this is due to the nature of FreeGLUT, which does not provide hooks for a
             cleanup function. But part of it is also due to the nature of OpenGL itself. In a simple
