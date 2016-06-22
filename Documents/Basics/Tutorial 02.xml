@@ -7,8 +7,8 @@
     <title>Playing with Colors</title>
     <para>This tutorial will show how to provide some color to the triangle from the previous
         tutorial. Instead of just giving the triangle a solid color, we will use two methods to
-        provide it with varying color across its surface. The methods are to using the fragment's
-        position to compute a color and to using per-vertex data to compute a color.</para>
+        provide it with varying color across its surface. The first method will use the fragment's
+        position to compute a color, while the second will use per-vertex data to compute a color.</para>
     <section xml:id="FragPosition">
         <title>Fragment Position Display</title>
         <para>As we stated in the overview, part of the fragment's data includes the position of the
@@ -171,7 +171,7 @@ void main()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }]]></programlisting>
             </example>
-            <para>The code has not changed, because the sizes of the array is computed by the
+            <para>The code has not changed, because the size of the array is computed by the
                 compiler with the <literal>sizeof</literal> directive. Since we added a few elements
                 to the buffer, the computed size naturally grows bigger.</para>
             <para>Also, you may notice that the positions are different from prior tutorials. The
@@ -290,7 +290,7 @@ float *colorAttribArray[4] = (float *[4])(&(bufferObject + 48));]]></programlist
                         </imageobject>
                     </mediaobject>
                 </figure>
-                <para>As before, every 3 vertices process is transformed into a triangle.</para>
+                <para>As before, every 3 vertices processed are transformed into a triangle.</para>
             </section>
         </section>
         <section>
@@ -325,7 +325,7 @@ void main()
                 this case, the output variable is called <varname>theColor</varname> and is of type
                     <type>vec4</type>.</para>
             <para>The <literal>smooth</literal> keyword is an <glossterm>interpolation
-                    qualifier</glossterm>. We will see what this means in a bit later.</para>
+                    qualifier</glossterm>. We will see what this means a bit later.</para>
             <para>Of course, this simply defines the output variable. In <function>main</function>,
                 we actually write to it, assigning to it the value of <varname>color</varname> that
                 was given as a vertex attribute. This being shader code, we could have used some
