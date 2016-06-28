@@ -217,7 +217,7 @@
                     <glossterm>texel</glossterm>. Since texture data is accessed in OpenGL by the
                 texel, we want our array of normalized unsigned integers to each be stored in a
                 single texel. So our input data has only one value per texel, that value is 8-bits
-                in size, and it represents an normalized unisgned integer.</para>
+                in size, and it represents an normalized unsigned integer.</para>
             <para>The last three parameters describe this to OpenGL. The parameter
                     <literal>GL_RED</literal> says that we are uploading a single component to the
                 texture, namely the red component. Components of texels are named after color
