@@ -322,7 +322,7 @@ void main()
                                 <para>ui</para>
                             </entry>
                             <entry>
-                                <para>unisgned int</para>
+                                <para>unsigned int</para>
                             </entry>
                         </row>
                         <row>
@@ -506,7 +506,7 @@ void main()
         </example>
         <para>This function is similar to the periodic loop in the vertex shader (which did not
             change from the last time we saw it). Instead of using sin/cos functions to compute the
-            coordinates of a circle, interpolates between two colors based on how far it is through
+            coordinates of a circle, it interpolates between two colors based on how far it is through
             the loop. When it is at the start of the loop, the triangle will be
                 <varname>firstColor</varname>, and when it is at the end of the loop, it will be
                 <varname>secondColor</varname>.</para>
