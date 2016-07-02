@@ -137,7 +137,7 @@
             world into the 2D one that we see. It is the 2D world in which the triangles are
             actually rendered.</para>
         <para>Finite projections, which are the ones we are interested in, only project objects onto
-            a finite space of the lower dimensionality. For a 3D to 2D projection, there is a finite
+            a finite space of the lower dimensionality. For a 3D-to-2D projection, there is a finite
             plane on which the world is projected. For 2D to 1D, there is a bounded line that is the
             result of the projection.</para>
         <para>An <glossterm>orthographic projection</glossterm> is a very simplistic projection.
@@ -264,7 +264,7 @@
                 no-op.</para>
             <note>
                 <para>You may be wondering why this arbitrary division-by-W step exists. You may
-                    also be wondering, in this modern days of vertex shaders that can do vector
+                    also be wondering, in this modern day of vertex shaders that can do vector
                     divisions very quickly, why we should bother to use the hardware division-by-W
                     step at all. There are several reasons. One we will cover in just a bit when we deal
                     with matrices. More important ones will be covered in future tutorials. Suffice it to
@@ -311,7 +311,7 @@
                 plane; vertices that have a positive Z value are behind the projection plane.</para>
             <para>Now, we will make one more simplifying assumption: the location of the center of
                 the perspective plane is fixed at (0, 0, -1) in camera space. Therefore, since the
-                projection plane is pointing down the -Z axis, eye's location relative to the plane
+                projection plane is pointing down the -Z axis, the eye's location relative to the plane
                 of projection is (0, 0, -1). Thus, the E<subscript>z</subscript> value, the offset
                 from the projection plane to the eye, is always -1. This means that our perspective
                 term, when phrased as division rather than multiplication, is simply
@@ -768,8 +768,8 @@ glUseProgram(0);]]></programlisting>
             width to its height. Currently, when you change the window's dimensions, the code calls
                 <function>glViewport</function> to tell OpenGL the new size. This changes OpenGL's
             viewport transform, which goes from normalized device coordinates to window coordinates.
-            NDC space has a 1:1 aspect ratio; the width and height of NDC space is 2x2. As long as
-            window coordinates also has a 1:1 width to height ratio, objects that appear square in
+            NDC space has a 1:1 aspect ratio; the width and height of NDC space is 2x2. As long as the
+            window coordinates also have a 1:1 width-to-height ratio, objects that appear square in
             NDC space will still be square in window space. Once window space became non-1:1, it
             caused the transformation to also become not a square.</para>
         <para>What exactly can be done about this? Well, that depends on what you intend to
@@ -933,7 +933,7 @@ glUseProgram(0);]]></programlisting>
                         <para>These two functions control how face culling works.
                                 <function>glFrontFace</function> defines which triangle winding
                             order is considered the front. <function>glCullFace</function> defines
-                            what face gets culled. This function can also cull
+                            which faces get culled. This function can also cull
                                 <emphasis>all</emphasis> faces, though this is not useful if you
                             want to get rendering done.</para>
                         <para>These functions only do something useful if
@@ -984,14 +984,14 @@ glUseProgram(0);]]></programlisting>
                 <glossterm>orthographic projection</glossterm>
                 <glossdef>
                     <para>A form of projection that simply negates all offsets in the direction
-                        perpendicular to the surface of projection. When doing a 3D to 2D
-                        orthographic projection, if the plane is axis aligned, then the projection
+                        perpendicular to the surface of projection. When doing a 3D-to-2D
+                        orthographic projection, if the plane is axis-aligned, then the projection
                         can be done simply. The coordinate that is perpendicular to the plane of
-                        projection is simply discarded. If the plane is not axis aligned, then the
+                        projection is simply discarded. If the plane is not axis-aligned, then the
                         math is more complex, but it has the same effect.</para>
                     <para>Orthographic projections are uniform in the direction of the projection.
-                        Because of the uniformity, lines that are parallel in the higher dimension
-                        space are guaranteed to remain parallel in the lower dimension space.</para>
+                        Because of the uniformity, lines that are parallel in the higher dimensional
+                        space are guaranteed to remain parallel in the lower dimensional space.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -1000,7 +1000,7 @@ glUseProgram(0);]]></programlisting>
                     <para>A form of projection that projects onto the surface based on a position,
                         the eye position. Perspective projections attempt to emulate a pin-hole
                         camera model, which is similar to how human eyes see. The positions of
-                        objects in space are projected onto the surface of projection radially based
+                        objects in space are projected onto the surface of projection radially, based
                         on the eye position.</para>
                     <para>Parallel lines in the higher dimension are <emphasis>not</emphasis>
                         guaranteed to remain parallel in the lower dimension. They might, but they
@@ -1011,8 +1011,8 @@ glUseProgram(0);]]></programlisting>
                 <glossterm>frustum</glossterm>
                 <glossdef>
                     <para>Geometrically, a frustum is 3D shape; a pyramid that has the top chopped
-                        off. The view of a 3D to 2D perspective projection, from the eye through the
-                        plane of projection has the shape of a frustum.</para>
+                        off. The view of a 3D-to-2D perspective projection, from the eye through the
+                        plane of projection, has the shape of a frustum.</para>
                 </glossdef>
             </glossentry>
             <glossentry>
@@ -1049,7 +1049,7 @@ glUseProgram(0);]]></programlisting>
                         This leaves the Z axis unbounded, which NDC space does not allow.</para>
                     <para>The camera zNear and zFar values are numbers that define the minimum and
                         maximum extent of Z in the perspective projection transform. These values
-                        are positive value, though they represent negative values in camera space.
+                        are positive, though they represent negative values in camera space.
                         Using the standard perspective transform, both values must be greater than
                         0, and zNear must be less than zFar.</para>
                 </glossdef>
