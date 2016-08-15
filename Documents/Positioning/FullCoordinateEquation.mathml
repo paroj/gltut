@@ -87,7 +87,7 @@
 		</mtr>
 		<mtr>
 			<mtd columnalign="right">
-				<mtext>Origin Vectors:</mtext>
+				<mtext>Origin Point:</mtext>
 			</mtd>
 			<mtd>
 				<mfenced open="(" close=")" separators=",">
