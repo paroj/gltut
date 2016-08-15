@@ -579,7 +579,7 @@ glEnable(GL_DEPTH_TEST);</programlisting>
         <para>This is why it is called a <quote>fan</quote>. The number of vertices in a triangle
             fan vertex stream must be 3 or greater, but can be otherwise any number. For N vertices
             in a stream, triangle fans will generate N-2 triangles.</para>
-        <para>The cylinder mesh uses two fans to cap render the end pieces of the cylinder.</para>
+        <para>The cylinder mesh uses two fans to render the end pieces (<quote>caps</quote>) of the cylinder.</para>
         <para>The <quote>tri-strip</quote> in the cylinder mesh represents the
                 <literal>GL_TRIANGLE_STRIP</literal> primitive. As the name suggests, it has a
             triangle primitive type. The primitive representation means that every 3 adjacent
