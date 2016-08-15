@@ -387,7 +387,7 @@ const float fFrustumScale = CalcFrustumScale(45.0f);</programlisting>
         <section>
             <title>Inversion and Winding Order</title>
             <para>Scales can be theoretically negative, or even 0. A scale of 0 causes the basis
-                vector in that direction to become 0 entirely. An basis vector with no length means
+                vector in that direction to become 0 entirely. A basis vector with no length means
                 that a dimension has effectively been lost. The resulting transform squashes
                 everything in that direction down to the origin. A 3D space becomes a 2D space (or
                 1D or 0D, depending on how many axes were scaled).</para>
@@ -968,7 +968,7 @@ gl_Position = cameraToClipMatrix * temp;</programlisting>
                 <glossdef>
                     <para>This defines what the coordinates used to refer to positions actually
                         mean. Coordinate systems have a dimensionality (the number of coordinates),
-                        an basis vector for each of the dimensions, and an origin position. A
+                        a basis vector for each of the dimensions, and an origin position. A
                         coordinate system of 3 dimensions therefore is defined by 3 vectors and a
                         position. The X, Y and Z coordinates in that coordinate system refer to the
                         value you get when you multiply the X, Y, Z values into the X, Y, and Z
