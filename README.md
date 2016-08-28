@@ -9,6 +9,7 @@ The HTML form of the documentation can be found on: https://paroj.github.io/gltu
 
 The [License.txt](License.txt) file contains the licensing information for the materials distributed in these tutorials.
 
+In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](https://github.com/elect86/modern-jogl-examples).
 
 ## Rebuilding the HTML Documentation
 
