@@ -62,18 +62,6 @@
                 </mrow>
               </mfenced>
             </mtd>
-            <mtd>
-              <mi>iS</mi>
-              <mo>=</mo>
-              <mn>1</mn>
-              <mo>-</mo>
-              <mi>sin</mi><mo>&#x2061;</mo>
-              <mfenced open="(" close=")" separators=",">
-                <mrow>
-                  <mi>&#x03B8;</mi>
-                </mrow>
-              </mfenced>
-            </mtd>
           </mtr>
         </mtable>
       </mtd>
