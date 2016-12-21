@@ -18,10 +18,10 @@ function SetupSolution(slnName)
        	configuration "linux"
     	    defines {"LOAD_X11"}
 		
-	local currPath = os.getcwd();
 
 	SetupFrameworkProj = 
 	function ()
+		local currPath = os.getcwd();
 		os.chdir(myPath);
 
 		project "framework"
