@@ -11,7 +11,7 @@ local lfs = require "lfs"
 local externals =
 {
 	{
-		"OpenGL SDK 0.4.2",		--The name of the component.
+		"OpenGL SDK 0.5.2",		--The name of the component.
 		"glsdk",				--The output directory to copy the component's data.
 		"glsdk.7z",				--The filename that will be created in the download director.
 		"glsdk_0_5_2",			--If the zip file has a base directory, then name it here. If it doesn't, then just use ""
@@ -33,7 +33,7 @@ local externals =
 	},
 }
 
-local zipFullName = "7z"
+local zipFullName = "7zr"
 
 local function RecursiveDelete(file)
 	print("deleting: ", file);
