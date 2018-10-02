@@ -65,7 +65,7 @@
                 <literal>GL_UNSIGNED_INT_2_10_10_10_REV</literal>. It takes 32-bit unsigned
             normalized integers and pulls the four components of the attributes out of each integer.
             This type can only be used with normalization:</para>
-        <programlisting language="cpp">glVertexAttribPointer(#, 4, GL_UNSIGNED_BYTE, GL_TRUE, ...);</programlisting>
+        <programlisting language="cpp">glVertexAttribPointer(#, 4, GL_UNSIGNED_INT_2_10_10_10_REV, GL_TRUE, ...);</programlisting>
         <para>The most significant 2 bits of each integer is the Alpha. The next 10 bits are the
             Blue, then Green, and finally Red. Make note of the fact that it is reversed. It is
             equivalent to this bitfield struct in C:</para>
