@@ -64,9 +64,11 @@ local function RecursiveCopy(fromDir, toDir)
 
 			local pathDestName = toDir..'/'..entry;
 			if (es.mode == "file") then
-				i = io.open(f, "rb");
-				o = io.open(pathDestName, "w+b");
+				local i = io.open(f, "rb");
+				local o = io.open(pathDestName, "w+b");
 				o:write(i:read("*a"));
+				o:close();
+				i:close();
 			end
 
 			if (es.mode == "directory") then
