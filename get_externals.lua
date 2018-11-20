@@ -49,9 +49,9 @@ local function RecursiveDelete(file)
 		for entry in lfs.dir(file) do
 			if entry ~= "." and entry ~= ".." then
 				RecursiveDelete(file..'/'..entry);
-				lfs.rmdir(file);
 			end
 		end
+		lfs.rmdir(file);
 	end
 end
 
