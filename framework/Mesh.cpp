@@ -91,13 +91,14 @@ namespace Framework
 	inStream.seekg(0, std::ios_base::beg);\
 	inStream >> std::skipws;\
 	\
-	while(!inStream.eof() && inStream.good())\
+	while(inStream.good())\
 	{\
 	AttribData theValue;\
-	inStream >> theValue.attribDataValue >> std::ws;\
+	inStream >> theValue.attribDataValue;\
 	if(inStream.fail())\
 	throw std::runtime_error("Parse error in array data stream.");\
 	outputData.push_back(theValue);\
+	inStream >> std::ws;\
 	}\
 	}\
 
