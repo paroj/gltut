@@ -12,8 +12,7 @@ The [License.txt](License.txt) file contains the licensing information for the m
 In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](https://github.com/elect86/modern-jogl-examples).
 
 ## Building the project
-- Be warned, this repo does contain a number of files that are larger than GitHub's reccommended 50MB
-- premake4 and glsdk are already included in this particular fork, so you do not need to download them yourself
+- [premake4](https://github.com/premake/premake-4.x/wiki) and [glsdk](http://glsdk.sourceforge.net/docs/html/index.html) are already included in this particular fork, so you do not need to download them yourself
 - From the main directory, run `premake4 --file=./glsdk/premake4.lua <target>` where `<target>` is either `vs2010` or `gmake`
 - Build the solution (if using VS) or run `make` (if using GNU) for all items in the glsdk directory (this builds the library we use)
 - Now, again from the main directory, run premake (this time you do not need to specify the target file) `premake4 <target>` using the same target as last time
