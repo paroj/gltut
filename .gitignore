@@ -4,6 +4,7 @@
 *.ilk
 *.pdb
 *.VC.opendb
+*.vs
 syntax: glob
 *.obj
 *.dll
