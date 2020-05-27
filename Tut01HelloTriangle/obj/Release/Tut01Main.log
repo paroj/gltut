@@ -1,0 +1,9 @@
+﻿  tut1.cpp
+D:\Projects\gltut\Tut01HelloTriangle\tut1.cpp(165,45): warning C4100: 'y': unreferenced formal parameter
+D:\Projects\gltut\Tut01HelloTriangle\tut1.cpp(165,38): warning C4100: 'x': unreferenced formal parameter
+D:\Projects\gltut\Tut01HelloTriangle\tut1.cpp(176,66): warning C4100: 'height': unreferenced formal parameter
+D:\Projects\gltut\Tut01HelloTriangle\tut1.cpp(176,54): warning C4100: 'width': unreferenced formal parameter
+D:\Projects\gltut\glsdk\freeglut\include\GL\freeglut_std.h(610,33): warning C4505: 'glutInit_ATEXIT_HACK': unreferenced local function has been removed
+D:\Projects\gltut\glsdk\freeglut\include\GL\freeglut_std.h(612,32): warning C4505: 'glutCreateWindow_ATEXIT_HACK': unreferenced local function has been removed
+D:\Projects\gltut\glsdk\freeglut\include\GL\freeglut_std.h(614,32): warning C4505: 'glutCreateMenu_ATEXIT_HACK': unreferenced local function has been removed
+E:\VisualStudio\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(390,5): error MSB8020: The build tools for Visual Studio 2010 (Platform Toolset = 'v100') cannot be found. To build using the v100 build tools, please install Visual Studio 2010 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
