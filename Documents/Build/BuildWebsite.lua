@@ -11,6 +11,7 @@ outputDir = outputDir or "../web/";
 local params = {}
 params["base.dir"] = ToUnix(outputDir);
 params["chunk.quietly"] = "1";
+params["chunker.output.encoding"] = "UTF-8";
 params["html.stylesheet"] = "chunked.css";
 params["ignore.image.scaling"] = "1";
 
