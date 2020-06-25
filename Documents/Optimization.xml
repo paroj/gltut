@@ -636,7 +636,7 @@ glVertexAttribPointer(3, 3, GL_UNSIGNED_SHORT, GL_TRUE, 20, 16);</programlisting
                 vector multiply and add.</para>
         </section>
     </section>
-    <section>
+    <!-- <section>
         <?dbhtml filename="Optimize Vertex Cache.html" ?>
         <title>Vertex Caching</title>
         <para/>
@@ -645,7 +645,7 @@ glVertexAttribPointer(3, 3, GL_UNSIGNED_SHORT, GL_TRUE, 20, 16);</programlisting
         <?dbhtml filename="Optimize Shaders.html" ?>
         <title>Shaders and Performance</title>
         <para/>
-    </section>
+    </section>-->
     <section>
         <?dbhtml filename="Optimize Sync.html" ?>
         <title>Synchronization</title>

@@ -171,7 +171,7 @@
                         scope-bounded work, is called Resource Acquisition Is Initialization
                             (<acronym>RAII</acronym>). It is a common C++ resource management
                         technique. You can find more information about it <link
-                            xlink:href="http://www.hackcraft.net/raii/">online</link>. If you are
+                            xlink:href="https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization">online</link>. If you are
                         unfamiliar with it, I suggest you become familiar with it.</para>
                 </footnote></para>
             <para>The tutorial also is the first to use the Framework's mesh class:

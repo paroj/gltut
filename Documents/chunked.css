@@ -2,9 +2,24 @@
 body
 {
     background-color: #fff6e7;
-    padding: 0 5% 0 20%;
-    font-family: calibri, helvetica, serif;
-    font-size: 12pt;
+    padding: 0 20% 0 20%;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Helvetica Neue", Arial, sans-serif,"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+a:visited {
+    color: rgb(128, 0, 0);
+}
+
+a {
+    color: #c00;
+}
+
+.toc > dt {
+    margin-top: 6pt;
+}
+
+hr {
+    border: 2pt solid rgb(128, 128, 128);
 }
 
 div.toc
@@ -82,7 +97,6 @@ div.sidebar
     padding: 7px;
 
     background-color: #dcfedd;
-    background-image: -moz-linear-gradient(left, #dcfedd, #fff6e7);
 
     border: 2px solid black;
 }

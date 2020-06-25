@@ -31,15 +31,14 @@ WriteParamsToFile(hFile, params);
 
 hFile:write([[
 	<xsl:template name="system.head.content">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
-		<script type="text/javascript"
-          src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=MML_HTMLorMML">
-        </script>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.0/gh-fork-ribbon.min.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/zenburn.min.css" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/languages/glsl.min.js"></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/zenburn.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/glsl.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script>
             hljs.configure({"languages": ["c++", "glsl"]})
             $(document).ready(function() {
