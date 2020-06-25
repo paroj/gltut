@@ -14,15 +14,15 @@
         </author>
     </info>
     <xi:include href="preface.xml"/>
-    <xi:include href="Building the Tutorials.xml"/>
+    <xi:include href="Building%20the%20Tutorials.xml"/>
     <xi:include href="Basics.xml"/>
     <xi:include href="Positioning.xml"/>
     <xi:include href="Illumination.xml"/>
     <xi:include href="Texturing.xml"/>
     <xi:include href="Framebuffer.xml"/>
-    <xi:include href="Advanced Lighting.xml"/>
+    <xi:include href="Advanced%20Lighting.xml"/>
     <xi:include href="Optimization.xml"/>
-    <xi:include href="Further Study.xml"/>
-    <xi:include href="History of Graphics Hardware.xml"/>
-    <xi:include href="Getting Started.xml"/>
+    <xi:include href="Further%20Study.xml"/>
+    <xi:include href="History%20of%20Graphics%20Hardware.xml"/>
+    <xi:include href="Getting%20Started.xml"/>
 </book>

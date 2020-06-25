@@ -17,7 +17,7 @@ params["ignore.image.scaling"] = "1";
 --Auto-generate the main specialization file.
 local filename = "website.xsl";
 
-local hFile = io.open(filename, "wt");
+local hFile = io.open(filename, "w");
 hFile:write(
 [[<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet  
@@ -66,17 +66,10 @@ hFile:close();
 
 --Create the command line.
 command = {};
-command[#command + 1] = "java"
-command[#command + 1] = "-cp"
-command[#command + 1] = "\"" .. table.concat({data.saxonFilepath, data.xercesJars}, ":") .. "\""
-command[#command + 1] = "-Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"
-command[#command + 1] = "-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl"
-command[#command + 1] = "-Dorg.apache.xerces.xni.parser.XMLParserConfiguration=org.apache.xerces.parsers.XIncludeParserConfiguration"
-command[#command + 1] = "com.icl.saxon.StyleSheet"
-command[#command + 1] = "-o"
-command[#command + 1] = "\"" .. outputDir .. "nothing.html\""
-command[#command + 1] = "\"../Tutorials.xml\""
+command[#command + 1] = "xsltproc"
+command[#command + 1] = "--xinclude"
 command[#command + 1] = filename
+command[#command + 1] = "\"../Tutorials.xml\""
 
 finalCmd = table.concat(command, " ");
 print(finalCmd);

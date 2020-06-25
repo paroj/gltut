@@ -18,10 +18,10 @@
             change of viewer orientation. And it covers how to position and orient objects
             arbitrarily, to achieve many different kinds of movement and animation.</para>
     </partintro>
-    <xi:include href="Positioning/Tutorial 03.xml"/>
-    <xi:include href="Positioning/Tutorial 04.xml"/>
-    <xi:include href="Positioning/Tutorial 05.xml"/>
-    <xi:include href="Positioning/Tutorial 06.xml"/>
-    <xi:include href="Positioning/Tutorial 07.xml"/>
-    <xi:include href="Positioning/Tutorial 08.xml"/>
+    <xi:include href="Positioning/Tutorial%2003.xml"/>
+    <xi:include href="Positioning/Tutorial%2004.xml"/>
+    <xi:include href="Positioning/Tutorial%2005.xml"/>
+    <xi:include href="Positioning/Tutorial%2006.xml"/>
+    <xi:include href="Positioning/Tutorial%2007.xml"/>
+    <xi:include href="Positioning/Tutorial%2008.xml"/>
 </part>

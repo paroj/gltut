@@ -17,7 +17,7 @@
             will introduce the rendering pipeline as defined by OpenGL. And it will demonstrate how
             data flows through the graphics pipeline.</para>
     </partintro>
-    <xi:include href="Basics/Tutorial 00.xml"/>
-    <xi:include href="Basics/Tutorial 01.xml"/>
-    <xi:include href="Basics/Tutorial 02.xml"/>
+    <xi:include href="Basics/Tutorial%2000.xml"/>
+    <xi:include href="Basics/Tutorial%2001.xml"/>
+    <xi:include href="Basics/Tutorial%2002.xml"/>
 </part>

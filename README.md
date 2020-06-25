@@ -13,12 +13,12 @@ In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](htt
 
 ## Rebuilding the HTML Documentation
 
-- `apt-get install lua-filesystem libxerces2-java libsaxon-java docbook-xsl`
+- `apt-get install lua-filesystem xsltproc docbook-xsl`
 - run `lua CopyWebsite.lua`
 
 ## Rebuilding the PDF Documentation
 
 - install the packages needed for HTML
-- `apt-get install fop libfop-java libjeuclid-fop-java`
+- `apt-get install fop libxerces2-java libsaxon-java libfop-java libjeuclid-fop-java`
 - add the line `find_jars jeuclid-core jeuclid-fop` to `/usr/bin/fop`
 - run `lua Documents/Build/BuildComputerFO.lua`

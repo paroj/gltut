@@ -41,8 +41,8 @@
             textures are tools. Use them where appropriate, but do not let them become your primary
             solution to any rendering problem.</para>
     </partintro>
-    <xi:include href="Texturing/Tutorial 14.xml"/>
-    <xi:include href="Texturing/Tutorial 15.xml"/>
-    <xi:include href="Texturing/Tutorial 16.xml"/>
-    <xi:include href="Texturing/Tutorial 17.xml"/>
+    <xi:include href="Texturing/Tutorial%2014.xml"/>
+    <xi:include href="Texturing/Tutorial%2015.xml"/>
+    <xi:include href="Texturing/Tutorial%2016.xml"/>
+    <xi:include href="Texturing/Tutorial%2017.xml"/>
 </part>
