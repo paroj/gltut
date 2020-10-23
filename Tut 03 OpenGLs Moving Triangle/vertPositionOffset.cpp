@@ -9,7 +9,7 @@
 #include "../framework/framework.h"
 
 GLuint theProgram;
-GLuint offsetLocation;
+GLint offsetLocation;
 
 void InitializeProgram()
 {
