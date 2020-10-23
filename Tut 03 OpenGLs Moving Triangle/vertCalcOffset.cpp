@@ -9,7 +9,7 @@
 #include "../framework/framework.h"
 
 GLuint theProgram;
-GLuint elapsedTimeUniform;
+GLint elapsedTimeUniform;
 
 void InitializeProgram()
 {
@@ -22,7 +22,7 @@ void InitializeProgram()
 
 	elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
 
-	GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+	GLint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
 	glUseProgram(theProgram);
 	glUniform1f(loopDurationUnf, 5.0f);
 	glUseProgram(0);

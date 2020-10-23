@@ -9,7 +9,7 @@
 #include "../framework/framework.h"
 
 GLuint theProgram;
-GLuint elapsedTimeUniform;
+GLint elapsedTimeUniform;
 
 void InitializeProgram()
 {
@@ -22,9 +22,8 @@ void InitializeProgram()
 
 	elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
 
-	GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
-	GLuint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
-
+	GLint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+	GLint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
 
 	glUseProgram(theProgram);
 	glUniform1f(loopDurationUnf, 5.0f);
