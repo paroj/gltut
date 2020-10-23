@@ -461,7 +461,7 @@ void main()
     
     elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
     
-    GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+    GLint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
     glUseProgram(theProgram);
     glUniform1f(loopDurationUnf, 5.0f);
     glUseProgram(0);
@@ -531,9 +531,8 @@ void main()
 
     elapsedTimeUniform = glGetUniformLocation(theProgram, "time");
     
-    GLuint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
-    GLuint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
-    
+    GLint loopDurationUnf = glGetUniformLocation(theProgram, "loopDuration");
+    GLint fragLoopDurUnf = glGetUniformLocation(theProgram, "fragLoopDuration");
     
     glUseProgram(theProgram);
     glUniform1f(loopDurationUnf, 5.0f);
