@@ -15,8 +15,9 @@
             tested.</para>
     </formalpara>
     <para>You will need to download the <link
-            xlink:href="http://bitbucket.org/alfonse/gltut/downloads">source distribution</link>;
-        download the .7z file with the highest version number. All of the libraries needed to build
+            xlink:href="https://github.com/paroj/gltut/releases">source distribution</link>;
+        download the .zip file with the highest version number. All of the libraries needed to build
+
         the tutorials are bundled as part of the distribution, so this is the only source code
         download you will need.</para>
     <para>You will also need to download the <link xlink:href="http://industriousone.com/premake"
