@@ -22,7 +22,7 @@ params["body.start.indent"] = "0pt";
 --Auto-generate the main specialization file.
 local filename = "fo.xsl";
 
-local hFile = io.open(filename, "wt");
+local hFile = io.open(filename, "w");
 hFile:write(
 [[<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet  
