@@ -67,7 +67,7 @@
             them. That is, when the gimbal arrangement is in the original position, the outer gimbal
             controls the pitch. But if you move the middle gimbal, it no longer controls
                 <emphasis>only</emphasis> the pitch. Orienting the ship is very unintuitive.</para>
-        <para>The bigger is what happens when two of the gimbals are parallel with one
+        <para>The bigger issue is what happens when two of the gimbals are parallel with one
             another:</para>
         <figure>
             <title>Parallel Gimbals</title>
