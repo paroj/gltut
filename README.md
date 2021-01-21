@@ -11,6 +11,15 @@ The [License.txt](License.txt) file contains the licensing information for the m
 
 In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](https://github.com/elect86/modern-jogl-examples).
 
+## Building the tutorials
+
+- `apt-get install premake4`
+- build glsdk
+  - inside glsdk run `premake4 gmake`
+  - inside glsdk run `make config=release`
+- `premake4 gmake`
+- `make config=release`
+
 ## Rebuilding the HTML Documentation
 
 - `apt-get install lua-filesystem xsltproc docbook-xsl`

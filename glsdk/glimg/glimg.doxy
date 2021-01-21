@@ -1,0 +1,197 @@
+/**
+\defgroup module_glimg GL Image
+
+The GL Image library is the Unofficial OpenGL SDK library for loading images from files and memory, and converting them into OpenGL textures.
+
+The GL Image library is distributed under the <a href="http://www.opensource.org/licenses/MIT">MIT License</a>.
+
+GL Image is used for two things: loading images into memory and converting those memory images into OpenGL texture objects. This creates three basic divisions in GL Image.
+
+The functions responsible for loading image formats from disk (or from memory) are called \ref module_glimg_loaders "loaders". They are all in the glimg::loaders namespace. There are several loaders available, for various different image file formats. Each kind of loader has its own namespace within the loaders namespace.
+
+The loaded representation of an image file is the glimg::ImageSet object. An glimg::ImageSet, as the name implies, represents multiple images. This allows support for file formats like DDS or KTX that store mipmaps, texture arrays, and/or cubemap faces all within the same file. The \ref module_glimg_imageset "image set object and its associated types" are used to query information about each image within the set.
+
+The images within an glimg::ImageSet can be directly loaded into an OpenGL texture by using the various \ref module_glimg_texture "texture creation functions". Note that use of these functions requires that you use \ref module_glload "GL Load" to initialize your OpenGL context. They also require that a valid OpenGL context is bound.
+
+Basic use of the library is quite simple. The <tt><glimg/glimg.h></tt> header contains all of the important components of the library. To load an image, select a \ref module_glimg_loaders "loader" and use its loading function to load the texture into an glimg::ImageSet object. Then pass this glimg::ImageSet along to glimg::CreateTexture to create the OpenGL texture object for the file.
+
+Here is an example:
+
+\code
+#include <memory>
+#include <glload/gl_all.h>
+#include <glload/gll.hpp>
+#include <glimg/glimg.h>
+
+int main(int argc, char *argv[])
+{
+  //Initialize OpenGL and bind the context
+  
+  //glload must be initialized for glimg texture creation to work.
+  if(glload::LoadFunctions() == glload::LS_LOAD_FAILED)
+    //exit in some way
+	
+  //Loading succeeded. Now load a texture.
+  GLuint theTexture = 0;
+  try
+  {
+    std::auto_ptr<glimg::ImageSet> pImgSet(glimg::loaders::stb::LoadFromFile("filename.png"));
+    theTexture = glimg::CreateTexture(pImgSet.get(), 0);
+
+  }
+  catch(glimg::loaders::stb::StbLoaderException &e)
+  {
+    //Image file loading failed.
+  }
+  catch(glimg::TextureGenerationException &e)
+  {
+    //Texture creation failed.
+  }
+  
+  //Texture loaded successfully.
+}
+\endcode
+
+**/
+
+/**
+\defgroup module_glimg_loaders Image Loaders
+\ingroup module_glimg
+
+\brief Functions for loading image files into ImageSet objects.
+
+These function are defined to work for certain specific file formats. You are expected to delete the ImageSet object returned by the loader functions.
+
+If the image loader fails, then it will throw some form of exception that is ultimately derived from std::exception. Each particular loader will have a set of exceptions that it can throw.
+
+All image loaders live in the glimg::loaders namespace. Each kind of loader has its own subnamespace.
+**/
+
+/**
+\defgroup module_glimg_imageset ImageSet
+\ingroup module_glimg
+
+\brief Classes for representing image data.
+
+The ImageSet class represents a set of images that can be bundled together into a texture. Once loaded, an ImageSet is \em immutable; it's data cannot be changed.
+
+ImageSet objects have a dimensionality. This can be 1D, 2D, or 3D. They also have a size for each dimension. Each ImageSet has a specific image format. The format defines the arrangement of pixel data in all of the ImageSet's images.
+
+Individual images within the set can be queried from an ImageSet; these images have the type SingleImage. These objects share the same ImageFormat as the owning ImageSet object. These objects must be deleted \em before the deletion of the ImageSet from which they originate.
+
+You are encouraged to use smart pointers to manage the memory for ImageSet and SingleImage objects.
+**/
+
+/**
+\defgroup module_glimg_format Image Format
+\ingroup module_glimg_imageset
+
+\brief Types for representing the format of image data.
+
+The ImageFormat class describes a particular arrangement of pixel data within an image. There are four enumerations that specify the different facets of an image format. The ImageFormat also includes the byte alignment of each row of the pixel data, regardless of how wide they are.
+
+Not all combinations of image format parameters are valid. To prevent accidental use of invalid combinations, ImageFormat objects are verified upon creation. Invalid combinations of parameters will throw InvalidFormatException, which contains a message describing the problem. The \ref page_glimg_format_validation "rules for image format validation" are available.
+**/
+
+/**
+\defgroup module_glimg_texture Texture Creation
+\ingroup module_glimg
+
+\brief Functions to build textures from ImageSet objects.
+
+Most of GL Image's Almost all of these functions do not require [GL Load](@ref module_glload) to be initialized. Image loading and data storage/manipulation don't interact with OpenGL. However, these functions build OpenGL textures from OpenGL. Therefore, most of them interact with the OpenGL context, so they require that GL Load has been properly initialized.
+
+The important function of interest is glimg::CreateTexture; this takes an ImageSet and generates an OpenGL texture object. There is an overload that can take a pre-created OpenGL texture object as well; you should not have used that texture object before.
+
+There are also query functions that convert an ImageFormat into information that you can use to manually upload parts of an ImageSet. glimg::GetInternalFormat takes an ImageFormat and returns the corresponding [OpenGL internal format](http://www.opengl.org/wiki/Image_Format) that you should use in OpenGL [texture storage creation](http://www.opengl.org/wiki/Texture_Storage) calls.
+
+glimg::GetUploadFormatType returns an object that can be used to supply [the pixel transfer parameters](http://www.opengl.org/wiki/Pixel_Transfer) (the second and third to last parameters to `glTex(Sub)Image`). If you are uploading a compressed texture, you can just use SingleImage::GetImageByteSize to get its size.
+
+There are a number of flags that the user can provide which affect the selection of the OpenGL parameters.
+**/
+
+/**
+\defgroup module_glimg_creation Image Creation
+\ingroup module_glimg
+
+\brief Manual ImageSet creation classes
+
+ImageSet is a closed class; it has no exposed constructor. This is due to the need to ensure that the data generated by \ref module_glimg_loaders "the various loaders" remains intact and valid. However, it is often useful to be able to either write your own loaders for other forms of data or simply to create an ImageSet from user generated data.
+
+The ImageCreator class is a factory for generating an ImageSet. Once it has
+generated one, that particular class instance cannot be used again.
+**/
+
+/**
+\defgroup module_glimg_exceptions Exceptions
+\ingroup module_glimg
+
+\brief Exceptions thrown by GL Image functions and operations.
+
+Each function that throws describes the exceptions (or base classes thereof) that it will throw. All exceptions are derived from std::exception.
+**/
+
+/**
+\page page_glimg_format_validation Image Format Validation Rules
+
+Not every combination of ImageFormat parameters is considered valid. Some are functionally meaningless or inconsistent, while others are simply not allowed.
+
+- The ImageFormat::LineAlign field must be 1, 2, 4, or 8. This value is ignored if the glimg::PixelDataType is a compressed format; they do not use the line alignment.
+
+- If the glimg::PixelDataType is not a compressed format, then:
+ 
+	- The glimg::ComponentOrder *cannot* be `ORDER_COMPRESSED`.
+	- The glimg::Bitdepth *cannot* be `BD_COMPRESSED`.
+ 
+- If the glimg::PixelDataType is compressed format, then:
+ 
+	- The glimg::ComponentOrder *must* be `ORDER_COMPRESSED`.
+	- The glimg::Bitdepth *must* be `BD_COMPRESSED`.
+	
+	- If the glimg::PixelDataType uses BC1, then the glimg::PixelComponents must be one of the RGB or RGBA formats (not RGBX or others).
+	
+	- If the glimg::PixelDataType uses BC2, BC3, or BC7, then the glimg::PixelComponents must include an alpha channel.
+	
+	- If the glimg::PixelDataType uses BC4, signed or unsigned, then the glimg::PixelComponents must be `FMT_COLOR_RED`.
+
+	- If the glimg::PixelDataType uses BC5, signed or unsigned, then the glimg::PixelComponents must be `FMT_COLOR_RG`.
+	
+	- If the glimg::PixelDataType uses BC5, signed or unsigned, then the glimg::PixelComponents must be `FMT_COLOR_RGB`.
+	
+- The glimg::PixelDataType `DT_SHARED_EXP_FLOAT` can only be used with The glimg::ComponentOrder of `ORDER_RGBE`, glimg::Bitdepth of `BD_PACKED_32_BIT_5999_REV`, and a glimg::PixelComponents of `FMT_COLOR_RGB`.
+
+	- The glimg::ComponentOrder of `ORDER_RGBE` can only be used with the glimg::PixelDataType `DT_SHARED_EXP_FLOAT`, as above.
+	
+	- The glimg::Bitdepth of `BD_PACKED_32_BIT_5999_REV` can only be used as above.
+
+- If the glimg::PixelComponents includes depth:
+
+	- The glimg::ComponentOrder must be `ORDER_DEPTH_STENCIL`.
+	- The glimg::PixelDataType is must be either `DT_NORM_UNSIGNED_INTEGER` or `DT_FLOAT`.
+	- If glimg::PixelDataType is `DT_FLOAT`, then the glimg::Bitdepth must be `BD_PER_COMP_32` and glimg::PixelComponents must be `FMT_DEPTH`.
+	- If glimg::PixelDataType is `DT_NORM_UNSIGNED_INTEGER`, then either of the following must be true:
+		- The glimg::Bitdepth must be `BD_PER_COMP_16` and glimg::PixelComponents must be `FMT_DEPTH`.
+		- the glimg::Bitdepth must be `BD_PACKED_32_BIT_248` and glimg::PixelComponents must be `FMT_DEPTH_X`.
+
+- The glimg::Bitdepth `BD_PACKED_32_BIT_248` may only be used with a glimg::PixelComponents of `FMT_DEPTH_X`.
+
+- Non depth glimg::PixelComponents that use a glimg::PixelDataType of `DT_FLOAT` must have a glimg::Bitdepth of 16-bit per component or greater, or must use `BD_PACKED_32_BIT_101111_REV`.
+
+- glimg::PixelComponents that use the sRGB colorspace may only be used with a glimg::PixelDataType of `DT_NORM_UNSIGNED_INTEGER`.
+
+- The glimg::Bitdepth `BD_PACKED_32_BIT_101111_REV` can only be used with a glimg::PixelDataType of `DT_FLOAT`, a glimg::ComponentOrder of `ORDER_RGBA`, and a glimg::PixelComponents of `FMT_COLOR_RGB`.
+
+- If the glimg::Bitdepth is packed, and the glimg::PixelComponents does not include depth, and the glimg::PixelDataType is not `DT_SHARED_EXP_FLOAT`:
+
+	- The glimg::PixelDataType must be either signed normalized, unsigned normalized, or floating point.
+	
+	- glimg::PixelComponents with 3 live components (the `X`s don't count) can only be used with glimg::Bitdepth's of `BD_PACKED_16_BIT_565`, `BD_PACKED_16_BIT_565_REV` or `BD_PACKED_32_BIT_101111_REV`.
+	
+	- glimg::PixelComponents with 4 live components can only be used with glimg::Bitdepth's that have 4 components.
+
+- If the glimg::Bitdepth is `BD_PER_COMP_32`, then the glimg::PixelDataType must not be a normalized integer.
+
+- The glimg::ComponentOrder `ORDER_BGRA` may only be used on glimg::PixelComponents with 3 or more components.
+
+**/
+

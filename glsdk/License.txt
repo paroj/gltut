@@ -1,0 +1,15 @@
+
+This distributions contain source code from several sources. Each of these sources has its own copyright and licenses.
+
+The FreeGLUT library is distributed under the terms of the X-Consortium License, as specified in the "freeglut/COPYING" file.
+
+The GLFW library is distributed under the terms of the zlib/libpng license, as specified in the "glfw/COPYING.txt" file.
+
+The GLM library is distributed under the terms of the MIT License, as specified in the "glm/copying.txt" file.
+
+With a few exceptions exceptions, all other materials in this distribution are copywritten and distributed under the terms of the MIT License, as specified in the "./MIT License.txt" file. The following files are not distributed under this license:
+
+* glimg/source/stb_image.c
+* glimg/source/stb_image.h
+
+These files have been released in the public domain and therefore are not copywritten.

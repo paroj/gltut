@@ -1,0 +1,283 @@
+/**
+\defgroup module_glmesh GL Mesh
+
+The OpenGL Mesh Library (GL Mesh) is a collection of tools for passing vertex data to a shader. It provides [immediate mode-style rendering](@ref module_glmesh_draw) that is 100% compatible with core OpenGL contexts. It also provides a static mesh class, as well as generator functions for making meshes.
+
+All GL Mesh functions require [GL Load](@ref module_glload) to have been successfully initialized.
+
+A word on OpenGL versions and support. For the most part, efforts are made in the GL Mesh system to cast as wide a net as possible in terms of functionality. Generally speaking, when features are not strictly necessary for a particular piece of functionality, they are not used.
+
+So most classes and functions will work even on 2.1-class hardware (modulo driver bugs of course). Advanced features like double-precision attributes are available, but if you don't use them, the code will still work.
+
+However, [the mesh generators](@ref module_glmesh_mesh_generator) will generally assume that the OpenGL version is at least 3.2. This allows for the use of [base index rendering](http://www.opengl.org/wiki/Vertex_Rendering#Base_Index) and [primitive restarting](http://www.opengl.org/wiki/Vertex_Rendering#Primitive_Restart).
+**/
+
+/**
+\defgroup module_glmesh_draw Immediate Mesh Drawing
+\ingroup module_glmesh
+
+\brief API for immediate mode-style rendering.
+
+It is often useful to send vertex data for objects on the fly. Immediate mode in OpenGL was the original way to do this, but [OpenGL 3.1 core and above removed that](http://www.opengl.org/wiki/Core_And_Compatibility_in_Contexts).
+
+These classes provide a means for having functionality similar to immediate mode.
+
+Before rendering can begin, some setup work needs to be done. Core OpenGL 3.1 and above can only render from [buffer objects](http://www.opengl.org/wiki/Buffer_Object). Therefore, a buffer object must be used.
+
+This is provided by the StreamBuffer class. It provides an interface for sequentially adding vertex data to a buffer. It can invalidate the buffer automatically if there is not enough room left in the buffer to write a particular set of vertex data.
+
+The next setup is to declare a format for the vertex data. Unlike the original immediate mode, this drawing API requires an explicit format for vertex data. This is provided by the VertexFormat class, which defines a series of vertex attributes.
+
+These two classes are used by the glmesh::Draw class. The Draw class is what provides the actual drawing API. It uses a StreamBuffer to stream its data into, and it expects a specific VertexFormat for its vertex data.
+
+You can use immediate mode drawing just to fill a buffer object with data, rather than actually rendering with it. This is done by using CpuDataWriter to write the data to system memory. After writing as much as you like, you call CpuDataWriter::TransferToBuffer to transfer the data to a buffer object. From there, you can bind the buffer to `GL_ARRAY_BUFFER` and use the VertexFormat::BindAttributes to [fill a VAO](http://www.opengl.org/wiki/Vertex_Specification#Vertex_Array_Object) and render with it. You can even put data from multiple meshes in the same buffer (so long as they use the same vertex format).
+
+Note that the OpenGL immediate mode API allows you to put as many vertices in as you want, and only checks for errors when you call \c glEnd. The glmesh::Draw API is more strict: you must specify how many vertices you want up front, and if you try to provide too many attributes, an exception is thrown. CpuDataWriter is more lenient (since it is writing to arbitrary CPU memory storage); you can provide a guesstimate of the number of vertices, but it will expand that as needed.
+
+Also, the old OpenGL immediate mode has the concept of constant data; you did not have to set every attribute for each vertex. This drawing API is more restrictive; you must set each attribute for each vertex. And each attribute must be provided in the order specified by the VertexFormat.
+
+Here is an example of how to use the API:
+
+\code
+#include <memory>
+#include <glload/gl_all.h>
+#include <glload/gll.hpp>
+#include <glmesh/glmesh.h>
+
+void RenderScene(glmesh::VertexFormat &vfmt, glmesh::StreamBuffer &streamBuf);
+
+int main(int argc, char *argv[])
+{
+	//Initialize OpenGL and bind the context
+
+	//glload must be initialized for glmesh to work.
+	if(glload::LoadFunctions() == glload::LS_LOAD_FAILED)
+	//exit in some way
+
+	//Loading succeeded. Create the vertex format.
+	glmesh::AttributeList attribs;
+	//First attribute is attribute index 0, a vec4 of floats.
+	attribs.push_back(glmesh::AttribDesc(0, 4, glmesh::VDT_SINGLE_FLOAT, glmesh::ADT_FLOAT));
+	//Second attribute is attribute index 1, a vec4 of normalized, unsigned bytes.
+	attribs.push_back(glmesh::AttribDesc(1, 4, glmesh::VDT_UNSIGN_BYTE, glmesh::ADT_NORM_FLOAT));
+	glmesh::VertexFormat vfmt(attribs);
+	//attribs is no longer necessary; all of the info is stored in vfmt.
+
+	//Create the StreamBuffer.
+	//Must be large enough to hold the longest single run of vertex
+	//data that we submit. For best performance, we shouldn't run
+	//past the end of the buffer more than once per frame.
+	glmesh::StreamBuffer streamBuf(1024*1024);
+
+	//...
+	
+	while(true)
+	{
+		//check for exit; otherwise, draw frame.
+		RenderScene(vfmt, streamBuf);
+	}
+	
+}
+
+void RenderScene(glmesh::VertexFormat &vfmt, glmesh::StreamBuffer &streamBuf)
+{
+	//Clear the screen and set up shaders, textures, etc.
+	
+	{
+		//Draw a single triangle
+		glmesh::Draw imm(gl::GL_TRIANGLES, 3, m_vertFmt, m_streamBuf);
+		imm.Attrib(0.75f, 0.75f, 0.0f, 1.0f);
+		imm.Attrib<GLubyte>(153, 204, 0, 255);
+
+		imm.Attrib(0.75f, -0.75f, 0.0f, 1.0f);
+		imm.Attrib<GLubyte>(230, 51, 0, 255);
+
+		imm.Attrib(-0.75f, -0.75f, 0.0f, 1.0f);
+		imm.Attrib<GLubyte>(26, 51, 179, 255);
+	
+		//The destructor causes the actual rendering.
+	}
+	{
+		//Draw a triangle strip.
+		glmesh::Draw imm(gl::GL_TRIANGLE_STRIP, 4, m_vertFmt, m_streamBuf);
+
+		imm.Attrib(30.0f, 0.0f, 30.0f, 1.0f);
+		imm.Attrib<GLubyte>(51, 255, 51, 255);
+
+		imm.Attrib(30.0f, 0.0f, -30.0f, 1.0f);
+		imm.Attrib<GLubyte>(51, 255, 51, 255);
+
+		imm.Attrib(-30.0f, 0.0f, 30.0f, 1.0f);
+		imm.Attrib<GLubyte>(51, 255, 51, 255);
+
+		imm.Attrib(-30.0f, 0.0f, -30.0f, 1.0f);
+		imm.Attrib<GLubyte>(51, 255, 51, 255);
+
+		//No need to wait for the destructor.
+		//This also causes exceptions that the destructor would otherwise
+		//swallow, thus making code safer.
+		imm.Render();
+	}
+}
+\endcode
+
+If you are inclined to use Boost directly, a Boost.Fusion-capable function exists which is compatible with any glmesh::VertexWriter-based class (such as glmesh::Draw). It takes a Boost.Tuple or other Fusion-compatible sequence type and writes each attribute in order. This allows you to use arbitrary structs directly, rather than having to write each vertex's attributes in order.
+
+This function, glmesh::Attrib, has example code in its documentation.
+
+**/
+
+/**
+\defgroup module_glmesh_mesh Static Mesh
+\ingroup module_glmesh
+
+\brief API for static mesh objects.
+
+The glmesh::Mesh class is used to build a static mesh object which can be bound and rendered with OpenGL. There are a [number of functions to generate meshes](@ref module_glmesh_mesh_generator), but you can build your own mesh object from your own data if you so desire.
+
+Some of the [classes listed under the immediate mode API](@ref module_glmesh_draw) can be very useful for creating static meshes. VertexFormat is very handy for creating VAOs. Also, CpuDataWriter can be used to create vertex data for a mesh. You can upload it to a buffer object, and then store it in a glmesh::Mesh object.
+
+Here is an example of how to manually build meshes:
+
+\code
+#include <memory>
+#include <glload/gl_all.h>
+#include <glload/gll.hpp>
+#include <glmesh/glmesh.h>
+
+void RenderScene(glmesh::Mesh *);
+
+glmesh::Mesh *BuildMesh()
+{
+	//Loading succeeded. Create the vertex format.
+	glmesh::AttributeList attribs;
+	//First attribute is attribute index 0, a vec4 of floats.
+	attribs.push_back(glmesh::AttribDesc(0, 4, glmesh::VDT_SINGLE_FLOAT, glmesh::ADT_FLOAT));
+	//Second attribute is attribute index 1, a vec4 of normalized, unsigned bytes.
+	attribs.push_back(glmesh::AttribDesc(1, 4, glmesh::VDT_UNSIGN_BYTE, glmesh::ADT_NORM_FLOAT));
+	glmesh::VertexFormat vfmt(attribs);
+	//attribs is no longer necessary; all of the info is stored in vfmt.
+	
+	//Now, use a CpuDataWriter to create our buffer object.
+	glmesh::CpuDataWriter writer(vfmt, 4); //4 is just a hint; it's non-binding.
+	
+	{
+		writer.Attrib(30.0f, 0.0f, 30.0f, 1.0f);
+		writer.Attrib<GLubyte>(255, 0, 255, 255);
+		writer.Attrib(30.0f, 0.0f, -30.0f, 1.0f);
+		writer.Attrib<GLubyte>(255, 128, 255, 255);
+		writer.Attrib(-30.0f, 0.0f, 30.0f, 1.0f);
+		writer.Attrib<GLubyte>(128, 0, 0, 255);
+		writer.Attrib(-30.0f, 0.0f, -30.0f, 1.0f);
+		writer.Attrib<GLubyte>(192, 128, 255, 255);
+	}
+	
+	GLuint bufferObject = writer.TransferToBuffer(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+	//We're done with writer now.
+	
+	//Create a set of mesh variant VAOs. We will have two:
+	//one for position+color, and one for just position.
+	
+	GLuint vaos[2];
+	glGenVertexArrays(2, vaos);
+	
+	//Must bind the buffer, so that the VAOs can store the buffer.
+	glBindBuffer(GL_ARRAY_BUFFER, bufferObject);
+	
+	//Has both attributes.
+	glBindVertexArray(vaos[0]);
+	vfmt.BindAttributes(0);
+	
+	//Has only attribute index 0.
+	glBindVertexArray(vaos[1]);
+	vfmt.BindAttribute(0, 0); //Just one attribute.
+	
+	//Done with the buffer
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	glmesh::MeshVariantMap variants;
+	variants["all"] = vaos[0];
+	variants["pos-only"] = vaos[1];
+	
+	//Create the rendering command, as a 4-element triangle strip.
+	glmesh::RenderCmdList cmdList;
+	cmdList.DrawArrays(gl::TRIANGLE_STRIP, 0, 4);
+	
+	//Build the mesh and return it.
+	std::vector<GLuint> buffers(1, bufferObject);
+	return new glmesh::Mesh(buffers, vaos[0], cmdList, variants);
+}
+
+int main(int argc, char *argv[])
+{
+	//Initialize OpenGL and bind the context
+
+	//glload must be initialized for glmesh to work.
+	if(glload::LoadFunctions() == glload::LS_LOAD_FAILED)
+	//exit in some way
+
+	std::auto_ptr<glmesh::Mesh *> pMesh = BuildMesh();
+
+	//...
+	
+	while(true)
+	{
+		//check for exit; otherwise, draw frame.
+		RenderScene(pMesh.get());
+	}
+	
+	pMesh.release(); //Delete the mesh.
+	
+}
+
+void RenderScene(glmesh::Mesh *pMesh)
+{
+	//Clear the screen and set up shaders, textures, etc.
+	
+	pMesh->Render("all");		//Uses both attributes
+	pMesh->Render("pos-only");	//Uses just the position
+	pMesh->Render();			//Same as "all", because that's what we used for the main VAO.
+	
+}
+\endcode
+
+
+**/
+
+/**
+\defgroup module_glmesh_mesh_generator Mesh Generators
+\ingroup module_glmesh_mesh
+
+These functions generate glmesh::Mesh objects. These are simple functions for making reuseable mesh objects. The meshes generated may not be optimally ordered for maximum throughput.
+
+The meshes generated by the mesh generator functions will assume at least OpenGL 3.2 is available. As such, they will use core 3.2 functionality, such as primitive restart, `glDrawElementsBaseVertex` and the like.
+
+All generated meshes use the OpenGL default for their face orientation. Namely, counter-clockwise is front. Some meshes will have options to generate two-sided objects, if you so desire.
+
+The attribute indices used by the mesh generator functions are standardized. They are as follows:
+
+\li 0: Position (three-dimensional, float)
+\li 1: Color, diffuse (four-dimensional, float)
+\li 2: Normal (three-dimensional, float)
+\li 3: Tangent, for establishing an NBT basis (three-dimensional, float)
+\li 4: Bitangent, for establishing an NBT basis (three-dimensional, float)
+\li 5: Texture coordinate (two-dimensional, float)
+
+The main VAO of each mesh includes all attributes. There will be variants generated containing fewer attributes. The naming convention for generated mesh variants is as follows:
+
+\li <tt>unlit</tt> or <tt>flat</tt>: Position
+\li <tt>lit</tt>: Position+Normal
+\li <tt>tex</tt>: Position+TexCoord
+\li <tt>color</tt>: Position+Color
+
+These can be combined with <tt>-</tt> characters (except for <tt>unlit</tt>). So <tt>lit-tex</tt> means positions, normals, and texture coordinates. The order doesn't matter, so <tt>lit-tex</tt> is the same as <tt>tex-lit</tt>.
+
+Some generator functions allow the user to provide a glmesh::gen::ColorArray, defining a sequence of colors. These colors will be applied to the vertices or faces of the object, depending on the generator.
+**/
+
+/**
+\defgroup module_glmesh_exceptions GL Mesh Exceptions
+\ingroup module_glmesh
+
+\brief Exceptions thrown by GL Mesh classes.
+**/
