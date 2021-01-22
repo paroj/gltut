@@ -73,16 +73,16 @@
             of its GL Utilities sub-library, a registration function for setting up the debug output
             properly. Also, the framework for this book's code offers similar functionality. It is
             located in <filename>framework/framework.cpp</filename>.</para>
-        <para>There are alternatives for catching OpenGL errors. The utility glIntercept (it works
-            in Linux and Windows, but the Linux port is slightly iffy) is capable of hooking into
+        <para>There are alternatives for catching OpenGL errors. The utility <link xlink:href="https://renderdoc.org/">RenderDoc</link> 
+            is capable of hooking into
             OpenGL without any code modifications and tracking every OpenGL function call. It can
-            dump every OpenGL call to a file, as well as the given parameters. This is very useful
-            for debugging, as it tells you more about what may have caused certain error or visual
+            then play-back the <function>glDraw*</function> calls while allowing you to inspect the rendering results, as well as the given parameters.
+            This is very useful for debugging, as it tells you more about what may have caused certain error or visual
             glitches. It also automatically checks for errors after every function call, alleviating
             the need to do so manually. Any errors are logged with the function that produced
             them.</para>
-        <para>The gDebugger tool, Windows only, offers similar features, though unlike glIntercept,
-            it is not open-source.</para>
+        <para>Besides OpenGL it also supports Vulkan and D3D APIs, so you can use it as your default go-to solution
+        for debugging rendering issues.</para>
     </section>
     <section>
         <?dbhtml filename="Further Study Topics.html" ?>
