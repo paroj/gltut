@@ -30,4 +30,10 @@ In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](htt
 - install the packages needed for HTML
 - `apt-get install fop libxerces2-java libsaxon-java libfop-java libjeuclid-fop-java`
 - add the line `find_jars jeuclid-core jeuclid-fop` to `/usr/bin/fop`
-- run `lua Documents/Build/BuildComputerFO.lua`
+- inside `Documents/Build` run `lua BuildComputerFO.lua`
+
+## Known issues
+
+### Exception in thread "main" java.lang.NoClassDefFoundError: org/w3c/dom/events/CustomEvent
+Some versions of `fop` will not work correctly.
+Installing `2.6` from here https://xmlgraphics.apache.org/fop/download.html fixes it.
