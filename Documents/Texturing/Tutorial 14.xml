@@ -116,7 +116,7 @@
                 introduce a new concept widely used with textures: <glossterm>normalized
                     integers</glossterm>.</para>
             <para>A normalized integer is a way of storing floating-point values on the range [0, 1]
-                in far fewer than the 32-bytes it takes for a regular <type>float</type>. The idea
+                in far fewer than the 32-bits it takes for a regular <type>float</type>. The idea
                 is to take the full range of the integer and map it to the [0, 1] range. The full
                 range of an unsigned integer is [0, 255]. So to map it to a floating-point range of
                 [0, 1], we simply divide the value by 255.</para>
