@@ -1,4 +1,4 @@
-SetupProject("Tut 15 Many Images", "Many Images.cpp",
+SetupProject("Tut15ManyImages", "ManyImages.cpp",
 	"data/PT.vert",
 	"data/Tex.frag")
 	

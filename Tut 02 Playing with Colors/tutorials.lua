@@ -1,6 +1,6 @@
 
-SetupProject("Tut 02 Fragment Position", "FragPosition.cpp",
+SetupProject("Tut02FragmentPosition", "FragPosition.cpp",
 	"data/FragPosition.frag", "data/FragPosition.vert")
 	
-SetupProject("Tut 02 Vertex Colors", "VertexColors.cpp",
+SetupProject("Tut02VertexColors", "VertexColors.cpp",
 	"data/VertexColors.frag", "data/VertexColors.vert")

@@ -1,13 +1,13 @@
 
-SetupProject("Tut 16 Gamma Ramp", "GammaRamp.cpp",
+SetupProject("Tut16GammaRamp", "GammaRamp.cpp",
 	"data/screenCoords.vert",
 	"data/textureGamma.frag", "data/textureNoGamma.frag")
 
-SetupProject("Tut 16 Gamma Checkers", "Gamma Checkers.cpp",
+SetupProject("Tut16GammaCheckers", "GammaCheckers.cpp",
 	"data/PT.vert",
 	"data/textureGamma.frag", "data/textureNoGamma.frag")
 
-SetupProject("Tut 16 Gamma Landscape",
-	"Gamma Landscape.cpp", "LightEnv.h", "LightEnv.cpp",
+SetupProject("Tut16GammaLandscape",
+	"GammaLandscape.cpp", "LightEnv.h", "LightEnv.cpp",
 	"data/PNT.vert",
 	"data/litGamma.frag", "data/litNoGamma.frag")

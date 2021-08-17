@@ -1,9 +1,9 @@
 
-SetupProject("Tut 04 Orthographic Cube", "OrthoCube.cpp",
+SetupProject("Tut04OrthographicCube", "OrthoCube.cpp",
 	"data/StandardColors.frag", "data/OrthoWithOffset.vert")
-SetupProject("Tut 04 ShaderPerspective", "ShaderPerspective.cpp",
+SetupProject("Tut04ShaderPerspective", "ShaderPerspective.cpp",
 	"data/StandardColors.frag", "data/ManualPerspective.vert")
-SetupProject("Tut 04 MatrixPerspective", "MatrixPerspective.cpp",
+SetupProject("Tut04MatrixPerspective", "MatrixPerspective.cpp",
 	"data/StandardColors.frag", "data/MatrixPerspective.vert")
-SetupProject("Tut 04 AspectRatio", "AspectRatio.cpp",
+SetupProject("Tut04AspectRatio", "AspectRatio.cpp",
 	"data/StandardColors.frag", "data/MatrixPerspective.vert")
