@@ -1,9 +1,9 @@
 
-SetupProject("Tut 06 Translation", "Translation.cpp",
+SetupProject("Tut06Translation", "Translation.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")
-SetupProject("Tut 06 Scale", "Scale.cpp",
+SetupProject("Tut06Scale", "Scale.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")
-SetupProject("Tut 06 Rotations", "Rotations.cpp",
+SetupProject("Tut06Rotations", "Rotations.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")
-SetupProject("Tut 06 Hierarchy", "Hierarchy.cpp",
+SetupProject("Tut06Hierarchy", "Hierarchy.cpp",
 	"data/ColorPassthrough.frag", "data/PosColorLocalTransform.vert")

@@ -1,19 +1,19 @@
 
-SetupProject("Tut 12 Scene Lighting", "Scene Lighting.cpp",
+SetupProject("Tut12SceneLighting", "SceneLighting.cpp",
 	"Lights.h", "Lights.cpp", "Scene.h", "Scene.cpp",
 	"data/PNC.vert", "data/PN.vert",
 	"data/DiffuseSpecular.frag", "data/DiffuseOnly.frag",
 	"data/DiffuseSpecularMtl.frag", "data/DiffuseOnlyMtl.frag"
 )
 
-SetupProject("Tut 12 HDR Lighting", "HDR Lighting.cpp",
+SetupProject("Tut12HDRLighting", "HDRLighting.cpp",
 	"Lights.h", "Lights.cpp", "Scene.h", "Scene.cpp",
 	"data/PNC.vert", "data/PN.vert",
 	"data/DiffuseSpecular.frag", "data/DiffuseOnly.frag",
 	"data/DiffuseSpecularMtl.frag", "data/DiffuseOnlyMtl.frag"
 )
 
-SetupProject("Tut 12 Gamma Correction", "Gamma Correction.cpp",
+SetupProject("Tut12GammaCorrection", "GammaCorrection.cpp",
 	"Lights.h", "Lights.cpp", "Scene.h", "Scene.cpp",
 	"data/PNC.vert", "data/PN.vert",
 	"data/DiffuseSpecular.frag", "data/DiffuseOnly.frag",

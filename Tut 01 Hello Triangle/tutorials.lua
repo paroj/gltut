@@ -1,2 +1,2 @@
 
-SetupProject("Tut 01 Main", "tut1.cpp")
+SetupProject("Tut01Main", "Tut1.cpp")

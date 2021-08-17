@@ -1,13 +1,13 @@
 
-SetupProject("Tut 05 Overlap No Depth", "OverlapNoDepth.cpp",
+SetupProject("Tut05OverlapNoDepth", "OverlapNoDepth.cpp",
 	"data/Standard.frag", "data/Standard.vert")
-SetupProject("Tut 05 Base Vertex with Overlap", "BaseVertexOverlap.cpp",
+SetupProject("Tut05BaseVertexWithOverlap", "BaseVertexOverlap.cpp",
 	"data/Standard.frag", "data/Standard.vert")
-SetupProject("Tut 05 Depth Buffering", "DepthBuffer.cpp",
+SetupProject("Tut05DepthBuffering", "DepthBuffer.cpp",
 	"data/Standard.frag", "data/Standard.vert")
-SetupProject("Tut 05 Vertex Clipping", "VertexClipping.cpp",
+SetupProject("Tut05VertexClipping", "VertexClipping.cpp",
 	"data/Standard.frag", "data/Standard.vert")
-SetupProject("Tut 05 Depth Clamping", "DepthClamping.cpp",
+SetupProject("Tut05DepthClamping", "DepthClamping.cpp",
 	"data/Standard.frag", "data/Standard.vert")
-SetupProject("Tut 05 Depth Fighting", "DepthFighting.cpp",
+SetupProject("Tut05DepthFighting", "DepthFighting.cpp",
 	"data/Standard.frag", "data/Standard.vert")
