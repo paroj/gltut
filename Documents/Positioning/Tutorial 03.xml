@@ -12,7 +12,7 @@
         <para>The simplest way one might think to move a triangle or other object around is to
             simply modify the vertex position data directly. From previous tutorials, we learned
             that the vertex data is stored in a buffer object. So the task is to modify the vertex
-            data in the buffer object. This is what <filename>cpuPositionOffset.cpp</filename>
+            data in the buffer object. This is what <filename>CPUPositionOffset.cpp</filename>
             does.</para>
         <para>The modifications are done in two steps. The first step is to generate the X, Y offset
             that will be applied to each position. The second is to apply that offset to each vertex
@@ -169,7 +169,7 @@
             to each vertex position. Vertex shaders are given each vertex position. So it makes
             sense to simply give the vertex shader the offset and let it compute the final vertex
             position, since it operates on each vertex. This is what
-                <filename>vertPositionOffset.cpp</filename> does.</para>
+                <filename>VertPositionOffset.cpp</filename> does.</para>
         <para>The vertex shader is found in <filename>data\positionOffset.vert</filename>. The
             vertex shader used here is as follows:</para>
         <example>
@@ -388,7 +388,7 @@ gl_Position.w = position.w + totalOffset.w;</programlisting>
             all of <function>ComputePositionOffsets</function> to the vertex shader?</para>
         <para>Well, no. The call to <function>glutGet(GL_ELAPSED_TIME)</function> cannot be moved
             there, since GLSL code cannot directly call C/C++ functions. But everything else can be
-            moved. This is what <filename>vertCalcOffset.cpp</filename> does.</para>
+            moved. This is what <filename>VertCalcOffset.cpp</filename> does.</para>
         <para>The vertex program is found in <filename>data\calcOffset.vert</filename>.</para>
         <example>
             <title>Offset Computing Vertex Shader</title>
@@ -481,7 +481,7 @@ void main()
         <para>Well, moving the triangle around is nice and all, but it would also be good if we
             could do something time-based in the fragment shader. Fragment shaders cannot affect the
             position of the object, but they can control its color. And this is what
-                <filename>fragChangeColor.cpp</filename> does.</para>
+                <filename>FragChangeColor.cpp</filename> does.</para>
         <para>The fragment shader in this tutorial is loaded from the file
                 <filename>data\calcColor.frag</filename>:</para>
         <example>
@@ -647,7 +647,7 @@ void main()
                 tutorials.</para>
             <itemizedlist>
                 <listitem>
-                    <para>With <filename>vertCalcOffset.cpp</filename>, change it so that it draws
+                    <para>With <filename>VertCalcOffset.cpp</filename>, change it so that it draws
                         two triangles moving in a circle, with one a half
                             <varname>loopDuration</varname> ahead of the other. Simply change the
                         uniforms after the <function>glDrawArrays</function> call and then make the
@@ -655,7 +655,7 @@ void main()
                         duration to the time before setting it the second time.</para>
                 </listitem>
                 <listitem>
-                    <para>In <filename>fragChangeColor.cpp</filename>, change it so that the
+                    <para>In <filename>FragChangeColor.cpp</filename>, change it so that the
                         fragment program bounces between <varname>firstColor</varname> and
                             <varname>secondColor</varname>, rather than popping from
                             <varname>secondColor</varname> back to first at the end of a loop. The

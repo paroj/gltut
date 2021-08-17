@@ -196,7 +196,7 @@ glBindBuffer(GL_UNIFORM_BUFFER, 0);</programlisting>
                 the fast-forwarding, rewinding, and so forth controls built into it. It's basic
                 functionality is to compute all of the lighting values for a particular time. It
                 does this based on information given to it by the main tutorial source file,
-                    <filename>Scene Lighting.cpp</filename>. The important values are sent in the
+                    <filename>SceneLighting.cpp</filename>. The important values are sent in the
                     <function>SetupDaytimeLighting</function> function.</para>
             <example>
                 <title>Daytime Lighting</title>

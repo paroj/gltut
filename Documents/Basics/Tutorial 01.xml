@@ -14,7 +14,7 @@
     <section>
         <title>Framework and FreeGLUT</title>
         <para>The source to this tutorial, found in <filename>Tut1 Hello
-                Triangle/tut1.cpp</filename>, is fairly simple. The project file that builds the
+                Triangle/Tut1.cpp</filename>, is fairly simple. The project file that builds the
             final executable actually uses two source files: the tutorial file and a common
             framework file found in <filename>framework/framework.cpp</filename>. The framework file
             is where the actual initialization of FreeGLUT is done; it is also where main is. This
