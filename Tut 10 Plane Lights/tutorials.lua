@@ -1,5 +1,5 @@
 
-SetupProject("Tut10VertexPointLighting", "Vertex Point Lighting.cpp",
+SetupProject("Tut10VertexPointLighting", "VertexPointLighting.cpp",
 	"data/PosVertexLighting_PCN.vert",
 	"data/PosVertexLighting_PN.vert",
 	"data/PosTransform.vert",
