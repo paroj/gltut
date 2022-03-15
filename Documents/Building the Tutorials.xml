@@ -66,8 +66,8 @@
             copy that comes with these tutorials does not contain the documentation or GLFW.</para>
     </formalpara>
     <para>The SDK library uses Premake to generate its build files. So, with
-            <command>premake4.exe</command> in your path, open your command prompt and go to the
-            <filename>glsdk</filename> directory. Type <userinput>premake4
+            <command>premake5.exe</command> in your path, open your command prompt and go to the
+            <filename>glsdk</filename> directory. Type <userinput>premake5
                 <replaceable>plat</replaceable></userinput>, where <replaceable>plat</replaceable>
         is the name of the platform of choice. For Visual Studio 2008, this would be
             <quote>vs2008</quote>; for VS2010, this would be <quote>vs2010.</quote> This will
@@ -88,7 +88,7 @@
     </formalpara>
     <para>Each tutorial directory has a <filename>premake4.lua</filename> file; this file is used by
         Premake to generate the build files for that tutorial. Therefore, to build any tutorial, you
-        need only go to that directory and type <userinput>premake4
+        need only go to that directory and type <userinput>premake5
             <replaceable>plat</replaceable></userinput>, then use those build files to build the
         tutorial.</para>
     <para>Each tutorial will generally have more than one source file and generate multiple
