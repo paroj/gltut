@@ -14,7 +14,7 @@
 #include "framework.h"
 #include "directories.h"
 
-#ifdef LOAD_X11
+#ifndef _WIN32
 #define APIENTRY
 #endif
 

@@ -13,12 +13,10 @@ In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](htt
 
 ## Building the tutorials
 
-- `apt-get install premake4`
-- build glsdk
-  - inside glsdk run `premake4 gmake`
-  - inside glsdk run `make config=release`
-- `premake4 gmake`
-- `make config=release`
+- `apt-get install cmake`
+- `mkdir build && cd build`
+- `cmake ..`
+- `cmake --build . --config Release`
 
 ## Rebuilding the HTML Documentation
 
