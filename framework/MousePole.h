@@ -48,7 +48,7 @@ namespace Framework
 		case GLUT_RIGHT_BUTTON:
 			eButton = glutil::MB_RIGHT_BTN;
 			break;
-#ifdef LOAD_X11
+#ifndef _WIN32
 			//Linux Mouse wheel support
 		case 3:
 			{
