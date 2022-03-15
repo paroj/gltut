@@ -41,7 +41,7 @@ project("glload")
 		files {"source/glx_*"}
 
 	configuration "Debug"
-		flags "Unicode";
+		characterset "Unicode";
 		defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING"};
 		objdir "Debug";
 		flags "Symbols";
@@ -49,7 +49,7 @@ project("glload")
 
 	configuration "Release"
 		defines {"NDEBUG", "RELEASE"};
-		flags "Unicode";
+		characterset "Unicode";
 		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
 		objdir "Release";
 		targetname "glload"

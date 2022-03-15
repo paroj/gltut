@@ -19,7 +19,7 @@ project("glmesh")
 	    defines {"LOAD_X11"}
 
 	configuration "Debug"
-		flags "Unicode";
+		characterset "Unicode";
 		defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING"};
 		objdir "Debug";
 		flags "Symbols";
@@ -27,7 +27,7 @@ project("glmesh")
 
 	configuration "Release"
 		defines {"NDEBUG", "RELEASE"};
-		flags "Unicode";
+		characterset "Unicode";
 		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
 		objdir "Release";
 		targetname "glmesh"
