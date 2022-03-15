@@ -12,22 +12,25 @@ project("glutil")
 		"source/*.h",
 	};
 	
-	configuration "windows"
+	filter "configurations:windows"
 		defines {"WIN32"}
 	
-	configuration "linux"
+	filter "configurations:linux"
 	    defines {"LOAD_X11"}
 
-	configuration "Debug"
+	filter "configurations:Debug"
 		characterset "Unicode";
 		defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING"};
 		objdir "Debug";
-		flags "Symbols";
+		symbols "On";
 		targetname "glutilD";
 
-	configuration "Release"
+	filter "configurations:Release"
 		defines {"NDEBUG", "RELEASE"};
 		characterset "Unicode";
-		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
+		optimize "Speed";
+		omitframepointer "On";
+		editandcontinue "Off";
+		warnings "Extra";
 		objdir "Release";
 		targetname "glutil"

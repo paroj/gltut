@@ -1,5 +1,5 @@
 if(_ACTION == "gmake") then
-	if(os.get() == "linux" or os.get() == "bsd") then
+	if(os.target() == "linux" or os.target() == "bsd") then
 		os.execute("sh ./configure");
 	end
 end
@@ -13,22 +13,25 @@ project "freeglut"
 	
 	defines {"FREEGLUT_STATIC", "_LIB", "FREEGLUT_LIB_PRAGMAS=0"}
 	
-	configuration "windows"
+	filter "configurations:windows"
 		defines "WIN32"
 
-	configuration {"gmake", "linux or bsd"}
+	filter {"configurations:gmake", "configurations:linux or bsd"}
         defines {"HAVE_CONFIG_H", }
         includedirs {"."}
 
-	configuration {"linux or bsd"}
+	filter {"configurations:linux or bsd"}
         defines {"HAVE_CONFIG_H", }
         includedirs {"."}
 		
-	configuration "Debug"
+	filter "configurations:Debug"
 		targetsuffix "D"
 		defines "_DEBUG"
-		flags "Symbols"
+		symbols "On"
 
-	configuration "Release"
-		defines "NDEBUG"
-		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
+	filter "configurations:Release"
+		defines "NDEBUG";
+		optimize "Speed";
+		omitframepointer "On";
+		warnings "Extra";
+		editandcontinue "Off";

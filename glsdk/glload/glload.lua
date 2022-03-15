@@ -24,32 +24,35 @@ project("glload")
 		"source/gl_*",
 	};
 	
-	configuration "plainc"
+	filter "configurations:plainc"
 		excludes {
 			"source/*.cpp",
 			"include/glload/*.hpp",
 		}
 	
-	configuration "windows"
+	filter "configurations:windows"
 		defines {"WIN32"}
 		files {"include/glload/wgl_*.h",}
 		files {"source/wgl_*"}
 	
-	configuration "linux"
+	filter "configurations:linux"
 	    defines {"LOAD_X11"}
 		files {"include/glload/glx_*.h"}
 		files {"source/glx_*"}
 
-	configuration "Debug"
+	filter "configurations:Debug"
 		characterset "Unicode";
 		defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING"};
 		objdir "Debug";
-		flags "Symbols";
+		symbols "On";
 		targetname "glloadD";
 
-	configuration "Release"
+	filter "configurations:Release"
 		defines {"NDEBUG", "RELEASE"};
 		characterset "Unicode";
-		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
+		optimize "Speed";
+		omitframepointer "On";
+		warnings "Extra";
+		editandcontinue "Off";
 		objdir "Release";
 		targetname "glload"

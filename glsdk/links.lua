@@ -12,40 +12,40 @@ local LinkFuncs =
 		includedirs "glload/include"
 		libdirs "glload/lib"
 
-		configuration "Debug"
+		filter "configurations:Debug"
 			links {"glloadD"}
 
-		configuration "Release"
+		filter "configurations:Release"
 			links {"glload"}
 	end,
 	glimage = function()
 		includedirs "glimg/include"
 		libdirs "glimg/lib"
 
-		configuration "Debug"
+		filter "configurations:Debug"
 			links {"glimgD"}
 
-		configuration "Release"
+		filter "configurations:Release"
 			links {"glimg"}
 	end,
 	glutil = function()
 		includedirs "glutil/include"
 		libdirs "glutil/lib"
 
-		configuration "Debug"
+		filter "configurations:Debug"
 			links {"glutilD"}
 
-		configuration "Release"
+		filter "configurations:Release"
 			links {"glutil"}
 	end,
 	glmesh = function()
 		includedirs "glmesh/include"
 		libdirs "glmesh/lib"
 
-		configuration "Debug"
+		filter "configurations:Debug"
 			links {"glmeshD"}
 
-		configuration "Release"
+		filter "configurations:Release"
 			links {"glmesh"}
 	end,
 	glm = function()
@@ -56,10 +56,10 @@ local LinkFuncs =
 		libdirs "freeglut/lib"
 		defines {"FREEGLUT_STATIC", "_LIB", "FREEGLUT_LIB_PRAGMAS=0"}
 		
-		configuration "Debug"
+		filter "configurations:Debug"
 			links {"freeglutD"}
 		
-		configuration "Release"
+		filter "configurations:Release"
 			links {"freeglut"}
 	end,
 }

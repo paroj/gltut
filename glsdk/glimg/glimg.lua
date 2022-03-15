@@ -13,22 +13,25 @@ project("glimg")
 		"source/*.inc",
 	};
 
-	configuration "windows"
+	filter "configurations:windows"
 		defines {"WIN32"}
 	
-	configuration "linux"
+	filter "configurations:linux"
 	    defines {"LOAD_X11"}
 
-	configuration "Debug"
+	filter "configurations:Debug"
 		characterset "Unicode";
 		defines {"DEBUG", "_DEBUG", "MEMORY_DEBUGGING"};
 		objdir "Debug";
-		flags "Symbols";
+		symbols "On";
 		targetname "glimgD";
 
-	configuration "Release"
+	filter "configurations:Release"
 		defines {"NDEBUG", "RELEASE"};
 		characterset "Unicode";
-		flags {"OptimizeSpeed", "NoFramePointer", "ExtraWarnings", "NoEditAndContinue"};
+		optimize "Speed";
+		omitframepointer "On";
+		warnings "Extra";
+		editandcontinue "Off";
 		objdir "Release";
 		targetname "glimg"
