@@ -159,7 +159,7 @@
             we were talking about maybe 10,000 triangles per frame. And while CPUs have come a long
             way since then, they have not scaled with the complexity of graphics scenes.</para>
         <para>The GeForce 256 (note: not a GT 2xx card, but the very first GeForce card) was the
-            first graphics card that actually did some from of vertex processing. It could store
+            first graphics card that actually did some form of vertex processing. It could store
             vertices in GPU memory, read them, do some kind of transformation on them, and then send
             them through the rest of the pipeline. The kinds of transformations that the old GeForce
             256 could do were quite useful, but fairly simple.</para>
