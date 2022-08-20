@@ -70,7 +70,7 @@ void LoadTextures()
 		for(int tex = 0; tex < NUM_LIGHT_TEXTURES; ++tex)
 		{
 			std::string filename(Framework::FindFileOrThrow(g_texDefs[tex].filename));
-			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+			std::unique_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 
 			glBindTexture(GL_TEXTURE_CUBE_MAP, g_lightTextures[tex]);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
@@ -168,7 +168,7 @@ Framework::Mesh *g_pAxesMesh = NULL;
 
 void LoadAndSetupScene()
 {
-	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("projCube_scene.xml"));
+	std::unique_ptr<Framework::Scene> pScene(new Framework::Scene("projCube_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
 	nodes.push_back(pScene->FindNode("cube"));

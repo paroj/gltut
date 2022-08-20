@@ -36,11 +36,11 @@ public:
 	Framework::Mesh *GetSphereMesh() {return m_pSphereMesh.get();}
 
 private:
-	std::auto_ptr<Framework::Mesh> m_pTerrainMesh;
-	std::auto_ptr<Framework::Mesh> m_pCubeMesh;
-	std::auto_ptr<Framework::Mesh> m_pTetraMesh;
-	std::auto_ptr<Framework::Mesh> m_pCylMesh;
-	std::auto_ptr<Framework::Mesh> m_pSphereMesh;
+	std::unique_ptr<Framework::Mesh> m_pTerrainMesh;
+	std::unique_ptr<Framework::Mesh> m_pCubeMesh;
+	std::unique_ptr<Framework::Mesh> m_pTetraMesh;
+	std::unique_ptr<Framework::Mesh> m_pCylMesh;
+	std::unique_ptr<Framework::Mesh> m_pSphereMesh;
 
 	int m_sizeMaterialBlock;
 	GLuint m_materialUniformBuffer;

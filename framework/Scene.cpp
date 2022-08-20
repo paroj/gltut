@@ -247,7 +247,7 @@ namespace Framework
 		{
 			std::string pathname(Framework::FindFileOrThrow(filename));
 
-			std::auto_ptr<glimg::ImageSet> pImageSet;
+			std::unique_ptr<glimg::ImageSet> pImageSet;
 			std::string ext = GetExtension(pathname);
 			if(ext == "dds")
 			{

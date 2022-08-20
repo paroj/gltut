@@ -296,7 +296,7 @@ GLuint g_shineTexture = 0;
 
 void CreateShininessTexture()
 {
-	std::auto_ptr<glimg::ImageSet> pImageSet;
+	std::unique_ptr<glimg::ImageSet> pImageSet;
 
 	try
 	{

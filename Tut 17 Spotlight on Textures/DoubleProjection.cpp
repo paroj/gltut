@@ -104,7 +104,7 @@ glm::fquat g_spinBarOrient;
 
 void LoadAndSetupScene()
 {
-	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("dp_scene.xml"));
+	std::unique_ptr<Framework::Scene> pScene(new Framework::Scene("dp_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
 	nodes.push_back(pScene->FindNode("cube"));

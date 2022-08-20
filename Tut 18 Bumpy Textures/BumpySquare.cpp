@@ -144,7 +144,7 @@ Framework::NodeRef g_highPolyNode;
 
 void LoadAndSetupScene()
 {
-	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("bump_square_scene.xml"));
+	std::unique_ptr<Framework::Scene> pScene(new Framework::Scene("bump_square_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes = pScene->GetAllNodes();
 
@@ -157,11 +157,11 @@ void LoadAndSetupScene()
 	GLuint unlit = pScene->FindProgram("p_unlit");
 	Framework::Mesh *pSphereMesh = pScene->FindMesh("m_sphere");
 
-	std::auto_ptr<glutil::ViewPole> pViewPole(pScene->CreateCamera("c_main", glutil::MB_LEFT_BTN));
+	std::unique_ptr<glutil::ViewPole> pViewPole(pScene->CreateCamera("c_main", glutil::MB_LEFT_BTN));
 	if(pViewPole.get() == NULL)
 		throw std::runtime_error("Could not find the main camera in the scene.");
 
-	std::auto_ptr<glutil::ObjectPole> pObjPole(new glutil::ObjectPole(g_objectData, 0.36f,
+	std::unique_ptr<glutil::ObjectPole> pObjPole(new glutil::ObjectPole(g_objectData, 0.36f,
 		glutil::MB_RIGHT_BTN, pViewPole.get()));
 
 	//No more things that can throw.

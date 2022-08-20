@@ -105,7 +105,7 @@ void LoadTextures()
 
 	try
 	{
-		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::stb::LoadFromFile(filename.c_str()));
+		std::unique_ptr<glimg::ImageSet> pImageSet(glimg::loaders::stb::LoadFromFile(filename.c_str()));
 
 		glimg::SingleImage image = pImageSet->GetImage(0, 0, 0);
 		glimg::Dimensions dims = image.GetDimensions();

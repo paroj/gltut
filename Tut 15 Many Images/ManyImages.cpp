@@ -183,7 +183,7 @@ void LoadCheckerTexture()
 		std::string filename(LOCAL_FILE_DIR);
 		filename += "checker.dds";
 
-		std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+		std::unique_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 
 		glGenTextures(1, &g_checkerTexture);
 		glBindTexture(GL_TEXTURE_2D, g_checkerTexture);

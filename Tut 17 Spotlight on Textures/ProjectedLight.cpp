@@ -75,7 +75,7 @@ void LoadTextures()
 		{
 			std::string filename(Framework::FindFileOrThrow(g_texDefs[tex].filename));
 
-			std::auto_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
+			std::unique_ptr<glimg::ImageSet> pImageSet(glimg::loaders::dds::LoadFromFile(filename.c_str()));
 			g_lightTextures[tex] = glimg::CreateTexture(pImageSet.get(), 0);
 		}
 	}
@@ -167,7 +167,7 @@ Framework::Mesh *g_pAxesMesh = NULL;
 
 void LoadAndSetupScene()
 {
-	std::auto_ptr<Framework::Scene> pScene(new Framework::Scene("proj2d_scene.xml"));
+	std::unique_ptr<Framework::Scene> pScene(new Framework::Scene("proj2d_scene.xml"));
 
 	std::vector<Framework::NodeRef> nodes;
 	nodes.push_back(pScene->FindNode("cube"));
