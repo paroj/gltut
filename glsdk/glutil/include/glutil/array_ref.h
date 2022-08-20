@@ -97,7 +97,7 @@ namespace refs
 		const T & at(size_t i) const
 		{
 			if(i >= m_size)
-				throw std::out_of_range();
+				throw std::out_of_range("Error: array indexing out of range");
 			return m_data[i];
 		}
 		const T & front() const {return m_data[0];}
