@@ -1,0 +1,19 @@
+name: CI Build
+on: 
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Install Dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y cmake g++ libgl-dev libglx-dev libglu1-mesa-dev libxi-dev
+    - uses: actions/checkout@v2
+    - name: Test
+      run: |
+        cmake -Bbuild .
+        cmake --build build -- -j 2
