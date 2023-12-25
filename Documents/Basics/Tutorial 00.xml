@@ -83,7 +83,7 @@
                 </imageobject>
             </mediaobject>
         </figure>
-            <para>Remember that vector directions can be shifted around without changing their
+            <para>Remember that vector positions can be shifted around without changing their
                 values. So if you put two vectors head to tail, the vector sum is simply the
                 direction from the tail of the first vector to the head of the last.</para>
         <figure>
