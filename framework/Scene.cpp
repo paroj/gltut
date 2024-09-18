@@ -1,5 +1,5 @@
 #include <string>
-#include <strstream>
+#include <sstream>
 #include <vector>
 #include <set>
 #include <map>
@@ -149,7 +149,7 @@ namespace Framework
 			}
 
 			//Convert to integer.
-			std::istrstream convStream(anisotropy.c_str());
+			std::istringstream convStream(anisotropy.c_str());
 			unsigned int ret;
 			convStream >> ret;
 			if(convStream.fail())
@@ -247,7 +247,7 @@ namespace Framework
 		{
 			std::string pathname(Framework::FindFileOrThrow(filename));
 
-			std::unique_ptr<glimg::ImageSet> pImageSet;
+			std::auto_ptr<glimg::ImageSet> pImageSet;
 			std::string ext = GetExtension(pathname);
 			if(ext == "dds")
 			{

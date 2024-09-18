@@ -3,7 +3,7 @@
 #define FRAMEWORK_RAPIDXML_HELPERS_H
 
 #include <string>
-#include <strstream>
+#include <sstream>
 #include "rapidxml.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -55,7 +55,7 @@ namespace rapidxml
 	template<typename Callable>
 	int attrib_to_int(const xml_attribute<> &attrib, Callable FailFunc)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		int ret;
 		inData >> ret;
 		if(inData.fail())
@@ -66,7 +66,7 @@ namespace rapidxml
 
 	inline int attrib_to_int_opt(const xml_attribute<> &attrib, int optRet)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		int ret;
 		inData >> ret;
 		if(inData.fail())
@@ -98,7 +98,7 @@ namespace rapidxml
 	template<typename Callable>
 	float attrib_to_float(const xml_attribute<> &attrib, Callable FailFunc)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		float ret;
 		inData >> ret;
 		if(inData.fail())
@@ -109,7 +109,7 @@ namespace rapidxml
 
 	inline float attrib_to_float_opt(const xml_attribute<> &attrib, float optRet)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		float ret;
 		inData >> ret;
 		if(inData.fail())
@@ -140,7 +140,7 @@ namespace rapidxml
 	template<typename Callable>
 	glm::vec2 attrib_to_vec2(const xml_attribute<> &attrib, Callable FailFunc)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec2 ret;
 		inData >> ret.x >> ret.y;
@@ -152,7 +152,7 @@ namespace rapidxml
 
 	inline glm::vec2 attrib_to_vec2_opt(const xml_attribute<> &attrib, const glm::vec2 &optRet)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec2 ret;
 		inData >> ret.x >> ret.y;
@@ -166,7 +166,7 @@ namespace rapidxml
 	template<typename Callable>
 	glm::vec3 attrib_to_vec3(const xml_attribute<> &attrib, Callable FailFunc)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec3 ret;
 		inData >> ret.x >> ret.y >> ret.z;
@@ -178,7 +178,7 @@ namespace rapidxml
 
 	inline glm::vec3 attrib_to_vec3_opt(const xml_attribute<> &attrib, const glm::vec3 &optRet)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec3 ret;
 		inData >> ret.x >> ret.y >> ret.z;
@@ -190,7 +190,7 @@ namespace rapidxml
 
 	inline bool attrib_is_vec3(const xml_attribute<> &attrib)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec3 ret;
 		inData >> ret.x >> ret.y >> ret.z;
@@ -203,7 +203,7 @@ namespace rapidxml
 	template<typename Callable>
 	glm::vec4 attrib_to_vec4(const xml_attribute<> &attrib, Callable FailFunc)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec4 ret;
 		inData >> ret.x >> ret.y >> ret.z >> ret.w;
@@ -215,7 +215,7 @@ namespace rapidxml
 
 	inline glm::vec4 attrib_to_vec4_opt(const xml_attribute<> &attrib, const glm::vec4 &optRet)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec4 ret;
 		inData >> ret.x >> ret.y >> ret.z >> ret.w;
@@ -227,7 +227,7 @@ namespace rapidxml
 
 	inline bool attrib_is_vec4(const xml_attribute<> &attrib)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::vec4 ret;
 		inData >> ret.x >> ret.y >> ret.z >> ret.w;
@@ -261,7 +261,7 @@ namespace rapidxml
 	template<typename Callable>
 	glm::fquat attrib_to_quat(const xml_attribute<> &attrib, Callable FailFunc)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::fquat ret;
 		inData >> ret.x >> ret.y >> ret.z >> ret.w;
@@ -273,7 +273,7 @@ namespace rapidxml
 
 	inline glm::fquat attrib_to_quat_opt(const xml_attribute<> &attrib, const glm::fquat &optRet)
 	{
-		std::istrstream inData(attrib.value(), attrib.value_size());
+		std::istringstream inData(attrib.value());
 		inData >> std::skipws;
 		glm::fquat ret;
 		inData >> ret.x >> ret.y >> ret.z >> ret.w;
