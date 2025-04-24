@@ -1,0 +1,40 @@
+name: Windows MinGW build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW32
+        install: mingw-w64-i686-gcc mingw-w64-i686-make mingw-w64-i686-cmake
+
+    - name: generate makefile
+      run: |
+        cmake -DCMAKE_BUILD_TYPE=Release -G 'MinGW Makefiles' -DCMAKE_INSTALL_PREFIX=freeglut-instdir .
+
+    - name: build freeglut
+      run: mingw32-make
+
+    - name: stage install
+      run: mingw32-make install
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: freeglut-instdir
+        path: |
+          freeglut-instdir
+          bin
+
+# vi:ts=2 sts=2 sw=2:expandtab

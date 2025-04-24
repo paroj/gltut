@@ -1,0 +1,23 @@
+# ------------------------------------------------------------------------------
+#  BlackBerry CMake toolchain file, for use with the BlackBerry 10 NDK 
+#  Requires cmake 2.6.3 or newer (2.8.3 or newer is recommended).
+#
+#  Usage Linux:
+#   $ source /absolute/path/to/the/bbndk/bbndk-env.sh
+#   $ mkdir build
+#   $ cd build
+#   $ cmake .. -DCMAKE_TOOLCHAIN_FILE="../blackberry.toolchain.cmake" -DBLACKBERRY_ARCHITECTURE=arm -DFREEGLUT_GLES=ON -DFREEGLUT_BUILD_DEMOS=NO -DCMAKE_VERBOSE_MAKEFILE=TRUE -G "Eclipse CDT4 - Unix Makefiles"
+#   $ make -j8
+#
+#  Usage Mac:
+#   Same as the steps on Linux
+#
+#  Usage Windows:
+#   > /absolute/path/to/the/bbndk/bbndk-env.bat
+#   > mkdir build
+#   > cd build
+#   > cmake .. -DCMAKE_TOOLCHAIN_FILE="../blackberry.toolchain.cmake" -DBLACKBERRY_ARCHITECTURE=arm -DFREEGLUT_GLES=ON -DFREEGLUT_BUILD_DEMOS=NO -DCMAKE_VERBOSE_MAKEFILE=TRUE -G "Eclipse CDT4 - Unix Makefiles"
+#   > make -j8
+#
+
+To change which version of OpenGL to use, call glutInitContextVersion(1, 0) for OpenGL ES 1.x, glutInitContextVersion(2, 0) for OpenGL ES 2.0, or glutInitContextVersion(3, 0) for OpenGL ES 3.0.

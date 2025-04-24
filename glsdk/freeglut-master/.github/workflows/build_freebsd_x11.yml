@@ -1,0 +1,30 @@
+name: FreeBSD (X11) build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: FreeBSD build
+      uses: vmactions/freebsd-vm@v1
+      with:
+        run: |
+          pkg install -y cmake mesa-libs libGLU libX11 libXi libXrandr
+          cmake -DCMAKE_BUILD_TYPE=Release -DFREEGLUT_BUILD_DEMOS=OFF .
+          make VERBOSE=1
+          make DESTDIR=freeglut-freebsd install
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: freeglut-freebsd
+        path: freeglut-freebsd
+
+# vi:ts=2 sts=2 sw=2 expandtab:

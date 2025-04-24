@@ -1,0 +1,25 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1996.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutSetMenu 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutSetMenu - sets the current menu; glutGetMenu - returns the identifier of the current menu.
+.SH SYNTAX
+.nf
+.LP
+void glutSetMenu(int menu);
+int glutGetMenu(void);
+.fi
+.SH ARGUMENTS
+.IP \fImenu\fP 1i
+The identifier of the menu to make the current menu.
+.SH DESCRIPTION
+glutSetMenu sets the current menu; glutGetMenu returns the
+identifier of the current menu. If no menus exist or the previous
+current menu was destroyed, glutGetMenu returns zero.
+.SH SEE ALSO
+glutCreateMenu, glutSetWindow
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

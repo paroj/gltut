@@ -1,0 +1,109 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1998.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutGameModeString 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutGameModeString - sets the game mode configuration via a string.
+.SH SYNTAX
+.nf
+.LP
+void glutGameModeString(const char *string);
+.fi
+.SH ARGUMENTS
+.IP \fIstring\fP 1i
+ASCII string for selecting a game mode configuration.
+.SH DESCRIPTION
+glutGameModeString sets the game mode configuration via an ASCII string.
+The game mode configuration string for GLUT's fullscreen game mode
+describes the suitable screen width and height in pixels, the pixel depth
+in bits, and the video refresh frequency in hertz.  The game mode configuration
+string can also specify a window system dependent display mode.
+
+The string is a list of zero or more capability descriptions seperated
+by spaces and tabs.  Each capability description is a capability
+name that is followed by a comparator and a numeric value.  (Unlike the
+display mode string specified using glutInitDisplayString, the comparator
+and numeric value are \fInot\fP optional.)
+For example, "width>=640" and "bpp=32" are both valid criteria.
+
+The capability descriptions are translated into a set of criteria used to select the
+appropriate game mode configuration.
+
+The criteria are matched in
+strict left to right order of precdence.  That is, the first specified
+criteria (leftmost) takes precedence over the later criteria for non-exact
+criteria (greater than, less than, etc. comparators).  Exact
+criteria (equal, not equal compartors) must match exactly so precedence is
+not relevant.
+
+The numeric value is an integer that is parsed according to ANSI C's
+strtol(str, strptr, 0) behavior.  This means that decimal, octal
+(leading 0), and hexidecimal values (leading 0x) are accepeted.
+
+The valid compartors are:
+.TP 8
+.B =
+Equal.
+.TP 8
+.B !=
+Not equal.
+.TP 8
+.B <
+Less than and preferring larger difference (the least is best).
+.TP 8
+.B >
+Greater than and preferring larger differences (the most is best).
+.TP 8
+.B <=
+Less than or equal and preferring larger difference (the least is best).
+.TP 8
+.B >=
+Greater than or equal and preferring more instead of less.
+This comparator is useful for allocating resources like color
+precsion or depth buffer precision where the maximum precison
+is generally preferred.  Contrast with the tilde (~) comprator.
+.TP 8
+.B ~
+Greater than or equal but preferring less instead of more.  This
+compartor is useful for allocating resources such as stencil bits or
+auxillary color buffers where you would rather not over allocate.
+
+.LP
+The valid capability names are:
+.TP 8
+.B bpp
+Bits per pixel for the frame buffer.
+.TP 8
+.B height
+Height of the screen in pixels.
+.TP 8
+.B hertz
+Video refresh rate of the screen in hertz.
+.TP 8
+.B num
+Number of the window system depenedent display mode configuration.
+.TP 8
+.B width
+Width of the screen in pixels.
+.LP
+An additional compact screen resolution description format is supported.
+This compact description convienently encodes the screen resolution
+description in a single phrase.  For example, "640x480:16@60"
+requests a 640 by 480 pixel screen with 16 bits per pixel at a 60 hertz
+video refresh rate.  A compact screen resolution description can be
+mixed with conventional capability descriptions.
+
+The compact screen resolution description format is as follows:
+
+[ \fIwidth\fP "x" \fIheight\fP ][ ":" \fIbitsPerPixel\fP ][ "@" \fIvideoRate\fP ]
+
+Unspecifed capability descriptions will result in unspecified
+criteria being generated.  These unspecified criteria help
+glutGameModeString behave sensibly with terse
+game mode description strings.
+.SH SEE ALSO
+glutGameModeGet, glutEnterGameMode, glutLeaveGameMode, glutInitDisplayString
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

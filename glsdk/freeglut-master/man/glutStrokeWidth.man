@@ -1,0 +1,52 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1996.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutStrokeWidth 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutStrokeWidthf, glutStrokeWidth - returns the width of a stroke character.
+.br
+glutStrokeLengthf, glutStrokeLength - returns the length of a stroke font string.
+.SH SYNTAX
+.nf
+.LP
+float glutStrokeWidthf(void *font, int character);
+float glutStrokeLengthf(void *font, const unsigned char *string);
+
+\fBDeprecated interfaces\fP
+int glutStrokeWidth(void *font, int character);
+int glutStrokeLength(void *font, const unsigned char *string);
+.fi
+.SH ARGUMENTS
+.IP \fIfont\fP 1i
+Stroke font to use.
+For valid values, see the
+glutStrokeWidth description.
+.IP \fIcharacter\fP 1i
+Character to return width of (not confined to 8 bits).
+.IP \fIstring\fP 1i
+Text string (8-bit characters), nul terminated.
+.SH DESCRIPTION
+glutStrokeWidthf returns the width in modeling units of a stroke character in a
+supported stroke font. While the width of characters in a font may vary
+(though fixed width fonts do not vary), the maximum height
+characteristics of a particular font are fixed.
+
+glutStrokeLengthf returns the length in modeling units of a string (8-bit
+characters).  This length is equivalent to summing all the widths
+returned by glutStrokeWidthf for each character in the string.
+.SH BUGS
+The deprecated glutStrokeWidth and glutStrokeLength routines return
+an integer rather than a float.  Newer GLUT programs should use the
+newer float-returning iroutine glutStrokeWidthf and glutStrokeLengthf.
+Note that these newer float routines do not exist in implementations
+prior to GLUT 3.8.  Also, the glutStrokeLength routine summed integerized
+character widths so it underestimated the length of strings prior to
+GLUT 3.8, but the implementation of glutStrokeLength in GLUT 3.8 and
+beyond sums the character widths for the strings in a float (though
+glutStrokeLength still returns an integer).
+.SH SEE ALSO
+glutStrokeCharacter, glutBitmapWidth
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

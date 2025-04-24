@@ -1,0 +1,23 @@
+/* freeglut configuration file for building on SGI IRIX 5.x
+ *
+ * #define to enable, #undef or delete line to disable
+ *
+ * Copy to the freeglut root directory as config.h along with altbuild/Makefile
+ */
+#define HAVE_SYS_TYPES_H
+#define HAVE_UNISTD_H
+#define HAVE_SYS_TIME_H
+#define HAVE_SYS_PARAM_H
+#define HAVE_SYS_IOCTL_H
+#define HAVE_FCNTL_H
+#define HAVE_ERRNO_H
+#define HAVE_GETTIMEOFDAY
+#define HAVE_VFPRINTF
+#define HAVE_ULONG_LONG
+
+/* inttypes.h conflicts with sys/types.h */
+#undef HAVE_INTTYPES_H
+
+/* warning and errors printed? */
+#define FREEGLUT_PRINT_WARNINGS
+#define FREEGLUT_PRINT_ERRORS

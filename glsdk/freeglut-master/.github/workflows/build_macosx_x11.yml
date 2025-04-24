@@ -1,0 +1,34 @@
+name: MacOS X (X11) build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: install dependencies
+      run: |
+        brew install xquartz libx11 libxi libxrandr libxxf86vm mesa
+
+    - name: generate makefile
+      run: cmake -DCMAKE_BUILD_TYPE=Release -DFREEGLUT_BUILD_DEMOS=ON -DFREEGLUT_COCOA=OFF -DOPENGL_gl_LIBRARY=/opt/homebrew/lib/libGL.dylib .
+
+    - name: build freeglut
+      run: make
+
+    - name: stage install
+      run: DESTDIR=freeglut-instdir make install
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: freeglut-instdir
+        path: freeglut-instdir
+
+# vi:ts=2 sts=2 sw=2 expandtab:

@@ -1,0 +1,58 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1999.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutWindowStatusFunc 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutWindowStatusFunc - sets the window status callback for the current window.
+.SH SYNTAX
+.nf
+.LP
+void glutWindowStatusFunc(void (*func)(int state));
+.fi
+.SH ARGUMENTS
+.IP \fIfunc\fP 1i
+The new window status callback function.
+.SH DESCRIPTION
+glutWindowStatusFunc sets the window status callback for the current
+window. The window status callback for a window is called when the window
+status (visibility)
+of a window changes.  The state callback parameter is one of
+GLUT_HIDDEN, GLUT_FULLY_RETAINED, GLUT_PARTIALLY_RETAINED, or GLUT_FULLY_COVERED
+depending on the current
+window status of the window.
+GLUT_HIDDEN means that the window is either not shown (often meaning
+that the window is iconified).
+GLUT_FULLY_RETAINED means that the window is fully retained (no pixels belonging
+to the window are covered by other windows).
+GLUT_PARTIALLY_RETAINED means that the window is partially retained (some but not
+all pixels belonging to the window are covered by other windows).
+GLUT_FULLY_COVERED means the window is shown but no part
+of the window is visible, i.e., until the window's status changes, all
+further rendering to the window is discarded.
+
+GLUT considers a window visible if any pixel of the window is visible or
+any pixel of any descendant window is visible on the screen.
+
+GLUT applications are encouraged to disable rendering and/or animation
+when windows have a status of either GLUT_HIDDEN or GLUT_FULLY_COVERED.
+
+Passing NULL to glutWindowStatusFunc disables the generation of the
+window status callback.
+
+If the window status callback for a window is disabled and later re-enabled, the
+window status of the window is undefined; any change in window
+window status will be reported, that is if you disable a window status callback and
+re-enable the callback, you are guaranteed the next window status change will
+be reported.
+
+Setting the window status callback for a window disables the visibility
+callback set for the window (and vice versa).  The visibility callback
+is set with glutVisibilityFunc.  glutVisibilityFunc is deprecated in
+favor of the more informative glutWindowStatusFunc.
+
+.SH SEE ALSO
+glutCreateWindow, glutPopWindow, glutVisibilityFunc
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

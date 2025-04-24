@@ -1,0 +1,22 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1996.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutMainLoop 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutMainLoop - enters the GLUT event processing loop.
+.SH SYNTAX
+.nf
+.LP
+void glutMainLoop(void);
+.fi
+.SH DESCRIPTION
+glutMainLoop enters the GLUT event processing loop. This routine
+should be called at most once in a GLUT program. Once called, this
+routine will never return. It will call as necessary any callbacks that have
+been registered.
+.SH SEE ALSO
+glutInit
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

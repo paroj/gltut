@@ -1,0 +1,56 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1998, 2000.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutSetKeyRepeat 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutSetKeyRepeat - sets the key repeat mode
+.SH SYNTAX
+.nf
+.LP
+int glutSetKeyRepeat(int repeatMode);
+.fi
+.SH ARGUMENTS
+.IP \fIrepeatMode\fP 1i
+Mode for setting key repeat to.
+.TP 8
+.B GLUT_KEY_REPEAT_OFF
+Disable key repeat for the window system on a global basis if possible.
+.TP 8
+.B GLUT_KEY_REPEAT_ON
+Enable key repeat for the window system on a global basis if possible.
+.TP 8
+.B GLUT_KEY_REPEAT_DEFAULT
+Reset the key repeat mode for the window system to its default state
+if possible.
+.SH DESCRIPTION
+glutSetKeyRepeat sets the key repeat mode for the window system on a
+global basis if possible.  If supported by the window system, the key
+repeat can either be enabled, disabled, or set to the window system's
+default key repeat state.
+.SH GLUT IMPLEMENTATION NOTES FOR X11
+X11 sends KeyPress events repeatedly when the window system's global auto
+repeat is enabled.  glutIgnoreKeyRepeat can prevent these auto repeated
+keystrokes from being reported as keyboard or special callbacks, but there
+is still some minimal overhead by the X server to continually stream
+KeyPress events to the GLUT application.  The glutSetKeyRepeat routine
+can be used to actually disable the global sending of auto repeated
+KeyPress events.  Note that glutSetKeyRepeat affects the global window
+system auto repeat state so other applications will not auto repeat if
+you disable auto repeat globally through glutSetKeyRepeat.
+
+GLUT applications using the X11 GLUT implemenation should disable key repeat
+with glutSetKeyRepeat to disable key repeats most efficiently.
+
+GLUT applications that change the key repeat state with glutSetKeyRepeat
+are responsible for explicitly restoring the default key repeat state on exit.
+.SH GLUT IMPLEMENTATION NOTES FOR WIN32
+The Win32 implementation of glutSetKeyRepeat does nothing.  The
+glutIgnoreKeyRepeat routine can be used in the Win32 GLUT implementation
+to ignore repeated keys on a per-window basis without changing the global
+window system key repeat.
+.SH SEE ALSO
+glutIgnoreKeyRepeat, glutKeyboardFunc, glutSpecialFunc, glutKeyboardUpFunc, glutSpecialUpFunc, glutDeviceGet
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

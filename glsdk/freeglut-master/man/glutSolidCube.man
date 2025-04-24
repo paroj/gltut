@@ -1,0 +1,27 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1996.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutSolidCube 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutSolidCube, glutWireCube - render a solid or wireframe cube respectively.
+.SH SYNTAX
+.nf
+.LP
+void glutSolidCube(GLdouble size);
+void glutWireCube(GLdouble size);
+.fi
+.SH ARGUMENTS
+.IP \fIsize\fP 1i
+Length of each edge.
+.SH DESCRIPTION
+glutSolidCube and glutWireCube render a solid or wireframe cube
+respectively. The cube is centered at the modeling coordinates origin with
+sides of length size.
+.SH SEE ALSO
+glutSolidSphere, glutSolidCone, glutSolidTorus, glutSolidDodecahedron,
+glutSolidOctahedron, glutSolidTetrahedron, glutSolidIcosahedron,
+glutSolidTeapot
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)

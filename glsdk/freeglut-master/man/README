@@ -1,0 +1,46 @@
+
+This directory contains the GLUT manual pages.
+
+These files are text files meant to be formatted with the Unix nroff/troff
+or GNU groff typesetting programs.
+
+Unix and Linux Users
+---------------------
+If you are a Unix or Linux users, these manual pages can be used by the
+"man" command.  The location of Unix manual pages varies from Unix system
+to system so check with your system documentation.  You may be able to
+set your MANPATH environment variable to this directory.  Do "man man"
+at a shell prompt for more information about viewing manual pages.
+
+Windows Users
+--------------
+For Win32 users, these manual pages require extra software to format,
+view, and/or print.  You will need a Win32 groff implementation and
+typically a PostScript viewer.
+
+Assuming that you have WinGROFF installed properly, you can generate a
+formatted text version of these manual pages by executing the following
+command at a DOS shell prompt (using the "glut.man" file as an example):
+
+  groff -man -Tascii -P-buo glut.man > glut.txt
+
+You can then view glut.txt into any text editor.
+
+You can also generate PostScript versions of the manual pages using
+WinGROFF as follows:
+
+  groff -man glut.man > glut.ps
+
+You can then view glut.ps with GSview.  You can print the PostScript
+file to your Windows printer using GSview as well.
+
+You can get a Win32 version of GNU groff from:
+
+  ftp://ftp.franken.de/pub/win32/develop/gnuwin32/cygwin/porters/Zeelenberg_Kees/V1.1/index.html
+
+You can get the GSview PostScript previewer from:
+
+  http://www.cs.wisc.edu/~ghost/gsview/index.html
+
+- Mark Kilgard
+  January 9, 2001

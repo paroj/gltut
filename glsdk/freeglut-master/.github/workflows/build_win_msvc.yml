@@ -1,0 +1,35 @@
+name: Windows MSVC build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: prepare environment
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: generate project files
+      run: cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_GENERATOR="Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX=freeglut-instdir .
+
+    - name: build freeglut
+      run: cmake --build . --config Release
+
+    - name: stage install
+      run: cmake --install .
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: freeglut-instdir
+        path: |
+          freeglut-instdir
+          bin
+
+# vi:ts=2 sts=2 sw=2 expandtab:

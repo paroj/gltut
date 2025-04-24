@@ -1,0 +1,33 @@
+.\"
+.\" Copyright (c) Mark J. Kilgard, 1996.
+.\"
+.\" See the file "man/LICENSE" for information on usage and redistribution
+.\"
+.TH glutEntryFunc 3 "April 2025" "freeglut" "freeglut"
+.SH NAME
+glutEntryFunc - sets the mouse enter/leave callback for the current window.
+.SH SYNTAX
+.nf
+.LP
+void glutEntryFunc(void (*func)(int state));
+.fi
+.SH ARGUMENTS
+.IP \fIfunc\fP 1i
+The new entry callback function.
+.SH DESCRIPTION
+glutEntryFunc sets the mouse enter/leave callback for the current
+window. The state callback parameter is either GLUT_LEFT or
+GLUT_ENTERED depending on if the mouse pointer has last left or entered
+the window.
+
+Passing NULL to glutEntryFunc disables the generation of the mouse
+enter/leave callback.
+
+Some window systems may not generate accurate enter/leave callbacks.
+X IMPLEMENTATION NOTES
+An X implementation of GLUT should generate accurate enter/leave
+callbacks.
+.SH SEE ALSO
+glutMotionFunc, glutCreateWindow
+.SH AUTHOR
+Mark J. Kilgard (mjk@nvidia.com)
