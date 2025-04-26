@@ -699,67 +699,6 @@ IF(FREEGLUT_BUILD_STATIC_LIBS)
 ENDIF()
 INSTALL(FILES ${FREEGLUT_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/GL COMPONENT Devel)
 
-########################
-# DEMOS
-########################
-
-# Optionally build demos, on by default.
-option( FREEGLUT_BUILD_DEMOS "Build FreeGLUT demos." ON )
-
-if (FREEGLUT_BUILD_DEMOS)
-    if (OPENGL_GLU_FOUND)
-        list(APPEND DEMO_LIBS ${OPENGL_glu_LIBRARY})
-    else()
-        message(FATAL_ERROR "Failed to find the GLU library which is required to build the demos.")
-    endif()
-endif()
-
-MACRO(ADD_DEMO name)
-    IF( FREEGLUT_BUILD_DEMOS )
-        IF(FREEGLUT_BUILD_SHARED_LIBS)
-            ADD_EXECUTABLE(${name} ${ARGN})
-            TARGET_LINK_LIBRARIES(${name} ${DEMO_LIBS} freeglut)
-            IF(WIN32 AND MSVC)
-                SET_TARGET_PROPERTIES(${name} PROPERTIES DEBUG_POSTFIX d)
-            ENDIF()
-        ENDIF()
-        IF(FREEGLUT_BUILD_STATIC_LIBS)
-            ADD_EXECUTABLE(${name}_static ${ARGN})
-            TARGET_LINK_LIBRARIES(${name}_static ${DEMO_LIBS} freeglut_static)
-            IF(WIN32 AND MSVC)
-                SET_TARGET_PROPERTIES(${name}_static PROPERTIES DEBUG_POSTFIX d)
-            ENDIF()
-        ENDIF()
-    ENDIF()
-ENDMACRO()
-
-ADD_DEMO(CallbackMaker   progs/demos/CallbackMaker/CallbackMaker.c)
-ADD_DEMO(Fractals        progs/demos/Fractals/fractals.c)
-ADD_DEMO(Fractals_random progs/demos/Fractals_random/fractals_random.c)
-ADD_DEMO(Lorenz          progs/demos/Lorenz/lorenz.c)
-IF (NOT WIN32)
-    ADD_DEMO(One             progs/demos/One/one.c)
-ELSE()
-    ADD_DEMO(One             progs/demos/One/one.c
-                             progs/demos/One/one.rc)
-ENDIF()
-ADD_DEMO(resizer         progs/demos/resizer/resizer.c)
-ADD_DEMO(multi-touch     progs/demos/multi-touch/multi-touch.c)
-ADD_DEMO(shapes          progs/demos/shapes/shapes.c
-                         progs/demos/shapes/glmatrix.h
-                         progs/demos/shapes/glmatrix.c)
-ADD_DEMO(smooth_opengl3  progs/demos/smooth_opengl3/smooth_opengl3.c)
-ADD_DEMO(spaceball       progs/demos/spaceball/spaceball.c
-                         progs/demos/spaceball/vmath.c
-                         progs/demos/spaceball/vmath.h)
-ADD_DEMO(joystick        progs/demos/joystick/joystick.c)
-ADD_DEMO(subwin          progs/demos/subwin/subwin.c)
-ADD_DEMO(timer           progs/demos/timer/timer.c)
-ADD_DEMO(timer_callback  progs/demos/timer_callback/timer.c)
-ADD_DEMO(keyboard        progs/demos/keyboard/keyboard.c)
-ADD_DEMO(indexed_color   progs/demos/indexed_color/idxcol.c)
-ADD_DEMO(3dview          progs/demos/3dview/3dview.c)
-
 #######################
 # INSTALLATION
 #######################

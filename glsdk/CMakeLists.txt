@@ -1,14 +1,5 @@
 ## freeglut
-file(GLOB freeglut_SRCS freeglut/src/*.c)
-add_library(freeglut STATIC ${freeglut_SRCS})
-target_include_directories(freeglut PUBLIC freeglut/include freeglut)
-target_compile_definitions(freeglut PUBLIC -DFREEGLUT_STATIC -DFREEGLUT_LIB_PRAGMAS=0)
-if(UNIX)
-    target_compile_definitions(freeglut PRIVATE -DHAVE_CONFIG_H)
-    execute_process(COMMAND sh ./configure WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/freeglut)
-else()
-    target_link_libraries(freeglut PRIVATE winmm)
-endif()
+add_subdirectory(freeglut)
 
 ## glload
 add_library(glload STATIC 

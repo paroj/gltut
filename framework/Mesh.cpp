@@ -9,8 +9,10 @@
 #include <functional>
 #include <algorithm>
 #include <iostream>
-#include <glload/gl_3_2_comp.h>
-#include <glload/gl_load.h>
+#ifdef __APPLE__
+#define FREEGLUT_NO_GL_INCLUDE
+#include <OpenGL/gl3.h>
+#endif
 #include <GL/freeglut.h>
 #include "framework.h"
 #include "Mesh.h"

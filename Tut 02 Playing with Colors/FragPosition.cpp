@@ -3,7 +3,10 @@
 #include <vector>
 #include <math.h>
 #include <stdio.h>
-#include <glload/gl_3_3.h>
+#ifdef __APPLE__
+#define FREEGLUT_NO_GL_INCLUDE
+#include <OpenGL/gl3.h>
+#endif
 #include <GL/freeglut.h>
 #include "../framework/framework.h"
 
