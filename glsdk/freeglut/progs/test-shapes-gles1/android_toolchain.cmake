@@ -1,1 +1,0 @@
-../../android_toolchain.cmake

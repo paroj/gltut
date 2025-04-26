@@ -1,2 +1,0 @@
-- Android.mk : used to create a module compatible with the NDK build
-  system.  See ../README.android for details.
