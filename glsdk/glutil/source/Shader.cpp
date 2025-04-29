@@ -5,6 +5,7 @@
 #define FREEGLUT_NO_GL_INCLUDE
 #include <OpenGL/gl3.h>
 #endif
+#include <GL/freeglut.h>
 #include "glutil/Shader.h"
 
 namespace glutil

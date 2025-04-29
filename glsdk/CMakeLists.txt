@@ -18,5 +18,5 @@ target_link_libraries(glimg PRIVATE glload)
 ## glutil
 file(GLOB glutil_SRCS glutil/source/*.cpp)
 add_library(glutil STATIC ${glutil_SRCS})
-target_include_directories(glutil PUBLIC glutil/include glm)
+target_include_directories(glutil PUBLIC glutil/include glm freeglut/include)
 target_link_libraries(glutil PRIVATE glimg glload)
