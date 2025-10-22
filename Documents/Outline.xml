@@ -312,7 +312,7 @@
             </itemizedlist>
         </section>
         <section>
-            <title>Plane Lights</title>
+            <title>Point Lights</title>
             <para>This tutorial has a scene with a ground plane and an animated light moving over
                 it.</para>
             <para>Concepts:</para>

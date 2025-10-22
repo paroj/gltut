@@ -4,7 +4,7 @@
 <chapter xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0">
     <?dbhtml filename="Tutorial 10.html" ?>
-    <title>Plane Lights</title>
+    <title>Point Lights</title>
     <para>Directional lights are useful for representing light sources like the sun and so forth.
         But most light sources are more likely to be represented as point lights.</para>
     <para>A <glossterm>point light source</glossterm> is a light source that has a position in the
