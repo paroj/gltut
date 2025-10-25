@@ -1,10 +1,11 @@
 //Copyright (C) 2011-2013 by Jason L. McKesson
 //This file is licensed by the MIT License.
 
-
-
-#include <glload/gl_all.hpp>
-#include <glload/gl_load.hpp>
+#ifdef __APPLE__
+#define FREEGLUT_NO_GL_INCLUDE
+#include <OpenGL/gl3.h>
+#endif
+#include <GL/freeglut.h>
 #include "glutil/Shader.h"
 
 namespace glutil
@@ -14,16 +15,16 @@ namespace glutil
 		void ThrowIfShaderCompileFailed(GLuint shader)
 		{
 			GLint status;
-			gl::GetShaderiv(shader, gl::COMPILE_STATUS, &status);
-			if (status == gl::FALSE_)
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+			if (status == GL_FALSE)
 				throw CompileLinkException(shader);
 		}
 
 		void ThrowIfProgramLinkFailed(GLuint program)
 		{
 			GLint status;
-			gl::GetProgramiv (program, gl::LINK_STATUS, &status);
-			if (status == gl::FALSE_)
+			glGetProgramiv (program, GL_LINK_STATUS, &status);
+			if (status == GL_FALSE)
 			{
 				throw CompileLinkException(program, true);
 			}
@@ -31,42 +32,42 @@ namespace glutil
 
 		void ThrowIfNotSeparable()
 		{
-			if(!glload::IsVersionGEQ(4, 1))
-			{
-				if(!gl::exts::var_ARB_separate_shader_objects)
-					throw SeparateShaderNotSupported();
-			}
+			// if(!glload::IsVersionGEQ(4, 1))
+			// {
+			// 	if(!glexts::var_ARB_separate_shader_objects)
+			// 		throw SeparateShaderNotSupported();
+			// }
 		}
 	}
 
 	CompileLinkException::CompileLinkException( GLuint shader )
 	{
 		GLint infoLogLength;
-		gl::GetShaderiv(shader, gl::INFO_LOG_LENGTH, &infoLogLength);
+		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
 
 		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		gl::GetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
+		glGetShaderInfoLog(shader, infoLogLength, NULL, strInfoLog);
 
 		message.assign(strInfoLog, infoLogLength);
 
 		delete[] strInfoLog;
 
-		gl::DeleteShader(shader);
+		glDeleteShader(shader);
 	}
 
 	CompileLinkException::CompileLinkException( GLuint program, bool )
 	{
 		GLint infoLogLength;
-		gl::GetProgramiv(program, gl::INFO_LOG_LENGTH, &infoLogLength);
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
 
 		GLchar *strInfoLog = new GLchar[infoLogLength + 1];
-		gl::GetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
+		glGetProgramInfoLog(program, infoLogLength, NULL, strInfoLog);
 
 		message.assign(strInfoLog, infoLogLength);
 
 		delete[] strInfoLog;
 
-		gl::DeleteProgram(program);
+		glDeleteProgram(program);
 	}
 
 	SeparateShaderNotSupported::SeparateShaderNotSupported()
@@ -75,11 +76,11 @@ namespace glutil
 
 	GLuint CompileShader( GLenum shaderType, const std::string& shaderText )
 	{
-		GLuint shader = gl::CreateShader(shaderType);
+		GLuint shader = glCreateShader(shaderType);
 		GLint textLength = (GLint)shaderText.size();
 		const GLchar *pText = static_cast<const GLchar *>(shaderText.data());
-		gl::ShaderSource(shader, 1, &pText, &textLength);
-		gl::CompileShader(shader);
+		glShaderSource(shader, 1, &pText, &textLength);
+		glCompileShader(shader);
 
 		ThrowIfShaderCompileFailed(shader);
 
@@ -88,10 +89,10 @@ namespace glutil
 
 	GLuint CompileShader( GLenum shaderType, refs::array_ref<const char *> shaderList )
 	{
-		GLuint shader = gl::CreateShader(shaderType);
-		gl::ShaderSource(shader, shaderList.size(),
+		GLuint shader = glCreateShader(shaderType);
+		glShaderSource(shader, shaderList.size(),
 			static_cast<const GLchar * const*>(shaderList.data()), NULL);
-		gl::CompileShader(shader);
+		glCompileShader(shader);
 
 		ThrowIfShaderCompileFailed(shader);
 
@@ -111,9 +112,9 @@ namespace glutil
 			stringList.push_back(static_cast<const GLchar *>(shaderList[loop].c_str()));
 		}
 
-		GLuint shader = gl::CreateShader(shaderType);
-		gl::ShaderSource(shader, shaderList.size(), &stringList[0], &stringLengths[0]);
-		gl::CompileShader(shader);
+		GLuint shader = glCreateShader(shaderType);
+		glShaderSource(shader, shaderList.size(), &stringList[0], &stringLengths[0]);
+		glCompileShader(shader);
 
 		ThrowIfShaderCompileFailed(shader);
 
@@ -122,35 +123,35 @@ namespace glutil
 
 	GLuint LinkProgram( GLuint shaderOne, GLuint shaderTwo )
 	{
-		GLuint program = gl::CreateProgram();
+		GLuint program = glCreateProgram();
 		return LinkProgram(program, shaderOne, shaderTwo);
 	}
 
 	GLuint LinkProgram( GLuint program, GLuint shaderOne, GLuint shaderTwo )
 	{
-		gl::AttachShader(program, shaderOne);
-		gl::AttachShader(program, shaderTwo);	
+		glAttachShader(program, shaderOne);
+		glAttachShader(program, shaderTwo);	
 
-		gl::LinkProgram(program);
+		glLinkProgram(program);
 		ThrowIfProgramLinkFailed(program);
 
-		gl::DetachShader(program, shaderOne);
-		gl::DetachShader(program, shaderTwo);	
+		glDetachShader(program, shaderOne);
+		glDetachShader(program, shaderTwo);	
 		return program;
 	}
 
 	GLuint LinkProgram( const std::string& vertexShader, const std::string& fragmentShader )
 	{
-		UniqueShader vertShader(CompileShader(gl::VERTEX_SHADER, vertexShader));
-		UniqueShader fragShader(CompileShader(gl::FRAGMENT_SHADER, fragmentShader));
+		UniqueShader vertShader(CompileShader(GL_VERTEX_SHADER, vertexShader));
+		UniqueShader fragShader(CompileShader(GL_FRAGMENT_SHADER, fragmentShader));
 
 		return LinkProgram(vertShader, fragShader);
 	}
 
 	GLuint LinkProgram( GLuint program, const std::string& vertexShader, const std::string& fragmentShader )
 	{
-		UniqueShader vertShader(CompileShader(gl::VERTEX_SHADER, vertexShader));
-		UniqueShader fragShader(CompileShader(gl::FRAGMENT_SHADER, fragmentShader));
+		UniqueShader vertShader(CompileShader(GL_VERTEX_SHADER, vertexShader));
+		UniqueShader fragShader(CompileShader(GL_FRAGMENT_SHADER, fragmentShader));
 
 		return LinkProgram(program, vertShader, fragShader);;
 	}
@@ -160,15 +161,15 @@ namespace glutil
 		if(isSeparable)
 			ThrowIfNotSeparable();
 
-		GLuint program = gl::CreateProgram();
+		GLuint program = glCreateProgram();
 		if(isSeparable)
-			gl::ProgramParameteri(program, gl::PROGRAM_SEPARABLE, gl::TRUE_);
+			glProgramParameteri(program, GL_PROGRAM_SEPARABLE, GL_TRUE);
 
-		gl::AttachShader(program, shader);
+		glAttachShader(program, shader);
 
-		gl::LinkProgram(program);
+		glLinkProgram(program);
 		ThrowIfProgramLinkFailed(program);
-		gl::DetachShader(program, shader);
+		glDetachShader(program, shader);
 		return program;
 	}
 
@@ -177,9 +178,9 @@ namespace glutil
 		if(isSeparable)
 			ThrowIfNotSeparable();
 
-		GLuint program = gl::CreateProgram();
+		GLuint program = glCreateProgram();
 		if(isSeparable)
-			gl::ProgramParameteri(program, gl::PROGRAM_SEPARABLE, gl::TRUE_);
+			glProgramParameteri(program, GL_PROGRAM_SEPARABLE, GL_TRUE);
 
 		return LinkProgram(program, shaders);
 	}
@@ -187,13 +188,13 @@ namespace glutil
 	GLuint LinkProgram( GLuint program, refs::array_ref<GLuint> shaders )
 	{
 		for(size_t loop = 0; loop < shaders.size(); ++loop)
-			gl::AttachShader(program, shaders[loop]);
+			glAttachShader(program, shaders[loop]);
 
-		gl::LinkProgram(program);
+		glLinkProgram(program);
 		ThrowIfProgramLinkFailed(program);
 
 		for(size_t loop = 0; loop < shaders.size(); ++loop)
-			gl::DetachShader(program, shaders[loop]);
+			glDetachShader(program, shaders[loop]);
 
 		return program;
 	}
@@ -202,7 +203,7 @@ namespace glutil
 	{
 		ThrowIfNotSeparable();
 
-		GLuint program = gl::CreateShaderProgramv(shaderType, 1, &shaderText);
+		GLuint program = glCreateShaderProgramv(shaderType, 1, &shaderText);
 		ThrowIfProgramLinkFailed(program);
 		return program;
 	}
@@ -216,7 +217,7 @@ namespace glutil
 	{
 		ThrowIfNotSeparable();
 
-		GLuint program = gl::CreateShaderProgramv(shaderType, shaderList.size(),
+		GLuint program = glCreateShaderProgramv(shaderType, shaderList.size(),
 			static_cast<const GLchar * const*>(shaderList.data()));
 		ThrowIfProgramLinkFailed(program);
 		return program;
@@ -235,13 +236,13 @@ namespace glutil
 
 	void UniqueShader::Disengage()
 	{
-		gl::DeleteShader(m_shader);
+		glDeleteShader(m_shader);
 		m_shader = 0;
 	}
 
 	void UniqueProgram::Disengage()
 	{
-		gl::DeleteProgram(m_program);
+		glDeleteProgram(m_program);
 		m_program = 0;
 	}
 }

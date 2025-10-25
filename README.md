@@ -11,12 +11,24 @@ The [License.txt](License.txt) file contains the licensing information for the m
 
 In case you prefer Java to C++, Giuseppe Barbieri [created a Java port here](https://github.com/elect86/modern-jogl-examples).
 
-## Building the tutorials
+## Building the tutorials (non Mac)
 
 - `apt-get install cmake`
 - `mkdir build && cd build`
 - `cmake ..`
 - `cmake --build . --config Release`
+
+## Building the tutorials (Mac)
+
+See [freeglut instructions for Mac](https://github.com/freeglut/freeglut/blob/07a3e80780c289b51bc723415ef41cef6b026aed/README.macosx)
+
+- `brew install cmake`
+- `mkdir build && cd build`
+- `cmake -DOPENGL_gl_LIBRARY=/usr/local/lib/libGL.dylib ..` (INTEL)
+- `cmake -DOPENGL_gl_LIBRARY=/opt/homebrew/lib/libGL.dylib ..` (ARM)
+- `cmake --build . --config Release`
+
+* NOTE: you can specify -DFREEGLUT_COCOA=ON to use experimental [freeglut cocoa support](https://github.com/freeglut/freeglut/issues/195)
 
 ## Rebuilding the HTML Documentation
 

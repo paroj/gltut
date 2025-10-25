@@ -1,0 +1,39 @@
+Freeglut on the Nintendo Wii/GameCube
+=====================================
+
+Supported features
+------------------
+
+- OpenGL via [opengx](https://github.com/devkitPro/opengx) (currently it's
+  a subset of OpenGL 1.1, newer versions will become available as opengx
+  evolves).
+- Filesystem support
+- USB keyboard support
+- GameCube controllers support
+- (Wii only) Wiimote support (without expansions)
+- (Wii only) Mouse emulation via Wiimote's IR
+
+
+Build instructions
+------------------
+
+In order to build Freeglut for the Nintendo Wii or GameCube you need to install
+the [devkitPro](https://devkitpro.org/) toolchain, which provides the `pacman`
+command to install ready-built packages. Depending on your target console,
+install either the `wii-dev` or the `gamecube-dev` group, after which you can
+build the `opengx` project (which exports an OpenGL API on top of the console's
+GX API):
+
+    git clone https://github.com/devkitPro/opengx.git
+    cd opengx
+    mkdir build && cd build
+    # For the GameCube, use `GameCube.cmake` instead
+    cmake -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/Wii.cmake" ..
+    make && sudo make install
+
+You are now ready to build Freeglut. From the Freeglut top level directory,
+type these commands:
+
+    mkdir build && cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE="$DEVKITPRO/cmake/Wii.cmake" -DFREEGLUT_BUILD_DEMOS=OFF ..
+    make && sudo make install
