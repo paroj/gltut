@@ -43,7 +43,7 @@
  */
 
 /* Define FREEGLUT_LIB_PRAGMAS to 1 to include library
- * pragmas or to 1 to exclude library pragmas.
+ * pragmas or to 0 to exclude library pragmas.
  * The default behavior depends on the compiler/platform.
  */
 #   ifndef FREEGLUT_LIB_PRAGMAS
@@ -57,8 +57,10 @@
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN 1
 #  endif
-#   define NOMINMAX
-#   include <Windows.h>
+#  ifndef NOMINMAX
+#    define NOMINMAX
+#  endif
+#   include <windows.h>
 
 /* Windows static library */
 #   ifdef FREEGLUT_STATIC
@@ -68,7 +70,11 @@
 
         /* Link with Win32 static freeglut lib */
 #       if FREEGLUT_LIB_PRAGMAS
-#           pragma comment (lib, "freeglut_static.lib")
+#           ifdef NDEBUG
+#               pragma comment (lib, "freeglut_static.lib")
+#           else
+#               pragma comment (lib, "freeglut_staticd.lib")
+#           endif
 #       endif
 
 /* Windows shared library (DLL) */
@@ -82,7 +88,11 @@
 
             /* Link with Win32 shared freeglut lib */
 #           if FREEGLUT_LIB_PRAGMAS
-#               pragma comment (lib, "freeglut.lib")
+#               ifdef NDEBUG
+#                   pragma comment (lib, "freeglut.lib")
+#               else
+#                   pragma comment (lib, "freeglutd.lib")
+#               endif
 #           endif
 
 #       endif
@@ -111,14 +121,47 @@
  */
 #define  FREEGLUT             1
 #define  GLUT_API_VERSION     4
-#define  FREEGLUT_VERSION_2_0 1
 #define  GLUT_XLIB_IMPLEMENTATION 13
+/* Deprecated:
+   cf. http://sourceforge.net/mailarchive/forum.php?thread_name=CABcAi1hw7cr4xtigckaGXB5X8wddLfMcbA_rZ3NAuwMrX_zmsw%40mail.gmail.com&forum_name=freeglut-developer */
+#define  FREEGLUT_VERSION_2_0 1
 
 /*
- * Always include OpenGL and GLU headers
+ * Include OpenGL and GLU headers unless explicitly excluded (FREEGLUT_NO_GL_INCLUDE).
+ *
+ * On some platforms, such as macOS, OpenGL headers are split:
+ *   - <OpenGL/gl.h> for the compatibility profile (OpenGL 2.1 and earlier).
+ *   - <OpenGL/gl3.h> for the core profile (OpenGL 3.2+).
+ *
+ *  For example to use the core profile on macOS, you can do:
+ *
+ *    #ifdef __APPLE__
+ *    #define FREEGLUT_NO_GL_INCLUDE
+ *    #include <OpenGL/gl3.h>
+ *    #endif
+ *
+ *    #include <GL/freeglut.h>
  */
-#include <GL/gl.h>
-#include <GL/glu.h>
+#ifndef FREEGLUT_NO_GL_INCLUDE
+/* Note: FREEGLUT_GLES is only used to cleanly bootstrap headers
+   inclusion here; use GLES constants directly
+   (e.g. GL_ES_VERSION_2_0) for all other needs */
+#ifdef FREEGLUT_GLES
+#   include <EGL/egl.h>
+#   include <GLES/gl.h>
+#   include <GLES2/gl2.h>
+#elif __APPLE__
+/* stop MacOSX GL headers for complaining that OpenGL is deprecated */
+#   ifndef GL_SILENCE_DEPRECATION
+#       define GL_SILENCE_DEPRECATION
+#   endif
+#   include <OpenGL/gl.h>
+#   include <OpenGL/glu.h>
+#else
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#endif
+#endif /* !defined(FREEGLUT_NO_GL_INCLUDE) */
 
 /*
  * GLUT API macro definitions -- the special key codes:
@@ -189,7 +232,7 @@
  *
  * Steve Baker suggested to make it binary compatible with GLUT:
  */
-#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__WATCOMC__)
+#if defined(_MSC_VER) || defined(__CYGWIN__) || defined(__MINGW32__) || defined(__WATCOMC__) || defined(__DEVKITPRO__)
 #   define  GLUT_STROKE_ROMAN               ((void *)0x0000)
 #   define  GLUT_STROKE_MONO_ROMAN          ((void *)0x0001)
 #   define  GLUT_BITMAP_9_BY_15             ((void *)0x0002)
@@ -393,12 +436,12 @@ FGAPI void    FGAPIENTRY glutInitDisplayMode( unsigned int displayMode );
 FGAPI void    FGAPIENTRY glutInitDisplayString( const char* displayMode );
 
 /*
- * Process loop function, see freeglut_main.c
+ * Process loop function, see fg_main.c
  */
 FGAPI void    FGAPIENTRY glutMainLoop( void );
 
 /*
- * Window management functions, see freeglut_window.c
+ * Window management functions, see fg_window.c
  */
 FGAPI int     FGAPIENTRY glutCreateWindow( const char* title );
 FGAPI int     FGAPIENTRY glutCreateSubWindow( int window, int x, int y, int width, int height );
@@ -417,20 +460,20 @@ FGAPI void    FGAPIENTRY glutPopWindow( void );
 FGAPI void    FGAPIENTRY glutFullScreen( void );
 
 /*
- * Display-connected functions, see freeglut_display.c
+ * Display-related functions, see fg_display.c
  */
 FGAPI void    FGAPIENTRY glutPostWindowRedisplay( int window );
 FGAPI void    FGAPIENTRY glutPostRedisplay( void );
 FGAPI void    FGAPIENTRY glutSwapBuffers( void );
 
 /*
- * Mouse cursor functions, see freeglut_cursor.c
+ * Mouse cursor functions, see fg_cursor.c
  */
 FGAPI void    FGAPIENTRY glutWarpPointer( int x, int y );
 FGAPI void    FGAPIENTRY glutSetCursor( int cursor );
 
 /*
- * Overlay stuff, see freeglut_overlay.c
+ * Overlay stuff, see fg_overlay.c
  */
 FGAPI void    FGAPIENTRY glutEstablishOverlay( void );
 FGAPI void    FGAPIENTRY glutRemoveOverlay( void );
@@ -441,7 +484,7 @@ FGAPI void    FGAPIENTRY glutShowOverlay( void );
 FGAPI void    FGAPIENTRY glutHideOverlay( void );
 
 /*
- * Menu stuff, see freeglut_menu.c
+ * Menu stuff, see fg_menu.c
  */
 FGAPI int     FGAPIENTRY glutCreateMenu( void (* callback)( int menu ) );
 FGAPI void    FGAPIENTRY glutDestroyMenu( int menu );
@@ -456,13 +499,13 @@ FGAPI void    FGAPIENTRY glutAttachMenu( int button );
 FGAPI void    FGAPIENTRY glutDetachMenu( int button );
 
 /*
- * Global callback functions, see freeglut_callbacks.c
+ * Global callback functions, see fg_callbacks.c
  */
 FGAPI void    FGAPIENTRY glutTimerFunc( unsigned int time, void (* callback)( int ), int value );
 FGAPI void    FGAPIENTRY glutIdleFunc( void (* callback)( void ) );
 
 /*
- * Window-specific callback functions, see freeglut_callbacks.c
+ * Window-specific callback functions, see fg_callbacks.c
  */
 FGAPI void    FGAPIENTRY glutKeyboardFunc( void (* callback)( unsigned char, int, int ) );
 FGAPI void    FGAPIENTRY glutSpecialFunc( void (* callback)( int, int, int ) );
@@ -491,7 +534,7 @@ FGAPI void    FGAPIENTRY glutTabletMotionFunc( void (* callback)( int, int ) );
 FGAPI void    FGAPIENTRY glutTabletButtonFunc( void (* callback)( int, int, int, int ) );
 
 /*
- * State setting and retrieval functions, see freeglut_state.c
+ * State setting and retrieval functions, see fg_state.c
  */
 FGAPI int     FGAPIENTRY glutGet( GLenum query );
 FGAPI int     FGAPIENTRY glutDeviceGet( GLenum query );
@@ -499,27 +542,29 @@ FGAPI int     FGAPIENTRY glutGetModifiers( void );
 FGAPI int     FGAPIENTRY glutLayerGet( GLenum query );
 
 /*
- * Font stuff, see freeglut_font.c
+ * Font stuff, see fg_font.c
  */
 FGAPI void    FGAPIENTRY glutBitmapCharacter( void* font, int character );
 FGAPI int     FGAPIENTRY glutBitmapWidth( void* font, int character );
 FGAPI void    FGAPIENTRY glutStrokeCharacter( void* font, int character );
 FGAPI int     FGAPIENTRY glutStrokeWidth( void* font, int character );
+FGAPI GLfloat FGAPIENTRY glutStrokeWidthf( void* font, int character ); /* GLUT 3.8 */
 FGAPI int     FGAPIENTRY glutBitmapLength( void* font, const unsigned char* string );
 FGAPI int     FGAPIENTRY glutStrokeLength( void* font, const unsigned char* string );
+FGAPI GLfloat FGAPIENTRY glutStrokeLengthf( void* font, const unsigned char *string ); /* GLUT 3.8 */
 
 /*
- * Geometry functions, see freeglut_geometry.c
+ * Geometry functions, see fg_geometry.c
  */
-FGAPI void    FGAPIENTRY glutWireCube( GLdouble size );
-FGAPI void    FGAPIENTRY glutSolidCube( GLdouble size );
-FGAPI void    FGAPIENTRY glutWireSphere( GLdouble radius, GLint slices, GLint stacks );
-FGAPI void    FGAPIENTRY glutSolidSphere( GLdouble radius, GLint slices, GLint stacks );
-FGAPI void    FGAPIENTRY glutWireCone( GLdouble base, GLdouble height, GLint slices, GLint stacks );
-FGAPI void    FGAPIENTRY glutSolidCone( GLdouble base, GLdouble height, GLint slices, GLint stacks );
 
-FGAPI void    FGAPIENTRY glutWireTorus( GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings );
-FGAPI void    FGAPIENTRY glutSolidTorus( GLdouble innerRadius, GLdouble outerRadius, GLint sides, GLint rings );
+FGAPI void    FGAPIENTRY glutWireCube( double size );
+FGAPI void    FGAPIENTRY glutSolidCube( double size );
+FGAPI void    FGAPIENTRY glutWireSphere( double radius, GLint slices, GLint stacks );
+FGAPI void    FGAPIENTRY glutSolidSphere( double radius, GLint slices, GLint stacks );
+FGAPI void    FGAPIENTRY glutWireCone( double base, double height, GLint slices, GLint stacks );
+FGAPI void    FGAPIENTRY glutSolidCone( double base, double height, GLint slices, GLint stacks );
+FGAPI void    FGAPIENTRY glutWireTorus( double innerRadius, double outerRadius, GLint sides, GLint rings );
+FGAPI void    FGAPIENTRY glutSolidTorus( double innerRadius, double outerRadius, GLint sides, GLint rings );
 FGAPI void    FGAPIENTRY glutWireDodecahedron( void );
 FGAPI void    FGAPIENTRY glutSolidDodecahedron( void );
 FGAPI void    FGAPIENTRY glutWireOctahedron( void );
@@ -530,13 +575,14 @@ FGAPI void    FGAPIENTRY glutWireIcosahedron( void );
 FGAPI void    FGAPIENTRY glutSolidIcosahedron( void );
 
 /*
- * Teapot rendering functions, found in freeglut_teapot.c
+ * Teapot rendering functions, found in fg_teapot.c
+ * NB: front facing polygons have clockwise winding, not counter clockwise
  */
-FGAPI void    FGAPIENTRY glutWireTeapot( GLdouble size );
-FGAPI void    FGAPIENTRY glutSolidTeapot( GLdouble size );
+FGAPI void    FGAPIENTRY glutWireTeapot( double size );
+FGAPI void    FGAPIENTRY glutSolidTeapot( double size );
 
 /*
- * Game mode functions, see freeglut_gamemode.c
+ * Game mode functions, see fg_gamemode.c
  */
 FGAPI void    FGAPIENTRY glutGameModeString( const char* string );
 FGAPI int     FGAPIENTRY glutEnterGameMode( void );
@@ -544,7 +590,7 @@ FGAPI void    FGAPIENTRY glutLeaveGameMode( void );
 FGAPI int     FGAPIENTRY glutGameModeGet( GLenum query );
 
 /*
- * Video resize functions, see freeglut_videoresize.c
+ * Video resize functions, see fg_videoresize.c
  */
 FGAPI int     FGAPIENTRY glutVideoResizeGet( GLenum query );
 FGAPI void    FGAPIENTRY glutSetupVideoResizing( void );
@@ -553,21 +599,21 @@ FGAPI void    FGAPIENTRY glutVideoResize( int x, int y, int width, int height );
 FGAPI void    FGAPIENTRY glutVideoPan( int x, int y, int width, int height );
 
 /*
- * Colormap functions, see freeglut_misc.c
+ * Colormap functions, see fg_misc.c
  */
 FGAPI void    FGAPIENTRY glutSetColor( int color, GLfloat red, GLfloat green, GLfloat blue );
 FGAPI GLfloat FGAPIENTRY glutGetColor( int color, int component );
 FGAPI void    FGAPIENTRY glutCopyColormap( int window );
 
 /*
- * Misc keyboard and joystick functions, see freeglut_misc.c
+ * Misc keyboard and joystick functions, see fg_misc.c
  */
 FGAPI void    FGAPIENTRY glutIgnoreKeyRepeat( int ignore );
 FGAPI void    FGAPIENTRY glutSetKeyRepeat( int repeatMode );
 FGAPI void    FGAPIENTRY glutForceJoystickFunc( void );
 
 /*
- * Misc functions, see freeglut_misc.c
+ * Misc functions, see fg_misc.c
  */
 FGAPI int     FGAPIENTRY glutExtensionSupported( const char* extension );
 FGAPI void    FGAPIENTRY glutReportErrors( void );
