@@ -673,7 +673,7 @@ GL_MODIFY->opacity = 0.4f;
                 versions. v3.0 deprecated a number of older functions, and v3.1 removed most of
                 those functions from the API<footnote>
                     <para>Deprecation only means marking those functions as to be removed in later
-                        functions. They are still available for use in 3.0.</para>
+                        versions. They are still available for use in 3.0.</para>
                 </footnote>. This also divided the specification into 2 variations (called
                 profiles): core and compatibility. The compatibility profile retains all of the
                 functions removed in 3.1, while the core profile does not. Theoretically, OpenGL
