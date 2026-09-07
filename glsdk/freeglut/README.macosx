@@ -1,0 +1,53 @@
+Freeglut on MacOS X
+===================
+
+Currently freeglut does not support the native Cocoa API and the OpenGL
+framework which works with it, but rather relies on X11 (XQuartz) and the Mesa
+OpenGL and GLX libraries.
+
+The simplest way to set up the prerequisites for building and using freeglut is
+with the homebrew package management system: https://brew.sh
+
+Build instructions
+------------------
+
+Prerequisites:
+  - If you don't already have homebrew, go to https://brew.sh and follow their
+    instructions.
+  - If you don't already have a compiler toolchain installed, download the Xcode
+    commandline tools from the apple store and install them first.
+  - If you don't have XQuartz installed, get it from https://www.xquartz.org
+    Alternatively you can install it with homebrew:
+      `brew install xquartz`
+  - Use homebrew to install cmake, and all the necessary libraries:
+      `brew install cmake libx11 libxi libxrandr libxxf86vm pkg-config mesa`
+
+Build freeglut:
+  - Create a build directory under the freeglut directory and change into it:
+      `mkdir build && cd build`
+  - Run cmake to generate the makefile. On **intel macs**, homebrew installs mesa in
+    the traditional /usr/local prefix, so use this command:
+      `cmake -DFREEGLUT_BUILD_DEMOS=OFF -DOPENGL_gl_LIBRARY=/usr/local/lib/libGL.dylib ..`
+    On **ARM macs** homebrew installs under /opt/homebrew, so do this instead:
+      `cmake -DFREEGLUT_BUILD_DEMOS=OFF -DOPENGL_gl_LIBRARY=/opt/homebrew/lib/libGL.dylib ..`
+  - Run `make` to build freeglut, and `make install` to install it.
+
+Usage
+-----
+
+To use freeglut in your program **do not** include `<GLUT/glut.h>`; that header
+is part of Apple's GLUT framework. Use `#include <GL/glut.h>` instead as usual,
+or `#include <GL/freeglut.h>` if you wish to take advantage of the extended
+freeglut API.
+
+Similarly, to link with freeglut **do not** use `-framework GLUT` in your
+linker command line. Instead use the standard `-lglut` argument, as you would
+on any other UNIX system.
+
+Known issues
+------------
+
+Some versions of XQuartz do not map the option keys to ALT by default, making
+it impossible to get the `GLUT_ACTIVE_ALT` bit set in the bitmask returned by
+`glutGetModifiers`. To change this behavior go to the XQuartz preferences and
+enable the "Option keys send Alt_L and Alt_R" checkbox in the "input" tab.

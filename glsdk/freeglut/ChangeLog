@@ -1,3 +1,137 @@
+2024-06-08  John Tsiombikas <nuclear@member.fsf.org>
+
+	freeglut 3.6 changes:
+
+	* New platforms: Nintendo Gamecube and Nintendo Wii.
+	* Minimum cmake version raised to 3.1.
+	* Make XInput an optional dependency.
+	* Fix incorrect modifier bit mapped to GLUT_ACTIVE_SUPER on X11.
+	* Add support for ARM64 MSVC targets.
+	* Fix for unicode builds on windows.
+	* Fix build on some versions of MinGW carrying an incorrect winuser.h.
+	* Fix menu-related memory leak when an error occurs.
+	* Various build improvements & fixes.
+
+2022-10-07  John Tsiombikas <nuclear@member.fsf.org>
+
+	freeglut 3.4 changes:
+
+	* Add GLUT_ACTIVE_SUPER modifier, and corresponding GLUT_KEY_SUPER_L
+	and GLUT_KEY_SUPER_R special keys. These map to Windows/Command keys.
+	* Fix RGB mode (GLUT_RGBA) colors on 8bpp displays on windows
+	(construct default RGB332 palette).
+	* Fix indexed color context creation on X11 and windows (GLUT_INDEX).
+	* Add missing colormap management functions for X11 and windows
+	(glutSetColor, glutGetColor).
+	* Fix crash when calling glutTimerFuncUcall.
+	* Fix FreeBSD build by essentially disabling the joystick code for
+	newer FreeBSD versions. It will eventually need to be replaced/fixed.
+	* Add fallbacks for the old GLX (<1.3) context creation API
+	(glXChooseVisual/glXCreateContext), makes us compatible with IRIX 5.x
+	and other old UNIX systems.
+	* Add fallbacks for OpenGL 1.0 (no vertex arrays/client state).
+	* Use nanosleep instead of usleep on UNIX, which is more widely
+	supported on old UNIX systems.
+	* Fix build on X11 if GL_SAMPLES is not defined.
+	* Fix overly strict context version checking on Android leading to
+	context creation failure in some cases.
+	* Fix GLUT_CURSOR_INFO on windows, should be IDC_HAND, not IDC_HELP.
+	* Fix mismatched font declarations on X11.
+	* Add alternative simple ways to build freeglut with native tools only,
+	without having to use cmake.
+	* Fix build on windows with cmake 3.0.0. Explicitly link with gdi32.
+	* Fix build on MSVC 2005.
+	* Fix build on MacOS X. Link with all the necessary X libraries.
+	* Fix build on SGI IRIX.
+	* Fix build on Android (mismatched function prototypes and missing
+	glutCreateMenuUcall).
+	* Add support for the ninja multi-config generator.
+	* Removed spurious dependency on a C++ compiler. One of the demos was
+	being compiled as C++ for no reason.
+	* Silence unnecessary warnings when VBOs or GLSL are not available.
+	* New demo programs: 3dview, keyboard, joystick.
+	* Documentation: added MacOS X build instructions.
+	* Made it possible to eventually support building freeglut as a single
+	compilation unit, by avoiding name conflicts on static variables.
+	* Other minor fixes.
+
+2022-02-06  John Tsiombikas <nuclear@member.fsf.org>
+
+	freeglut 3.2.2 changes:
+
+	* Fix netbsd/aarch64 build by including sys/joystick.h instead of
+	machine/joystick.h.
+	* Fix build with gcc >= 10 which made -fno-common the default by no
+	longer relying on COMMON symbols for globals.
+	* Fix android build (default to FREEGLUT_GLES, and check for debug
+	flags).
+	* Add flat shading option to the shapes demo.
+	* Fix crash when calling primitive drawing functions without creating a
+	window first.
+	* Dropped really old and unmaintained doc directory from the source
+	tree.
+
+2019-09-29  John Tsiombikas <nuclear@member.fsf.org>
+
+	freeglut 3.2.1 changes:
+
+	* Fixed failure to install glut.h when the "replace glut" build option
+	is enabled.
+	* Take into account CMAKE_INSTALL_LIBDIR in the installed cmake module.
+	* Fixed broken menu drawing when the user requests a core profile
+	context.
+
+2019-09-16  John Tsiombikas <nuclear@member.fsf.org>
+
+	freeglut 3.2.0 changes:
+
+	* Added new callback registration functions and corresponding callback
+	types in the extended API, which take an extra user pointer, and pass
+	it through to the callbacks (ucall API).
+	* Added initial wayland support.
+	* Fixed mousewheel callbacks on X11.
+	* Fallback to non-sRGB context, instead of crashing, if the user
+	requested SRGB but failed to get one.
+	* Added GLUT_WINDOW_SRGB query to check if the context supports sRGB or
+	the fallback was triggered.
+	* Added missing spaceball support for windows.
+	* Fixed crash on re-init after having set a custom cursor.
+	* Added init error handler demo.
+	* Added cmake package.
+	* Added GLUT_ALLOW_NEGATIVE_WINDOW_POSITION option.
+	* Fixed incorrect library name in pkg-config files when building with
+	"replace glut" option disabled.
+	* Added spaceball button definitions in the extended API header.
+	* Added the "replace glut" option on windows too.
+	* Fixed missing static defines from pkg-config.
+	* Fixed incorrectly trying to install glut.h when the "replace glut"
+	option is disabled.
+	* Take "maximized" state into account when updating the visibility flag
+	on windows.
+	* Corrected "exit state" checking in the main loop, by placing the check
+	after every glutMainLoopEvent invocation.
+	* Added checking for the XInput dependency in cmake.
+	* Fixed netbsd build (joystick code).
+	* Fixed -pedantic GCC warnings on GNU/Linux.
+	* Fixed PDB installation for nmake/msvc builds on windows.
+	* Clear window work mask when marking it for destruction.
+	* Fixed android build with clang.
+	* Fixed GLUT_STEREO on nvidia windows drivers, which don't play well
+	with fullscreen windows with frames.
+	* Fixed original-GLUT compatibility in spaceball button numbering.
+	* Dropped unnecessary X11 utility library dependencies.
+	* Fixed namespace pollution due to some global symbols missing the fg
+	prefix.
+	* Fixed improper setting of the non-blocking flag in the joystick code
+	on UNIX.
+
+2012-01-09  John F. Fay <johnffay@cybertron.com>
+	* Released freeglut 2.8.0 a few days ago and am restarting the ChangeLog
+	* Added 'cmake' support
+	* Moved source files from 'src' directory to 'src/Common' directory with
+	an eye to moving platform-specific code to separate files in separate
+	directories
+
 2009-08-10  Sven Panne  <sven.panne@aedion.de>
 
 	* include/GL/freeglut_ext.h,include/GL/freeglut_std.h,src/freeglut_ext.c,
@@ -748,7 +882,7 @@
 2005-06-30  Sven Panne <sven.panne@aedion.de>
 
 	* src/freeglut_main.c: Ooops, forgot to set the current window in the
-	  last commit. I'll have to test better before comitting... :-]
+	  last commit. I'll have to test better before committing... :-]
 	* ChangeLog, src/freeglut_main.c: When a window is iconified, only an
 	  UnmapNotify is sent, not a VisibilityNotify, so we have to handle the
 	  window status callback in the former case, too. This fixes bug #763442
@@ -807,7 +941,7 @@
 2005-06-02  James Jones <puggles@users.sourceforge.net>
 
 	* ChangeLog, configure.ac, src/freeglut_internal.h: 2.4.0 Release
-	  Candiate 5
+	  Candidate 5
 
 2005-05-26  John F. Fay <john.fay.ctr@eglin.af.mil>
 
@@ -852,7 +986,7 @@
 	* src/freeglut_gamemode.c: Fixed SF bug #1204256: Off-by-one error in
 	  X11 mode switching. The code which changes the X11 video mode has an
 	  off-by-one error, resulting in a wrong mode or segfault. I've
-	  refactored the code slighty to make it hopefully clearer what's going
+	  refactored the code slightly to make it hopefully clearer what's going
 	  on and corrected some #ifdefs on the way. Now at least the "One" demo
 	  works for me.
 	* src/freeglut_window.c: Fixed SF bug #1204261: Mini space leak when
@@ -920,7 +1054,7 @@
 	* src/freeglut_joystick.c: Removing an unused function
 	* src/freeglut_init.c: Making the \"key repeat\" initialization
 	  consistent with the rest of its usage; also making the
-	  \"initDisplayString\" ever-so-slightly mroe general
+	  \"initDisplayString\" ever-so-slightly more general
 	* ChangeLog, TODO, src/freeglut_window.c: Updating the ChangeLog and
 	  TODO files in preparation for the upcoming release
 
@@ -1412,7 +1546,7 @@
 	* src/freeglut_callbacks.c: Fixed the bug where glutDisplayFunc() was
 	  effectively invoking glutPostRedsiplay(). This is wrong on the face of
 	  it, and may be at root for some of the annoying "timing" issues we've
-	  had with redisplay events being called inappopriately.
+	  had with redisplay events being called inappropriately.
 
 2004-02-19  rkrolib
 
@@ -1499,7 +1633,7 @@
 	  functions are modified to respect offscreen status.
 	  
 	  (Excepting reshaping windows, there is not much useful interpretation
-	  for managment of offscreen areas. Reshaping is possibly more work than
+	  for management of offscreen areas. Reshaping is possibly more work than
 	  it's worth to support, and GLUT specs allow us to ignore the request.)
 	  
 	  * Cleanup for "offscreen" windows is a little different than for
@@ -1526,7 +1660,7 @@
 
 2004-01-16  rkrolib
 
-	* src/freeglut_main.c: Ammended a comment on fgCheckJoystickCallback().
+	* src/freeglut_main.c: Amended a comment on fgCheckJoystickCallback().
 	* src/freeglut_main.c: Minor style normalizations to minimize the diffs
 	  between *now* and from before John's changes. No functional changes:
 	  
@@ -1556,7 +1690,7 @@
 	* src/freeglut_main.c, src/freeglut_menu.c, src/freeglut_structure.c:
 	  Split a few overlong lines.
 	  
-	  Adjusted some spacing in a few spots to be more consistant with
+	  Adjusted some spacing in a few spots to be more consistent with
 	  freeglut style. Including one unindented if() body.
 	  
 	  Eliminated a dead variable.
@@ -1772,7 +1906,7 @@
 	  (which during general display callback handling would result in
 	  effectively a glutReshapeWindow()).
 	  
-	  The code is now system-dependant. It should be abstracted to a
+	  The code is now system-dependent. It should be abstracted to a
 	  function, but is presently copied in two places. Sorry.
 	  
 	  Also, inverted the order of the associated if()/else check (in both
@@ -2026,7 +2160,7 @@
 	  file.
 	  
 	  NOTE: The prior version of the *.dsw file does not in fact have CRs. I
-	  thought that it did. For consistancy, I am not putting them in in this
+	  thought that it did. For consistency, I am not putting them in in this
 	  version, either. (At least one person said that his MSVC++ system is
 	  happy with the current files. If there are problems, we can easily add
 	  the CRs, but that should be a separate commit...)
@@ -2092,14 +2226,14 @@
 	* src/freeglut_menu.c: A first pass over freeglut_menu.c to bring it in
 	  line with the rest of freeglut's style. Mostly re-indenting and
 	  splitting long lines. For those that may be concerned: No, I didn't do
-	  any more arrangments of the form (CONST == a) rather than (a ==
+	  any more arrangements of the form (CONST == a) rather than (a ==
 	  CONST). (^&
 	* progs/demos/Fractals_random/fractals_random.c: Altered the way that
 	  the {random} value (from 0..3) is chosen.
 	  
 	  Previously, it picked out two adjacent bits in the result of rand().
 	  Unfortunately, these adjacent bits (at least on NetBSD) have a certain
-	  amount of dependance. After a period (perhaps a thousand or so?), it
+	  amount of dependence. After a period (perhaps a thousand or so?), it
 	  starts to repeat the pattern of those two bits. (I think; I haven't
 	  actually tested that directly.) This presumably is locking it into a
 	  an an N-way attractor on the "snowflake", such that if you zoom in a
@@ -2109,7 +2243,7 @@
 	  What I've done now is to pick up two widely-spaced bits in a single
 	  rand() call. (Perhaps we would do as well to pick up something like
 	  bit #16 from two consecutive rand() calls?) These widely-spaced bits
-	  have a lower statistical dependance on one another (if I can get away
+	  have a lower statistical dependence on one another (if I can get away
 	  with using that term for an arithmetic operation; though since stats
 	  has more to do with sampling and less to do with true randomness, I
 	  may be safe).
@@ -2187,7 +2321,7 @@
 	  
 	  * Don't write a == CONST. Instead, write CONST == a. Or, more
 	  generally (in C like languages): Avoid putting an lvalue on the
-	  left-hand side of an == comparison. (For consistancy, I try to avoid
+	  left-hand side of an == comparison. (For consistency, I try to avoid
 	  lvalues on the left- hand side of any comparison---but == is the most
 	  notorious.)
 	  
@@ -2307,7 +2441,7 @@
 	* src/freeglut_main.c: Missed a block where one level was 2-space
 	  indented.
 	  
-	  Nit-picked a few other lines for consistancy.
+	  Nit-picked a few other lines for consistency.
 
 2003-11-03  rkrolib
 
@@ -2372,9 +2506,9 @@
 	* src/freeglut_window.c: Missed a few say-nothing-new comments in
 	  fgOpenWindow(). Eeep. Should be better now. (^&
 	* src/freeglut_window.c: Cleansed fgCloseWindow(): * say-nothing-new
-	  comments axed. * de-TABbed. * Made the white-space to be consistant.
+	  comments axed. * de-TABbed. * Made the white-space to be consistent.
 	* src/freeglut_window.c: Cleaned up fgOpenWindow(): * Removed TABs. *
-	  Made indentation consistant. * Deleted say-nothing-new comments. *
+	  Made indentation consistent. * Deleted say-nothing-new comments. *
 	  Changed an *error*check* from an assert to an if(). (The error-check
 	  was on window creation; we don't want to lose that if the user
 	  compiles with asserts deactivated. Also, assert()s really tell us more
@@ -2383,14 +2517,14 @@
 	  depend upon assert()s never being compiled away to null statements.) *
 	  Added some XXX comments for things that bear some rumination.
 	* src/freeglut_window.c: Cleanup to fgSetWindow(). The usual suspects: *
-	  Removed tabs. * Made indentation consistant. * Killed off
+	  Removed tabs. * Made indentation consistent. * Killed off
 	  say-nothing-new comments.
 	* src/freeglut_window.c: Cleanup to fgSetupixelFormat(). Should be no
 	  functional changes.
 	  
 	  Code facelift included:
 	  
-	  * Consistant indentation. * Removal of all TABs (there were a bunch).
+	  * Consistent indentation. * Removal of all TABs (there were a bunch).
 	  * Fit to 80 columns.
 	* src/freeglut_window.c: There should be no changes to code
 	  functionality, though a fair bit of little changes to the code
@@ -2423,7 +2557,7 @@
 	  In short, the code still has some issues, but I think that it's a bit
 	  better.
 	  
-	  (Oh, I also got rid of oustanding TABs.)
+	  (Oh, I also got rid of outstanding TABs.)
 	* src/freeglut_structure.c: Eliminated most of the say-nothing-new
 	  comments.
 	  
@@ -2480,7 +2614,7 @@
 	  mode does it. It's not ideal but it works. The glutGet() for the
 	  window border sizes will also have to be fixed at some point.
 	* src/freeglut_window.c: Rewrote glutFullscreen(). It now correctly
-	  places the window in X11. It now uses system dependant code for more
+	  places the window in X11. It now uses system dependent code for more
 	  efficient use of windowing system calls.
 
 2003-10-29  rkrolib
@@ -2490,7 +2624,7 @@
 	  
 	  I missed a few lines that went past 80 columns. (^&
 	  
-	  Also made formatting more consistant.
+	  Also made formatting more consistent.
 	  
 	  Added a couple of XXX comments re. FreeBSD vs. general BSD #ifdef's.
 	* src/freeglut_joystick.c: Should be entirely superficial changes to
@@ -2498,7 +2632,7 @@
 	  
 	  * Fit lines to 80 columns. (It does get tiresome seeing long lines
 	  forced to break by the right-hand border of windows...(^&) *
-	  Eliminated say-nothing-new comments. * Made formatting more consistant
+	  Eliminated say-nothing-new comments. * Made formatting more consistent
 	  in spots. * Eliminated some hard TAB characters.
 	* src/freeglut_joystick.c: Added Thierry's change to include
 	  sys/param.h. This lets us pick out version numbers for OS releases
@@ -2528,7 +2662,7 @@
 	  
 	  Cleanup of fghGetConfig(). (One return statement, simpler code.)
 	  
-	  Made glutSetOption() have a more consistant style---and also got its
+	  Made glutSetOption() have a more consistent style---and also got its
 	  lines to stay under 80 columns.
 	* src/freeglut_misc.c: Got the last of the say-nothing-new comments in
 	  freeglut_misc.c.
@@ -2573,7 +2707,7 @@
 	  was strangely formatted to the point that it seemed completely out of
 	  place, so I took the liberty of reformatting it. Since I used GNU
 	  EMACS's <tab> key (which re-indents rather than inserts TAB
-	  characters), I had to propogate some indentation changes a little
+	  characters), I had to propagate some indentation changes a little
 	  further than the bare necessity to match up with John's changes. (John
 	  seems to shoot for 2-space indents, while EMACS (and I, I confess)
 	  strongly prefer 4-space indents. The code that I was re-indenting had
@@ -2629,7 +2763,7 @@
 	  
 	  * Expanded a comment re. some #define macros.
 	  
-	  * Made colors and font choice system dependant. The UNIX freeglut
+	  * Made colors and font choice system dependent. The UNIX freeglut
 	  menus look more like UNIX GLUT menus, now. (This is PURELY a cosmetic
 	  change. But it achieves better compatibility visually.)
 	* src/freeglut_main.c: Cleaned up glutMainLoop() a bit:
@@ -2643,7 +2777,7 @@
 	  into glutMainLoopEvent() for some reason.
 	  
 	  If the X11 code could be tucked into another function,
-	  glutMainLoopEvent() could be platform-independant.
+	  glutMainLoopEvent() could be platform-independent.
 
 2003-10-26  rkrolib
 
@@ -2791,7 +2925,7 @@
 	  Removed depth-buffer usage. (Also done for Fractals in previous
 	  commit...)
 	* progs/demos/Fractals/fractals.c: A few minor changes: * glutInit*()
-	  calls should preceed glutInit(), per se, generally. This is so that
+	  calls should precede glutInit(), per se, generally. This is so that
 	  glutInit()'s configuration (which picks up on user parameters) can
 	  override application defaults. * glutInit() should be called before
 	  ANY attempt to process {argv, argc}. This is because there may be
@@ -2818,7 +2952,7 @@
 	  this fix).
 	  
 	  I did not touch the Microsoft side, because I don't know what their OS
-	  does---nor if old GLUT was historically system-dependant about this.
+	  does---nor if old GLUT was historically system-dependent about this.
 
 2003-10-08  Eric Sandall
 
@@ -2832,7 +2966,7 @@
 	  The broad outlines are:
 	  
 	  * Color schemes are now in variables, are closer to old GLUT, and are
-	  system dependant (as old GLUT did). * You can change the font to any
+	  system dependent (as old GLUT did). * You can change the font to any
 	  bitmapped font more easily, which can aid in finding a better
 	  approximation. (Old GLUT does not seem to have used a GLUT font for
 	  the menus, which causes problems for us.) The menus rescale
@@ -3131,7 +3265,7 @@
 
 	* configure.in, src/Makefile.am, src/freeglut_glutfont_definitions.c,
 	  src/freeglut_internal.h: Added autoconf detection for the xf86 vid
-	  mode extentions.
+	  mode extensions.
 
 2003-08-01  Eric Sandall
 
@@ -3706,7 +3840,7 @@
 	  freeglut-1.3/freeglut_structure.c, freeglut-1.3/freeglut_window.c,
 	  genfonts/Makefile.am, genfonts/genfonts.c, genfonts/genstroke.c,
 	  include/GL/freeglut.h, include/GL/freeglut_internal.h: Removed glib
-	  dependancy
+	  dependency
 	* configure.in, freeglut-1.3/Makefile.am, genfonts/Makefile.am: The
 	  build system now looks for X.
 

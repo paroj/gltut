@@ -3,9 +3,11 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
-#include <glload/gl_3_2_comp.h>
+#ifdef __APPLE__
+#define FREEGLUT_NO_GL_INCLUDE
+#include <OpenGL/gl3.h>
+#endif
 #include <GL/freeglut.h>
-
 
 GLuint CreateShader(GLenum eShaderType, const std::string &strShaderFile)
 {
